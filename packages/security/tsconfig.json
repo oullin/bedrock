@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "../../storage/dist/packages/billing",
+    "outDir": "../../storage/dist/packages/security",
     "rootDir": "src",
-    "tsBuildInfoFile": "../../storage/.cache/tsc/packages/billing/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "../../storage/.cache/tsc/packages/security/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"]
 }
