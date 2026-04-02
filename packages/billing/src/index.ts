@@ -5,14 +5,14 @@ export function summarizeBillingWorkspace() {
         name: "Starter",
         price: "$0",
         description:
-          "Workspace bootstrap, Vite apps, and internal packages ready for feature work.",
+          "Workspace bootstrap and internal packages ready for feature work.",
         featured: false,
       },
       {
         name: "Growth",
         price: "$49",
         description:
-          "Adds shared foundations for the first customer-facing dashboard and billing flows.",
+          "Adds shared foundations for the first customer-facing billing and policy flows.",
         featured: true,
       },
       {

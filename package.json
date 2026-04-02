@@ -9,15 +9,19 @@
   },
   "scripts": {
     "preinstall": "node ./scripts/enforce-pnpm.mjs",
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "typecheck": "turbo run typecheck",
-    "fmt": "turbo run fmt",
-    "fmt:check": "turbo run fmt:check"
+    "build": "node ./scripts/run-turbo.mjs build",
+    "dev": "node ./scripts/run-turbo.mjs dev",
+    "typecheck": "node ./scripts/run-turbo.mjs typecheck",
+    "test": "node ./scripts/run-turbo.mjs test",
+    "test:coverage": "node ./scripts/run-turbo.mjs test:coverage",
+    "fmt": "node ./scripts/run-turbo.mjs fmt",
+    "fmt:check": "node ./scripts/run-turbo.mjs fmt:check"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.2",
     "oxfmt": "^0.21.0",
     "turbo": "^2.5.4",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.2"
   }
 }

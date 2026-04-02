@@ -4,14 +4,13 @@ Turborepo monorepo managed with `pnpm`.
 
 ## Workspaces
 
-- `apps/dashboard`
-- `apps/pricing`
 - `packages/auth`
 - `packages/billing`
 - `packages/files`
 - `packages/media`
 - `packages/notification`
 - `packages/queue`
+- `packages/security`
 
 ## Commands
 
