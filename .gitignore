@@ -33,3 +33,17 @@ go.work.sum
 # Editor / IDE
 .idea/
 .DS_Store
+
+.agents/*
+!.agents/.gitkeep
+.claude/*
+!.claude/.gitkeep
+
+storage/dist/*
+!storage/dist/.gitkeep
+
+storage/.cache/*
+!storage/.cache/.gitkeep
+
+storage/.turbo/*
+!storage/.turbo/.gitkeep
