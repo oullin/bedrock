@@ -11,12 +11,26 @@
         "^build"
       ],
       "outputs": [
-        "dist/**"
+        "../../storage/dist/**"
       ]
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    },
+    "test:coverage": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "../../storage/coverage/**"
+      ]
     },
     "fmt": {
       "outputs": []
