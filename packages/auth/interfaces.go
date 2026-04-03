@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	securityhashing "github.com/gollin/packages/security/hashing"
 )
 
 // Authenticatable mirrors Laravel's authenticatable contract.
@@ -52,6 +54,8 @@ type UserProvider interface {
 	RetrieveByToken(ctx context.Context, id string, token string) (Authenticatable, error)
 	RetrieveByCredentials(ctx context.Context, credentials map[string]string) (Authenticatable, error)
 	UpdateRememberToken(ctx context.Context, user Authenticatable, token string) error
+	ValidateCredentials(ctx context.Context, user Authenticatable, credentials map[string]string) (bool, error)
+	RehashPasswordIfRequired(ctx context.Context, user Authenticatable, credentials map[string]string, force bool) error
 }
 
 // UserRepository persists user records.
@@ -69,8 +73,17 @@ type SessionStore interface {
 	Delete(ctx context.Context, id string) error
 }
 
+// CanResetPassword exposes password reset semantics.
+type CanResetPassword interface {
+	GetEmailForPasswordReset() string
+}
+
 // PasswordHasher hashes and compares passwords.
 type PasswordHasher interface {
+	Info(hashedValue string) securityhashing.Info
+	Make(ctx context.Context, value string, options map[string]any) (string, error)
+	Check(ctx context.Context, value string, hashedValue string, options map[string]any) (bool, error)
+	NeedsRehash(hashedValue string, options map[string]any) bool
 	Hash(ctx context.Context, password string) (string, error)
 	Compare(ctx context.Context, encodedPassword string, password string) error
 }

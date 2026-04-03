@@ -40,10 +40,16 @@ type HashingConfig struct {
 	Argon  ArgonHashingConfig
 }
 
+// SigningConfig holds HMAC signing settings.
+type SigningConfig struct {
+	Key []byte
+}
+
 // Config groups package-owned security settings.
 type Config struct {
 	Encryption EncryptionConfig
 	Hashing    HashingConfig
+	Signing    SigningConfig
 }
 
 const (
@@ -97,6 +103,12 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 		return Config{}, err
 	}
 
+	signingKey, err := signingKeyFromRepository(repo, key)
+
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		Encryption: EncryptionConfig{
 			Key:          key,
@@ -104,6 +116,9 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 			Cipher:       cipher,
 		},
 		Hashing: hashingCfg,
+		Signing: SigningConfig{
+			Key: signingKey,
+		},
 	}, nil
 }
 
@@ -139,6 +154,20 @@ func parseEncryptionKey(raw string) ([]byte, error) {
 	}
 
 	return []byte(key), nil
+}
+
+func signingKeyFromRepository(repo *configpkg.Repository, fallback []byte) ([]byte, error) {
+	value, ok, err := stringValue(repo, "security.signing.key", "auth.signing_key")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !ok || strings.TrimSpace(value) == "" {
+		return append([]byte(nil), fallback...), nil
+	}
+
+	return parseEncryptionKey(value)
 }
 
 func stringValue(repo *configpkg.Repository, keys ...string) (string, bool, error) {

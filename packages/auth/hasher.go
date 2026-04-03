@@ -2,68 +2,79 @@ package auth
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
-	"strconv"
-	"strings"
 
-	"github.com/gollin/packages/auth/support/crypto"
+	securityhashing "github.com/gollin/packages/security/hashing"
 )
 
-// DefaultPasswordHasher hashes passwords using PBKDF2-HMAC-SHA256.
-type DefaultPasswordHasher struct{}
+// DefaultPasswordHasher wraps the shared security hashing manager.
+type DefaultPasswordHasher struct {
+	manager *securityhashing.Manager
+}
 
-// Hash encodes a password.
-func (DefaultPasswordHasher) Hash(_ context.Context, password string) (string, error) {
-	salt, err := crypto.RandomString(16)
+// NewDefaultPasswordHasher creates the default auth hasher.
+func NewDefaultPasswordHasher() DefaultPasswordHasher {
+	manager, err := securityhashing.NewManager(securityhashing.Config{
+		Driver: securityhashing.DriverBcrypt,
+		Bcrypt: securityhashing.BcryptConfig{
+			Rounds: 12,
+		},
+	})
 
 	if err != nil {
-		return "", err
+		panic(err)
 	}
 
-	iterations := 120_000
-	derived := crypto.PBKDF2([]byte(password), []byte(salt), iterations, 32, sha256.New)
+	return DefaultPasswordHasher{
+		manager: manager,
+	}
+}
 
-	return fmt.Sprintf(
-		"pbkdf2_sha256$%d$%s$%s",
-		iterations,
-		base64.RawURLEncoding.EncodeToString([]byte(salt)),
-		base64.RawURLEncoding.EncodeToString(derived),
-	), nil
+func (h DefaultPasswordHasher) hashingManager() *securityhashing.Manager {
+	if h.manager != nil {
+		return h.manager
+	}
+
+	defaultHasher := NewDefaultPasswordHasher()
+
+	return defaultHasher.manager
+}
+
+// Info returns metadata about a hashed value.
+func (h DefaultPasswordHasher) Info(hashedValue string) securityhashing.Info {
+	return h.hashingManager().Info(hashedValue)
+}
+
+// Make hashes a password.
+func (h DefaultPasswordHasher) Make(_ context.Context, value string, options map[string]any) (string, error) {
+	return h.hashingManager().Make(value, options)
+}
+
+// Check validates a password against an encoded hash.
+func (h DefaultPasswordHasher) Check(_ context.Context, value string, hashedValue string, options map[string]any) (bool, error) {
+	return h.hashingManager().Check(value, hashedValue, options)
+}
+
+// NeedsRehash reports whether a hash should be regenerated.
+func (h DefaultPasswordHasher) NeedsRehash(hashedValue string, options map[string]any) bool {
+	return h.hashingManager().NeedsRehash(hashedValue, options)
+}
+
+// Hash hashes a password with the default options.
+func (h DefaultPasswordHasher) Hash(ctx context.Context, password string) (string, error) {
+	return h.Make(ctx, password, nil)
 }
 
 // Compare validates a password against an encoded hash.
-func (DefaultPasswordHasher) Compare(_ context.Context, encodedPassword string, password string) error {
-	parts := strings.Split(encodedPassword, "$")
-
-	if len(parts) != 4 || parts[0] != "pbkdf2_sha256" {
-		return ErrInvalidCredentials
-	}
-
-	iterations, err := strconv.Atoi(parts[1])
+func (h DefaultPasswordHasher) Compare(ctx context.Context, encodedPassword string, password string) error {
+	matched, err := h.Check(ctx, password, encodedPassword, nil)
 
 	if err != nil {
-		return ErrInvalidCredentials
+		return err
 	}
 
-	salt, err := base64.RawURLEncoding.DecodeString(parts[2])
-
-	if err != nil {
-		return ErrInvalidCredentials
-	}
-
-	expected, err := base64.RawURLEncoding.DecodeString(parts[3])
-
-	if err != nil {
-		return ErrInvalidCredentials
-	}
-
-	actual := crypto.PBKDF2([]byte(password), salt, iterations, len(expected), sha256.New)
-
-	if !hmac.Equal(actual, expected) {
-		return ErrInvalidCredentials
+	if !matched {
+		return fmt.Errorf("%w", ErrInvalidCredentials)
 	}
 
 	return nil

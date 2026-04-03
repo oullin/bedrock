@@ -19,6 +19,9 @@ func TestConfigFromRepositorySecurityNamespace(t *testing.T) {
 				"cipher":        "aes-256-gcm",
 				"previous_keys": []any{"base64:YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU=", "legacy-16-byte-key"},
 			},
+			"signing": map[string]any{
+				"key": "base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+			},
 			"hashing": map[string]any{
 				"driver": "argon2id",
 				"bcrypt": map[string]any{
@@ -93,6 +96,10 @@ func TestConfigFromRepositorySecurityNamespace(t *testing.T) {
 	if !cfg.Hashing.Argon.Verify {
 		t.Fatal("expected argon verify to be enabled")
 	}
+
+	if len(cfg.Signing.Key) != 32 {
+		t.Fatalf("unexpected signing key length: %d", len(cfg.Signing.Key))
+	}
 }
 
 func TestConfigFromRepositoryDefaultsAndNamespaceIsolation(t *testing.T) {
@@ -126,6 +133,10 @@ func TestConfigFromRepositoryDefaultsAndNamespaceIsolation(t *testing.T) {
 
 	if len(cfg.Encryption.PreviousKeys) != 0 {
 		t.Fatalf("expected no previous keys, got %#v", cfg.Encryption.PreviousKeys)
+	}
+
+	if !reflect.DeepEqual(cfg.Signing.Key, []byte("1234567890abcdef")) {
+		t.Fatalf("unexpected signing key fallback: %#v", cfg.Signing.Key)
 	}
 
 	if got, want := cfg.Hashing.Driver, "bcrypt"; got != want {
@@ -175,6 +186,7 @@ func TestConfigFromRepositoryErrors(t *testing.T) {
 		{name: "invalid key type", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": true}}}), want: `config: key "security.encryption.key" must be string, got bool`},
 		{name: "invalid base64 key", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "base64:not-valid"}}}), want: "security: decode base64 key:"},
 		{name: "invalid previous key", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "1234567890abcdef", "previous_keys": []any{"base64:not-valid"}}}}), want: "security: decode base64 key:"},
+		{name: "invalid signing key", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "1234567890abcdef"}, "signing": map[string]any{"key": "base64:not-valid"}}}), want: "security: decode base64 key:"},
 		{name: "invalid driver type", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "1234567890abcdef"}, "hashing": map[string]any{"driver": true}}}), want: `config: key "security.hashing.driver" must be string, got bool`},
 		{name: "invalid cipher type", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "1234567890abcdef", "cipher": true}}}), want: `config: key "security.encryption.cipher" must be string, got bool`},
 		{name: "invalid previous keys type", repo: configpkg.NewRepository(map[string]any{"security": map[string]any{"encryption": map[string]any{"key": "1234567890abcdef", "previous_keys": true}}}), want: `config: key "security.encryption.previous_keys" must be []string, got bool`},
@@ -264,6 +276,16 @@ func TestConfigHelperFunctions(t *testing.T) {
 
 	if len(key) != 32 {
 		t.Fatalf("unexpected key length: %d", len(key))
+	}
+
+	signingKey, err := signingKeyFromRepository(repo, []byte("fallback"))
+
+	if err != nil {
+		t.Fatalf("signingKeyFromRepository fallback: %v", err)
+	}
+
+	if !reflect.DeepEqual(signingKey, []byte("fallback")) {
+		t.Fatalf("unexpected signing key fallback: %#v", signingKey)
 	}
 
 	parsed, err := parseEncryptionKey("  base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY= ")

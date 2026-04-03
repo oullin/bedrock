@@ -2,7 +2,9 @@ package auth_test
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -114,6 +116,12 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 		t.Fatal("expected remember token")
 	}
 
+	for _, cookie := range rec.Result().Cookies() {
+		if cookie.Name == "remember" && strings.Contains(cookie.Value, "|") {
+			t.Fatalf("expected remember cookie to be encrypted, got %q", cookie.Value)
+		}
+	}
+
 	rememberRequest := httptest.NewRequest("GET", "/protected", nil)
 
 	for _, cookie := range rec.Result().Cookies() {
@@ -130,5 +138,75 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 
 	if authenticatedSession == nil || authenticatedUser.GetAuthIdentifier() != user.ID {
 		t.Fatal("expected remember cookie authentication to succeed")
+	}
+
+	if !manager.DefaultGuard().ViaRemember() {
+		t.Fatal("expected viaRemember to be true after remember-cookie authentication")
+	}
+}
+
+func TestRequestAndTokenGuards(t *testing.T) {
+	t.Parallel()
+
+	users := memory.NewInMemoryUserRepository()
+	sessions := memory.NewInMemorySessionStore()
+	user := &foundation.User{
+		ID:        "user-1",
+		Name:      "Token User",
+		Email:     "token@example.com",
+		APIToken:  "plain-token",
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
+
+	if err := users.Create(context.Background(), user); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	manager, err := auth.NewManager(auth.Config{
+		DefaultGuard:    "web",
+		DefaultProvider: "users",
+		SigningKey:      []byte("signing-key"),
+		Cookies: auth.CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+			Path:         "/",
+		},
+	}, map[string]auth.UserProvider{"users": users}, sessions, auth.ManagerDependencies{})
+
+	if err != nil {
+		t.Fatalf("NewManager: %v", err)
+	}
+
+	request := httptest.NewRequest("GET", "/profile", nil)
+	requestGuard := manager.ViaRequest("request", request, func(ctx context.Context, r *http.Request, provider auth.UserProvider) (auth.Authenticatable, error) {
+		return provider.RetrieveByID(ctx, "user-1")
+	})
+
+	resolved, err := requestGuard.User(context.Background())
+
+	if err != nil {
+		t.Fatalf("RequestGuard.User: %v", err)
+	}
+
+	if resolved.GetAuthIdentifier() != user.ID {
+		t.Fatalf("unexpected request guard user: %s", resolved.GetAuthIdentifier())
+	}
+
+	tokenRequest := httptest.NewRequest("GET", "/api?api_token=plain-token", nil)
+	tokenGuard, err := manager.RegisterTokenGuard("api", tokenRequest, "users", "api_token", "api_token", false)
+
+	if err != nil {
+		t.Fatalf("RegisterTokenGuard: %v", err)
+	}
+
+	resolved, err = tokenGuard.User(context.Background())
+
+	if err != nil {
+		t.Fatalf("TokenGuard.User: %v", err)
+	}
+
+	if resolved.GetAuthIdentifier() != user.ID {
+		t.Fatalf("unexpected token guard user: %s", resolved.GetAuthIdentifier())
 	}
 }

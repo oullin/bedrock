@@ -12,6 +12,7 @@ type User struct {
 	Name                   string     `json:"name"`
 	Email                  string     `json:"email"`
 	PasswordHash           string     `json:"-"`
+	APIToken               string     `json:"-"`
 	RememberToken          string     `json:"-"`
 	EmailVerifiedAt        *time.Time `json:"emailVerifiedAt,omitempty"`
 	TwoFactorSecret        string     `json:"-"`
@@ -101,6 +102,11 @@ func (u *User) GetEmailForVerification() string {
 	return u.Email
 }
 
+// GetEmailForPasswordReset returns the email used for password reset flows.
+func (u *User) GetEmailForPasswordReset() string {
+	return u.Email
+}
+
 // IsTwoFactorEnabled reports whether two-factor auth is enabled.
 func (u *User) IsTwoFactorEnabled() bool {
 	return u.TwoFactorSecret != ""
@@ -162,5 +168,6 @@ var (
 	_ auth.Authenticatable          = (*User)(nil)
 	_ auth.UserProfile              = (*User)(nil)
 	_ auth.MustVerifyEmail          = (*User)(nil)
+	_ auth.CanResetPassword         = (*User)(nil)
 	_ auth.TwoFactorAuthenticatable = (*User)(nil)
 )

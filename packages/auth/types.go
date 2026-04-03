@@ -3,6 +3,8 @@ package auth
 import (
 	"net/http"
 	"time"
+
+	"github.com/gollin/packages/security/encryption"
 )
 
 // CookieConfig controls session and remember-me cookies.
@@ -60,8 +62,10 @@ type LoginResult struct {
 
 // ManagerDependencies provides optional auth-core dependencies.
 type ManagerDependencies struct {
-	Hasher PasswordHasher
-	Clock  Clock
-	IDs    IDGenerator
-	Logger Logger
+	Hasher    PasswordHasher
+	Encrypter *encryption.Encrypter
+	HashKey   []byte
+	Clock     Clock
+	IDs       IDGenerator
+	Logger    Logger
 }

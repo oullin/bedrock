@@ -6,8 +6,8 @@ import (
 
 	auth "github.com/gollin/packages/auth"
 	"github.com/gollin/packages/auth/fortify/contracts"
-	"github.com/gollin/packages/auth/support/crypto"
-	"github.com/gollin/packages/auth/support/otp"
+	securitycrypto "github.com/gollin/packages/security/crypto"
+	securityotp "github.com/gollin/packages/security/otp"
 )
 
 // DefaultTwoFactorProvider is the default Fortify two-factor provider.
@@ -27,14 +27,14 @@ type StaticTwoFactorRedirect struct {
 }
 
 func (DefaultTwoFactorProvider) GenerateSecret() (string, error) {
-	return otp.GenerateSecret()
+	return securityotp.GenerateSecret()
 }
 
 func (DefaultTwoFactorProvider) GenerateRecoveryCodes() ([]string, error) {
 	codes := make([]string, 0, 8)
 
 	for range 8 {
-		value, err := crypto.RandomString(8)
+		value, err := securitycrypto.RandomString(8)
 
 		if err != nil {
 			return nil, err
@@ -51,11 +51,11 @@ func (DefaultTwoFactorProvider) GenerateRecoveryCodes() ([]string, error) {
 }
 
 func (DefaultTwoFactorProvider) Validate(secret string, code string, now time.Time, allowedSkew int) bool {
-	return otp.Validate(secret, code, now, allowedSkew)
+	return securityotp.Validate(secret, code, now, allowedSkew)
 }
 
 func (DefaultTwoFactorProvider) OTPAuthURL(issuer string, account string, secret string) string {
-	return otp.OTPAuthURL(issuer, account, secret)
+	return securityotp.OTPAuthURL(issuer, account, secret)
 }
 
 var _ contracts.TwoFactorAuthenticationProvider = DefaultTwoFactorProvider{}

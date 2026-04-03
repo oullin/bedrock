@@ -2,10 +2,11 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"time"
 
-	"github.com/gollin/packages/auth/support/crypto"
+	securitycrypto "github.com/gollin/packages/security/crypto"
 )
 
 // SystemClock reports the current UTC time.
@@ -26,13 +27,19 @@ func (SystemClock) Now() time.Time {
 }
 
 func (RandomIDGenerator) NewID() string {
-	value, err := crypto.RandomString(24)
+	value, err := securitycrypto.RandomString(24)
 
 	if err != nil {
 		panic(fmt.Sprintf("generate id: %v", err))
 	}
 
 	return value
+}
+
+func deriveCipherKey(secret []byte) []byte {
+	sum := sha256.Sum256(secret)
+
+	return sum[:]
 }
 
 // Info drops info logs.

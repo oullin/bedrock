@@ -7,8 +7,8 @@ import (
 	"time"
 
 	auth "github.com/gollin/packages/auth"
-	"github.com/gollin/packages/auth/support/crypto"
 	configpkg "github.com/gollin/packages/config"
+	securitycrypto "github.com/gollin/packages/security/crypto"
 )
 
 // Config controls password broker behavior.
@@ -33,6 +33,7 @@ type TokenRepository interface {
 	Save(ctx context.Context, token *Token) error
 	FindByTokenHash(ctx context.Context, tokenHash string) (*Token, error)
 	DeleteByTokenHash(ctx context.Context, tokenHash string) error
+	DeleteByUserID(ctx context.Context, userID string) error
 	RecentlyCreated(ctx context.Context, userID string, since time.Time) (bool, error)
 }
 
@@ -43,11 +44,12 @@ type ResetsUserPasswords interface {
 
 // Broker issues and validates password reset tokens.
 type Broker struct {
-	Config Config
-	Users  auth.UserProvider
-	Tokens TokenRepository
-	Mailer auth.Mailer
-	Clock  auth.Clock
+	Config    Config
+	Users     auth.UserProvider
+	Tokens    TokenRepository
+	Mailer    auth.Mailer
+	Clock     auth.Clock
+	CreateURL func(user auth.Authenticatable, token string) string
 }
 
 func ConfigFromRepository(repo *configpkg.Repository, brokerName string) (Config, error) {
@@ -94,27 +96,31 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error
 		return "", &auth.ThrottleError{Scope: "password-reset", RetryAfter: b.Config.Throttle}
 	}
 
-	token, err := crypto.RandomString(24)
+	token, err := b.CreateToken(ctx, user)
 
 	if err != nil {
-		return "", fmt.Errorf("generate reset token: %w", err)
+		return "", err
 	}
 
-	if err := b.Tokens.Save(ctx, &Token{
-		UserID:    user.GetAuthIdentifier(),
-		TokenHash: crypto.HashString(token),
-		CreatedAt: b.Clock.Now(),
-		ExpiresAt: b.Clock.Now().Add(b.Config.Expire),
-	}); err != nil {
-		return "", fmt.Errorf("save reset token: %w", err)
+	url := ""
+
+	if b.CreateURL != nil {
+		url = b.CreateURL(user, token)
+	}
+
+	body := fmt.Sprintf("Use this password reset token for %s: %s", profile.GetEmail(), token)
+
+	if url != "" {
+		body = fmt.Sprintf("Reset your password for %s by visiting %s", profile.GetEmail(), url)
 	}
 
 	if err := b.Mailer.Send(ctx, auth.MailMessage{
 		To:      profile.GetEmail(),
 		Subject: "Reset your password",
-		Body:    fmt.Sprintf("Use this password reset token for %s: %s", profile.GetEmail(), token),
+		Body:    body,
 		Metadata: map[string]string{
 			"token": token,
+			"url":   url,
 		},
 	}); err != nil {
 		return "", fmt.Errorf("send reset email: %w", err)
@@ -125,24 +131,19 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error
 
 // Reset validates a token and updates the user's password.
 func (b *Broker) Reset(ctx context.Context, email string, token string, password string, action ResetsUserPasswords) (auth.Authenticatable, error) {
-	tokenHash := crypto.HashString(token)
-	record, err := b.Tokens.FindByTokenHash(ctx, tokenHash)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if b.Clock.Now().After(record.ExpiresAt) {
-		return nil, auth.ErrTokenExpired
-	}
-
 	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": email})
 
 	if err != nil {
 		return nil, err
 	}
 
-	if user.GetAuthIdentifier() != record.UserID {
+	valid, err := b.TokenExists(ctx, user, token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
 		return nil, auth.ErrInvalidToken
 	}
 
@@ -150,11 +151,60 @@ func (b *Broker) Reset(ctx context.Context, email string, token string, password
 		return nil, err
 	}
 
-	if err := b.Tokens.DeleteByTokenHash(ctx, tokenHash); err != nil {
+	if err := b.DeleteToken(ctx, user); err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+// CreateToken creates a new reset token for a user.
+func (b *Broker) CreateToken(ctx context.Context, user auth.Authenticatable) (string, error) {
+	token, err := securitycrypto.RandomString(24)
+
+	if err != nil {
+		return "", fmt.Errorf("generate reset token: %w", err)
+	}
+
+	if err := b.Tokens.DeleteByUserID(ctx, user.GetAuthIdentifier()); err != nil {
+		return "", fmt.Errorf("delete reset token: %w", err)
+	}
+
+	if err := b.Tokens.Save(ctx, &Token{
+		UserID:    user.GetAuthIdentifier(),
+		TokenHash: securitycrypto.HashString(token),
+		CreatedAt: b.Clock.Now(),
+		ExpiresAt: b.Clock.Now().Add(b.Config.Expire),
+	}); err != nil {
+		return "", fmt.Errorf("save reset token: %w", err)
+	}
+
+	return token, nil
+}
+
+// DeleteToken deletes reset tokens for a user.
+func (b *Broker) DeleteToken(ctx context.Context, user auth.Authenticatable) error {
+	return b.Tokens.DeleteByUserID(ctx, user.GetAuthIdentifier())
+}
+
+// TokenExists reports whether a reset token is valid for a user.
+func (b *Broker) TokenExists(ctx context.Context, user auth.Authenticatable, token string) (bool, error) {
+	tokenHash := securitycrypto.HashString(token)
+	record, err := b.Tokens.FindByTokenHash(ctx, tokenHash)
+
+	if err != nil {
+		if err == auth.ErrInvalidToken {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	if b.Clock.Now().After(record.ExpiresAt) {
+		return false, auth.ErrTokenExpired
+	}
+
+	return user.GetAuthIdentifier() == record.UserID, nil
 }
 
 // NormalizeEmail normalizes the reset email field.

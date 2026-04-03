@@ -51,6 +51,7 @@ type InMemoryUserRepository struct {
 	mu           sync.Mutex
 	byID         map[string]*foundation.User
 	byIdentifier map[string]string
+	hasher       auth.PasswordHasher
 }
 
 // NewInMemoryUserRepository creates a new in-memory user repository.
@@ -142,10 +143,17 @@ func (g *SequenceIDGenerator) NewID() string {
 	return fmt.Sprintf("%s-%d", g.prefix, g.next)
 }
 
-func NewInMemoryUserRepository() *InMemoryUserRepository {
+func NewInMemoryUserRepository(hasher ...auth.PasswordHasher) *InMemoryUserRepository {
+	passwordHasher := auth.PasswordHasher(auth.NewDefaultPasswordHasher())
+
+	if len(hasher) > 0 && hasher[0] != nil {
+		passwordHasher = hasher[0]
+	}
+
 	return &InMemoryUserRepository{
 		byID:         make(map[string]*foundation.User),
 		byIdentifier: make(map[string]string),
+		hasher:       passwordHasher,
 	}
 }
 
@@ -252,6 +260,38 @@ func (r *InMemoryUserRepository) UpdateRememberToken(_ context.Context, user aut
 	return nil
 }
 
+func (r *InMemoryUserRepository) ValidateCredentials(ctx context.Context, user auth.Authenticatable, credentials map[string]string) (bool, error) {
+	password, ok := credentials["password"]
+
+	if !ok {
+		return true, nil
+	}
+
+	return r.hasher.Check(ctx, password, user.GetAuthPassword(), nil)
+}
+
+func (r *InMemoryUserRepository) RehashPasswordIfRequired(ctx context.Context, user auth.Authenticatable, credentials map[string]string, force bool) error {
+	password, ok := credentials["password"]
+
+	if !ok || password == "" {
+		return nil
+	}
+
+	if !force && !r.hasher.NeedsRehash(user.GetAuthPassword(), nil) {
+		return nil
+	}
+
+	hash, err := r.hasher.Hash(ctx, password)
+
+	if err != nil {
+		return err
+	}
+
+	user.SetAuthPassword(hash)
+
+	return r.Update(ctx, user)
+}
+
 func NewInMemorySessionStore() *InMemorySessionStore {
 	return &InMemorySessionStore{sessions: make(map[string]*auth.Session)}
 }
@@ -318,6 +358,10 @@ func (r *InMemoryTokenRepository) Save(_ context.Context, token *passwords.Token
 
 	defer r.mu.Unlock()
 
+	if existing, ok := r.byUserID[token.UserID]; ok {
+		delete(r.byHash, existing.TokenHash)
+	}
+
 	clone := *token
 	r.byHash[token.TokenHash] = &clone
 	r.byUserID[token.UserID] = &clone
@@ -359,6 +403,22 @@ func (r *InMemoryTokenRepository) DeleteByTokenHash(_ context.Context, tokenHash
 	return nil
 }
 
+// DeleteByUserID removes password reset tokens for a user.
+func (r *InMemoryTokenRepository) DeleteByUserID(_ context.Context, userID string) error {
+	r.mu.Lock()
+
+	defer r.mu.Unlock()
+
+	token, ok := r.byUserID[userID]
+
+	if ok {
+		delete(r.byHash, token.TokenHash)
+		delete(r.byUserID, userID)
+	}
+
+	return nil
+}
+
 // RecentlyCreated reports whether the user has a token newer than the cutoff.
 func (r *InMemoryTokenRepository) RecentlyCreated(_ context.Context, userID string, since time.Time) (bool, error) {
 	r.mu.Lock()
@@ -381,6 +441,10 @@ func matchesCredentials(user *foundation.User, credentials map[string]string) bo
 			continue
 		case "email":
 			if normalize(user.Email) != normalize(value) {
+				return false
+			}
+		case "api_token":
+			if user.APIToken != value {
 				return false
 			}
 		case "name":

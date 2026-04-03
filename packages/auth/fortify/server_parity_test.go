@@ -16,8 +16,8 @@ import (
 	"github.com/gollin/packages/auth/foundation"
 	"github.com/gollin/packages/auth/memory"
 	"github.com/gollin/packages/auth/passwords"
-	"github.com/gollin/packages/auth/support/otp"
 	configpkg "github.com/gollin/packages/config"
+	securityotp "github.com/gollin/packages/security/otp"
 )
 
 // Confirmation is required before two-factor login challenges begin.
@@ -171,7 +171,7 @@ func TestFortifyTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 	postJSON(t, env.Client, env.URL+"/user/confirm-password", map[string]any{
 		"password": "password-123",
 	}, http.StatusOK)
-	code, err := otp.Code(secret, env.Clock.Now())
+	code, err := securityotp.Code(secret, env.Clock.Now())
 
 	if err != nil {
 		t.Fatalf("Code: %v", err)
@@ -192,7 +192,7 @@ func TestFortifyTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 		t.Fatalf("expected two-factor challenge, got %#v", challenge)
 	}
 
-	code, err = otp.Code(secret, env.Clock.Now())
+	code, err = securityotp.Code(secret, env.Clock.Now())
 
 	if err != nil {
 		t.Fatalf("Code: %v", err)

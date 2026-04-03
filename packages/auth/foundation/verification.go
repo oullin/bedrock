@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	auth "github.com/gollin/packages/auth"
-	"github.com/gollin/packages/auth/support/crypto"
+	securitycrypto "github.com/gollin/packages/security/crypto"
 )
 
 // VerificationService sends and validates signed email verification links.
@@ -38,7 +38,7 @@ func (s *VerificationService) Send(ctx context.Context, user auth.Authenticatabl
 	}
 
 	expiresAt := s.Clock.Now().Add(s.Config.VerificationTTL)
-	emailHash := crypto.EmailHash(normalize(profile.GetEmail()))
+	emailHash := securitycrypto.EmailHash(normalize(profile.GetEmail()))
 	signature, err := s.Signer.Sign(ctx, "email-verification", []string{user.GetAuthIdentifier(), emailHash}, expiresAt.Unix())
 
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *VerificationService) Verify(ctx context.Context, userID string, emailHa
 		return nil, fmt.Errorf("foundation: user does not expose profile email")
 	}
 
-	expectedHash := crypto.EmailHash(normalize(profile.GetEmail()))
+	expectedHash := securitycrypto.EmailHash(normalize(profile.GetEmail()))
 
 	if expectedHash != emailHash {
 		return nil, auth.ErrEmailVerificationInvalid
