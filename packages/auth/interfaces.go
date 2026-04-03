@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	securityhashing "github.com/gollin/packages/security/hashing"
 )
 
 // Authenticatable mirrors Upstream's authenticatable contract.
@@ -34,7 +36,7 @@ type MustVerifyEmail interface {
 	GetEmailForVerification() string
 }
 
-// TwoFactorAuthenticatable exposes AuthFlows-style two-factor state.
+// TwoFactorAuthenticatable exposes two-factor state.
 type TwoFactorAuthenticatable interface {
 	IsTwoFactorEnabled() bool
 	SetTwoFactorEnabled(enabled bool)
@@ -46,22 +48,22 @@ type TwoFactorAuthenticatable interface {
 	SetTwoFactorConfirmedAt(at *time.Time)
 }
 
+// CanResetPassword exposes password reset semantics.
+type CanResetPassword interface {
+	GetEmailForPasswordReset() string
+}
+
 // UserProvider retrieves users for authentication.
 type UserProvider interface {
 	RetrieveByID(ctx context.Context, id string) (Authenticatable, error)
 	RetrieveByToken(ctx context.Context, id string, token string) (Authenticatable, error)
 	RetrieveByCredentials(ctx context.Context, credentials map[string]string) (Authenticatable, error)
 	UpdateRememberToken(ctx context.Context, user Authenticatable, token string) error
+	ValidateCredentials(ctx context.Context, user Authenticatable, credentials map[string]string) (bool, error)
+	RehashPasswordIfRequired(ctx context.Context, user Authenticatable, credentials map[string]string, force bool) error
 }
 
-// UserRepository persists user records.
-type UserRepository interface {
-	UserProvider
-	Create(ctx context.Context, user Authenticatable) error
-	Update(ctx context.Context, user Authenticatable) error
-}
-
-// SessionStore persists web guard sessions.
+// SessionStore persists guard sessions.
 type SessionStore interface {
 	Create(ctx context.Context, session *Session) error
 	FindByID(ctx context.Context, id string) (*Session, error)
@@ -71,17 +73,15 @@ type SessionStore interface {
 
 // PasswordHasher hashes and compares passwords.
 type PasswordHasher interface {
+	Info(hashedValue string) securityhashing.Info
+	Make(ctx context.Context, value string, options map[string]any) (string, error)
+	Check(ctx context.Context, value string, hashedValue string, options map[string]any) (bool, error)
+	NeedsRehash(hashedValue string, options map[string]any) bool
 	Hash(ctx context.Context, password string) (string, error)
 	Compare(ctx context.Context, encodedPassword string, password string) error
 }
 
-// LinkSigner signs and validates expiring payloads.
-type LinkSigner interface {
-	Sign(ctx context.Context, purpose string, values []string, expiresAt int64) (string, error)
-	Verify(ctx context.Context, purpose string, values []string, expiresAt int64, signature string) error
-}
-
-// Mailer sends auth mail notifications.
+// Mailer sends auth mail.
 type Mailer interface {
 	Send(ctx context.Context, message MailMessage) error
 }
@@ -91,25 +91,15 @@ type Clock interface {
 	Now() time.Time
 }
 
-// IDGenerator creates opaque identifiers.
+// IDGenerator generates opaque identifiers.
 type IDGenerator interface {
-	NewID() string
+	NewID() (string, error)
 }
 
-// Logger records auth diagnostics.
-type Logger interface {
-	Info(ctx context.Context, message string, fields map[string]any)
-	Error(ctx context.Context, message string, fields map[string]any)
-}
-
-// StatefulGuard mirrors Upstream's stateful guard semantics for HTTP sessions.
+// StatefulGuard mirrors Upstream's stateful guard behavior.
 type StatefulGuard interface {
 	Name() string
-	Config() Config
 	AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (*Session, Authenticatable, error)
 	Login(ctx context.Context, w http.ResponseWriter, user Authenticatable, remember bool, pendingTwoFactor bool) (*Session, string, error)
-	CompleteTwoFactor(ctx context.Context, w http.ResponseWriter, session *Session, user Authenticatable) (string, error)
-	UpdateSession(ctx context.Context, session *Session) error
 	Logout(ctx context.Context, w http.ResponseWriter, session *Session, user Authenticatable) error
-	ClearSessionCookies(w http.ResponseWriter)
 }

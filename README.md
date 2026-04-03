@@ -6,6 +6,7 @@ Turborepo monorepo managed with `pnpm`.
 
 - `packages/auth`
 - `packages/billing`
+- `packages/database`
 - `packages/files`
 - `packages/media`
 - `packages/notification`
@@ -13,6 +14,7 @@ Turborepo monorepo managed with `pnpm`.
 - `packages/security`
 - `packages/support/collection`
 - `packages/support/money`
+- `packages/user`
 
 ## Commands
 

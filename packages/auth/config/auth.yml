@@ -2,10 +2,8 @@ defaults:
   guard: web
   provider: users
 identifier_field: email
-base_url: ""
 session_lifetime: 24h
 remember_lifetime: 720h
-password_confirmation_timeout: 3h
 verification_ttl: 1h
 signing_key: gollin-auth-development-signing-key
 passwords:
