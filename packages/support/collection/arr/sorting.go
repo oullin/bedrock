@@ -57,6 +57,10 @@ func Random[T any](items []T, counts ...int) []T {
 		count = counts[0]
 	}
 
+	if count <= 0 {
+		return []T{}
+	}
+
 	shuffled := Shuffle(items)
 
 	if count >= len(shuffled) {

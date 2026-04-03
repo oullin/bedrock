@@ -1228,6 +1228,18 @@ func TestRandom(t *testing.T) {
 	}
 }
 
+func TestRandomNonPositiveCount(t *testing.T) {
+	c := New(1, 2, 3, 4, 5)
+
+	for _, count := range []int{0, -1} {
+		result := c.Random(count)
+
+		if !result.IsEmpty() {
+			t.Fatalf("expected empty collection for count %d, got %d items", count, result.Count())
+		}
+	}
+}
+
 func TestTap(t *testing.T) {
 	c := New(1, 2, 3)
 	tapped := false
