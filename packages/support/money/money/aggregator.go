@@ -58,6 +58,7 @@ func (a *Aggregator) Min(moneys ...*Money) (*Money, error) {
 	}
 
 	money := moneys[0]
+
 	for _, m := range moneys[1:] {
 		if err := money.AssertSameCurrency(m); err != nil {
 			return nil, err
@@ -90,6 +91,7 @@ func (a *Aggregator) Max(moneys ...*Money) (*Money, error) {
 	}
 
 	money := moneys[0]
+
 	for _, m := range moneys[1:] {
 		if err := money.AssertSameCurrency(m); err != nil {
 			return nil, err
@@ -129,6 +131,7 @@ func (a *Aggregator) Avg(moneys ...*Money) (*Money, error) {
 	}
 
 	sum, err := a.Sum(moneys...)
+
 	if err != nil {
 		return nil, err
 	}

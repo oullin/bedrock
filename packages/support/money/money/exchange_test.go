@@ -37,11 +37,13 @@ func TestConvert(t *testing.T) {
 
 	// Test cross-currency conversion with rate
 	eur, err := converter.Convert(usd, currency.EUR)
+
 	if err != nil {
 		t.Fatalf("Convert() unexpected error: %v", err)
 	}
 
 	expectedAmount := int64(425) // 500 * 0.85 = 425
+
 	if testutil.TestRequire(t, eur.Amount) != expectedAmount || testutil.TestRequire(t, eur.Currency).Code != currency.EUR {
 		t.Fatalf("Convert() = (%d, %s), want (%d, EUR)", testutil.TestRequire(t, eur.Amount), testutil.TestRequire(t, eur.Currency).Code, expectedAmount)
 	}
@@ -56,6 +58,7 @@ func TestConvertNilMoney(t *testing.T) {
 	currencies := currency.NewManager()
 	ex := exchange.NewExchange()
 	err := ex.AddRate(currency.USD, currency.EUR, 0.85)
+
 	if err != nil {
 		t.Fatalf("AddRate() unexpected error: %v", err)
 	}
@@ -100,6 +103,7 @@ func TestConvertWithRateNilMoney(t *testing.T) {
 	currencies := currency.NewManager()
 	ex := exchange.NewExchange()
 	err := ex.AddRate(currency.USD, currency.EUR, 0.85)
+
 	if err != nil {
 		t.Fatalf("AddRate() unexpected error: %v", err)
 	}
@@ -115,6 +119,7 @@ func TestNewConverterNilExchange(t *testing.T) {
 	currencies := currency.NewManager()
 
 	_, err := NewConverter(currencies, nil)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("NewConverter(nil) error = %v, want %v", err, exception.ErrInvalidExchangeRate)
 	}
@@ -128,12 +133,14 @@ func TestConverterNilCheck(t *testing.T) {
 
 	// Test Convert with nil converter
 	_, err := converter.Convert(usd, currency.EUR)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("Convert() with nil converter error = %v, want %v", err, exception.ErrInvalidExchangeRate)
 	}
 
 	// Test ConvertWithRate with nil converter
 	_, err = converter.ConvertWithRate(usd, currency.EUR, 0.85)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("ConvertWithRate() with nil converter error = %v, want %v", err, exception.ErrInvalidExchangeRate)
 	}
@@ -145,6 +152,7 @@ func TestNewConverterInvalidExchange(t *testing.T) {
 	invalidEx := &exchange.Exchange{}
 
 	_, err := NewConverter(currencies, invalidEx)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("NewConverter(invalid exchange with nil rates) error = %v, want %v", err, exception.ErrInvalidExchangeRate)
 	}
@@ -153,6 +161,7 @@ func TestNewConverterInvalidExchange(t *testing.T) {
 	emptyEx := exchange.NewExchange()
 
 	_, err = NewConverter(currencies, emptyEx)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("NewConverter(invalid exchange with empty rates) error = %v, want %v", err, exception.ErrInvalidExchangeRate)
 	}
@@ -191,6 +200,7 @@ func TestSplitSinglePart(t *testing.T) {
 	m := NewManager().Create(999, currency.USD)
 	manager := NewManager()
 	parts, err := manager.Split(m, 1)
+
 	if err != nil {
 		t.Fatalf("Split() unexpected error: %v", err)
 	}
@@ -248,11 +258,13 @@ func TestDBValueCustomSeparator(t *testing.T) {
 	sep := GetDBMoneyValueSeparator()
 
 	val, err := m.Value()
+
 	if err != nil {
 		t.Fatalf("Value() unexpected error: %v", err)
 	}
 
 	expected := "500" + sep + "EUR"
+
 	if val != expected {
 		t.Fatalf("Value() with separator '%s' = %s, want %s", sep, val, expected)
 	}
@@ -582,6 +594,7 @@ func newTestConverter(t *testing.T, currencies *currency.Manager, ex *exchange.E
 	t.Helper()
 
 	converter, err := NewConverter(currencies, ex)
+
 	if err != nil {
 		t.Fatalf("AddRate() unexpected error: %v", err)
 	}
@@ -600,24 +613,30 @@ func TestConverter_Convert_Coverage(t *testing.T) {
 
 	// Test invalid toCurrency
 	_, err := converter.Convert(usd, "INVALID")
+
 	if err == nil {
 		t.Fatal("Convert() with invalid currency code should return error")
 	}
+
 	if !errors.Is(err, exception.ErrCurrencyNotFound) {
 		t.Errorf("Convert() error = %v, want %v", err, exception.ErrCurrencyNotFound)
 	}
+
 	if !strings.Contains(err.Error(), "INVALID") {
 		t.Errorf("Convert() error message %q does not contain currency code", err.Error())
 	}
 
 	// Test ConvertWithRate invalid toCurrency
 	_, err = converter.ConvertWithRate(usd, "INVALID", 1.0)
+
 	if err == nil {
 		t.Fatal("ConvertWithRate() with invalid currency code should return error")
 	}
+
 	if !errors.Is(err, exception.ErrCurrencyNotFound) {
 		t.Errorf("ConvertWithRate() error = %v, want %v", err, exception.ErrCurrencyNotFound)
 	}
+
 	if !strings.Contains(err.Error(), "INVALID") {
 		t.Errorf("ConvertWithRate() error message %q does not contain currency code", err.Error())
 	}
@@ -625,9 +644,11 @@ func TestConverter_Convert_Coverage(t *testing.T) {
 	// Test Convert with Money having nil currency
 	badMoney := &Money{amount: 100, currency: nil}
 	_, err = converter.Convert(badMoney, currency.EUR)
+
 	if err == nil {
 		t.Fatal("Convert() with nil currency money should return error")
 	}
+
 	if !errors.Is(err, exception.ErrNoMoneyProvided) && err.Error() != "money instance has no currency" {
 		t.Errorf("Convert() with nil currency money error = %v", err)
 	}
@@ -718,11 +739,13 @@ func TestConverter_RealWorld_CommonCurrencies(t *testing.T) {
 			t.Parallel()
 
 			got, err := converter.Convert(tt.from, tt.toCurrency)
+
 			if err != nil {
 				t.Fatalf("Convert() unexpected error: %v", err)
 			}
 
 			want := testutil.TestExpectedConvertAmountMoney(t, testutil.TestRequire(t, tt.from.Amount), tt.fromFraction, tt.toFraction, tt.rate)
+
 			if diff := testutil.TestAbs64Money(t, testutil.TestRequire(t, got.Amount)-want); diff > tt.wantTol {
 				t.Fatalf("Convert() amount = %d, want %d (tol=%d; diff=%d)", testutil.TestRequire(t, got.Amount), want, tt.wantTol, diff)
 			}
@@ -746,6 +769,7 @@ func TestConverter_RealWorld_NoImplicitCrossRate(t *testing.T) {
 	eur := NewManager().Create(10000, currency.EUR) // €100.00
 
 	_, err := converter.Convert(eur, currency.JPY)
+
 	if !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 		t.Fatalf("Convert(EUR->JPY) error = %v, want %v", err, exception.ErrCurrencyConversionNotFound)
 	}

@@ -117,6 +117,7 @@ func SafeMultiply(initial int64, multipliers ...int64) (int64, error) {
 		// Skip overflow checks if either value is zero (result will be zero)
 		if value == 0 || result == 0 {
 			result *= value
+
 			continue
 		}
 

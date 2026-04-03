@@ -71,6 +71,7 @@ func (c *Currency) DbScan(src interface{}) error {
 	}
 
 	var val *Currency
+
 	var code string
 
 	switch v := src.(type) {
@@ -83,6 +84,7 @@ func (c *Currency) DbScan(src interface{}) error {
 	}
 
 	currencies := NewCurrenciesMap()
+
 	if val = currencies.FindByCode(code); val == nil {
 		return fmt.Errorf("currency(%#v) returned nil", code)
 	}

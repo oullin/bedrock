@@ -10,38 +10,55 @@ import (
 	configpkg "github.com/gollin/packages/config"
 )
 
+type errReader struct {
+	err error
+}
+
+type bytesReader []byte
+
 func TestBcryptHasher(t *testing.T) {
 	hasher := NewBcrypt(BcryptConfig{Rounds: 10})
 
 	hashedValue, err := hasher.Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make: %v", err)
 	}
+
 	if !strings.HasPrefix(hashedValue, "$2") {
 		t.Fatalf("unexpected bcrypt prefix: %q", hashedValue)
 	}
 
 	info := hasher.Info(hashedValue)
+
 	if got, want := info.Algorithm, DriverBcrypt; got != want {
 		t.Fatalf("unexpected algorithm: got %q want %q", got, want)
 	}
+
 	if got, want := info.Options["rounds"], 10; got != want {
 		t.Fatalf("unexpected rounds: got %d want %d", got, want)
 	}
 
 	matched, err := hasher.Check("secret", hashedValue, nil)
+
 	if err != nil || !matched {
 		t.Fatalf("expected bcrypt check to match, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = hasher.Check("wrong", hashedValue, nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected bcrypt mismatch, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = hasher.Check("secret", "", nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected empty hash check to fail, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = hasher.Check("secret", "not-a-hash", nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected malformed hash check to fail, matched=%v err=%v", matched, err)
 	}
@@ -49,12 +66,15 @@ func TestBcryptHasher(t *testing.T) {
 	if hasher.NeedsRehash(hashedValue, nil) {
 		t.Fatal("expected bcrypt hash not to need rehash")
 	}
+
 	if !hasher.NeedsRehash(hashedValue, map[string]any{"rounds": 12}) {
 		t.Fatal("expected bcrypt hash to need rehash for different cost")
 	}
+
 	if !hasher.NeedsRehash("not-a-hash", nil) {
 		t.Fatal("expected invalid bcrypt hash to need rehash")
 	}
+
 	if !hasher.NeedsRehash(hashedValue, map[string]any{"rounds": []string{"bad"}}) {
 		t.Fatal("expected invalid options to force bcrypt rehash")
 	}
@@ -62,9 +82,11 @@ func TestBcryptHasher(t *testing.T) {
 	if !hasher.VerifyConfiguration(hashedValue) {
 		t.Fatal("expected bcrypt configuration to verify")
 	}
+
 	if NewBcrypt(BcryptConfig{Rounds: 4}).VerifyConfiguration(hashedValue) {
 		t.Fatal("expected bcrypt configuration to reject higher cost hash")
 	}
+
 	if NewBcrypt(BcryptConfig{}).VerifyConfiguration("not-a-hash") {
 		t.Fatal("expected bcrypt configuration to reject invalid hash")
 	}
@@ -72,21 +94,27 @@ func TestBcryptHasher(t *testing.T) {
 	if _, err := NewBcrypt(BcryptConfig{Rounds: 10, Limit: 4}).Make("secret", nil); err == nil {
 		t.Fatal("expected bcrypt limit error")
 	}
+
 	if _, err := hasher.Make("secret", map[string]any{"rounds": []string{"bad"}}); err == nil {
 		t.Fatal("expected bcrypt option type error")
 	}
+
 	if _, err := hasher.Make("secret", map[string]any{"rounds": 100}); err == nil {
 		t.Fatal("expected bcrypt invalid cost error")
 	}
 
 	argonHash, err := NewArgon2id(ArgonConfig{}).Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make argon hash: %v", err)
 	}
+
 	matched, err = NewBcrypt(BcryptConfig{}).Check("secret", argonHash, nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected bcrypt verify-disabled mismatch, matched=%v err=%v", matched, err)
 	}
+
 	if _, err := NewBcrypt(BcryptConfig{Verify: true}).Check("secret", argonHash, nil); err != errBcryptAlgorithm {
 		t.Fatalf("unexpected bcrypt verify error: %v", err)
 	}
@@ -94,65 +122,87 @@ func TestBcryptHasher(t *testing.T) {
 
 func TestArgonHashers(t *testing.T) {
 	restoreRandom := stubArgonRandomReader(t, bytesReader(make([]byte, 64)))
+
 	defer restoreRandom()
 
 	argon2i := NewArgon2i(ArgonConfig{Memory: 2048, Time: 3, Threads: 2})
 	hashI, err := argon2i.Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Argon2i Make: %v", err)
 	}
+
 	if !strings.HasPrefix(hashI, "$argon2i$") {
 		t.Fatalf("unexpected argon2i prefix: %q", hashI)
 	}
 
 	info := argon2i.Info(hashI)
+
 	if got, want := info.Algorithm, DriverArgon; got != want {
 		t.Fatalf("unexpected argon2i algorithm: got %q want %q", got, want)
 	}
+
 	if info.Options["memory"] != 2048 || info.Options["time"] != 3 || info.Options["threads"] != 2 {
 		t.Fatalf("unexpected argon2i options: %#v", info.Options)
 	}
 
 	matched, err := argon2i.Check("secret", hashI, nil)
+
 	if err != nil || !matched {
 		t.Fatalf("expected argon2i match, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = argon2i.Check("wrong", hashI, nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected argon2i mismatch, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = argon2i.Check("secret", "", nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected empty argon2i hash to fail, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = argon2i.Check("secret", "not-a-hash", nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected malformed argon2i hash to fail, matched=%v err=%v", matched, err)
 	}
+
 	if _, err := NewArgon2i(ArgonConfig{Verify: true}).Check("secret", "not-a-hash", nil); err != errArgon2iAlgorithm {
 		t.Fatalf("unexpected argon2i malformed verify error: %v", err)
 	}
 
 	argon2id := NewArgon2id(ArgonConfig{Memory: 1024, Time: 2, Threads: 2})
 	hashID, err := argon2id.Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Argon2id Make: %v", err)
 	}
+
 	if !strings.HasPrefix(hashID, "$argon2id$") {
 		t.Fatalf("unexpected argon2id prefix: %q", hashID)
 	}
+
 	matched, err = argon2id.Check("secret", hashID, nil)
+
 	if err != nil || !matched {
 		t.Fatalf("expected argon2id match, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = argon2id.Check("secret", "", nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected empty argon2id hash to fail, matched=%v err=%v", matched, err)
 	}
+
 	matched, err = argon2id.Check("secret", hashI, nil)
+
 	if err != nil || matched {
 		t.Fatalf("expected verify-disabled argon2id mismatch, matched=%v err=%v", matched, err)
 	}
+
 	if _, err := NewArgon2id(ArgonConfig{Verify: true}).Check("secret", hashI, nil); err != errArgon2idAlgorithm {
 		t.Fatalf("unexpected argon2id verify error: %v", err)
 	}
@@ -160,20 +210,25 @@ func TestArgonHashers(t *testing.T) {
 	if argon2i.NeedsRehash(hashI, nil) {
 		t.Fatal("expected argon2i hash not to need rehash")
 	}
+
 	if !argon2i.NeedsRehash(hashI, map[string]any{"memory": 4096}) {
 		t.Fatal("expected argon2i hash to need rehash for different memory")
 	}
+
 	if !argon2i.NeedsRehash("not-a-hash", nil) {
 		t.Fatal("expected invalid argon2i hash to need rehash")
 	}
+
 	if !argon2i.NeedsRehash(hashI, map[string]any{"memory": []string{"bad"}}) {
 		t.Fatal("expected invalid argon2i options to force rehash")
 	}
 
 	versionMismatch := strings.Replace(hashI, "v=19", "v=18", 1)
+
 	if !argon2i.NeedsRehash(versionMismatch, nil) {
 		t.Fatal("expected argon2i version mismatch to need rehash")
 	}
+
 	if !argon2i.NeedsRehash(hashID, nil) {
 		t.Fatal("expected argon2i algorithm mismatch to need rehash")
 	}
@@ -181,15 +236,19 @@ func TestArgonHashers(t *testing.T) {
 	if !argon2i.VerifyConfiguration(hashI) {
 		t.Fatal("expected argon2i configuration to verify")
 	}
+
 	if NewArgon2i(ArgonConfig{Memory: 1024, Time: 2, Threads: 1}).VerifyConfiguration(hashI) {
 		t.Fatal("expected argon2i configuration to reject larger parameters")
 	}
+
 	if NewArgon2i(ArgonConfig{}).VerifyConfiguration("not-a-hash") {
 		t.Fatal("expected invalid argon2i hash to fail verification")
 	}
+
 	if NewArgon2i(ArgonConfig{}).VerifyConfiguration(versionMismatch) {
 		t.Fatal("expected argon2i version mismatch to fail verification")
 	}
+
 	if NewArgon2i(ArgonConfig{}).VerifyConfiguration(hashID) {
 		t.Fatal("expected argon2i algorithm mismatch to fail verification")
 	}
@@ -197,27 +256,35 @@ func TestArgonHashers(t *testing.T) {
 	if _, err := argon2i.Make("secret", map[string]any{"memory": []string{"bad"}}); err == nil {
 		t.Fatal("expected argon memory option type error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"time": []string{"bad"}}); err == nil {
 		t.Fatal("expected argon time option type error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"threads": []string{"bad"}}); err == nil {
 		t.Fatal("expected argon threads option type error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"memory": 0}); err == nil {
 		t.Fatal("expected argon memory validation error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"time": 0}); err == nil {
 		t.Fatal("expected argon time validation error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"threads": 0}); err == nil {
 		t.Fatal("expected argon threads validation error")
 	}
+
 	if _, err := argon2i.Make("secret", map[string]any{"threads": 256}); err == nil {
 		t.Fatal("expected argon threads >255 validation error")
 	}
 
 	restoreRandom = stubArgonRandomReader(t, errReader{err: io.ErrUnexpectedEOF})
+
 	defer restoreRandom()
+
 	if _, err := NewArgon2i(ArgonConfig{}).Make("secret", nil); err == nil || !strings.Contains(err.Error(), "hashing: read salt") {
 		t.Fatalf("expected argon salt read error, got %v", err)
 	}
@@ -225,13 +292,17 @@ func TestArgonHashers(t *testing.T) {
 
 func TestArgonParsingHelpers(t *testing.T) {
 	restoreRandom := stubArgonRandomReader(t, bytesReader(make([]byte, 64)))
+
 	defer restoreRandom()
 
 	hashI, err := NewArgon2i(ArgonConfig{}).Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make argon2i hash: %v", err)
 	}
+
 	hashID, err := NewArgon2id(ArgonConfig{}).Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make argon2id hash: %v", err)
 	}
@@ -239,6 +310,7 @@ func TestArgonParsingHelpers(t *testing.T) {
 	if parsed, err := parseArgonHash(hashI); err != nil || parsed.algorithm != "argon2i" {
 		t.Fatalf("unexpected parseArgonHash argon2i result: parsed=%#v err=%v", parsed, err)
 	}
+
 	if parsed, err := parseArgonHash(hashID); err != nil || parsed.algorithm != "argon2id" {
 		t.Fatalf("unexpected parseArgonHash argon2id result: parsed=%#v err=%v", parsed, err)
 	}
@@ -272,18 +344,23 @@ func TestArgonParsingHelpers(t *testing.T) {
 			t.Fatalf("expected parseArgonParams failure for %q", raw)
 		}
 	}
+
 	if parsed, err := parseArgonParams("m=1024,t=2,p=2"); err != nil || parsed.memory != 1024 || parsed.time != 2 || parsed.threads != 2 {
 		t.Fatalf("unexpected parseArgonParams result: parsed=%#v err=%v", parsed, err)
 	}
 
 	rawEncoded := base64.RawStdEncoding.EncodeToString([]byte("salt"))
+
 	if decoded, err := decodeArgonBase64(rawEncoded); err != nil || string(decoded) != "salt" {
 		t.Fatalf("unexpected raw base64 decode: %q err=%v", string(decoded), err)
 	}
+
 	stdEncoded := base64.StdEncoding.EncodeToString([]byte("salt"))
+
 	if decoded, err := decodeArgonBase64(stdEncoded); err != nil || string(decoded) != "salt" {
 		t.Fatalf("unexpected std base64 decode: %q err=%v", string(decoded), err)
 	}
+
 	if _, err := decodeArgonBase64("%%%invalid%%%"); err == nil {
 		t.Fatal("expected invalid base64 decode error")
 	}
@@ -291,43 +368,55 @@ func TestArgonParsingHelpers(t *testing.T) {
 
 func TestManagerAndHelpers(t *testing.T) {
 	manager, err := NewManager(Config{})
+
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
+
 	if got, want := manager.DefaultDriver(), DriverBcrypt; got != want {
 		t.Fatalf("unexpected default driver: got %q want %q", got, want)
 	}
+
 	if _, err := manager.Driver(DriverArgon); err != nil {
 		t.Fatalf("Driver(argon): %v", err)
 	}
+
 	if _, err := manager.Driver(DriverArgon2id); err != nil {
 		t.Fatalf("Driver(argon2id): %v", err)
 	}
+
 	if _, err := manager.Driver("nope"); err == nil {
 		t.Fatal("expected unsupported driver error")
 	}
 
 	hashedValue, err := manager.Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make: %v", err)
 	}
+
 	if !manager.IsHashed(hashedValue) {
 		t.Fatal("expected manager to detect supported hash")
 	}
+
 	if manager.IsHashed("plain-text") {
 		t.Fatal("expected plain text not to be detected as hash")
 	}
+
 	if info := manager.Info("plain-text"); info.Algorithm != "" || len(info.Options) != 0 {
 		t.Fatalf("unexpected plain-text info: %#v", info)
 	}
 
 	matched, err := manager.Check("secret", hashedValue, nil)
+
 	if err != nil || !matched {
 		t.Fatalf("expected manager bcrypt match, matched=%v err=%v", matched, err)
 	}
+
 	if manager.NeedsRehash(hashedValue, nil) {
 		t.Fatal("expected manager bcrypt hash not to need rehash")
 	}
+
 	if !manager.VerifyConfiguration(hashedValue) {
 		t.Fatal("expected manager bcrypt configuration to verify")
 	}
@@ -349,47 +438,61 @@ func TestManagerAndHelpers(t *testing.T) {
 		},
 	})
 	manager, err = NewManagerFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("NewManagerFromRepository: %v", err)
 	}
+
 	if got, want := manager.DefaultDriver(), DriverArgon2id; got != want {
 		t.Fatalf("unexpected repository driver: got %q want %q", got, want)
 	}
+
 	argonHash, err := manager.Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Argon manager Make: %v", err)
 	}
+
 	if info := manager.Info(argonHash); info.Algorithm != DriverArgon2id {
 		t.Fatalf("unexpected manager argon info: %#v", info)
 	}
+
 	if !manager.VerifyConfiguration(argonHash) {
 		t.Fatal("expected manager argon verification to pass")
 	}
 
 	bcryptHash, err := NewBcrypt(BcryptConfig{}).Make("secret", nil)
+
 	if err != nil {
 		t.Fatalf("Make bcrypt hash: %v", err)
 	}
+
 	if manager.VerifyConfiguration(bcryptHash) {
 		t.Fatal("expected argon2id manager verification to reject bcrypt hash")
 	}
+
 	if _, err := NewManager(Config{Driver: "nope"}); err == nil {
 		t.Fatal("expected NewManager invalid driver error")
 	}
+
 	if _, err := NewManagerFromRepository(nil); err == nil {
 		t.Fatal("expected NewManagerFromRepository nil error")
 	}
 
 	badManager := &Manager{defaultDriver: "nope"}
+
 	if _, err := badManager.Make("secret", nil); err == nil {
 		t.Fatal("expected Make invalid driver error")
 	}
+
 	if _, err := badManager.Check("secret", hashedValue, nil); err == nil {
 		t.Fatal("expected Check invalid driver error")
 	}
+
 	if !badManager.NeedsRehash(hashedValue, nil) {
 		t.Fatal("expected NeedsRehash invalid driver fallback")
 	}
+
 	if badManager.VerifyConfiguration(hashedValue) {
 		t.Fatal("expected VerifyConfiguration invalid driver fallback")
 	}
@@ -397,9 +500,11 @@ func TestManagerAndHelpers(t *testing.T) {
 	if cloned := cloneOptions(nil); len(cloned) != 0 {
 		t.Fatalf("expected empty cloned options, got %#v", cloned)
 	}
+
 	options := map[string]int{"rounds": 10}
 	cloned := cloneOptions(options)
 	cloned["rounds"] = 12
+
 	if options["rounds"] != 10 {
 		t.Fatalf("expected cloneOptions to copy map, got %#v", options)
 	}
@@ -433,16 +538,21 @@ func TestManagerAndHelpers(t *testing.T) {
 	} {
 		t.Run("intOption/"+tc.name, func(t *testing.T) {
 			var options map[string]any
+
 			if typed, ok := tc.value.(map[string]any); ok {
 				options = typed
 			}
+
 			got, err := intOption(options, "rounds", tc.fallback)
+
 			if tc.wantErr != "" {
 				if err == nil || err.Error() != tc.wantErr {
 					t.Fatalf("unexpected intOption error: %v", err)
 				}
+
 				return
 			}
+
 			if err != nil || got != tc.want {
 				t.Fatalf("unexpected intOption result: got=%d err=%v", got, err)
 			}
@@ -452,24 +562,33 @@ func TestManagerAndHelpers(t *testing.T) {
 	if got := normalizeDriver("  "); got != DriverBcrypt {
 		t.Fatalf("unexpected empty normalizeDriver result: %q", got)
 	}
+
 	if got := normalizeDriver(" ArGoN2Id "); got != DriverArgon2id {
 		t.Fatalf("unexpected normalizeDriver result: %q", got)
 	}
+
 	if got := normalizeBcryptConfig(BcryptConfig{}); got.Rounds != 12 {
 		t.Fatalf("unexpected normalizeBcryptConfig result: %#v", got)
 	}
+
 	argonCfg := normalizeArgonConfig(ArgonConfig{})
+
 	if argonCfg.Memory != 1024 || argonCfg.Time != 2 || argonCfg.Threads != 2 {
 		t.Fatalf("unexpected normalizeArgonConfig defaults: %#v", argonCfg)
 	}
+
 	argonCfg = normalizeArgonConfig(ArgonConfig{Threads: -1})
+
 	if argonCfg.Threads != 1 {
 		t.Fatalf("expected negative threads normalization, got %#v", argonCfg)
 	}
+
 	argonCfg = normalizeArgonConfig(ArgonConfig{Threads: math.MaxUint8 + 1})
+
 	if argonCfg.Threads != math.MaxUint8 {
 		t.Fatalf("expected oversized threads normalization, got %#v", argonCfg)
 	}
+
 	if cfg := normalizeConfig(Config{}); cfg.Driver != DriverBcrypt || cfg.Bcrypt.Rounds != 12 || cfg.Argon.Memory != 1024 {
 		t.Fatalf("unexpected normalizeConfig result: %#v", cfg)
 	}
@@ -479,25 +598,22 @@ func stubArgonRandomReader(t *testing.T, reader io.Reader) func() {
 	t.Helper()
 	previous := argonRandomReader
 	argonRandomReader = reader
+
 	return func() {
 		argonRandomReader = previous
 	}
-}
-
-type errReader struct {
-	err error
 }
 
 func (r errReader) Read(_ []byte) (int, error) {
 	return 0, r.err
 }
 
-type bytesReader []byte
-
 func (r bytesReader) Read(p []byte) (int, error) {
 	n := copy(p, r)
+
 	if n < len(p) {
 		return n, io.EOF
 	}
+
 	return n, nil
 }
