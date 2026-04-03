@@ -34,6 +34,7 @@ func (m *Money) AssertSameCurrency(om *Money) error {
 	}
 
 	ok, err := m.SameCurrency(om)
+
 	if err != nil {
 		return err
 	}
@@ -164,6 +165,7 @@ func (m *Money) Display() (string, error) {
 	}
 
 	c, err := m.currency.Get()
+
 	if err != nil {
 		return "", err
 	}
@@ -178,6 +180,7 @@ func (m *Money) AsMajorUnits() (float64, error) {
 	}
 
 	c, err := m.currency.Get()
+
 	if err != nil {
 		return 0, err
 	}
@@ -199,6 +202,7 @@ func (m *Money) Compare(om *Money) (int, error) {
 	}
 
 	result, err := m.CompareAmount(om)
+
 	if err != nil {
 		return int(m.amount), err
 	}

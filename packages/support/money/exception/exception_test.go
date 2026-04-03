@@ -68,6 +68,7 @@ func TestErrorsComparison(t *testing.T) {
 
 			// Test that the error doesn't match a different error
 			differentErr := errors.New("different error")
+
 			if errors.Is(tt.err, differentErr) {
 				t.Fatalf("errors.Is(%s, differentErr) should return false", tt.name)
 			}
@@ -84,9 +85,11 @@ func TestErrorsAreUnique(t *testing.T) {
 
 	for _, tt := range sentinelErrors {
 		found := false
+
 		for _, err := range allErrors {
 			if errors.Is(err, tt.err) {
 				found = true
+
 				break
 			}
 		}

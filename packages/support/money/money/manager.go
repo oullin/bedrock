@@ -87,12 +87,14 @@ func (mm *Manager) CreateFromString(amount string, code string) (*Money, error) 
 
 	// Handle sign extraction
 	amount, negative, err := mm.parser.ParseStringSign(amount)
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse the amount string into int64
 	value, err := mm.parser.ParseAmountString(amount, fraction, negative)
+
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +123,7 @@ func (mm *Manager) Add(m *Money, ms ...*Money) (*Money, error) {
 		if err := m.AssertSameCurrency(m2); err != nil {
 			return nil, err
 		}
+
 		result.amount += m2.amount
 	}
 
@@ -216,6 +219,7 @@ func (mm *Manager) Split(m *Money, n int) ([]*Money, error) {
 	remainder := mm.calculator.Modulus(m.amount, int64(n))
 
 	ms := make([]*Money, n)
+
 	for i := 0; i < n; i++ {
 		ms[i] = mm.Create(quotient, m.currency.Code)
 	}
@@ -224,6 +228,7 @@ func (mm *Manager) Split(m *Money, n int) ([]*Money, error) {
 	absRemainder := mm.calculator.Absolute(remainder)
 
 	increment := int64(1)
+
 	if m.amount < 0 {
 		increment = -1
 	}
@@ -249,6 +254,7 @@ func (mm *Manager) Allocate(m *Money, rs ...int) ([]*Money, error) {
 
 	// Calculate sum of ratios
 	var sum int64
+
 	for _, r := range rs {
 		if r < 0 {
 			return nil, exception.ErrNegativeRatios

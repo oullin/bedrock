@@ -124,12 +124,15 @@ func TestSafeMultiply(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := SafeMultiply(tt.initial, tt.multipliers...)
+
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("SafeMultiply() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if err != nil && !errors.Is(err, exception.ErrOverflow) {
 				t.Fatalf("SafeMultiply() unexpected error type: %v", err)
 			}
+
 			if got != tt.want {
 				t.Fatalf("SafeMultiply(%d, %v) = %d, want %d", tt.initial, tt.multipliers, got, tt.want)
 			}
@@ -140,9 +143,11 @@ func TestSafeMultiply(t *testing.T) {
 func TestSafeMultiply_CoveragePaths(t *testing.T) {
 	t.Run("zero short-circuit", func(t *testing.T) {
 		got, err := SafeMultiply(10, 0, 5)
+
 		if err != nil {
 			t.Fatalf("SafeMultiply() unexpected error: %v", err)
 		}
+
 		if got != 0 {
 			t.Fatalf("SafeMultiply() = %d, want 0", got)
 		}
@@ -150,6 +155,7 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("overflow MinInt64 times -1", func(t *testing.T) {
 		_, err := SafeMultiply(math.MinInt64, -1)
+
 		if !errors.Is(err, exception.ErrOverflow) {
 			t.Fatalf("SafeMultiply() error = %v, want ErrOverflow", err)
 		}
@@ -157,6 +163,7 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("overflow -1 times MinInt64", func(t *testing.T) {
 		_, err := SafeMultiply(-1, math.MinInt64)
+
 		if !errors.Is(err, exception.ErrOverflow) {
 			t.Fatalf("SafeMultiply() error = %v, want ErrOverflow", err)
 		}
@@ -164,6 +171,7 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("overflow positive multiplier", func(t *testing.T) {
 		_, err := SafeMultiply(math.MaxInt64, 2)
+
 		if !errors.Is(err, exception.ErrOverflow) {
 			t.Fatalf("SafeMultiply() error = %v, want ErrOverflow", err)
 		}
@@ -171,6 +179,7 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("overflow negative multiplier less than -1", func(t *testing.T) {
 		_, err := SafeMultiply(math.MinInt64, -2)
+
 		if !errors.Is(err, exception.ErrOverflow) {
 			t.Fatalf("SafeMultiply() error = %v, want ErrOverflow", err)
 		}
@@ -178,9 +187,11 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("safe negative multiplier", func(t *testing.T) {
 		got, err := SafeMultiply(10, -2)
+
 		if err != nil {
 			t.Fatalf("SafeMultiply() unexpected error: %v", err)
 		}
+
 		if got != -20 {
 			t.Fatalf("SafeMultiply() = %d, want -20", got)
 		}
@@ -188,9 +199,11 @@ func TestSafeMultiply_CoveragePaths(t *testing.T) {
 
 	t.Run("safe -1 multiplier", func(t *testing.T) {
 		got, err := SafeMultiply(5, -1)
+
 		if err != nil {
 			t.Fatalf("SafeMultiply() unexpected error: %v", err)
 		}
+
 		if got != -5 {
 			t.Fatalf("SafeMultiply() = %d, want -5", got)
 		}

@@ -7,6 +7,7 @@ import (
 
 func TestNew(t *testing.T) {
 	c := NewCalculator()
+
 	if c == nil {
 		t.Error("NewCalculator() returned nil")
 	}
@@ -189,6 +190,7 @@ func TestAllocateOverflow(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := c.Allocate(tt.amount, tt.ration, tt.scale)
+
 			if got != tt.want {
 				t.Errorf("Allocate(%d, %d, %d) = %d; want %d", tt.amount, tt.ration, tt.scale, got, tt.want)
 			}
@@ -283,6 +285,7 @@ func TestCalculatorNilReceiverBranches(t *testing.T) {
 	}
 
 	got, err := c.SafeMultiply(2, 3)
+
 	if err != nil || got != 0 {
 		t.Fatalf("(*Calculator)(nil).SafeMultiply(2,3) = (%d,%v), want (0,nil)", got, err)
 	}
@@ -292,14 +295,17 @@ func TestCalculatorSafeMultiplyMethodDelegates(t *testing.T) {
 	c := NewCalculator()
 
 	got, err := c.SafeMultiply(2, 3, 4)
+
 	if err != nil {
 		t.Fatalf("SafeMultiply() unexpected error: %v", err)
 	}
+
 	if got != 24 {
 		t.Fatalf("SafeMultiply() = %d, want 24", got)
 	}
 
 	_, err = c.SafeMultiply(math.MinInt64, -1)
+
 	if err == nil {
 		t.Fatal("SafeMultiply(MinInt64, -1) expected overflow error")
 	}

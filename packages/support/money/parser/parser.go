@@ -52,6 +52,7 @@ func (p *Parser) ParseAmount(input string, defaultCurrency ...string) (float64, 
 
 	// 2. Parse Number
 	val, err := p.parseNumericString(input, false)
+
 	if err != nil {
 		return 0, "", err
 	}
@@ -85,6 +86,7 @@ func (p *Parser) ParseAmountWithDecimalComma(input string, defaultCurrency ...st
 
 	// 2. Parse Number with decimal comma mode
 	val, err := p.parseNumericString(input, true)
+
 	if err != nil {
 		return 0, "", err
 	}
@@ -156,6 +158,7 @@ func (p *Parser) parseNumericString(input string, useDecimalComma bool) (float64
 
 	// Parse
 	amount, err := strconv.ParseFloat(input, 64)
+
 	if err != nil {
 		return 0, exception.ErrInvalidMoneyString
 	}
@@ -186,6 +189,7 @@ func (p *Parser) validThousandsGrouping(input, thousandsSep, decimalSep string) 
 	}
 
 	groups := strings.Split(intPart, thousandsSep)
+
 	if len(groups) == 1 {
 		// No thousands of separators to validate
 		return true, nil
@@ -285,16 +289,19 @@ func (p *Parser) ParseDecimalParts(amount string) (string, string, error) {
 	}
 
 	parts := strings.Split(amount, ".")
+
 	if len(parts) > 2 {
 		return "", "", exception.ErrInvalidAmountMultiple
 	}
 
 	integerPart := parts[0]
+
 	if integerPart == "" {
 		integerPart = "0"
 	}
 
 	decimalPart := ""
+
 	if len(parts) == 2 {
 		decimalPart = parts[1]
 	}
@@ -327,11 +334,13 @@ func (p *Parser) ParseAmountString(amount string, fraction int, negative bool) (
 	}
 
 	integerPart, decimalPart, err := p.ParseDecimalParts(amount)
+
 	if err != nil {
 		return 0, err
 	}
 
 	decimalPart, err = p.ValidateAndPadDecimal(decimalPart, fraction)
+
 	if err != nil {
 		return 0, err
 	}
@@ -341,6 +350,7 @@ func (p *Parser) ParseAmountString(amount string, fraction int, negative bool) (
 
 	// Parse as int64
 	value, err := strconv.ParseInt(combinedStr, 10, 64)
+
 	if err != nil {
 		return 0, exception.ErrInvalidAmount
 	}

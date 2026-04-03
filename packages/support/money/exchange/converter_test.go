@@ -39,6 +39,7 @@ func TestNewConverter(t *testing.T) {
 
 func TestConverterGetExchange(t *testing.T) {
 	t.Parallel()
+
 	var c *Converter
 
 	ex, err := c.GetExchange()

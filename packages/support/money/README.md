@@ -6,6 +6,7 @@ A Go implementation of Martin Fowler's Money pattern, inspired by [moneyphp/mone
 [![Go Reference](https://pkg.go.dev/badge/github.com/gollin/packages/support/money.svg)](https://pkg.go.dev/github.com/gollin/packages/support/money)
 
 ## 📖 Table of Contents
+
 - [Why Use a Money Library?](#why-use-a-money-library)
 - [Installation](#installation)
 - [Requirements](#requirements)

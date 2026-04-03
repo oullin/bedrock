@@ -10,6 +10,7 @@ func TestRequire[T any](t testing.TB, fn func() (T, error)) T {
 	t.Helper()
 
 	value, err := fn()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -65,6 +66,7 @@ func TestMustParseFloatMoney(t testing.TB, s string) float64 {
 	}
 
 	f64, _ := f.Float64()
+
 	return f64
 }
 
@@ -75,6 +77,7 @@ func TestExpectedConvertAmountMoney(t testing.TB, amount int64, fromFraction, to
 
 	if !ok {
 		t.Fatalf("invalid rate: %q", rate)
+
 		return 0
 	}
 
@@ -98,6 +101,7 @@ func TestRoundRatHalfAwayFromZeroMoney(t testing.TB, r *big.Rat) int64 {
 	den := new(big.Int).Set(r.Denom())
 
 	neg := num.Sign() < 0
+
 	if neg {
 		num.Abs(num)
 	}
