@@ -26,6 +26,7 @@ func MigrateFS(ctx context.Context, db *sql.DB, fsys fs.FS, table string) error 
 	}
 
 	table = strings.TrimSpace(table)
+
 	if table == "" {
 		table = "schema_migrations"
 	}
@@ -35,17 +36,20 @@ func MigrateFS(ctx context.Context, db *sql.DB, fsys fs.FS, table string) error 
 	}
 
 	entries, err := fs.ReadDir(fsys, "migrations")
+
 	if err != nil {
 		return fmt.Errorf("database: read migrations: %w", err)
 	}
 
 	names := make([]string, 0, len(entries))
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
 		}
 
 		name := entry.Name()
+
 		if filepath.Ext(name) == ".sql" {
 			names = append(names, name)
 		}
@@ -56,6 +60,7 @@ func MigrateFS(ctx context.Context, db *sql.DB, fsys fs.FS, table string) error 
 	for _, name := range names {
 		var applied string
 		err := db.QueryRowContext(ctx, `SELECT name FROM `+table+` WHERE name = ?`, name).Scan(&applied)
+
 		if err == nil && applied == name {
 			continue
 		}
@@ -65,11 +70,13 @@ func MigrateFS(ctx context.Context, db *sql.DB, fsys fs.FS, table string) error 
 		}
 
 		payload, err := fs.ReadFile(fsys, "migrations/"+name)
+
 		if err != nil {
 			return fmt.Errorf("database: read migration %q: %w", name, err)
 		}
 
 		tx, err := db.BeginTx(ctx, nil)
+
 		if err != nil {
 			return fmt.Errorf("database: begin migration %q: %w", name, err)
 		}

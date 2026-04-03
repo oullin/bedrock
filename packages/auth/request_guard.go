@@ -46,6 +46,7 @@ func (g *RequestGuard) User(ctx context.Context) (Authenticatable, error) {
 	}
 
 	user, err := g.callback(ctx, g.request, g.provider)
+
 	if err != nil {
 		return nil, err
 	}

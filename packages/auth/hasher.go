@@ -17,6 +17,7 @@ func NewDefaultPasswordHasher() (*DefaultPasswordHasher, error) {
 	manager, err := securityhashing.NewManager(securityhashing.Config{
 		Driver: securityhashing.DriverBcrypt,
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +53,7 @@ func (h *DefaultPasswordHasher) Hash(ctx context.Context, password string) (stri
 // Compare compares a password to an encoded hash.
 func (h *DefaultPasswordHasher) Compare(ctx context.Context, encodedPassword string, password string) error {
 	ok, err := h.Check(ctx, password, encodedPassword, nil)
+
 	if err != nil {
 		return err
 	}
@@ -72,6 +74,7 @@ func EnsureHasher(hasher PasswordHasher) (PasswordHasher, error) {
 	}
 
 	defaultHasher, err := NewDefaultPasswordHasher()
+
 	if err != nil {
 		return nil, err
 	}

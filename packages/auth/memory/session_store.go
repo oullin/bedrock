@@ -21,6 +21,7 @@ func NewInMemorySessionStore() *InMemorySessionStore {
 // Create inserts a session.
 func (s *InMemorySessionStore) Create(_ context.Context, session *auth.Session) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	clone := *session
@@ -32,9 +33,11 @@ func (s *InMemorySessionStore) Create(_ context.Context, session *auth.Session) 
 // FindByID retrieves a session.
 func (s *InMemorySessionStore) FindByID(_ context.Context, id string) (*auth.Session, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	session, ok := s.sessions[id]
+
 	if !ok {
 		return nil, auth.ErrUnauthorized
 	}
@@ -47,6 +50,7 @@ func (s *InMemorySessionStore) FindByID(_ context.Context, id string) (*auth.Ses
 // Update replaces a stored session.
 func (s *InMemorySessionStore) Update(_ context.Context, session *auth.Session) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if _, ok := s.sessions[session.ID]; !ok {
@@ -62,6 +66,7 @@ func (s *InMemorySessionStore) Update(_ context.Context, session *auth.Session) 
 // Delete removes a session.
 func (s *InMemorySessionStore) Delete(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	delete(s.sessions, id)

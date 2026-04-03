@@ -20,6 +20,7 @@ type resetter struct {
 
 func (r resetter) Reset(ctx context.Context, user auth.Authenticatable, password string) error {
 	hash, err := r.hasher.Hash(ctx, password)
+
 	if err != nil {
 		return err
 	}
@@ -33,33 +34,39 @@ func TestBrokerCreateAndValidateToken(t *testing.T) {
 	t.Parallel()
 
 	hasher, err := auth.NewDefaultPasswordHasher()
+
 	if err != nil {
 		t.Fatalf("NewDefaultPasswordHasher: %v", err)
 	}
 
 	_, currentFile, _, ok := runtime.Caller(0)
+
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
 
 	userConfigDir := filepath.Join(filepath.Dir(currentFile), "..", "..", "user", "config")
 	repo, err := configpkg.NewBuilder(userConfigDir).Build(context.Background())
+
 	if err != nil {
 		t.Fatalf("build user config: %v", err)
 	}
 
 	userCfg, err := user.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
 	record := user.New(userCfg, "user-1", "User", "user@example.com", time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
 	record.PasswordHash, err = hasher.Hash(context.Background(), "secret")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
 
 	users, err := user.NewMemoryRepository(hasher)
+
 	if err != nil {
 		t.Fatalf("NewMemoryRepository: %v", err)
 	}
@@ -80,11 +87,13 @@ func TestBrokerCreateAndValidateToken(t *testing.T) {
 	}
 
 	token, err := broker.CreateToken(context.Background(), record)
+
 	if err != nil {
 		t.Fatalf("CreateToken: %v", err)
 	}
 
 	valid, err := broker.TokenExists(context.Background(), record, token)
+
 	if err != nil {
 		t.Fatalf("TokenExists: %v", err)
 	}
@@ -99,9 +108,11 @@ func TestBrokerCreateAndValidateToken(t *testing.T) {
 		DSN:             dbPath,
 		MigrationsTable: "schema_migrations",
 	})
+
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := databasepkg.Migrate(context.Background(), db, databasepkg.Config{MigrationsTable: "schema_migrations"}); err != nil {
@@ -109,6 +120,7 @@ func TestBrokerCreateAndValidateToken(t *testing.T) {
 	}
 
 	sqlTokens := passwords.NewSQLTokenRepository(db, "")
+
 	if err := sqlTokens.Save(context.Background(), &passwords.Token{
 		UserID:    record.ID,
 		TokenHash: "hash",

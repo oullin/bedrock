@@ -21,6 +21,7 @@ type SQLRepository struct {
 // NewSQLRepository creates a new SQL-backed user repository.
 func NewSQLRepository(db *sql.DB, hasher auth.PasswordHasher, table string) (*SQLRepository, error) {
 	password, err := auth.EnsureHasher(hasher)
+
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +40,13 @@ func NewSQLRepository(db *sql.DB, hasher auth.PasswordHasher, table string) (*SQ
 // Create inserts a user.
 func (r *SQLRepository) Create(ctx context.Context, user auth.Authenticatable) error {
 	record, ok := user.(*User)
+
 	if !ok {
 		return fmt.Errorf("user: unsupported type %T", user)
 	}
 
 	payload, err := json.Marshal(record.TwoFactorRecoveryCodes)
+
 	if err != nil {
 		return err
 	}
@@ -69,11 +72,13 @@ func (r *SQLRepository) Create(ctx context.Context, user auth.Authenticatable) e
 // Update replaces a stored user.
 func (r *SQLRepository) Update(ctx context.Context, user auth.Authenticatable) error {
 	record, ok := user.(*User)
+
 	if !ok {
 		return fmt.Errorf("user: unsupported type %T", user)
 	}
 
 	payload, err := json.Marshal(record.TwoFactorRecoveryCodes)
+
 	if err != nil {
 		return err
 	}
@@ -91,11 +96,13 @@ func (r *SQLRepository) Update(ctx context.Context, user auth.Authenticatable) e
 		time.Now().UTC(),
 		record.ID,
 	)
+
 	if err != nil {
 		return err
 	}
 
 	affected, err := result.RowsAffected()
+
 	if err != nil {
 		return err
 	}
@@ -145,11 +152,13 @@ func (r *SQLRepository) RetrieveByCredentials(ctx context.Context, credentials m
 // UpdateRememberToken persists a remember token.
 func (r *SQLRepository) UpdateRememberToken(ctx context.Context, user auth.Authenticatable, token string) error {
 	result, err := r.db.ExecContext(ctx, `UPDATE `+r.table+` SET remember_token = ?, updated_at = ? WHERE id = ?`, token, time.Now().UTC(), user.GetAuthIdentifier())
+
 	if err != nil {
 		return err
 	}
 
 	affected, err := result.RowsAffected()
+
 	if err != nil {
 		return err
 	}
@@ -164,6 +173,7 @@ func (r *SQLRepository) UpdateRememberToken(ctx context.Context, user auth.Authe
 // ValidateCredentials compares a provided password against the stored hash.
 func (r *SQLRepository) ValidateCredentials(ctx context.Context, user auth.Authenticatable, credentials map[string]string) (bool, error) {
 	password, ok := credentials["password"]
+
 	if !ok {
 		return true, nil
 	}
@@ -174,6 +184,7 @@ func (r *SQLRepository) ValidateCredentials(ctx context.Context, user auth.Authe
 // RehashPasswordIfRequired updates a password hash when needed.
 func (r *SQLRepository) RehashPasswordIfRequired(ctx context.Context, user auth.Authenticatable, credentials map[string]string, force bool) error {
 	password, ok := credentials["password"]
+
 	if !ok || strings.TrimSpace(password) == "" {
 		return nil
 	}
@@ -183,6 +194,7 @@ func (r *SQLRepository) RehashPasswordIfRequired(ctx context.Context, user auth.
 	}
 
 	hash, err := r.password.Hash(ctx, password)
+
 	if err != nil {
 		return err
 	}
@@ -196,9 +208,13 @@ func (r *SQLRepository) findOne(ctx context.Context, query string, args ...any) 
 	row := r.db.QueryRowContext(ctx, query, args...)
 
 	var record User
+
 	var emailVerifiedAt sql.NullTime
+
 	var twoFactorConfirmedAt sql.NullTime
+
 	var recoveryCodes string
+
 	if err := row.Scan(
 		&record.ID,
 		&record.Name,
