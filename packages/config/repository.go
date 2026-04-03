@@ -38,6 +38,10 @@ func (r *Repository) Get(key string, defaultValue any) any {
 
 // GetMany returns a map of key lookups using the provided defaults.
 func (r *Repository) GetMany(keys map[string]any) map[string]any {
+	if len(keys) == 0 {
+		return map[string]any{}
+	}
+
 	values := make(map[string]any, len(keys))
 	for key, defaultValue := range keys {
 		values[key] = r.Get(key, defaultValue)
@@ -45,32 +49,32 @@ func (r *Repository) GetMany(keys map[string]any) map[string]any {
 	return values
 }
 
-// Set writes a value at the dotted path.
-func (r *Repository) Set(key string, value any) {
-	segments := splitKey(key)
-	if len(segments) == 0 {
-		return
-	}
-
-	current := r.items
-	for _, segment := range segments[:len(segments)-1] {
-		next, ok := current[segment]
-		if !ok {
-			child := map[string]any{}
-			current[segment] = child
-			current = child
-			continue
+// Set writes one or more values into the repository.
+func (r *Repository) Set(key any, value ...any) {
+	switch typed := key.(type) {
+	case string:
+		var item any
+		if len(value) > 0 {
+			item = value[0]
 		}
-
-		child, ok := next.(map[string]any)
-		if !ok {
-			child = map[string]any{}
-			current[segment] = child
+		r.setPath(typed, item)
+	case map[string]any:
+		for nestedKey, nestedValue := range typed {
+			r.setPath(nestedKey, nestedValue)
 		}
-		current = child
 	}
+}
 
-	current[segments[len(segments)-1]] = cloneValue(value)
+// Prepend prepends a value to the slice stored at key.
+func (r *Repository) Prepend(key string, value any) {
+	items := append([]any{cloneValue(value)}, r.sliceValue(key)...)
+	r.setPath(key, items)
+}
+
+// Push appends a value to the slice stored at key.
+func (r *Repository) Push(key string, value any) {
+	items := append(r.sliceValue(key), cloneValue(value))
+	r.setPath(key, items)
 }
 
 // All returns a deep clone of all items.
@@ -211,16 +215,25 @@ func (r *Repository) Map(key string) (map[string]any, error) {
 }
 
 func lookup(items map[string]any, key string) (any, bool) {
+	if value, ok := items[key]; ok {
+		return cloneValue(value), true
+	}
+
 	segments := splitKey(key)
 	if len(segments) == 0 {
 		return items, true
 	}
 
 	current := any(items)
-	for _, segment := range segments {
+	for index, segment := range segments {
 		mapped, ok := current.(map[string]any)
 		if !ok {
 			return nil, false
+		}
+
+		remaining := strings.Join(segments[index:], ".")
+		if value, ok := mapped[remaining]; ok {
+			return cloneValue(value), true
 		}
 
 		next, ok := mapped[segment]
@@ -243,6 +256,53 @@ func splitKey(key string) []string {
 
 func typeError(key string, want string, value any) error {
 	return fmt.Errorf("config: key %q must be %s, got %T", key, want, value)
+}
+
+func (r *Repository) setPath(key string, value any) {
+	segments := splitKey(key)
+	if len(segments) == 0 {
+		return
+	}
+
+	current := r.items
+	for _, segment := range segments[:len(segments)-1] {
+		next, ok := current[segment]
+		if !ok {
+			child := map[string]any{}
+			current[segment] = child
+			current = child
+			continue
+		}
+
+		child, ok := next.(map[string]any)
+		if !ok {
+			child = map[string]any{}
+			current[segment] = child
+		}
+		current = child
+	}
+
+	current[segments[len(segments)-1]] = cloneValue(value)
+}
+
+func (r *Repository) sliceValue(key string) []any {
+	value, ok := lookup(r.items, key)
+	if !ok {
+		return []any{}
+	}
+
+	switch typed := value.(type) {
+	case []any:
+		return append([]any(nil), typed...)
+	case []string:
+		out := make([]any, 0, len(typed))
+		for _, item := range typed {
+			out = append(out, item)
+		}
+		return out
+	default:
+		return []any{}
+	}
 }
 
 func cloneMap(items map[string]any) map[string]any {
