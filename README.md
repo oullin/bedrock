@@ -11,6 +11,8 @@ Turborepo monorepo managed with `pnpm`.
 - `packages/notification`
 - `packages/queue`
 - `packages/security`
+- `packages/support/collection`
+- `packages/support/money`
 
 ## Commands
 
