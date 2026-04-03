@@ -1,24 +1,22 @@
-package throttle
+package ratelimit
 
 import (
 	"sync"
 	"time"
 )
 
-// Limiter tracks auth request windows in memory.
+// Limiter implements a fixed-window in-memory limiter.
 type Limiter struct {
 	mu      sync.Mutex
 	buckets map[string][]time.Time
 }
 
-// NewLimiter creates a limiter backed by process memory.
-func NewLimiter() *Limiter {
-	return &Limiter{
-		buckets: make(map[string][]time.Time),
-	}
+// New creates a limiter.
+func New() *Limiter {
+	return &Limiter{buckets: make(map[string][]time.Time)}
 }
 
-// Allow checks whether a key can proceed within the supplied limit and window.
+// Allow reports whether the key can proceed.
 func (l *Limiter) Allow(key string, limit int, window time.Duration, now time.Time) (bool, time.Duration) {
 	if limit <= 0 {
 		return true, 0
