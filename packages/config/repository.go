@@ -255,7 +255,7 @@ func lookup(items map[string]any, key string) (any, bool) {
 
 	current := any(items)
 
-	for index, segment := range segments {
+	for index, segment := range segments[:len(segments)-1] {
 		mapped, ok := current.(map[string]any)
 
 		if !ok {
@@ -277,7 +277,18 @@ func lookup(items map[string]any, key string) (any, bool) {
 		current = next
 	}
 
-	return cloneValue(current), true
+	mapped, ok := current.(map[string]any)
+	if !ok {
+		return nil, false
+	}
+
+	last := segments[len(segments)-1]
+	value, ok := mapped[last]
+	if !ok {
+		return nil, false
+	}
+
+	return cloneValue(value), true
 }
 
 func splitKey(key string) []string {
