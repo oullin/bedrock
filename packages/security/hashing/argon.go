@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 
@@ -45,6 +46,8 @@ const (
 	argonSaltSize = 16
 	argonKeySize  = 32
 )
+
+var argonRandomReader io.Reader = rand.Reader
 
 // NewArgon2i creates a new argon2i hasher.
 func NewArgon2i(cfg ArgonConfig) *Argon2i {
@@ -88,7 +91,7 @@ func (a argonHasher) Make(value string, options map[string]any) (string, error) 
 
 	salt := make([]byte, argonSaltSize)
 
-	if _, err := rand.Read(salt); err != nil {
+	if _, err := io.ReadFull(argonRandomReader, salt); err != nil {
 		return "", fmt.Errorf("hashing: read salt: %w", err)
 	}
 
