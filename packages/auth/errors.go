@@ -9,29 +9,29 @@ import (
 )
 
 var (
-	// ErrUnauthorized indicates that the request is missing a valid authenticated session.
+	// ErrUnauthorized indicates the request does not have a valid session.
 	ErrUnauthorized = errors.New("auth: unauthorized")
-	// ErrUserNotFound indicates that no user matched the requested identifier.
+	// ErrUserNotFound indicates the requested user does not exist.
 	ErrUserNotFound = errors.New("auth: user not found")
-	// ErrUserExists indicates that a new user conflicts with an existing identifier.
+	// ErrUserExists indicates the target user already exists.
 	ErrUserExists = errors.New("auth: user already exists")
-	// ErrInvalidCredentials indicates that an identifier or password pair is invalid.
+	// ErrInvalidCredentials indicates the submitted credentials are invalid.
 	ErrInvalidCredentials = errors.New("auth: invalid credentials")
-	// ErrInvalidToken indicates that a signed or reset token is invalid.
+	// ErrInvalidToken indicates the submitted token is invalid.
 	ErrInvalidToken = errors.New("auth: invalid token")
-	// ErrTokenExpired indicates that a signed or reset token has expired.
+	// ErrTokenExpired indicates the submitted token is expired.
 	ErrTokenExpired = errors.New("auth: token expired")
-	// ErrTwoFactorRequired indicates that a login requires an additional two-factor challenge.
+	// ErrTwoFactorRequired indicates the login must complete a two-factor challenge.
 	ErrTwoFactorRequired = errors.New("auth: two-factor challenge required")
-	// ErrTwoFactorInvalid indicates that a two-factor code or recovery code is invalid.
+	// ErrTwoFactorInvalid indicates the two-factor challenge failed.
 	ErrTwoFactorInvalid = errors.New("auth: invalid two-factor challenge")
-	// ErrPasswordConfirmationRequired indicates that the user must confirm their password first.
+	// ErrPasswordConfirmationRequired indicates the user must confirm their password.
 	ErrPasswordConfirmationRequired = errors.New("auth: password confirmation required")
-	// ErrEmailVerificationInvalid indicates that an email verification link is invalid.
+	// ErrEmailVerificationInvalid indicates an email verification link is invalid.
 	ErrEmailVerificationInvalid = errors.New("auth: invalid email verification link")
 )
 
-// ValidationError captures field-level validation failures.
+// ValidationError reports field-level validation failures.
 type ValidationError struct {
 	Fields map[string]string
 }
@@ -56,7 +56,7 @@ func (e *ValidationError) Error() string {
 	return "auth: validation failed: " + strings.Join(parts, ", ")
 }
 
-// ThrottleError reports that a caller exceeded an auth throttle.
+// ThrottleError reports a fixed-window throttle rejection.
 type ThrottleError struct {
 	Scope      string
 	RetryAfter time.Duration
