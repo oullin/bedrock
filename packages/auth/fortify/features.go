@@ -1,5 +1,7 @@
 package authflows
 
+import "strconv"
+
 // Feature constants mirror Upstream AuthFlows features.
 const (
 	FeatureRegistration             = "registration"
@@ -35,5 +37,36 @@ func (f Features) OptionEnabled(feature string, option string) bool {
 	if !f.Enabled(feature) {
 		return false
 	}
-	return f.config.Options[feature][option]
+	switch value := f.config.Options[feature][option].(type) {
+	case bool:
+		return value
+	case string:
+		parsed, err := strconv.ParseBool(value)
+		return err == nil && parsed
+	default:
+		return false
+	}
+}
+
+// OptionInt returns an integer feature option or the supplied fallback.
+func (f Features) OptionInt(feature string, option string, fallback int) int {
+	if !f.Enabled(feature) {
+		return fallback
+	}
+
+	switch value := f.config.Options[feature][option].(type) {
+	case int:
+		return value
+	case int64:
+		return int(value)
+	case float64:
+		return int(value)
+	case string:
+		parsed, err := strconv.Atoi(value)
+		if err == nil {
+			return parsed
+		}
+	}
+
+	return fallback
 }
