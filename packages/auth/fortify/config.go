@@ -22,7 +22,7 @@ type Config struct {
 	Views              bool
 	Limiters           map[string]string
 	Features           []string
-	Options            map[string]map[string]bool
+	Options            map[string]map[string]any
 	Paths              map[string]string
 }
 
@@ -85,7 +85,7 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 		limiters[key] = fmt.Sprint(value)
 	}
 
-	options := map[string]map[string]bool{}
+	options := map[string]map[string]any{}
 	if repo.Has("authflows.options") {
 		raw, err := repo.Map("authflows.options")
 		if err != nil {
@@ -96,13 +96,7 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 			if !ok {
 				continue
 			}
-			options[key] = map[string]bool{}
-			for option, enabled := range child {
-				boolValue, ok := enabled.(bool)
-				if ok {
-					options[key][option] = boolValue
-				}
-			}
+			options[key] = cloneOptionMap(child)
 		}
 	}
 
@@ -134,4 +128,12 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 		Options:            options,
 		Paths:              paths,
 	}, nil
+}
+
+func cloneOptionMap(items map[string]any) map[string]any {
+	cloned := make(map[string]any, len(items))
+	for key, value := range items {
+		cloned[key] = value
+	}
+	return cloned
 }
