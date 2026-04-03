@@ -22,6 +22,7 @@ var NewCurrenciesMap = func() func() Map {
 	// --- Hidden Persistent Scope ---
 	// These variables live forever but are ONLY accessible inside this block.
 	var once sync.Once
+
 	var singleton *map[string]*Currency
 	// -------------------------------
 
@@ -59,10 +60,12 @@ var NewCurrenciesMapFrom = createCurrenciesMapFromFactory()
 // without duplicating the singleton implementation logic.
 func createCurrenciesMapFromFactory() func(inputData *map[string]*Currency) (Map, error) {
 	var mu sync.Mutex
+
 	var singleton *map[string]*Currency
 
 	return func(inputData *map[string]*Currency) (Map, error) {
 		mu.Lock()
+
 		defer mu.Unlock()
 
 		// Logic Check: If already initialised, return existing immediately.
@@ -129,6 +132,7 @@ func (cm Map) FindByCode(code string) *Currency {
 	}
 
 	lookup := cm.dataset
+
 	if result, ok := (*lookup)[strings.ToUpper(code)]; ok {
 		return result
 	}

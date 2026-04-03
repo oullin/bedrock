@@ -278,12 +278,14 @@ func lookup(items map[string]any, key string) (any, bool) {
 	}
 
 	mapped, ok := current.(map[string]any)
+
 	if !ok {
 		return nil, false
 	}
 
 	last := segments[len(segments)-1]
 	value, ok := mapped[last]
+
 	if !ok {
 		return nil, false
 	}

@@ -14,9 +14,11 @@ import (
 func TestNewManager(t *testing.T) {
 	t.Run("creates manager with default currency manager", func(t *testing.T) {
 		mm := NewManager()
+
 		if mm == nil {
 			t.Fatal("NewManager() returned nil")
 		}
+
 		if mm.currencyManager == nil {
 			t.Fatal("currencyManager should not be nil")
 		}
@@ -27,12 +29,15 @@ func TestNewManagerWith(t *testing.T) {
 	t.Run("creates manager with custom currency manager", func(t *testing.T) {
 		cm := currency.NewManager()
 		mm, err := NewManagerWith(cm)
+
 		if err != nil {
 			t.Fatalf("NewManagerWith() unexpected error: %v", err)
 		}
+
 		if mm == nil {
 			t.Fatal("NewManagerWith() returned nil")
 		}
+
 		if mm.currencyManager != cm {
 			t.Fatal("currencyManager should be the same instance")
 		}
@@ -40,12 +45,15 @@ func TestNewManagerWith(t *testing.T) {
 
 	t.Run("returns error with nil currency manager", func(t *testing.T) {
 		mm, err := NewManagerWith(nil)
+
 		if err == nil {
 			t.Fatal("NewManagerWith(nil) expected error, got nil")
 		}
+
 		if mm != nil {
 			t.Fatal("NewManagerWith(nil) should return nil manager")
 		}
+
 		if err != exception.ErrNoCurrencyManager {
 			t.Fatalf("NewManagerWith(nil) error = %v, want %v", err, exception.ErrNoCurrencyManager)
 		}
@@ -57,16 +65,19 @@ func TestManagerCreate(t *testing.T) {
 
 	t.Run("creates money with valid currency", func(t *testing.T) {
 		m := mm.Create(1500, currency.SGD)
+
 		if m == nil {
 			t.Fatal("Create() returned nil")
 		}
 
 		amount := testutil.TestRequire(t, m.Amount)
+
 		if amount != 1500 {
 			t.Fatalf("Amount() = %d, want %d", amount, 1500)
 		}
 
 		curr := testutil.TestRequire(t, m.Currency)
+
 		if curr.Code != currency.SGD {
 			t.Fatalf("Currency().Code = %s, want %s", curr.Code, currency.SGD)
 		}
@@ -88,11 +99,13 @@ func TestManagerCreate(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				m := mm.Create(tt.amount, tt.code)
 				amount := testutil.TestRequire(t, m.Amount)
+
 				if amount != tt.amount {
 					t.Fatalf("Amount() = %d, want %d", amount, tt.amount)
 				}
 
 				curr := testutil.TestRequire(t, m.Currency)
+
 				if curr.Code != tt.code {
 					t.Fatalf("Currency().Code = %s, want %s", curr.Code, tt.code)
 				}
@@ -102,11 +115,13 @@ func TestManagerCreate(t *testing.T) {
 
 	t.Run("handles unknown currency code", func(t *testing.T) {
 		m := mm.Create(1000, "UNKNOWN")
+
 		if m == nil {
 			t.Fatal("Create() returned nil")
 		}
 		// Should fall back to default currency
 		curr := testutil.TestRequire(t, m.Currency)
+
 		if curr == nil {
 			t.Fatal("Currency() returned nil")
 		}
@@ -136,11 +151,13 @@ func TestManagerCreateFromFloat(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := mm.CreateFromFloat(tt.amount, tt.code)
 			amount := testutil.TestRequire(t, m.Amount)
+
 			if amount != tt.want {
 				t.Fatalf("Amount() = %d, want %d", amount, tt.want)
 			}
 
 			curr := testutil.TestRequire(t, m.Currency)
+
 			if curr.Code != tt.code {
 				t.Fatalf("Currency().Code = %s, want %s", curr.Code, tt.code)
 			}
@@ -187,10 +204,12 @@ func TestManagerCreateFromString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m, err := mm.CreateFromString(tt.amount, tt.code)
+
 			if tt.wantError {
 				if err == nil {
 					t.Fatal("CreateFromString() expected error, got nil")
 				}
+
 				return
 			}
 
@@ -199,11 +218,13 @@ func TestManagerCreateFromString(t *testing.T) {
 			}
 
 			amount := testutil.TestRequire(t, m.Amount)
+
 			if amount != tt.want {
 				t.Fatalf("Amount() = %d, want %d", amount, tt.want)
 			}
 
 			curr := testutil.TestRequire(t, m.Currency)
+
 			if curr.Code != tt.code {
 				t.Fatalf("Currency().Code = %s, want %s", curr.Code, tt.code)
 			}
@@ -243,6 +264,7 @@ func TestManagerCreateFromStringErrors(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := mm.CreateFromString(tt.amount, tt.code)
+
 			if err == nil {
 				t.Fatal("CreateFromString() expected error, got nil")
 			}
@@ -253,11 +275,13 @@ func TestManagerCreateFromStringErrors(t *testing.T) {
 func TestManagerGetCurrencyManager(t *testing.T) {
 	cm := currency.NewManager()
 	mm, err := NewManagerWith(cm)
+
 	if err != nil {
 		t.Fatalf("NewManagerWith() unexpected error: %v", err)
 	}
 
 	got := mm.GetCurrencyManager()
+
 	if got != cm {
 		t.Fatal("GetCurrencyManager() returned different instance")
 	}
@@ -280,11 +304,13 @@ func TestManagerWithCustomCurrencyManager(t *testing.T) {
 	}
 
 	cm, err := currency.NewManagerFor(nil, &dataset)
+
 	if err != nil {
 		t.Fatalf("failed to create custom currency manager: %v", err)
 	}
 
 	mm, err := NewManagerWith(cm)
+
 	if err != nil {
 		t.Fatalf("NewManagerWith() unexpected error: %v", err)
 	}
@@ -292,9 +318,11 @@ func TestManagerWithCustomCurrencyManager(t *testing.T) {
 	t.Run("creates money with custom currency", func(t *testing.T) {
 		m := mm.Create(1500, "TST")
 		curr := testutil.TestRequire(t, m.Currency)
+
 		if curr.Code != "TST" {
 			t.Fatalf("Currency().Code = %s, want TST", curr.Code)
 		}
+
 		if curr.Grapheme != "T$" {
 			t.Fatalf("Currency().Grapheme = %s, want T$", curr.Grapheme)
 		}
@@ -302,10 +330,13 @@ func TestManagerWithCustomCurrencyManager(t *testing.T) {
 
 	t.Run("creates money from string with custom currency", func(t *testing.T) {
 		m, err := mm.CreateFromString("10.50", "TST")
+
 		if err != nil {
 			t.Fatalf("CreateFromString() unexpected error: %v", err)
 		}
+
 		amount := testutil.TestRequire(t, m.Amount)
+
 		if amount != 1050 {
 			t.Fatalf("Amount() = %d, want 1050", amount)
 		}
@@ -319,18 +350,23 @@ func TestManagerConcurrency(t *testing.T) {
 
 	// Test that multiple goroutines can use the same manager safely
 	var wg sync.WaitGroup
+
 	for i := 0; i < 100; i++ {
 		amount := int64(i * 100)
 		wg.Add(1)
 		go func(amount int64) {
 			defer wg.Done()
+
 			m := mm.Create(amount, currency.SGD)
 
 			gotAmount, err := m.Amount()
+
 			if err != nil {
 				t.Errorf("Amount() unexpected error: %v", err)
+
 				return
 			}
+
 			if gotAmount != amount {
 				t.Errorf("Amount() = %d, want %d", gotAmount, amount)
 			}
@@ -351,6 +387,7 @@ func TestManagerAdd(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1500 {
 			t.Fatalf("Amount() = %d, want 1500", amount)
 		}
@@ -365,6 +402,7 @@ func TestManagerAdd(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1750 {
 			t.Fatalf("Amount() = %d, want 1750", amount)
 		}
@@ -376,6 +414,7 @@ func TestManagerAdd(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1000 {
 			t.Fatalf("Amount() = %d, want 1000", amount)
 		}
@@ -386,6 +425,7 @@ func TestManagerAdd(t *testing.T) {
 		m2 := mm.Create(500, currency.EUR)
 
 		_, err := mm.Add(m1, m2)
+
 		if err == nil {
 			t.Fatal("Add() expected error for different currencies, got nil")
 		}
@@ -403,6 +443,7 @@ func TestManagerSubtract(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 700 {
 			t.Fatalf("Amount() = %d, want 700", amount)
 		}
@@ -417,6 +458,7 @@ func TestManagerSubtract(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 500 {
 			t.Fatalf("Amount() = %d, want 500", amount)
 		}
@@ -427,6 +469,7 @@ func TestManagerSubtract(t *testing.T) {
 		m2 := mm.Create(500, currency.EUR)
 
 		_, err := mm.Subtract(m1, m2)
+
 		if err == nil {
 			t.Fatal("Subtract() expected error for different currencies, got nil")
 		}
@@ -443,6 +486,7 @@ func TestManagerMultiply(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 300 {
 			t.Fatalf("Amount() = %d, want 300", amount)
 		}
@@ -455,6 +499,7 @@ func TestManagerMultiply(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 300 {
 			t.Fatalf("Amount() = %d, want 300", amount)
 		}
@@ -464,6 +509,7 @@ func TestManagerMultiply(t *testing.T) {
 		m := mm.Create(100, currency.SGD)
 
 		_, err := mm.Multiply(m)
+
 		if err == nil {
 			t.Fatal("Multiply() expected error for no multipliers, got nil")
 		}
@@ -480,6 +526,7 @@ func TestManagerAbsolute(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1000 {
 			t.Fatalf("Amount() = %d, want 1000", amount)
 		}
@@ -492,6 +539,7 @@ func TestManagerAbsolute(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1000 {
 			t.Fatalf("Amount() = %d, want 1000", amount)
 		}
@@ -508,6 +556,7 @@ func TestManagerNegative(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != -1000 {
 			t.Fatalf("Amount() = %d, want -1000", amount)
 		}
@@ -520,6 +569,7 @@ func TestManagerNegative(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1000 {
 			t.Fatalf("Amount() = %d, want 1000", amount)
 		}
@@ -536,6 +586,7 @@ func TestManagerRound(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1200 {
 			t.Fatalf("Amount() = %d, want 1200", amount)
 		}
@@ -548,6 +599,7 @@ func TestManagerRound(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		amount := testutil.TestRequire(t, result.Amount)
+
 		if amount != 1300 {
 			t.Fatalf("Amount() = %d, want 1300", amount)
 		}
@@ -569,6 +621,7 @@ func TestManagerSplit(t *testing.T) {
 
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != 500 {
 				t.Fatalf("results[%d].Amount() = %d, want 500", i, amount)
 			}
@@ -586,8 +639,10 @@ func TestManagerSplit(t *testing.T) {
 		}
 
 		expected := []int64{334, 333, 333}
+
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != expected[i] {
 				t.Fatalf("results[%d].Amount() = %d, want %d", i, amount, expected[i])
 			}
@@ -598,6 +653,7 @@ func TestManagerSplit(t *testing.T) {
 		m := mm.Create(1000, currency.SGD)
 
 		_, err := mm.Split(m, 0)
+
 		if err == nil {
 			t.Fatal("Split() expected error for n=0, got nil")
 		}
@@ -610,8 +666,10 @@ func TestManagerSplit(t *testing.T) {
 		testutil.TestRequireNoErr(t, err)
 
 		expected := []int64{-334, -333, -333}
+
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != expected[i] {
 				t.Fatalf("results[%d].Amount() = %d, want %d", i, amount, expected[i])
 			}
@@ -633,8 +691,10 @@ func TestManagerAllocate(t *testing.T) {
 		}
 
 		expected := []int64{334, 333, 333}
+
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != expected[i] {
 				t.Fatalf("results[%d].Amount() = %d, want %d", i, amount, expected[i])
 			}
@@ -655,8 +715,10 @@ func TestManagerAllocate(t *testing.T) {
 		// 1/6 = 166, 2/6 = 333, 3/6 = 500
 		// Leftover = 1 (distributed to first party)
 		expected := []int64{167, 333, 500}
+
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != expected[i] {
 				t.Fatalf("results[%d].Amount() = %d, want %d", i, amount, expected[i])
 			}
@@ -667,6 +729,7 @@ func TestManagerAllocate(t *testing.T) {
 		m := mm.Create(1000, currency.SGD)
 
 		_, err := mm.Allocate(m, 1, -2, 3)
+
 		if err == nil {
 			t.Fatal("Allocate() expected error for negative ratios, got nil")
 		}
@@ -676,6 +739,7 @@ func TestManagerAllocate(t *testing.T) {
 		m := mm.Create(1000, currency.SGD)
 
 		_, err := mm.Allocate(m)
+
 		if err == nil {
 			t.Fatal("Allocate() expected error for no ratios, got nil")
 		}
@@ -693,6 +757,7 @@ func TestManagerAllocate(t *testing.T) {
 
 		for i, result := range results {
 			amount := testutil.TestRequire(t, result.Amount)
+
 			if amount != 0 {
 				t.Fatalf("results[%d].Amount() = %d, want 0", i, amount)
 			}
@@ -716,6 +781,7 @@ func TestManagerCreateFromString_ErrorPaths(t *testing.T) {
 	}
 
 	mm.parser = nil
+
 	if _, err := mm.CreateFromString("+1.00", currency.SGD); !errors.Is(err, exception.ErrParserNotProvided) {
 		t.Fatalf("CreateFromString(nil parser) error = %v, want ErrParserNotProvided", err)
 	}
@@ -730,6 +796,7 @@ func TestManagerMultiply_ErrorPaths(t *testing.T) {
 	}
 
 	huge := mm.Create(math.MaxInt64, currency.SGD)
+
 	if _, err := mm.Multiply(huge, 2); err == nil {
 		t.Fatal("Multiply() expected overflow error")
 	}

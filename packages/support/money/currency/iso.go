@@ -46,6 +46,7 @@ func NewISOCodePatternWith(provider Provider, dataset *map[string]*Currency) (*I
 	}
 
 	currencies, err := NewCurrenciesMapFrom(dataset)
+
 	if err != nil {
 		return nil, exception.ErrNoCurrencyMapDataset
 	}

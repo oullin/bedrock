@@ -200,11 +200,13 @@ func TestFactoryHelpers(t *testing.T) {
 			t.Parallel()
 			m := tt.fn(42)
 			amount := testutil.TestRequire(t, m.Amount)
+
 			if amount != 42 {
 				t.Fatalf("%s amount = %d, want 42", tt.name, amount)
 			}
 
 			currency := testutil.TestRequire(t, m.Currency)
+
 			if currency.Code != tt.code {
 				t.Fatalf("%s currency = %s, want %s", tt.name, currency.Code, tt.code)
 			}

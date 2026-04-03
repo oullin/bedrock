@@ -11,11 +11,13 @@ func TestMoney_Value(t *testing.T) {
 	m := NewManager().Create(1234, "SGD")
 
 	val, err := m.Value()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
 	expected := "1234|SGD"
+
 	if val != expected {
 		t.Errorf("expected %q, got %q", expected, val)
 	}
@@ -98,6 +100,7 @@ func TestMoney_Scan(t *testing.T) {
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DbScan() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 
@@ -119,6 +122,7 @@ func TestCurrency_Value(t *testing.T) {
 	c := currency.NewManager().Resolve("SGD")
 
 	val, err := c.DbValue()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -176,11 +180,13 @@ func TestCurrency_Scan(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			var c currency.Currency
 			err := c.DbScan(tt.input)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DbScan() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 
@@ -194,8 +200,10 @@ func TestCurrency_Scan(t *testing.T) {
 func TestSetDBMoneyValueSeparator(t *testing.T) {
 	// Save the original separator to restore after a test
 	originalSep := GetDBMoneyValueSeparator()
+
 	defer func(separator string) {
 		err := SetDBMoneyValueSeparator(separator)
+
 		if err != nil {
 			t.Fatalf("Failed to restore original separator: %v", err)
 		}
@@ -236,6 +244,7 @@ func TestSetDBMoneyValueSeparator(t *testing.T) {
 				if err == nil {
 					t.Fatalf("SetDBMoneyValueSeparator() expected an error, but got none")
 				}
+
 				return // Don't proceed with success checks if an error is expected
 			}
 
@@ -251,17 +260,20 @@ func TestSetDBMoneyValueSeparator(t *testing.T) {
 			// Verify Value() uses the new separator
 			m := NewManager().Create(1234, currency.SGD)
 			val, err := m.Value()
+
 			if err != nil {
 				t.Fatalf("Value() unexpected error: %v", err)
 			}
 
 			expected := "1234" + tt.separator + "SGD"
+
 			if val != expected {
 				t.Errorf("Value() = %q, want %q", val, expected)
 			}
 
 			// Verify Scan() works with the new separator
 			var scanned Money
+
 			if err := scanned.Scan(expected); err != nil {
 				t.Fatalf("Scan() unexpected error: %v", err)
 			}
@@ -280,8 +292,10 @@ func TestSetDBMoneyValueSeparator(t *testing.T) {
 func TestSetDBMoneyValueSeparator_ThreadSafety(t *testing.T) {
 	// Save the original separator to restore after a test
 	originalSep := GetDBMoneyValueSeparator()
+
 	defer func(separator string) {
 		err := SetDBMoneyValueSeparator(separator)
+
 		if err != nil {
 			t.Fatalf("Failed to restore original separator: %v", err)
 		}
@@ -302,16 +316,19 @@ func TestSetDBMoneyValueSeparator_ThreadSafety(t *testing.T) {
 
 				// Test Value() during concurrent access
 				m := NewManager().Create(100, currency.SGD)
+
 				if _, err := m.Value(); err != nil {
 					t.Errorf("Value() error during concurrent access: %v", err)
 				}
 			}
+
 			done <- true
 		}()
 	}
 
 	// Concurrent writers
 	separators := []string{"|", ",", ":", ";", "-"}
+
 	for i := 0; i < 5; i++ {
 		go func(sep string) {
 			for j := 0; j < iterations; j++ {
@@ -321,6 +338,7 @@ func TestSetDBMoneyValueSeparator_ThreadSafety(t *testing.T) {
 					t.Errorf("SetDBMoneyValueSeparator() error during concurrent access: %v", err)
 				}
 			}
+
 			done <- true
 		}(separators[i])
 	}
@@ -332,6 +350,7 @@ func TestSetDBMoneyValueSeparator_ThreadSafety(t *testing.T) {
 
 	// Verify we can still get a valid separator after concurrent access
 	finalSep := GetDBMoneyValueSeparator()
+
 	if finalSep == "" {
 		t.Error("Final separator is empty after concurrent access")
 	}
@@ -340,8 +359,10 @@ func TestSetDBMoneyValueSeparator_ThreadSafety(t *testing.T) {
 func TestSetDBMoneyValueSeparator_RoundTrip(t *testing.T) {
 	// Save the original separator to restore after a test
 	originalSep := GetDBMoneyValueSeparator()
+
 	defer func(separator string) {
 		err := SetDBMoneyValueSeparator(separator)
+
 		if err != nil {
 			t.Fatalf("Failed to restore original separator: %v", err)
 		}
@@ -368,12 +389,14 @@ func TestSetDBMoneyValueSeparator_RoundTrip(t *testing.T) {
 			// Create money and convert to value
 			original := NewManager().Create(tc.amount, tc.currency)
 			val, err := original.Value()
+
 			if err != nil {
 				t.Fatalf("Value() error: %v", err)
 			}
 
 			// Scan back from value
 			var restored Money
+
 			if err := restored.Scan(val); err != nil {
 				t.Fatalf("Scan() error: %v", err)
 			}
@@ -396,6 +419,7 @@ func TestMoney_Value_Coverage(t *testing.T) {
 	// Test nil Money
 	var m *Money
 	_, err := m.Value()
+
 	if err == nil {
 		t.Error("Value() called on nil Money should return error")
 	}
@@ -403,6 +427,7 @@ func TestMoney_Value_Coverage(t *testing.T) {
 	// Test Money with nil currency
 	m2 := &Money{amount: 100, currency: nil}
 	_, err = m2.Value()
+
 	if err == nil {
 		t.Error("Value() called on Money with nil currency should return error")
 	}
