@@ -3,9 +3,11 @@ package auth
 import (
 	"net/http"
 	"time"
+
+	"github.com/gollin/packages/security/encryption"
 )
 
-// CookieConfig controls session and remember-me cookies.
+// CookieConfig controls auth cookie behavior.
 type CookieConfig struct {
 	SessionName  string
 	RememberName string
@@ -16,34 +18,31 @@ type CookieConfig struct {
 	SameSite     http.SameSite
 }
 
-// Config controls auth-guard behavior.
+// Config controls auth behavior.
 type Config struct {
-	DefaultGuard                string
-	DefaultProvider             string
-	IdentifierField             string
-	BaseURL                     string
-	SessionLifetime             time.Duration
-	RememberLifetime            time.Duration
-	PasswordConfirmationTimeout time.Duration
-	VerificationTTL             time.Duration
-	SigningKey                  []byte
-	Cookies                     CookieConfig
+	DefaultGuard     string
+	DefaultProvider  string
+	IdentifierField  string
+	SessionLifetime  time.Duration
+	RememberLifetime time.Duration
+	VerificationTTL  time.Duration
+	SigningKey       []byte
+	Cookies          CookieConfig
 }
 
-// Session represents an authenticated or pending two-factor session.
+// Session represents an authenticated or pending session.
 type Session struct {
-	ID                  string     `json:"id"`
-	UserID              string     `json:"userId"`
-	PendingTwoFactor    bool       `json:"pendingTwoFactor"`
-	PendingRemember     bool       `json:"pendingRemember"`
-	PasswordConfirmedAt *time.Time `json:"passwordConfirmedAt,omitempty"`
-	AuthenticatedAt     *time.Time `json:"authenticatedAt,omitempty"`
-	LastSeenAt          time.Time  `json:"lastSeenAt"`
-	CreatedAt           time.Time  `json:"createdAt"`
-	ExpiresAt           time.Time  `json:"expiresAt"`
+	ID               string
+	UserID           string
+	PendingTwoFactor bool
+	PendingRemember  bool
+	LastSeenAt       time.Time
+	CreatedAt        time.Time
+	AuthenticatedAt  *time.Time
+	ExpiresAt        time.Time
 }
 
-// MailMessage is sent by auth-related services.
+// MailMessage represents a mail payload.
 type MailMessage struct {
 	To       string
 	Subject  string
@@ -51,17 +50,10 @@ type MailMessage struct {
 	Metadata map[string]string
 }
 
-// LoginResult represents a successful login or two-factor completion.
-type LoginResult struct {
-	User          Authenticatable `json:"user,omitempty"`
-	Session       *Session        `json:"session,omitempty"`
-	RememberToken string          `json:"rememberToken,omitempty"`
-}
-
-// ManagerDependencies provides optional auth-core dependencies.
+// ManagerDependencies provides optional auth dependencies.
 type ManagerDependencies struct {
-	Hasher PasswordHasher
-	Clock  Clock
-	IDs    IDGenerator
-	Logger Logger
+	Hasher    PasswordHasher
+	Encrypter *encryption.Encrypter
+	Clock     Clock
+	IDs       IDGenerator
 }

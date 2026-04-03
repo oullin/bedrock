@@ -1,3 +1,3 @@
-// Package auth provides Upstream-inspired session authentication primitives,
-// pluggable stores, and middleware for Go services.
+// Package auth provides Upstream-inspired authentication primitives rebuilt
+// around shared config, security, database, and user workspaces.
 package auth
