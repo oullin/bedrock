@@ -64,3 +64,15 @@ func TestRandom(t *testing.T) {
 		t.Errorf("expected 2 items, got %d", len(result))
 	}
 }
+
+func TestRandomNonPositiveCount(t *testing.T) {
+	items := []int{1, 2, 3, 4, 5}
+
+	for _, count := range []int{0, -1} {
+		result := arr.Random(items, count)
+
+		if len(result) != 0 {
+			t.Fatalf("expected 0 items for count %d, got %d", count, len(result))
+		}
+	}
+}
