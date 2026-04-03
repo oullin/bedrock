@@ -21,18 +21,23 @@ func TestRequireAuthenticatedAndVerifiedEmail(t *testing.T) {
 
 	protected := stack.RequireAuthenticated(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		currentUser, ok := authmw.CurrentUser(r)
+
 		if !ok || currentUser.GetAuthIdentifier() != user.ID {
 			t.Fatalf("unexpected current user: %#v", currentUser)
 		}
+
 		w.WriteHeader(http.StatusNoContent)
 	}))
 
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
+
 	rec := httptest.NewRecorder()
 	protected.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("unexpected status: %d", rec.Code)
 	}
@@ -42,6 +47,7 @@ func TestRequireAuthenticatedAndVerifiedEmail(t *testing.T) {
 	}))
 	rec = httptest.NewRecorder()
 	verified.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusForbidden {
 		t.Fatalf("unexpected verified-email status: %d", rec.Code)
 	}
@@ -57,11 +63,14 @@ func TestRequirePasswordConfirmed(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
+
 	rec := httptest.NewRecorder()
 	protected.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("unexpected status: %d", rec.Code)
 	}
@@ -72,6 +81,7 @@ func TestRequirePasswordConfirmed(t *testing.T) {
 	}))
 	rec = httptest.NewRecorder()
 	protected.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusForbidden {
 		t.Fatalf("unexpected stale confirmation status: %d", rec.Code)
 	}
@@ -88,9 +98,11 @@ func TestWriteJSONError(t *testing.T) {
 	}
 
 	var body map[string]any
+
 	if err := json.NewDecoder(rec.Body).Decode(&body); err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
+
 	if body["error"] != "throttled" {
 		t.Fatalf("unexpected error body: %#v", body)
 	}
@@ -106,9 +118,11 @@ func newMiddlewareStack(t *testing.T, confirmPassword bool) (authmw.Stack, *foun
 	hasher := auth.DefaultPasswordHasher{}
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "User",
@@ -117,9 +131,11 @@ func newMiddlewareStack(t *testing.T, confirmPassword bool) (authmw.Stack, *foun
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}
+
 	if confirmPassword {
 		user.MarkEmailAsVerified(now)
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -144,18 +160,22 @@ func newMiddlewareStack(t *testing.T, confirmPassword bool) (authmw.Stack, *foun
 		Clock:  clock,
 		IDs:    memory.NewSequenceIDGenerator("session"),
 	})
+
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
 
 	rec := httptest.NewRecorder()
 	session, _, err := manager.DefaultGuard().Login(context.Background(), rec, user, false, false)
+
 	if err != nil {
 		t.Fatalf("Login: %v", err)
 	}
+
 	if confirmPassword {
 		confirmedAt := clock.Now()
 		session.PasswordConfirmedAt = &confirmedAt
+
 		if err := manager.DefaultGuard().UpdateSession(context.Background(), session); err != nil {
 			t.Fatalf("UpdateSession: %v", err)
 		}

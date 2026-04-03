@@ -18,5 +18,6 @@ Turborepo monorepo managed with `pnpm`.
 - `pnpm dev`
 - `pnpm build`
 - `pnpm typecheck`
-- `pnpm fmt`
+- `make format` formats the full repo. It runs workspace JS/TS formatting, Dockerized `go-fmt` for all tracked Go code, and `oxfmt` for all tracked Markdown files. Requires Docker Compose.
+- `pnpm fmt` runs workspace-level formatting through Turbo.
 - `pnpm fmt:check`

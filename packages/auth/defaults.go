@@ -12,24 +12,28 @@ import (
 type SystemClock struct{}
 
 // Now returns the current UTC time.
-func (SystemClock) Now() time.Time {
-	return time.Now().UTC()
-}
 
 // RandomIDGenerator creates opaque random identifiers.
 type RandomIDGenerator struct{}
 
 // NewID returns a random identifier.
-func (RandomIDGenerator) NewID() string {
-	value, err := crypto.RandomString(24)
-	if err != nil {
-		panic(fmt.Sprintf("generate id: %v", err))
-	}
-	return value
-}
 
 // NoopLogger drops log records.
 type NoopLogger struct{}
+
+func (SystemClock) Now() time.Time {
+	return time.Now().UTC()
+}
+
+func (RandomIDGenerator) NewID() string {
+	value, err := crypto.RandomString(24)
+
+	if err != nil {
+		panic(fmt.Sprintf("generate id: %v", err))
+	}
+
+	return value
+}
 
 // Info drops info logs.
 func (NoopLogger) Info(context.Context, string, map[string]any) {}

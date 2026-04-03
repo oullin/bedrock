@@ -8,9 +8,11 @@ type RoutePath struct {
 // NewRoutePath creates a route path resolver.
 func NewRoutePath(paths map[string]string) RoutePath {
 	cloned := make(map[string]string, len(paths))
+
 	for key, value := range paths {
 		cloned[key] = value
 	}
+
 	return RoutePath{paths: cloned}
 }
 
@@ -19,5 +21,6 @@ func (r RoutePath) For(name string, defaultPath string) string {
 	if path, ok := r.paths[name]; ok && path != "" {
 		return path
 	}
+
 	return defaultPath
 }

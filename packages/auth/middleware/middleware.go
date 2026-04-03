@@ -12,22 +12,9 @@ import (
 
 type contextKey string
 
-const (
-	userContextKey    contextKey = "auth:user"
-	sessionContextKey contextKey = "auth:session"
-)
-
 // CurrentUser returns the authenticated user from request context.
-func CurrentUser(r *http.Request) (auth.Authenticatable, bool) {
-	user, ok := r.Context().Value(userContextKey).(auth.Authenticatable)
-	return user, ok
-}
 
 // CurrentSession returns the session from request context.
-func CurrentSession(r *http.Request) (*auth.Session, bool) {
-	session, ok := r.Context().Value(sessionContextKey).(*auth.Session)
-	return session, ok
-}
 
 // Stack provides auth middleware helpers.
 type Stack struct {
@@ -36,12 +23,31 @@ type Stack struct {
 	Clock  auth.Clock
 }
 
+const (
+	userContextKey    contextKey = "auth:user"
+	sessionContextKey contextKey = "auth:session"
+)
+
+func CurrentUser(r *http.Request) (auth.Authenticatable, bool) {
+	user, ok := r.Context().Value(userContextKey).(auth.Authenticatable)
+
+	return user, ok
+}
+
+func CurrentSession(r *http.Request) (*auth.Session, bool) {
+	session, ok := r.Context().Value(sessionContextKey).(*auth.Session)
+
+	return session, ok
+}
+
 // RequireAuthenticated rejects requests without an authenticated session.
 func (s Stack) RequireAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, user, err := s.Guard.AuthenticateRequest(r.Context(), w, r)
+
 		if err != nil || session == nil || session.PendingTwoFactor {
 			WriteJSONError(w, http.StatusUnauthorized, auth.ErrUnauthorized)
+
 			return
 		}
 
@@ -56,10 +62,13 @@ func (s Stack) RequireVerifiedEmail(next http.Handler) http.Handler {
 	return s.RequireAuthenticated(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, _ := CurrentUser(r)
 		verifiable, ok := user.(auth.MustVerifyEmail)
+
 		if !ok || !verifiable.HasVerifiedEmail() {
 			WriteJSONError(w, http.StatusForbidden, auth.ErrEmailVerificationInvalid)
+
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	}))
 }
@@ -68,10 +77,13 @@ func (s Stack) RequireVerifiedEmail(next http.Handler) http.Handler {
 func (s Stack) RequirePasswordConfirmed(next http.Handler) http.Handler {
 	return s.RequireAuthenticated(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, _ := CurrentSession(r)
+
 		if auth.ExpiredPasswordConfirmation(s.Config, session.PasswordConfirmedAt, s.Clock.Now()) {
 			WriteJSONError(w, http.StatusForbidden, auth.ErrPasswordConfirmationRequired)
+
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	}))
 }
@@ -136,6 +148,7 @@ func WriteJSONError(w http.ResponseWriter, status int, err error) {
 		Message: message,
 		Fields:  fields,
 	}
+
 	if retryAfter > 0 {
 		body.RetryAfter = int64(retryAfter.Seconds())
 	}

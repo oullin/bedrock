@@ -22,9 +22,11 @@ func TestBrokerRejectsInvalidRecentlyCreatedAndExpiredTokens(t *testing.T) {
 	hasher := auth.DefaultPasswordHasher{}
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "Reset User",
@@ -33,6 +35,7 @@ func TestBrokerRejectsInvalidRecentlyCreatedAndExpiredTokens(t *testing.T) {
 		CreatedAt:    clock.Now(),
 		UpdatedAt:    clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -50,9 +53,11 @@ func TestBrokerRejectsInvalidRecentlyCreatedAndExpiredTokens(t *testing.T) {
 	}
 
 	token, err := broker.SendResetLink(context.Background(), user.Email)
+
 	if err != nil {
 		t.Fatalf("SendResetLink: %v", err)
 	}
+
 	if _, err := broker.SendResetLink(context.Background(), user.Email); err == nil {
 		t.Fatal("expected throttle error")
 	}
@@ -66,6 +71,7 @@ func TestBrokerRejectsInvalidRecentlyCreatedAndExpiredTokens(t *testing.T) {
 	}
 
 	clock.Advance(2 * time.Hour)
+
 	if _, err := broker.Reset(context.Background(), user.Email, token, "new-password-123", actions.ResetUserPassword{
 		Users:  users,
 		Hasher: hasher,
