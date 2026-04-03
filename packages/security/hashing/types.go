@@ -6,26 +6,23 @@ import (
 	"strconv"
 	"strings"
 
-	securitypkg "github.com/gollin/packages/security"
+	securityconfig "github.com/gollin/packages/security/config"
 )
 
-const (
-	// DriverBcrypt names the bcrypt driver.
-	DriverBcrypt = "bcrypt"
-	// DriverArgon names the argon2i driver.
-	DriverArgon = "argon"
-	// DriverArgon2id names the argon2id driver.
-	DriverArgon2id = "argon2id"
-)
+// DriverBcrypt names the bcrypt driver.
+
+// DriverArgon names the argon2i driver.
+
+// DriverArgon2id names the argon2id driver.
 
 // Config configures a hashing manager.
-type Config = securitypkg.HashingConfig
+type Config = securityconfig.HashingConfig
 
 // BcryptConfig configures a bcrypt hasher.
-type BcryptConfig = securitypkg.BcryptHashingConfig
+type BcryptConfig = securityconfig.BcryptHashingConfig
 
 // ArgonConfig configures an argon hasher.
-type ArgonConfig = securitypkg.ArgonHashingConfig
+type ArgonConfig = securityconfig.ArgonHashingConfig
 
 // Info describes a hashed value.
 type Info struct {
@@ -45,15 +42,25 @@ type configurationVerifier interface {
 	VerifyConfiguration(hashedValue string) bool
 }
 
+const (
+	DriverBcrypt = "bcrypt"
+
+	DriverArgon = "argon"
+
+	DriverArgon2id = "argon2id"
+)
+
 func cloneOptions(options map[string]int) map[string]int {
 	if len(options) == 0 {
 		return map[string]int{}
 	}
 
 	cloned := make(map[string]int, len(options))
+
 	for key, value := range options {
 		cloned[key] = value
 	}
+
 	return cloned
 }
 
@@ -63,6 +70,7 @@ func intOption(options map[string]any, key string, fallback int) (int, error) {
 	}
 
 	value, ok := options[key]
+
 	if !ok {
 		return fallback, nil
 	}
@@ -82,6 +90,7 @@ func intOption(options map[string]any, key string, fallback int) (int, error) {
 		if typed > math.MaxInt {
 			return 0, fmt.Errorf("hashing: option %q exceeds int range", key)
 		}
+
 		return int(typed), nil
 	case uint8:
 		return int(typed), nil
@@ -93,6 +102,7 @@ func intOption(options map[string]any, key string, fallback int) (int, error) {
 		if typed > math.MaxInt {
 			return 0, fmt.Errorf("hashing: option %q exceeds int range", key)
 		}
+
 		return int(typed), nil
 	case float32:
 		return int(typed), nil
@@ -100,9 +110,11 @@ func intOption(options map[string]any, key string, fallback int) (int, error) {
 		return int(typed), nil
 	case string:
 		parsed, err := strconv.Atoi(strings.TrimSpace(typed))
+
 		if err != nil {
 			return 0, fmt.Errorf("hashing: option %q must be an integer", key)
 		}
+
 		return parsed, nil
 	default:
 		return 0, fmt.Errorf("hashing: option %q must be an integer", key)
@@ -111,9 +123,11 @@ func intOption(options map[string]any, key string, fallback int) (int, error) {
 
 func normalizeDriver(driver string) string {
 	driver = strings.TrimSpace(strings.ToLower(driver))
+
 	if driver == "" {
 		return DriverBcrypt
 	}
+
 	return driver
 }
 
@@ -121,6 +135,7 @@ func normalizeBcryptConfig(cfg BcryptConfig) BcryptConfig {
 	if cfg.Rounds == 0 {
 		cfg.Rounds = 12
 	}
+
 	return cfg
 }
 
@@ -128,18 +143,23 @@ func normalizeArgonConfig(cfg ArgonConfig) ArgonConfig {
 	if cfg.Memory == 0 {
 		cfg.Memory = 1024
 	}
+
 	if cfg.Time == 0 {
 		cfg.Time = 2
 	}
+
 	if cfg.Threads == 0 {
 		cfg.Threads = 2
 	}
+
 	if cfg.Threads < 0 {
 		cfg.Threads = 1
 	}
+
 	if cfg.Threads > math.MaxUint8 {
 		cfg.Threads = math.MaxUint8
 	}
+
 	return cfg
 }
 
@@ -147,5 +167,6 @@ func normalizeConfig(cfg Config) Config {
 	cfg.Driver = normalizeDriver(cfg.Driver)
 	cfg.Bcrypt = normalizeBcryptConfig(cfg.Bcrypt)
 	cfg.Argon = normalizeArgonConfig(cfg.Argon)
+
 	return cfg
 }

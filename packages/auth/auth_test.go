@@ -16,12 +16,15 @@ func TestDefaultPasswordHasher(t *testing.T) {
 
 	hasher := auth.DefaultPasswordHasher{}
 	encoded, err := hasher.Hash(context.Background(), "secret-pass")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	if err := hasher.Compare(context.Background(), encoded, "secret-pass"); err != nil {
 		t.Fatalf("Compare: %v", err)
 	}
+
 	if err := hasher.Compare(context.Background(), encoded, "wrong-pass"); err == nil {
 		t.Fatal("expected wrong password to fail")
 	}
@@ -37,9 +40,11 @@ func TestSessionGuardLoginAndAuthenticateRequest(t *testing.T) {
 	hasher := auth.DefaultPasswordHasher{}
 
 	passwordHash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "Test User",
@@ -48,6 +53,7 @@ func TestSessionGuardLoginAndAuthenticateRequest(t *testing.T) {
 		CreatedAt:    clock.Now(),
 		UpdatedAt:    clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -72,6 +78,7 @@ func TestSessionGuardLoginAndAuthenticateRequest(t *testing.T) {
 		Clock:  clock,
 		IDs:    ids,
 	})
+
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
@@ -80,34 +87,42 @@ func TestSessionGuardLoginAndAuthenticateRequest(t *testing.T) {
 		"email":    "user@example.com",
 		"password": "password-123",
 	})
+
 	if err != nil {
 		t.Fatalf("ValidateCredentials: %v", err)
 	}
 
 	recorder := httptest.NewRecorder()
 	session, rememberToken, err := manager.DefaultGuard().Login(context.Background(), recorder, resolved, true, false)
+
 	if err != nil {
 		t.Fatalf("Login: %v", err)
 	}
+
 	if rememberToken == "" {
 		t.Fatal("expected remember token")
 	}
+
 	if len(recorder.Result().Cookies()) == 0 {
 		t.Fatal("expected cookies to be written")
 	}
 
 	request := httptest.NewRequest("GET", "/protected", nil)
+
 	for _, cookie := range recorder.Result().Cookies() {
 		request.AddCookie(cookie)
 	}
 
 	authenticatedSession, authenticatedUser, err := manager.DefaultGuard().AuthenticateRequest(context.Background(), httptest.NewRecorder(), request)
+
 	if err != nil {
 		t.Fatalf("AuthenticateRequest: %v", err)
 	}
+
 	if authenticatedSession.ID != session.ID {
 		t.Fatalf("unexpected session id: %s", authenticatedSession.ID)
 	}
+
 	if authenticatedUser.GetAuthIdentifier() != user.ID {
 		t.Fatalf("unexpected user id: %s", authenticatedUser.GetAuthIdentifier())
 	}

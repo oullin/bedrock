@@ -140,7 +140,9 @@ func (u *User) GetTwoFactorConfirmedAt() *time.Time {
 	if u.TwoFactorConfirmedAt == nil {
 		return nil
 	}
+
 	value := *u.TwoFactorConfirmedAt
+
 	return &value
 }
 
@@ -148,8 +150,10 @@ func (u *User) GetTwoFactorConfirmedAt() *time.Time {
 func (u *User) SetTwoFactorConfirmedAt(at *time.Time) {
 	if at == nil {
 		u.TwoFactorConfirmedAt = nil
+
 		return
 	}
+
 	value := *at
 	u.TwoFactorConfirmedAt = &value
 }

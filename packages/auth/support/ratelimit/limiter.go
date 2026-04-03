@@ -23,11 +23,13 @@ func (l *Limiter) Allow(key string, limit int, window time.Duration, now time.Ti
 	}
 
 	l.mu.Lock()
+
 	defer l.mu.Unlock()
 
 	windowStart := now.Add(-window)
 	entries := l.buckets[key]
 	pruned := entries[:0]
+
 	for _, entry := range entries {
 		if entry.After(windowStart) {
 			pruned = append(pruned, entry)
@@ -37,10 +39,12 @@ func (l *Limiter) Allow(key string, limit int, window time.Duration, now time.Ti
 	if len(pruned) >= limit {
 		retryAfter := pruned[0].Add(window).Sub(now)
 		l.buckets[key] = pruned
+
 		return false, retryAfter
 	}
 
 	pruned = append(pruned, now)
 	l.buckets[key] = pruned
+
 	return true, 0
 }

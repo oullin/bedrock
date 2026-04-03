@@ -9,29 +9,33 @@ import (
 	"testing"
 
 	configpkg "github.com/gollin/packages/config"
-	"github.com/gollin/packages/security/serialize"
 )
 
 func TestEncryptDecryptStringCBC(t *testing.T) {
 	t.Parallel()
 
 	e, err := New(Config{Key: []byte("1234567890abcdef"), Cipher: AES128CBC})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
 	encrypted, err := e.EncryptString("foo")
+
 	if err != nil {
 		t.Fatalf("EncryptString: %v", err)
 	}
+
 	if encrypted == "foo" {
 		t.Fatal("expected encrypted payload")
 	}
 
 	decrypted, err := e.DecryptString(encrypted)
+
 	if err != nil {
 		t.Fatalf("DecryptString: %v", err)
 	}
+
 	if decrypted != "foo" {
 		t.Fatalf("unexpected decrypted value: %q", decrypted)
 	}
@@ -41,10 +45,13 @@ func TestEncryptDecryptStringWithPreviousKeys(t *testing.T) {
 	t.Parallel()
 
 	previous, err := New(Config{Key: []byte("bbbbbbbbbbbbbbbb"), Cipher: AES128CBC})
+
 	if err != nil {
 		t.Fatalf("New previous: %v", err)
 	}
+
 	payload, err := previous.EncryptString("foo")
+
 	if err != nil {
 		t.Fatalf("EncryptString: %v", err)
 	}
@@ -54,23 +61,27 @@ func TestEncryptDecryptStringWithPreviousKeys(t *testing.T) {
 		PreviousKeys: [][]byte{[]byte("bbbbbbbbbbbbbbbb")},
 		Cipher:       AES128CBC,
 	})
+
 	if err != nil {
 		t.Fatalf("New current: %v", err)
 	}
 
 	decrypted, err := current.DecryptString(payload)
+
 	if err != nil {
 		t.Fatalf("DecryptString: %v", err)
 	}
+
 	if decrypted != "foo" {
 		t.Fatalf("unexpected decrypted value: %q", decrypted)
 	}
 }
 
-func TestEncryptDecryptSerializedValues(t *testing.T) {
+func TestEncryptDecryptJSONValues(t *testing.T) {
 	t.Parallel()
 
 	e, err := New(Config{Key: []byte("0123456789abcdef0123456789abcdef"), Cipher: AES256CBC})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -81,19 +92,60 @@ func TestEncryptDecryptSerializedValues(t *testing.T) {
 		check func(t *testing.T, got any)
 	}{
 		{
-			name:  "array",
+			name:  "map",
 			value: map[string]any{"foo": "bar", "count": 2},
 			check: func(t *testing.T, got any) {
 				t.Helper()
 				mapped, ok := got.(map[string]interface{})
+
 				if !ok {
 					t.Fatalf("expected map, got %T", got)
 				}
+
 				if mapped["foo"] != "bar" {
 					t.Fatalf("unexpected map value: %#v", mapped)
 				}
-				if mapped["count"].(int64) != 2 {
+
+				if mapped["count"].(float64) != 2 {
 					t.Fatalf("unexpected count: %#v", mapped["count"])
+				}
+			},
+		},
+		{
+			name:  "slice",
+			value: []any{"foo", true, 2},
+			check: func(t *testing.T, got any) {
+				t.Helper()
+				values, ok := got.([]any)
+
+				if !ok {
+					t.Fatalf("expected slice, got %T", got)
+				}
+
+				if len(values) != 3 || values[0] != "foo" || values[1] != true || values[2].(float64) != 2 {
+					t.Fatalf("unexpected slice value: %#v", values)
+				}
+			},
+		},
+		{
+			name:  "string",
+			value: "hello",
+			check: func(t *testing.T, got any) {
+				t.Helper()
+
+				if got != "hello" {
+					t.Fatalf("expected string, got %#v", got)
+				}
+			},
+		},
+		{
+			name:  "bool",
+			value: true,
+			check: func(t *testing.T, got any) {
+				t.Helper()
+
+				if got != true {
+					t.Fatalf("expected bool, got %#v", got)
 				}
 			},
 		},
@@ -102,22 +154,9 @@ func TestEncryptDecryptSerializedValues(t *testing.T) {
 			value: nil,
 			check: func(t *testing.T, got any) {
 				t.Helper()
+
 				if got != nil {
 					t.Fatalf("expected nil, got %#v", got)
-				}
-			},
-		},
-		{
-			name:  "object",
-			value: serialize.PHPObject{ClassName: "User", Properties: map[string]any{"id": 1}},
-			check: func(t *testing.T, got any) {
-				t.Helper()
-				obj, ok := got.(serialize.PHPObject)
-				if !ok {
-					t.Fatalf("expected PHPObject, got %T", got)
-				}
-				if obj.ClassName != "User" {
-					t.Fatalf("unexpected class name: %s", obj.ClassName)
 				}
 			},
 		},
@@ -126,11 +165,13 @@ func TestEncryptDecryptSerializedValues(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			encrypted, err := e.Encrypt(tt.value)
+
 			if err != nil {
 				t.Fatalf("Encrypt: %v", err)
 			}
 
 			decrypted, err := e.Decrypt(encrypted)
+
 			if err != nil {
 				t.Fatalf("Decrypt: %v", err)
 			}
@@ -140,31 +181,63 @@ func TestEncryptDecryptSerializedValues(t *testing.T) {
 	}
 }
 
+func TestDecryptRejectsLegacyPHPStructuredPayload(t *testing.T) {
+	t.Parallel()
+
+	e, err := New(Config{Key: []byte("0123456789abcdef0123456789abcdef"), Cipher: AES256CBC})
+
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	legacyPayload, err := e.encryptBytes([]byte(`a:2:{s:3:"foo";s:3:"bar";s:5:"count";i:2;}`))
+
+	if err != nil {
+		t.Fatalf("encryptBytes: %v", err)
+	}
+
+	_, err = e.Decrypt(legacyPayload)
+
+	if err == nil {
+		t.Fatal("expected legacy PHP structured payload to be rejected")
+	}
+
+	if !strings.Contains(err.Error(), "unserialise value") {
+		t.Fatalf("expected JSON decode failure, got %v", err)
+	}
+}
+
 func TestEncryptDecryptGCM(t *testing.T) {
 	t.Parallel()
 
 	e, err := New(Config{Key: []byte("0123456789abcdef0123456789abcdef"), Cipher: AES256GCM})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
 	encrypted, err := e.EncryptString("bar")
+
 	if err != nil {
 		t.Fatalf("EncryptString: %v", err)
 	}
 
 	decrypted, err := e.DecryptString(encrypted)
+
 	if err != nil {
 		t.Fatalf("DecryptString: %v", err)
 	}
+
 	if decrypted != "bar" {
 		t.Fatalf("unexpected decrypted value: %q", decrypted)
 	}
 
 	data := decodePayload(t, encrypted)
+
 	if data.MAC != "" {
 		t.Fatalf("expected empty mac for AEAD payload, got %q", data.MAC)
 	}
+
 	if data.Tag == "" {
 		t.Fatal("expected AEAD tag")
 	}
@@ -174,19 +247,24 @@ func TestEncryptedLengthIsFixed(t *testing.T) {
 	t.Parallel()
 
 	e, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
 	minLen, maxLen := math.MaxInt, 0
+
 	for i := 0; i < 50; i++ {
 		encrypted, err := e.EncryptString("foo")
+
 		if err != nil {
 			t.Fatalf("EncryptString: %v", err)
 		}
+
 		if len(encrypted) < minLen {
 			minLen = len(encrypted)
 		}
+
 		if len(encrypted) > maxLen {
 			maxLen = len(encrypted)
 		}
@@ -205,6 +283,7 @@ func TestPreviousKeyPayloadFixtureDecrypts(t *testing.T) {
 		PreviousKeys: [][]byte{[]byte("bbbbbbbbbbbbbbbb")},
 		Cipher:       AES128CBC,
 	})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -212,9 +291,11 @@ func TestPreviousKeyPayloadFixtureDecrypts(t *testing.T) {
 	payload := "eyJpdiI6Ilg0dFM5TVRibEFqZW54c3lQdWJoVVE9PSIsInZhbHVlIjoiRGJpa2p2ZHI3eUs0dUtRakJneUhUUT09IiwibWFjIjoiMjBjZWYxODdhNThhOTk4MTk1NTc0YTE1MDgzODU1OWE0ZmQ4MDc5ZjMxYThkOGM1ZmM1MzlmYzBkYTBjMWI1ZiIsInRhZyI6IiJ9"
 
 	decrypted, err := e.DecryptString(payload)
+
 	if err != nil {
 		t.Fatalf("DecryptString: %v", err)
 	}
+
 	if decrypted != "foo" {
 		t.Fatalf("unexpected decrypted value: %q", decrypted)
 	}
@@ -224,19 +305,25 @@ func TestDecryptFailures(t *testing.T) {
 	t.Parallel()
 
 	base, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
+
 	gcm, err := New(Config{Key: []byte("0123456789abcdef0123456789abcdef"), Cipher: AES256GCM})
+
 	if err != nil {
 		t.Fatalf("New GCM: %v", err)
 	}
 
 	payload, err := base.EncryptString("foo")
+
 	if err != nil {
 		t.Fatalf("EncryptString: %v", err)
 	}
+
 	gcmPayload, err := gcm.EncryptString("foo")
+
 	if err != nil {
 		t.Fatalf("EncryptString GCM: %v", err)
 	}
@@ -260,10 +347,12 @@ func TestDecryptFailures(t *testing.T) {
 		{
 			name:    "invalid mac",
 			payload: payload,
-			target:  func() *Encrypter { e, _ := New(Config{Key: []byte("bbbbbbbbbbbbbbbb"), Cipher: AES128CBC}); return e }(),
-			want:    errInvalidMAC,
+
+			target: func() *Encrypter { e, _ := New(Config{Key: []byte("bbbbbbbbbbbbbbbb"), Cipher: AES128CBC}); return e }(),
+			want:   errInvalidMAC,
 			mutate: func(p encryptedPayload) string {
 				p.MAC = strings.Repeat("0", len(p.MAC))
+
 				return encodePayload(p)
 			},
 		},
@@ -274,6 +363,7 @@ func TestDecryptFailures(t *testing.T) {
 			want:    errInvalidPayload,
 			mutate: func(p encryptedPayload) string {
 				p.IV += "A"
+
 				return encodePayload(p)
 			},
 		},
@@ -284,6 +374,7 @@ func TestDecryptFailures(t *testing.T) {
 			want:    errUnexpectedTag,
 			mutate: func(p encryptedPayload) string {
 				p.Tag = base64.StdEncoding.EncodeToString([]byte("set-manually"))
+
 				return encodePayload(p)
 			},
 		},
@@ -295,6 +386,7 @@ func TestDecryptFailures(t *testing.T) {
 			mutate: func(p encryptedPayload) string {
 				tag, _ := base64.StdEncoding.DecodeString(p.Tag)
 				p.Tag = base64.StdEncoding.EncodeToString(tag[:4])
+
 				return encodePayload(p)
 			},
 		},
@@ -303,6 +395,7 @@ func TestDecryptFailures(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var raw string
+
 			if tt.mutate == nil {
 				raw = tt.payload
 			} else {
@@ -310,6 +403,7 @@ func TestDecryptFailures(t *testing.T) {
 			}
 
 			_, err := tt.target.DecryptString(raw)
+
 			if !errors.Is(err, tt.want) {
 				t.Fatalf("expected %v, got %v", tt.want, err)
 			}
@@ -323,22 +417,27 @@ func TestSupportedGenerateKeyAndParseLaravelKey(t *testing.T) {
 	if !Supported([]byte("aaaaaaaaaaaaaaaa"), AES128CBC) {
 		t.Fatal("expected AES-128-CBC key to be supported")
 	}
+
 	if Supported([]byte("short"), AES128CBC) {
 		t.Fatal("expected short key to be rejected")
 	}
 
 	generated, err := GenerateKey(AES256GCM)
+
 	if err != nil {
 		t.Fatalf("GenerateKey: %v", err)
 	}
+
 	if len(generated) != 32 {
 		t.Fatalf("unexpected generated key length: %d", len(generated))
 	}
 
 	parsed, err := ParseLaravelKey("base64:YWJjZGVmZ2hpamtsbW5vcA==")
+
 	if err != nil {
 		t.Fatalf("ParseLaravelKey: %v", err)
 	}
+
 	if string(parsed) != "abcdefghijklmnop" {
 		t.Fatalf("unexpected parsed key: %q", string(parsed))
 	}
@@ -348,10 +447,13 @@ func TestAppearsEncrypted(t *testing.T) {
 	t.Parallel()
 
 	e, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
+
 	payload, err := e.EncryptString("foo")
+
 	if err != nil {
 		t.Fatalf("EncryptString: %v", err)
 	}
@@ -359,6 +461,7 @@ func TestAppearsEncrypted(t *testing.T) {
 	if !AppearsEncrypted(payload) {
 		t.Fatal("expected payload to look encrypted")
 	}
+
 	if AppearsEncrypted("APP_NAME=Laravel") {
 		t.Fatal("expected plain text to be rejected")
 	}
@@ -377,9 +480,11 @@ func TestNewFromRepository(t *testing.T) {
 	})
 
 	encrypter, err := NewFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("NewFromRepository: %v", err)
 	}
+
 	if got := string(encrypter.GetKey()); got != "aaaaaaaaaaaaaaaa" {
 		t.Fatalf("unexpected key: %q", got)
 	}
@@ -389,18 +494,22 @@ func decodePayload(t *testing.T, raw string) encryptedPayload {
 	t.Helper()
 
 	decoded, err := base64.StdEncoding.DecodeString(raw)
+
 	if err != nil {
 		t.Fatalf("DecodeString: %v", err)
 	}
 
 	var payload encryptedPayload
+
 	if err := json.Unmarshal(decoded, &payload); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
+
 	return payload
 }
 
 func encodePayload(payload encryptedPayload) string {
 	encoded, _ := json.Marshal(payload)
+
 	return base64.StdEncoding.EncodeToString(encoded)
 }

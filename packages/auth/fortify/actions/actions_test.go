@@ -29,10 +29,13 @@ func TestCreateUserNormalizesEmailAndValidates(t *testing.T) {
 		Password:             "password-123",
 		PasswordConfirmation: "password-123",
 	})
+
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
+
 	profile := user.(auth.UserProfile)
+
 	if profile.GetEmail() != "test@example.com" {
 		t.Fatalf("unexpected normalized email: %s", profile.GetEmail())
 	}
@@ -47,6 +50,7 @@ func TestResetAndUpdatePassword(t *testing.T) {
 
 	hasher := auth.DefaultPasswordHasher{}
 	hash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
@@ -61,19 +65,23 @@ func TestResetAndUpdatePassword(t *testing.T) {
 		CreatedAt:     time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
 	reset := actions.ResetUserPassword{Users: users, Hasher: hasher}
+
 	if err := reset.Reset(context.Background(), user, "new-password-123"); err != nil {
 		t.Fatalf("Reset: %v", err)
 	}
+
 	if user.GetRememberToken() != "" {
 		t.Fatal("expected remember token to be cleared")
 	}
 
 	update := actions.UpdateUserPassword{Users: users, Hasher: hasher}
+
 	if err := update.Update(context.Background(), user, contracts.UpdatePasswordInput{
 		CurrentPassword:      "new-password-123",
 		Password:             "another-password-123",
@@ -104,23 +112,28 @@ func TestUpdateProfileInformationMarksEmailUnverified(t *testing.T) {
 		UpdatedAt: now,
 	}
 	user.MarkEmailAsVerified(now)
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
 	action := actions.UpdateUserProfileInformation{Users: users}
+
 	if err := action.Update(context.Background(), user, contracts.UpdateProfileInformationInput{
 		Name:  "Updated User",
 		Email: "UPDATED@example.com",
 	}); err != nil {
 		t.Fatalf("Update: %v", err)
 	}
+
 	if user.GetName() != "Updated User" {
 		t.Fatalf("unexpected name: %s", user.GetName())
 	}
+
 	if user.GetEmail() != "updated@example.com" {
 		t.Fatalf("unexpected email: %s", user.GetEmail())
 	}
+
 	if user.HasVerifiedEmail() {
 		t.Fatal("expected email verification to be cleared")
 	}

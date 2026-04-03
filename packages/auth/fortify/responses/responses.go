@@ -42,6 +42,19 @@ type Registry struct {
 }
 
 // DefaultRegistry creates the default JSON response registry.
+
+// JSONResponse writes a JSON success response.
+type JSONResponse struct {
+	Status int
+}
+
+// ToResponse writes the payload.
+
+// ErrorResponse writes an auth-aware JSON error response.
+type ErrorResponse struct {
+	Status int
+}
+
 func DefaultRegistry() *Registry {
 	return &Registry{
 		LoginViewResponse:                          JSONResponse{Status: http.StatusOK},
@@ -74,42 +87,39 @@ func DefaultRegistry() *Registry {
 	}
 }
 
-// JSONResponse writes a JSON success response.
-type JSONResponse struct {
-	Status int
-}
-
-// ToResponse writes the payload.
 func (r JSONResponse) ToResponse(w http.ResponseWriter, _ *http.Request, payload any) {
 	if err, ok := payload.(error); ok && err != nil {
 		authmw.WriteJSONError(w, inferStatus(err, r.Status), err)
+
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Status)
+
 	if payload == nil {
 		payload = map[string]any{}
 	}
-	_ = json.NewEncoder(w).Encode(payload)
-}
 
-// ErrorResponse writes an auth-aware JSON error response.
-type ErrorResponse struct {
-	Status int
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 // ToResponse writes the error payload.
 func (r ErrorResponse) ToResponse(w http.ResponseWriter, _ *http.Request, payload any) {
 	err, _ := payload.(error)
+
 	if err == nil {
 		err = http.ErrAbortHandler
 	}
+
 	authmw.WriteJSONError(w, inferStatus(err, r.Status), err)
 }
 
 func inferStatus(err error, fallback int) int {
 	var validationErr *auth.ValidationError
+
 	var throttleErr *auth.ThrottleError
+
 	switch {
 	case errors.As(err, &validationErr):
 		return http.StatusUnprocessableEntity
@@ -137,6 +147,7 @@ func inferStatus(err error, fallback int) int {
 		if fallback >= 400 {
 			return fallback
 		}
+
 		return http.StatusInternalServerError
 	}
 }

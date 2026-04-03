@@ -4,8 +4,7 @@ export function summarizeBillingWorkspace() {
       {
         name: "Starter",
         price: "$0",
-        description:
-          "Workspace bootstrap and internal packages ready for feature work.",
+        description: "Workspace bootstrap and internal packages ready for feature work.",
         featured: false,
       },
       {

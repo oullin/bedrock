@@ -1,21 +1,15 @@
-package security
+package config
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 
 	configpkg "github.com/gollin/packages/config"
-	"github.com/gollin/packages/security/internal/keyparser"
 )
 
-// Cipher names the supported Laravel-compatible AES cipher suites.
+// Cipher names the supported AES cipher suites.
 type Cipher string
-
-const (
-	CipherAES128CBC Cipher = "aes-128-cbc"
-	CipherAES256CBC Cipher = "aes-256-cbc"
-	CipherAES128GCM Cipher = "aes-128-gcm"
-	CipherAES256GCM Cipher = "aes-256-gcm"
-)
 
 // EncryptionConfig holds the encrypter settings.
 type EncryptionConfig struct {
@@ -52,6 +46,13 @@ type Config struct {
 	Hashing    HashingConfig
 }
 
+const (
+	CipherAES128CBC Cipher = "aes-128-cbc"
+	CipherAES256CBC Cipher = "aes-256-cbc"
+	CipherAES128GCM Cipher = "aes-128-gcm"
+	CipherAES256GCM Cipher = "aes-256-gcm"
+)
+
 // ConfigFromRepository loads security settings from the shared config repository.
 func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	if repo == nil {
@@ -59,11 +60,13 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	key, err := keyFromRepository(repo)
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	cipher := CipherAES128CBC
+
 	if value, ok, err := stringValue(repo, "security.encryption.cipher"); err != nil {
 		return Config{}, err
 	} else if ok && value != "" {
@@ -71,20 +74,25 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	previousKeysRaw, err := stringSliceValue(repo, "security.encryption.previous_keys")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	previousKeys := make([][]byte, 0, len(previousKeysRaw))
+
 	for _, raw := range previousKeysRaw {
-		parsed, err := keyparser.Parse(raw)
+		parsed, err := parseEncryptionKey(raw)
+
 		if err != nil {
 			return Config{}, err
 		}
+
 		previousKeys = append(previousKeys, parsed)
 	}
 
 	hashingCfg, err := hashingConfigFromRepository(repo)
+
 	if err != nil {
 		return Config{}, err
 	}
@@ -101,14 +109,36 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 
 func keyFromRepository(repo *configpkg.Repository) ([]byte, error) {
 	value, ok, err := stringValue(repo, "security.encryption.key")
+
 	if err != nil {
 		return nil, err
 	}
+
 	if !ok {
 		return nil, fmt.Errorf("security: no encryption key has been specified")
 	}
 
-	return keyparser.Parse(value)
+	return parseEncryptionKey(value)
+}
+
+func parseEncryptionKey(raw string) ([]byte, error) {
+	key := strings.TrimSpace(raw)
+
+	if key == "" {
+		return nil, fmt.Errorf("security: no encryption key has been specified")
+	}
+
+	if strings.HasPrefix(strings.ToLower(key), "base64:") {
+		decoded, err := base64.StdEncoding.DecodeString(key[len("base64:"):])
+
+		if err != nil {
+			return nil, fmt.Errorf("security: decode base64 key: %w", err)
+		}
+
+		return decoded, nil
+	}
+
+	return []byte(key), nil
 }
 
 func stringValue(repo *configpkg.Repository, keys ...string) (string, bool, error) {
@@ -118,9 +148,11 @@ func stringValue(repo *configpkg.Repository, keys ...string) (string, bool, erro
 		}
 
 		value, err := repo.String(key)
+
 		if err != nil {
 			return "", false, err
 		}
+
 		return value, true, nil
 	}
 
@@ -134,9 +166,11 @@ func stringSliceValue(repo *configpkg.Repository, keys ...string) ([]string, err
 		}
 
 		values, err := repo.StringSlice(key)
+
 		if err != nil {
 			return nil, err
 		}
+
 		return values, nil
 	}
 
@@ -145,6 +179,7 @@ func stringSliceValue(repo *configpkg.Repository, keys ...string) ([]string, err
 
 func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, error) {
 	driver := "bcrypt"
+
 	if value, ok, err := stringValue(repo, "security.hashing.driver"); err != nil {
 		return HashingConfig{}, err
 	} else if ok && value != "" {
@@ -152,6 +187,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	rounds := 12
+
 	if value, ok, err := intValue(repo, "security.hashing.bcrypt.rounds"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -159,6 +195,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	verifyBcrypt := false
+
 	if value, ok, err := boolValue(repo, "security.hashing.bcrypt.verify"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -166,6 +203,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	limit := 0
+
 	if value, ok, err := intValue(repo, "security.hashing.bcrypt.limit"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -173,6 +211,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	memory := 1024
+
 	if value, ok, err := intValue(repo, "security.hashing.argon.memory"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -180,6 +219,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	timeCost := 2
+
 	if value, ok, err := intValue(repo, "security.hashing.argon.time"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -187,6 +227,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	threads := 2
+
 	if value, ok, err := intValue(repo, "security.hashing.argon.threads"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -194,6 +235,7 @@ func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, err
 	}
 
 	verifyArgon := false
+
 	if value, ok, err := boolValue(repo, "security.hashing.argon.verify"); err != nil {
 		return HashingConfig{}, err
 	} else if ok {
@@ -223,9 +265,11 @@ func intValue(repo *configpkg.Repository, keys ...string) (int, bool, error) {
 		}
 
 		value, err := repo.Int(key)
+
 		if err != nil {
 			return 0, false, err
 		}
+
 		return value, true, nil
 	}
 
@@ -239,9 +283,11 @@ func boolValue(repo *configpkg.Repository, keys ...string) (bool, bool, error) {
 		}
 
 		value, err := repo.Bool(key)
+
 		if err != nil {
 			return false, false, err
 		}
+
 		return value, true, nil
 	}
 

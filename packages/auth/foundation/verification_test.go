@@ -26,6 +26,7 @@ func TestVerificationServiceSendAndVerify(t *testing.T) {
 		CreatedAt: clock.Now(),
 		UpdatedAt: clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -44,21 +45,28 @@ func TestVerificationServiceSendAndVerify(t *testing.T) {
 	if err := service.Send(context.Background(), user); err != nil {
 		t.Fatalf("Send: %v", err)
 	}
+
 	link := mailer.Messages()[0].Metadata["link"]
 	parsed, err := url.Parse(link)
+
 	if err != nil {
 		t.Fatalf("Parse: %v", err)
 	}
+
 	parts := strings.Split(strings.TrimPrefix(parsed.Path, "/email/verify/"), "/")
+
 	if len(parts) != 2 {
 		t.Fatalf("unexpected path: %s", parsed.Path)
 	}
 
 	verified, err := service.Verify(context.Background(), parts[0], parts[1], mustInt64(t, parsed.Query().Get("expires")), parsed.Query().Get("signature"))
+
 	if err != nil {
 		t.Fatalf("Verify: %v", err)
 	}
+
 	verifiable := verified.(auth.MustVerifyEmail)
+
 	if !verifiable.HasVerifiedEmail() {
 		t.Fatal("expected verified email")
 	}
@@ -67,8 +75,10 @@ func TestVerificationServiceSendAndVerify(t *testing.T) {
 func mustInt64(t *testing.T, value string) int64 {
 	t.Helper()
 	parsed, err := strconv.ParseInt(value, 10, 64)
+
 	if err != nil {
 		t.Fatalf("ParseInt: %v", err)
 	}
+
 	return parsed
 }

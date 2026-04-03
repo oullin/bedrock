@@ -29,25 +29,31 @@ func TestRepositoryDotPathAccessors(t *testing.T) {
 	}
 
 	duration, err := repo.Duration("auth.session_lifetime")
+
 	if err != nil {
 		t.Fatalf("Duration: %v", err)
 	}
+
 	if duration != 24*time.Hour {
 		t.Fatalf("unexpected duration: %v", duration)
 	}
 
 	secure, err := repo.Bool("auth.cookies.secure")
+
 	if err != nil {
 		t.Fatalf("Bool: %v", err)
 	}
+
 	if !secure {
 		t.Fatal("expected secure cookie")
 	}
 
 	middleware, err := repo.StringSlice("auth.middleware")
+
 	if err != nil {
 		t.Fatalf("StringSlice: %v", err)
 	}
+
 	if !reflect.DeepEqual(middleware, []string{"web", "auth"}) {
 		t.Fatalf("unexpected middleware: %#v", middleware)
 	}
@@ -67,28 +73,35 @@ func TestRepositorySetMutatorsAndClone(t *testing.T) {
 	repo.Prepend("fortify.middleware", "trim")
 
 	mapped, err := repo.Map("fortify.limiters")
+
 	if err != nil {
 		t.Fatalf("Map: %v", err)
 	}
+
 	if mapped["login"] != "login" {
 		t.Fatalf("unexpected limiter map: %#v", mapped)
 	}
+
 	if mapped["two-factor"] != "two-factor" {
 		t.Fatalf("unexpected two-factor limiter: %#v", mapped)
 	}
 
 	middleware, err := repo.StringSlice("fortify.middleware")
+
 	if err != nil {
 		t.Fatalf("StringSlice: %v", err)
 	}
+
 	if !reflect.DeepEqual(middleware, []string{"trim", "web", "guest"}) {
 		t.Fatalf("unexpected middleware order: %#v", middleware)
 	}
 
 	confirm, err := repo.Bool("fortify.options.two-factor-authentication.confirm")
+
 	if err != nil {
 		t.Fatalf("Bool: %v", err)
 	}
+
 	if !confirm {
 		t.Fatal("expected confirm option to be enabled")
 	}
@@ -99,9 +112,11 @@ func TestRepositorySetMutatorsAndClone(t *testing.T) {
 	limits["login"] = "mutated"
 
 	value, err := repo.String("fortify.limiters.login")
+
 	if err != nil {
 		t.Fatalf("String: %v", err)
 	}
+
 	if value != "login" {
 		t.Fatalf("repository was mutated through clone: %s", value)
 	}
@@ -129,6 +144,7 @@ func TestRepositoryGetManyEmpty(t *testing.T) {
 
 	repo := NewRepository(nil)
 	values := repo.GetMany(nil)
+
 	if len(values) != 0 {
 		t.Fatalf("expected empty values, got %#v", values)
 	}
@@ -140,6 +156,7 @@ func TestRepositoryGetEmptyKeyReturnsAll(t *testing.T) {
 	repo := NewRepository(map[string]any{"app": map[string]any{"name": "gollin"}})
 	got := repo.Get("", nil)
 	all := repo.All()
+
 	if !reflect.DeepEqual(got, all) {
 		t.Fatalf("unexpected root value: %#v", got)
 	}
@@ -159,15 +176,19 @@ func TestRepositoryTypedGetterFailures(t *testing.T) {
 	if _, err := repo.Bool("fortify.views"); err == nil {
 		t.Fatal("expected bool type error")
 	}
+
 	if _, err := repo.String("fortify.views"); err != nil {
 		t.Fatalf("String: %v", err)
 	}
+
 	if _, err := repo.StringSlice("fortify.features"); err == nil {
 		t.Fatal("expected string slice type error")
 	}
+
 	if _, err := repo.Map("fortify.middleware"); err == nil {
 		t.Fatal("expected map type error")
 	}
+
 	if _, err := repo.Duration("fortify.middleware"); err == nil {
 		t.Fatal("expected duration type error")
 	}
@@ -178,9 +199,11 @@ func TestRepositoryMissingKeyErrors(t *testing.T) {
 
 	repo := NewRepository(nil)
 	_, err := repo.String("missing")
+
 	if err == nil {
 		t.Fatal("expected missing key error")
 	}
+
 	if !errors.Is(err, err) {
 		t.Fatal("expected non-nil error")
 	}

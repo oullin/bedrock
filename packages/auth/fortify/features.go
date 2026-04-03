@@ -3,6 +3,12 @@ package fortify
 import "strconv"
 
 // Feature constants mirror Laravel Fortify features.
+
+// Features reports Fortify feature enablement.
+type Features struct {
+	config Config
+}
+
 const (
 	FeatureRegistration             = "registration"
 	FeatureResetPasswords           = "reset-passwords"
@@ -11,11 +17,6 @@ const (
 	FeatureUpdatePasswords          = "update-passwords"
 	FeatureTwoFactorAuthentication  = "two-factor-authentication"
 )
-
-// Features reports Fortify feature enablement.
-type Features struct {
-	config Config
-}
 
 // NewFeatures creates a feature set from config.
 func NewFeatures(config Config) Features {
@@ -29,6 +30,7 @@ func (f Features) Enabled(feature string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -37,11 +39,13 @@ func (f Features) OptionEnabled(feature string, option string) bool {
 	if !f.Enabled(feature) {
 		return false
 	}
+
 	switch value := f.config.Options[feature][option].(type) {
 	case bool:
 		return value
 	case string:
 		parsed, err := strconv.ParseBool(value)
+
 		return err == nil && parsed
 	default:
 		return false
@@ -63,6 +67,7 @@ func (f Features) OptionInt(feature string, option string, fallback int) int {
 		return int(value)
 	case string:
 		parsed, err := strconv.Atoi(value)
+
 		if err == nil {
 			return parsed
 		}

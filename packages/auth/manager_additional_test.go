@@ -23,6 +23,7 @@ func TestNewManagerRejectsMissingDefaultProvider(t *testing.T) {
 			Path:         "/",
 		},
 	}, map[string]auth.UserProvider{"other": memory.NewInMemoryUserRepository()}, memory.NewInMemorySessionStore(), auth.ManagerDependencies{})
+
 	if err == nil {
 		t.Fatal("expected missing default provider error")
 	}
@@ -38,9 +39,11 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 	hasher := auth.DefaultPasswordHasher{}
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "User",
@@ -49,6 +52,7 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -73,12 +77,14 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 		Clock:  clock,
 		IDs:    memory.NewSequenceIDGenerator("session"),
 	})
+
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
 
 	rec := httptest.NewRecorder()
 	session, _, err := manager.DefaultGuard().Login(context.Background(), rec, user, false, false)
+
 	if err != nil {
 		t.Fatalf("Login: %v", err)
 	}
@@ -86,34 +92,42 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 	clock.Advance(2 * time.Hour)
 	request := httptest.NewRequest("GET", "/protected", nil)
 	request.AddCookie(rec.Result().Cookies()[0])
+
 	if _, _, err := manager.DefaultGuard().AuthenticateRequest(context.Background(), httptest.NewRecorder(), request); err != auth.ErrUnauthorized {
 		t.Fatalf("expected expired session to be unauthorized, got %v", err)
 	}
 
 	rec = httptest.NewRecorder()
+
 	if err := manager.DefaultGuard().Logout(context.Background(), rec, session, user); err != nil {
 		t.Fatalf("Logout: %v", err)
 	}
 
 	rec = httptest.NewRecorder()
 	_, rememberToken, err := manager.DefaultGuard().Login(context.Background(), rec, user, true, false)
+
 	if err != nil {
 		t.Fatalf("Login remember: %v", err)
 	}
+
 	if rememberToken == "" {
 		t.Fatal("expected remember token")
 	}
 
 	rememberRequest := httptest.NewRequest("GET", "/protected", nil)
+
 	for _, cookie := range rec.Result().Cookies() {
 		if cookie.Name == "remember" {
 			rememberRequest.AddCookie(cookie)
 		}
 	}
+
 	authenticatedSession, authenticatedUser, err := manager.DefaultGuard().AuthenticateRequest(context.Background(), httptest.NewRecorder(), rememberRequest)
+
 	if err != nil {
 		t.Fatalf("AuthenticateRequest with remember cookie: %v", err)
 	}
+
 	if authenticatedSession == nil || authenticatedUser.GetAuthIdentifier() != user.ID {
 		t.Fatal("expected remember cookie authentication to succeed")
 	}

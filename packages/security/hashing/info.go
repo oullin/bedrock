@@ -6,14 +6,17 @@ func parseInfo(hashedValue string) Info {
 	if info, ok := parseBcryptInfo(hashedValue); ok {
 		return info
 	}
+
 	if info, ok := parseArgonInfo(hashedValue); ok {
 		return info
 	}
+
 	return Info{Options: map[string]int{}}
 }
 
 func parseBcryptInfo(hashedValue string) (Info, bool) {
 	cost, err := bcrypt.Cost([]byte(hashedValue))
+
 	if err != nil {
 		return Info{}, false
 	}
@@ -28,11 +31,13 @@ func parseBcryptInfo(hashedValue string) (Info, bool) {
 
 func parseArgonInfo(hashedValue string) (Info, bool) {
 	parsed, err := parseArgonHash(hashedValue)
+
 	if err != nil {
 		return Info{}, false
 	}
 
 	algorithm := parsed.algorithm
+
 	if algorithm == "argon2i" {
 		algorithm = DriverArgon
 	}
