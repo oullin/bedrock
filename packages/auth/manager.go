@@ -3,6 +3,9 @@ package auth
 import (
 	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/gollin/packages/security/encryption"
 )
 
 // Manager coordinates guards and providers.
@@ -10,22 +13,24 @@ type Manager struct {
 	config        Config
 	providers     map[string]UserProvider
 	guards        map[string]*SessionGuard
-	defaultGuard  string
-	defaultHasher PasswordHasher
+	requestGuards map[string]*RequestGuard
+	tokenGuards   map[string]*TokenGuard
 }
 
-// NewManager creates a new auth manager with a session guard.
+// NewManager constructs a new auth manager.
 func NewManager(cfg Config, providers map[string]UserProvider, sessions SessionStore, deps ManagerDependencies) (*Manager, error) {
 	if len(providers) == 0 {
-		return nil, fmt.Errorf("auth: at least one user provider is required")
+		return nil, fmt.Errorf("auth: at least one provider is required")
 	}
 
-	if sessions == nil {
-		return nil, fmt.Errorf("auth: session store is required")
+	provider, ok := providers[cfg.DefaultProvider]
+	if !ok {
+		return nil, fmt.Errorf("auth: provider %q is not registered", cfg.DefaultProvider)
 	}
 
-	if deps.Hasher == nil {
-		deps.Hasher = DefaultPasswordHasher{}
+	hasher, err := EnsureHasher(deps.Hasher)
+	if err != nil {
+		return nil, err
 	}
 
 	if deps.Clock == nil {
@@ -36,66 +41,80 @@ func NewManager(cfg Config, providers map[string]UserProvider, sessions SessionS
 		deps.IDs = RandomIDGenerator{}
 	}
 
-	if deps.Logger == nil {
-		deps.Logger = NoopLogger{}
+	if deps.Encrypter == nil && len(cfg.SigningKey) > 0 {
+		cipher, err := encryption.New(encryption.Config{
+			Key:    deriveCipherKey(cfg.SigningKey),
+			Cipher: encryption.AES256CBC,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		deps.Encrypter = cipher
 	}
-
-	provider, ok := providers[cfg.DefaultProvider]
-
-	if !ok {
-		return nil, fmt.Errorf("auth: provider %q is not registered", cfg.DefaultProvider)
-	}
-
-	guard := NewSessionGuard(cfg.DefaultGuard, cfg, provider, sessions, deps.Hasher, deps.Clock, deps.IDs, deps.Logger)
 
 	return &Manager{
 		config:        cfg,
 		providers:     providers,
-		guards:        map[string]*SessionGuard{cfg.DefaultGuard: guard},
-		defaultGuard:  cfg.DefaultGuard,
-		defaultHasher: deps.Hasher,
+		guards:        map[string]*SessionGuard{cfg.DefaultGuard: NewSessionGuard(cfg.DefaultGuard, cfg, provider, sessions, hasher, deps.Encrypter, deps.Clock, deps.IDs)},
+		requestGuards: make(map[string]*RequestGuard),
+		tokenGuards:   make(map[string]*TokenGuard),
 	}, nil
-}
-
-// Config returns the active auth configuration.
-func (m *Manager) Config() Config {
-	return m.config
-}
-
-// Hasher returns the manager password hasher.
-func (m *Manager) Hasher() PasswordHasher {
-	return m.defaultHasher
 }
 
 // DefaultGuard returns the default stateful guard.
 func (m *Manager) DefaultGuard() *SessionGuard {
-	return m.guards[m.defaultGuard]
+	return m.guards[m.config.DefaultGuard]
 }
 
-// Guard returns a named guard if present.
-func (m *Manager) Guard(name string) (*SessionGuard, bool) {
-	guard, ok := m.guards[name]
-
-	return guard, ok
-}
-
-// Provider returns a named provider if present.
+// Provider returns a named provider if it exists.
 func (m *Manager) Provider(name string) (UserProvider, bool) {
 	provider, ok := m.providers[name]
 
 	return provider, ok
 }
 
-// ValidateCredentials resolves a user from the default provider and compares the password.
-func (m *Manager) ValidateCredentials(ctx context.Context, credentials map[string]string) (Authenticatable, error) {
-	user, err := m.providers[m.config.DefaultProvider].RetrieveByCredentials(ctx, credentials)
+// ViaRequest registers a callback-based guard.
+func (m *Manager) ViaRequest(name string, request *http.Request, callback RequestGuardCallback) *RequestGuard {
+	guard := NewRequestGuard(callback, request, m.providers[m.config.DefaultProvider])
+	m.requestGuards[name] = guard
 
+	return guard
+}
+
+// RegisterTokenGuard registers a token guard.
+func (m *Manager) RegisterTokenGuard(name string, request *http.Request, providerName string, inputKey string, storageKey string, hash bool) (*TokenGuard, error) {
+	if providerName == "" {
+		providerName = m.config.DefaultProvider
+	}
+
+	provider, ok := m.providers[providerName]
+	if !ok {
+		return nil, fmt.Errorf("auth: provider %q is not registered", providerName)
+	}
+
+	guard := NewTokenGuard(provider, request, inputKey, storageKey, hash)
+	m.tokenGuards[name] = guard
+
+	return guard, nil
+}
+
+// ValidateCredentials resolves and validates a user from the default provider.
+func (m *Manager) ValidateCredentials(ctx context.Context, credentials map[string]string) (Authenticatable, error) {
+	provider := m.providers[m.config.DefaultProvider]
+
+	user, err := provider.RetrieveByCredentials(ctx, credentials)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	if err := m.defaultHasher.Compare(ctx, user.GetAuthPassword(), credentials["password"]); err != nil {
+	valid, err := provider.ValidateCredentials(ctx, user, credentials)
+	if err != nil || !valid {
 		return nil, ErrInvalidCredentials
+	}
+
+	if err := provider.RehashPasswordIfRequired(ctx, user, credentials, false); err != nil {
+		return nil, err
 	}
 
 	return user, nil

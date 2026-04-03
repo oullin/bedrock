@@ -2,41 +2,44 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"time"
 
-	"github.com/gollin/packages/auth/support/crypto"
+	securitycrypto "github.com/gollin/packages/security/crypto"
 )
 
 // SystemClock reports the current UTC time.
 type SystemClock struct{}
 
 // Now returns the current UTC time.
-
-// RandomIDGenerator creates opaque random identifiers.
-type RandomIDGenerator struct{}
-
-// NewID returns a random identifier.
-
-// NoopLogger drops log records.
-type NoopLogger struct{}
-
 func (SystemClock) Now() time.Time {
 	return time.Now().UTC()
 }
 
-func (RandomIDGenerator) NewID() string {
-	value, err := crypto.RandomString(24)
+// RandomIDGenerator creates opaque random identifiers.
+type RandomIDGenerator struct{}
 
+// NewID returns a new random identifier.
+func (RandomIDGenerator) NewID() (string, error) {
+	value, err := securitycrypto.RandomString(24)
 	if err != nil {
-		panic(fmt.Sprintf("generate id: %v", err))
+		return "", fmt.Errorf("auth: generate id: %w", err)
 	}
 
-	return value
+	return value, nil
 }
 
-// Info drops info logs.
-func (NoopLogger) Info(context.Context, string, map[string]any) {}
+// NoopMailer drops messages.
+type NoopMailer struct{}
 
-// Error drops error logs.
-func (NoopLogger) Error(context.Context, string, map[string]any) {}
+// Send implements Mailer.
+func (NoopMailer) Send(context.Context, MailMessage) error {
+	return nil
+}
+
+func deriveCipherKey(secret []byte) []byte {
+	sum := sha256.Sum256(secret)
+
+	return sum[:]
+}

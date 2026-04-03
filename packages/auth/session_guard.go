@@ -2,91 +2,89 @@ package auth
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gollin/packages/auth/support/crypto"
+	securitycrypto "github.com/gollin/packages/security/crypto"
+	"github.com/gollin/packages/security/encryption"
 )
 
 // SessionGuard is a cookie-backed stateful guard.
 type SessionGuard struct {
-	name     string
-	config   Config
-	provider UserProvider
-	sessions SessionStore
-	hasher   PasswordHasher
-	clock    Clock
-	ids      IDGenerator
-	logger   Logger
+	name      string
+	config    Config
+	provider  UserProvider
+	sessions  SessionStore
+	hasher    PasswordHasher
+	encrypter *encryption.Encrypter
+	clock     Clock
+	ids       IDGenerator
 }
 
-// NewSessionGuard creates a new cookie-backed session guard.
-func NewSessionGuard(name string, config Config, provider UserProvider, sessions SessionStore, hasher PasswordHasher, clock Clock, ids IDGenerator, logger Logger) *SessionGuard {
+// NewSessionGuard creates a new session guard.
+func NewSessionGuard(name string, config Config, provider UserProvider, sessions SessionStore, hasher PasswordHasher, encrypter *encryption.Encrypter, clock Clock, ids IDGenerator) *SessionGuard {
 	return &SessionGuard{
-		name:     name,
-		config:   config,
-		provider: provider,
-		sessions: sessions,
-		hasher:   hasher,
-		clock:    clock,
-		ids:      ids,
-		logger:   logger,
+		name:      name,
+		config:    config,
+		provider:  provider,
+		sessions:  sessions,
+		hasher:    hasher,
+		encrypter: encrypter,
+		clock:     clock,
+		ids:       ids,
 	}
 }
 
 // Name returns the guard name.
-func (g *SessionGuard) Name() string {
-	return g.name
-}
+func (g *SessionGuard) Name() string { return g.name }
 
-// Config returns the guard config.
-func (g *SessionGuard) Config() Config {
-	return g.config
-}
-
-// AuthenticateRequest resolves the current user from session or remember-me cookies.
+// AuthenticateRequest resolves the current request user.
 func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (*Session, Authenticatable, error) {
-	sessionID, err := g.readCookie(r, g.config.Cookies.SessionName)
-
-	if err == nil {
-		session, user, sessionErr := g.sessionFromID(ctx, sessionID)
-
-		if sessionErr == nil {
-			g.writeSessionCookie(w, session)
+	if sessionID, err := g.readCookie(r, g.config.Cookies.SessionName); err == nil {
+		session, user, err := g.sessionFromID(ctx, sessionID)
+		if err == nil {
+			g.writeSessionCookie(w, session.ID, session.ExpiresAt)
 
 			return session, user, nil
 		}
 
-		g.clearSessionCookie(w)
+		g.clearCookie(w, g.config.Cookies.SessionName)
 	}
 
-	recaller, err := g.readCookie(r, g.config.Cookies.RememberName)
-
-	if err != nil {
+	recallerValue, err := g.readCookie(r, g.config.Cookies.RememberName)
+	if err != nil || g.encrypter == nil {
 		return nil, nil, ErrUnauthorized
 	}
 
-	userID, token, ok := strings.Cut(recaller, "|")
-
-	if !ok {
-		g.clearRememberCookie(w)
+	payload, err := g.encrypter.DecryptString(recallerValue)
+	if err != nil {
+		g.clearCookie(w, g.config.Cookies.RememberName)
 
 		return nil, nil, ErrUnauthorized
 	}
 
-	user, err := g.provider.RetrieveByToken(ctx, userID, token)
+	recaller := NewRecaller(payload)
+	if !recaller.Valid() {
+		g.clearCookie(w, g.config.Cookies.RememberName)
 
+		return nil, nil, ErrUnauthorized
+	}
+
+	user, err := g.provider.RetrieveByToken(ctx, recaller.ID(), recaller.Token())
 	if err != nil {
-		g.clearRememberCookie(w)
+		g.clearCookie(w, g.config.Cookies.RememberName)
+
+		return nil, nil, ErrUnauthorized
+	}
+
+	if recaller.Hash() != securitycrypto.HashString(user.GetAuthPassword()) {
+		g.clearCookie(w, g.config.Cookies.RememberName)
 
 		return nil, nil, ErrUnauthorized
 	}
 
 	session, _, err := g.Login(ctx, w, user, true, false)
-
 	if err != nil {
 		return nil, nil, err
 	}
@@ -94,11 +92,17 @@ func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseW
 	return session, user, nil
 }
 
-// Login writes a login session and cookies for a user.
+// Login creates a new session.
 func (g *SessionGuard) Login(ctx context.Context, w http.ResponseWriter, user Authenticatable, remember bool, pendingTwoFactor bool) (*Session, string, error) {
 	now := g.clock.Now()
+
+	id, err := g.ids.NewID()
+	if err != nil {
+		return nil, "", err
+	}
+
 	session := &Session{
-		ID:               g.ids.NewID(),
+		ID:               id,
 		UserID:           user.GetAuthIdentifier(),
 		PendingTwoFactor: pendingTwoFactor,
 		PendingRemember:  remember,
@@ -112,103 +116,61 @@ func (g *SessionGuard) Login(ctx context.Context, w http.ResponseWriter, user Au
 	}
 
 	if err := g.sessions.Create(ctx, session); err != nil {
-		return nil, "", fmt.Errorf("create session: %w", err)
-	}
-
-	g.writeSessionCookie(w, session)
-
-	if pendingTwoFactor || !remember {
-		return session, "", nil
-	}
-
-	token, err := g.issueRememberToken(ctx, user)
-
-	if err != nil {
 		return nil, "", err
 	}
 
-	g.writeRememberCookie(w, user.GetAuthIdentifier(), token, g.clock.Now().Add(g.config.RememberLifetime))
+	g.writeSessionCookie(w, session.ID, session.ExpiresAt)
 
-	return session, token, nil
+	rememberToken := ""
+	if remember {
+		rememberToken, err = securitycrypto.RandomString(24)
+		if err != nil {
+			return nil, "", err
+		}
+
+		if err := g.provider.UpdateRememberToken(ctx, user, rememberToken); err != nil {
+			return nil, "", err
+		}
+
+		user.SetRememberToken(rememberToken)
+
+		if g.encrypter != nil {
+			payload, err := g.encrypter.EncryptString(user.GetAuthIdentifier() + "|" + rememberToken + "|" + securitycrypto.HashString(user.GetAuthPassword()))
+			if err != nil {
+				return nil, "", err
+			}
+
+			g.writeCookie(w, g.config.Cookies.RememberName, payload, now.Add(g.config.RememberLifetime))
+		}
+	}
+
+	return session, rememberToken, nil
 }
 
-// CompleteTwoFactor marks a pending session as authenticated and sets remember cookies when needed.
-func (g *SessionGuard) CompleteTwoFactor(ctx context.Context, w http.ResponseWriter, session *Session, user Authenticatable) (string, error) {
-	if session == nil || !session.PendingTwoFactor {
-		return "", ErrUnauthorized
-	}
-
-	now := g.clock.Now()
-	session.PendingTwoFactor = false
-	session.AuthenticatedAt = &now
-	session.LastSeenAt = now
-
-	if err := g.sessions.Update(ctx, session); err != nil {
-		return "", fmt.Errorf("update session: %w", err)
-	}
-
-	g.writeSessionCookie(w, session)
-
-	if !session.PendingRemember {
-		return "", nil
-	}
-
-	token, err := g.issueRememberToken(ctx, user)
-
-	if err != nil {
-		return "", err
-	}
-
-	session.PendingRemember = false
-
-	if err := g.sessions.Update(ctx, session); err != nil {
-		return "", fmt.Errorf("update session remember flag: %w", err)
-	}
-
-	g.writeRememberCookie(w, user.GetAuthIdentifier(), token, g.clock.Now().Add(g.config.RememberLifetime))
-
-	return token, nil
-}
-
-// UpdateSession persists a changed session.
-func (g *SessionGuard) UpdateSession(ctx context.Context, session *Session) error {
-	if err := g.sessions.Update(ctx, session); err != nil {
-		return fmt.Errorf("update session: %w", err)
-	}
-
-	return nil
-}
-
-// Logout clears the persisted session and remember-me token.
+// Logout clears the active session.
 func (g *SessionGuard) Logout(ctx context.Context, w http.ResponseWriter, session *Session, user Authenticatable) error {
 	if session != nil {
 		if err := g.sessions.Delete(ctx, session.ID); err != nil {
-			return fmt.Errorf("delete session: %w", err)
+			return err
 		}
 	}
 
 	if user != nil {
 		if err := g.provider.UpdateRememberToken(ctx, user, ""); err != nil {
-			return fmt.Errorf("clear remember token: %w", err)
+			return err
 		}
 	}
 
-	g.ClearSessionCookies(w)
+	g.clearCookie(w, g.config.Cookies.SessionName)
+	g.clearCookie(w, g.config.Cookies.RememberName)
 
 	return nil
 }
 
-// ClearSessionCookies clears session and remember cookies.
-func (g *SessionGuard) ClearSessionCookies(w http.ResponseWriter) {
-	g.clearSessionCookie(w)
-	g.clearRememberCookie(w)
-}
-
-func (g *SessionGuard) sessionFromID(ctx context.Context, sessionID string) (*Session, Authenticatable, error) {
-	session, err := g.sessions.FindByID(ctx, sessionID)
-
+func (g *SessionGuard) sessionFromID(ctx context.Context, id string) (*Session, Authenticatable, error) {
+	session, err := g.sessions.FindByID(ctx, id)
 	if err != nil {
-		return nil, nil, ErrUnauthorized
+		return nil, nil, err
 	}
 
 	if g.clock.Now().After(session.ExpiresAt) {
@@ -218,92 +180,53 @@ func (g *SessionGuard) sessionFromID(ctx context.Context, sessionID string) (*Se
 	}
 
 	user, err := g.provider.RetrieveByID(ctx, session.UserID)
-
 	if err != nil {
-		return nil, nil, ErrUnauthorized
+		return nil, nil, err
 	}
 
 	session.LastSeenAt = g.clock.Now()
-
-	if err := g.sessions.Update(ctx, session); err != nil && !errors.Is(err, ErrUnauthorized) {
+	if err := g.sessions.Update(ctx, session); err != nil {
 		return nil, nil, err
 	}
 
 	return session, user, nil
 }
 
-func (g *SessionGuard) issueRememberToken(ctx context.Context, user Authenticatable) (string, error) {
-	token, err := crypto.RandomString(24)
-
-	if err != nil {
-		return "", fmt.Errorf("generate remember token: %w", err)
-	}
-
-	if err := g.provider.UpdateRememberToken(ctx, user, token); err != nil {
-		return "", fmt.Errorf("persist remember token: %w", err)
-	}
-
-	return token, nil
-}
-
-func (g *SessionGuard) writeSessionCookie(w http.ResponseWriter, session *Session) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     g.config.Cookies.SessionName,
-		Value:    session.ID,
-		Path:     g.config.Cookies.Path,
-		Domain:   g.config.Cookies.Domain,
-		Expires:  session.ExpiresAt,
-		HttpOnly: g.config.Cookies.HTTPOnly,
-		Secure:   g.config.Cookies.Secure,
-		SameSite: g.config.Cookies.SameSite,
-	})
-}
-
-func (g *SessionGuard) writeRememberCookie(w http.ResponseWriter, userID string, token string, expiresAt time.Time) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     g.config.Cookies.RememberName,
-		Value:    userID + "|" + token,
-		Path:     g.config.Cookies.Path,
-		Domain:   g.config.Cookies.Domain,
-		Expires:  expiresAt,
-		HttpOnly: g.config.Cookies.HTTPOnly,
-		Secure:   g.config.Cookies.Secure,
-		SameSite: g.config.Cookies.SameSite,
-	})
-}
-
-func (g *SessionGuard) clearSessionCookie(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     g.config.Cookies.SessionName,
-		Value:    "",
-		Path:     g.config.Cookies.Path,
-		Domain:   g.config.Cookies.Domain,
-		MaxAge:   -1,
-		HttpOnly: g.config.Cookies.HTTPOnly,
-		Secure:   g.config.Cookies.Secure,
-		SameSite: g.config.Cookies.SameSite,
-	})
-}
-
-func (g *SessionGuard) clearRememberCookie(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     g.config.Cookies.RememberName,
-		Value:    "",
-		Path:     g.config.Cookies.Path,
-		Domain:   g.config.Cookies.Domain,
-		MaxAge:   -1,
-		HttpOnly: g.config.Cookies.HTTPOnly,
-		Secure:   g.config.Cookies.Secure,
-		SameSite: g.config.Cookies.SameSite,
-	})
-}
-
 func (g *SessionGuard) readCookie(r *http.Request, name string) (string, error) {
 	cookie, err := r.Cookie(name)
-
 	if err != nil {
 		return "", err
 	}
 
-	return cookie.Value, nil
+	return strings.TrimSpace(cookie.Value), nil
+}
+
+func (g *SessionGuard) writeSessionCookie(w http.ResponseWriter, value string, expiresAt time.Time) {
+	g.writeCookie(w, g.config.Cookies.SessionName, value, expiresAt)
+}
+
+func (g *SessionGuard) writeCookie(w http.ResponseWriter, name string, value string, expiresAt time.Time) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     g.config.Cookies.Path,
+		Domain:   g.config.Cookies.Domain,
+		Secure:   g.config.Cookies.Secure,
+		HttpOnly: g.config.Cookies.HTTPOnly,
+		SameSite: g.config.Cookies.SameSite,
+		Expires:  expiresAt,
+	})
+}
+
+func (g *SessionGuard) clearCookie(w http.ResponseWriter, name string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    "",
+		Path:     g.config.Cookies.Path,
+		Domain:   g.config.Cookies.Domain,
+		Secure:   g.config.Cookies.Secure,
+		HttpOnly: g.config.Cookies.HTTPOnly,
+		SameSite: g.config.Cookies.SameSite,
+		MaxAge:   -1,
+	})
 }
