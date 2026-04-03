@@ -16,13 +16,13 @@ import (
 	"github.com/gollin/packages/auth/foundation"
 	"github.com/gollin/packages/auth/memory"
 	"github.com/gollin/packages/auth/passwords"
-	"github.com/gollin/packages/config/foundation/configuration"
+	configpkg "github.com/gollin/packages/config"
 )
 
 func TestFortifyRegisterLoginVerificationAndProfileFlow(t *testing.T) {
 	t.Parallel()
 
-	repo, err := configuration.NewBuilder("/Users/gocanto/Sites/gollin/packages/config/config").Build(context.Background())
+	repo, err := configpkg.NewBuilder("/Users/gocanto/Sites/gollin/packages/auth/config").Build(context.Background())
 
 	if err != nil {
 		t.Fatalf("Build config: %v", err)

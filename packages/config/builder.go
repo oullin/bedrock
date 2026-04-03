@@ -1,4 +1,4 @@
-package configuration
+package config
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	configpkg "github.com/gollin/packages/config"
 	"github.com/spf13/viper"
 )
 
@@ -52,7 +51,7 @@ func (b *Builder) WithEnv(env map[string]string) *Builder {
 }
 
 // Build loads the config repository.
-func (b *Builder) Build(ctx context.Context) (*configpkg.Repository, error) {
+func (b *Builder) Build(ctx context.Context) (*Repository, error) {
 	_ = ctx
 
 	items := map[string]any{}
@@ -75,7 +74,7 @@ func (b *Builder) Build(ctx context.Context) (*configpkg.Repository, error) {
 
 	applyEnvOverrides(items, b.lookupEnv)
 
-	return configpkg.NewRepository(items), nil
+	return NewRepository(items), nil
 }
 
 func (b *Builder) loadDir(target map[string]any, dir string) error {

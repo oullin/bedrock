@@ -18,7 +18,6 @@ import (
 	"github.com/gollin/packages/auth/passwords"
 	"github.com/gollin/packages/auth/support/otp"
 	configpkg "github.com/gollin/packages/config"
-	"github.com/gollin/packages/config/foundation/configuration"
 )
 
 // Confirmation is required before two-factor login challenges begin.
@@ -249,7 +248,7 @@ func TestFortifyPasswordResetFailureModes(t *testing.T) {
 func newFortifyEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutateDeps func(*fortify.Dependencies)) fortifyEnv {
 	t.Helper()
 
-	repo, err := configuration.NewBuilder("/Users/gocanto/Sites/gollin/packages/config/config").Build(context.Background())
+	repo, err := configpkg.NewBuilder("/Users/gocanto/Sites/gollin/packages/auth/config").Build(context.Background())
 
 	if err != nil {
 		t.Fatalf("Build config: %v", err)
