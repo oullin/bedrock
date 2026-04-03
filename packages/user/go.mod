@@ -1,18 +1,18 @@
-module github.com/gollin/packages/auth
+module github.com/gollin/packages/user
 
 go 1.26.0
 
 require (
+	github.com/gollin/packages/auth v0.0.0
 	github.com/gollin/packages/config v0.0.0
 	github.com/gollin/packages/database v0.0.0
-	github.com/gollin/packages/security v0.0.0
-	github.com/gollin/packages/user v0.0.0
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/gollin/packages/security v0.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
@@ -37,10 +37,10 @@ require (
 	modernc.org/sqlite v1.48.1 // indirect
 )
 
+replace github.com/gollin/packages/auth => ../auth
+
 replace github.com/gollin/packages/config => ../config
 
 replace github.com/gollin/packages/database => ../database
 
 replace github.com/gollin/packages/security => ../security
-
-replace github.com/gollin/packages/user => ../user
