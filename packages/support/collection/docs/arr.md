@@ -10,43 +10,43 @@ Use `arr` when you need a single operation on a slice and do not need the fluent
 
 ## 🛠 Available Functions
 
-| Function | Purpose |
-|:---|:---|
-| [**Accessible**](#accessible) | Reports whether the given value is non-nil. |
-| [**IsList**](#islist) | Reports whether the given slice is a sequential list. |
-| [**First**](#first) | Returns the first element or the first matching a predicate. |
-| [**Last**](#last) | Returns the last element or the last matching a predicate. |
-| [**Take**](#take) | Returns a new slice containing up to N elements. |
-| [**Only**](#only) | Returns a new slice containing only the elements at the given indices. |
-| [**Except**](#except) | Returns a new slice containing all elements except those at the given indices. |
-| [**Flatten**](#flatten) | Flattens a slice of slices into a single, flat slice. |
-| [**Collapse**](#collapse) | Alias for `Flatten`. |
-| [**Wrap**](#wrap) | Wraps a single value in a one-element slice. |
-| [**WrapSlice**](#wrapslice) | Returns the given slice unchanged. |
-| [**Prepend**](#prepend) | Inserts a value at the beginning of the slice. |
-| [**Push**](#push) | Appends one or more values to the end of the slice. |
-| [**Shuffle**](#shuffle) | Returns a new slice with the elements in random order. |
-| [**Random**](#random) | Returns a new slice containing N randomly selected elements. |
-| [**Sort**](#sort) | Returns a new slice sorted using a comparison function. |
-| [**SortDesc**](#sortdesc) | Returns a new slice sorted in descending order. |
-| [**SortRecursive**](#sortrecursive) | Sorts a slice using a comparison function. |
-| [**Where**](#where) | Returns a new slice containing only elements matching a callback. |
-| [**WhereNotNull**](#wherenotnull) | Returns a new slice with all zero-value elements removed. |
-| [**Reject**](#reject) | Returns a new slice excluding elements matching a callback. |
-| [**Partition**](#partition) | Splits the slice into two based on a callback. |
-| [**Every**](#every) | Reports whether every element satisfies a callback. |
-| [**Some**](#some) | Reports whether at least one element satisfies a callback. |
-| [**Exists**](#exists) | Reports whether the given index is valid. |
-| [**Has**](#has) | Reports whether all of the given indices are valid. |
-| [**HasAny**](#hasany) | Reports whether at least one of the given indices is valid. |
-| [**Join**](#join) | Concatenates string slice elements with a glue string. |
-| [**CrossJoin**](#crossjoin) | Returns the Cartesian product of the given slices. |
-| [**Divide**](#divide) | Splits a slice into indices and values. |
-| [**Map**](#map) | Transforms each element into a new slice of results. |
-| [**MapWithKeys**](#mapwithkeys) | Transforms each element into a key-value pair map. |
-| [**MapSpread**](#mapspread) | Alias for `Map`. |
-| [**KeyBy**](#keyby) | Indexes the slice elements by a key returned from a function. |
-| [**Pluck**](#pluck) | Extracts a single field from each element. |
+| Function                            | Purpose                                                                        |
+| :---------------------------------- | :----------------------------------------------------------------------------- |
+| [**Accessible**](#accessible)       | Reports whether the given value is non-nil.                                    |
+| [**IsList**](#islist)               | Reports whether the given slice is a sequential list.                          |
+| [**First**](#first)                 | Returns the first element or the first matching a predicate.                   |
+| [**Last**](#last)                   | Returns the last element or the last matching a predicate.                     |
+| [**Take**](#take)                   | Returns a new slice containing up to N elements.                               |
+| [**Only**](#only)                   | Returns a new slice containing only the elements at the given indices.         |
+| [**Except**](#except)               | Returns a new slice containing all elements except those at the given indices. |
+| [**Flatten**](#flatten)             | Flattens a slice of slices into a single, flat slice.                          |
+| [**Collapse**](#collapse)           | Alias for `Flatten`.                                                           |
+| [**Wrap**](#wrap)                   | Wraps a single value in a one-element slice.                                   |
+| [**WrapSlice**](#wrapslice)         | Returns the given slice unchanged.                                             |
+| [**Prepend**](#prepend)             | Inserts a value at the beginning of the slice.                                 |
+| [**Push**](#push)                   | Appends one or more values to the end of the slice.                            |
+| [**Shuffle**](#shuffle)             | Returns a new slice with the elements in random order.                         |
+| [**Random**](#random)               | Returns a new slice containing N randomly selected elements.                   |
+| [**Sort**](#sort)                   | Returns a new slice sorted using a comparison function.                        |
+| [**SortDesc**](#sortdesc)           | Returns a new slice sorted in descending order.                                |
+| [**SortRecursive**](#sortrecursive) | Sorts a slice using a comparison function.                                     |
+| [**Where**](#where)                 | Returns a new slice containing only elements matching a callback.              |
+| [**WhereNotNull**](#wherenotnull)   | Returns a new slice with all zero-value elements removed.                      |
+| [**Reject**](#reject)               | Returns a new slice excluding elements matching a callback.                    |
+| [**Partition**](#partition)         | Splits the slice into two based on a callback.                                 |
+| [**Every**](#every)                 | Reports whether every element satisfies a callback.                            |
+| [**Some**](#some)                   | Reports whether at least one element satisfies a callback.                     |
+| [**Exists**](#exists)               | Reports whether the given index is valid.                                      |
+| [**Has**](#has)                     | Reports whether all of the given indices are valid.                            |
+| [**HasAny**](#hasany)               | Reports whether at least one of the given indices is valid.                    |
+| [**Join**](#join)                   | Concatenates string slice elements with a glue string.                         |
+| [**CrossJoin**](#crossjoin)         | Returns the Cartesian product of the given slices.                             |
+| [**Divide**](#divide)               | Splits a slice into indices and values.                                        |
+| [**Map**](#map)                     | Transforms each element into a new slice of results.                           |
+| [**MapWithKeys**](#mapwithkeys)     | Transforms each element into a key-value pair map.                             |
+| [**MapSpread**](#mapspread)         | Alias for `Map`.                                                               |
+| [**KeyBy**](#keyby)                 | Indexes the slice elements by a key returned from a function.                  |
+| [**Pluck**](#pluck)                 | Extracts a single field from each element.                                     |
 
 ---
 

@@ -18,11 +18,13 @@ func TestNewAndAccessors(t *testing.T) {
 	m := testManager.Create(1500, currency.SGD)
 
 	amount := testutil.TestRequire(t, m.Amount)
+
 	if amount != 1500 {
 		t.Fatalf("Amount() = %d, want %d", amount, 1500)
 	}
 
 	curr := testutil.TestRequire(t, m.Currency)
+
 	if curr.Code != currency.SGD {
 		t.Fatalf("Currency().Code = %s, want %s", curr.Code, currency.SGD)
 	}
@@ -44,15 +46,18 @@ func TestNewFromFloatTruncatesTowardZero(t *testing.T) {
 	}
 
 	manager := NewManager()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := manager.CreateFromFloat(tt.amount, tt.code)
 			amount := testutil.TestRequire(t, m.Amount)
+
 			if amount != tt.want {
 				t.Fatalf("Amount() = %d, want %d", amount, tt.want)
 			}
 
 			curr := testutil.TestRequire(t, m.Currency)
+
 			if curr.Code != tt.code {
 				t.Fatalf("Currency().Code = %s, want %s", curr.Code, tt.code)
 			}
@@ -108,6 +113,7 @@ func TestNewFromString(t *testing.T) {
 	}
 
 	manager := NewManager()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m, err := manager.CreateFromString(tt.amount, tt.code)
@@ -116,6 +122,7 @@ func TestNewFromString(t *testing.T) {
 				if err == nil {
 					t.Fatalf("CreateFromString() expected error but got nil")
 				}
+
 				return
 			}
 
@@ -124,11 +131,13 @@ func TestNewFromString(t *testing.T) {
 			}
 
 			amount := testutil.TestRequire(t, m.Amount)
+
 			if amount != tt.want {
 				t.Fatalf("Amount() = %d, want %d", amount, tt.want)
 			}
 
 			curr := testutil.TestRequire(t, m.Currency)
+
 			if curr.Code != tt.code {
 				t.Fatalf("Currency().Code = %s, want %s", curr.Code, tt.code)
 			}
@@ -141,6 +150,7 @@ func TestCurrencyChecks(t *testing.T) {
 	eur := testManager.Create(50, currency.EUR)
 
 	sameCurrency, err := sgd.SameCurrency(eur)
+
 	if err != nil {
 		t.Fatalf("SameCurrency() unexpected error: %v", err)
 	}
@@ -164,26 +174,31 @@ func TestComparisons(t *testing.T) {
 
 	equal := testManager.Create(200, currency.SGD)
 	ok, err := left.Equals(equal)
+
 	if err != nil || !ok {
 		t.Fatalf("Equals() = (%v, %v), want (true, nil)", ok, err)
 	}
 
 	gt, err := left.GreaterThan(right)
+
 	if err != nil || !gt {
 		t.Fatalf("GreaterThan() = (%v, %v), want (true, nil)", gt, err)
 	}
 
 	gte, err := right.GreaterThanOrEqual(right)
+
 	if err != nil || !gte {
 		t.Fatalf("GreaterThanOrEqual() = (%v, %v), want (true, nil)", gte, err)
 	}
 
 	lt, err := right.LessThan(left)
+
 	if err != nil || !lt {
 		t.Fatalf("LessThan() = (%v, %v), want (true, nil)", lt, err)
 	}
 
 	lte, err := right.LessThanOrEqual(left)
+
 	if err != nil || !lte {
 		t.Fatalf("LessThanOrEqual() = (%v, %v), want (true, nil)", lte, err)
 	}
@@ -194,6 +209,7 @@ func TestCompareCurrencyMismatch(t *testing.T) {
 	eur := testManager.Create(80, currency.EUR)
 
 	result, err := sgd.Compare(eur)
+
 	if !errors.Is(err, exception.ErrCurrencyMismatch) {
 		t.Fatalf("Compare() error = %v, want %v", err, exception.ErrCurrencyMismatch)
 	}
@@ -246,6 +262,7 @@ func TestAddAndSubtract(t *testing.T) {
 	manager := NewManager()
 
 	unchanged, err := manager.Add(base)
+
 	if err != nil {
 		t.Fatalf("Add() unexpected error: %v", err)
 	}
@@ -255,14 +272,17 @@ func TestAddAndSubtract(t *testing.T) {
 	}
 
 	sum, err := manager.Add(base, addOne, addTwo)
+
 	if err != nil {
 		t.Fatalf("Add() unexpected error: %v", err)
 	}
+
 	if testutil.TestRequire(t, sum.Amount) != 150 {
 		t.Fatalf("Add() amount = %d, want %d", testutil.TestRequire(t, sum.Amount), 150)
 	}
 
 	subtractUnchanged, err := manager.Subtract(base)
+
 	if err != nil {
 		t.Fatalf("Subtract() unexpected error: %v", err)
 	}
@@ -272,6 +292,7 @@ func TestAddAndSubtract(t *testing.T) {
 	}
 
 	diff, err := manager.Subtract(base, addOne)
+
 	if err != nil {
 		t.Fatalf("Subtract() unexpected error: %v", err)
 	}
@@ -281,11 +302,13 @@ func TestAddAndSubtract(t *testing.T) {
 	}
 
 	_, err = manager.Add(base, testManager.Create(1, currency.EUR))
+
 	if !errors.Is(err, exception.ErrCurrencyMismatch) {
 		t.Fatalf("Add() error = %v, want %v", err, exception.ErrCurrencyMismatch)
 	}
 
 	_, err = manager.Subtract(base, testManager.Create(1, currency.EUR))
+
 	if !errors.Is(err, exception.ErrCurrencyMismatch) {
 		t.Fatalf("Subtract() error = %v, want %v", err, exception.ErrCurrencyMismatch)
 	}
@@ -312,6 +335,7 @@ func TestMultiplyWithValues(t *testing.T) {
 	if testutil.TestRequire(t, result.Amount) != 60 {
 		t.Fatalf("Multiply() amount = %d, want %d", testutil.TestRequire(t, result.Amount), 60)
 	}
+
 	if testutil.TestRequire(t, result.Currency).Code != currency.SGD {
 		t.Fatalf("Multiply() currency = %s, want SGD", testutil.TestRequire(t, result.Currency).Code)
 	}
@@ -329,6 +353,7 @@ func TestRound(t *testing.T) {
 	}
 
 	manager := NewManager()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := testManager.Create(tt.amount, currency.SGD)
@@ -352,6 +377,7 @@ func TestSplit(t *testing.T) {
 	}
 
 	want := []int64{34, 33, 33}
+
 	for i, p := range parts {
 		if testutil.TestRequire(t, p.Amount) != want[i] || testutil.TestRequire(t, p.Currency).Code != currency.SGD {
 			t.Fatalf("Split() part %d = (%d, %s), want (%d, %s)", i, testutil.TestRequire(t, p.Amount), testutil.TestRequire(t, p.Currency).Code, want[i], currency.SGD)
@@ -366,6 +392,7 @@ func TestSplit(t *testing.T) {
 	}
 
 	negWant := []int64{-34, -33, -33}
+
 	for i, p := range negParts {
 		if testutil.TestRequire(t, p.Amount) != negWant[i] || testutil.TestRequire(t, p.Currency).Code != currency.SGD {
 			t.Fatalf("Split() negative part %d = (%d, %s), want (%d, %s)", i, testutil.TestRequire(t, p.Amount), testutil.TestRequire(t, p.Currency).Code, negWant[i], currency.SGD)
@@ -400,6 +427,7 @@ func TestAllocate(t *testing.T) {
 	}
 
 	want := []int64{34, 33, 33}
+
 	for i, p := range splits {
 		if testutil.TestRequire(t, p.Amount) != want[i] {
 			t.Fatalf("Allocate() part %d = %d, want %d", i, testutil.TestRequire(t, p.Amount), want[i])
@@ -414,6 +442,7 @@ func TestAllocate(t *testing.T) {
 	}
 
 	negWant := []int64{-34, -66}
+
 	for i, p := range negative {
 		if testutil.TestRequire(t, p.Amount) != negWant[i] {
 			t.Fatalf("Allocate() negative part %d = %d, want %d", i, testutil.TestRequire(t, p.Amount), negWant[i])
@@ -421,6 +450,7 @@ func TestAllocate(t *testing.T) {
 	}
 
 	zeros, err := manager.Allocate(base, 0, 0, 0)
+
 	if err != nil {
 		t.Fatalf("Allocate() unexpected error when ratios sum to zero: %v", err)
 	}
@@ -470,6 +500,7 @@ func TestMarshalJSON(t *testing.T) {
 
 func TestUnmarshalJSON(t *testing.T) {
 	payload := []byte(`{"amount": 1234, "currency": "SGD"}`)
+
 	var m Money
 
 	if err := json.Unmarshal(payload, &m); err != nil {
@@ -481,6 +512,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 
 	var empty Money
+
 	if err := json.Unmarshal([]byte(`{}`), &empty); err != nil {
 		t.Fatalf("json.Unmarshal() empty unexpected error: %v", err)
 	}
@@ -505,27 +537,33 @@ func TestCompareSameCurrency(t *testing.T) {
 
 	// Test <
 	cmp, err := sgd100.Compare(sgd200)
+
 	if err != nil {
 		t.Fatalf("Compare() unexpected error: %v", err)
 	}
+
 	if cmp != -1 {
 		t.Errorf("Compare(100, 200) = %d, want -1", cmp)
 	}
 
 	// Test >
 	cmp, err = sgd200.Compare(sgd100)
+
 	if err != nil {
 		t.Fatalf("Compare() unexpected error: %v", err)
 	}
+
 	if cmp != 1 {
 		t.Errorf("Compare(200, 100) = %d, want 1", cmp)
 	}
 
 	// Test ==
 	cmp, err = sgd100.Compare(sgd100Clone)
+
 	if err != nil {
 		t.Fatalf("Compare() unexpected error: %v", err)
 	}
+
 	if cmp != 0 {
 		t.Errorf("Compare(100, 100) = %d, want 0", cmp)
 	}
@@ -535,6 +573,7 @@ func TestUnmarshalJSONInvalidSyntax(t *testing.T) {
 	var m Money
 	// Invalid JSON syntax
 	err := m.UnmarshalJSON([]byte(`{"amount": 123`))
+
 	if err == nil {
 		t.Fatal("UnmarshalJSON() expected error on invalid JSON, got nil")
 	}
@@ -550,9 +589,11 @@ func TestUnmarshalJSON_EdgeCases(t *testing.T) {
 	// Float amount logic (rounds to integer)
 	// 12.50 -> 13
 	err := json.Unmarshal([]byte(`{"amount": 12.50, "currency": "SGD"}`), &m)
+
 	if err != nil {
 		t.Fatalf("UnmarshalJSON() float error: %v", err)
 	}
+
 	if testutil.TestRequire(t, m.Amount) != 13 {
 		t.Errorf("Amount() = %d, want 13", testutil.TestRequire(t, m.Amount))
 	}
@@ -560,9 +601,11 @@ func TestUnmarshalJSON_EdgeCases(t *testing.T) {
 	// Negative float
 	// -12.50 -> -13
 	err = json.Unmarshal([]byte(`{"amount": -12.50, "currency": "SGD"}`), &m)
+
 	if err != nil {
 		t.Fatalf("UnmarshalJSON() negative float error: %v", err)
 	}
+
 	if testutil.TestRequire(t, m.Amount) != -13 {
 		t.Errorf("Amount() = %d, want -13", testutil.TestRequire(t, m.Amount))
 	}
@@ -570,6 +613,7 @@ func TestUnmarshalJSON_EdgeCases(t *testing.T) {
 	// Type error (amount is non-numeric string)
 	// json.Number might accept string tokens, but ParseInt/ParseFloat will fail.
 	err = json.Unmarshal([]byte(`{"amount": "foo", "currency": "SGD"}`), &m)
+
 	if !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Errorf("UnmarshalJSON() string amount error = %v, want ErrInvalidJSONUnmarshal", err)
 	}
@@ -577,12 +621,14 @@ func TestUnmarshalJSON_EdgeCases(t *testing.T) {
 	// Type error (amount is boolean)
 	// Triggers UnmarshalTypeError
 	err = json.Unmarshal([]byte(`{"amount": true, "currency": "SGD"}`), &m)
+
 	if !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Errorf("UnmarshalJSON() boolean amount error = %v, want ErrInvalidJSONUnmarshal", err)
 	}
 
 	// Type error (currency is number)
 	err = json.Unmarshal([]byte(`{"amount": 100, "currency": 123}`), &m)
+
 	if !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Errorf("UnmarshalJSON() number currency error = %v, want ErrInvalidJSONUnmarshal", err)
 	}
@@ -590,6 +636,7 @@ func TestUnmarshalJSON_EdgeCases(t *testing.T) {
 	// Float overflow
 	// 1e1000 overflows float64, ParseFloat returns error (ErrRange)
 	err = json.Unmarshal([]byte(`{"amount": 1e1000, "currency": "SGD"}`), &m)
+
 	if !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Errorf("UnmarshalJSON() float overflow error = %v, want ErrInvalidJSONUnmarshal", err)
 	}
@@ -629,6 +676,7 @@ func TestUnmarshalJSON_LargePrecision(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var m Money
 			err := json.Unmarshal([]byte(tt.json), &m)
+
 			if err != nil {
 				t.Fatalf("UnmarshalJSON() error: %v", err)
 			}
@@ -672,25 +720,43 @@ func TestMoneyNilReceiverErrors(t *testing.T) {
 		name string
 		fn   func() error
 	}{
+
 		{name: "Currency", fn: func() error { _, err := m.Currency(); return err }},
+
 		{name: "Amount", fn: func() error { _, err := m.Amount(); return err }},
+
 		{name: "IsZero", fn: func() error { _, err := m.IsZero(); return err }},
+
 		{name: "IsPositive", fn: func() error { _, err := m.IsPositive(); return err }},
+
 		{name: "IsNegative", fn: func() error { _, err := m.IsNegative(); return err }},
+
 		{name: "Absolute", fn: func() error { _, err := manager.Absolute(m); return err }},
+
 		{name: "Negative", fn: func() error { _, err := manager.Negative(m); return err }},
+
 		{name: "Add", fn: func() error { _, err := manager.Add(m); return err }},
+
 		{name: "Subtract", fn: func() error { _, err := manager.Subtract(m); return err }},
+
 		{name: "Multiply", fn: func() error { _, err := manager.Multiply(m, 2); return err }},
+
 		{name: "Round", fn: func() error { _, err := manager.Round(m); return err }},
+
 		{name: "Split", fn: func() error { _, err := manager.Split(m, 2); return err }},
+
 		{name: "Allocate", fn: func() error { _, err := manager.Allocate(m, 1); return err }},
+
 		{name: "Display", fn: func() error { _, err := m.Display(); return err }},
+
 		{name: "AsMajorUnits", fn: func() error { _, err := m.AsMajorUnits(); return err }},
+
 		{name: "MarshalJSON", fn: func() error { _, err := m.MarshalJSON(); return err }},
 		{name: "UnmarshalJSON", fn: func() error { return m.UnmarshalJSON([]byte("{}")) }},
+
 		{name: "Value", fn: func() error { _, err := m.Value(); return err }},
 		{name: "AssertSameCurrency", fn: func() error { return m.AssertSameCurrency(testManager.Create(1, currency.SGD)) }},
+
 		{name: "SameCurrency", fn: func() error { _, err := m.SameCurrency(testManager.Create(1, currency.SGD)); return err }},
 	}
 
@@ -717,6 +783,7 @@ func TestMoneyNilOther(t *testing.T) {
 
 func TestMoneyScanNilReceiver(t *testing.T) {
 	var m *Money
+
 	if err := m.Scan("10|SGD"); err == nil {
 		t.Fatal("expected error when scanning into nil Money")
 	}
@@ -724,6 +791,7 @@ func TestMoneyScanNilReceiver(t *testing.T) {
 
 func TestMoneyCompareNilReceiver(t *testing.T) {
 	var m *Money
+
 	if _, err := m.Compare(testManager.Create(1, currency.SGD)); !errors.Is(err, exception.ErrNoMoneyProvided) {
 		t.Fatalf("Compare on nil receiver error = %v, want ErrNoMoneyProvided", err)
 	}
@@ -750,6 +818,7 @@ func TestMoneyConverterErrorPaths(t *testing.T) {
 	}
 
 	var nilConverter *Converter
+
 	if _, err := nilConverter.Convert(testManager.Create(1, currency.SGD), currency.EUR); !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("nil converter Convert error = %v, want ErrInvalidExchangeRate", err)
 	}
@@ -763,6 +832,7 @@ func TestMoneyConverterErrorPaths(t *testing.T) {
 	}
 
 	invalidExchange := (*exchange.Exchange)(nil)
+
 	if _, err := NewConverter(currency.NewManager(), invalidExchange); !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Fatalf("NewConverter with invalid exchange error = %v, want ErrInvalidExchangeRate", err)
 	}
@@ -799,6 +869,7 @@ func TestJSONNilParserAndSetters(t *testing.T) {
 	}
 
 	var nilParser *JSON
+
 	if err := nilParser.SetUnmarshal(func(*Money, []byte) error { return nil }); !errors.Is(err, exception.ErrNoJSONParserProvided) {
 		t.Fatalf("SetUnmarshal nil parser error = %v, want ErrNoJSONParserProvided", err)
 	}
@@ -820,6 +891,7 @@ func TestJSONDefaultCurrencyAndInvalidCode(t *testing.T) {
 	}
 
 	var nilParser *JSON
+
 	if _, err := nilParser.defaultJSONCurrency(); !errors.Is(err, exception.ErrNoJSONParserProvided) {
 		t.Fatalf("defaultJSONCurrency nil parser error = %v, want ErrNoJSONParserProvided", err)
 	}
@@ -844,6 +916,7 @@ func TestMoneyMarshalJSONErrorPropagation(t *testing.T) {
 	}
 
 	parser.SetMarshal(func(Money) ([]byte, error) { return nil, errors.New("marshal failure") })
+
 	if _, err := parser.Marshal(*m); err == nil {
 		t.Fatal("expected marshal error to propagate")
 	}
@@ -852,6 +925,7 @@ func TestMoneyMarshalJSONErrorPropagation(t *testing.T) {
 func TestMoneyUnmarshalJSONInvalidNumberLiteral(t *testing.T) {
 	var m Money
 	err := m.UnmarshalJSON([]byte(`{"amount": abc, "currency": "SGD"}`))
+
 	if !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Fatalf("expected ErrInvalidJSONUnmarshal, got %v", err)
 	}
@@ -865,7 +939,9 @@ func TestJSONDefaultMarshalUnmarshalPaths(t *testing.T) {
 	}
 
 	parser = NewJson()
+
 	var m Money
+
 	if err := parser.defaultUnmarshalJSON(&m, []byte(`{"amount": 1.2.3, "currency": "SGD"}`)); !errors.Is(err, exception.ErrInvalidJSONUnmarshal) {
 		t.Fatalf("defaultUnmarshalJSON invalid number literal error = %v, want ErrInvalidJSONUnmarshal", err)
 	}
@@ -879,6 +955,7 @@ func TestJSONDefaultMarshalUnmarshalPaths(t *testing.T) {
 	}
 
 	var nilParser *JSON
+
 	if err := nilParser.defaultUnmarshalJSON(&m, []byte(`{"amount": 10, "currency": "SGD"}`)); !errors.Is(err, exception.ErrNoJSONParserProvided) {
 		t.Fatalf("defaultUnmarshalJSON nil parser error = %v, want ErrNoJSONParserProvided", err)
 	}
@@ -889,6 +966,7 @@ func TestConvertWithRateUnknownCurrency(t *testing.T) {
 	testutil.TestRequireNoErr(t, ex.AddRate(currency.SGD, currency.EUR, 1))
 
 	converter := newTestConverter(t, currency.NewManager(), ex)
+
 	if _, err := converter.ConvertWithRate(testManager.Create(10, currency.SGD), "ZZZ", 1); err == nil {
 		t.Fatal("expected error for unknown target currency")
 	}
@@ -911,6 +989,7 @@ func TestJSONCurrencyFunctionError(t *testing.T) {
 	}))
 
 	var m Money
+
 	if err := parser.defaultUnmarshalJSON(&m, []byte(`{"amount": 10, "currency": "SGD"}`)); err == nil {
 		t.Fatal("expected error from currency function")
 	}
@@ -920,6 +999,7 @@ func TestMoney_Display_Coverage(t *testing.T) {
 	t.Parallel()
 
 	m := &Money{amount: 100, currency: nil}
+
 	if got, err := m.Display(); got != "" || err == nil {
 		t.Errorf("Display() with nil currency = (%q, %v), want empty string and error", got, err)
 	}
@@ -929,6 +1009,7 @@ func TestMoney_AsMajorUnits_Coverage(t *testing.T) {
 	t.Parallel()
 
 	m := &Money{amount: 100, currency: nil}
+
 	if got, err := m.AsMajorUnits(); got != 0 || err == nil {
 		t.Errorf("AsMajorUnits() with nil currency = (%f, %v), want 0 and error", got, err)
 	}
@@ -946,6 +1027,7 @@ func TestMoney_AssertSameCurrency_Coverage(t *testing.T) {
 
 	// Test with other money having nil currency
 	m2 := &Money{amount: 100, currency: nil}
+
 	if err := m1.AssertSameCurrency(m2); err == nil {
 		t.Error("AssertSameCurrency(money with nil currency) should return error")
 	}

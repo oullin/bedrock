@@ -12,6 +12,7 @@ import (
 
 func TestNewExchange(t *testing.T) {
 	e := NewExchange()
+
 	if e == nil {
 		t.Fatal("NewExchange() returned nil")
 	}
@@ -22,6 +23,7 @@ func TestNewExchange(t *testing.T) {
 	}
 
 	err := e.AddRate("SGD", "EUR", 0.85)
+
 	if err != nil {
 		t.Fatalf("Failed to add rate: %v", err)
 	}
@@ -46,6 +48,7 @@ func TestExchangeIsValid(t *testing.T) {
 
 	// Test nil exchange
 	var nilEx *Exchange
+
 	if nilEx.IsValid() {
 		t.Fatal("IsValid() = true for nil Exchange, want false")
 	}
@@ -56,6 +59,7 @@ func TestExchangeIsValid(t *testing.T) {
 
 	// Test exchange with nil rates map
 	invalidEx := &Exchange{rates: nil}
+
 	if invalidEx.IsValid() {
 		t.Fatal("IsValid() = true for Exchange with nil rates map, want false")
 	}
@@ -66,6 +70,7 @@ func TestExchangeIsValid(t *testing.T) {
 
 	// Test exchange with empty rates map
 	emptyEx := NewExchange()
+
 	if emptyEx.IsValid() {
 		t.Fatal("IsValid() = true for Exchange with empty rates map, want false")
 	}
@@ -79,17 +84,21 @@ func TestAddRate(t *testing.T) {
 	e := NewExchange()
 
 	err := e.AddRate("SGD", "EUR", 0.85)
+
 	if err != nil {
 		t.Errorf("AddRate failed: %v", err)
 	}
 
 	err = e.AddRate("SGD", "GBP", -1.0)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Errorf("Expected ErrInvalidExchangeRate, got %v", err)
 	}
 
 	var nilExchange *Exchange
+
 	err = nilExchange.AddRate("SGD", "EUR", 0.85)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Errorf("Expected ErrInvalidExchangeRate for nil exchange, got %v", err)
 	}
@@ -107,6 +116,7 @@ func TestGetRate(t *testing.T) {
 
 	// Test direct rate
 	rate, err := e.GetRate("SGD", "EUR")
+
 	if err != nil {
 		t.Errorf("GetRate failed: %v", err)
 	}
@@ -117,17 +127,20 @@ func TestGetRate(t *testing.T) {
 
 	// Test inverse rate
 	rate, err = e.GetRate("EUR", "SGD")
+
 	if err != nil {
 		t.Errorf("GetRate inverse failed: %v", err)
 	}
 
 	expectedInverse := 1.0 / 0.85
+
 	if math.Abs(rate-expectedInverse) > epsilon {
 		t.Errorf("Expected inverse rate %f, got %f (diff: %e)", expectedInverse, rate, math.Abs(rate-expectedInverse))
 	}
 
 	// Test the same currency
 	rate, err = e.GetRate("SGD", "SGD")
+
 	if err != nil {
 		t.Errorf("GetRate same currency failed: %v", err)
 	}
@@ -138,12 +151,14 @@ func TestGetRate(t *testing.T) {
 
 	// Test non-existent rate
 	_, err = e.GetRate("SGD", "GBP")
+
 	if !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 		t.Errorf("Expected ErrCurrencyConversionNotFound, got %v", err)
 	}
 
 	// Test nil exchange
 	var nilExchange *Exchange
+
 	_, err = nilExchange.GetRate("SGD", "EUR")
 
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
@@ -162,6 +177,7 @@ func TestConvertAmount(t *testing.T) {
 	// 10.00 SGD (fraction 2) -> 8.50 EUR (fraction 2)
 	// Amount 1000 -> 850
 	amount, err := e.ConvertAmount(1000, "SGD", 2, "EUR", 2)
+
 	if err != nil {
 		t.Errorf("ConvertAmount failed: %v", err)
 	}
@@ -172,6 +188,7 @@ func TestConvertAmount(t *testing.T) {
 
 	// Test the same currency
 	amount, err = e.ConvertAmount(1000, "SGD", 2, "SGD", 2)
+
 	if err != nil {
 		t.Errorf("ConvertAmount same currency failed: %v", err)
 	}
@@ -182,6 +199,7 @@ func TestConvertAmount(t *testing.T) {
 
 	// Test missing rate
 	_, err = e.ConvertAmount(1000, "SGD", 2, "GBP", 2)
+
 	if err == nil {
 		t.Errorf("Expected ErrCurrencyConversionNotFound, got nil")
 	} else if !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
@@ -190,6 +208,7 @@ func TestConvertAmount(t *testing.T) {
 
 	// Test nil exchange
 	var nilExchange *Exchange
+
 	_, err = nilExchange.ConvertAmount(1000, "SGD", 2, "EUR", 2)
 
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
@@ -200,6 +219,7 @@ func TestConvertAmount(t *testing.T) {
 	// 10 SGD (fraction 0) -> EUR (fraction 2)
 	// 10 -> 8.50 EUR -> 850
 	amount, err = e.ConvertAmount(10, "SGD", 0, "EUR", 2)
+
 	if err != nil {
 		t.Errorf("ConvertAmount diff fractions failed: %v", err)
 	}
@@ -215,6 +235,7 @@ func TestConvertAmountWithRate(t *testing.T) {
 	// 10.00 (fraction 2) * 1.5 -> 15.00 (fraction 2)
 	// 1000 -> 1500
 	amount, err := e.ConvertAmountWithRate(1000, 2, 2, 1.5)
+
 	if err != nil {
 		t.Errorf("ConvertAmountWithRate failed: %v", err)
 	}
@@ -225,6 +246,7 @@ func TestConvertAmountWithRate(t *testing.T) {
 
 	// Invalid rate
 	_, err = e.ConvertAmountWithRate(1000, 2, 2, -1.0)
+
 	if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 		t.Errorf("Expected ErrInvalidExchangeRate, got %v", err)
 	}
@@ -238,16 +260,19 @@ func TestConvertAmountDifferentFractions(t *testing.T) {
 	// USD to BHD rate: 0.377
 	// JPY to BHD rate: 0.377/110 = 0.00342727...
 	err := e.AddRate("USD", "JPY", 110.0)
+
 	if err != nil {
 		t.Fatalf("Failed to add USD/JPY rate: %v", err)
 	}
 
 	err = e.AddRate("USD", "BHD", 0.377)
+
 	if err != nil {
 		t.Fatalf("Failed to add USD/BHD rate: %v", err)
 	}
 
 	err = e.AddRate("JPY", "BHD", 0.377/110.0)
+
 	if err != nil {
 		t.Fatalf("Failed to add JPY/BHD rate: %v", err)
 	}
@@ -357,6 +382,7 @@ func TestConvertAmountDifferentFractions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			amount, err := e.ConvertAmount(tt.amount, tt.fromCurrency, tt.fromFraction, tt.toCurrency, tt.toFraction)
+
 			if err != nil {
 				t.Errorf("ConvertAmount failed: %v", err)
 			}
@@ -375,6 +401,7 @@ func TestConcurrentAccess(t *testing.T) {
 
 	// Pre-populate with some rates
 	currencies := []string{"SGD", "EUR", "GBP", "JPY", "CAD"}
+
 	for i, base := range currencies {
 		for j, counter := range currencies {
 			if i != j {
@@ -399,6 +426,7 @@ func TestConcurrentAccess(t *testing.T) {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
+
 			for j := 0; j < iterations; j++ {
 				base := currencies[j%len(currencies)]
 				counter := currencies[(j+1)%len(currencies)]
@@ -406,6 +434,7 @@ func TestConcurrentAccess(t *testing.T) {
 
 				if err := e.AddRate(base, counter, rate); err != nil {
 					errChan <- err
+
 					return
 				}
 			}
@@ -417,20 +446,25 @@ func TestConcurrentAccess(t *testing.T) {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
+
 			for j := 0; j < iterations; j++ {
 				base := currencies[j%len(currencies)]
 				counter := currencies[(j+1)%len(currencies)]
 
 				_, err := e.GetRate(base, counter)
+
 				if err != nil && !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 					errChan <- err
+
 					return
 				}
 
 				// Also test conversion
 				_, err = e.ConvertAmount(1000, base, 2, counter, 2)
+
 				if err != nil && !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 					errChan <- err
+
 					return
 				}
 			}
@@ -469,12 +503,14 @@ func TestConcurrentSameInnerMap(t *testing.T) {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
+
 			for j := 0; j < iterations; j++ {
 				counter := currencies[j%len(currencies)]
 				rate := float64(id+1) / float64(j+1)
 
 				if err := e.AddRate(baseCurrency, counter, rate); err != nil {
 					errChan <- err
+
 					return
 				}
 			}
@@ -484,12 +520,15 @@ func TestConcurrentSameInnerMap(t *testing.T) {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
+
 			for j := 0; j < iterations; j++ {
 				counter := currencies[j%len(currencies)]
 
 				_, err := e.GetRate(baseCurrency, counter)
+
 				if err != nil && !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 					errChan <- err
+
 					return
 				}
 			}
@@ -509,6 +548,7 @@ func TestConverterGetExchange_CoveragePaths(t *testing.T) {
 	t.Run("nil receiver", func(t *testing.T) {
 		var c *Converter
 		_, err := c.GetExchange()
+
 		if !errors.Is(err, exception.ErrNoConverterProvided) {
 			t.Fatalf("GetExchange() error = %v, want ErrNoConverterProvided", err)
 		}
@@ -517,6 +557,7 @@ func TestConverterGetExchange_CoveragePaths(t *testing.T) {
 	t.Run("nil exchange", func(t *testing.T) {
 		c := &Converter{exchange: nil}
 		_, err := c.GetExchange()
+
 		if !errors.Is(err, exception.ErrInvalidExchangeRate) {
 			t.Fatalf("GetExchange() error = %v, want ErrInvalidExchangeRate", err)
 		}
@@ -525,14 +566,17 @@ func TestConverterGetExchange_CoveragePaths(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		ex := &Exchange{}
 		c, err := NewConverter(ex)
+
 		if err != nil {
 			t.Fatalf("NewConverter() unexpected error: %v", err)
 		}
 
 		got, err := c.GetExchange()
+
 		if err != nil {
 			t.Fatalf("GetExchange() unexpected error: %v", err)
 		}
+
 		if got != ex {
 			t.Fatal("GetExchange() did not return the same exchange pointer")
 		}
@@ -664,11 +708,13 @@ func TestExchange_ConvertAmount_RealWorldCommonCurrencies(t *testing.T) {
 			t.Parallel()
 
 			got, err := ex.ConvertAmount(tt.amount, tt.fromCode, tt.fromFraction, tt.toCode, tt.toFraction)
+
 			if err != nil {
 				t.Fatalf("ConvertAmount() unexpected error: %v", err)
 			}
 
 			want := testutil.TestExpectedConvertAmountMoney(t, tt.amount, tt.fromFraction, tt.toFraction, tt.rate)
+
 			if diff := testutil.TestAbs64Money(t, got-want); diff > tt.wantTol {
 				t.Fatalf("ConvertAmount() = %d, want %d (tol=%d; diff=%d)", got, want, tt.wantTol, diff)
 			}
@@ -683,11 +729,13 @@ func TestExchange_ConvertAmount_UsesInverseRatePath_RoundTripBounded(t *testing.
 	testutil.TestRequireNoErr(t, ex.AddRate("USD", "EUR", testutil.TestMustParseFloatMoney(t, "0.92")))
 
 	eurCents, err := ex.ConvertAmount(10000, "USD", 2, "EUR", 2)
+
 	if err != nil {
 		t.Fatalf("ConvertAmount(USD->EUR) unexpected error: %v", err)
 	}
 
 	usdCents, err := ex.ConvertAmount(eurCents, "EUR", 2, "USD", 2)
+
 	if err != nil {
 		t.Fatalf("ConvertAmount(EUR->USD) unexpected error: %v", err)
 	}
@@ -705,6 +753,7 @@ func TestExchange_ConvertAmount_DoesNotAssumeChainedCrossRates(t *testing.T) {
 	testutil.TestRequireNoErr(t, ex.AddRate("USD", "JPY", testutil.TestMustParseFloatMoney(t, "150")))
 
 	_, err := ex.ConvertAmount(10000, "EUR", 2, "JPY", 0)
+
 	if !errors.Is(err, exception.ErrCurrencyConversionNotFound) {
 		t.Fatalf("ConvertAmount(EUR->JPY) error = %v, want %v", err, exception.ErrCurrencyConversionNotFound)
 	}

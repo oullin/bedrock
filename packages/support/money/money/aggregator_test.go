@@ -36,20 +36,25 @@ func TestMoneyConverter_NilExchange(t *testing.T) {
 
 func TestAggregatorNilProviderErrors(t *testing.T) {
 	var a *Aggregator
+
 	if _, err := a.Sum(NewManager().Create(1, "SGD")); !errors.Is(err, exception.ErrInvalidAggregatorProvider) {
 		t.Fatalf("Sum() error = %v, want ErrInvalidAggregatorProvider", err)
 	}
+
 	if _, err := a.Min(NewManager().Create(1, "SGD")); !errors.Is(err, exception.ErrInvalidAggregatorProvider) {
 		t.Fatalf("Min() error = %v, want ErrInvalidAggregatorProvider", err)
 	}
+
 	if _, err := a.Max(NewManager().Create(1, "SGD")); !errors.Is(err, exception.ErrInvalidAggregatorProvider) {
 		t.Fatalf("Max() error = %v, want ErrInvalidAggregatorProvider", err)
 	}
+
 	if _, err := a.Avg(NewManager().Create(1, "SGD")); !errors.Is(err, exception.ErrInvalidAggregatorProvider) {
 		t.Fatalf("Avg() error = %v, want ErrInvalidAggregatorProvider", err)
 	}
 
 	a = &Aggregator{manager: nil}
+
 	if _, err := a.Sum(NewManager().Create(1, "SGD")); !errors.Is(err, exception.ErrInvalidAggregatorProvider) {
 		t.Fatalf("Sum() error = %v, want ErrInvalidAggregatorProvider", err)
 	}

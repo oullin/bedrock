@@ -40,16 +40,19 @@ func (c *Converter) Convert(money *Money, toCurrency string) (*Money, error) {
 	}
 
 	amount, err := money.Amount()
+
 	if err != nil {
 		return nil, err
 	}
 
 	fromCurrency, err := money.Currency()
+
 	if err != nil {
 		return nil, err
 	}
 
 	target := c.currencies.FindByCode(toCurrency)
+
 	if target == nil {
 		return nil, fmt.Errorf("currency %s not found: %w", toCurrency, exception.ErrCurrencyNotFound)
 	}
@@ -83,16 +86,19 @@ func (c *Converter) ConvertWithRate(money *Money, toCurrency string, rate float6
 	}
 
 	amount, err := money.Amount()
+
 	if err != nil {
 		return nil, err
 	}
 
 	fromCurrency, err := money.Currency()
+
 	if err != nil {
 		return nil, err
 	}
 
 	target := c.currencies.FindByCode(toCurrency)
+
 	if target == nil {
 		return nil, fmt.Errorf("currency %s not found: %w", toCurrency, exception.ErrCurrencyNotFound)
 	}

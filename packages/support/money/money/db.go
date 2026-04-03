@@ -27,6 +27,7 @@ const (
 // GetDBMoneyValueSeparator returns the current separator value in a thread-safe manner
 func GetDBMoneyValueSeparator() string {
 	dbMoneyValueSeparatorMu.RLock()
+
 	defer dbMoneyValueSeparatorMu.RUnlock()
 
 	return dbMoneyValueSeparator
@@ -39,6 +40,7 @@ func SetDBMoneyValueSeparator(separator string) error {
 	}
 
 	dbMoneyValueSeparatorMu.Lock()
+
 	defer dbMoneyValueSeparatorMu.Unlock()
 
 	dbMoneyValueSeparator = separator
@@ -54,6 +56,7 @@ func (m *Money) Value() (driver.Value, error) {
 	}
 
 	curr, err := m.Currency()
+
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +77,7 @@ func (m *Money) Scan(src interface{}) error {
 	}
 
 	var amount Amount
+
 	var parts []string
 	curr := &currency.Currency{}
 	separator := GetDBMoneyValueSeparator()

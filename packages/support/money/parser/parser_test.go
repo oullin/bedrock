@@ -114,11 +114,13 @@ func TestParseDecimal(t *testing.T) {
 				if err == nil {
 					t.Errorf("Expected error for %s but got nil", tt.input)
 				}
+
 				return
 			}
 
 			if err != nil {
 				t.Errorf("Unexpected error for %s: %v", tt.input, err)
+
 				return
 			}
 
@@ -149,8 +151,10 @@ func TestCommaOnlyAmbiguity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			p := NewParser()
 			val, err := p.ParseDecimal(tt.input)
+
 			if err != nil {
 				t.Errorf("Unexpected error for %s: %v", tt.input, err)
+
 				return
 			}
 
@@ -194,11 +198,13 @@ func TestParseDecimalWithComma(t *testing.T) {
 				if err == nil {
 					t.Errorf("Expected error for %s but got nil", tt.input)
 				}
+
 				return
 			}
 
 			if err != nil {
 				t.Errorf("Unexpected error for %s: %v", tt.input, err)
+
 				return
 			}
 
@@ -253,11 +259,13 @@ func TestParseAmountWithDecimalComma(t *testing.T) {
 				if err == nil {
 					t.Errorf("Expected error but got nil")
 				}
+
 				return
 			}
 
 			if err != nil {
 				t.Errorf("Unexpected error: %v", err)
+
 				return
 			}
 
@@ -290,12 +298,15 @@ func TestValidThousandsGrouping(t *testing.T) {
 	}
 
 	p := NewParser()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := p.validThousandsGrouping(tt.input, tt.sep, tt.decimal)
+
 			if err != nil {
 				t.Fatalf("validThousandsGrouping(%q) unexpected error: %v", tt.input, err)
 			}
+
 			if got != tt.expectValid {
 				t.Fatalf("validThousandsGrouping(%q) = %v, want %v", tt.input, got, tt.expectValid)
 			}
@@ -349,15 +360,19 @@ func TestParseStringSign(t *testing.T) {
 	}
 
 	p := NewParser()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAmount, gotNegative, err := p.ParseStringSign(tt.input)
+
 			if err != nil {
 				t.Fatalf("ParseStringSign(%q) unexpected error: %v", tt.input, err)
 			}
+
 			if gotAmount != tt.wantAmount {
 				t.Errorf("ParseStringSign(%q) amount = %q, want %q", tt.input, gotAmount, tt.wantAmount)
 			}
+
 			if gotNegative != tt.wantNegative {
 				t.Errorf("ParseStringSign(%q) negative = %v, want %v", tt.input, gotNegative, tt.wantNegative)
 			}
@@ -432,17 +447,22 @@ func TestParseDecimalParts(t *testing.T) {
 	}
 
 	p := NewParser()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotInteger, gotDecimal, gotErr := p.ParseDecimalParts(tt.input)
+
 			if !errors.Is(gotErr, tt.wantErr) {
 				t.Errorf("ParseDecimalParts(%q) error = %v, want %v", tt.input, gotErr, tt.wantErr)
+
 				return
 			}
+
 			if gotErr == nil {
 				if gotInteger != tt.wantInteger {
 					t.Errorf("ParseDecimalParts(%q) integer = %q, want %q", tt.input, gotInteger, tt.wantInteger)
 				}
+
 				if gotDecimal != tt.wantDecimal {
 					t.Errorf("ParseDecimalParts(%q) decimal = %q, want %q", tt.input, gotDecimal, tt.wantDecimal)
 				}
@@ -518,13 +538,17 @@ func TestValidateAndPadDecimal(t *testing.T) {
 	}
 
 	p := NewParser()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := p.ValidateAndPadDecimal(tt.decimalPart, tt.fraction)
+
 			if err != tt.wantErr {
 				t.Errorf("ValidateAndPadDecimal(%q, %d) error = %v, want %v", tt.decimalPart, tt.fraction, err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("ValidateAndPadDecimal(%q, %d) = %q, want %q", tt.decimalPart, tt.fraction, got, tt.want)
 			}
@@ -648,13 +672,17 @@ func TestParseAmountString(t *testing.T) {
 	}
 
 	p := NewParser()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := p.ParseAmountString(tt.amount, tt.fraction, tt.negative)
+
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("ParseAmountString(%q, %d, %v) error = %v, want %v", tt.amount, tt.fraction, tt.negative, err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("ParseAmountString(%q, %d, %v) = %d, want %d", tt.amount, tt.fraction, tt.negative, got, tt.want)
 			}
@@ -664,19 +692,23 @@ func TestParseAmountString(t *testing.T) {
 
 func TestParser_NewParserWithAndNilReceiverPaths(t *testing.T) {
 	p := NewParserWith(currency.NewISOCodePattern())
+
 	if p == nil {
 		t.Fatal("NewParserWith() returned nil")
 	}
 
 	_, _, err := p.ParseAmount("SGD 10.00")
+
 	if err != nil {
 		t.Fatalf("ParseAmount() unexpected error: %v", err)
 	}
 
 	var nilParser *Parser
+
 	if _, _, err := nilParser.ParseAmount("SGD 10"); !errors.Is(err, exception.ErrParserNotProvided) {
 		t.Fatalf("ParseAmount(nil) error = %v, want ErrParserNotProvided", err)
 	}
+
 	if _, _, err := nilParser.ParseAmountWithDecimalComma("SGD 10"); !errors.Is(err, exception.ErrParserNotProvided) {
 		t.Fatalf("ParseAmountWithDecimalComma(nil) error = %v, want ErrParserNotProvided", err)
 	}
@@ -688,6 +720,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("validThousandsGrouping nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, err := nilParser.validThousandsGrouping("1,234.56", ",", ".")
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("validThousandsGrouping(nil) error = %v, want ErrParserNotProvided", err)
 		}
@@ -696,6 +729,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("parseNumericString nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, err := nilParser.parseNumericString("10", false)
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("parseNumericString(nil) error = %v, want ErrParserNotProvided", err)
 		}
@@ -703,6 +737,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 
 	t.Run("validThousandsGrouping empty integer part", func(t *testing.T) {
 		ok, err := p.validThousandsGrouping(".12", ",", ".")
+
 		if err != nil || ok {
 			t.Fatalf("validThousandsGrouping(.12) = (%v,%v), want (false,nil)", ok, err)
 		}
@@ -711,6 +746,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("extractCurrency invalid state", func(t *testing.T) {
 		bad := &Parser{iso: nil}
 		_, _, err := bad.extractCurrency("$10")
+
 		if !errors.Is(err, exception.ErrParserInvalidState) {
 			t.Fatalf("extractCurrency() error = %v, want ErrParserInvalidState", err)
 		}
@@ -718,9 +754,11 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 
 	t.Run("extractCurrency len(match) < 4", func(t *testing.T) {
 		iso := currency.NewISOCodePattern()
+
 		if iso == nil {
 			t.Fatal("currency.NewISOCodePattern() returned nil")
 		}
+
 		_ = iso.GetPattern() // initialize once
 
 		// Replace the cached regexp with one that has no capture groups so
@@ -732,12 +770,15 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 
 		pp := NewParserWith(iso)
 		remaining, curr, err := pp.extractCurrency("USD 10", currency.SGD)
+
 		if err != nil {
 			t.Fatalf("extractCurrency() unexpected error: %v", err)
 		}
+
 		if curr != currency.SGD {
 			t.Fatalf("currency = %q, want %q", curr, currency.SGD)
 		}
+
 		if remaining != "USD 10" {
 			t.Fatalf("remaining = %q, want %q", remaining, "USD 10")
 		}
@@ -745,11 +786,13 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 
 	t.Run("parseNumericString comma-only modes", func(t *testing.T) {
 		val, err := p.parseNumericString("10,50", false)
+
 		if err != nil || val != 1050 {
 			t.Fatalf("parseNumericString provider mode = (%v,%v), want (1050,nil)", val, err)
 		}
 
 		val, err = p.parseNumericString("10,50", true)
+
 		if err != nil || val != 10.50 {
 			t.Fatalf("parseNumericString decimal comma mode = (%v,%v), want (10.50,nil)", val, err)
 		}
@@ -757,6 +800,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 
 	t.Run("ParseStringSign plus", func(t *testing.T) {
 		amount, negative, err := p.ParseStringSign("+12.34")
+
 		if err != nil || negative || amount != "12.34" {
 			t.Fatalf("ParseStringSign(+12.34) = (%q,%v,%v), want (\"12.34\",false,nil)", amount, negative, err)
 		}
@@ -765,6 +809,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("ParseStringSign nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, _, err := nilParser.ParseStringSign("1")
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("ParseStringSign(nil) error = %v, want ErrParserNotProvided", err)
 		}
@@ -776,6 +821,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 		}
 
 		ip, dp, err := p.ParseDecimalParts(".50")
+
 		if err != nil || ip != "0" || dp != "50" {
 			t.Fatalf("ParseDecimalParts(.50) = (%q,%q,%v), want (\"0\",\"50\",nil)", ip, dp, err)
 		}
@@ -784,6 +830,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("ParseDecimalParts nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, _, err := nilParser.ParseDecimalParts("1")
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("ParseDecimalParts(nil) error = %v, want ErrParserNotProvided", err)
 		}
@@ -795,6 +842,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 		}
 
 		got, err := p.ValidateAndPadDecimal("5", 2)
+
 		if err != nil || got != "50" {
 			t.Fatalf("ValidateAndPadDecimal(5,2) = (%q,%v), want (\"50\",nil)", got, err)
 		}
@@ -803,6 +851,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("ValidateAndPadDecimal nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, err := nilParser.ValidateAndPadDecimal("1", 2)
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("ValidateAndPadDecimal(nil) error = %v, want ErrParserNotProvided", err)
 		}
@@ -817,6 +866,7 @@ func TestParser_HelperCoveragePaths(t *testing.T) {
 	t.Run("ParseAmountString nil receiver", func(t *testing.T) {
 		var nilParser *Parser
 		_, err := nilParser.ParseAmountString("1", 2, false)
+
 		if !errors.Is(err, exception.ErrParserNotProvided) {
 			t.Fatalf("ParseAmountString(nil) error = %v, want ErrParserNotProvided", err)
 		}

@@ -28,6 +28,7 @@ func (e *Exchange) IsValid() bool {
 	}
 
 	e.mu.RLock()
+
 	defer e.mu.RUnlock()
 
 	return e.rates != nil && len(e.rates) > 0
@@ -45,6 +46,7 @@ func (e *Exchange) AddRate(baseCurrency, counterCurrency string, rate float64) e
 	}
 
 	e.mu.Lock()
+
 	defer e.mu.Unlock()
 
 	if e.rates[baseCurrency] == nil {
@@ -68,6 +70,7 @@ func (e *Exchange) GetRate(baseCurrency, counterCurrency string) (float64, error
 	}
 
 	e.mu.RLock()
+
 	defer e.mu.RUnlock()
 
 	if e.rates[baseCurrency] != nil {
@@ -97,6 +100,7 @@ func (e *Exchange) ConvertAmount(amount int64, fromCurrencyCode string, fromFrac
 	}
 
 	rate, err := e.GetRate(fromCurrencyCode, toCurrencyCode)
+
 	if err != nil {
 		return 0, err
 	}
