@@ -2,3 +2,13 @@ encryption:
   key: base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
   cipher: aes-256-cbc
   previous_keys: []
+hashing:
+  driver: bcrypt
+  bcrypt:
+    rounds: 12
+    verify: false
+  argon:
+    memory: 1024
+    time: 2
+    threads: 2
+    verify: false
