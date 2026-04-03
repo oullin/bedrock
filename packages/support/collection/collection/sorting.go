@@ -69,6 +69,10 @@ func (c *Collection[T]) Random(counts ...int) *Collection[T] {
 		count = counts[0]
 	}
 
+	if count <= 0 {
+		return Empty[T]()
+	}
+
 	shuffled := c.Shuffle()
 
 	if count >= len(shuffled.items) {
