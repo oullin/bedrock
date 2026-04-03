@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	configpkg "github.com/gollin/packages/config"
@@ -49,6 +50,13 @@ var supportedCiphers = map[string]supportedCipher{
 	string(securityconfig.CipherAES128GCM): {keySize: 16, aead: true},
 	string(securityconfig.CipherAES256GCM): {keySize: 32, aead: true},
 }
+
+var (
+	randomReader       io.Reader = rand.Reader
+	marshalPayloadJSON           = func(payload encryptedPayload) ([]byte, error) {
+		return json.Marshal(payload)
+	}
+)
 
 const (
 	AES128CBC Cipher = securityconfig.CipherAES128CBC
@@ -99,7 +107,7 @@ func GenerateKey(cipher Cipher) ([]byte, error) {
 
 	key := make([]byte, meta.keySize)
 
-	if _, err := rand.Read(key); err != nil {
+	if _, err := io.ReadFull(randomReader, key); err != nil {
 		return nil, fmt.Errorf("read random key bytes: %w", err)
 	}
 
@@ -206,7 +214,7 @@ func (e *Encrypter) GetPreviousKeys() [][]byte {
 func (e *Encrypter) encryptBytes(plaintext []byte) (string, error) {
 	iv := make([]byte, ivLength(e.cipher))
 
-	if _, err := rand.Read(iv); err != nil {
+	if _, err := io.ReadFull(randomReader, iv); err != nil {
 		return "", fmt.Errorf("read random iv bytes: %w", err)
 	}
 
@@ -237,7 +245,7 @@ func (e *Encrypter) encryptBytes(plaintext []byte) (string, error) {
 		mac = hash(ivEncoded, valueEncoded, e.key)
 	}
 
-	encoded, err := json.Marshal(encryptedPayload{
+	encoded, err := marshalPayloadJSON(encryptedPayload{
 		IV:    ivEncoded,
 		Value: valueEncoded,
 		MAC:   mac,
@@ -259,10 +267,6 @@ func (e *Encrypter) decryptBytes(rawPayload string) ([]byte, error) {
 	}
 
 	iv, err := base64.StdEncoding.DecodeString(payload.IV)
-
-	if err != nil {
-		return nil, errInvalidPayload
-	}
 
 	var tag []byte
 
@@ -482,11 +486,7 @@ func encryptGCM(cipherName string, key []byte, iv []byte, plaintext []byte) ([]b
 		return nil, nil, err
 	}
 
-	gcm, err := cipher.NewGCM(block)
-
-	if err != nil {
-		return nil, nil, err
-	}
+	gcm, _ := cipher.NewGCM(block)
 
 	sealed := gcm.Seal(nil, iv, plaintext, nil)
 	tagSize := gcm.Overhead()
@@ -503,11 +503,7 @@ func decryptGCM(cipherName string, key []byte, iv []byte, ciphertext []byte, tag
 		return nil, err
 	}
 
-	gcm, err := cipher.NewGCM(block)
-
-	if err != nil {
-		return nil, err
-	}
+	gcm, _ := cipher.NewGCM(block)
 
 	combined := make([]byte, 0, len(ciphertext)+len(tag))
 	combined = append(combined, ciphertext...)
@@ -518,10 +514,6 @@ func decryptGCM(cipherName string, key []byte, iv []byte, ciphertext []byte, tag
 
 func pkcs7Pad(data []byte, blockSize int) []byte {
 	padding := blockSize - (len(data) % blockSize)
-
-	if padding == 0 {
-		padding = blockSize
-	}
 
 	out := make([]byte, len(data)+padding)
 	copy(out, data)

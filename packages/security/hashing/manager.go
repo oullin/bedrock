@@ -114,11 +114,5 @@ func (m *Manager) VerifyConfiguration(hashedValue string) bool {
 		return false
 	}
 
-	verifier, ok := driver.(configurationVerifier)
-
-	if !ok {
-		return true
-	}
-
-	return verifier.VerifyConfiguration(hashedValue)
+	return driver.(configurationVerifier).VerifyConfiguration(hashedValue)
 }

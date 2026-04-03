@@ -20,7 +20,12 @@ export default defineConfig({
     passWithNoTests: true,
     coverage: {
       provider: "v8",
-      reporter: ["text", "json-summary", "lcov"],
+      reporter: [
+        "text",
+        "json-summary",
+        "lcov",
+        ["lcovonly", { file: "coverage.out" }],
+      ],
       reportsDirectory: path.join(
         repoRoot,
         "storage",
