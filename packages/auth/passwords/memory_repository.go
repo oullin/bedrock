@@ -26,6 +26,7 @@ func NewMemoryTokenRepository() *MemoryTokenRepository {
 // Save inserts or replaces a token.
 func (r *MemoryTokenRepository) Save(_ context.Context, token *Token) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	clone := *token
@@ -38,9 +39,11 @@ func (r *MemoryTokenRepository) Save(_ context.Context, token *Token) error {
 // FindByTokenHash returns a token by hash.
 func (r *MemoryTokenRepository) FindByTokenHash(_ context.Context, tokenHash string) (*Token, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	token, ok := r.byHash[tokenHash]
+
 	if !ok {
 		return nil, auth.ErrInvalidToken
 	}
@@ -53,9 +56,11 @@ func (r *MemoryTokenRepository) FindByTokenHash(_ context.Context, tokenHash str
 // DeleteByTokenHash removes a token by hash.
 func (r *MemoryTokenRepository) DeleteByTokenHash(_ context.Context, tokenHash string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	token, ok := r.byHash[tokenHash]
+
 	if ok {
 		delete(r.byUserID, token.UserID)
 	}
@@ -68,9 +73,11 @@ func (r *MemoryTokenRepository) DeleteByTokenHash(_ context.Context, tokenHash s
 // DeleteByUserID removes a token by user id.
 func (r *MemoryTokenRepository) DeleteByUserID(_ context.Context, userID string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	token, ok := r.byUserID[userID]
+
 	if ok {
 		delete(r.byHash, token.TokenHash)
 	}
@@ -83,9 +90,11 @@ func (r *MemoryTokenRepository) DeleteByUserID(_ context.Context, userID string)
 // RecentlyCreated reports whether a token was created since the provided time.
 func (r *MemoryTokenRepository) RecentlyCreated(_ context.Context, userID string, since time.Time) (bool, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	token, ok := r.byUserID[userID]
+
 	if !ok {
 		return false, nil
 	}

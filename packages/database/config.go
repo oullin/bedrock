@@ -22,31 +22,37 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	connection, err := repo.String("database.default")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	connection = strings.TrimSpace(connection)
+
 	if connection == "" {
 		connection = "sqlite"
 	}
 
 	driver, err := repo.String("database.connections." + connection + ".driver")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	dsn, err := repo.String("database.connections." + connection + ".dsn")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	table, err := repo.String("database.migrations.table")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	table = strings.TrimSpace(table)
+
 	if table == "" {
 		table = "schema_migrations"
 	}

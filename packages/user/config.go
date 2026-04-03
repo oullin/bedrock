@@ -21,11 +21,13 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	defaultName, err := repo.String("user.defaults.name")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	normalizeEmail, err := repo.Bool("user.defaults.normalize_email")
+
 	if err != nil {
 		return Config{}, err
 	}
@@ -39,11 +41,13 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 // New creates a configured default user model.
 func New(cfg Config, id string, name string, email string, now time.Time) *User {
 	resolvedName := strings.TrimSpace(name)
+
 	if resolvedName == "" {
 		resolvedName = strings.TrimSpace(cfg.DefaultName)
 	}
 
 	resolvedEmail := strings.TrimSpace(email)
+
 	if cfg.NormalizeEmail {
 		resolvedEmail = normalizeEmail(resolvedEmail)
 	}

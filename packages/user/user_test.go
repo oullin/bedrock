@@ -18,22 +18,26 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	t.Parallel()
 
 	_, currentFile, _, ok := runtime.Caller(0)
+
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
 
 	configDir := filepath.Join(filepath.Dir(currentFile), "config")
 	repo, err := configpkg.NewBuilder(configDir).Build(context.Background())
+
 	if err != nil {
 		t.Fatalf("build config: %v", err)
 	}
 
 	cfg, err := user.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
 	record := user.New(cfg, "user-1", "", " USER@example.com ", time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
+
 	if record.Name != "User" {
 		t.Fatalf("unexpected default name: %q", record.Name)
 	}
@@ -43,16 +47,19 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	}
 
 	hasher, err := auth.NewDefaultPasswordHasher()
+
 	if err != nil {
 		t.Fatalf("NewDefaultPasswordHasher: %v", err)
 	}
 
 	record.PasswordHash, err = hasher.Hash(context.Background(), "secret")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
 
 	users, err := user.NewMemoryRepository(hasher)
+
 	if err != nil {
 		t.Fatalf("NewMemoryRepository: %v", err)
 	}
@@ -62,6 +69,7 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	}
 
 	found, err := users.FindByEmail(context.Background(), record.Email)
+
 	if err != nil {
 		t.Fatalf("FindByEmail: %v", err)
 	}
@@ -71,6 +79,7 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	}
 
 	valid, err := users.ValidateCredentials(context.Background(), found, map[string]string{"password": "secret"})
+
 	if err != nil {
 		t.Fatalf("ValidateCredentials: %v", err)
 	}
@@ -94,9 +103,11 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 		DSN:             dbPath,
 		MigrationsTable: "schema_migrations",
 	})
+
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := databasepkg.Migrate(context.Background(), db, databasepkg.Config{MigrationsTable: "schema_migrations"}); err != nil {
@@ -104,6 +115,7 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	}
 
 	sqlUsers, err := user.NewSQLRepository(db, hasher, "")
+
 	if err != nil {
 		t.Fatalf("NewSQLRepository: %v", err)
 	}
@@ -113,6 +125,7 @@ func TestConfigNewMemoryRepositoryAndSQLRepository(t *testing.T) {
 	}
 
 	sqlFound, err := sqlUsers.FindByEmail(context.Background(), record.Email)
+
 	if err != nil {
 		t.Fatalf("SQL FindByEmail: %v", err)
 	}

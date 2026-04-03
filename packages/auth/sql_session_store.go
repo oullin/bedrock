@@ -47,9 +47,13 @@ func (s *SQLSessionStore) FindByID(ctx context.Context, id string) (*Session, er
 	row := s.db.QueryRowContext(ctx, `SELECT id, user_id, pending_two_factor, pending_remember, authenticated_at, last_seen_at, created_at, expires_at FROM `+s.table+` WHERE id = ?`, id)
 
 	var session Session
+
 	var pendingTwoFactor int
+
 	var pendingRemember int
+
 	var authenticatedAt sql.NullTime
+
 	if err := row.Scan(&session.ID, &session.UserID, &pendingTwoFactor, &pendingRemember, &authenticatedAt, &session.LastSeenAt, &session.CreatedAt, &session.ExpiresAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, ErrUnauthorized
@@ -60,6 +64,7 @@ func (s *SQLSessionStore) FindByID(ctx context.Context, id string) (*Session, er
 
 	session.PendingTwoFactor = pendingTwoFactor == 1
 	session.PendingRemember = pendingRemember == 1
+
 	if authenticatedAt.Valid {
 		value := authenticatedAt.Time
 		session.AuthenticatedAt = &value
@@ -84,11 +89,13 @@ func (s *SQLSessionStore) Update(ctx context.Context, session *Session) error {
 		session.ExpiresAt,
 		session.ID,
 	)
+
 	if err != nil {
 		return err
 	}
 
 	affected, err := result.RowsAffected()
+
 	if err != nil {
 		return err
 	}

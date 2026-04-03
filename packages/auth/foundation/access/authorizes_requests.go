@@ -21,6 +21,7 @@ func (a AuthorizesRequests) Authorize(ctx context.Context, user auth.Authenticat
 // ParseAbilityAndArguments normalizes an ability and its arguments.
 func (AuthorizesRequests) ParseAbilityAndArguments(ability string, arguments ...any) (string, []any) {
 	ability = strings.TrimSpace(ability)
+
 	if ability == "" && len(arguments) > 0 {
 		if guessed, ok := arguments[0].(string); ok {
 			return normalizeGuessedAbilityName(guessed), arguments[1:]

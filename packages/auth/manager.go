@@ -24,11 +24,13 @@ func NewManager(cfg Config, providers map[string]UserProvider, sessions SessionS
 	}
 
 	provider, ok := providers[cfg.DefaultProvider]
+
 	if !ok {
 		return nil, fmt.Errorf("auth: provider %q is not registered", cfg.DefaultProvider)
 	}
 
 	hasher, err := EnsureHasher(deps.Hasher)
+
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +48,7 @@ func NewManager(cfg Config, providers map[string]UserProvider, sessions SessionS
 			Key:    deriveCipherKey(cfg.SigningKey),
 			Cipher: encryption.AES256CBC,
 		})
+
 		if err != nil {
 			return nil, err
 		}
@@ -89,6 +92,7 @@ func (m *Manager) RegisterTokenGuard(name string, request *http.Request, provide
 	}
 
 	provider, ok := m.providers[providerName]
+
 	if !ok {
 		return nil, fmt.Errorf("auth: provider %q is not registered", providerName)
 	}
@@ -104,11 +108,13 @@ func (m *Manager) ValidateCredentials(ctx context.Context, credentials map[strin
 	provider := m.providers[m.config.DefaultProvider]
 
 	user, err := provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
 	valid, err := provider.ValidateCredentials(ctx, user, credentials)
+
 	if err != nil || !valid {
 		return nil, ErrInvalidCredentials
 	}
