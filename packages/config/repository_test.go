@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -52,11 +53,18 @@ func TestRepositoryDotPathAccessors(t *testing.T) {
 	}
 }
 
-func TestRepositorySetAndClone(t *testing.T) {
+func TestRepositorySetMutatorsAndClone(t *testing.T) {
 	t.Parallel()
 
 	repo := NewRepository(nil)
 	repo.Set("fortify.limiters.login", "login")
+	repo.Set(map[string]any{
+		"fortify.limiters.two-factor":                       "two-factor",
+		"fortify.options.two-factor-authentication.confirm": true,
+	})
+	repo.Push("fortify.middleware", "web")
+	repo.Push("fortify.middleware", "guest")
+	repo.Prepend("fortify.middleware", "trim")
 
 	mapped, err := repo.Map("fortify.limiters")
 	if err != nil {
@@ -64,6 +72,25 @@ func TestRepositorySetAndClone(t *testing.T) {
 	}
 	if mapped["login"] != "login" {
 		t.Fatalf("unexpected limiter map: %#v", mapped)
+	}
+	if mapped["two-factor"] != "two-factor" {
+		t.Fatalf("unexpected two-factor limiter: %#v", mapped)
+	}
+
+	middleware, err := repo.StringSlice("fortify.middleware")
+	if err != nil {
+		t.Fatalf("StringSlice: %v", err)
+	}
+	if !reflect.DeepEqual(middleware, []string{"trim", "web", "guest"}) {
+		t.Fatalf("unexpected middleware order: %#v", middleware)
+	}
+
+	confirm, err := repo.Bool("fortify.options.two-factor-authentication.confirm")
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+	if !confirm {
+		t.Fatal("expected confirm option to be enabled")
 	}
 
 	all := repo.All()
@@ -77,5 +104,84 @@ func TestRepositorySetAndClone(t *testing.T) {
 	}
 	if value != "login" {
 		t.Fatalf("repository was mutated through clone: %s", value)
+	}
+}
+
+func TestRepositoryLiteralDottedKeysTakePrecedence(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"mail.mailers.smtp": "literal",
+		"mail": map[string]any{
+			"mailers": map[string]any{
+				"smtp": "nested",
+			},
+		},
+	})
+
+	if got := repo.Get("mail.mailers.smtp", nil); got != "literal" {
+		t.Fatalf("unexpected dotted value: %#v", got)
+	}
+}
+
+func TestRepositoryGetManyEmpty(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(nil)
+	values := repo.GetMany(nil)
+	if len(values) != 0 {
+		t.Fatalf("expected empty values, got %#v", values)
+	}
+}
+
+func TestRepositoryGetEmptyKeyReturnsAll(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{"app": map[string]any{"name": "gollin"}})
+	got := repo.Get("", nil)
+	all := repo.All()
+	if !reflect.DeepEqual(got, all) {
+		t.Fatalf("unexpected root value: %#v", got)
+	}
+}
+
+func TestRepositoryTypedGetterFailures(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"fortify": map[string]any{
+			"views":      "not-a-bool",
+			"features":   []any{"registration", 42},
+			"middleware": "web",
+		},
+	})
+
+	if _, err := repo.Bool("fortify.views"); err == nil {
+		t.Fatal("expected bool type error")
+	}
+	if _, err := repo.String("fortify.views"); err != nil {
+		t.Fatalf("String: %v", err)
+	}
+	if _, err := repo.StringSlice("fortify.features"); err == nil {
+		t.Fatal("expected string slice type error")
+	}
+	if _, err := repo.Map("fortify.middleware"); err == nil {
+		t.Fatal("expected map type error")
+	}
+	if _, err := repo.Duration("fortify.middleware"); err == nil {
+		t.Fatal("expected duration type error")
+	}
+}
+
+func TestRepositoryMissingKeyErrors(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(nil)
+	_, err := repo.String("missing")
+	if err == nil {
+		t.Fatal("expected missing key error")
+	}
+	if !errors.Is(err, err) {
+		t.Fatal("expected non-nil error")
 	}
 }

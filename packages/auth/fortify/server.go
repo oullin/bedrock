@@ -289,7 +289,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if twoFactorUser, ok := user.(auth.TwoFactorAuthenticatable); ok && twoFactorUser.IsTwoFactorEnabled() {
+	if s.requiresTwoFactorChallenge(user) {
 		session, _, err := s.authManager.DefaultGuard().Login(r.Context(), w, user, remember, true)
 		if err != nil {
 			s.responses.LockoutResponse.ToResponse(w, r, err)
@@ -458,7 +458,7 @@ func (s *Server) completeTwoFactorLogin(w http.ResponseWriter, r *http.Request) 
 
 	valid := false
 	if input.Code != "" {
-		valid = s.twoFactor.Validate(twoFactorUser.GetTwoFactorSecret(), input.Code, s.clock.Now(), 1)
+		valid = s.twoFactor.Validate(twoFactorUser.GetTwoFactorSecret(), input.Code, s.clock.Now(), s.twoFactorWindow())
 	}
 	if !valid && input.RecoveryCode != "" {
 		codes := twoFactorUser.GetTwoFactorRecoveryCodes()
@@ -546,7 +546,7 @@ func (s *Server) confirmTwoFactor(w http.ResponseWriter, r *http.Request) {
 		s.responses.TwoFactorConfirmedResponse.ToResponse(w, r, auth.ErrUnauthorized)
 		return
 	}
-	if !s.twoFactor.Validate(twoFactorUser.GetTwoFactorSecret(), input.Code, s.clock.Now(), 1) {
+	if !s.twoFactor.Validate(twoFactorUser.GetTwoFactorSecret(), input.Code, s.clock.Now(), s.twoFactorWindow()) {
 		s.responses.TwoFactorConfirmedResponse.ToResponse(w, r, auth.ErrTwoFactorInvalid)
 		return
 	}
@@ -666,6 +666,23 @@ func (s *Server) checkLimiter(scope string, key string) error {
 		return &auth.ThrottleError{Scope: scope, RetryAfter: retryAfter}
 	}
 	return nil
+}
+
+func (s *Server) requiresTwoFactorChallenge(user auth.Authenticatable) bool {
+	twoFactorUser, ok := user.(auth.TwoFactorAuthenticatable)
+	if !ok || !twoFactorUser.IsTwoFactorEnabled() {
+		return false
+	}
+
+	if s.features.OptionEnabled(FeatureTwoFactorAuthentication, "confirm") && twoFactorUser.GetTwoFactorConfirmedAt() == nil {
+		return false
+	}
+
+	return true
+}
+
+func (s *Server) twoFactorWindow() int {
+	return s.features.OptionInt(FeatureTwoFactorAuthentication, "window", 1)
 }
 
 func decodeJSON(r *http.Request, dst any) error {

@@ -25,3 +25,4 @@ options:
   two-factor-authentication:
     confirm: true
     confirmPassword: true
+    window: 1
