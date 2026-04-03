@@ -1,13 +1,13 @@
-package security
+package config_test
 
 import (
 	"context"
-	"path/filepath"
 	"reflect"
 	"testing"
 
 	configpkg "github.com/gollin/packages/config"
 	"github.com/gollin/packages/config/foundation/configuration"
+	securityconfig "github.com/gollin/packages/security/config"
 )
 
 func TestConfigFromRepositorySecurityNamespace(t *testing.T) {
@@ -37,47 +37,60 @@ func TestConfigFromRepositorySecurityNamespace(t *testing.T) {
 		},
 	})
 
-	cfg, err := ConfigFromRepository(repo)
+	cfg, err := securityconfig.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
-	if got, want := cfg.Encryption.Cipher, CipherAES256GCM; got != want {
+	if got, want := cfg.Encryption.Cipher, securityconfig.CipherAES256GCM; got != want {
 		t.Fatalf("unexpected cipher: got %q want %q", got, want)
 	}
+
 	if len(cfg.Encryption.Key) != 32 {
 		t.Fatalf("unexpected key length: %d", len(cfg.Encryption.Key))
 	}
+
 	if got := len(cfg.Encryption.PreviousKeys); got != 2 {
 		t.Fatalf("unexpected previous key count: %d", got)
 	}
+
 	if len(cfg.Encryption.PreviousKeys[0]) != 32 {
 		t.Fatalf("unexpected previous key length: %d", len(cfg.Encryption.PreviousKeys[0]))
 	}
+
 	if !reflect.DeepEqual(cfg.Encryption.PreviousKeys[1], []byte("legacy-16-byte-key")) {
 		t.Fatalf("unexpected second previous key: %q", string(cfg.Encryption.PreviousKeys[1]))
 	}
+
 	if got, want := cfg.Hashing.Driver, "argon2id"; got != want {
 		t.Fatalf("unexpected hashing driver: got %q want %q", got, want)
 	}
+
 	if got, want := cfg.Hashing.Bcrypt.Rounds, 13; got != want {
 		t.Fatalf("unexpected bcrypt rounds: got %d want %d", got, want)
 	}
+
 	if !cfg.Hashing.Bcrypt.Verify {
 		t.Fatal("expected bcrypt verify to be enabled")
 	}
+
 	if got, want := cfg.Hashing.Bcrypt.Limit, 72; got != want {
 		t.Fatalf("unexpected bcrypt limit: got %d want %d", got, want)
 	}
+
 	if got, want := cfg.Hashing.Argon.Memory, 2048; got != want {
 		t.Fatalf("unexpected argon memory: got %d want %d", got, want)
 	}
+
 	if got, want := cfg.Hashing.Argon.Time, 4; got != want {
 		t.Fatalf("unexpected argon time: got %d want %d", got, want)
 	}
+
 	if got, want := cfg.Hashing.Argon.Threads, 3; got != want {
 		t.Fatalf("unexpected argon threads: got %d want %d", got, want)
 	}
+
 	if !cfg.Hashing.Argon.Verify {
 		t.Fatal("expected argon verify to be enabled")
 	}
@@ -93,7 +106,7 @@ func TestConfigFromRepositoryUsesSecurityNamespaceOnly(t *testing.T) {
 		},
 	})
 
-	if _, err := ConfigFromRepository(repo); err == nil {
+	if _, err := securityconfig.ConfigFromRepository(repo); err == nil {
 		t.Fatal("expected missing security namespace key error")
 	}
 }
@@ -101,7 +114,8 @@ func TestConfigFromRepositoryUsesSecurityNamespaceOnly(t *testing.T) {
 func TestConfigFromRepositoryMissingKey(t *testing.T) {
 	t.Parallel()
 
-	_, err := ConfigFromRepository(configpkg.NewRepository(nil))
+	_, err := securityconfig.ConfigFromRepository(configpkg.NewRepository(nil))
+
 	if err == nil {
 		t.Fatal("expected missing key error")
 	}
@@ -110,31 +124,36 @@ func TestConfigFromRepositoryMissingKey(t *testing.T) {
 func TestPackageConfigLoadsViaBuilder(t *testing.T) {
 	t.Parallel()
 
-	repo, err := configuration.NewBuilder(filepath.Join("config")).
+	repo, err := configuration.NewBuilder("..").
 		WithEnv(map[string]string{
 			"SECURITY_ENCRYPTION_CIPHER":     "aes-128-gcm",
 			"SECURITY_HASHING_DRIVER":        "argon2id",
 			"SECURITY_HASHING_BCRYPT_ROUNDS": "14",
 		}).
 		Build(context.Background())
+
 	if err != nil {
 		t.Fatalf("Build: %v", err)
 	}
 
-	cfg, err := ConfigFromRepository(repo)
+	cfg, err := securityconfig.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
-	if got, want := cfg.Encryption.Cipher, CipherAES128GCM; got != want {
+	if got, want := cfg.Encryption.Cipher, securityconfig.CipherAES128GCM; got != want {
 		t.Fatalf("unexpected cipher: got %q want %q", got, want)
 	}
+
 	if len(cfg.Encryption.Key) != 32 {
 		t.Fatalf("unexpected key length: %d", len(cfg.Encryption.Key))
 	}
+
 	if got, want := cfg.Hashing.Driver, "argon2id"; got != want {
 		t.Fatalf("unexpected hashing driver: got %q want %q", got, want)
 	}
+
 	if got, want := cfg.Hashing.Bcrypt.Rounds, 14; got != want {
 		t.Fatalf("unexpected bcrypt rounds: got %d want %d", got, want)
 	}

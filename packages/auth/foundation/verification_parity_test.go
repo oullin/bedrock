@@ -26,6 +26,7 @@ func TestVerificationServiceRejectsBadHashSignatureAndExpiry(t *testing.T) {
 		CreatedAt: clock.Now(),
 		UpdatedAt: clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -44,11 +45,14 @@ func TestVerificationServiceRejectsBadHashSignatureAndExpiry(t *testing.T) {
 	if err := service.Send(context.Background(), user); err != nil {
 		t.Fatalf("Send: %v", err)
 	}
+
 	link := mailer.Messages()[0].Metadata["link"]
 	parsed, err := url.Parse(link)
+
 	if err != nil {
 		t.Fatalf("Parse: %v", err)
 	}
+
 	parts := strings.Split(strings.TrimPrefix(parsed.Path, "/email/verify/"), "/")
 	expiresAt := mustInt64(t, parsed.Query().Get("expires"))
 	signature := parsed.Query().Get("signature")
@@ -56,11 +60,13 @@ func TestVerificationServiceRejectsBadHashSignatureAndExpiry(t *testing.T) {
 	if _, err := service.Verify(context.Background(), parts[0], "bad-hash", expiresAt, signature); err != auth.ErrEmailVerificationInvalid {
 		t.Fatalf("expected ErrEmailVerificationInvalid, got %v", err)
 	}
+
 	if _, err := service.Verify(context.Background(), parts[0], parts[1], expiresAt, "bad-signature"); err != auth.ErrEmailVerificationInvalid {
 		t.Fatalf("expected bad signature error, got %v", err)
 	}
 
 	clock.Advance(2 * time.Hour)
+
 	if _, err := service.Verify(context.Background(), parts[0], parts[1], expiresAt, signature); err != auth.ErrTokenExpired {
 		t.Fatalf("expected ErrTokenExpired, got %v", err)
 	}
@@ -79,6 +85,7 @@ func TestVerificationServiceResendAndAlreadyVerified(t *testing.T) {
 		CreatedAt: clock.Now(),
 		UpdatedAt: clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -97,28 +104,35 @@ func TestVerificationServiceResendAndAlreadyVerified(t *testing.T) {
 	if err := service.Send(context.Background(), user); err != nil {
 		t.Fatalf("Send: %v", err)
 	}
+
 	if err := service.Send(context.Background(), user); err != nil {
 		t.Fatalf("Send again: %v", err)
 	}
+
 	if len(mailer.Messages()) != 2 {
 		t.Fatalf("expected two messages, got %d", len(mailer.Messages()))
 	}
 
 	link := mailer.Messages()[0].Metadata["link"]
 	parsed, err := url.Parse(link)
+
 	if err != nil {
 		t.Fatalf("Parse: %v", err)
 	}
+
 	parts := strings.Split(strings.TrimPrefix(parsed.Path, "/email/verify/"), "/")
 	expiresAt, err := strconv.ParseInt(parsed.Query().Get("expires"), 10, 64)
+
 	if err != nil {
 		t.Fatalf("ParseInt: %v", err)
 	}
 
 	verified, err := service.Verify(context.Background(), parts[0], parts[1], expiresAt, parsed.Query().Get("signature"))
+
 	if err != nil {
 		t.Fatalf("Verify: %v", err)
 	}
+
 	if !verified.(auth.MustVerifyEmail).HasVerifiedEmail() {
 		t.Fatal("expected user to be verified")
 	}

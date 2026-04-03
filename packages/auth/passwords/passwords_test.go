@@ -22,9 +22,11 @@ func TestBrokerSendResetLinkAndReset(t *testing.T) {
 	hasher := auth.DefaultPasswordHasher{}
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
+
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "Reset User",
@@ -33,6 +35,7 @@ func TestBrokerSendResetLinkAndReset(t *testing.T) {
 		CreatedAt:    clock.Now(),
 		UpdatedAt:    clock.Now(),
 	}
+
 	if err := users.Create(context.Background(), user); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -46,12 +49,15 @@ func TestBrokerSendResetLinkAndReset(t *testing.T) {
 	}
 
 	token, err := broker.SendResetLink(context.Background(), user.Email)
+
 	if err != nil {
 		t.Fatalf("SendResetLink: %v", err)
 	}
+
 	if token == "" {
 		t.Fatal("expected reset token")
 	}
+
 	if len(mailer.Messages()) != 1 {
 		t.Fatalf("expected one mail, got %d", len(mailer.Messages()))
 	}
@@ -61,9 +67,11 @@ func TestBrokerSendResetLinkAndReset(t *testing.T) {
 		Hasher: hasher,
 		Clock:  clock,
 	})
+
 	if err != nil {
 		t.Fatalf("Reset: %v", err)
 	}
+
 	if err := hasher.Compare(context.Background(), updated.GetAuthPassword(), "new-password-123"); err != nil {
 		t.Fatalf("Compare new password: %v", err)
 	}

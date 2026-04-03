@@ -19,25 +19,55 @@ type CreateUser struct {
 }
 
 // Create implements contracts.CreatesNewUsers.
+
+// ResetUserPassword resets a user's password.
+type ResetUserPassword struct {
+	Users  auth.UserRepository
+	Hasher auth.PasswordHasher
+	Clock  auth.Clock
+}
+
+// Reset implements passwords.ResetsUserPasswords.
+
+// UpdateUserPassword updates the current user's password.
+type UpdateUserPassword struct {
+	Users  auth.UserRepository
+	Hasher auth.PasswordHasher
+	Clock  auth.Clock
+}
+
+// Update implements contracts.UpdatesUserPasswords.
+
+// UpdateUserProfileInformation updates profile information.
+type UpdateUserProfileInformation struct {
+	Users auth.UserRepository
+}
+
 func (a CreateUser) Create(ctx context.Context, input contracts.RegisterInput) (auth.Authenticatable, error) {
 	fields := map[string]string{}
+
 	if strings.TrimSpace(input.Name) == "" {
 		fields["name"] = "name is required"
 	}
+
 	if !looksLikeEmail(input.Email) {
 		fields["email"] = "email must be a valid email address"
 	}
+
 	if len(input.Password) < 8 {
 		fields["password"] = "password must be at least 8 characters"
 	}
+
 	if input.PasswordConfirmation != input.Password {
 		fields["password_confirmation"] = "password confirmation must match"
 	}
+
 	if len(fields) > 0 {
 		return nil, &auth.ValidationError{Fields: fields}
 	}
 
 	passwordHash, err := a.Hasher.Hash(ctx, input.Password)
+
 	if err != nil {
 		return nil, err
 	}
@@ -51,52 +81,46 @@ func (a CreateUser) Create(ctx context.Context, input contracts.RegisterInput) (
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}
+
 	if err := a.Users.Create(ctx, user); err != nil {
 		return nil, err
 	}
+
 	return user, nil
 }
 
-// ResetUserPassword resets a user's password.
-type ResetUserPassword struct {
-	Users  auth.UserRepository
-	Hasher auth.PasswordHasher
-	Clock  auth.Clock
-}
-
-// Reset implements passwords.ResetsUserPasswords.
 func (a ResetUserPassword) Reset(ctx context.Context, user auth.Authenticatable, password string) error {
 	if len(password) < 8 {
 		return &auth.ValidationError{Fields: map[string]string{"password": "password must be at least 8 characters"}}
 	}
+
 	hash, err := a.Hasher.Hash(ctx, password)
+
 	if err != nil {
 		return err
 	}
+
 	user.SetAuthPassword(hash)
 	user.SetRememberToken("")
+
 	return a.Users.Update(ctx, user)
 }
 
-// UpdateUserPassword updates the current user's password.
-type UpdateUserPassword struct {
-	Users  auth.UserRepository
-	Hasher auth.PasswordHasher
-	Clock  auth.Clock
-}
-
-// Update implements contracts.UpdatesUserPasswords.
 func (a UpdateUserPassword) Update(ctx context.Context, user auth.Authenticatable, input contracts.UpdatePasswordInput) error {
 	fields := map[string]string{}
+
 	if strings.TrimSpace(input.CurrentPassword) == "" {
 		fields["current_password"] = "current password is required"
 	}
+
 	if len(input.Password) < 8 {
 		fields["password"] = "password must be at least 8 characters"
 	}
+
 	if input.PasswordConfirmation != input.Password {
 		fields["password_confirmation"] = "password confirmation must match"
 	}
+
 	if len(fields) > 0 {
 		return &auth.ValidationError{Fields: fields}
 	}
@@ -104,33 +128,36 @@ func (a UpdateUserPassword) Update(ctx context.Context, user auth.Authenticatabl
 	if err := a.Hasher.Compare(ctx, user.GetAuthPassword(), input.CurrentPassword); err != nil {
 		return auth.ErrInvalidCredentials
 	}
+
 	hash, err := a.Hasher.Hash(ctx, input.Password)
+
 	if err != nil {
 		return err
 	}
-	user.SetAuthPassword(hash)
-	return a.Users.Update(ctx, user)
-}
 
-// UpdateUserProfileInformation updates profile information.
-type UpdateUserProfileInformation struct {
-	Users auth.UserRepository
+	user.SetAuthPassword(hash)
+
+	return a.Users.Update(ctx, user)
 }
 
 // Update implements contracts.UpdatesUserProfileInformation.
 func (a UpdateUserProfileInformation) Update(ctx context.Context, user auth.Authenticatable, input contracts.UpdateProfileInformationInput) error {
 	fields := map[string]string{}
+
 	if strings.TrimSpace(input.Name) == "" {
 		fields["name"] = "name is required"
 	}
+
 	if !looksLikeEmail(input.Email) {
 		fields["email"] = "email must be a valid email address"
 	}
+
 	if len(fields) > 0 {
 		return &auth.ValidationError{Fields: fields}
 	}
 
 	profile, ok := user.(auth.UserProfile)
+
 	if !ok {
 		return auth.ErrUnauthorized
 	}
@@ -152,7 +179,9 @@ func looksLikeEmail(value string) bool {
 	if strings.TrimSpace(value) == "" {
 		return false
 	}
+
 	_, err := mail.ParseAddress(value)
+
 	return err == nil
 }
 

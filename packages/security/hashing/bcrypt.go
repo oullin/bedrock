@@ -17,6 +17,7 @@ type Bcrypt struct {
 // NewBcrypt creates a new bcrypt hasher.
 func NewBcrypt(cfg BcryptConfig) *Bcrypt {
 	cfg = normalizeBcryptConfig(cfg)
+
 	return &Bcrypt{
 		rounds:          cfg.Rounds,
 		verifyAlgorithm: cfg.Verify,
@@ -36,11 +37,13 @@ func (b *Bcrypt) Make(value string, options map[string]any) (string, error) {
 	}
 
 	cost, err := b.cost(options)
+
 	if err != nil {
 		return "", err
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(value), cost)
+
 	if err != nil {
 		return "", err
 	}
@@ -55,28 +58,34 @@ func (b *Bcrypt) Check(value string, hashedValue string, _ map[string]any) (bool
 	}
 
 	info := parseInfo(hashedValue)
+
 	if b.verifyAlgorithm && info.Algorithm != DriverBcrypt {
 		return false, errBcryptAlgorithm
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(hashedValue), []byte(value))
+
 	if err == nil {
 		return true, nil
 	}
+
 	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 		return false, nil
 	}
+
 	return false, nil
 }
 
 // NeedsRehash reports whether the hash should be rehashed for the current cost.
 func (b *Bcrypt) NeedsRehash(hashedValue string, options map[string]any) bool {
 	info, ok := parseBcryptInfo(hashedValue)
+
 	if !ok {
 		return true
 	}
 
 	cost, err := b.cost(options)
+
 	if err != nil {
 		return true
 	}
@@ -87,6 +96,7 @@ func (b *Bcrypt) NeedsRehash(hashedValue string, options map[string]any) bool {
 // VerifyConfiguration reports whether the hash cost is within the configured limit.
 func (b *Bcrypt) VerifyConfiguration(hashedValue string) bool {
 	info, ok := parseBcryptInfo(hashedValue)
+
 	if !ok {
 		return false
 	}
@@ -96,8 +106,10 @@ func (b *Bcrypt) VerifyConfiguration(hashedValue string) bool {
 
 func (b *Bcrypt) cost(options map[string]any) (int, error) {
 	cost, err := intOption(options, "rounds", b.rounds)
+
 	if err != nil {
 		return 0, err
 	}
+
 	return cost, nil
 }
