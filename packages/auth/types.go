@@ -1,17 +1,33 @@
 package auth
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
-// User is the shared auth user model stored by pluggable user providers.
-type User struct {
-	ID                string     `json:"id"`
-	Email             string     `json:"email"`
-	PasswordHash      string     `json:"-"`
-	EmailVerifiedAt   *time.Time `json:"emailVerifiedAt,omitempty"`
-	RememberTokenHash string     `json:"-"`
-	TwoFactorEnabled  bool       `json:"twoFactorEnabled"`
-	CreatedAt         time.Time  `json:"createdAt"`
-	UpdatedAt         time.Time  `json:"updatedAt"`
+// CookieConfig controls session and remember-me cookies.
+type CookieConfig struct {
+	SessionName  string
+	RememberName string
+	Path         string
+	Domain       string
+	Secure       bool
+	HTTPOnly     bool
+	SameSite     http.SameSite
+}
+
+// Config controls auth-guard behavior.
+type Config struct {
+	DefaultGuard                string
+	DefaultProvider             string
+	IdentifierField             string
+	BaseURL                     string
+	SessionLifetime             time.Duration
+	RememberLifetime            time.Duration
+	PasswordConfirmationTimeout time.Duration
+	VerificationTTL             time.Duration
+	SigningKey                  []byte
+	Cookies                     CookieConfig
 }
 
 // Session represents an authenticated or pending two-factor session.
@@ -27,24 +43,7 @@ type Session struct {
 	ExpiresAt           time.Time  `json:"expiresAt"`
 }
 
-// PasswordResetToken stores a reset token hash and expiry.
-type PasswordResetToken struct {
-	UserID    string
-	TokenHash string
-	CreatedAt time.Time
-	ExpiresAt time.Time
-}
-
-// TwoFactorState stores a TOTP secret and recovery codes for a user.
-type TwoFactorState struct {
-	UserID        string
-	Secret        string
-	RecoveryCodes []string
-	EnabledAt     time.Time
-	UpdatedAt     time.Time
-}
-
-// MailMessage is dispatched by the configured mailer.
+// MailMessage is sent by auth-related services.
 type MailMessage struct {
 	To       string
 	Subject  string
@@ -52,57 +51,17 @@ type MailMessage struct {
 	Metadata map[string]string
 }
 
-// RegisterInput is the Fortify-style registration payload.
-type RegisterInput struct {
-	Email                string `json:"email"`
-	Password             string `json:"password"`
-	PasswordConfirmation string `json:"password_confirmation"`
-}
-
-// LoginInput is the Fortify-style login payload.
-type LoginInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Remember bool   `json:"remember"`
-}
-
-// ForgotPasswordInput requests a password reset link.
-type ForgotPasswordInput struct {
-	Email string `json:"email"`
-}
-
-// ResetPasswordInput resets a password with a broker token.
-type ResetPasswordInput struct {
-	Email                string `json:"email"`
-	Token                string `json:"token"`
-	Password             string `json:"password"`
-	PasswordConfirmation string `json:"password_confirmation"`
-}
-
-// ConfirmPasswordInput confirms the current password for sensitive actions.
-type ConfirmPasswordInput struct {
-	Password string `json:"password"`
-}
-
-// TwoFactorChallengeInput submits either a TOTP code or a recovery code.
-type TwoFactorChallengeInput struct {
-	Code         string `json:"code"`
-	RecoveryCode string `json:"recovery_code"`
-}
-
-// LoginResult reports the outcome of an attempted login or two-factor challenge.
+// LoginResult represents a successful login or two-factor completion.
 type LoginResult struct {
-	User               *User
-	Session            *Session
-	RememberToken      string
-	RequiresTwoFactor  bool
-	PasswordConfirmed  bool
-	AuthenticatedState string
+	User          Authenticatable `json:"user,omitempty"`
+	Session       *Session        `json:"session,omitempty"`
+	RememberToken string          `json:"rememberToken,omitempty"`
 }
 
-// EnableTwoFactorResult contains the initial two-factor secret and recovery codes.
-type EnableTwoFactorResult struct {
-	Secret        string   `json:"secret"`
-	RecoveryCodes []string `json:"recoveryCodes"`
-	OTPAuthURL    string   `json:"otpAuthUrl"`
+// ManagerDependencies provides optional auth-core dependencies.
+type ManagerDependencies struct {
+	Hasher PasswordHasher
+	Clock  Clock
+	IDs    IDGenerator
+	Logger Logger
 }

@@ -1,4 +1,4 @@
-package secure
+package crypto
 
 import (
 	"crypto/hmac"
@@ -29,7 +29,7 @@ func HashString(value string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// EmailHash returns the Laravel-style SHA-1 email hash.
+// EmailHash returns a Laravel-style SHA-1 email hash.
 func EmailHash(email string) string {
 	sum := sha1.Sum([]byte(email))
 	return hex.EncodeToString(sum[:])

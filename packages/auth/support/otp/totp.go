@@ -1,4 +1,4 @@
-package totp
+package otp
 
 import (
 	"crypto/hmac"
@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gollin/packages/auth/internal/secure"
+	"github.com/gollin/packages/auth/support/crypto"
 )
 
 const (
@@ -19,9 +19,9 @@ const (
 	digits = 6
 )
 
-// GenerateSecret creates a base32-encoded TOTP secret.
+// GenerateSecret creates a base32 encoded TOTP secret.
 func GenerateSecret() (string, error) {
-	raw, err := secure.RandomString(20)
+	raw, err := crypto.RandomString(20)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +30,7 @@ func GenerateSecret() (string, error) {
 	return encoder.EncodeToString([]byte(raw))[:32], nil
 }
 
-// Validate checks a TOTP code across a configurable skew window.
+// Validate checks a TOTP code across the supplied skew window.
 func Validate(secret string, code string, now time.Time, allowedSkew int) bool {
 	for offset := -allowedSkew; offset <= allowedSkew; offset++ {
 		candidate, err := Code(secret, now.Add(time.Duration(offset*period)*time.Second))
@@ -41,11 +41,10 @@ func Validate(secret string, code string, now time.Time, allowedSkew int) bool {
 			return true
 		}
 	}
-
 	return false
 }
 
-// Code returns the TOTP code for the supplied time.
+// Code returns the current TOTP code.
 func Code(secret string, now time.Time) (string, error) {
 	decoder := base32.StdEncoding.WithPadding(base32.NoPadding)
 	key, err := decoder.DecodeString(strings.ToUpper(secret))
@@ -71,7 +70,7 @@ func Code(secret string, now time.Time) (string, error) {
 	return fmt.Sprintf("%06d", value), nil
 }
 
-// OTPAuthURL returns a standard otpauth enrollment URL.
+// OTPAuthURL returns the otpauth enrollment URL.
 func OTPAuthURL(issuer string, account string, secret string) string {
 	label := url.PathEscape(fmt.Sprintf("%s:%s", issuer, account))
 	query := url.Values{
