@@ -15,14 +15,8 @@ type Response struct {
 }
 
 // Allow returns an allowed response.
-func Allow() Response {
-	return Response{Allowed: true}
-}
 
 // Deny returns a denied response.
-func Deny(message string) Response {
-	return Response{Allowed: false, Message: message}
-}
 
 // AuthorizationException reports an authorization failure.
 type AuthorizationException struct {
@@ -31,17 +25,6 @@ type AuthorizationException struct {
 }
 
 // Error implements error.
-func (e AuthorizationException) Error() string {
-	if e.Message != "" {
-		return e.Message
-	}
-
-	if e.Ability == "" {
-		return "auth: authorization denied"
-	}
-
-	return fmt.Sprintf("auth: authorization denied for %q", e.Ability)
-}
 
 // AbilityFunc evaluates an ability for a user.
 type AbilityFunc func(ctx context.Context, user auth.Authenticatable, arguments ...any) Response
@@ -69,6 +52,26 @@ type Gate struct {
 	after     []AfterFunc
 }
 
+func Allow() Response {
+	return Response{Allowed: true}
+}
+
+func Deny(message string) Response {
+	return Response{Allowed: false, Message: message}
+}
+
+func (e AuthorizationException) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+
+	if e.Ability == "" {
+		return "auth: authorization denied"
+	}
+
+	return fmt.Sprintf("auth: authorization denied for %q", e.Ability)
+}
+
 // NewGate returns an empty gate.
 func NewGate() *Gate {
 	return &Gate{abilities: map[string]AbilityFunc{}}
@@ -77,6 +80,7 @@ func NewGate() *Gate {
 // Define registers an ability callback.
 func (g *Gate) Define(ability string, callback AbilityFunc) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.abilities[ability] = callback
@@ -85,6 +89,7 @@ func (g *Gate) Define(ability string, callback AbilityFunc) {
 // Before registers a before callback.
 func (g *Gate) Before(callback BeforeFunc) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.before = append(g.before, callback)
@@ -93,6 +98,7 @@ func (g *Gate) Before(callback BeforeFunc) {
 // After registers an after callback.
 func (g *Gate) After(callback AfterFunc) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.after = append(g.after, callback)
@@ -113,6 +119,7 @@ func (g *Gate) Inspect(ctx context.Context, user auth.Authenticatable, ability s
 	}
 
 	result := Deny("auth: ability is not defined")
+
 	if ok {
 		result = callback(ctx, user, arguments...)
 	}
@@ -148,6 +155,7 @@ func (g *Gate) Denies(ctx context.Context, user auth.Authenticatable, ability st
 // Authorize authorizes an ability or returns an exception.
 func (g *Gate) Authorize(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) error {
 	response := g.Inspect(ctx, user, ability, arguments...)
+
 	if response.Allowed {
 		return nil
 	}

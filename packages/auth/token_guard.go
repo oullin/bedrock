@@ -58,6 +58,7 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 	}
 
 	token := strings.TrimSpace(g.request.Header.Get("Authorization"))
+
 	if token == "" {
 		token = strings.TrimSpace(g.request.URL.Query().Get(g.inputKey))
 	}
@@ -67,16 +68,19 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 	}
 
 	const bearer = "Bearer "
+
 	if strings.HasPrefix(token, bearer) {
 		token = strings.TrimSpace(strings.TrimPrefix(token, bearer))
 	}
 
 	credentials := map[string]string{g.storageKey: token}
+
 	if g.hash {
 		credentials[g.storageKey] = securitycrypto.HashString(token)
 	}
 
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil {
 		return nil, err
 	}

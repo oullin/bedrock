@@ -31,7 +31,9 @@ func TestGateAuthorizeAndAny(t *testing.T) {
 	}
 
 	err := gate.Authorize(context.Background(), user, "delete-users")
+
 	var authErr authaccess.AuthorizationException
+
 	if !errors.As(err, &authErr) {
 		t.Fatalf("expected AuthorizationException, got %v", err)
 	}

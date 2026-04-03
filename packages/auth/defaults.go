@@ -13,25 +13,28 @@ import (
 type SystemClock struct{}
 
 // Now returns the current UTC time.
-func (SystemClock) Now() time.Time {
-	return time.Now().UTC()
-}
 
 // RandomIDGenerator creates opaque random identifiers.
 type RandomIDGenerator struct{}
 
 // NewID returns a new random identifier.
+
+// NoopMailer drops messages.
+type NoopMailer struct{}
+
+func (SystemClock) Now() time.Time {
+	return time.Now().UTC()
+}
+
 func (RandomIDGenerator) NewID() (string, error) {
 	value, err := securitycrypto.RandomString(24)
+
 	if err != nil {
 		return "", fmt.Errorf("auth: generate id: %w", err)
 	}
 
 	return value, nil
 }
-
-// NoopMailer drops messages.
-type NoopMailer struct{}
 
 // Send implements Mailer.
 func (NoopMailer) Send(context.Context, MailMessage) error {

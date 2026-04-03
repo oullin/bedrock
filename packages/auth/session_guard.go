@@ -43,6 +43,7 @@ func (g *SessionGuard) Name() string { return g.name }
 func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (*Session, Authenticatable, error) {
 	if sessionID, err := g.readCookie(r, g.config.Cookies.SessionName); err == nil {
 		session, user, err := g.sessionFromID(ctx, sessionID)
+
 		if err == nil {
 			g.writeSessionCookie(w, session.ID, session.ExpiresAt)
 
@@ -53,11 +54,13 @@ func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseW
 	}
 
 	recallerValue, err := g.readCookie(r, g.config.Cookies.RememberName)
+
 	if err != nil || g.encrypter == nil {
 		return nil, nil, ErrUnauthorized
 	}
 
 	payload, err := g.encrypter.DecryptString(recallerValue)
+
 	if err != nil {
 		g.clearCookie(w, g.config.Cookies.RememberName)
 
@@ -65,6 +68,7 @@ func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseW
 	}
 
 	recaller := NewRecaller(payload)
+
 	if !recaller.Valid() {
 		g.clearCookie(w, g.config.Cookies.RememberName)
 
@@ -72,6 +76,7 @@ func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseW
 	}
 
 	user, err := g.provider.RetrieveByToken(ctx, recaller.ID(), recaller.Token())
+
 	if err != nil {
 		g.clearCookie(w, g.config.Cookies.RememberName)
 
@@ -85,6 +90,7 @@ func (g *SessionGuard) AuthenticateRequest(ctx context.Context, w http.ResponseW
 	}
 
 	session, _, err := g.Login(ctx, w, user, true, false)
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,6 +103,7 @@ func (g *SessionGuard) Login(ctx context.Context, w http.ResponseWriter, user Au
 	now := g.clock.Now()
 
 	id, err := g.ids.NewID()
+
 	if err != nil {
 		return nil, "", err
 	}
@@ -122,8 +129,10 @@ func (g *SessionGuard) Login(ctx context.Context, w http.ResponseWriter, user Au
 	g.writeSessionCookie(w, session.ID, session.ExpiresAt)
 
 	rememberToken := ""
+
 	if remember {
 		rememberToken, err = securitycrypto.RandomString(24)
+
 		if err != nil {
 			return nil, "", err
 		}
@@ -136,6 +145,7 @@ func (g *SessionGuard) Login(ctx context.Context, w http.ResponseWriter, user Au
 
 		if g.encrypter != nil {
 			payload, err := g.encrypter.EncryptString(user.GetAuthIdentifier() + "|" + rememberToken + "|" + securitycrypto.HashString(user.GetAuthPassword()))
+
 			if err != nil {
 				return nil, "", err
 			}
@@ -169,6 +179,7 @@ func (g *SessionGuard) Logout(ctx context.Context, w http.ResponseWriter, sessio
 
 func (g *SessionGuard) sessionFromID(ctx context.Context, id string) (*Session, Authenticatable, error) {
 	session, err := g.sessions.FindByID(ctx, id)
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -180,11 +191,13 @@ func (g *SessionGuard) sessionFromID(ctx context.Context, id string) (*Session, 
 	}
 
 	user, err := g.provider.RetrieveByID(ctx, session.UserID)
+
 	if err != nil {
 		return nil, nil, err
 	}
 
 	session.LastSeenAt = g.clock.Now()
+
 	if err := g.sessions.Update(ctx, session); err != nil {
 		return nil, nil, err
 	}
@@ -194,6 +207,7 @@ func (g *SessionGuard) sessionFromID(ctx context.Context, id string) (*Session, 
 
 func (g *SessionGuard) readCookie(r *http.Request, name string) (string, error) {
 	cookie, err := r.Cookie(name)
+
 	if err != nil {
 		return "", err
 	}

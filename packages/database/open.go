@@ -12,6 +12,7 @@ import (
 // Open opens a shared SQL connection.
 func Open(ctx context.Context, cfg Config) (*sql.DB, error) {
 	driver := strings.TrimSpace(strings.ToLower(cfg.Driver))
+
 	if driver == "" {
 		driver = "sqlite"
 	}
@@ -23,6 +24,7 @@ func Open(ctx context.Context, cfg Config) (*sql.DB, error) {
 	}
 
 	db, err := sql.Open(driver, cfg.DSN)
+
 	if err != nil {
 		return nil, fmt.Errorf("database: open connection: %w", err)
 	}

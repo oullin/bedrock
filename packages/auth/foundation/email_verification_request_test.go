@@ -29,17 +29,20 @@ func TestEmailVerificationRequestAuthorizeAndFulfill(t *testing.T) {
 	t.Parallel()
 
 	_, currentFile, _, ok := runtime.Caller(0)
+
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
 
 	configDir := filepath.Join(filepath.Dir(currentFile), "..", "..", "user", "config")
 	repo, err := configpkg.NewBuilder(configDir).Build(context.Background())
+
 	if err != nil {
 		t.Fatalf("build user config: %v", err)
 	}
 
 	cfg, err := user.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
@@ -63,6 +66,7 @@ func TestEmailVerificationRequestAuthorizeAndFulfill(t *testing.T) {
 	}
 
 	verifiable := any(record).(auth.MustVerifyEmail)
+
 	if !verifiable.HasVerifiedEmail() {
 		t.Fatal("expected user to be verified")
 	}

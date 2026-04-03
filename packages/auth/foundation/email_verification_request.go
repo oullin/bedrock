@@ -29,6 +29,7 @@ func (r EmailVerificationRequest) Authorize() bool {
 	}
 
 	verifiable, ok := r.User.(auth.MustVerifyEmail)
+
 	if !ok {
 		return false
 	}
@@ -48,6 +49,7 @@ func (r EmailVerificationRequest) FulfillAt(ctx context.Context, now time.Time, 
 	}
 
 	verifiable, ok := r.User.(auth.MustVerifyEmail)
+
 	if !ok {
 		return fmt.Errorf("auth: user does not support email verification")
 	}
