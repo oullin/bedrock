@@ -24,9 +24,32 @@ type EncryptionConfig struct {
 	Cipher       Cipher
 }
 
+// BcryptHashingConfig holds bcrypt hasher settings.
+type BcryptHashingConfig struct {
+	Rounds int
+	Verify bool
+	Limit  int
+}
+
+// ArgonHashingConfig holds argon hasher settings.
+type ArgonHashingConfig struct {
+	Memory  int
+	Time    int
+	Threads int
+	Verify  bool
+}
+
+// HashingConfig holds password hashing settings.
+type HashingConfig struct {
+	Driver string
+	Bcrypt BcryptHashingConfig
+	Argon  ArgonHashingConfig
+}
+
 // Config groups package-owned security settings.
 type Config struct {
 	Encryption EncryptionConfig
+	Hashing    HashingConfig
 }
 
 // ConfigFromRepository loads security settings from the shared config repository.
@@ -41,13 +64,13 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	cipher := CipherAES128CBC
-	if value, ok, err := stringValue(repo, "security.encryption.cipher", "app.cipher"); err != nil {
+	if value, ok, err := stringValue(repo, "security.encryption.cipher"); err != nil {
 		return Config{}, err
 	} else if ok && value != "" {
 		cipher = Cipher(value)
 	}
 
-	previousKeysRaw, err := stringSliceValue(repo, "security.encryption.previous_keys", "app.previous_keys")
+	previousKeysRaw, err := stringSliceValue(repo, "security.encryption.previous_keys")
 	if err != nil {
 		return Config{}, err
 	}
@@ -61,17 +84,23 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 		previousKeys = append(previousKeys, parsed)
 	}
 
+	hashingCfg, err := hashingConfigFromRepository(repo)
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		Encryption: EncryptionConfig{
 			Key:          key,
 			PreviousKeys: previousKeys,
 			Cipher:       cipher,
 		},
+		Hashing: hashingCfg,
 	}, nil
 }
 
 func keyFromRepository(repo *configpkg.Repository) ([]byte, error) {
-	value, ok, err := stringValue(repo, "security.encryption.key", "app.key")
+	value, ok, err := stringValue(repo, "security.encryption.key")
 	if err != nil {
 		return nil, err
 	}
@@ -112,4 +141,109 @@ func stringSliceValue(repo *configpkg.Repository, keys ...string) ([]string, err
 	}
 
 	return []string{}, nil
+}
+
+func hashingConfigFromRepository(repo *configpkg.Repository) (HashingConfig, error) {
+	driver := "bcrypt"
+	if value, ok, err := stringValue(repo, "security.hashing.driver"); err != nil {
+		return HashingConfig{}, err
+	} else if ok && value != "" {
+		driver = value
+	}
+
+	rounds := 12
+	if value, ok, err := intValue(repo, "security.hashing.bcrypt.rounds"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		rounds = value
+	}
+
+	verifyBcrypt := false
+	if value, ok, err := boolValue(repo, "security.hashing.bcrypt.verify"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		verifyBcrypt = value
+	}
+
+	limit := 0
+	if value, ok, err := intValue(repo, "security.hashing.bcrypt.limit"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		limit = value
+	}
+
+	memory := 1024
+	if value, ok, err := intValue(repo, "security.hashing.argon.memory"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		memory = value
+	}
+
+	timeCost := 2
+	if value, ok, err := intValue(repo, "security.hashing.argon.time"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		timeCost = value
+	}
+
+	threads := 2
+	if value, ok, err := intValue(repo, "security.hashing.argon.threads"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		threads = value
+	}
+
+	verifyArgon := false
+	if value, ok, err := boolValue(repo, "security.hashing.argon.verify"); err != nil {
+		return HashingConfig{}, err
+	} else if ok {
+		verifyArgon = value
+	}
+
+	return HashingConfig{
+		Driver: driver,
+		Bcrypt: BcryptHashingConfig{
+			Rounds: rounds,
+			Verify: verifyBcrypt,
+			Limit:  limit,
+		},
+		Argon: ArgonHashingConfig{
+			Memory:  memory,
+			Time:    timeCost,
+			Threads: threads,
+			Verify:  verifyArgon,
+		},
+	}, nil
+}
+
+func intValue(repo *configpkg.Repository, keys ...string) (int, bool, error) {
+	for _, key := range keys {
+		if !repo.Has(key) {
+			continue
+		}
+
+		value, err := repo.Int(key)
+		if err != nil {
+			return 0, false, err
+		}
+		return value, true, nil
+	}
+
+	return 0, false, nil
+}
+
+func boolValue(repo *configpkg.Repository, keys ...string) (bool, bool, error) {
+	for _, key := range keys {
+		if !repo.Has(key) {
+			continue
+		}
+
+		value, err := repo.Bool(key)
+		if err != nil {
+			return false, false, err
+		}
+		return value, true, nil
+	}
+
+	return false, false, nil
 }
