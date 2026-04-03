@@ -11,12 +11,6 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-const (
-	argonVersion  = 19
-	argonSaltSize = 16
-	argonKeySize  = 32
-)
-
 type argonHash struct {
 	algorithm string
 	version   int
@@ -46,6 +40,12 @@ type Argon2id struct {
 	argonHasher
 }
 
+const (
+	argonVersion  = 19
+	argonSaltSize = 16
+	argonKeySize  = 32
+)
+
 // NewArgon2i creates a new argon2i hasher.
 func NewArgon2i(cfg ArgonConfig) *Argon2i {
 	return &Argon2i{
@@ -62,6 +62,7 @@ func NewArgon2id(cfg ArgonConfig) *Argon2id {
 
 func newArgonHasher(algorithm string, cfg ArgonConfig, algorithmErr error) argonHasher {
 	cfg = normalizeArgonConfig(cfg)
+
 	return argonHasher{
 		algorithm:       algorithm,
 		memory:          uint32(cfg.Memory),
@@ -80,16 +81,19 @@ func (a argonHasher) Info(hashedValue string) Info {
 // Make hashes a plaintext value.
 func (a argonHasher) Make(value string, options map[string]any) (string, error) {
 	params, err := a.params(options)
+
 	if err != nil {
 		return "", err
 	}
 
 	salt := make([]byte, argonSaltSize)
+
 	if _, err := rand.Read(salt); err != nil {
 		return "", fmt.Errorf("hashing: read salt: %w", err)
 	}
 
 	sum := a.derive([]byte(value), salt, params)
+
 	return encodeArgonHash(argonHash{
 		algorithm: a.algorithm,
 		version:   argonVersion,
@@ -108,10 +112,12 @@ func (a argonHasher) Check(value string, hashedValue string, _ map[string]any) (
 	}
 
 	parsed, err := parseArgonHash(hashedValue)
+
 	if err != nil {
 		if a.verifyAlgorithm {
 			return false, a.algorithmErr
 		}
+
 		return false, nil
 	}
 
@@ -119,10 +125,12 @@ func (a argonHasher) Check(value string, hashedValue string, _ map[string]any) (
 		if a.verifyAlgorithm {
 			return false, a.algorithmErr
 		}
+
 		return false, nil
 	}
 
 	sum := a.derive([]byte(value), parsed.salt, parsed)
+
 	if subtle.ConstantTimeCompare(sum, parsed.sum) == 1 {
 		return true, nil
 	}
@@ -133,14 +141,17 @@ func (a argonHasher) Check(value string, hashedValue string, _ map[string]any) (
 // NeedsRehash reports whether the hash parameters differ from the configured ones.
 func (a argonHasher) NeedsRehash(hashedValue string, options map[string]any) bool {
 	parsed, err := parseArgonHash(hashedValue)
+
 	if err != nil {
 		return true
 	}
+
 	if parsed.algorithm != a.algorithm || parsed.version != argonVersion {
 		return true
 	}
 
 	params, err := a.params(options)
+
 	if err != nil {
 		return true
 	}
@@ -151,9 +162,11 @@ func (a argonHasher) NeedsRehash(hashedValue string, options map[string]any) boo
 // VerifyConfiguration reports whether the hash parameters are within the configured limits.
 func (a argonHasher) VerifyConfiguration(hashedValue string) bool {
 	parsed, err := parseArgonHash(hashedValue)
+
 	if err != nil {
 		return false
 	}
+
 	if parsed.algorithm != a.algorithm || parsed.version != argonVersion {
 		return false
 	}
@@ -165,31 +178,41 @@ func (a argonHasher) derive(value []byte, salt []byte, params argonHash) []byte 
 	if a.algorithm == "argon2id" {
 		return argon2.IDKey(value, salt, params.time, params.memory, params.threads, argonKeySize)
 	}
+
 	return argon2.Key(value, salt, params.time, params.memory, params.threads, argonKeySize)
 }
 
 func (a argonHasher) params(options map[string]any) (argonHash, error) {
 	memory, err := intOption(options, "memory", int(a.memory))
+
 	if err != nil {
 		return argonHash{}, err
 	}
+
 	timeCost, err := intOption(options, "time", int(a.time))
+
 	if err != nil {
 		return argonHash{}, err
 	}
+
 	threads, err := intOption(options, "threads", int(a.threads))
+
 	if err != nil {
 		return argonHash{}, err
 	}
+
 	if memory <= 0 {
 		return argonHash{}, fmt.Errorf("hashing: memory must be positive")
 	}
+
 	if timeCost <= 0 {
 		return argonHash{}, fmt.Errorf("hashing: time must be positive")
 	}
+
 	if threads <= 0 {
 		return argonHash{}, fmt.Errorf("hashing: threads must be positive")
 	}
+
 	if threads > 255 {
 		return argonHash{}, fmt.Errorf("hashing: threads must be <= 255")
 	}
@@ -218,35 +241,43 @@ func encodeArgonHash(value argonHash) string {
 
 func parseArgonHash(hashedValue string) (argonHash, error) {
 	parts := strings.Split(hashedValue, "$")
+
 	if len(parts) != 6 || parts[0] != "" {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon hash")
 	}
 
 	algorithm := parts[1]
+
 	if algorithm != "argon2i" && algorithm != "argon2id" {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon algorithm")
 	}
 
 	versionText, ok := strings.CutPrefix(parts[2], "v=")
+
 	if !ok {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon version")
 	}
+
 	version, err := strconv.Atoi(versionText)
+
 	if err != nil {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon version")
 	}
 
 	params, err := parseArgonParams(parts[3])
+
 	if err != nil {
 		return argonHash{}, err
 	}
 
 	salt, err := decodeArgonBase64(parts[4])
+
 	if err != nil || len(salt) == 0 {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon salt")
 	}
 
 	sum, err := decodeArgonBase64(parts[5])
+
 	if err != nil || len(sum) == 0 {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon sum")
 	}
@@ -255,23 +286,27 @@ func parseArgonHash(hashedValue string) (argonHash, error) {
 	params.version = version
 	params.salt = salt
 	params.sum = sum
+
 	return params, nil
 }
 
 func parseArgonParams(raw string) (argonHash, error) {
 	result := argonHash{}
 	fields := strings.Split(raw, ",")
+
 	if len(fields) != 3 {
 		return argonHash{}, fmt.Errorf("hashing: invalid argon parameters")
 	}
 
 	for _, field := range fields {
 		key, value, ok := strings.Cut(field, "=")
+
 		if !ok {
 			return argonHash{}, fmt.Errorf("hashing: invalid argon parameter")
 		}
 
 		parsed, err := strconv.Atoi(value)
+
 		if err != nil || parsed <= 0 {
 			return argonHash{}, fmt.Errorf("hashing: invalid argon parameter")
 		}
@@ -285,6 +320,7 @@ func parseArgonParams(raw string) (argonHash, error) {
 			if parsed > 255 {
 				return argonHash{}, fmt.Errorf("hashing: invalid argon threads")
 			}
+
 			result.threads = uint8(parsed)
 		default:
 			return argonHash{}, fmt.Errorf("hashing: invalid argon parameter")
@@ -300,8 +336,10 @@ func parseArgonParams(raw string) (argonHash, error) {
 
 func decodeArgonBase64(value string) ([]byte, error) {
 	decoded, err := base64.RawStdEncoding.DecodeString(value)
+
 	if err == nil {
 		return decoded, nil
 	}
+
 	return base64.StdEncoding.DecodeString(value)
 }

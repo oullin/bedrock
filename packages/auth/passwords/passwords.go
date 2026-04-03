@@ -19,22 +19,6 @@ type Config struct {
 }
 
 // ConfigFromRepository loads a password broker configuration.
-func ConfigFromRepository(repo *configpkg.Repository, brokerName string) (Config, error) {
-	expire, err := repo.Duration("auth.passwords." + brokerName + ".expire")
-	if err != nil {
-		return Config{}, err
-	}
-	throttle, err := repo.Duration("auth.passwords." + brokerName + ".throttle")
-	if err != nil {
-		return Config{}, err
-	}
-
-	return Config{
-		Name:     brokerName,
-		Expire:   expire,
-		Throttle: throttle,
-	}, nil
-}
 
 // Token stores password reset token metadata.
 type Token struct {
@@ -66,27 +50,52 @@ type Broker struct {
 	Clock  auth.Clock
 }
 
+func ConfigFromRepository(repo *configpkg.Repository, brokerName string) (Config, error) {
+	expire, err := repo.Duration("auth.passwords." + brokerName + ".expire")
+
+	if err != nil {
+		return Config{}, err
+	}
+
+	throttle, err := repo.Duration("auth.passwords." + brokerName + ".throttle")
+
+	if err != nil {
+		return Config{}, err
+	}
+
+	return Config{
+		Name:     brokerName,
+		Expire:   expire,
+		Throttle: throttle,
+	}, nil
+}
+
 // SendResetLink creates and emails a password reset token.
 func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error) {
 	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": email})
+
 	if err != nil {
 		return "", err
 	}
 
 	profile, ok := user.(auth.UserProfile)
+
 	if !ok {
 		return "", fmt.Errorf("passwords: user does not expose email")
 	}
 
 	recentlyCreated, err := b.Tokens.RecentlyCreated(ctx, user.GetAuthIdentifier(), b.Clock.Now().Add(-b.Config.Throttle))
+
 	if err != nil {
 		return "", err
 	}
+
 	if recentlyCreated {
 		return "", &auth.ThrottleError{Scope: "password-reset", RetryAfter: b.Config.Throttle}
 	}
 
 	token, err := crypto.RandomString(24)
+
 	if err != nil {
 		return "", fmt.Errorf("generate reset token: %w", err)
 	}
@@ -118,17 +127,21 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error
 func (b *Broker) Reset(ctx context.Context, email string, token string, password string, action ResetsUserPasswords) (auth.Authenticatable, error) {
 	tokenHash := crypto.HashString(token)
 	record, err := b.Tokens.FindByTokenHash(ctx, tokenHash)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if b.Clock.Now().After(record.ExpiresAt) {
 		return nil, auth.ErrTokenExpired
 	}
 
 	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": email})
+
 	if err != nil {
 		return nil, err
 	}
+
 	if user.GetAuthIdentifier() != record.UserID {
 		return nil, auth.ErrInvalidToken
 	}
@@ -136,9 +149,11 @@ func (b *Broker) Reset(ctx context.Context, email string, token string, password
 	if err := action.Reset(ctx, user, password); err != nil {
 		return nil, err
 	}
+
 	if err := b.Tokens.DeleteByTokenHash(ctx, tokenHash); err != nil {
 		return nil, err
 	}
+
 	return user, nil
 }
 

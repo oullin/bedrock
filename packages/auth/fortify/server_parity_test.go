@@ -21,6 +21,21 @@ import (
 	"github.com/gollin/packages/config/foundation/configuration"
 )
 
+// Confirmation is required before two-factor login challenges begin.
+
+type fortifyEnv struct {
+	URL    string
+	Client *http.Client
+	Clock  *memory.FixedClock
+	Mailer *memory.InMemoryMailer
+	Close  func()
+}
+
+type testResponse struct {
+	status  int
+	payload map[string]any
+}
+
 func TestAuthFlowsViewsDisabledAndRouteOverrides(t *testing.T) {
 	t.Parallel()
 
@@ -35,15 +50,19 @@ func TestAuthFlowsViewsDisabledAndRouteOverrides(t *testing.T) {
 	}, func(deps *authflows.Dependencies) {
 		deps.Responses = registry
 	})
+
 	defer env.Close()
 
 	getJSON(t, env.Client, env.URL+"/sign-in", http.StatusTeapot)
 
 	resp, err := env.Client.Get(env.URL + "/login")
+
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
+
 	resp.Body.Close()
+
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("expected 404 for default route, got %d", resp.StatusCode)
 	}
@@ -51,13 +70,17 @@ func TestAuthFlowsViewsDisabledAndRouteOverrides(t *testing.T) {
 	envNoViews := newAuthFlowsEnv(t, func(repo *configpkg.Repository) {
 		repo.Set("authflows.views", false)
 	}, nil)
+
 	defer envNoViews.Close()
 
 	resp, err = envNoViews.Client.Get(envNoViews.URL + "/login")
+
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
+
 	resp.Body.Close()
+
 	if resp.StatusCode != http.StatusMethodNotAllowed {
 		t.Fatalf("expected 405 when views are disabled, got %d", resp.StatusCode)
 	}
@@ -69,6 +92,7 @@ func TestAuthFlowsConfirmedPasswordStatusBranches(t *testing.T) {
 	t.Parallel()
 
 	env := newAuthFlowsEnv(t, nil, nil)
+
 	defer env.Close()
 
 	postJSON(t, env.Client, env.URL+"/register", map[string]any{
@@ -83,6 +107,7 @@ func TestAuthFlowsConfirmedPasswordStatusBranches(t *testing.T) {
 	}, http.StatusOK)
 
 	body := getJSON(t, env.Client, env.URL+"/user/confirmed-password-status", http.StatusOK)
+
 	if body["confirmed"] != false {
 		t.Fatalf("expected unconfirmed status, got %#v", body)
 	}
@@ -92,12 +117,14 @@ func TestAuthFlowsConfirmedPasswordStatusBranches(t *testing.T) {
 	}, http.StatusOK)
 
 	body = getJSON(t, env.Client, env.URL+"/user/confirmed-password-status", http.StatusOK)
+
 	if body["confirmed"] != true {
 		t.Fatalf("expected confirmed status, got %#v", body)
 	}
 
 	env.Clock.Advance(4 * time.Hour)
 	body = getJSON(t, env.Client, env.URL+"/user/confirmed-password-status", http.StatusOK)
+
 	if body["confirmed"] != false {
 		t.Fatalf("expected stale confirmation to be false, got %#v", body)
 	}
@@ -107,6 +134,7 @@ func TestAuthFlowsTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 	t.Parallel()
 
 	env := newAuthFlowsEnv(t, nil, nil)
+
 	defer env.Close()
 
 	postJSON(t, env.Client, env.URL+"/register", map[string]any{
@@ -125,17 +153,18 @@ func TestAuthFlowsTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 
 	enabled := postJSON(t, env.Client, env.URL+"/user/two-factor-authentication", map[string]any{}, http.StatusCreated)
 	secret, _ := enabled["secret"].(string)
+
 	if secret == "" {
 		t.Fatalf("expected two-factor secret, got %#v", enabled)
 	}
 
 	postJSON(t, env.Client, env.URL+"/logout", map[string]any{}, http.StatusOK)
 
-	// Confirmation is required before two-factor login challenges begin.
 	loggedIn := postJSON(t, env.Client, env.URL+"/login", map[string]any{
 		"email":    "2FA@example.com",
 		"password": "password-123",
 	}, http.StatusOK)
+
 	if loggedIn["status"] != "authenticated" {
 		t.Fatalf("expected direct authentication before confirmation, got %#v", loggedIn)
 	}
@@ -144,9 +173,11 @@ func TestAuthFlowsTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 		"password": "password-123",
 	}, http.StatusOK)
 	code, err := otp.Code(secret, env.Clock.Now())
+
 	if err != nil {
 		t.Fatalf("Code: %v", err)
 	}
+
 	postJSON(t, env.Client, env.URL+"/user/confirmed-two-factor-authentication", map[string]any{
 		"code": code,
 	}, http.StatusOK)
@@ -157,17 +188,21 @@ func TestAuthFlowsTwoFactorConfirmationAndChallengeFlow(t *testing.T) {
 		"password": "password-123",
 		"remember": true,
 	}, http.StatusOK)
+
 	if challenge["status"] != "two_factor_required" {
 		t.Fatalf("expected two-factor challenge, got %#v", challenge)
 	}
 
 	code, err = otp.Code(secret, env.Clock.Now())
+
 	if err != nil {
 		t.Fatalf("Code: %v", err)
 	}
+
 	authenticated := postJSON(t, env.Client, env.URL+"/two-factor-challenge", map[string]any{
 		"code": code,
 	}, http.StatusOK)
+
 	if authenticated["status"] != "authenticated" {
 		t.Fatalf("expected completed authentication, got %#v", authenticated)
 	}
@@ -177,6 +212,7 @@ func TestAuthFlowsPasswordResetFailureModes(t *testing.T) {
 	t.Parallel()
 
 	env := newAuthFlowsEnv(t, nil, nil)
+
 	defer env.Close()
 
 	postJSON(t, env.Client, env.URL+"/register", map[string]any{
@@ -210,29 +246,25 @@ func TestAuthFlowsPasswordResetFailureModes(t *testing.T) {
 	}, http.StatusUnprocessableEntity)
 }
 
-type fortifyEnv struct {
-	URL    string
-	Client *http.Client
-	Clock  *memory.FixedClock
-	Mailer *memory.InMemoryMailer
-	Close  func()
-}
-
 func newAuthFlowsEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutateDeps func(*authflows.Dependencies)) fortifyEnv {
 	t.Helper()
 
 	repo, err := configuration.NewBuilder("/Users/gocanto/Sites/gollin/packages/config/config").Build(context.Background())
+
 	if err != nil {
 		t.Fatalf("Build config: %v", err)
 	}
+
 	if mutateRepo != nil {
 		mutateRepo(repo)
 	}
 
 	authConfig, err := auth.ConfigFromRepository(repo)
+
 	if err != nil {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
+
 	users := memory.NewInMemoryUserRepository()
 	sessions := memory.NewInMemorySessionStore()
 	mailer := &memory.InMemoryMailer{}
@@ -242,14 +274,17 @@ func newAuthFlowsEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutat
 		Clock:  clock,
 		IDs:    memory.NewSequenceIDGenerator("session"),
 	})
+
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
 
 	passwordConfig, err := passwords.ConfigFromRepository(repo, "users")
+
 	if err != nil {
 		t.Fatalf("password config: %v", err)
 	}
+
 	broker := &passwords.Broker{
 		Config: passwordConfig,
 		Users:  users,
@@ -271,10 +306,13 @@ func newAuthFlowsEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutat
 		Verification:   verification,
 		Clock:          clock,
 	}
+
 	if mutateDeps != nil {
 		mutateDeps(&deps)
 	}
+
 	server, err := authflows.NewServerFromRepository(repo, deps)
+
 	if err != nil {
 		t.Fatalf("NewServerFromRepository: %v", err)
 	}
@@ -284,9 +322,11 @@ func newAuthFlowsEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutat
 	httpServer := httptest.NewServer(mux)
 
 	jar, err := cookiejar.New(nil)
+
 	if err != nil {
 		t.Fatalf("cookiejar.New: %v", err)
 	}
+
 	client := httpServer.Client()
 	client.Jar = jar
 
@@ -297,11 +337,6 @@ func newAuthFlowsEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutat
 		Mailer: mailer,
 		Close:  httpServer.Close,
 	}
-}
-
-type testResponse struct {
-	status  int
-	payload map[string]any
 }
 
 func (r testResponse) ToResponse(w http.ResponseWriter, _ *http.Request, _ any) {

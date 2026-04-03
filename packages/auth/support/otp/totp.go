@@ -22,11 +22,13 @@ const (
 // GenerateSecret creates a base32 encoded TOTP secret.
 func GenerateSecret() (string, error) {
 	raw, err := crypto.RandomString(20)
+
 	if err != nil {
 		return "", err
 	}
 
 	encoder := base32.StdEncoding.WithPadding(base32.NoPadding)
+
 	return encoder.EncodeToString([]byte(raw))[:32], nil
 }
 
@@ -34,13 +36,16 @@ func GenerateSecret() (string, error) {
 func Validate(secret string, code string, now time.Time, allowedSkew int) bool {
 	for offset := -allowedSkew; offset <= allowedSkew; offset++ {
 		candidate, err := Code(secret, now.Add(time.Duration(offset*period)*time.Second))
+
 		if err != nil {
 			return false
 		}
+
 		if candidate == strings.TrimSpace(code) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -48,6 +53,7 @@ func Validate(secret string, code string, now time.Time, allowedSkew int) bool {
 func Code(secret string, now time.Time) (string, error) {
 	decoder := base32.StdEncoding.WithPadding(base32.NoPadding)
 	key, err := decoder.DecodeString(strings.ToUpper(secret))
+
 	if err != nil {
 		return "", fmt.Errorf("decode secret: %w", err)
 	}
@@ -67,6 +73,7 @@ func Code(secret string, now time.Time) (string, error) {
 		int(sum[offset+3])
 
 	value := binaryCode % 1_000_000
+
 	return fmt.Sprintf("%06d", value), nil
 }
 

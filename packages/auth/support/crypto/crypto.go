@@ -16,6 +16,7 @@ import (
 // RandomString returns a URL-safe random token.
 func RandomString(size int) (string, error) {
 	buf := make([]byte, size)
+
 	if _, err := rand.Read(buf); err != nil {
 		return "", fmt.Errorf("read random bytes: %w", err)
 	}
@@ -26,12 +27,14 @@ func RandomString(size int) (string, error) {
 // HashString returns a SHA-256 hex digest.
 func HashString(value string) string {
 	sum := sha256.Sum256([]byte(value))
+
 	return hex.EncodeToString(sum[:])
 }
 
 // EmailHash returns a Upstream-style SHA-1 email hash.
 func EmailHash(email string) string {
 	sum := sha1.Sum([]byte(email))
+
 	return hex.EncodeToString(sum[:])
 }
 
@@ -39,12 +42,14 @@ func EmailHash(email string) string {
 func Sign(key []byte, payload string) string {
 	mac := hmac.New(sha256.New, key)
 	_, _ = mac.Write([]byte(payload))
+
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
 // Verify checks that a signature matches a payload.
 func Verify(key []byte, payload string, signature string) bool {
 	expected := Sign(key, payload)
+
 	return subtle.ConstantTimeCompare([]byte(expected), []byte(signature)) == 1
 }
 
@@ -77,6 +82,7 @@ func pbkdf2Block(password []byte, salt []byte, iterations int, block int, digest
 		prf = hmac.New(digest, password)
 		_, _ = prf.Write(u)
 		u = prf.Sum(nil)
+
 		for j := range result {
 			result[j] ^= u[j]
 		}
