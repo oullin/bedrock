@@ -40,6 +40,7 @@ func (r *SQLTokenRepository) FindByTokenHash(ctx context.Context, tokenHash stri
 	row := r.db.QueryRowContext(ctx, `SELECT user_id, token_hash, created_at, expires_at FROM `+r.table+` WHERE token_hash = ?`, tokenHash)
 
 	var token Token
+
 	if err := row.Scan(&token.UserID, &token.TokenHash, &token.CreatedAt, &token.ExpiresAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, auth.ErrInvalidToken
@@ -69,6 +70,7 @@ func (r *SQLTokenRepository) DeleteByUserID(ctx context.Context, userID string) 
 func (r *SQLTokenRepository) RecentlyCreated(ctx context.Context, userID string, since time.Time) (bool, error) {
 	var createdAt time.Time
 	err := r.db.QueryRowContext(ctx, `SELECT created_at FROM `+r.table+` WHERE user_id = ?`, userID).Scan(&createdAt)
+
 	if err == sql.ErrNoRows {
 		return false, nil
 	}

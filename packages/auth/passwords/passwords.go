@@ -53,11 +53,13 @@ type Broker struct {
 // ConfigFromRepository loads a broker config from the shared config repository.
 func ConfigFromRepository(repo *configpkg.Repository, brokerName string) (Config, error) {
 	expire, err := repo.Duration("auth.passwords." + brokerName + ".expire")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	throttle, err := repo.Duration("auth.passwords." + brokerName + ".throttle")
+
 	if err != nil {
 		return Config{}, err
 	}
@@ -72,11 +74,13 @@ func ConfigFromRepository(repo *configpkg.Repository, brokerName string) (Config
 // SendResetLink creates a reset token and sends a message.
 func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error) {
 	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": NormalizeEmail(email)})
+
 	if err != nil {
 		return "", err
 	}
 
 	profile, ok := user.(auth.UserProfile)
+
 	if !ok {
 		return "", fmt.Errorf("passwords: user does not expose email")
 	}
@@ -86,6 +90,7 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error
 	}
 
 	recentlyCreated, err := b.Tokens.RecentlyCreated(ctx, user.GetAuthIdentifier(), b.Clock.Now().Add(-b.Config.Throttle))
+
 	if err != nil {
 		return "", err
 	}
@@ -95,11 +100,13 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) (string, error
 	}
 
 	token, err := b.CreateToken(ctx, user)
+
 	if err != nil {
 		return "", err
 	}
 
 	url := ""
+
 	if b.CreateURL != nil {
 		url = b.CreateURL(user, token)
 	}
@@ -128,6 +135,7 @@ func (b *Broker) CreateToken(ctx context.Context, user auth.Authenticatable) (st
 	}
 
 	token, err := securitycrypto.RandomString(24)
+
 	if err != nil {
 		return "", err
 	}
@@ -160,6 +168,7 @@ func (b *Broker) TokenExists(ctx context.Context, user auth.Authenticatable, tok
 	}
 
 	record, err := b.Tokens.FindByTokenHash(ctx, securitycrypto.HashString(token))
+
 	if err != nil {
 		if err == auth.ErrInvalidToken {
 			return false, nil
@@ -178,11 +187,13 @@ func (b *Broker) TokenExists(ctx context.Context, user auth.Authenticatable, tok
 // Reset validates a token and updates the user's password.
 func (b *Broker) Reset(ctx context.Context, email string, token string, password string, action ResetsUserPasswords) (auth.Authenticatable, error) {
 	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": NormalizeEmail(email)})
+
 	if err != nil {
 		return nil, err
 	}
 
 	valid, err := b.TokenExists(ctx, user, token)
+
 	if err != nil {
 		return nil, err
 	}

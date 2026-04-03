@@ -30,6 +30,7 @@ func (r Recaller) Valid() bool {
 
 func (r Recaller) segment(index int) string {
 	parts := strings.Split(r.value, "|")
+
 	if index >= len(parts) {
 		return ""
 	}

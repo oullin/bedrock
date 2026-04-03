@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+// AuthenticationException mirrors Laravel's authentication exception intent.
+type AuthenticationException struct {
+	Message    string
+	Guards     []string
+	RedirectTo string
+}
+
 var (
 	ErrUnauthorized       = errors.New("auth: unauthorized")
 	ErrUserNotFound       = errors.New("auth: user not found")
@@ -15,16 +22,10 @@ var (
 	ErrTokenExpired       = errors.New("auth: token expired")
 )
 
-// AuthenticationException mirrors Laravel's authentication exception intent.
-type AuthenticationException struct {
-	Message    string
-	Guards     []string
-	RedirectTo string
-}
-
 // Error implements error.
 func (e AuthenticationException) Error() string {
 	message := strings.TrimSpace(e.Message)
+
 	if message == "" {
 		message = "auth: authentication failed"
 	}

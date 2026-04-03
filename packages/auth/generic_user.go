@@ -10,6 +10,7 @@ type GenericUser struct {
 // NewGenericUser returns a new generic user.
 func NewGenericUser(attributes map[string]string) *GenericUser {
 	cloned := make(map[string]string, len(attributes))
+
 	for key, value := range attributes {
 		cloned[key] = value
 	}
@@ -20,6 +21,7 @@ func NewGenericUser(attributes map[string]string) *GenericUser {
 // Attributes returns a clone of the stored attributes.
 func (u *GenericUser) Attributes() map[string]string {
 	cloned := make(map[string]string, len(u.attributes))
+
 	for key, value := range u.attributes {
 		cloned[key] = value
 	}

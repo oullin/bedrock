@@ -16,76 +16,91 @@ func ConfigFromRepository(repo *configpkg.Repository) (Config, error) {
 	}
 
 	sessionLifetime, err := repo.Duration("auth.session_lifetime")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	rememberLifetime, err := repo.Duration("auth.remember_lifetime")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	verificationTTL, err := repo.Duration("auth.verification_ttl")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	defaultGuard, err := repo.String("auth.defaults.guard")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	defaultProvider, err := repo.String("auth.defaults.provider")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	identifierField, err := repo.String("auth.identifier_field")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	signingKey, err := repo.String("auth.signing_key")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	sameSiteText, err := repo.String("auth.cookies.same_site")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	sameSite, err := parseSameSite(sameSiteText)
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	sessionName, err := repo.String("auth.cookies.session_name")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	rememberName, err := repo.String("auth.cookies.remember_name")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	path, err := repo.String("auth.cookies.path")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	domain, err := repo.String("auth.cookies.domain")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	secure, err := repo.Bool("auth.cookies.secure")
+
 	if err != nil {
 		return Config{}, err
 	}
 
 	httpOnly, err := repo.Bool("auth.cookies.http_only")
+
 	if err != nil {
 		return Config{}, err
 	}
