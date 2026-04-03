@@ -264,12 +264,12 @@ func newFortifyEnv(t *testing.T, mutateRepo func(*configpkg.Repository), mutateD
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	sessions := memory.NewInMemorySessionStore()
 	mailer := &memory.InMemoryMailer{}
 	clock := memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
 	manager, err := auth.NewManager(authConfig, map[string]auth.UserProvider{"users": users}, sessions, auth.ManagerDependencies{
-		Hasher: auth.DefaultPasswordHasher{},
+		Hasher: newDefaultPasswordHasher(t),
 		Clock:  clock,
 		IDs:    memory.NewSequenceIDGenerator("session"),
 	})

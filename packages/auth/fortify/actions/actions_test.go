@@ -12,13 +12,21 @@ import (
 	"github.com/gollin/packages/auth/memory"
 )
 
+type failingIDGenerator struct {
+	err error
+}
+
+func (g failingIDGenerator) NewID() (string, error) {
+	return "", g.err
+}
+
 func TestCreateUserNormalizesEmailAndValidates(t *testing.T) {
 	t.Parallel()
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	action := actions.CreateUser{
 		Users:  users,
-		Hasher: auth.DefaultPasswordHasher{},
+		Hasher: newDefaultPasswordHasher(t),
 		IDs:    memory.NewSequenceIDGenerator("user"),
 		Clock:  memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC)),
 	}
@@ -48,14 +56,14 @@ func TestCreateUserNormalizesEmailAndValidates(t *testing.T) {
 func TestResetAndUpdatePassword(t *testing.T) {
 	t.Parallel()
 
-	hasher := auth.DefaultPasswordHasher{}
+	hasher := newDefaultPasswordHasher(t)
 	hash, err := hasher.Hash(context.Background(), "password-123")
 
 	if err != nil {
 		t.Fatalf("Hash: %v", err)
 	}
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	user := &foundation.User{
 		ID:            "user-1",
 		Name:          "User",
@@ -102,7 +110,7 @@ func TestResetAndUpdatePassword(t *testing.T) {
 func TestUpdateProfileInformationMarksEmailUnverified(t *testing.T) {
 	t.Parallel()
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	now := time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC)
 	user := &foundation.User{
 		ID:        "user-1",
@@ -136,5 +144,26 @@ func TestUpdateProfileInformationMarksEmailUnverified(t *testing.T) {
 
 	if user.HasVerifiedEmail() {
 		t.Fatal("expected email verification to be cleared")
+	}
+}
+
+func TestCreateUserReturnsIDError(t *testing.T) {
+	t.Parallel()
+
+	users := newInMemoryUserRepository(t)
+	action := actions.CreateUser{
+		Users:  users,
+		Hasher: newDefaultPasswordHasher(t),
+		IDs:    failingIDGenerator{err: auth.ErrInvalidToken},
+		Clock:  memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC)),
+	}
+
+	if _, err := action.Create(context.Background(), contracts.RegisterInput{
+		Name:                 "Test User",
+		Email:                "user@example.com",
+		Password:             "password-123",
+		PasswordConfirmation: "password-123",
+	}); err != auth.ErrInvalidToken {
+		t.Fatalf("expected id error, got %v", err)
 	}
 }

@@ -30,7 +30,13 @@ func NewManager(cfg Config, providers map[string]UserProvider, sessions SessionS
 	}
 
 	if deps.Hasher == nil {
-		deps.Hasher = NewDefaultPasswordHasher()
+		defaultHasher, err := NewDefaultPasswordHasher()
+
+		if err != nil {
+			return nil, err
+		}
+
+		deps.Hasher = defaultHasher
 	}
 
 	if deps.Clock == nil {

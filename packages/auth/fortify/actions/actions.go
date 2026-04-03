@@ -72,9 +72,15 @@ func (a CreateUser) Create(ctx context.Context, input contracts.RegisterInput) (
 		return nil, err
 	}
 
+	id, err := a.IDs.NewID()
+
+	if err != nil {
+		return nil, err
+	}
+
 	now := a.Clock.Now()
 	user := &foundation.User{
-		ID:           a.IDs.NewID(),
+		ID:           id,
 		Name:         strings.TrimSpace(input.Name),
 		Email:        normalizeEmail(input.Email),
 		PasswordHash: passwordHash,

@@ -16,10 +16,10 @@ func TestBrokerRejectsInvalidRecentlyCreatedAndExpiredTokens(t *testing.T) {
 	t.Parallel()
 
 	clock := memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	tokens := memory.NewInMemoryTokenRepository()
 	mailer := &memory.InMemoryMailer{}
-	hasher := auth.DefaultPasswordHasher{}
+	hasher := newDefaultPasswordHasher(t)
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
 

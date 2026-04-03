@@ -50,6 +50,8 @@ var (
 
 	ErrInvalidCredentials = errors.New("auth: invalid credentials")
 
+	ErrHasherNotConfigured = errors.New("auth: password hasher is not configured")
+
 	ErrInvalidToken = errors.New("auth: invalid token")
 
 	ErrTokenExpired = errors.New("auth: token expired")

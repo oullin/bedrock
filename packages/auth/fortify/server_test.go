@@ -34,11 +34,11 @@ func TestFortifyRegisterLoginVerificationAndProfileFlow(t *testing.T) {
 		t.Fatalf("ConfigFromRepository: %v", err)
 	}
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	sessions := memory.NewInMemorySessionStore()
 	mailer := &memory.InMemoryMailer{}
 	manager, err := auth.NewManager(authConfig, map[string]auth.UserProvider{"users": users}, sessions, auth.ManagerDependencies{
-		Hasher: auth.DefaultPasswordHasher{},
+		Hasher: newDefaultPasswordHasher(t),
 	})
 
 	if err != nil {

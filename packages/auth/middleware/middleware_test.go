@@ -113,9 +113,18 @@ func newMiddlewareStack(t *testing.T, confirmPassword bool) (authmw.Stack, *foun
 
 	now := time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC)
 	clock := memory.NewFixedClock(now)
-	users := memory.NewInMemoryUserRepository()
+	users, err := memory.NewInMemoryUserRepository()
+
+	if err != nil {
+		t.Fatalf("NewInMemoryUserRepository: %v", err)
+	}
+
 	sessions := memory.NewInMemorySessionStore()
-	hasher := auth.DefaultPasswordHasher{}
+	hasher, err := auth.NewDefaultPasswordHasher()
+
+	if err != nil {
+		t.Fatalf("NewDefaultPasswordHasher: %v", err)
+	}
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
 

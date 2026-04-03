@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -526,11 +525,11 @@ func TestBuilderLoadDirErrors(t *testing.T) {
 		t.Fatalf("Chmod: %v", err)
 	}
 
-	defer func() {
+	t.Cleanup(func() {
 		if chmodErr := os.Chmod(dir, 0o755); chmodErr != nil {
-			panic(fmt.Sprintf("restore directory mode: %v", chmodErr))
+			t.Fatalf("restore directory mode: %v", chmodErr)
 		}
-	}()
+	})
 
 	err = NewBuilder(".").loadDir(map[string]any{}, dir)
 

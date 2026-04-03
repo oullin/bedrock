@@ -13,7 +13,7 @@ type DefaultPasswordHasher struct {
 }
 
 // NewDefaultPasswordHasher creates the default auth hasher.
-func NewDefaultPasswordHasher() DefaultPasswordHasher {
+func NewDefaultPasswordHasher() (DefaultPasswordHasher, error) {
 	manager, err := securityhashing.NewManager(securityhashing.Config{
 		Driver: securityhashing.DriverBcrypt,
 		Bcrypt: securityhashing.BcryptConfig{
@@ -22,42 +22,64 @@ func NewDefaultPasswordHasher() DefaultPasswordHasher {
 	})
 
 	if err != nil {
-		panic(err)
+		return DefaultPasswordHasher{}, fmt.Errorf("create default password hasher: %w", err)
 	}
 
 	return DefaultPasswordHasher{
 		manager: manager,
-	}
+	}, nil
 }
 
-func (h DefaultPasswordHasher) hashingManager() *securityhashing.Manager {
+func (h DefaultPasswordHasher) hashingManager() (*securityhashing.Manager, error) {
 	if h.manager != nil {
-		return h.manager
+		return h.manager, nil
 	}
 
-	defaultHasher := NewDefaultPasswordHasher()
-
-	return defaultHasher.manager
+	return nil, ErrHasherNotConfigured
 }
 
 // Info returns metadata about a hashed value.
 func (h DefaultPasswordHasher) Info(hashedValue string) securityhashing.Info {
-	return h.hashingManager().Info(hashedValue)
+	manager, err := h.hashingManager()
+
+	if err != nil {
+		return securityhashing.Info{}
+	}
+
+	return manager.Info(hashedValue)
 }
 
 // Make hashes a password.
 func (h DefaultPasswordHasher) Make(_ context.Context, value string, options map[string]any) (string, error) {
-	return h.hashingManager().Make(value, options)
+	manager, err := h.hashingManager()
+
+	if err != nil {
+		return "", err
+	}
+
+	return manager.Make(value, options)
 }
 
 // Check validates a password against an encoded hash.
 func (h DefaultPasswordHasher) Check(_ context.Context, value string, hashedValue string, options map[string]any) (bool, error) {
-	return h.hashingManager().Check(value, hashedValue, options)
+	manager, err := h.hashingManager()
+
+	if err != nil {
+		return false, err
+	}
+
+	return manager.Check(value, hashedValue, options)
 }
 
 // NeedsRehash reports whether a hash should be regenerated.
 func (h DefaultPasswordHasher) NeedsRehash(hashedValue string, options map[string]any) bool {
-	return h.hashingManager().NeedsRehash(hashedValue, options)
+	manager, err := h.hashingManager()
+
+	if err != nil {
+		return true
+	}
+
+	return manager.NeedsRehash(hashedValue, options)
 }
 
 // Hash hashes a password with the default options.

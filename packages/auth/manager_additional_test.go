@@ -2,6 +2,7 @@ package auth_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,10 +12,43 @@ import (
 	auth "github.com/gollin/packages/auth"
 	"github.com/gollin/packages/auth/foundation"
 	"github.com/gollin/packages/auth/memory"
+	"github.com/gollin/packages/security/encryption"
 )
+
+type failingIDGenerator struct {
+	err error
+}
+
+type failingSessionStore struct {
+	auth.SessionStore
+	createErr error
+	updateErr error
+}
+
+func (g failingIDGenerator) NewID() (string, error) {
+	return "", g.err
+}
+
+func (s failingSessionStore) Create(ctx context.Context, session *auth.Session) error {
+	if s.createErr != nil {
+		return s.createErr
+	}
+
+	return s.SessionStore.Create(ctx, session)
+}
+
+func (s failingSessionStore) Update(ctx context.Context, session *auth.Session) error {
+	if s.updateErr != nil {
+		return s.updateErr
+	}
+
+	return s.SessionStore.Update(ctx, session)
+}
 
 func TestNewManagerRejectsMissingDefaultProvider(t *testing.T) {
 	t.Parallel()
+
+	users := newInMemoryUserRepository(t)
 
 	_, err := auth.NewManager(auth.Config{
 		DefaultGuard:    "web",
@@ -24,7 +58,7 @@ func TestNewManagerRejectsMissingDefaultProvider(t *testing.T) {
 			RememberName: "remember",
 			Path:         "/",
 		},
-	}, map[string]auth.UserProvider{"other": memory.NewInMemoryUserRepository()}, memory.NewInMemorySessionStore(), auth.ManagerDependencies{})
+	}, map[string]auth.UserProvider{"other": users}, memory.NewInMemorySessionStore(), auth.ManagerDependencies{})
 
 	if err == nil {
 		t.Fatal("expected missing default provider error")
@@ -36,9 +70,9 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 
 	now := time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC)
 	clock := memory.NewFixedClock(now)
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	sessions := memory.NewInMemorySessionStore()
-	hasher := auth.DefaultPasswordHasher{}
+	hasher := newDefaultPasswordHasher(t)
 
 	hash, err := hasher.Hash(context.Background(), "password-123")
 
@@ -148,7 +182,7 @@ func TestSessionGuardUsesRememberCookieAndExpiresSessions(t *testing.T) {
 func TestRequestAndTokenGuards(t *testing.T) {
 	t.Parallel()
 
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	sessions := memory.NewInMemorySessionStore()
 	user := &foundation.User{
 		ID:        "user-1",
@@ -209,4 +243,222 @@ func TestRequestAndTokenGuards(t *testing.T) {
 	if resolved.GetAuthIdentifier() != user.ID {
 		t.Fatalf("unexpected token guard user: %s", resolved.GetAuthIdentifier())
 	}
+}
+
+func TestSessionGuardLoginReturnsIDGenerationError(t *testing.T) {
+	t.Parallel()
+
+	users := newInMemoryUserRepository(t)
+	user := &foundation.User{
+		ID:        "user-1",
+		Name:      "User",
+		Email:     "user@example.com",
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
+
+	if err := users.Create(context.Background(), user); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	guard := auth.NewSessionGuard("web", auth.Config{
+		SessionLifetime:  time.Hour,
+		RememberLifetime: 24 * time.Hour,
+		Cookies: auth.CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+			Path:         "/",
+		},
+	}, users, memory.NewInMemorySessionStore(), newDefaultPasswordHasher(t), mustEncrypter(t), []byte("hash-key"), memory.NewFixedClock(time.Now().UTC()), failingIDGenerator{err: errBoom}, auth.NoopLogger{})
+
+	if _, _, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false); err != errBoom {
+		t.Fatalf("expected id error, got %v", err)
+	}
+}
+
+func TestSessionGuardLoginRestoresRememberTokenWhenSessionCreateFails(t *testing.T) {
+	t.Parallel()
+
+	users := newInMemoryUserRepository(t)
+	user := &foundation.User{
+		ID:            "user-1",
+		Name:          "User",
+		Email:         "user@example.com",
+		RememberToken: "original-token",
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
+	}
+
+	if err := users.Create(context.Background(), user); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	guard := auth.NewSessionGuard("web", auth.Config{
+		SessionLifetime:  time.Hour,
+		RememberLifetime: 24 * time.Hour,
+		Cookies: auth.CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+			Path:         "/",
+		},
+	}, users, failingSessionStore{SessionStore: memory.NewInMemorySessionStore(), createErr: errBoom}, newDefaultPasswordHasher(t), mustEncrypter(t), []byte("hash-key"), memory.NewFixedClock(time.Now().UTC()), memory.NewSequenceIDGenerator("session"), auth.NoopLogger{})
+
+	rec := httptest.NewRecorder()
+
+	if _, _, err := guard.Login(context.Background(), rec, user, true, false); err == nil {
+		t.Fatal("expected login error")
+	}
+
+	if len(rec.Result().Cookies()) != 0 {
+		t.Fatalf("expected no cookies on failed login, got %d", len(rec.Result().Cookies()))
+	}
+
+	stored, err := users.RetrieveByID(context.Background(), user.ID)
+
+	if err != nil {
+		t.Fatalf("RetrieveByID: %v", err)
+	}
+
+	if stored.GetRememberToken() != "original-token" {
+		t.Fatalf("expected remember token to be restored, got %q", stored.GetRememberToken())
+	}
+}
+
+func TestSessionGuardLoginRestoresRememberTokenWhenRememberCookieEncryptionFails(t *testing.T) {
+	t.Parallel()
+
+	users := newInMemoryUserRepository(t)
+	sessions := memory.NewInMemorySessionStore()
+	user := &foundation.User{
+		ID:            "user-1",
+		Name:          "User",
+		Email:         "user@example.com",
+		RememberToken: "original-token",
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
+	}
+
+	if err := users.Create(context.Background(), user); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	guard := auth.NewSessionGuard("web", auth.Config{
+		SessionLifetime:  time.Hour,
+		RememberLifetime: 24 * time.Hour,
+		Cookies: auth.CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+			Path:         "/",
+		},
+	}, users, sessions, newDefaultPasswordHasher(t), &encryption.Encrypter{}, []byte("hash-key"), memory.NewFixedClock(time.Now().UTC()), memory.NewSequenceIDGenerator("session"), auth.NoopLogger{})
+
+	rec := httptest.NewRecorder()
+
+	if _, _, err := guard.Login(context.Background(), rec, user, true, false); err == nil {
+		t.Fatal("expected login error")
+	}
+
+	if len(rec.Result().Cookies()) != 0 {
+		t.Fatalf("expected no cookies on failed login, got %d", len(rec.Result().Cookies()))
+	}
+
+	if _, err := sessions.FindByID(context.Background(), "session-1"); err != auth.ErrUnauthorized {
+		t.Fatalf("expected no persisted session, got %v", err)
+	}
+
+	stored, err := users.RetrieveByID(context.Background(), user.ID)
+
+	if err != nil {
+		t.Fatalf("RetrieveByID: %v", err)
+	}
+
+	if stored.GetRememberToken() != "original-token" {
+		t.Fatalf("expected remember token to be restored, got %q", stored.GetRememberToken())
+	}
+}
+
+func TestSessionGuardCompleteTwoFactorRestoresStateWhenRememberUpdateFails(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now().UTC()
+	clock := memory.NewFixedClock(now)
+	users := newInMemoryUserRepository(t)
+	sessionStore := memory.NewInMemorySessionStore()
+	user := &foundation.User{
+		ID:            "user-1",
+		Name:          "User",
+		Email:         "user@example.com",
+		RememberToken: "original-token",
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+
+	if err := users.Create(context.Background(), user); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	session := &auth.Session{
+		ID:               "session-1",
+		UserID:           user.ID,
+		PendingTwoFactor: true,
+		PendingRemember:  true,
+		LastSeenAt:       now,
+		CreatedAt:        now,
+		ExpiresAt:        now.Add(time.Hour),
+	}
+
+	if err := sessionStore.Create(context.Background(), session); err != nil {
+		t.Fatalf("Create session: %v", err)
+	}
+
+	guard := auth.NewSessionGuard("web", auth.Config{
+		SessionLifetime:  time.Hour,
+		RememberLifetime: 24 * time.Hour,
+		Cookies: auth.CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+			Path:         "/",
+		},
+	}, users, failingSessionStore{SessionStore: sessionStore, updateErr: errBoom}, newDefaultPasswordHasher(t), mustEncrypter(t), []byte("hash-key"), clock, memory.NewSequenceIDGenerator("session"), auth.NoopLogger{})
+
+	rec := httptest.NewRecorder()
+
+	if _, err := guard.CompleteTwoFactor(context.Background(), rec, session, user); err == nil {
+		t.Fatal("expected complete-two-factor error")
+	}
+
+	if len(rec.Result().Cookies()) != 0 {
+		t.Fatalf("expected no cookies on failed completion, got %d", len(rec.Result().Cookies()))
+	}
+
+	if !session.PendingTwoFactor || !session.PendingRemember || session.AuthenticatedAt != nil {
+		t.Fatalf("expected session state restored, got %#v", session)
+	}
+
+	stored, err := users.RetrieveByID(context.Background(), user.ID)
+
+	if err != nil {
+		t.Fatalf("RetrieveByID: %v", err)
+	}
+
+	if stored.GetRememberToken() != "original-token" {
+		t.Fatalf("expected remember token to be restored, got %q", stored.GetRememberToken())
+	}
+}
+
+var errBoom = errors.New("boom")
+
+func mustEncrypter(t *testing.T) *encryption.Encrypter {
+	t.Helper()
+
+	encrypter, err := encryption.New(encryption.Config{
+		Key:    []byte("0123456789abcdef0123456789abcdef"),
+		Cipher: encryption.AES256CBC,
+	})
+
+	if err != nil {
+		t.Fatalf("encryption.New: %v", err)
+	}
+
+	return encrypter
 }

@@ -106,7 +106,7 @@ type Clock interface {
 
 // IDGenerator creates opaque identifiers.
 type IDGenerator interface {
-	NewID() string
+	NewID() (string, error)
 }
 
 // Logger records auth diagnostics.

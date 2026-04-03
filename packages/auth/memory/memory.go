@@ -133,18 +133,24 @@ func NewSequenceIDGenerator(prefix string) *SequenceIDGenerator {
 	return &SequenceIDGenerator{prefix: prefix}
 }
 
-func (g *SequenceIDGenerator) NewID() string {
+func (g *SequenceIDGenerator) NewID() (string, error) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
 
 	g.next++
 
-	return fmt.Sprintf("%s-%d", g.prefix, g.next)
+	return fmt.Sprintf("%s-%d", g.prefix, g.next), nil
 }
 
-func NewInMemoryUserRepository(hasher ...auth.PasswordHasher) *InMemoryUserRepository {
-	passwordHasher := auth.PasswordHasher(auth.NewDefaultPasswordHasher())
+func NewInMemoryUserRepository(hasher ...auth.PasswordHasher) (*InMemoryUserRepository, error) {
+	defaultHasher, err := auth.NewDefaultPasswordHasher()
+
+	if err != nil {
+		return nil, err
+	}
+
+	passwordHasher := auth.PasswordHasher(defaultHasher)
 
 	if len(hasher) > 0 && hasher[0] != nil {
 		passwordHasher = hasher[0]
@@ -154,7 +160,7 @@ func NewInMemoryUserRepository(hasher ...auth.PasswordHasher) *InMemoryUserRepos
 		byID:         make(map[string]*foundation.User),
 		byIdentifier: make(map[string]string),
 		hasher:       passwordHasher,
-	}
+	}, nil
 }
 
 func (r *InMemoryUserRepository) Create(_ context.Context, user auth.Authenticatable) error {

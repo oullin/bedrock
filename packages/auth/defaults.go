@@ -26,14 +26,14 @@ func (SystemClock) Now() time.Time {
 	return time.Now().UTC()
 }
 
-func (RandomIDGenerator) NewID() string {
+func (RandomIDGenerator) NewID() (string, error) {
 	value, err := securitycrypto.RandomString(24)
 
 	if err != nil {
-		panic(fmt.Sprintf("generate id: %v", err))
+		return "", fmt.Errorf("generate id: %w", err)
 	}
 
-	return value
+	return value, nil
 }
 
 func deriveCipherKey(secret []byte) []byte {

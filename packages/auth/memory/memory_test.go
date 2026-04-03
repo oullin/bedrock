@@ -33,11 +33,28 @@ func TestInMemoryRepositoriesAndHelpers(t *testing.T) {
 
 	ids := NewSequenceIDGenerator("user")
 
-	if ids.NewID() != "user-1" || ids.NewID() != "user-2" {
+	firstID, err := ids.NewID()
+
+	if err != nil {
+		t.Fatalf("NewID first: %v", err)
+	}
+
+	secondID, err := ids.NewID()
+
+	if err != nil {
+		t.Fatalf("NewID second: %v", err)
+	}
+
+	if firstID != "user-1" || secondID != "user-2" {
 		t.Fatal("unexpected sequence ids")
 	}
 
-	users := NewInMemoryUserRepository()
+	users, err := NewInMemoryUserRepository()
+
+	if err != nil {
+		t.Fatalf("NewInMemoryUserRepository: %v", err)
+	}
+
 	user := &foundation.User{
 		ID:           "user-1",
 		Name:         "User One",

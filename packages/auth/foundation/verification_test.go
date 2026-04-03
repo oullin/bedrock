@@ -17,7 +17,7 @@ func TestVerificationServiceSendAndVerify(t *testing.T) {
 	t.Parallel()
 
 	clock := memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	mailer := &memory.InMemoryMailer{}
 	user := &foundation.User{
 		ID:        "user-1",

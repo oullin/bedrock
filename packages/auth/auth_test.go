@@ -14,7 +14,7 @@ import (
 func TestDefaultPasswordHasher(t *testing.T) {
 	t.Parallel()
 
-	hasher := auth.DefaultPasswordHasher{}
+	hasher := newDefaultPasswordHasher(t)
 	encoded, err := hasher.Hash(context.Background(), "secret-pass")
 
 	if err != nil {
@@ -35,9 +35,9 @@ func TestSessionGuardLoginAndAuthenticateRequest(t *testing.T) {
 
 	clock := memory.NewFixedClock(time.Date(2026, 4, 3, 0, 0, 0, 0, time.UTC))
 	ids := memory.NewSequenceIDGenerator("session")
-	users := memory.NewInMemoryUserRepository()
+	users := newInMemoryUserRepository(t)
 	sessions := memory.NewInMemorySessionStore()
-	hasher := auth.DefaultPasswordHasher{}
+	hasher := newDefaultPasswordHasher(t)
 
 	passwordHash, err := hasher.Hash(context.Background(), "password-123")
 
