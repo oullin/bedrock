@@ -11,13 +11,20 @@
         "^build"
       ],
       "outputs": [
+        "../storage/dist/**",
         "../../storage/dist/**",
-        "../../../storage/dist/**"
+        "../packages/storage/dist/**"
       ]
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "outputs": []
     },
     "test": {
       "dependsOn": [
@@ -30,20 +37,15 @@
         "^build"
       ],
       "outputs": [
+        "../storage/coverage/**",
         "../../storage/coverage/**",
-        "../../../storage/coverage/**"
+        "../packages/storage/coverage/**"
       ]
     },
     "fmt": {
       "outputs": []
     },
     "fmt:check": {
-      "outputs": []
-    },
-    "typecheck": {
-      "dependsOn": [
-        "^typecheck"
-      ],
       "outputs": []
     }
   }

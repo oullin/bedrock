@@ -1,0 +1,11 @@
+default: database
+stores:
+  array:
+    driver: array
+  database:
+    driver: database
+    table: cache
+  file:
+    driver: file
+    path: storage/framework/cache/data
+prefix: bedrock-cache

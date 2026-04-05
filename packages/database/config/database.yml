@@ -1,7 +1,0 @@
-default: sqlite
-connections:
-  sqlite:
-    driver: sqlite
-    dsn: file:storage/.cache/gollin.sqlite?_pragma=foreign_keys(1)
-migrations:
-  table: schema_migrations

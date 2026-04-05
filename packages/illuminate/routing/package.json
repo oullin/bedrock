@@ -1,0 +1,14 @@
+{
+  "name": "@gollin/framework-routing",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/dist/routing && go build ./... && touch ../../storage/dist/routing/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/routing && go test ./... -coverprofile=../../storage/coverage/go/routing/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
