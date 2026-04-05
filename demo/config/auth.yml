@@ -1,0 +1,29 @@
+defaults:
+  guard: web
+  provider: users
+identifier_field: email
+session_lifetime: 2h
+remember_lifetime: 336h
+signing_key: demo-auth-signing-key
+cookies:
+  session_name: bedrock-session
+  remember_name: bedrock-remember
+  path: /
+  domain: ""
+  secure: false
+  http_only: true
+  same_site: lax
+guards:
+  web:
+    driver: session
+    provider: users
+providers:
+  users:
+    driver: memory
+passwords:
+  users:
+    provider: users
+    table: password_reset_tokens
+    expire: 60
+    throttle: 60
+password_timeout: 10800

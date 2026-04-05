@@ -1,0 +1,9 @@
+default: stack
+channels:
+  stack:
+    driver: stack
+    channels:
+      - single
+  single:
+    driver: single
+    path: storage/logs/upstream.log

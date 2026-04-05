@@ -1,3 +1,0 @@
-defaults:
-  name: User
-  normalize_email: true
