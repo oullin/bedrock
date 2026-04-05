@@ -1,0 +1,19 @@
+defaults:
+  guard: web
+  provider: users
+identifier_field: email
+session_lifetime: 24h
+remember_lifetime: 720h
+signing_key: gollin-auth-development-signing-key
+passwords:
+  users:
+    expire: 1h
+    throttle: 1m
+cookies:
+  session_name: gollin_session
+  remember_name: gollin_remember
+  path: /
+  domain: ""
+  secure: true
+  http_only: true
+  same_site: lax

@@ -1,0 +1,14 @@
+{
+  "name": "@gollin/framework-filesystem",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/dist/filesystem && go build ./... && touch ../../storage/dist/filesystem/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/filesystem && go test ./... -coverprofile=../../storage/coverage/go/filesystem/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
