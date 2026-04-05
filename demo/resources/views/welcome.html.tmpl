@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="{{ asset "app.css" }}">
+  </head>
+  <body>
+    <main class="shell">
+      <p class="eyebrow">Laravel 13 Demo Port</p>
+      <h1>{{ .title }}</h1>
+      <p class="lede">The root demo application boots through the Go foundation layer, serves HTTP, exposes console commands, and keeps a Laravel-style starter layout.</p>
+      <div class="actions">
+        <a href="/up">Health Check</a>
+      </div>
+    </main>
+    <script type="module" src="{{ asset "app.js" }}"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "@gollin/illuminate-encryption",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/dist/encryption && go build ./... && touch ../../storage/dist/encryption/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/encryption && go test ./... -coverprofile=../../storage/coverage/go/encryption/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@gollin/illuminate-foundation",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/dist/foundation && go build ./... && touch ../../storage/dist/foundation/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/foundation && go test ./... -coverprofile=../../storage/coverage/go/foundation/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

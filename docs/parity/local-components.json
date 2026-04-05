@@ -1,0 +1,264 @@
+{
+  "generatedAt": "2026-04-05T08:24:37.452Z",
+  "components": [
+    {
+      "component": "auth",
+      "files": 33,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "broadcasting",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "bus",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "cache",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "collections",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "concurrency",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "conditionable",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "config",
+      "files": 13,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "console",
+      "files": 6,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "container",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "contracts",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "cookie",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "database",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "encryption",
+      "files": 10,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "events",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "filesystem",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "foundation",
+      "files": 10,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "hashing",
+      "files": 13,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "http",
+      "files": 6,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "json-schema",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "log",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "macroable",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "mail",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "notifications",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "pagination",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "pipeline",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "process",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "queue",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "redis",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "reflection",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "routing",
+      "files": 6,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "session",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "support",
+      "files": 12,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "testing",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "translation",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "validation",
+      "files": 5,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    },
+    {
+      "component": "view",
+      "files": 6,
+      "hasDoc": true,
+      "hasGoMod": true,
+      "hasPackageJson": true
+    }
+  ]
+}

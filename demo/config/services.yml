@@ -1,0 +1,8 @@
+postmark:
+  key: ""
+resend:
+  key: ""
+ses:
+  key: ""
+  secret: ""
+  region: us-east-1
