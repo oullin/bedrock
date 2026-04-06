@@ -8,16 +8,16 @@
     "pnpm": ">=10.33.0"
   },
   "scripts": {
-    "preinstall": "node packages/scripts/enforce-pnpm.mjs",
-    "bootstrap:framework": "node packages/scripts/bootstrap-framework.mjs",
-    "sync:upstream": "node packages/scripts/sync-upstream-upstream.mjs",
-    "build": "turbo run build --cache-dir=packages/storage/.turbo",
-    "dev": "turbo run dev --cache-dir=packages/storage/.turbo",
-    "typecheck": "turbo run typecheck --cache-dir=packages/storage/.turbo",
-    "test": "turbo run test --cache-dir=packages/storage/.turbo",
-    "test:coverage": "turbo run test:coverage --cache-dir=packages/storage/.turbo",
-    "fmt": "turbo run fmt --cache-dir=packages/storage/.turbo",
-    "fmt:check": "turbo run fmt:check --cache-dir=packages/storage/.turbo"
+    "preinstall": "node scripts/enforce-pnpm.mjs",
+    "bootstrap:framework": "node scripts/bootstrap-framework.mjs",
+    "sync:upstream": "node scripts/sync-upstream-upstream.mjs",
+    "build": "turbo run build --cache-dir=storage/.turbo",
+    "dev": "turbo run dev --cache-dir=storage/.turbo",
+    "typecheck": "turbo run typecheck --cache-dir=storage/.turbo",
+    "test": "turbo run test --cache-dir=storage/.turbo",
+    "test:coverage": "turbo run test:coverage --cache-dir=storage/.turbo",
+    "fmt": "turbo run fmt --cache-dir=storage/.turbo",
+    "fmt:check": "turbo run fmt:check --cache-dir=storage/.turbo"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.2",
