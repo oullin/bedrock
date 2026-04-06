@@ -1,6 +1,6 @@
 package routes
 
-import "github.com/gollin/packages/framework/routing"
+import "github.com/bedrock/packages/routing"
 
 // RegisterWeb installs the demo HTTP routes.
 func RegisterWeb(router *routing.Router) {

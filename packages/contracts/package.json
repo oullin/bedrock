@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/framework-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/dist/contracts && go build ./... && touch ../../storage/dist/contracts/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/contracts && go test ./... -coverprofile=../../storage/coverage/go/contracts/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

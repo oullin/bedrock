@@ -3,8 +3,8 @@ package tests
 import (
 	"testing"
 
-	"github.com/gollin/demo/bootstrap"
-	"github.com/gollin/packages/framework/foundation"
+	"github.com/bedrock/demo/bootstrap"
+	"github.com/bedrock/packages/foundation"
 )
 
 func newTestApp(t *testing.T) *foundation.Application {
