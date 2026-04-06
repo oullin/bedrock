@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/gollin/demo/routes"
-	"github.com/gollin/packages/illuminate/foundation"
-	foundationconfiguration "github.com/gollin/packages/illuminate/foundation/configuration"
+	"github.com/bedrock/demo/routes"
+	"github.com/bedrock/packages/foundation"
+	foundationconfiguration "github.com/bedrock/packages/foundation/configuration"
 )
 
 // New bootstraps the root demo application.

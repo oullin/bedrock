@@ -31,22 +31,22 @@ demo:
 	cd $(ROOT_PATH)/demo && go run ./public
 
 clean:
-	rm -rf $(ROOT_PATH)/packages/storage/.cache
-	rm -rf $(ROOT_PATH)/packages/storage/.pnpm-store
-	rm -rf $(ROOT_PATH)/packages/storage/.turbo
-	rm -rf $(ROOT_PATH)/packages/storage/dist
-	rm -rf $(ROOT_PATH)/packages/storage/coverage
+	rm -rf $(ROOT_PATH)/storage/.cache
+	rm -rf $(ROOT_PATH)/storage/.pnpm-store
+	rm -rf $(ROOT_PATH)/storage/.turbo
+	rm -rf $(ROOT_PATH)/storage/dist
+	rm -rf $(ROOT_PATH)/storage/coverage
 	rm -rf $(ROOT_PATH)/demo/public/build
-	mkdir -p $(ROOT_PATH)/packages/storage/.cache
-	mkdir -p $(ROOT_PATH)/packages/storage/.pnpm-store
-	mkdir -p $(ROOT_PATH)/packages/storage/.turbo
-	mkdir -p $(ROOT_PATH)/packages/storage/dist
-	mkdir -p $(ROOT_PATH)/packages/storage/coverage/go
-	mkdir -p $(ROOT_PATH)/packages/storage/coverage/playwright
+	mkdir -p $(ROOT_PATH)/storage/.cache
+	mkdir -p $(ROOT_PATH)/storage/.pnpm-store
+	mkdir -p $(ROOT_PATH)/storage/.turbo
+	mkdir -p $(ROOT_PATH)/storage/dist
+	mkdir -p $(ROOT_PATH)/storage/coverage/go
+	mkdir -p $(ROOT_PATH)/storage/coverage/playwright
 	mkdir -p $(ROOT_PATH)/demo/public/build
-	touch $(ROOT_PATH)/packages/storage/.cache/.gitkeep
-	touch $(ROOT_PATH)/packages/storage/.turbo/.gitkeep
-	touch $(ROOT_PATH)/packages/storage/dist/.gitkeep
-	touch $(ROOT_PATH)/packages/storage/coverage/.gitkeep
-	touch $(ROOT_PATH)/packages/storage/coverage/go/.gitkeep
-	touch $(ROOT_PATH)/packages/storage/coverage/playwright/.gitkeep
+	touch $(ROOT_PATH)/storage/.cache/.gitkeep
+	touch $(ROOT_PATH)/storage/.turbo/.gitkeep
+	touch $(ROOT_PATH)/storage/dist/.gitkeep
+	touch $(ROOT_PATH)/storage/coverage/.gitkeep
+	touch $(ROOT_PATH)/storage/coverage/go/.gitkeep
+	touch $(ROOT_PATH)/storage/coverage/playwright/.gitkeep

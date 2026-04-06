@@ -12,8 +12,7 @@
       ],
       "outputs": [
         "../storage/dist/**",
-        "../../storage/dist/**",
-        "../packages/storage/dist/**"
+        "../../storage/dist/**"
       ]
     },
     "dev": {
@@ -38,8 +37,7 @@
       ],
       "outputs": [
         "../storage/coverage/**",
-        "../../storage/coverage/**",
-        "../packages/storage/coverage/**"
+        "../../storage/coverage/**"
       ]
     },
     "fmt": {

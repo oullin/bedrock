@@ -3,8 +3,8 @@ package routes
 import (
 	"context"
 
-	"github.com/gollin/packages/illuminate/console"
-	"github.com/gollin/packages/illuminate/foundation"
+	"github.com/bedrock/packages/console"
+	"github.com/bedrock/packages/foundation"
 )
 
 // RegisterConsole installs the demo console routes.

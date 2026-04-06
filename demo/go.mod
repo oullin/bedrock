@@ -1,20 +1,20 @@
-module github.com/gollin/demo
+module github.com/bedrock/demo
 
 go 1.26.0
 
 require (
-	github.com/gollin/packages/illuminate/console v0.0.0
-	github.com/gollin/packages/illuminate/foundation v0.0.0
-	github.com/gollin/packages/illuminate/routing v0.0.0
+	github.com/bedrock/packages/console v0.0.0
+	github.com/bedrock/packages/foundation v0.0.0
+	github.com/bedrock/packages/routing v0.0.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/gollin/packages/illuminate/config v0.0.0 // indirect
-	github.com/gollin/packages/illuminate/http v0.0.0 // indirect
-	github.com/gollin/packages/illuminate/support v0.0.0 // indirect
-	github.com/gollin/packages/illuminate/view v0.0.0 // indirect
+	github.com/bedrock/packages/config v0.0.0 // indirect
+	github.com/bedrock/packages/http v0.0.0 // indirect
+	github.com/bedrock/packages/support v0.0.0 // indirect
+	github.com/bedrock/packages/view v0.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -30,16 +30,16 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/gollin/packages/illuminate/config => ../packages/illuminate/config
+replace github.com/bedrock/packages/config => ../packages/config
 
-replace github.com/gollin/packages/illuminate/console => ../packages/illuminate/console
+replace github.com/bedrock/packages/console => ../packages/console
 
-replace github.com/gollin/packages/illuminate/foundation => ../packages/illuminate/foundation
+replace github.com/bedrock/packages/foundation => ../packages/foundation
 
-replace github.com/gollin/packages/illuminate/http => ../packages/illuminate/http
+replace github.com/bedrock/packages/http => ../packages/http
 
-replace github.com/gollin/packages/illuminate/routing => ../packages/illuminate/routing
+replace github.com/bedrock/packages/routing => ../packages/routing
 
-replace github.com/gollin/packages/illuminate/support => ../packages/illuminate/support
+replace github.com/bedrock/packages/support => ../packages/support
 
-replace github.com/gollin/packages/illuminate/view => ../packages/illuminate/view
+replace github.com/bedrock/packages/view => ../packages/view
