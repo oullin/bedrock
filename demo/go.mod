@@ -1,20 +1,20 @@
-module github.com/gollin/demo
+module github.com/bedrock/demo
 
 go 1.26.0
 
 require (
-	github.com/gollin/packages/framework/console v0.0.0
-	github.com/gollin/packages/framework/foundation v0.0.0
-	github.com/gollin/packages/framework/routing v0.0.0
+	github.com/bedrock/packages/console v0.0.0
+	github.com/bedrock/packages/foundation v0.0.0
+	github.com/bedrock/packages/routing v0.0.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/gollin/packages/framework/config v0.0.0 // indirect
-	github.com/gollin/packages/framework/http v0.0.0 // indirect
-	github.com/gollin/packages/framework/support v0.0.0 // indirect
-	github.com/gollin/packages/framework/view v0.0.0 // indirect
+	github.com/bedrock/packages/config v0.0.0 // indirect
+	github.com/bedrock/packages/http v0.0.0 // indirect
+	github.com/bedrock/packages/support v0.0.0 // indirect
+	github.com/bedrock/packages/view v0.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -30,16 +30,16 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/gollin/packages/framework/config => ../packages/framework/config
+replace github.com/bedrock/packages/config => ../packages/config
 
-replace github.com/gollin/packages/framework/console => ../packages/framework/console
+replace github.com/bedrock/packages/console => ../packages/console
 
-replace github.com/gollin/packages/framework/foundation => ../packages/framework/foundation
+replace github.com/bedrock/packages/foundation => ../packages/foundation
 
-replace github.com/gollin/packages/framework/http => ../packages/framework/http
+replace github.com/bedrock/packages/http => ../packages/http
 
-replace github.com/gollin/packages/framework/routing => ../packages/framework/routing
+replace github.com/bedrock/packages/routing => ../packages/routing
 
-replace github.com/gollin/packages/framework/support => ../packages/framework/support
+replace github.com/bedrock/packages/support => ../packages/support
 
-replace github.com/gollin/packages/framework/view => ../packages/framework/view
+replace github.com/bedrock/packages/view => ../packages/view

@@ -39,27 +39,27 @@ go.work.sum
 .claude/*
 !.claude/.gitkeep
 
-packages/storage/dist/**
-!packages/storage/dist/
-!packages/storage/dist/.gitkeep
+storage/dist/**
+!storage/dist/
+!storage/dist/.gitkeep
 
-packages/storage/.cache/**
-!packages/storage/.cache/
-!packages/storage/.cache/.gitkeep
+storage/.cache/**
+!storage/.cache/
+!storage/.cache/.gitkeep
 
-packages/storage/.pnpm-store/**
-!packages/storage/.pnpm-store/
+storage/.pnpm-store/**
+!storage/.pnpm-store/
 
-packages/storage/.turbo/**
-!packages/storage/.turbo/
-!packages/storage/.turbo/.gitkeep
+storage/.turbo/**
+!storage/.turbo/
+!storage/.turbo/.gitkeep
 
-packages/storage/coverage/**
-!packages/storage/coverage/
-!packages/storage/coverage/.gitkeep
-!packages/storage/coverage/packages/
-!packages/storage/coverage/packages/.gitkeep
-!packages/storage/coverage/go/
-!packages/storage/coverage/go/.gitkeep
-!packages/storage/coverage/playwright/
-!packages/storage/coverage/playwright/.gitkeep
+storage/coverage/**
+!storage/coverage/
+!storage/coverage/.gitkeep
+!storage/coverage/packages/
+!storage/coverage/packages/.gitkeep
+!storage/coverage/go/
+!storage/coverage/go/.gitkeep
+!storage/coverage/playwright/
+!storage/coverage/playwright/.gitkeep

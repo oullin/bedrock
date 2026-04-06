@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gollin/demo/bootstrap"
+	"github.com/bedrock/demo/bootstrap"
 )
 
 func main() {
