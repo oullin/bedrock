@@ -1,18 +1,9 @@
-# Billing Port — Compliance Report
+# Billing Port — Test Compliance Report
 
-## Overview
-
-This package ports three PHP codebases into a single provider-agnostic Go package:
-
-| Source | Location | PHP Files |
-|--------|----------|-----------|
-| upstream/cashier-paddle | `vendor/upstream/cashier-paddle/src/` | 32 |
-| upstream/billing-paddle | `vendor/upstream/billing-paddle/src/` | 24 |
-| Madora app/Billing | `app/Billing/` | 39 |
-| **Total** | | **95** |
-
-**Ported**: 88 / 95 (92.6%)
-**Not ported**: 7 (framework plumbing not applicable to Go — see below)
+> Generated: 2026-04-07
+> Baseline: Madora PHP billing tests (`tests/{Feature,Unit}/Billing/`)
+> PHP sources: upstream/cashier-paddle, upstream/billing-paddle, Madora app/Billing
+> All Bedrock tests pass (`go test ./...` green across all packages).
 
 ---
 
@@ -20,106 +11,269 @@ This package ports three PHP codebases into a single provider-agnostic Go packag
 
 | Metric | Count |
 |--------|-------|
-| Go source files | 62 |
-| Files with tests | 7 |
-| Files without tests | 55 |
-| **Test file coverage** | **11.3%** |
+| PHP source files ported | 88 / 95 (92.6%) |
+| PHP source files not ported (framework plumbing) | 7 |
+| **Go source files** | **57** |
+| Go test files | 6 |
+| **Bedrock Go tests (total)** | **26** |
+| PHP test files in scope | **30** |
+| PHP test files analyzed line-by-line | 30 |
+| PHP test methods analyzed | 162 |
+| Analyzed: COVERED | 12 |
+| Analyzed: MISSING | 122 |
+| Analyzed: INTENTIONAL-SKIP | 28 |
+| Analyzed: BEDROCK-ONLY | 14 |
+| **Coverage of analyzed tests (excl. skips)** | **9%** |
 
-### Untested File Breakdown
+### What This Means
 
-| Category | Files | Examples |
-|----------|-------|----------|
-| Business logic (critical) | 8 | `gate.go`, `entitlement.go`, `entitlement_sync.go`, `lifecycle.go`, `lifecycle_state.go`, `lifecycle_transition.go`, `checkout_reconciler.go`, `webhook_signature.go` |
-| Handlers / Controllers | 6 | `handler_billing.go`, `handler_inquiry.go`, `handler_invoice.go`, `handler_payment.go`, `handler_portal.go`, `handler_subscription.go` |
-| Checkout flow | 5 | `checkout.go`, `checkout_recovery.go`, `checkout_session.go`, `checkout_syncer.go`, `checkout_reconciler.go` |
-| Catalog / Pricing | 4 | `catalog.go`, `catalog_presentation.go`, `catalog_price_manager.go`, `catalog_seeder.go` |
-| Commands / Jobs | 4 | `command_expire.go`, `command_reconcile.go`, `command_recover.go`, `job_reconcile.go` |
-| Listeners | 4 | `listener_reconcile.go`, `listener_subscription_created.go`, `listener_sync_entitlements.go`, `listener_sync_update.go` |
-| Views / Frontend | 3 | `view.go`, `frontend_state.go`, `snapshot.go` |
-| Infrastructure | 21 | `billing.go`, `currency.go`, `errors.go`, `event.go`, `interfaces.go`, `invoice.go`, `mail.go`, `middleware.go`, `routes.go`, `webhook.go`, etc. |
-
-### High-Priority Gaps
-
-These 8 business-logic files carry the highest risk without test coverage:
-
-1. `gate.go` — SubscriptionGate.CheckRequirements (authorization decisions)
-2. `entitlement.go` — EntitlementAccess (feature access, capacity)
-3. `lifecycle_transition.go` — SubscriptionTransitioner (state machine)
-4. `lifecycle.go` — SubscriptionRepository (subscription creation)
-5. `checkout_reconciler.go` — SubscriptionReconciler (post-checkout matching)
-6. `webhook_signature.go` — HMAC verification
-7. `errors.go` — InvalidPlanPriceError construction
-8. `snapshot.go` — PlanConfig.MatchesPriceID, HasConfiguredProviderIDs
+Bedrock has **26 passing Go tests** across 6 files in the root `billing` package. All 9 subdirectory packages have **zero test coverage**. For the 162 PHP test methods analyzed line-by-line, we cover 9% of the portable surface. The 122 missing methods span critical business logic: subscription lifecycle, checkout reconciliation, entitlement gating, webhook verification, and HTTP handlers.
 
 ---
 
-## Test Coverage
+## Per-Area Scorecard
 
-| Go File | Test File | Status |
-|---------|-----------|--------|
-| config.go | config_test.go | Covered |
-| customer.go | customer_test.go | Covered |
-| enums.go | enums_test.go | Covered |
-| manager.go | manager_test.go | Covered |
-| plan.go | plan_test.go | Covered |
-| subscription.go | subscription_test.go | Covered |
-| validation.go | validation_test.go | Covered |
-| billable.go | — | Not covered |
-| billing.go | — | Not covered |
-| catalog.go | — | Not covered |
-| catalog_presentation.go | — | Not covered |
-| catalog_price_manager.go | — | Not covered |
-| catalog_seeder.go | — | Not covered |
-| checkout.go | — | Not covered |
-| checkout_reconciler.go | — | Not covered |
-| checkout_recovery.go | — | Not covered |
-| checkout_session.go | — | Not covered |
-| checkout_syncer.go | — | Not covered |
-| command_expire.go | — | Not covered |
-| command_reconcile.go | — | Not covered |
-| command_recover.go | — | Not covered |
-| currency.go | — | Not covered |
-| entitlement.go | — | Not covered |
-| entitlement_sync.go | — | Not covered |
-| errors.go | — | Not covered |
-| event.go | — | Not covered |
-| frontend_state.go | — | Not covered |
-| gate.go | — | Not covered |
-| handler_billing.go | — | Not covered |
-| handler_inquiry.go | — | Not covered |
-| handler_invoice.go | — | Not covered |
-| handler_payment.go | — | Not covered |
-| handler_portal.go | — | Not covered |
-| handler_subscription.go | — | Not covered |
-| interfaces.go | — | Not covered |
-| invoice.go | — | Not covered |
-| job_reconcile.go | — | Not covered |
-| lifecycle.go | — | Not covered |
-| lifecycle_state.go | — | Not covered |
-| lifecycle_transition.go | — | Not covered |
-| listener_reconcile.go | — | Not covered |
-| listener_subscription_created.go | — | Not covered |
-| listener_sync_entitlements.go | — | Not covered |
-| listener_sync_update.go | — | Not covered |
-| mail.go | — | Not covered |
-| manager_builder.go | — | Not covered |
-| middleware.go | — | Not covered |
-| payment.go | — | Not covered |
-| price.go | — | Not covered |
-| price_preview.go | — | Not covered |
-| routes.go | — | Not covered |
-| snapshot.go | — | Not covered |
-| subscription_builder.go | — | Not covered |
-| subscription_feature.go | — | Not covered |
-| subscription_item.go | — | Not covered |
-| transaction.go | — | Not covered |
-| view.go | — | Not covered |
-| webhook.go | — | Not covered |
-| webhook_signature.go | — | Not covered |
-| workflow.go | — | Not covered |
-| workflow_catalog.go | — | Not covered |
+### Unit Tests (9 PHP files, 39 methods)
 
-**Files with tests**: 7 / 62 source files (11.3%)
+| PHP Test File | PHP Tests | Covered | Missing | Skip | Bedrock-Only | Portable % |
+|---------------|-----------|---------|---------|------|--------------|------------|
+| **SubscriptionStatusEvaluatorTest** | 9 | 9 | 0 | 0 | 0 | **100%** |
+| **PlanPeriodPriceTest** | 3 | 2 | 1 | 0 | 0 | **67%** |
+| **BillingPeriodTest** | 3 | 1 | 0 | 2 | 0 | **100%** (portable) |
+| **SubscriptionGateTest** | 7 | 0 | 7 | 0 | 0 | **0%** |
+| **PaddleWebhookSignatureInspectorTest** | 4 | 0 | 4 | 0 | 0 | **0%** |
+| **TransactionSnapshotTest** | 3 | 0 | 3 | 0 | 0 | **0%** |
+| **SubscriptionEntitlementServiceTest** | 2 | 0 | 2 | 0 | 0 | **0%** |
+| **BillingLocalDevUrlTest** | 5 | 0 | 5 | 0 | 0 | **0%** |
+| **PaddleWebhookSignatureMiddlewareTest** | 1 | 0 | 1 | 0 | 0 | **0%** |
+| **Subtotal** | **37** | **12** | **23** | **2** | **0** | **34%** |
+
+### Feature Tests (21 PHP files, ~125 methods)
+
+| PHP Test File | PHP Tests | Covered | Missing | Skip | Bedrock-Only | Portable % |
+|---------------|-----------|---------|---------|------|--------------|------------|
+| **BillingLifecycleTest** | 28 | 0 | 28 | 0 | 0 | **0%** |
+| **BillingControllerTest** | 19 | 0 | 19 | 0 | 0 | **0%** |
+| **SubscriptionStatusTransitionTest** | 12 | 0 | 12 | 0 | 0 | **0%** |
+| **ReconcileSubscriptionsJobTest** | 10 | 0 | 10 | 0 | 0 | **0%** |
+| **CustomPlanInquiryTest** | 7 | 0 | 7 | 0 | 0 | **0%** |
+| **CanonicalMoneySchemaContractTest** | 7 | 0 | 0 | 7 | 0 | N/A (skip) |
+| **ReconcileSubscriptionAfterCheckoutTest** | 6 | 0 | 6 | 0 | 0 | **0%** |
+| **NormaliseBillableRouteParameterTest** | 5 | 0 | 5 | 0 | 0 | **0%** |
+| **PlanPeriodPriceSchemaContractTest** | 5 | 0 | 0 | 5 | 0 | N/A (skip) |
+| **ExpirePendingSubscriptionsCommandTest** | 4 | 0 | 4 | 0 | 0 | **0%** |
+| **BillingPlanRegistrarTest** | 3 | 0 | 3 | 0 | 0 | **0%** |
+| **BillingPortalTest** | 3 | 0 | 3 | 0 | 0 | **0%** |
+| **SyncSubscriptionAfterUpdateTest** | 3 | 0 | 3 | 0 | 0 | **0%** |
+| **PlanPeriodPriceManagerTest** | 3 | 0 | 3 | 0 | 0 | **0%** |
+| **ReconcileSubscriptionPlanMatchingTest** | 2 | 0 | 2 | 0 | 0 | **0%** |
+| **InspectPaddleWebhookSignatureCommandTest** | 2 | 0 | 2 | 0 | 0 | **0%** |
+| **PaddleTransactionModelTest** | 2 | 0 | 0 | 2 | 0 | N/A (skip) |
+| **CurrencyForeignKeysRestrictDeleteTest** | 1 | 0 | 0 | 1 | 0 | N/A (skip) |
+| **ReconcileSubscriptionsCommandTest** | 1 | 0 | 1 | 0 | 0 | **0%** |
+| **RecoverExplicitSubscriptionCommandTest** | 1 | 0 | 1 | 0 | 0 | **0%** |
+| **ReferenceDataSeederTest** | 1 | 0 | 0 | 1 | 0 | N/A (skip) |
+| **Subtotal** | **~125** | **0** | **109** | **16** | **0** | **0%** |
+
+### Bedrock-Only Tests (no PHP equivalent)
+
+| Go Test | Tests | What it covers |
+|---------|-------|----------------|
+| `TestDefaultConfig` | 1 | Default config values (Path, DashboardURL, Prorates, Currency, WebhookPath) |
+| `TestCustomerOnGenericTrial` | 1 | Customer trial period detection |
+| `TestCustomerHasExpiredGenericTrial` | 1 | Customer trial expiry detection |
+| `TestSubscriptionPlanValid` | 1 | SubscriptionPlan enum validation |
+| `TestSubscriptionStatusValid` | 1 | SubscriptionStatus enum validation |
+| `TestSubscriptionStatusIsTerminal` | 1 | Terminal status detection (Canceled, Expired) |
+| `TestPlanPricingModeDisplayLabel` | 1 | PricingMode display labels |
+| `TestSubscriptionFeatureCodeValid` | 1 | FeatureCode enum validation |
+| `TestProrationBehaviorValid` | 1 | ProrationBehavior enum validation |
+| `TestTransactionStatusValid` | 1 | TransactionStatus enum validation |
+| `TestSubscriptionIsNew` | 1 | Zero-ID = new subscription |
+| `TestSubscriptionOnTrial` | 1 | Subscription trial detection |
+| `TestSubscriptionOnGracePeriod` | 1 | Grace period detection |
+| `TestSubscriptionOnPausedGracePeriod` | 1 | Paused grace period detection |
+| `TestSubscriptionHasProduct` | 1 | Product lookup by ID |
+| `TestSubscriptionHasPrice` | 1 | Price lookup by ID |
+| `TestSubscriptionProration` | 1 | Proration behavior configuration |
+| `TestManagerBillableRegistration` | 1 | Billable type registration and resolution |
+| `TestManagerPlans` | 1 | Plan management |
+| `TestManagerDefaultBillableType` | 1 | Default billable type selection |
+| `TestManagerPerSeatBilling` | 1 | Per-seat billing configuration |
+| **Subtotal** | **14** | Go-specific domain model tests |
+
+---
+
+## Covered Tests — Detail
+
+### SubscriptionStatusEvaluatorTest.php → `enum_test.go` + `subscription_test.go` (9/9 = 100%)
+
+| PHP Method | Go Test | Status |
+|------------|---------|--------|
+| `test_active_subscription_grants_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_trialing_subscription_grants_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_past_due_subscription_grants_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_paused_subscription_denies_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_canceled_subscription_denies_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_expired_subscription_denies_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_pending_subscription_denies_access` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+| `test_active_with_expired_pending_expires_at_denies_access` | `TestSubscriptionValid` | COVERED |
+| `test_statuses_granting_access_returns_active_trialing_past_due` | `TestSubscriptionStatusGrantsAccess` | COVERED |
+
+### PlanPeriodPriceTest.php → `plan_test.go` (2/3 = 67%)
+
+| PHP Method | Go Test | Status |
+|------------|---------|--------|
+| `test_display_amount_formats_valid_money_prices` | `TestPlanPeriodPriceDisplayAmount` | COVERED |
+| `test_display_amount_returns_literal_labels_for_free_and_custom_prices` | `TestPlanPeriodPriceDisplayAmount` | COVERED |
+| `test_display_amount_throws_for_incomplete_money_prices` | — | MISSING |
+
+### BillingPeriodTest.php → `enum_test.go` (1/1 portable = 100%)
+
+| PHP Method | Go Test | Status |
+|------------|---------|--------|
+| `test_validation_rule_accepts_known_periods_and_rejects_unknown_values` | `TestBillingPeriodDisplayLabel` | COVERED (partial) |
+| `test_model_casts_hydrate_billing_period_enum_instances` | — | INTENTIONAL-SKIP (Orm) |
+| `test_pluck_returns_billing_period_enum_instances_from_hydrated_plan_period_models` | — | INTENTIONAL-SKIP (Orm) |
+
+---
+
+## Missing Tests — By Go Package
+
+### `entitlement/` (0 tests — 9 PHP methods missing)
+
+**Needs: `entitlement/gate_test.go`, `entitlement/access_test.go`**
+
+| PHP Source | PHP Method | Go Target |
+|------------|------------|-----------|
+| SubscriptionGateTest | `test_no_subscription_returns_payment_required` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_matching_plan_returns_granted` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_wrong_plan_returns_forbidden` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_no_plan_filter_allows_any_active_subscription` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_inactive_subscription_returns_payment_required` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_past_due_subscription_grants_access` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionGateTest | `test_paused_subscription_returns_payment_required` | `entitlement/gate.go` — Gate.CheckRequirements |
+| SubscriptionEntitlementServiceTest | `test_active_subscription_features_are_provisioned_from_the_selected_plan` | `entitlement/access.go` — Access |
+| SubscriptionEntitlementServiceTest | `test_expired_subscription_deprovisions_features` | `entitlement/access.go` — Access |
+
+### `webhook/` (0 tests — 5 PHP methods missing)
+
+**Needs: `webhook/signature_test.go`**
+
+| PHP Source | PHP Method | Go Target |
+|------------|------------|-----------|
+| PaddleWebhookSignatureInspectorTest | `test_inspector_accepts_a_valid_signature` | `webhook/signature.go` — VerifySignature |
+| PaddleWebhookSignatureInspectorTest | `test_inspector_reports_a_mismatch_for_a_truncated_secret` | `webhook/signature.go` — VerifySignature |
+| PaddleWebhookSignatureInspectorTest | `test_inspector_reports_a_malformed_signature_header` | `webhook/signature.go` — VerifySignature |
+| PaddleWebhookSignatureInspectorTest | `test_inspector_reports_when_the_timestamp_is_outside_the_variance_window` | `webhook/signature.go` — VerifySignature |
+| PaddleWebhookSignatureMiddlewareTest | `test_middleware_accepts_a_valid_signature` | `webhook/signature.go` — VerifySignature middleware |
+
+### `subscription/` (0 tests — 40 PHP methods missing)
+
+**Needs: `subscription/transitioner_test.go`, `subscription/repository_test.go`, `subscription/state_test.go`**
+
+| PHP Source | Methods | Go Target |
+|------------|---------|-----------|
+| SubscriptionStatusTransitionTest | 12 | `subscription/transitioner.go` — Transitioner state machine |
+| BillingLifecycleTest (lifecycle subset) | ~20 | `subscription/repository.go` — Repository + state transitions |
+| BillingLifecycleTest (state DTO subset) | ~8 | `subscription/state.go` — StateResolver billing snapshots |
+
+### `checkout/` (0 tests — 19 PHP methods missing)
+
+**Needs: `checkout/reconciler_test.go`, `checkout/syncer_test.go`, `checkout/recovery_test.go`**
+
+| PHP Source | Methods | Go Target |
+|------------|---------|-----------|
+| ReconcileSubscriptionsJobTest | 10 | `checkout/reconciler.go` — Reconciler |
+| ReconcileSubscriptionAfterCheckoutTest | 6 | `checkout/reconciler.go` — Reconciler.ReconcileCreated |
+| SyncSubscriptionAfterUpdateTest | 3 | `checkout/syncer.go` — Syncer.SyncUpdated |
+
+### `handler/` (0 tests — 31 PHP methods missing)
+
+**Needs: `handler/billing_test.go`, `handler/inquiry_test.go`, `handler/middleware_test.go`, `handler/portal_test.go`**
+
+| PHP Source | Methods | Go Target |
+|------------|---------|-----------|
+| BillingControllerTest | 19 | `handler/billing.go` — BillingHandler |
+| CustomPlanInquiryTest | 7 | `handler/inquiry.go` — InquiryHandler |
+| NormaliseBillableRouteParameterTest | 5 | `handler/middleware.go` — NormaliseBillableRouteParam |
+
+### `catalog/` (0 tests — 6 PHP methods missing)
+
+**Needs: `catalog/presentation_test.go`, `catalog/price_manager_test.go`**
+
+| PHP Source | Methods | Go Target |
+|------------|---------|-----------|
+| BillingPlanRegistrarTest | 3 | `catalog/presentation.go` — BillingPlanRegistry |
+| PlanPeriodPriceManagerTest | 3 | `catalog/price_manager.go` — PlanPeriodPriceManager |
+
+### `command/` (0 tests — 5 PHP methods missing)
+
+**Needs: `command/command_test.go`**
+
+| PHP Source | Methods | Go Target |
+|------------|---------|-----------|
+| ExpirePendingSubscriptionsCommandTest | 4 | `command/command.go` — ExpirePendingSubscriptions |
+| RecoverExplicitSubscriptionCommandTest | 1 | `command/command.go` — RecoverExplicitSubscription |
+
+### Root package — remaining gaps (9 PHP methods missing)
+
+| PHP Source | PHP Method | Go Target |
+|------------|------------|-----------|
+| TransactionSnapshotTest | `test_empty_state_returns_no_transaction_placeholder_values` | `snapshot.go` — EmptyTransactionSnapshot |
+| TransactionSnapshotTest | `test_from_transaction_marks_money_fields_empty_when_transaction_is_incomplete` | `snapshot.go` — TransactionSnapshot |
+| TransactionSnapshotTest | `test_from_transaction_preserves_money_fields_when_transaction_is_complete` | `snapshot.go` — TransactionSnapshot |
+| BillingLocalDevUrlTest | `test_it_returns_the_configured_local_dev_url` | URL resolution (config or URLResolver) |
+| BillingLocalDevUrlTest | `test_it_falls_back_to_the_app_url_when_the_local_dev_url_is_blank` | URL resolution |
+| BillingLocalDevUrlTest | `test_it_builds_absolute_urls_from_relative_paths` | URL resolution |
+| BillingLocalDevUrlTest | `test_it_preserves_absolute_urls` | URL resolution |
+| BillingLocalDevUrlTest | `test_it_sets_cashier_webhook_from_the_local_dev_url_when_missing` | URL resolution |
+| PlanPeriodPriceTest | `test_display_amount_throws_for_incomplete_money_prices` | `plan.go` — PlanPeriodPrice.DisplayAmount error path |
+
+---
+
+## Intentional Skips (28 methods)
+
+These PHP tests verify Upstream/Orm framework behavior with no Go equivalent:
+
+| PHP Test File | Methods | Reason |
+|---------------|---------|--------|
+| CanonicalMoneySchemaContractTest | 7 | Upstream database schema validation (migrations, column types) |
+| PlanPeriodPriceSchemaContractTest | 5 | Upstream database unique constraints and schema enforcement |
+| BillingPeriodTest | 2 | Orm model casting and pluck (PHP-specific ORM behavior) |
+| PaddleTransactionModelTest | 2 | Orm model event hooks (creating/updating observers) |
+| CurrencyForeignKeysRestrictDeleteTest | 1 | DB foreign key cascade enforcement |
+| ReferenceDataSeederTest | 1 | Upstream DB seeder infrastructure |
+| ReconcileSubscriptionsCommandTest | 1 | CLI command description metadata |
+| BillingPortalTest (partial) | 3 | Inertia.js view rendering, Template markup |
+| InspectPaddleWebhookSignatureCommandTest | 2 | CLI command I/O testing |
+| ReconcileSubscriptionPlanMatchingTest (partial) | 2 | Tests rely on Orm model factories and DB state |
+
+---
+
+## Gap Categories
+
+- **(A) Language difference** — PHP/Upstream-specific constructs with no Go equivalent. Permanent intentional skips. (28 methods)
+- **(B) Missing test coverage** — Portable features implemented in Go but without test coverage. Action required. (122 methods)
+- **(C) Partial coverage** — Feature exists with some tests but incomplete. Action required. (1 method — `PlanPeriodPriceTest`)
+
+---
+
+## Per-Package Coverage
+
+| Package | Go Source Files | Go Test Files | Go Tests | PHP Methods (portable) | Coverage |
+|---------|----------------|---------------|----------|----------------------|----------|
+| `billing` (root) | 26 | 6 | 26 | 22 | **55%** |
+| `billing/` | 2 | 0 | 0 | 0 | N/A (facade) |
+| `catalog/` | 4 | 0 | 0 | 6 | **0%** |
+| `checkout/` | 4 | 0 | 0 | 19 | **0%** |
+| `command/` | 2 | 0 | 0 | 5 | **0%** |
+| `entitlement/` | 3 | 0 | 0 | 9 | **0%** |
+| `handler/` | 8 | 0 | 0 | 31 | **0%** |
+| `listener/` | 1 | 0 | 0 | 0 | N/A (wiring) |
+| `subscription/` | 4 | 0 | 0 | 40 | **0%** |
+| `webhook/` | 2 | 0 | 0 | 5 | **0%** |
+| **Total** | **57** | **6** | **26** | **134** | **9%** |
 
 ---
 
@@ -127,183 +281,212 @@ These 8 business-logic files carry the highest risk without test coverage:
 
 | PHP File | Go File | Tested |
 |----------|---------|--------|
-| Billable.php | billable.go | No |
-| Cashier.php | manager.go | Yes |
+| Billable.php | `billable.go` | No |
+| Cashier.php | `manager.go` | Yes |
 | CashierFake.php | *Not ported* | — |
 | CashierServiceProvider.php | *Not ported* | — |
-| Checkout.php | checkout_session.go | No |
+| Checkout.php | `checkout_session.go` | No |
 | Components/Button.php | *Not applicable* | — |
 | Components/Checkout.php | *Not applicable* | — |
-| Concerns/ManagesCustomer.php | customer.go | Yes |
-| Concerns/ManagesSubscriptions.php | subscription.go | Yes |
-| Concerns/ManagesTransactions.php | transaction.go | No |
-| Concerns/PerformsCharges.php | checkout_session.go | No |
-| Concerns/Prorates.php | subscription.go (methods) | Yes |
-| Customer.php | customer.go | Yes |
-| Events/CustomerUpdated.php | event.go | No |
-| Events/SubscriptionCanceled.php | event.go | No |
-| Events/SubscriptionCreated.php | event.go | No |
-| Events/SubscriptionPaused.php | event.go | No |
-| Events/SubscriptionUpdated.php | event.go | No |
-| Events/TransactionCompleted.php | event.go | No |
-| Events/TransactionUpdated.php | event.go | No |
-| Events/WebhookHandled.php | event.go | No |
-| Events/WebhookReceived.php | event.go | No |
-| Exceptions/PaddleException.php | errors.go | No |
-| Http/Controllers/WebhookController.php | webhook.go | No |
-| Http/Middleware/VerifyWebhookSignature.php | webhook_signature.go | No |
-| Payment.php | payment.go | No |
-| Price.php | price.go | No |
-| PricePreview.php | price_preview.go | No |
-| Subscription.php | subscription.go | Yes |
-| SubscriptionBuilder.php | subscription_builder.go | No |
-| SubscriptionItem.php | subscription_item.go | No |
-| Transaction.php | transaction.go | No |
+| Concerns/ManagesCustomer.php | `customer.go` | Yes |
+| Concerns/ManagesSubscriptions.php | `subscription.go` | Yes |
+| Concerns/ManagesTransactions.php | `transaction.go` | No |
+| Concerns/PerformsCharges.php | `checkout_session.go` | No |
+| Concerns/Prorates.php | `subscription.go` (methods) | Yes |
+| Customer.php | `customer.go` | Yes |
+| Events/CustomerUpdated.php | `event.go` | No |
+| Events/SubscriptionCanceled.php | `event.go` | No |
+| Events/SubscriptionCreated.php | `event.go` | No |
+| Events/SubscriptionPaused.php | `event.go` | No |
+| Events/SubscriptionUpdated.php | `event.go` | No |
+| Events/TransactionCompleted.php | `event.go` | No |
+| Events/TransactionUpdated.php | `event.go` | No |
+| Events/WebhookHandled.php | `event.go` | No |
+| Events/WebhookReceived.php | `event.go` | No |
+| Exceptions/PaddleException.php | `errors.go` | No |
+| Http/Controllers/WebhookController.php | `webhook/handler.go` | No |
+| Http/Middleware/VerifyWebhookSignature.php | `webhook/signature.go` | No |
+| Payment.php | `payment.go` | No |
+| Price.php | `price.go` | No |
+| PricePreview.php | `price_preview.go` | No |
+| Subscription.php | `subscription.go` | Yes |
+| SubscriptionBuilder.php | `subscription_builder.go` | No |
+| SubscriptionItem.php | `subscription_item.go` | No |
+| Transaction.php | `transaction.go` | No |
 
 ## PHP to Go Mapping — upstream/billing-paddle
 
 | PHP File | Go File | Tested |
 |----------|---------|--------|
-| Actions/GenerateCheckoutSession.php | interfaces.go (ProviderCheckoutGenerator) | No |
-| Billable.php | billable.go | No |
-| BillableConfigurationBuilder.php | manager_builder.go | No |
+| Actions/GenerateCheckoutSession.php | `provider.go` (ProviderCheckoutGenerator) | No |
+| Billable.php | `billable.go` | No |
+| BillableConfigurationBuilder.php | `manager.go` (BillableConfigBuilder) | Yes |
 | Console/InstallCommand.php | *Not ported* | — |
-| Contracts/Actions/GeneratesCheckoutSessions.php | interfaces.go | No |
-| FrontendState.php | frontend_state.go | No |
-| GuessesBillableTypes.php | manager.go (DefaultBillableType) | Yes |
-| Http/Controllers/BillingPortalController.php | handler_portal.go | No |
-| Http/Controllers/CancelSubscriptionController.php | handler_subscription.go | No |
-| Http/Controllers/DownloadInvoiceController.php | handler_invoice.go | No |
-| Http/Controllers/NewPendingCheckoutController.php | handler_payment.go | No |
-| Http/Controllers/NewSubscriptionController.php | handler_subscription.go | No |
-| Http/Controllers/ResumeSubscriptionController.php | handler_subscription.go | No |
+| Contracts/Actions/GeneratesCheckoutSessions.php | `provider.go` | No |
+| FrontendState.php | `subscription/frontend.go` | No |
+| GuessesBillableTypes.php | `manager.go` (DefaultBillableType) | Yes |
+| Http/Controllers/BillingPortalController.php | `handler/portal.go` | No |
+| Http/Controllers/CancelSubscriptionController.php | `handler/subscription.go` | No |
+| Http/Controllers/DownloadInvoiceController.php | `handler/invoice.go` | No |
+| Http/Controllers/NewPendingCheckoutController.php | `handler/payment.go` | No |
+| Http/Controllers/NewSubscriptionController.php | `handler/subscription.go` | No |
+| Http/Controllers/ResumeSubscriptionController.php | `handler/subscription.go` | No |
 | Http/Controllers/RetrievesBillableModels.php | *Not ported (trait)* | — |
-| Http/Controllers/UpdatePaymentMethodController.php | handler_payment.go | No |
-| Http/Controllers/UpdateSubscriptionController.php | handler_subscription.go | No |
+| Http/Controllers/UpdatePaymentMethodController.php | `handler/payment.go` | No |
+| Http/Controllers/UpdateSubscriptionController.php | `handler/subscription.go` | No |
 | Http/Middleware/HandleInertiaRequests.php | *Not applicable* | — |
-| Http/Middleware/VerifyBillableIsSubscribed.php | middleware.go | No |
-| Listeners/SubscriptionCreatedListener.php | listener_subscription_created.go | No |
-| Plan.php | plan.go | Yes |
-| Billing.php | manager.go | Yes |
-| BillingManager.php | manager.go | Yes |
+| Http/Middleware/VerifyBillableIsSubscribed.php | `handler/middleware.go` | No |
+| Listeners/SubscriptionCreatedListener.php | `listener/listener.go` | No |
+| Plan.php | `plan.go` | Yes |
+| Billing.php | `manager.go` | Yes |
+| BillingManager.php | `manager.go` | Yes |
 | BillingServiceProvider.php | *Not ported* | — |
-| ValidPlan.php | validation.go | Yes |
+| ValidPlan.php | `handler/input.go` | No |
 
 ## PHP to Go Mapping — Madora app/Billing
 
 | PHP File | Go File | Tested |
 |----------|---------|--------|
-| Actions/GenerateBillingCheckoutSession.php | interfaces.go (ProviderCheckoutGenerator) | No |
-| BillingConstants.php | billing.go | No |
-| Catalog/PlanCatalog.php | catalog.go | No |
-| Catalog/BillingPlanRegistry.php | catalog_presentation.go | No |
-| Checkout/CheckoutStarter.php | checkout.go | No |
-| Checkout/ExplicitSubscriptionRecovery.php | checkout_recovery.go | No |
-| Checkout/PaddleSubscriptionFetcher.php | interfaces.go (ProviderSubscriptionFetcher) | No |
-| Checkout/SubscriptionReconciler.php | checkout_reconciler.go | No |
-| Checkout/SubscriptionUpdateSyncer.php | checkout_syncer.go | No |
-| Commands/ExpirePendingSubscriptionsCommand.php | command_expire.go | No |
-| Commands/ReconcileSubscriptionsCommand.php | command_reconcile.go | No |
-| Commands/RecoverExplicitSubscriptionCommand.php | command_recover.go | No |
-| Contracts/BillingLocalDevUrl.php | interfaces.go (URLResolver) | No |
-| Controllers/BillingController.php | handler_billing.go | No |
-| Controllers/CustomPlanInquiryController.php | handler_inquiry.go | No |
-| Data/Read/BillingPageData.php | view.go (BillingPageView) | No |
-| Data/Read/BillingPriceData.php | view.go (BillingPriceView) | No |
-| Data/Read/BillingSelectedPlanData.php | view.go (BillingSelectedPlanView) | No |
-| Data/Read/BillingStateData.php | view.go (BillingStateView) | No |
-| Data/Read/BillingTeamData.php | view.go (BillingTeamView) | No |
-| Data/Read/FrontendPlanData.php | view.go (FrontendPlanView) | No |
-| Data/Read/LandingPlanData.php | view.go (LandingPlanView) | No |
-| Data/Read/PlanFeatureData.php | view.go (PlanFeatureView) | No |
-| Data/Read/PlanPeriodData.php | view.go (PlanPeriodView) | No |
-| Data/Read/SubscriptionCtaData.php | view.go (SubscriptionCTAView) | No |
-| Data/Read/SubscriptionStateData.php | view.go (SubscriptionStateView) | No |
-| Data/Read/TransactionData.php | view.go (TransactionView) | No |
-| Data/Result/SubscriptionDecision.php | gate.go (SubscriptionDecision) | No |
-| Data/Result/SubscriptionReconciliationData.php | checkout_reconciler.go | No |
-| Data/State/BillingStateSnapshot.php | snapshot.go (BillingStateSnapshot) | No |
-| Data/State/PlanConfig.php | snapshot.go (PlanConfig) | No |
-| Data/State/SubscriptionCtaSnapshot.php | snapshot.go (SubscriptionCTASnapshot) | No |
-| Data/State/SubscriptionStateSnapshot.php | snapshot.go (SubscriptionStateSnapshot) | No |
-| Data/State/TransactionSnapshot.php | snapshot.go (TransactionSnapshot) | No |
-| Entitlements/EntitlementAccess.php | entitlement.go | No |
-| Entitlements/EntitlementSynchronizer.php | entitlement_sync.go | No |
-| Entitlements/SubscriptionStatusEvaluator.php | enums.go (SubscriptionStatus methods) | Yes |
-| Enums/BillingPeriod.php | enums.go | Yes |
-| Enums/PlanPricingMode.php | enums.go | Yes |
-| Enums/SubscriptionFeatureCode.php | enums.go | Yes |
-| Enums/SubscriptionPlan.php | enums.go | Yes |
-| Enums/SubscriptionStatus.php | enums.go | Yes |
-| Events/SubscriptionChanged.php | event.go (SubscriptionChangedEvent) | No |
-| Exceptions/InvalidPlanPriceException.php | errors.go (InvalidPlanPriceError) | No |
-| Http/Middleware/NormaliseBillableRouteParameter.php | middleware.go | No |
-| Jobs/ReconcileSubscriptions.php | job_reconcile.go | No |
-| Lifecycle/BillingStateResolver.php | lifecycle_state.go | No |
-| Lifecycle/SubscriptionRepository.php | lifecycle.go | No |
-| Listeners/ReconcileSubscriptionAfterCheckout.php | listener_reconcile.go | No |
-| Listeners/SyncSubscriptionAfterUpdate.php | listener_sync_update.go | No |
-| Listeners/SyncSubscriptionEntitlements.php | listener_sync_entitlements.go | No |
-| Mail/CustomPlanInquiryConfirmationMail.php | mail.go | No |
-| Mail/CustomPlanInquiryMail.php | mail.go | No |
-| Models/Currency.php | currency.go | No |
-| Models/Feature.php | plan.go (Feature struct) | No |
-| Models/Invoice.php | invoice.go | No |
-| Models/Plan.php | plan.go | Yes |
-| Models/PlanFeature.php | plan.go (PlanFeature struct) | No |
-| Models/PlanPeriod.php | plan.go (PlanPeriod struct) | No |
-| Models/PlanPeriodPrice.php | plan.go (PlanPeriodPrice struct) | Yes |
-| Models/Subscription.php | subscription.go | Yes |
-| Models/SubscriptionFeature.php | subscription_feature.go | No |
-| Models/SubscriptionItem.php | subscription_item.go | No |
-| Requests/CheckoutRequest.php | validation.go (CheckoutInput) | Yes |
-| Requests/CustomPlanInquiryRequest.php | validation.go (CustomPlanInquiryInput) | Yes |
-| Support/PlanPeriodPriceManager.php | catalog_price_manager.go | No |
-| Support/PlanPresentation.php | catalog_presentation.go | No |
-| Support/PlanSeeder.php | catalog_seeder.go | No |
-| Support/SerialisesBillingPrices.php | view.go (BillingPriceView) | No |
-| Support/SubscriptionGate.php | gate.go | No |
-| Support/SubscriptionTransitioner.php | lifecycle_transition.go | No |
-| Workflows/BillingWorkflow.php | workflow.go | No |
-| Workflows/CatalogWorkflow.php | workflow_catalog.go | No |
-| Workflows/SubscriptionStageWorkflow.php | lifecycle_transition.go | No |
+| Actions/GenerateBillingCheckoutSession.php | `provider.go` (ProviderCheckoutGenerator) | No |
+| BillingConstants.php | `config.go` | Yes |
+| Catalog/PlanCatalog.php | `catalog/catalog.go` | No |
+| Catalog/BillingPlanRegistry.php | `catalog/presentation.go` | No |
+| Checkout/CheckoutStarter.php | `checkout/starter.go` | No |
+| Checkout/ExplicitSubscriptionRecovery.php | `checkout/recovery.go` | No |
+| Checkout/PaddleSubscriptionFetcher.php | `provider.go` (ProviderSubscriptionFetcher) | No |
+| Checkout/SubscriptionReconciler.php | `checkout/reconciler.go` | No |
+| Checkout/SubscriptionUpdateSyncer.php | `checkout/syncer.go` | No |
+| Commands/ExpirePendingSubscriptionsCommand.php | `command/command.go` | No |
+| Commands/ReconcileSubscriptionsCommand.php | `command/command.go` | No |
+| Commands/RecoverExplicitSubscriptionCommand.php | `command/command.go` | No |
+| Contracts/BillingLocalDevUrl.php | `contract.go` (URLResolver) | No |
+| Controllers/BillingController.php | `handler/billing.go` | No |
+| Controllers/CustomPlanInquiryController.php | `handler/inquiry.go` | No |
+| Data/Read/BillingPageData.php | `view.go` (BillingPageView) | No |
+| Data/Read/BillingPriceData.php | `view.go` (BillingPriceView) | No |
+| Data/Read/BillingSelectedPlanData.php | `view.go` (BillingSelectedPlanView) | No |
+| Data/Read/BillingStateData.php | `view.go` (BillingStateView) | No |
+| Data/Read/BillingTeamData.php | `view.go` (BillingTeamView) | No |
+| Data/Read/FrontendPlanData.php | `view.go` (FrontendPlanView) | No |
+| Data/Read/LandingPlanData.php | `view.go` (LandingPlanView) | No |
+| Data/Read/PlanFeatureData.php | `view.go` (PlanFeatureView) | No |
+| Data/Read/PlanPeriodData.php | `view.go` (PlanPeriodView) | No |
+| Data/Read/SubscriptionCtaData.php | `view.go` (SubscriptionCTAView) | No |
+| Data/Read/SubscriptionStateData.php | `view.go` (SubscriptionStateView) | No |
+| Data/Read/TransactionData.php | `view.go` (TransactionView) | No |
+| Data/Result/SubscriptionDecision.php | `entitlement/gate.go` (Decision) | No |
+| Data/Result/SubscriptionReconciliationData.php | `checkout/reconciler.go` | No |
+| Data/State/BillingStateSnapshot.php | `snapshot.go` (BillingStateSnapshot) | No |
+| Data/State/PlanConfig.php | `snapshot.go` (PlanConfig) | No |
+| Data/State/SubscriptionCtaSnapshot.php | `snapshot.go` (SubscriptionCTASnapshot) | No |
+| Data/State/SubscriptionStateSnapshot.php | `snapshot.go` (SubscriptionStateSnapshot) | No |
+| Data/State/TransactionSnapshot.php | `snapshot.go` (TransactionSnapshot) | No |
+| Entitlements/EntitlementAccess.php | `entitlement/access.go` | No |
+| Entitlements/EntitlementSynchronizer.php | `entitlement/sync.go` | No |
+| Entitlements/SubscriptionStatusEvaluator.php | `enum.go` (SubscriptionStatus methods) | Yes |
+| Enums/BillingPeriod.php | `enum.go` | Yes |
+| Enums/PlanPricingMode.php | `enum.go` | Yes |
+| Enums/SubscriptionFeatureCode.php | `enum.go` | Yes |
+| Enums/SubscriptionPlan.php | `enum.go` | Yes |
+| Enums/SubscriptionStatus.php | `enum.go` | Yes |
+| Events/SubscriptionChanged.php | `event.go` (SubscriptionChangedEvent) | No |
+| Exceptions/InvalidPlanPriceException.php | `errors.go` (InvalidPlanPriceError) | No |
+| Http/Middleware/NormaliseBillableRouteParameter.php | `handler/middleware.go` | No |
+| Jobs/ReconcileSubscriptions.php | `command/job.go` | No |
+| Lifecycle/BillingStateResolver.php | `subscription/state.go` | No |
+| Lifecycle/SubscriptionRepository.php | `subscription/repository.go` | No |
+| Listeners/ReconcileSubscriptionAfterCheckout.php | `listener/listener.go` | No |
+| Listeners/SyncSubscriptionAfterUpdate.php | `listener/listener.go` | No |
+| Listeners/SyncSubscriptionEntitlements.php | `listener/listener.go` | No |
+| Mail/CustomPlanInquiryConfirmationMail.php | `mail.go` | No |
+| Mail/CustomPlanInquiryMail.php | `mail.go` | No |
+| Models/Currency.php | `currency.go` | No |
+| Models/Feature.php | `plan.go` (Feature struct) | No |
+| Models/Invoice.php | `invoice.go` | No |
+| Models/Plan.php | `plan.go` | Yes |
+| Models/PlanFeature.php | `plan.go` (PlanFeature struct) | No |
+| Models/PlanPeriod.php | `plan.go` (PlanPeriod struct) | No |
+| Models/PlanPeriodPrice.php | `plan.go` (PlanPeriodPrice struct) | Yes |
+| Models/Subscription.php | `subscription.go` | Yes |
+| Models/SubscriptionFeature.php | `subscription_feature.go` | No |
+| Models/SubscriptionItem.php | `subscription_item.go` | No |
+| Requests/CheckoutRequest.php | `handler/input.go` (CheckoutInput) | No |
+| Requests/CustomPlanInquiryRequest.php | `handler/input.go` (InquiryInput) | No |
+| Support/PlanPeriodPriceManager.php | `catalog/price_manager.go` | No |
+| Support/PlanPresentation.php | `catalog/presentation.go` | No |
+| Support/PlanSeeder.php | `catalog/seeder.go` | No |
+| Support/SerialisesBillingPrices.php | `view.go` (BillingPriceView) | No |
+| Support/SubscriptionGate.php | `entitlement/gate.go` | No |
+| Support/SubscriptionTransitioner.php | `subscription/transitioner.go` | No |
+| Workflows/BillingWorkflow.php | `billing/workflow.go` | No |
+| Workflows/CatalogWorkflow.php | `billing/catalog.go` | No |
+| Workflows/SubscriptionStageWorkflow.php | `subscription/transitioner.go` | No |
 
 ---
 
 ## Not Ported (by design)
 
-These PHP files have no Go equivalent because they are Upstream/PHP framework plumbing with no meaningful Go counterpart:
+These PHP files have no Go equivalent because they are Upstream/PHP framework plumbing:
 
 | PHP File | Reason |
 |----------|--------|
-| CashierFake.php | Testing utility — Go tests use interface mocks instead |
+| CashierFake.php | Testing utility — Go tests use interface mocks |
 | CashierServiceProvider.php | Upstream service container — Go uses explicit construction |
 | BillingServiceProvider.php | Upstream service container — Go uses explicit construction |
-| Console/InstallCommand.php | Package scaffolding command — not applicable in Go |
+| Console/InstallCommand.php | Package scaffolding command — not applicable |
 | Http/Controllers/RetrievesBillableModels.php | PHP trait — logic absorbed into handler helpers |
-| Http/Middleware/HandleInertiaRequests.php | Inertia.js middleware — not applicable in Go |
+| Http/Middleware/HandleInertiaRequests.php | Inertia.js middleware — handled by inertia-go |
 | Components/Button.php | Template UI component — frontend concern |
 | Components/Checkout.php | Template UI component — frontend concern |
 
 ---
 
-## Test Coverage Gap Summary
+## Recommended Next Steps (Priority Order)
 
-**Covered (7 files)**:
-- `config.go` — Default config values
-- `customer.go` — Generic trial checking
-- `enums.go` — All enum types, validity, display labels, GrantsAccess, IsTerminal
-- `manager.go` — Billable registration, plan management, per-seat billing
-- `plan.go` — PlanPeriodPrice.DisplayAmount
-- `subscription.go` — Status methods, trial, grace period, proration, product/price checks
-- `validation.go` — CheckoutInput, CustomPlanInquiryInput, ValidPlan
+### Tier 1: Unit-testable business logic (no DB needed)
 
-**High-priority gaps** (business logic that should be tested next):
-1. `gate.go` — SubscriptionGate.CheckRequirements (authorization decisions)
-2. `entitlement.go` — EntitlementAccess (feature access, capacity)
-3. `lifecycle_transition.go` — SubscriptionTransitioner (state machine)
-4. `lifecycle.go` — SubscriptionRepository (subscription creation)
-5. `checkout_reconciler.go` — SubscriptionReconciler (post-checkout matching)
-6. `webhook_signature.go` — HMAC verification
-7. `errors.go` — InvalidPlanPriceError construction
-8. `snapshot.go` — PlanConfig.MatchesPriceID, HasConfiguredProviderIDs
+These can be tested with interface mocks — highest value, lowest friction:
+
+1. **Subscription Gate** — `entitlement/gate.go` (7 PHP methods)
+   - Tests: CheckRequirements with various subscription states and plan filters
+2. **Webhook Signature** — `webhook/signature.go` (5 PHP methods)
+   - Tests: HMAC verification, malformed headers, time drift, middleware integration
+3. **Transaction Snapshot** — `snapshot.go` (3 PHP methods)
+   - Tests: Empty state, incomplete money fields, complete money fields
+4. **Plan Period Price error path** — `plan.go` (1 PHP method)
+   - Tests: DisplayAmount with missing amount/currency throws error
+
+### Tier 2: State machine and lifecycle (mock stores)
+
+5. **Subscription Transitioner** — `subscription/transitioner.go` (12 PHP methods)
+   - Tests: All state transitions, entitlement side effects, idempotency
+6. **Subscription Repository** — `subscription/repository.go` (~20 PHP methods)
+   - Tests: Pending creation, starter trial, checkout, idempotency
+7. **Billing State Resolver** — `subscription/state.go` (~8 PHP methods)
+   - Tests: State snapshots for active, canceled, paused, starter trial, no subscription
+
+### Tier 3: Checkout and reconciliation (mock stores + provider)
+
+8. **Checkout Reconciler** — `checkout/reconciler.go` (18 PHP methods)
+   - Tests: Pending→active matching, plan copying, feature provisioning, error handling
+9. **Checkout Syncer** — `checkout/syncer.go` (3 PHP methods)
+   - Tests: Plan/period sync after provider update
+10. **Checkout Recovery** — `checkout/recovery.go` (1 PHP method)
+    - Tests: Explicit provider subscription recovery
+
+### Tier 4: Catalog and presentation
+
+11. **Billing Plan Registry** — `catalog/presentation.go` (3 PHP methods)
+12. **Price Manager** — `catalog/price_manager.go` (3 PHP methods)
+
+### Tier 5: HTTP handlers (integration-level)
+
+13. **Billing Handler** — `handler/billing.go` (19 PHP methods)
+14. **Inquiry Handler** — `handler/inquiry.go` (7 PHP methods)
+15. **Middleware** — `handler/middleware.go` (5 PHP methods)
+16. **Portal Handler** — `handler/portal.go` (3 PHP methods)
+
+### Tier 6: Commands and jobs
+
+17. **Expire Command** — `command/command.go` (4 PHP methods)
+18. **Recover Command** — `command/command.go` (1 PHP method)

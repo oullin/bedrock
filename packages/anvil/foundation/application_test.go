@@ -24,11 +24,6 @@ func setupTestApp(t *testing.T) string {
 	os.MkdirAll(configDir, 0755)
 	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("name: TestApp\n"), 0644)
 
-	// Create views directory
-	viewsDir := filepath.Join(dir, "resources", "views")
-	os.MkdirAll(viewsDir, 0755)
-	os.WriteFile(filepath.Join(viewsDir, "welcome.html.tmpl"), []byte("<h1>Welcome</h1>"), 0644)
-
 	// Create public/build directory
 	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
 
@@ -306,24 +301,6 @@ func TestApplicationConsoleAccessor(t *testing.T) {
 	}
 }
 
-// Test Renderer accessor
-func TestApplicationRendererAccessor(t *testing.T) {
-	t.Parallel()
-
-	dir := setupTestApp(t)
-	app, err := foundation.Configure(dir).
-		WithRouting(foundation.RoutingConfig{}).
-		Create()
-
-	if err != nil {
-		t.Fatalf("Create: %v", err)
-	}
-
-	if app.Renderer() == nil {
-		t.Fatal("expected Renderer accessor to return renderer")
-	}
-}
-
 // Upstream: testEnvironmentDetection
 func TestApplicationEnvironment(t *testing.T) {
 	t.Parallel()
@@ -332,7 +309,6 @@ func TestApplicationEnvironment(t *testing.T) {
 	configDir := filepath.Join(dir, "config")
 	os.MkdirAll(configDir, 0755)
 	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: testing\nname: TestApp\n"), 0644)
-	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
 	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
 
 	app, err := foundation.Configure(dir).
@@ -465,7 +441,6 @@ func TestIsLocal(t *testing.T) {
 	configDir := filepath.Join(dir, "config")
 	os.MkdirAll(configDir, 0755)
 	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: local\nname: TestApp\n"), 0644)
-	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
 	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
 
 	app, err := foundation.Configure(dir).WithRouting(foundation.RoutingConfig{}).Create()
@@ -487,7 +462,6 @@ func TestIsTesting(t *testing.T) {
 	configDir := filepath.Join(dir, "config")
 	os.MkdirAll(configDir, 0755)
 	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: testing\nname: TestApp\n"), 0644)
-	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
 	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
 
 	app, err := foundation.Configure(dir).WithRouting(foundation.RoutingConfig{}).Create()
@@ -524,7 +498,6 @@ func TestApplicationEnvironmentDefaultsToProduction(t *testing.T) {
 	configDir := filepath.Join(dir, "config")
 	os.MkdirAll(configDir, 0755)
 	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("name: TestApp\n"), 0644)
-	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
 	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
 
 	app, err := foundation.Configure(dir).
