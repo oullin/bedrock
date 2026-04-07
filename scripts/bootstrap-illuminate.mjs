@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = path.resolve(new URL("../", import.meta.url).pathname);
-const packagesRoot = path.join(root, "packages");
+const packagesRoot = path.join(root, "packages", "anvil");
 
 const components = [
   "auth",
@@ -64,7 +64,7 @@ for (const component of components) {
   if (!fs.existsSync(goMod)) {
     fs.writeFileSync(
       goMod,
-      `module github.com/bedrock/packages/${component}
+      `module github.com/bedrock/packages/anvil/${component}
 
 go 1.26.0
 `,
@@ -91,10 +91,10 @@ package ${pkg}
           version: "0.0.0",
           private: true,
           scripts: {
-            build: `sh -c 'mkdir -p ../../storage/dist/${component} && go build ./... && touch ../../storage/dist/${component}/.build-stamp'`,
+            build: `sh -c 'mkdir -p ../../../storage/dist/${component} && go build ./... && touch ../../../storage/dist/${component}/.build-stamp'`,
             dev: "go test ./... -count=1",
             test: "go test ./...",
-            "test:coverage": `sh -c 'mkdir -p ../../storage/coverage/go/${component} && go test ./... -coverprofile=../../storage/coverage/go/${component}/coverage.out'`,
+            "test:coverage": `sh -c 'mkdir -p ../../../storage/coverage/go/${component} && go test ./... -coverprofile=../../../storage/coverage/go/${component}/coverage.out'`,
             typecheck: "go test ./... -run '^$'",
             fmt: "gofmt -w .",
             "fmt:check": `sh -c 'test -z "$(gofmt -l .)"'`,

@@ -4,7 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const root = path.resolve(new URL("../", import.meta.url).pathname);
-const outputDir = path.join(root, "docs", "parity");
+const outputDir = path.join(root, "packages", "documentation", "parity");
 const frameworkTag = process.argv[2] || "v13.3.0";
 const skeletonTag = process.argv[3] || "v13.1.2";
 
@@ -56,7 +56,7 @@ function listSkeletonFiles(baseDir) {
 }
 
 function localComponentStatus() {
-  const componentsDir = path.join(root, "packages");
+  const componentsDir = path.join(root, "packages", "anvil");
   if (!fs.existsSync(componentsDir)) {
     return [];
   }
