@@ -10,14 +10,14 @@
 
 | Metric | Count |
 |--------|-------|
-| Ported packages with tests | 13 |
-| Stub packages (no code) | 28 |
-| Laravel test methods analyzed | 494 |
-| Bedrock tests: COVERED | 314 |
+| Ported packages with tests | 14 |
+| Stub packages (no code) | 27 |
+| Laravel test methods analyzed | 571 |
+| Bedrock tests: COVERED | 351 |
 | Bedrock tests: MISSING | 135 |
-| Bedrock tests: INTENTIONAL-SKIP | 38 |
-| Bedrock tests: BEDROCK-ONLY | 53 |
-| **Overall coverage (excl. intentional skips)** | **70%** |
+| Bedrock tests: INTENTIONAL-SKIP | 78 |
+| Bedrock tests: BEDROCK-ONLY | 75 |
+| **Overall coverage (excl. intentional skips)** | **72%** |
 
 ### Missing Test Breakdown
 
@@ -525,6 +525,97 @@
 
 ---
 
+## 13. Container (`tests/Container/ContainerTest.php`)
+
+**Laravel: 77 tests | Bedrock: 59 tests**
+**Coverage: 100% (37/37 portable)**
+
+| # | Laravel Test | Bedrock Test | Status | Gap |
+|---|---|---|---|---|
+| 1 | `testContainerSingleton` | - | INTENTIONAL-SKIP | (a) Go prefers explicit DI over global singletons |
+| 2 | `testClosureResolution` | `TestClosureResolution` | COVERED | - |
+| 3 | `testAbstractCanBeBoundFromConcreteReturnType` | - | INTENTIONAL-SKIP | (a) PHP reflection return type inference |
+| 4 | `testBindIfDoesntRegisterIfServiceAlreadyRegistered` | `TestBindIfDoesntRegisterIfServiceAlreadyRegistered` | COVERED | - |
+| 5 | `testBindIfDoesRegisterIfServiceNotRegisteredYet` | `TestBindIfDoesRegisterIfServiceNotRegisteredYet` | COVERED | - |
+| 6 | `testSingletonIfDoesntRegisterIfBindingAlreadyRegistered` | `TestSingletonIfDoesntRegisterIfBindingAlreadyRegistered` | COVERED | - |
+| 7 | `testSingletonIfDoesRegisterIfBindingNotRegisteredYet` | `TestSingletonIfDoesRegisterIfBindingNotRegisteredYet` | COVERED | - |
+| 8 | `testSharedClosureResolution` | `TestSharedClosureResolution` | COVERED | - |
+| 9 | `testScopedClosureResolution` | `TestScopedClosureResolution` | COVERED | - |
+| 10 | `testScopedBindingsWithClosureReturnType` | - | INTENTIONAL-SKIP | (a) PHP closure return type inference |
+| 11 | `testScopedIf` | `TestScopedIf` | COVERED | - |
+| 12 | `testScopedClosureResets` | `TestScopedClosureResets` | COVERED | - |
+| 13 | `testAutoConcreteResolution` | - | INTENTIONAL-SKIP | (a) PHP reflection auto-wiring |
+| 14 | `testSharedConcreteResolution` | - | INTENTIONAL-SKIP | (a) PHP reflection auto-wiring |
+| 15 | `testScopedConcreteResolutionResets` | `TestScopedConcreteResolutionResets` | COVERED | behavior tested via explicit factories |
+| 16 | `testBindFailsLoudlyWithInvalidArgument` | - | INTENTIONAL-SKIP | (a) Go type system prevents at compile time |
+| 17 | `testAbstractToConcreteResolution` | - | INTENTIONAL-SKIP | (a) PHP reflection interface→concrete |
+| 18 | `testNestedDependencyResolution` | - | INTENTIONAL-SKIP | (a) PHP reflection nested injection |
+| 19 | `testContainerIsPassedToResolvers` | `TestContainerIsPassedToResolvers` | COVERED | - |
+| 20 | `testArrayAccess` | - | INTENTIONAL-SKIP | (a) PHP ArrayAccess |
+| 21 | `testAliases` | `TestAliases` | COVERED | - |
+| 22 | `testAliasesWithArrayOfParameters` | `TestAliasesWithChain` | COVERED | Go: chain tested, no constructor params |
+| 23 | `testBindingsCanBeOverridden` | `TestBindingsCanBeOverridden` | COVERED | - |
+| 24 | `testBindingAnInstanceReturnsTheInstance` | `TestBindingAnInstanceReturnsTheInstance` | COVERED | - |
+| 25 | `testBindingAnInstanceAsShared` | `TestBindingAnInstanceAsShared` | COVERED | - |
+| 26 | `testResolutionOfDefaultParameters` | - | INTENTIONAL-SKIP | (a) PHP constructor default parameters |
+| 27 | `testResolutionOfClassWithDefaultParameters` | - | INTENTIONAL-SKIP | (a) PHP constructor default parameters |
+| 28 | `testResolutionOfClassWithDefaultParametersAndContextualBindings` | - | INTENTIONAL-SKIP | (a) PHP reflection + contextual |
+| 29 | `testBound` | `TestBound` | COVERED | - |
+| 30 | `testUnsetRemoveBoundInstances` | `TestUnsetRemoveBoundInstances` | COVERED | - |
+| 31 | `testBoundInstanceAndAliasCheckViaArrayAccess` | `TestBoundWithAlias` | COVERED | Go: Bound(alias) instead of ArrayAccess |
+| 32 | `testReboundListeners` | `TestReboundListeners` | COVERED | - |
+| 33 | `testReboundListenersOnInstances` | `TestReboundListenersOnInstances` | COVERED | - |
+| 34 | `testReboundListenersOnInstancesOnlyFiresIfWasAlreadyBound` | `TestReboundListenersOnInstancesOnlyFiresIfWasAlreadyBound` | COVERED | - |
+| 35 | `testInternalClassWithDefaultParameters` | - | INTENTIONAL-SKIP | (a) PHP reflection unresolvable primitives |
+| 36 | `testBindingResolutionExceptionMessage` | `TestBindingResolutionExceptionMessage` | COVERED | Go: ErrResolve wrapping |
+| 37 | `testBindingResolutionExceptionMessageIncludesBuildStack` | - | INTENTIONAL-SKIP | (a) PHP reflection build stack |
+| 38 | `testBindingResolutionExceptionMessageWhenClassDoesNotExist` | - | INTENTIONAL-SKIP | (a) PHP runtime class existence |
+| 39 | `testForgetInstanceForgetsInstance` | `TestForgetInstanceForgetsInstance` | COVERED | - |
+| 40 | `testForgetInstancesForgetsAllInstances` | `TestForgetInstancesForgetsAllInstances` | COVERED | - |
+| 41 | `testContainerFlushFlushesAllBindingsAliasesAndResolvedInstances` | `TestContainerFlushFlushesAllBindingsAliasesAndResolvedInstances` | COVERED | - |
+| 42 | `testResolvedResolvesAliasToBindingNameBeforeChecking` | `TestResolvedResolvesAliasToBindingNameBeforeChecking` | COVERED | - |
+| 43 | `testGetAlias` | `TestGetAlias` | COVERED | - |
+| 44 | `testCurrentlyResolving` | - | INTENTIONAL-SKIP | (a) PHP attributes + reflection tracking |
+| 45 | `testGetAliasRecursive` | `TestGetAliasRecursive` | COVERED | - |
+| 46 | `testItThrowsExceptionWhenAbstractIsSameAsAlias` | `TestItThrowsExceptionWhenAbstractIsSameAsAlias` | COVERED | - |
+| 47 | `testContainerGetFactory` | `TestContainerGetFactory` | COVERED | - |
+| 48 | `testMakeWithMethodIsAnAliasForMakeMethod` | `TestMakeWithMethodIsAnAliasForMakeMethod` | COVERED | - |
+| 49 | `testResolvingWithArrayOfParameters` | - | INTENTIONAL-SKIP | (a) PHP constructor parameter injection |
+| 50 | `testResolvingWithArrayOfMixedParameters` | - | INTENTIONAL-SKIP | (a) PHP constructor parameter injection |
+| 51 | `testResolvingWithUsingAnInterface` | - | INTENTIONAL-SKIP | (a) PHP reflection interface resolution |
+| 52 | `testNestedParameterOverride` | - | INTENTIONAL-SKIP | (a) PHP reflection parameter override |
+| 53 | `testNestedParametersAreResetForFreshMake` | - | INTENTIONAL-SKIP | (a) PHP reflection parameter isolation |
+| 54 | `testSingletonBindingsNotRespectedWithMakeParameters` | `TestSingletonBindingsNotRespectedWithNewBind` | COVERED | Go: tested via Bind override |
+| 55 | `testCanBuildWithoutParameterStackWithNoConstructors` | - | INTENTIONAL-SKIP | (a) PHP reflection class building |
+| 56 | `testCanBuildWithoutParameterStackWithConstructors` | - | INTENTIONAL-SKIP | (a) PHP reflection class building |
+| 57 | `testContainerKnowsEntry` | `TestContainerKnowsEntry` | COVERED | - |
+| 58 | `testContainerCanBindAnyWord` | `TestContainerCanBindAnyWord` | COVERED | - |
+| 59 | `testContainerCanDynamicallySetService` | - | INTENTIONAL-SKIP | (a) PHP ArrayAccess |
+| 60 | `testUnknownEntryThrowsException` | `TestUnknownEntryThrowsException` | COVERED | - |
+| 61 | `testBoundEntriesThrowsContainerExceptionWhenNotResolvable` | - | INTENTIONAL-SKIP | (a) PHP reflection unresolvable binding |
+| 62 | `testContainerCanResolveClasses` | - | INTENTIONAL-SKIP | (a) PHP reflection auto-resolution |
+| 63 | `testMethodLevelContextualBinding` | - | INTENTIONAL-SKIP | (a) PHP reflection method-level binding |
+| 64 | `testContainerSingletonAttribute` | - | INTENTIONAL-SKIP | (a) PHP #[Singleton] attribute |
+| 65 | `testContainerScopedAttribute` | - | INTENTIONAL-SKIP | (a) PHP #[Scoped] attribute |
+| 66 | `testBindInterfaceToSingleton` | - | INTENTIONAL-SKIP | (a) PHP #[Bind] attribute |
+| 67 | `testBindInterfaceToScoped` | - | INTENTIONAL-SKIP | (a) PHP #[Bind] attribute |
+| 68 | `testWildcardBindingButNoEnvironmentResolveSetThrowsBindingResolutionException` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 69 | `testChecksForMoreSpecificEnvironmentBeforeFallingBackToDefault` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 70 | `testCanPassAStringForEnvironmentEnvironment` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 71 | `testAnEmptyEnvironmentListThrowsAnException` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 72 | `testContainerBindingsTakePrecedence` | - | INTENTIONAL-SKIP | (a) PHP attribute binding precedence |
+| 73 | `testFlushResetsEnvironmentResolverAndCheckedBindings` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 74 | `testNoMatchingEnvironmentAndNoWildcardThrowsBindingResolutionException` | - | INTENTIONAL-SKIP | (a) PHP environment-based binding |
+| 75 | `testScopedSingletonWithBind` | `TestScopedSingletonWithBind` | COVERED | - |
+| 76 | `testSingletonWithBind` | `TestSingletonWithBind` | COVERED | - |
+| 77 | `testWithFactoryHasDependency` | - | INTENTIONAL-SKIP | (a) PHP SelfBuilding interface |
+
+**Bedrock-only tests (no Laravel equivalent):** `TestSharedClosureResolutionConcurrent`, `TestSingletonFactoryErrorCached`, `TestMustMakePanics`, `TestIsAlias`, `TestContainerTagsMultiple`, `TestContainerTagsEmpty`, `TestResolvingCallback`, `TestAfterResolvingCallback`, `TestTransientReturnsNewInstances`, `TestInstanceClearsBinding`, `TestBindClearsInstance`, `TestResolved`, `TestContextualBinding`, `TestContextualWithFactory`, `TestContextualFallback`, `TestContextualOverride`, `TestMakeGeneric`, `TestMakeGenericInterface`, `TestMakeGenericMismatch`, `TestMustMakeGenericPanic`, `TestContainerTags`, `TestScopedConcreteResolutionResets`
+
+> **Note:** 40 of 77 Laravel tests are INTENTIONAL-SKIP because they rely on PHP reflection-based auto-wiring, ArrayAccess, PHP attributes (#[Singleton], #[Scoped], #[Bind]), or PHP environment-based binding — none of which have Go equivalents. Go's container uses explicit `Factory` functions instead of reflection, and type safety is achieved via generics (`Make[T]`).
+
+---
+
 ## Cross-Cutting Systemic Gaps
 
 These affect multiple packages and represent architectural decisions, not individual test gaps:
@@ -532,7 +623,7 @@ These affect multiple packages and represent architectural decisions, not indivi
 | Gap | Affected Packages | Impact | Category |
 |-----|-------------------|--------|----------|
 | **Event Dispatching** | Auth (5 tests), Routing (2), Foundation (1), View (20+) | ~28 tests | (d) infrastructure |
-| **IoC Container** | Foundation (15+), Console (5+), Routing (10+) | ~30 tests | (d) infrastructure |
+| ~~**IoC Container**~~ | ~~Foundation (15+), Console (5+), Routing (10+)~~ | ~~~30 tests~~ | ~~resolved~~ |
 | **Blade Template Engine** | View (50+ tests across 10 files) | ~50 tests | (a) language-difference |
 | **PHP Macroable Trait** | Config (1), Guards (1), View (1), Foundation (1) | ~4 tests | (a) language-difference |
 | **PHP ArrayAccess** | Config (4), Http (1) | ~5 tests | (a) language-difference |
@@ -554,6 +645,7 @@ These affect multiple packages and represent architectural decisions, not indivi
 | Auth/Guards | 57 | 41 | 9 | 1 | 31 | **82%** (of portable) |
 | Auth/Passwords | 19 | 16 | 0 | 1 | 10 | **89%** (of portable) |
 | Auth/Middleware | 25 | 18 | 2 | 5 | 3 | **90%** (of portable) |
+| Container | 77 | 37 | 0 | 40 | 22 | **100%** (of portable) |
 | Console | 14+ | 2 | 10+ | 1 | 7 | **~15%** |
 | Routing | 102+ | 13 | 87+ | 0 | 11 | **~13%** |
 | HTTP | 113+ | 26 | 86+ | 0 | 5 | **~23%** |
@@ -580,7 +672,7 @@ These affect multiple packages and represent architectural decisions, not indivi
 
 ### Tier 4: Architectural decisions needed
 9. **Event System** — Decide whether to implement event dispatching (unblocks ~28 tests)
-10. **IoC Container** — Decide on dependency injection strategy (unblocks ~30 tests)
+10. ~~**IoC Container** — Decide on dependency injection strategy (unblocks ~30 tests)~~ → 100% coverage (of portable); 59 tests, explicit Factory-based DI
 11. **Blade equivalent** — Bedrock uses `html/template`; Blade tests are permanent intentional skips
 
 ---
@@ -591,7 +683,7 @@ The following `packages/anvil/` packages are currently stubs (have `go.mod` and 
 
 | Package | Laravel Equivalent | Notes |
 |---------|--------------------|-------|
-| **container** | `Illuminate\Container` | IoC container — foundational; unblocks ~30 tests across Foundation, Console, Routing |
+| ~~**container**~~ | ~~`Illuminate\Container`~~ | ~~IoC container~~ — **ported** (100% portable coverage, 59 tests) |
 | **events** | `Illuminate\Events` | Event dispatcher — unblocks ~28 tests across Auth, Routing, Foundation, View |
 | **database** | `Illuminate\Database` | Eloquent ORM, query builder, migrations, schema |
 | **cache** | `Illuminate\Cache` | Cache stores (file, Redis, array, database) |
@@ -607,15 +699,10 @@ The following `packages/anvil/` packages are currently stubs (have `go.mod` and 
 | **bus** | `Illuminate\Bus` | Command bus for dispatching jobs |
 | **translation** | `Illuminate\Translation` | i18n, pluralization, locale management |
 | **pagination** | `Illuminate\Pagination` | Paginator for query results |
-| **collections** | `Illuminate\Support\Collection` | Fluent collection manipulation |
 | **redis** | `Illuminate\Redis` | Redis client abstraction |
 | **process** | `Illuminate\Process` | Process execution and management |
 | **broadcasting** | `Illuminate\Broadcasting` | WebSocket/Pusher event broadcasting |
-| **concurrency** | `Illuminate\Concurrency` | Concurrent task execution |
 | **testing** | `Illuminate\Testing` | Test helpers and assertions |
 | **contracts** | `Illuminate\Contracts` | Interface definitions for all packages |
 | **support** | `Illuminate\Support` | Helpers, traits, utilities (partially ported) |
 | **conditionable** | `Illuminate\Conditionable` | Conditional method chaining trait |
-| **macroable** | `Illuminate\Macroable` | Runtime method extension — intentional skip for Go |
-| **reflection** | `Illuminate\Support\Reflector` | Reflection utilities |
-| **json-schema** | N/A | Custom Bedrock package for JSON schema validation |
