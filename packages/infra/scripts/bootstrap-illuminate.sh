@@ -87,10 +87,10 @@ EOF
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "sh -c 'mkdir -p ../../../storage/dist/${component} && go build ./... && touch ../../../storage/dist/${component}/.build-stamp'",
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/${component} && go build ./... && touch ../../../storage/.turbo/dist/${component}/.build-stamp'",
     "dev": "go test ./... -count=1",
     "test": "go test ./...",
-    "test:coverage": "sh -c 'mkdir -p ../../../storage/coverage/go/${component} && go test ./... -coverprofile=../../../storage/coverage/go/${component}/coverage.out'",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/${component} && go test ./... -coverprofile=../../../storage/.cache/coverage/go/${component}/coverage.out'",
     "typecheck": "go test ./... -run '^\$'",
     "fmt": "gofmt -w .",
     "fmt:check": "sh -c 'test -z \"\$(gofmt -l .)\"'"
