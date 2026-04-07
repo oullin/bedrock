@@ -323,3 +323,54 @@ func TestApplicationRendererAccessor(t *testing.T) {
 		t.Fatal("expected Renderer accessor to return renderer")
 	}
 }
+
+// Laravel: testEnvironmentDetection
+func TestApplicationEnvironment(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	configDir := filepath.Join(dir, "config")
+	os.MkdirAll(configDir, 0755)
+	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: testing\nname: TestApp\n"), 0644)
+	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
+	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
+
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	if env := app.Environment(); env != "testing" {
+		t.Fatalf("expected environment 'testing', got %q", env)
+	}
+	if app.IsProduction() {
+		t.Fatal("expected IsProduction to return false for 'testing' environment")
+	}
+}
+
+func TestApplicationEnvironmentDefaultsToProduction(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	configDir := filepath.Join(dir, "config")
+	os.MkdirAll(configDir, 0755)
+	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("name: TestApp\n"), 0644)
+	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
+	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
+
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	if env := app.Environment(); env != "production" {
+		t.Fatalf("expected default environment 'production', got %q", env)
+	}
+	if !app.IsProduction() {
+		t.Fatal("expected IsProduction to return true for default environment")
+	}
+}

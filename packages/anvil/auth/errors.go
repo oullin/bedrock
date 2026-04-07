@@ -20,6 +20,7 @@ var (
 	ErrInvalidCredentials = errors.New("auth: invalid credentials")
 	ErrInvalidToken       = errors.New("auth: invalid token")
 	ErrTokenExpired       = errors.New("auth: token expired")
+	ErrThrottled          = errors.New("auth: too many requests")
 )
 
 // Error implements error.

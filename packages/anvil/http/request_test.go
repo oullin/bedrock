@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -105,5 +106,141 @@ func TestMiddlewareChaining(t *testing.T) {
 		if order[i] != v {
 			t.Fatalf("expected order[%d] = %q, got %q", i, v, order[i])
 		}
+	}
+}
+
+// ======================== INPUT ACCESSOR TESTS ========================
+
+// Laravel: testInputMethod
+func TestRequestInput(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequest(http.MethodGet, "/test?name=john&age=30", nil)
+
+	if got := bedhttp.Input(req, "name"); got != "john" {
+		t.Fatalf("expected 'john', got %q", got)
+	}
+	if got := bedhttp.Input(req, "age"); got != "30" {
+		t.Fatalf("expected '30', got %q", got)
+	}
+	if got := bedhttp.Input(req, "missing", "default"); got != "default" {
+		t.Fatalf("expected 'default', got %q", got)
+	}
+	if got := bedhttp.Input(req, "missing"); got != "" {
+		t.Fatalf("expected empty string, got %q", got)
+	}
+}
+
+// Laravel: testQueryMethod
+func TestRequestQuery(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequest(http.MethodGet, "/test?page=2", nil)
+
+	if got := bedhttp.Query(req, "page"); got != "2" {
+		t.Fatalf("expected '2', got %q", got)
+	}
+	if got := bedhttp.Query(req, "missing", "1"); got != "1" {
+		t.Fatalf("expected '1', got %q", got)
+	}
+}
+
+// Laravel: testBooleanMethod
+func TestRequestBoolean(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequest(http.MethodGet, "/test?active=true&disabled=false&on=1&off=0", nil)
+
+	if !bedhttp.Boolean(req, "active") {
+		t.Fatal("expected 'active' to be true")
+	}
+	if bedhttp.Boolean(req, "disabled") {
+		t.Fatal("expected 'disabled' to be false")
+	}
+	if !bedhttp.Boolean(req, "on") {
+		t.Fatal("expected 'on' (1) to be true")
+	}
+	if bedhttp.Boolean(req, "off") {
+		t.Fatal("expected 'off' (0) to be false")
+	}
+	if bedhttp.Boolean(req, "missing") {
+		t.Fatal("expected missing key to be false")
+	}
+}
+
+// Laravel: testIntegerMethod
+func TestRequestInteger(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequest(http.MethodGet, "/test?page=5&invalid=abc", nil)
+
+	if got := bedhttp.Integer(req, "page"); got != 5 {
+		t.Fatalf("expected 5, got %d", got)
+	}
+	if got := bedhttp.Integer(req, "invalid", 1); got != 1 {
+		t.Fatalf("expected default 1 for invalid, got %d", got)
+	}
+	if got := bedhttp.Integer(req, "missing", 10); got != 10 {
+		t.Fatalf("expected default 10, got %d", got)
+	}
+	if got := bedhttp.Integer(req, "missing"); got != 0 {
+		t.Fatalf("expected 0 for missing with no default, got %d", got)
+	}
+}
+
+// ======================== RESPONSE TESTS ========================
+
+// Laravel: testJsonResponse
+func TestJSONResponse(t *testing.T) {
+	t.Parallel()
+
+	rec := httptest.NewRecorder()
+	data := map[string]any{"name": "John", "age": 30}
+
+	if err := bedhttp.JSON(rec, http.StatusOK, data); err != nil {
+		t.Fatalf("JSON: %v", err)
+	}
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("expected 'application/json', got %q", ct)
+	}
+
+	var result map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &result); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if result["name"] != "John" {
+		t.Fatalf("expected name 'John', got %v", result["name"])
+	}
+}
+
+func TestJSONResponseWithStatusCreated(t *testing.T) {
+	t.Parallel()
+
+	rec := httptest.NewRecorder()
+	if err := bedhttp.JSON(rec, http.StatusCreated, map[string]string{"id": "123"}); err != nil {
+		t.Fatalf("JSON: %v", err)
+	}
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", rec.Code)
+	}
+}
+
+// Laravel: testRedirectResponse
+func TestRedirectResponse(t *testing.T) {
+	t.Parallel()
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/old", nil)
+	bedhttp.Redirect(rec, req, "/new", http.StatusFound)
+
+	if rec.Code != http.StatusFound {
+		t.Fatalf("expected 302, got %d", rec.Code)
+	}
+	if loc := rec.Header().Get("Location"); loc != "/new" {
+		t.Fatalf("expected Location '/new', got %q", loc)
 	}
 }

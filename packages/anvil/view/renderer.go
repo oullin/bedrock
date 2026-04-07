@@ -15,6 +15,7 @@ import (
 type Renderer struct {
 	basePath string
 	funcs    template.FuncMap
+	shared   map[string]any
 }
 
 // NewRenderer constructs a template renderer rooted at basePath.
@@ -31,6 +32,29 @@ func NewRenderer(basePath string) *Renderer {
 			},
 		},
 	}
+}
+
+// Share registers a global data value available to all views.
+func (r *Renderer) Share(key string, value any) {
+	if r.shared == nil {
+		r.shared = map[string]any{}
+	}
+
+	r.shared[key] = value
+}
+
+// Shared returns all shared data.
+func (r *Renderer) Shared() map[string]any {
+	if r.shared == nil {
+		return map[string]any{}
+	}
+
+	out := make(map[string]any, len(r.shared))
+	for k, v := range r.shared {
+		out[k] = v
+	}
+
+	return out
 }
 
 // Render renders a named view to a string.

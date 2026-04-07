@@ -917,7 +917,57 @@ func TestConstructorSetsItems(t *testing.T) {
 	}
 }
 
-// GAP: Laravel: testItGetsAsFloat — Bedrock does not have a Float() accessor
+// Laravel: testItGetsAsFloat
+func TestFloatAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"price":  3.14,
+		"count":  42,
+		"text":   "2.718",
+		"bad":    "not-a-float",
+		"nested": map[string]any{"val": 1.5},
+	})
+
+	if val, err := repo.Float("price"); err != nil || val != 3.14 {
+		t.Fatalf("expected 3.14, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("count"); err != nil || val != 42.0 {
+		t.Fatalf("expected 42.0 from int, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("text"); err != nil || val != 2.718 {
+		t.Fatalf("expected 2.718 from string, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("nested.val"); err != nil || val != 1.5 {
+		t.Fatalf("expected 1.5, got %v (err=%v)", val, err)
+	}
+}
+
+// Laravel: testItThrowsAnExceptionWhenTryingToGetNonFloatValueAsFloat
+func TestFloatAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"bad":  "not-a-float",
+		"bool": true,
+	})
+
+	if _, err := repo.Float("bad"); err == nil {
+		t.Fatal("expected error for non-float string")
+	}
+
+	if _, err := repo.Float("bool"); err == nil {
+		t.Fatal("expected error for bool value")
+	}
+
+	if _, err := repo.Float("missing"); err == nil {
+		t.Fatal("expected error for missing key")
+	}
+}
+
 // GAP: Laravel: testItGetsAsCollection — Bedrock does not have a Collection type
 // GAP: Laravel: testOffsetExists/Get/Set/Unset — Bedrock does not implement ArrayAccess pattern
 // GAP: Laravel: testItIsMacroable — Go does not have macroability

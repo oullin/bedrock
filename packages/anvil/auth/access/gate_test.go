@@ -1106,3 +1106,181 @@ func TestAfterSkippedWhenBeforeShortCircuits(t *testing.T) {
 		t.Fatal("in current implementation, after should NOT run when before short-circuits")
 	}
 }
+
+// ---------- Laravel: testAllowIfRespondsTrue / testAllowIfRespondsFalse ----------
+
+func TestAllowIfAndDenyIf(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+
+	t.Run("AllowIf true returns allowed", func(t *testing.T) {
+		resp := gate.AllowIf(true, "should not see this")
+		if !resp.Allowed {
+			t.Fatal("expected AllowIf(true) to allow")
+		}
+	})
+
+	t.Run("AllowIf false returns denied with message", func(t *testing.T) {
+		resp := gate.AllowIf(false, "nope")
+		if resp.Allowed {
+			t.Fatal("expected AllowIf(false) to deny")
+		}
+		if resp.Message != "nope" {
+			t.Fatalf("expected message 'nope', got %q", resp.Message)
+		}
+	})
+
+	t.Run("DenyIf true returns denied with message", func(t *testing.T) {
+		resp := gate.DenyIf(true, "blocked")
+		if resp.Allowed {
+			t.Fatal("expected DenyIf(true) to deny")
+		}
+		if resp.Message != "blocked" {
+			t.Fatalf("expected message 'blocked', got %q", resp.Message)
+		}
+	})
+
+	t.Run("DenyIf false returns allowed", func(t *testing.T) {
+		resp := gate.DenyIf(false, "should not see this")
+		if !resp.Allowed {
+			t.Fatal("expected DenyIf(false) to allow")
+		}
+	})
+}
+
+// ---------- Laravel: testGateHasAbility ----------
+
+func TestGateHas(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("edit", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+
+	if !gate.Has("edit") {
+		t.Fatal("expected Has('edit') to be true")
+	}
+	if gate.Has("delete") {
+		t.Fatal("expected Has('delete') to be false")
+	}
+	if !gate.Has("  edit  ") {
+		t.Fatal("expected Has with extra whitespace to match after trimming")
+	}
+}
+
+// ---------- Laravel: testNoneAbilityCheckPassesIfNonePass ----------
+
+func TestNoneAbilityCheck(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("open", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+	gate.Define("closed", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("no")
+	})
+
+	user := gateUser{id: "u1"}
+
+	if gate.None(ctx, user, []string{"closed"}) != true {
+		t.Fatal("expected None to return true when all abilities are denied")
+	}
+	if gate.None(ctx, user, []string{"open", "closed"}) != false {
+		t.Fatal("expected None to return false when at least one ability is allowed")
+	}
+	if gate.None(ctx, user, []string{"open"}) != false {
+		t.Fatal("expected None to return false when ability is allowed")
+	}
+	if gate.None(ctx, user, []string{}) != true {
+		t.Fatal("expected None with empty abilities to return true")
+	}
+}
+
+// ---------- Laravel: testResponseReturnsWithCode ----------
+
+func TestResponseWithCode(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.DenyWithCode("forbidden", 403, 403)
+	if resp.Allowed {
+		t.Fatal("expected DenyWithCode to deny")
+	}
+	if resp.Code != 403 {
+		t.Fatalf("expected Code 403, got %d", resp.Code)
+	}
+	if resp.Status != 403 {
+		t.Fatalf("expected Status 403, got %d", resp.Status)
+	}
+	if resp.Message != "forbidden" {
+		t.Fatalf("expected message 'forbidden', got %q", resp.Message)
+	}
+
+	allowed := authaccess.Allow()
+	if allowed.Code != 0 || allowed.Status != 0 {
+		t.Fatal("expected Allow() to have zero Code and Status")
+	}
+}
+
+// ---------- Laravel: testForUser ----------
+
+func TestGateForUser(t *testing.T) {
+	t.Parallel()
+
+	parent := authaccess.NewGate()
+	parent.Define("edit", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+	parent.Before(func(_ context.Context, _ auth.Authenticatable, _ string, _ ...any) (authaccess.Response, bool) {
+		return authaccess.Response{}, false
+	})
+
+	child := parent.ForUser()
+
+	user := gateUser{id: "u1"}
+	if !child.Check(ctx, user, "edit") {
+		t.Fatal("expected child gate to inherit abilities from parent")
+	}
+
+	// Mutating child does not affect parent.
+	child.Define("delete", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+
+	if parent.Has("delete") {
+		t.Fatal("expected parent gate to be unaffected by child mutation")
+	}
+}
+
+// ---------- Laravel: testResourceGates ----------
+
+func TestGateResource(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Resource("posts", func(_ context.Context, user auth.Authenticatable, ability string, _ ...any) (authaccess.Response, bool) {
+		if ability == "create" && user.GetAuthIdentifier() == "admin" {
+			return authaccess.Allow(), true
+		}
+		return authaccess.Deny("denied"), true
+	})
+
+	admin := gateUser{id: "admin"}
+	reader := gateUser{id: "reader"}
+
+	if !gate.Check(ctx, admin, "posts.create") {
+		t.Fatal("expected admin to be allowed posts.create")
+	}
+	if gate.Check(ctx, reader, "posts.create") {
+		t.Fatal("expected reader to be denied posts.create")
+	}
+
+	// All CRUD abilities should be registered.
+	for _, ability := range []string{"posts.viewAny", "posts.view", "posts.create", "posts.update", "posts.delete"} {
+		if !gate.Has(ability) {
+			t.Fatalf("expected resource ability %q to be registered", ability)
+		}
+	}
+}

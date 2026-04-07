@@ -541,3 +541,147 @@ func TestMemoryRepoDeleteNonexistent(t *testing.T) {
 		t.Fatalf("expected no error, got %v", err)
 	}
 }
+
+// ======================== SEND RESET LINK TESTS ========================
+
+// Laravel: testBrokerSendsResetLinkNotification
+func TestBrokerSendResetLink(t *testing.T) {
+	t.Parallel()
+
+	user := &passwordUser{id: "u1", email: "user@example.com"}
+	provider := &passwordProvider{user: user}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)}
+
+	broker := &passwords.Broker{
+		Config: passwords.Config{
+			Name:     "default",
+			Expire:   time.Hour,
+			Throttle: time.Minute,
+		},
+		Users:  provider,
+		Tokens: passwords.NewMemoryTokenRepository(),
+		Clock:  clock,
+	}
+
+	var notifiedUser auth.Authenticatable
+	var notifiedToken string
+
+	err := broker.SendResetLink(context.Background(), "user@example.com", func(_ context.Context, user auth.Authenticatable, token string) error {
+		notifiedUser = user
+		notifiedToken = token
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("SendResetLink: %v", err)
+	}
+
+	if notifiedUser == nil {
+		t.Fatal("expected notifier to be called with user")
+	}
+	if notifiedUser.GetAuthIdentifier() != "u1" {
+		t.Fatalf("expected user ID 'u1', got %q", notifiedUser.GetAuthIdentifier())
+	}
+	if notifiedToken == "" {
+		t.Fatal("expected notifier to receive a non-empty token")
+	}
+}
+
+// Laravel: testBrokerSendsResetLinkWithCallback (custom callback)
+func TestBrokerSendResetLinkWithCallback(t *testing.T) {
+	t.Parallel()
+
+	user := &passwordUser{id: "u1", email: "user@example.com"}
+	provider := &passwordProvider{user: user}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)}
+
+	broker := &passwords.Broker{
+		Config: passwords.Config{
+			Name:     "default",
+			Expire:   time.Hour,
+			Throttle: time.Minute,
+		},
+		Users:  provider,
+		Tokens: passwords.NewMemoryTokenRepository(),
+		Clock:  clock,
+	}
+
+	callbackCalled := false
+	err := broker.SendResetLink(context.Background(), "user@example.com", func(_ context.Context, _ auth.Authenticatable, token string) error {
+		callbackCalled = true
+		// Custom callback could transform the notification before sending.
+		if token == "" {
+			t.Fatal("expected non-empty token in callback")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("SendResetLink: %v", err)
+	}
+	if !callbackCalled {
+		t.Fatal("expected callback to be called")
+	}
+}
+
+// SendResetLink should fail when user not found
+func TestBrokerSendResetLinkUserNotFound(t *testing.T) {
+	t.Parallel()
+
+	provider := &passwordProvider{user: nil}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)}
+
+	broker := &passwords.Broker{
+		Config: passwords.Config{
+			Name:     "default",
+			Expire:   time.Hour,
+			Throttle: time.Minute,
+		},
+		Users:  provider,
+		Tokens: passwords.NewMemoryTokenRepository(),
+		Clock:  clock,
+	}
+
+	err := broker.SendResetLink(context.Background(), "nobody@example.com", func(_ context.Context, _ auth.Authenticatable, _ string) error {
+		t.Fatal("notifier should not be called when user not found")
+		return nil
+	})
+	if err == nil {
+		t.Fatal("expected error when user not found")
+	}
+}
+
+// SendResetLink should return throttled error when recently created
+func TestBrokerSendResetLinkThrottled(t *testing.T) {
+	t.Parallel()
+
+	user := &passwordUser{id: "u1", email: "user@example.com"}
+	provider := &passwordProvider{user: user}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)}
+
+	broker := &passwords.Broker{
+		Config: passwords.Config{
+			Name:     "default",
+			Expire:   time.Hour,
+			Throttle: time.Minute,
+		},
+		Users:  provider,
+		Tokens: passwords.NewMemoryTokenRepository(),
+		Clock:  clock,
+	}
+
+	// First call should succeed.
+	err := broker.SendResetLink(context.Background(), "user@example.com", func(_ context.Context, _ auth.Authenticatable, _ string) error {
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("first SendResetLink: %v", err)
+	}
+
+	// Second call within throttle window should be throttled.
+	err = broker.SendResetLink(context.Background(), "user@example.com", func(_ context.Context, _ auth.Authenticatable, _ string) error {
+		t.Fatal("notifier should not be called when throttled")
+		return nil
+	})
+	if !errors.Is(err, auth.ErrThrottled) {
+		t.Fatalf("expected ErrThrottled, got %v", err)
+	}
+}

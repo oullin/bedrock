@@ -161,6 +161,97 @@ func TestMultipleRoutes(t *testing.T) {
 	}
 }
 
+// Laravel: testRouteParameterBinding
+func TestRouteParameterBinding(t *testing.T) {
+	t.Parallel()
+
+	router := routing.New(nil)
+	router.Get("/users/{id}", func(ctx *routing.Context) error {
+		return ctx.Text(http.StatusOK, "user:"+ctx.Param("id"))
+	})
+	router.Get("/posts/{postId}/comments/{commentId}", func(ctx *routing.Context) error {
+		return ctx.Text(http.StatusOK, ctx.Param("postId")+":"+ctx.Param("commentId"))
+	})
+
+	t.Run("single parameter", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/users/42", nil))
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		if rec.Body.String() != "user:42" {
+			t.Fatalf("expected 'user:42', got %q", rec.Body.String())
+		}
+	})
+
+	t.Run("multiple parameters", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/posts/10/comments/5", nil))
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		if rec.Body.String() != "10:5" {
+			t.Fatalf("expected '10:5', got %q", rec.Body.String())
+		}
+	})
+}
+
+// Laravel: test POST/PUT/DELETE route registration
+func TestPostRouteDispatch(t *testing.T) {
+	t.Parallel()
+
+	router := routing.New(nil)
+	router.Post("/items", func(ctx *routing.Context) error {
+		return ctx.Text(http.StatusCreated, "created")
+	})
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/items", nil))
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", rec.Code)
+	}
+
+	// GET should be rejected.
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/items", nil))
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected 405 for GET on POST route, got %d", rec.Code)
+	}
+}
+
+func TestPutRouteDispatch(t *testing.T) {
+	t.Parallel()
+
+	router := routing.New(nil)
+	router.Put("/items/{id}", func(ctx *routing.Context) error {
+		return ctx.Text(http.StatusOK, "updated:"+ctx.Param("id"))
+	})
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodPut, "/items/7", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+	if rec.Body.String() != "updated:7" {
+		t.Fatalf("expected 'updated:7', got %q", rec.Body.String())
+	}
+}
+
+func TestDeleteRouteDispatch(t *testing.T) {
+	t.Parallel()
+
+	router := routing.New(nil)
+	router.Delete("/items/{id}", func(ctx *routing.Context) error {
+		return ctx.Text(http.StatusNoContent, "")
+	})
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodDelete, "/items/3", nil))
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("expected 204, got %d", rec.Code)
+	}
+}
+
 // Test Handle with empty method allows all methods
 func TestHandleWithEmptyMethodAllowsAll(t *testing.T) {
 	t.Parallel()
