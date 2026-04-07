@@ -75,15 +75,15 @@ type TransactionView struct {
 
 // LandingPlanView is the plan data shown on marketing/landing pages.
 type LandingPlanView struct {
-	Code              string            `json:"code"`
-	Name              string            `json:"name"`
-	Description       string            `json:"description"`
-	MarketingFeatures []string          `json:"marketing_features"`
-	CTALabel          string            `json:"cta_label"`
-	CTAStyle          string            `json:"cta_style"`
-	Featured          bool              `json:"featured"`
-	Badge             string            `json:"badge"`
-	Periods           []PlanPeriodView  `json:"periods"`
+	Code              string           `json:"code"`
+	Name              string           `json:"name"`
+	Description       string           `json:"description"`
+	MarketingFeatures []string         `json:"marketing_features"`
+	CTALabel          string           `json:"cta_label"`
+	CTAStyle          string           `json:"cta_style"`
+	Featured          bool             `json:"featured"`
+	Badge             string           `json:"badge"`
+	Periods           []PlanPeriodView `json:"periods"`
 }
 
 // PlanPeriodView is a billing period option for a plan.
@@ -96,15 +96,15 @@ type PlanPeriodView struct {
 
 // FrontendPlanView is a plan entry for the billing portal's plan selector.
 type FrontendPlanView struct {
-	Code        string          `json:"code"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
+	Code        string            `json:"code"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
 	Features    []PlanFeatureView `json:"features"`
-	CTALabel    string          `json:"cta_label"`
-	CTAStyle    string          `json:"cta_style"`
-	Featured    bool            `json:"featured"`
-	Badge       string          `json:"badge"`
-	Periods     []PlanPeriodView `json:"periods"`
+	CTALabel    string            `json:"cta_label"`
+	CTAStyle    string            `json:"cta_style"`
+	Featured    bool              `json:"featured"`
+	Badge       string            `json:"badge"`
+	Periods     []PlanPeriodView  `json:"periods"`
 }
 
 // PlanFeatureView is a single feature listed on a plan card.

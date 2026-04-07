@@ -1199,6 +1199,65 @@ func TestNoneAbilityCheck(t *testing.T) {
 	}
 }
 
+// ---------- Laravel: testEveryAbilityCheck* ----------
+
+// Laravel: testEveryAbilityCheckPassesIfAllPass
+func TestEveryAbilityCheckPassesIfAllPass(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("a", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+	gate.Define("b", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+
+	user := gateUser{id: "u1"}
+
+	if !gate.Every(ctx, user, []string{"a", "b"}) {
+		t.Fatal("expected Every to return true when all abilities pass")
+	}
+}
+
+// Laravel: testEveryAbilityCheckFailsIfAtLeastOneFails
+func TestEveryAbilityCheckFailsIfAtLeastOneFails(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("a", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Allow()
+	})
+	gate.Define("b", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("no")
+	})
+
+	user := gateUser{id: "u1"}
+
+	if gate.Every(ctx, user, []string{"a", "b"}) {
+		t.Fatal("expected Every to return false when at least one ability fails")
+	}
+}
+
+// Laravel: testEveryAbilityCheckFailsIfNonePass
+func TestEveryAbilityCheckFailsIfNonePass(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("a", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("no")
+	})
+	gate.Define("b", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("no")
+	})
+
+	user := gateUser{id: "u1"}
+
+	if gate.Every(ctx, user, []string{"a", "b"}) {
+		t.Fatal("expected Every to return false when no abilities pass")
+	}
+}
+
 // ---------- Laravel: testResponseReturnsWithCode ----------
 
 func TestResponseWithCode(t *testing.T) {
@@ -1282,5 +1341,222 @@ func TestGateResource(t *testing.T) {
 		if !gate.Has(ability) {
 			t.Fatalf("expected resource ability %q to be registered", ability)
 		}
+	}
+}
+
+// ---------- Laravel: guest user handling ----------
+
+// Laravel: testBeforeCanAllowGuests
+func TestBeforeCanAllowGuests(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Before(func(_ context.Context, user auth.Authenticatable, _ string, _ ...any) (authaccess.Response, bool) {
+		if user == nil {
+			return authaccess.Allow(), true
+		}
+		return authaccess.Response{}, false
+	})
+	gate.Define("view", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("no")
+	})
+
+	if !gate.Check(ctx, nil, "view") {
+		t.Fatal("expected before callback to allow guest (nil) user")
+	}
+}
+
+// Laravel: testAfterCanAllowGuests
+func TestAfterCanAllowGuests(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("view", func(_ context.Context, user auth.Authenticatable, _ ...any) authaccess.Response {
+		if user == nil {
+			return authaccess.Deny("guest denied by ability")
+		}
+		return authaccess.Allow()
+	})
+	gate.After(func(_ context.Context, user auth.Authenticatable, _ string, result authaccess.Response, _ ...any) authaccess.Response {
+		if user == nil {
+			return authaccess.Allow()
+		}
+		return result
+	})
+
+	if !gate.Check(ctx, nil, "view") {
+		t.Fatal("expected after callback to allow guest (nil) user")
+	}
+}
+
+// Laravel: testClosuresCanAllowGuestUsers
+func TestClosuresCanAllowGuestUsers(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("view", func(_ context.Context, user auth.Authenticatable, _ ...any) authaccess.Response {
+		if user == nil {
+			return authaccess.Allow()
+		}
+		return authaccess.Deny("no")
+	})
+
+	if !gate.Check(ctx, nil, "view") {
+		t.Fatal("expected ability closure to allow guest (nil) user")
+	}
+}
+
+// Laravel: testPoliciesCanAllowGuests
+func TestPoliciesCanAllowGuests(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Policy("resource", func(_ context.Context, user auth.Authenticatable, ability string, _ ...any) (authaccess.Response, bool) {
+		if user == nil && ability == "view" {
+			return authaccess.Allow(), true
+		}
+		return authaccess.Deny("no"), true
+	})
+
+	if !gate.Check(ctx, nil, "view", "resource") {
+		t.Fatal("expected policy to allow guest (nil) user")
+	}
+}
+
+// Laravel: testPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem
+func TestPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.Define("view", func(_ context.Context, user auth.Authenticatable, _ ...any) authaccess.Response {
+		if user == nil {
+			return authaccess.Deny("guests not allowed")
+		}
+		return authaccess.Allow()
+	})
+
+	if gate.Check(ctx, nil, "view") {
+		t.Fatal("expected guest (nil) user to be denied when ability does not allow guests")
+	}
+}
+
+// Laravel: testBeforeAndAfterCallbacksCanAllowGuests
+func TestBeforeAndAfterCallbacksCanAllowGuests(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+
+	beforeCalled := false
+	afterCalled := false
+
+	gate.Before(func(_ context.Context, user auth.Authenticatable, _ string, _ ...any) (authaccess.Response, bool) {
+		if user == nil {
+			beforeCalled = true
+		}
+		return authaccess.Response{}, false
+	})
+	gate.Define("view", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("denied")
+	})
+	gate.After(func(_ context.Context, user auth.Authenticatable, _ string, result authaccess.Response, _ ...any) authaccess.Response {
+		if user == nil {
+			afterCalled = true
+			return authaccess.Allow()
+		}
+		return result
+	})
+
+	if !gate.Check(ctx, nil, "view") {
+		t.Fatal("expected after callback to allow guest")
+	}
+	if !beforeCalled {
+		t.Fatal("expected before callback to be called for guest user")
+	}
+	if !afterCalled {
+		t.Fatal("expected after callback to be called for guest user")
+	}
+}
+
+// ---------- Laravel: custom denial responses ----------
+
+// Laravel: testCanSetDenialResponseInConstructor
+func TestCanSetDenialResponseInConstructor(t *testing.T) {
+	t.Parallel()
+
+	defaultDenial := authaccess.Deny("custom default denial")
+	gate := authaccess.NewGateWithDenialResponse(defaultDenial)
+
+	err := gate.Authorize(ctx, gateUser{id: "u1"}, "undefined-ability")
+	if err == nil {
+		t.Fatal("expected authorization error")
+	}
+
+	var authErr authaccess.AuthorizationException
+	if !errors.As(err, &authErr) {
+		t.Fatalf("expected AuthorizationException, got %T", err)
+	}
+	if authErr.Message != "custom default denial" {
+		t.Fatalf("expected custom default denial message, got %q", authErr.Message)
+	}
+}
+
+// Laravel: testCanSetDenialResponse
+func TestCanSetDenialResponse(t *testing.T) {
+	t.Parallel()
+
+	gate := authaccess.NewGate()
+	gate.SetDefaultDenialResponse(authaccess.Deny("custom denial"))
+
+	gate.Define("edit", func(_ context.Context, _ auth.Authenticatable, _ ...any) authaccess.Response {
+		return authaccess.Deny("")
+	})
+
+	err := gate.Authorize(ctx, gateUser{id: "u1"}, "edit")
+	if err == nil {
+		t.Fatal("expected authorization error")
+	}
+
+	var authErr authaccess.AuthorizationException
+	if !errors.As(err, &authErr) {
+		t.Fatalf("expected AuthorizationException, got %T", err)
+	}
+	if authErr.Message != "custom denial" {
+		t.Fatalf("expected custom denial message, got %q", authErr.Message)
+	}
+}
+
+// ---------- Laravel: response helper tests ----------
+
+// Laravel: testDenyMethodWithNoMessageReturnsNull
+func TestDenyMethodWithNoMessageReturnsEmptyMessage(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.Deny("")
+	if resp.Allowed {
+		t.Fatal("expected Deny to deny")
+	}
+	if resp.Message != "" {
+		t.Fatalf("expected empty message, got %q", resp.Message)
+	}
+}
+
+// Laravel: testResponseToArrayMethod
+func TestResponseToMap(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.DenyWithCode("forbidden", 403, 403)
+	m := resp.ToMap()
+
+	if m["allowed"] != false {
+		t.Fatal("expected allowed=false")
+	}
+	if m["message"] != "forbidden" {
+		t.Fatalf("expected message 'forbidden', got %v", m["message"])
+	}
+	if m["code"] != 403 {
+		t.Fatalf("expected code 403, got %v", m["code"])
+	}
+	if m["status"] != 403 {
+		t.Fatalf("expected status 403, got %v", m["status"])
 	}
 }

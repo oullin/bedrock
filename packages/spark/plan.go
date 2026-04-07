@@ -24,7 +24,7 @@ type Plan struct {
 	UpdatedAt         time.Time
 
 	// Loaded relations.
-	PlanPeriods []PlanPeriod
+	PlanPeriods  []PlanPeriod
 	PlanFeatures []PlanFeature
 }
 

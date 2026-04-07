@@ -33,18 +33,27 @@ func WithSession(ctx context.Context, session *Session) context.Context {
 }
 
 // Authenticate is HTTP middleware that rejects unauthenticated requests with 401.
-func Authenticate(guard *SessionGuard) func(http.Handler) http.Handler {
+// When multiple guards are provided, the first one that successfully authenticates
+// the request wins.
+func Authenticate(guards ...*SessionGuard) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session, user, err := guard.AuthenticateRequest(r.Context(), w, r)
-			if err != nil {
-				http.Error(w, "Unauthenticated.", http.StatusUnauthorized)
-				return
+			for _, guard := range guards {
+				session, user, err := guard.AuthenticateRequest(r.Context(), w, r)
+				if err == nil {
+					ctx := WithUser(r.Context(), user)
+					ctx = WithSession(ctx, session)
+					next.ServeHTTP(w, r.WithContext(ctx))
+					return
+				}
 			}
 
-			ctx := WithUser(r.Context(), user)
-			ctx = WithSession(ctx, session)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			guardNames := make([]string, len(guards))
+			for i, guard := range guards {
+				guardNames[i] = guard.Name()
+			}
+
+			http.Error(w, "Unauthenticated.", http.StatusUnauthorized)
 		})
 	}
 }

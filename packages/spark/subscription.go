@@ -9,10 +9,10 @@ type Subscription struct {
 	UUID              string
 	BillableType      string
 	BillableID        int64
-	Type              string             // Subscription type (default: "default").
-	ProviderID        string             // Payment provider subscription ID.
+	Type              string // Subscription type (default: "default").
+	ProviderID        string // Payment provider subscription ID.
 	Status            SubscriptionStatus
-	Plan              string             // Plan code (e.g. "pro").
+	Plan              string // Plan code (e.g. "pro").
 	BillingPeriod     BillingPeriod
 	PlanPeriodPriceID *int64
 	PendingExpiresAt  *time.Time

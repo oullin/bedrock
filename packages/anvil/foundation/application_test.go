@@ -350,6 +350,173 @@ func TestApplicationEnvironment(t *testing.T) {
 	}
 }
 
+// ======================== BOOTSTRAP CALLBACK TESTS ========================
+
+// Laravel: testBootingCallbacks
+func TestBootingCallbacks(t *testing.T) {
+	t.Parallel()
+
+	dir := setupTestApp(t)
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	var order []string
+	app.Booting(func(_ *foundation.Application) { order = append(order, "boot-1") })
+	app.Booting(func(_ *foundation.Application) { order = append(order, "boot-2") })
+
+	app.Boot()
+
+	if len(order) != 2 || order[0] != "boot-1" || order[1] != "boot-2" {
+		t.Fatalf("expected [boot-1, boot-2], got %v", order)
+	}
+	if !app.IsBooted() {
+		t.Fatal("expected IsBooted to be true after Boot()")
+	}
+}
+
+// Laravel: testBootedCallbacks
+func TestBootedCallbacks(t *testing.T) {
+	t.Parallel()
+
+	dir := setupTestApp(t)
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	var order []string
+	app.Booting(func(_ *foundation.Application) { order = append(order, "booting") })
+	app.Booted(func(_ *foundation.Application) { order = append(order, "booted-1") })
+	app.Booted(func(_ *foundation.Application) { order = append(order, "booted-2") })
+
+	app.Boot()
+
+	if len(order) != 3 {
+		t.Fatalf("expected 3 callbacks, got %d: %v", len(order), order)
+	}
+	if order[0] != "booting" || order[1] != "booted-1" || order[2] != "booted-2" {
+		t.Fatalf("expected [booting, booted-1, booted-2], got %v", order)
+	}
+
+	// Registering a booted callback after boot should execute immediately.
+	app.Booted(func(_ *foundation.Application) { order = append(order, "booted-late") })
+	if order[3] != "booted-late" {
+		t.Fatalf("expected booted-late to execute immediately, got %v", order)
+	}
+}
+
+// Laravel: testTerminationTests
+func TestTerminationCallbacks(t *testing.T) {
+	t.Parallel()
+
+	dir := setupTestApp(t)
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	var order []string
+	app.Terminating(func() { order = append(order, "term-1") })
+	app.Terminating(func() { order = append(order, "term-2") })
+
+	app.Terminate()
+
+	if len(order) != 2 || order[0] != "term-1" || order[1] != "term-2" {
+		t.Fatalf("expected [term-1, term-2], got %v", order)
+	}
+}
+
+// Laravel: testBootDoesNotReboot
+func TestBootIsIdempotent(t *testing.T) {
+	t.Parallel()
+
+	dir := setupTestApp(t)
+	app, err := foundation.Configure(dir).
+		WithRouting(foundation.RoutingConfig{}).
+		Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	count := 0
+	app.Booting(func(_ *foundation.Application) { count++ })
+	app.Boot()
+	app.Boot() // second call should be no-op
+
+	if count != 1 {
+		t.Fatalf("expected booting callback to run once, got %d", count)
+	}
+}
+
+// ======================== ENVIRONMENT HELPER TESTS ========================
+
+func TestIsLocal(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	configDir := filepath.Join(dir, "config")
+	os.MkdirAll(configDir, 0755)
+	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: local\nname: TestApp\n"), 0644)
+	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
+	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
+
+	app, err := foundation.Configure(dir).WithRouting(foundation.RoutingConfig{}).Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if !app.IsLocal() {
+		t.Fatal("expected IsLocal to be true")
+	}
+	if app.IsProduction() {
+		t.Fatal("expected IsProduction to be false for local env")
+	}
+}
+
+func TestIsTesting(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	configDir := filepath.Join(dir, "config")
+	os.MkdirAll(configDir, 0755)
+	os.WriteFile(filepath.Join(configDir, "app.yml"), []byte("env: testing\nname: TestApp\n"), 0644)
+	os.MkdirAll(filepath.Join(dir, "resources", "views"), 0755)
+	os.MkdirAll(filepath.Join(dir, "public", "build"), 0755)
+
+	app, err := foundation.Configure(dir).WithRouting(foundation.RoutingConfig{}).Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if !app.IsTesting() {
+		t.Fatal("expected IsTesting to be true")
+	}
+}
+
+func TestRunningInConsole(t *testing.T) {
+	t.Parallel()
+
+	dir := setupTestApp(t)
+	app, err := foundation.Configure(dir).WithRouting(foundation.RoutingConfig{}).Create()
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	if app.RunningInConsole() {
+		t.Fatal("expected RunningInConsole to be false by default")
+	}
+	app.SetRunningInConsole(true)
+	if !app.RunningInConsole() {
+		t.Fatal("expected RunningInConsole to be true after setting")
+	}
+}
+
 func TestApplicationEnvironmentDefaultsToProduction(t *testing.T) {
 	t.Parallel()
 

@@ -502,6 +502,44 @@ func TestMemoryRepoRecentlyCreatedFalseWhenOldEnough(t *testing.T) {
 	}
 }
 
+// Laravel: testDeleteExpiredMethodDeletesExpiredTokens
+func TestMemoryRepoDeleteExpiredTokens(t *testing.T) {
+	t.Parallel()
+
+	repo := passwords.NewMemoryTokenRepository()
+	now := time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)
+
+	// Expired token: expires before now.
+	repo.Save(context.Background(), &passwords.Token{
+		UserID: "u1", TokenHash: "expired-hash", CreatedAt: now.Add(-2 * time.Hour), ExpiresAt: now.Add(-time.Hour),
+	})
+
+	// Valid token: expires after now.
+	repo.Save(context.Background(), &passwords.Token{
+		UserID: "u2", TokenHash: "valid-hash", CreatedAt: now.Add(-30 * time.Minute), ExpiresAt: now.Add(time.Hour),
+	})
+
+	err := repo.DeleteExpired(context.Background(), now)
+	if err != nil {
+		t.Fatalf("DeleteExpired: %v", err)
+	}
+
+	// Expired token should be gone.
+	_, err = repo.FindByTokenHash(context.Background(), "expired-hash")
+	if !errors.Is(err, auth.ErrInvalidToken) {
+		t.Fatal("expected expired token to be deleted")
+	}
+
+	// Valid token should still exist.
+	found, err := repo.FindByTokenHash(context.Background(), "valid-hash")
+	if err != nil {
+		t.Fatalf("FindByTokenHash for valid token: %v", err)
+	}
+	if found.UserID != "u2" {
+		t.Fatalf("expected u2, got %q", found.UserID)
+	}
+}
+
 // Save replaces existing token for same user
 func TestMemoryRepoSaveReplacesExisting(t *testing.T) {
 	t.Parallel()

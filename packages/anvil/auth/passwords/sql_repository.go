@@ -64,6 +64,12 @@ func (r *SQLTokenRepository) DeleteByUserID(ctx context.Context, userID string) 
 	return err
 }
 
+// DeleteExpired removes all tokens that have expired as of the given time.
+func (r *SQLTokenRepository) DeleteExpired(ctx context.Context, now time.Time) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM `+r.table+` WHERE expires_at <= ?`, now)
+	return err
+}
+
 // RecentlyCreated reports whether a token exists since the provided time.
 func (r *SQLTokenRepository) RecentlyCreated(ctx context.Context, userID string, since time.Time) (bool, error) {
 	var createdAt time.Time
