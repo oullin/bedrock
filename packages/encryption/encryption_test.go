@@ -839,6 +839,209 @@ func (r bytesReader) Read(p []byte) (int, error) {
 	return n, nil
 }
 
+// ======================== Additional Upstream compliance tests ========================
+
+// Upstream: testEncryptionUsingBase64EncodedKey
+func TestEncryptionUsingBase64EncodedKey(t *testing.T) {
+	rawKey := "abcdefghijklmnop"
+	parsed, err := ParseUpstreamKey("base64:" + base64.StdEncoding.EncodeToString([]byte(rawKey)))
+	if err != nil {
+		t.Fatalf("ParseUpstreamKey: %v", err)
+	}
+
+	e, err := New(Config{Key: parsed, Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	encrypted, err := e.EncryptString("hello")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	decrypted, err := e.DecryptString(encrypted)
+	if err != nil {
+		t.Fatalf("DecryptString: %v", err)
+	}
+
+	if decrypted != "hello" {
+		t.Fatalf("expected 'hello', got %q", decrypted)
+	}
+}
+
+// Upstream: testCipherNamesCanBeMixedCase
+func TestCipherNamesCanBeMixedCase(t *testing.T) {
+	for _, cipher := range []Cipher{
+		Cipher("AES-128-CBC"),
+		Cipher("aes-128-cbc"),
+		Cipher("Aes-128-Cbc"),
+		Cipher("AES-256-GCM"),
+		Cipher("aes-256-gcm"),
+	} {
+		key := make([]byte, 16)
+		if normalizeCipher(cipher) == "aes-256-gcm" || normalizeCipher(cipher) == "aes-256-cbc" {
+			key = make([]byte, 32)
+		}
+		for i := range key {
+			key[i] = 'a'
+		}
+
+		if !Supported(key, cipher) {
+			t.Fatalf("expected cipher %q to be supported", cipher)
+		}
+	}
+}
+
+// Upstream: testDoNoAllowLongerKey
+func TestDoNotAllowLongerKey(t *testing.T) {
+	longKey := make([]byte, 64)
+	for i := range longKey {
+		longKey[i] = 'a'
+	}
+
+	_, err := New(Config{Key: longKey, Cipher: AES128CBC})
+	if err == nil {
+		t.Fatal("expected error for key too long for cipher")
+	}
+}
+
+// Upstream: testThatAnAeadCipherIncludesTag
+func TestAeadCipherIncludesTag(t *testing.T) {
+	e, err := New(Config{Key: []byte("0123456789abcdef0123456789abcdef"), Cipher: AES256GCM})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	encrypted, err := e.EncryptString("test")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	payload := decodePayload(t, encrypted)
+	if payload.Tag == "" {
+		t.Fatal("expected AEAD cipher payload to include non-empty tag")
+	}
+	if payload.MAC != "" {
+		t.Fatal("expected AEAD cipher payload to have empty MAC")
+	}
+}
+
+// Upstream: testThatANonAeadCipherIncludesMac
+func TestNonAeadCipherIncludesMac(t *testing.T) {
+	e, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	encrypted, err := e.EncryptString("test")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	payload := decodePayload(t, encrypted)
+	if payload.MAC == "" {
+		t.Fatal("expected non-AEAD cipher payload to include MAC")
+	}
+	if payload.Tag != "" {
+		t.Fatal("expected non-AEAD cipher payload to have empty tag")
+	}
+}
+
+// Upstream: testEncryptedReturnsTrueForEncryptedArray
+func TestAppearsEncryptedForEncryptedArray(t *testing.T) {
+	e, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	encrypted, err := e.Encrypt([]string{"a", "b", "c"})
+	if err != nil {
+		t.Fatalf("Encrypt: %v", err)
+	}
+
+	if !AppearsEncrypted(encrypted) {
+		t.Fatal("expected encrypted array to appear encrypted")
+	}
+}
+
+// Upstream: testEncryptedReturnsFalseForNonString (Go type safety test)
+func TestAppearsEncryptedForNonEncryptedValues(t *testing.T) {
+	tests := []struct {
+		name  string
+		value string
+	}{
+		{"empty", ""},
+		{"plain text", "hello world"},
+		{"json object", `{"foo": "bar"}`},
+		{"number", "12345"},
+		{"url", "https://example.com"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if AppearsEncrypted(tc.value) {
+				t.Fatalf("expected %q to not appear encrypted", tc.value)
+			}
+		})
+	}
+}
+
+// Upstream: testExceptionThrownWithDifferentKey (explicit)
+func TestDecryptionFailsWithDifferentKey(t *testing.T) {
+	e1, _ := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+	e2, _ := New(Config{Key: []byte("bbbbbbbbbbbbbbbb"), Cipher: AES128CBC})
+
+	encrypted, err := e1.EncryptString("secret")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	_, err = e2.DecryptString(encrypted)
+	if err == nil {
+		t.Fatal("expected decryption to fail with different key")
+	}
+}
+
+// Upstream: testRawStringEncryptionWithPreviousKeys (explicit)
+func TestRawStringEncryptionWithPreviousKeys(t *testing.T) {
+	oldKey := []byte("aaaaaaaaaaaaaaaa")
+	newKey := []byte("bbbbbbbbbbbbbbbb")
+
+	oldEnc, _ := New(Config{Key: oldKey, Cipher: AES128CBC})
+	encrypted, err := oldEnc.EncryptString("secret")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	newEnc, _ := New(Config{Key: newKey, PreviousKeys: [][]byte{oldKey}, Cipher: AES128CBC})
+	decrypted, err := newEnc.DecryptString(encrypted)
+	if err != nil {
+		t.Fatalf("DecryptString with previous key: %v", err)
+	}
+	if decrypted != "secret" {
+		t.Fatalf("expected 'secret', got %q", decrypted)
+	}
+}
+
+// Upstream: testTamperedPayloadWillGetRejected (explicit)
+func TestTamperedPayloadIsRejected(t *testing.T) {
+	e, _ := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+	encrypted, _ := e.EncryptString("original")
+
+	payload := decodePayload(t, encrypted)
+
+	// Tamper with the value
+	raw, _ := base64.StdEncoding.DecodeString(payload.Value)
+	raw[0] ^= 0xFF
+	payload.Value = base64.StdEncoding.EncodeToString(raw)
+
+	tampered := encodePayload(payload)
+	_, err := e.DecryptString(tampered)
+	if err == nil {
+		t.Fatal("expected tampered payload to be rejected")
+	}
+}
+
 func reflectBytes(a []byte, b []byte) bool {
 	if len(a) != len(b) {
 		return false

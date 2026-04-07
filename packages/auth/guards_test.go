@@ -13,6 +13,8 @@ import (
 	securitycrypto "github.com/bedrock/packages/support/crypto"
 )
 
+// ---------- test helpers ----------
+
 type testUser struct {
 	id            string
 	email         string
@@ -204,6 +206,302 @@ type fixedIDs struct {
 
 func (g fixedIDs) NewID() (string, error) { return g.value, nil }
 
+func defaultCfg() Config {
+	return Config{
+		DefaultGuard:     "web",
+		DefaultProvider:  "users",
+		SessionLifetime:  time.Hour,
+		RememberLifetime: 24 * time.Hour,
+		SigningKey:       []byte("test-signing-key"),
+		Cookies: CookieConfig{
+			SessionName:  "session",
+			RememberName: "remember",
+		},
+	}
+}
+
+// ======================== SESSION GUARD TESTS ========================
+
+// Upstream: testLoginStoresIdentifierInSession
+func TestSessionGuardLoginStoresIdentifierInSession(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "session-1"})
+	session, _, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	if session.UserID != "user-1" {
+		t.Fatalf("expected session UserID 'user-1', got %q", session.UserID)
+	}
+
+	if session.ID != "session-1" {
+		t.Fatalf("expected session ID 'session-1', got %q", session.ID)
+	}
+
+	// Session should be stored
+	stored, err := sessions.FindByID(context.Background(), "session-1")
+	if err != nil {
+		t.Fatalf("FindByID: %v", err)
+	}
+	if stored.UserID != "user-1" {
+		t.Fatalf("stored session has wrong UserID: %q", stored.UserID)
+	}
+}
+
+// Upstream: testLoginFiresLoginAndAuthenticatedEvents
+// GAP: Bedrock does not implement event dispatching. Events would need an EventDispatcher interface.
+// The session guard creates sessions and cookies but does not fire events.
+
+// Upstream: testFailedAttemptFiresFailedEvent
+// GAP: Same as above — no event dispatching in Bedrock.
+
+// Upstream: testAuthenticateReturnsUserWhenUserIsNotNull
+func TestAuthenticateRequestReturnsUserWhenSessionExists(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "session-1"})
+
+	// Login first to create session
+	_, _, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	// Now authenticate the request
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	_, resolved, err := guard.AuthenticateRequest(context.Background(), httptest.NewRecorder(), request)
+	if err != nil {
+		t.Fatalf("AuthenticateRequest: %v", err)
+	}
+
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testAuthenticateThrowsWhenUserIsNull
+func TestAuthenticateRequestReturnsErrorWhenNoSession(t *testing.T) {
+	t.Parallel()
+
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+	clock := fixedClock{now: time.Now().UTC()}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+	_, _, err := guard.AuthenticateRequest(context.Background(), httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized, got %v", err)
+	}
+}
+
+// Upstream: testNullIsReturnedForUserIfNoUserFound
+func TestAuthenticateRequestReturnsErrorWhenUserNotFound(t *testing.T) {
+	t.Parallel()
+
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	// Create a session for a user that doesn't exist in the provider
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: nil}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	// Manually insert a session
+	sessions.Create(context.Background(), &Session{
+		ID:        "s1",
+		UserID:    "nonexistent",
+		ExpiresAt: clock.Now().Add(time.Hour),
+	})
+	cookies.Write(nil, Cookie{Name: "session", Value: "s1"})
+
+	_, _, err := guard.AuthenticateRequest(context.Background(), httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+	if err == nil {
+		t.Fatal("expected error when user not found")
+	}
+}
+
+// Upstream: testLogoutRemovesSessionTokenAndRememberMeCookie
+func TestLogoutRemovesSessionAndCookies(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	session, _, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	err = guard.Logout(context.Background(), httptest.NewRecorder(), session, user)
+	if err != nil {
+		t.Fatalf("Logout: %v", err)
+	}
+
+	// Session should be deleted
+	_, err = sessions.FindByID(context.Background(), "s1")
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatal("expected session to be deleted")
+	}
+
+	// Cookies should be cleared
+	if _, err := cookies.Read(nil, "session"); err == nil {
+		t.Fatal("expected session cookie to be cleared")
+	}
+	if _, err := cookies.Read(nil, "remember"); err == nil {
+		t.Fatal("expected remember cookie to be cleared")
+	}
+}
+
+// Upstream: testLogoutDoesNotEnqueueRememberMeCookieForDeletionIfCookieDoesntExist
+func TestLogoutClearsRememberCookieEvenIfAbsent(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Now().UTC()}
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+	session, _, _ := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+
+	// Logout without remember cookie set — should not error
+	err := guard.Logout(context.Background(), httptest.NewRecorder(), session, user)
+	if err != nil {
+		t.Fatalf("Logout: %v", err)
+	}
+}
+
+// Upstream: testLogoutDoesNotSetRememberTokenIfNotPreviouslySet
+func TestLogoutClearsRememberToken(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com", rememberToken: "existing-token"}
+	clock := fixedClock{now: time.Now().UTC()}
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+	session, _, _ := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+
+	guard.Logout(context.Background(), httptest.NewRecorder(), session, user)
+
+	if user.GetRememberToken() != "" {
+		t.Fatal("expected remember token to be cleared on logout")
+	}
+}
+
+// Upstream: testLoginMethodQueuesCookieWhenRemembering
+func TestLoginMethodCreatesRememberCookieWhenRemembering(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+	cfg := defaultCfg()
+
+	manager, err := NewManager(cfg, map[string]UserProvider{"users": &fakeProvider{user: user, hasher: hasher}}, ManagerDependencies{
+		Hasher:   hasher,
+		Sessions: sessions,
+		Cookies:  cookies,
+		Clock:    clock,
+		IDs:      fixedIDs{value: "s1"},
+	})
+	if err != nil {
+		t.Fatalf("NewManager: %v", err)
+	}
+
+	guard := manager.DefaultGuard()
+	_, rememberToken, err := guard.Login(context.Background(), httptest.NewRecorder(), user, true, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	if rememberToken == "" {
+		t.Fatal("expected remember token to be generated")
+	}
+
+	// Remember cookie should be set
+	val, err := cookies.Read(nil, "remember")
+	if err != nil {
+		t.Fatal("expected remember cookie to be set")
+	}
+	if val == "" {
+		t.Fatal("expected non-empty remember cookie value")
+	}
+}
+
+// Upstream: testLoginMethodCreatesRememberTokenIfOneDoesntExist
+func TestLoginCreatesRememberTokenIfMissing(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com", rememberToken: ""}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	encrypter, _ := encryption.New(encryption.Config{
+		Key:    deriveCipherKey([]byte("test-signing-key")),
+		Cipher: encryption.AES256CBC,
+	})
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, encrypter, clock, fixedIDs{value: "s1"})
+	_, token, err := guard.Login(context.Background(), httptest.NewRecorder(), user, true, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	if token == "" {
+		t.Fatal("expected remember token to be created")
+	}
+	if user.GetRememberToken() == "" {
+		t.Fatal("expected user remember token to be set")
+	}
+}
+
+// Upstream: testLoginStoresIdentifierInSession + remember=false
+func TestLoginWithoutRememberDoesNotCreateRememberCookie(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+	_, rememberToken, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	if rememberToken != "" {
+		t.Fatal("expected no remember token when remember=false")
+	}
+
+	if _, err := cookies.Read(nil, "remember"); err == nil {
+		t.Fatal("expected no remember cookie when remember=false")
+	}
+}
+
+// Upstream: testUserUsesRememberCookieIfItExists
 func TestSessionGuardLoginAndRememberRestore(t *testing.T) {
 	t.Parallel()
 
@@ -221,17 +519,7 @@ func TestSessionGuardLoginAndRememberRestore(t *testing.T) {
 	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
 	cookies := &fakeCookieManager{}
 	sessions := &fakeSessionStore{}
-	cfg := Config{
-		DefaultGuard:     "web",
-		DefaultProvider:  "users",
-		SessionLifetime:  time.Hour,
-		RememberLifetime: 24 * time.Hour,
-		SigningKey:       []byte("test-signing-key"),
-		Cookies: CookieConfig{
-			SessionName:  "session",
-			RememberName: "remember",
-		},
-	}
+	cfg := defaultCfg()
 
 	manager, err := NewManager(cfg, map[string]UserProvider{"users": &fakeProvider{user: user, hasher: hasher}}, ManagerDependencies{
 		Hasher:   hasher,
@@ -263,6 +551,7 @@ func TestSessionGuardLoginAndRememberRestore(t *testing.T) {
 		t.Fatalf("unexpected session id: %q", session.ID)
 	}
 
+	// Remove session cookie to simulate "new browser" — only remember cookie remains
 	delete(cookies.values, cfg.Cookies.SessionName)
 
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -280,6 +569,7 @@ func TestSessionGuardLoginAndRememberRestore(t *testing.T) {
 	}
 }
 
+// Upstream: testSessionGuardClearsInvalidRememberCookie
 func TestSessionGuardClearsInvalidRememberCookie(t *testing.T) {
 	t.Parallel()
 
@@ -304,54 +594,397 @@ func TestSessionGuardClearsInvalidRememberCookie(t *testing.T) {
 	}
 }
 
-func TestRequestAndTokenGuards(t *testing.T) {
+// Upstream: testLoginWithPendingTwoFactor
+func TestLoginWithPendingTwoFactor(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1"}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+	session, _, err := guard.Login(context.Background(), httptest.NewRecorder(), user, false, true)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	if !session.PendingTwoFactor {
+		t.Fatal("expected PendingTwoFactor to be true")
+	}
+	if session.AuthenticatedAt != nil {
+		t.Fatal("expected AuthenticatedAt to be nil when pending 2FA")
+	}
+}
+
+// Test session expiry detection
+func TestSessionGuardExpiresOldSessions(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1"}
+	now := time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, fixedClock{now: now}, fixedIDs{value: "s1"})
+	guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+
+	// Advance clock past session lifetime
+	expiredClock := fixedClock{now: now.Add(2 * time.Hour)}
+	guard2 := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, expiredClock, fixedIDs{value: "s2"})
+
+	_, _, err := guard2.AuthenticateRequest(context.Background(), httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected expired session to be unauthorized, got %v", err)
+	}
+}
+
+// Test session LastSeenAt update
+func TestSessionGuardUpdatesLastSeenAt(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1"}
+	now := time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)
+	sessions := &fakeSessionStore{}
+	cookies := &fakeCookieManager{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, fixedClock{now: now}, fixedIDs{value: "s1"})
+	guard.Login(context.Background(), httptest.NewRecorder(), user, false, false)
+
+	// Authenticate 30 minutes later
+	later := now.Add(30 * time.Minute)
+	guard2 := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, fixedClock{now: later}, fixedIDs{value: "s2"})
+	session, _, err := guard2.AuthenticateRequest(context.Background(), httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+	if err != nil {
+		t.Fatalf("AuthenticateRequest: %v", err)
+	}
+
+	if !session.LastSeenAt.Equal(later) {
+		t.Fatalf("expected LastSeenAt to be updated to %v, got %v", later, session.LastSeenAt)
+	}
+}
+
+// Guard name
+func TestSessionGuardName(t *testing.T) {
+	t.Parallel()
+
+	guard := NewSessionGuard("api", Config{}, nil, nil, &fakeCookieManager{}, nil, nil, fixedClock{}, fixedIDs{})
+	if guard.Name() != "api" {
+		t.Fatalf("expected name 'api', got %q", guard.Name())
+	}
+}
+
+// Logout with nil session and nil user
+func TestLogoutWithNilSessionAndUser(t *testing.T) {
+	t.Parallel()
+
+	cookies := &fakeCookieManager{}
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{}, &fakeSessionStore{}, cookies, nil, nil, fixedClock{now: time.Now().UTC()}, fixedIDs{})
+
+	err := guard.Logout(context.Background(), httptest.NewRecorder(), nil, nil)
+	if err != nil {
+		t.Fatalf("Logout with nil session/user: %v", err)
+	}
+}
+
+// ======================== TOKEN GUARD TESTS ========================
+
+// Upstream: testUserCanBeRetrievedByQueryStringVariable
+func TestTokenGuardUserFromQueryString(t *testing.T) {
 	t.Parallel()
 
 	user := &testUser{id: "user-1", email: "user@example.com"}
 	provider := &fakeProvider{user: user}
 
 	request := httptest.NewRequest(http.MethodGet, "/?api_token=token-123", nil)
-	tokenGuard := NewTokenGuard(provider, request, "api_token", "api_token", false)
-	resolved, err := tokenGuard.User(context.Background())
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	resolved, err := guard.User(context.Background())
 	if err != nil {
-		t.Fatalf("TokenGuard.User query: %v", err)
+		t.Fatalf("User: %v", err)
 	}
-
-	if resolved.GetAuthIdentifier() != user.id {
-		t.Fatalf("unexpected token guard user: %q", resolved.GetAuthIdentifier())
-	}
-
-	request = httptest.NewRequest(http.MethodGet, "/", nil)
-	request.Header.Set("Authorization", "Bearer token-123")
-	tokenGuard.SetRequest(request)
-
-	resolved, err = tokenGuard.User(context.Background())
-	if err != nil {
-		t.Fatalf("TokenGuard.User bearer: %v", err)
-	}
-
-	if resolved.GetAuthIdentifier() != user.id {
-		t.Fatalf("unexpected bearer user: %q", resolved.GetAuthIdentifier())
-	}
-
-	requestGuard := NewRequestGuard(func(_ context.Context, r *http.Request, provider UserProvider) (Authenticatable, error) {
-		if r.URL.Path != "/me" {
-			return nil, ErrUnauthorized
-		}
-
-		return provider.RetrieveByID(context.Background(), user.id)
-	}, httptest.NewRequest(http.MethodGet, "/me", nil), provider)
-
-	resolved, err = requestGuard.User(context.Background())
-	if err != nil {
-		t.Fatalf("RequestGuard.User: %v", err)
-	}
-
-	if resolved.GetAuthIdentifier() != user.id {
-		t.Fatalf("unexpected request guard user: %q", resolved.GetAuthIdentifier())
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
 	}
 }
 
+// Upstream: testUserCanBeRetrievedByBearerToken
+func TestTokenGuardUserFromBearerToken(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Authorization", "Bearer token-123")
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User: %v", err)
+	}
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testUserCanBeRetrievedByAuthHeaders
+func TestTokenGuardUserFromAuthorizationHeader(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Authorization", "token-123")
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User: %v", err)
+	}
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testTokenCanBeHashed
+func TestTokenGuardHashedStorageKey(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.URL = &url.URL{RawQuery: "token=token-123"}
+
+	guard := NewTokenGuard(provider, request, "token", "hashed_api_token", true)
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User: %v", err)
+	}
+
+	if resolved.GetAuthIdentifier() != user.id {
+		t.Fatalf("unexpected user: %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testValidateCanDetermineIfCredentialsAreValid / Invalid
+func TestTokenGuardReturnsErrorForMissingToken(t *testing.T) {
+	t.Parallel()
+
+	provider := &fakeProvider{user: &testUser{id: "u1"}}
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for missing token, got %v", err)
+	}
+}
+
+// Upstream: testValidateIfApiTokenIsEmpty
+func TestTokenGuardReturnsErrorForEmptyToken(t *testing.T) {
+	t.Parallel()
+
+	provider := &fakeProvider{user: &testUser{id: "u1"}}
+	request := httptest.NewRequest(http.MethodGet, "/?api_token=", nil)
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for empty token, got %v", err)
+	}
+}
+
+// Upstream: testItAllowToPassCustomRequestInSetterAndUseItForValidation
+func TestTokenGuardSetRequest(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	// First request has no token
+	guard := NewTokenGuard(provider, httptest.NewRequest(http.MethodGet, "/", nil), "api_token", "api_token", false)
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized, got %v", err)
+	}
+
+	// Set new request with token
+	guard.SetRequest(httptest.NewRequest(http.MethodGet, "/?api_token=token-123", nil))
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User after SetRequest: %v", err)
+	}
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testUserCanBeRetrievedByBearerTokenWithCustomKey
+func TestTokenGuardCustomInputKey(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	request := httptest.NewRequest(http.MethodGet, "/?custom_key=token-123", nil)
+	guard := NewTokenGuard(provider, request, "custom_key", "api_token", false)
+
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User: %v", err)
+	}
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+// Token guard caches user on repeated calls
+func TestTokenGuardCachesUser(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	request := httptest.NewRequest(http.MethodGet, "/?api_token=token-123", nil)
+	guard := NewTokenGuard(provider, request, "api_token", "api_token", false)
+
+	first, _ := guard.User(context.Background())
+	second, _ := guard.User(context.Background())
+
+	if first != second {
+		t.Fatal("expected cached user to be the same instance")
+	}
+}
+
+// Token guard with nil request
+func TestTokenGuardNilRequest(t *testing.T) {
+	t.Parallel()
+
+	guard := NewTokenGuard(&fakeProvider{}, nil, "", "", false)
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for nil request, got %v", err)
+	}
+}
+
+// Default input key
+func TestTokenGuardDefaultInputKey(t *testing.T) {
+	t.Parallel()
+
+	guard := NewTokenGuard(&fakeProvider{}, nil, "", "", false)
+	if guard.inputKey != "api_token" {
+		t.Fatalf("expected default inputKey 'api_token', got %q", guard.inputKey)
+	}
+	if guard.storageKey != "api_token" {
+		t.Fatalf("expected default storageKey 'api_token', got %q", guard.storageKey)
+	}
+}
+
+// ======================== REQUEST GUARD TESTS ========================
+
+func TestRequestGuardResolvesUser(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	provider := &fakeProvider{user: user}
+
+	guard := NewRequestGuard(func(_ context.Context, r *http.Request, provider UserProvider) (Authenticatable, error) {
+		if r.URL.Path != "/me" {
+			return nil, ErrUnauthorized
+		}
+		return provider.RetrieveByID(context.Background(), user.id)
+	}, httptest.NewRequest(http.MethodGet, "/me", nil), provider)
+
+	resolved, err := guard.User(context.Background())
+	if err != nil {
+		t.Fatalf("User: %v", err)
+	}
+	if resolved.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user-1, got %q", resolved.GetAuthIdentifier())
+	}
+}
+
+func TestRequestGuardReturnsErrorForInvalidPath(t *testing.T) {
+	t.Parallel()
+
+	guard := NewRequestGuard(func(_ context.Context, r *http.Request, _ UserProvider) (Authenticatable, error) {
+		if r.URL.Path != "/valid" {
+			return nil, ErrUnauthorized
+		}
+		return nil, nil
+	}, httptest.NewRequest(http.MethodGet, "/invalid", nil), &fakeProvider{})
+
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized, got %v", err)
+	}
+}
+
+func TestRequestGuardCachesUser(t *testing.T) {
+	t.Parallel()
+
+	callCount := 0
+	user := &testUser{id: "u1"}
+	guard := NewRequestGuard(func(_ context.Context, _ *http.Request, _ UserProvider) (Authenticatable, error) {
+		callCount++
+		return user, nil
+	}, httptest.NewRequest(http.MethodGet, "/", nil), &fakeProvider{})
+
+	guard.User(context.Background())
+	guard.User(context.Background())
+
+	if callCount != 1 {
+		t.Fatalf("expected callback to be called once, got %d", callCount)
+	}
+}
+
+func TestRequestGuardSetRequestResetsCache(t *testing.T) {
+	t.Parallel()
+
+	callCount := 0
+	user := &testUser{id: "u1"}
+	guard := NewRequestGuard(func(_ context.Context, _ *http.Request, _ UserProvider) (Authenticatable, error) {
+		callCount++
+		return user, nil
+	}, httptest.NewRequest(http.MethodGet, "/", nil), &fakeProvider{})
+
+	guard.User(context.Background())
+	guard.SetRequest(httptest.NewRequest(http.MethodGet, "/new", nil))
+	guard.User(context.Background())
+
+	if callCount != 2 {
+		t.Fatalf("expected callback to be called twice after SetRequest, got %d", callCount)
+	}
+}
+
+func TestRequestGuardNilCallback(t *testing.T) {
+	t.Parallel()
+
+	guard := NewRequestGuard(nil, httptest.NewRequest(http.MethodGet, "/", nil), &fakeProvider{})
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for nil callback, got %v", err)
+	}
+}
+
+func TestRequestGuardNilRequest(t *testing.T) {
+	t.Parallel()
+
+	guard := NewRequestGuard(func(_ context.Context, _ *http.Request, _ UserProvider) (Authenticatable, error) {
+		return nil, nil
+	}, nil, &fakeProvider{})
+	_, err := guard.User(context.Background())
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for nil request, got %v", err)
+	}
+}
+
+// ======================== MANAGER TESTS ========================
+
+// Upstream: testAttemptCallsRetrieveByCredentials
 func TestManagerValidateCredentials(t *testing.T) {
 	t.Parallel()
 
@@ -386,22 +1019,297 @@ func TestManagerValidateCredentials(t *testing.T) {
 	}
 }
 
-func TestTokenGuardHashedStorageKey(t *testing.T) {
+// Upstream: testAttemptReturnsFalseIfUserNotGiven
+func TestManagerValidateCredentialsReturnsErrorForInvalidPassword(t *testing.T) {
 	t.Parallel()
 
-	user := &testUser{id: "user-1", email: "user@example.com"}
-	provider := &fakeProvider{user: user}
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
 
-	request := httptest.NewRequest(http.MethodGet, "/", nil)
-	request.URL = &url.URL{RawQuery: "token=token-123"}
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{user: user, hasher: hasher},
+	}, ManagerDependencies{})
 
-	guard := NewTokenGuard(provider, request, "token", "hashed_api_token", true)
+	_, err := manager.ValidateCredentials(context.Background(), map[string]string{
+		"email":    "user@example.com",
+		"password": "wrong-password",
+	})
+	if !errors.Is(err, ErrInvalidCredentials) {
+		t.Fatalf("expected ErrInvalidCredentials, got %v", err)
+	}
+}
+
+func TestManagerValidateCredentialsReturnsErrorForUnknownUser(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{user: nil, hasher: hasher},
+	}, ManagerDependencies{})
+
+	_, err := manager.ValidateCredentials(context.Background(), map[string]string{
+		"email":    "missing@example.com",
+		"password": "secret",
+	})
+	if !errors.Is(err, ErrInvalidCredentials) {
+		t.Fatalf("expected ErrInvalidCredentials, got %v", err)
+	}
+}
+
+func TestManagerRequiresAtLeastOneProvider(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{}, ManagerDependencies{})
+	if err == nil {
+		t.Fatal("expected error for empty providers")
+	}
+}
+
+func TestManagerRequiresRegisteredDefaultProvider(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewManager(Config{DefaultProvider: "nonexistent"}, map[string]UserProvider{
+		"users": &fakeProvider{},
+	}, ManagerDependencies{})
+	if err == nil {
+		t.Fatal("expected error for unregistered default provider")
+	}
+}
+
+func TestManagerProvider(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	fp := &fakeProvider{hasher: hasher}
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": fp,
+	}, ManagerDependencies{})
+
+	p, ok := manager.Provider("users")
+	if !ok || p != fp {
+		t.Fatal("expected to get registered provider")
+	}
+
+	_, ok = manager.Provider("missing")
+	if ok {
+		t.Fatal("expected missing provider to return false")
+	}
+}
+
+func TestManagerDefaultGuardIsNilWithoutSessionDeps(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultGuard: "web", DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{hasher: hasher},
+	}, ManagerDependencies{})
+
+	if manager.DefaultGuard() != nil {
+		t.Fatal("expected nil default guard when sessions/cookies not provided")
+	}
+}
+
+func TestManagerRegisterSessionGuardRequiresDeps(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{hasher: hasher},
+	}, ManagerDependencies{})
+
+	_, err := manager.RegisterSessionGuard("web", "users")
+	if err == nil {
+		t.Fatal("expected error when sessions missing")
+	}
+}
+
+func TestManagerRegisterTokenGuard(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{hasher: hasher},
+	}, ManagerDependencies{})
+
+	guard, err := manager.RegisterTokenGuard("api", httptest.NewRequest(http.MethodGet, "/", nil), "", "", "", false)
+	if err != nil {
+		t.Fatalf("RegisterTokenGuard: %v", err)
+	}
+	if guard == nil {
+		t.Fatal("expected token guard")
+	}
+}
+
+func TestManagerRegisterTokenGuardUnknownProvider(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{hasher: hasher},
+	}, ManagerDependencies{})
+
+	_, err := manager.RegisterTokenGuard("api", nil, "nonexistent", "", "", false)
+	if err == nil {
+		t.Fatal("expected error for unknown provider")
+	}
+}
+
+func TestManagerViaRequest(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "u1"}
+	hasher, _ := NewDefaultPasswordHasher()
+	manager, _ := NewManager(Config{DefaultProvider: "users"}, map[string]UserProvider{
+		"users": &fakeProvider{user: user, hasher: hasher},
+	}, ManagerDependencies{})
+
+	guard := manager.ViaRequest("custom", httptest.NewRequest(http.MethodGet, "/", nil), func(_ context.Context, _ *http.Request, p UserProvider) (Authenticatable, error) {
+		return p.RetrieveByID(context.Background(), "u1")
+	})
+
 	resolved, err := guard.User(context.Background())
 	if err != nil {
 		t.Fatalf("User: %v", err)
 	}
-
-	if resolved.GetAuthIdentifier() != user.id {
-		t.Fatalf("unexpected user: %q", resolved.GetAuthIdentifier())
+	if resolved.GetAuthIdentifier() != "u1" {
+		t.Fatalf("expected u1, got %q", resolved.GetAuthIdentifier())
 	}
+}
+
+// ======================== ERROR TESTS ========================
+
+func TestAuthenticationExceptionError(t *testing.T) {
+	t.Parallel()
+
+	exc := AuthenticationException{Message: "custom error", Guards: []string{"web"}}
+	expected := "custom error (guards=web)"
+	if exc.Error() != expected {
+		t.Fatalf("expected %q, got %q", expected, exc.Error())
+	}
+
+	exc2 := AuthenticationException{}
+	if exc2.Error() != "auth: authentication failed" {
+		t.Fatalf("expected 'auth: authentication failed', got %q", exc2.Error())
+	}
+
+	exc3 := AuthenticationException{Message: "denied", Guards: []string{"web", "api"}}
+	expected3 := "denied (guards=web,api)"
+	if exc3.Error() != expected3 {
+		t.Fatalf("expected %q, got %q", expected3, exc3.Error())
+	}
+
+	exc4 := AuthenticationException{Message: "no guards"}
+	if exc4.Error() != "no guards" {
+		t.Fatalf("expected 'no guards', got %q", exc4.Error())
+	}
+}
+
+func TestSentinelErrors(t *testing.T) {
+	t.Parallel()
+
+	errors := []error{ErrUnauthorized, ErrUserNotFound, ErrUserExists, ErrInvalidCredentials, ErrInvalidToken, ErrTokenExpired}
+	for _, e := range errors {
+		if e == nil {
+			t.Fatal("sentinel error should not be nil")
+		}
+		if e.Error() == "" {
+			t.Fatal("sentinel error should have non-empty message")
+		}
+	}
+}
+
+// ======================== DEFAULTS TESTS ========================
+
+func TestSystemClockReturnsCurrentTime(t *testing.T) {
+	t.Parallel()
+
+	clock := SystemClock{}
+	now := clock.Now()
+	if time.Since(now) > time.Second {
+		t.Fatal("SystemClock.Now() should return current time")
+	}
+}
+
+func TestRandomIDGeneratorProducesUniqueIDs(t *testing.T) {
+	t.Parallel()
+
+	gen := RandomIDGenerator{}
+	id1, err := gen.NewID()
+	if err != nil {
+		t.Fatalf("NewID: %v", err)
+	}
+	id2, _ := gen.NewID()
+
+	if id1 == "" || id2 == "" {
+		t.Fatal("expected non-empty IDs")
+	}
+	if id1 == id2 {
+		t.Fatal("expected unique IDs")
+	}
+}
+
+// ======================== RECALLER TESTS ========================
+
+func TestRecallerParsing(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		value     string
+		wantValid bool
+		wantID    string
+		wantToken string
+		wantHash  string
+	}{
+		{"valid", "user-1|token|hash", true, "user-1", "token", "hash"},
+		{"empty", "", false, "", "", ""},
+		{"one segment", "single", false, "single", "", ""},
+		{"two segments", "a|b", false, "a", "b", ""},
+		{"empty id", "|token|hash", false, "", "token", "hash"},
+		{"empty token", "id||hash", false, "id", "", "hash"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			r := NewRecaller(tc.value)
+			if r.Valid() != tc.wantValid {
+				t.Fatalf("Valid() = %v, want %v", r.Valid(), tc.wantValid)
+			}
+			if r.ID() != tc.wantID {
+				t.Fatalf("ID() = %q, want %q", r.ID(), tc.wantID)
+			}
+			if r.Token() != tc.wantToken {
+				t.Fatalf("Token() = %q, want %q", r.Token(), tc.wantToken)
+			}
+			if r.Hash() != tc.wantHash {
+				t.Fatalf("Hash() = %q, want %q", r.Hash(), tc.wantHash)
+			}
+		})
+	}
+}
+
+// ======================== CONFIG TESTS ========================
+
+func TestExpiredHelper(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 4, 5, 12, 0, 0, 0, time.UTC)
+	past := now.Add(-2 * time.Hour)
+	recent := now.Add(-30 * time.Minute)
+
+	if !Expired(past, time.Hour, now) {
+		t.Fatal("expected past time to be expired")
+	}
+	if Expired(recent, time.Hour, now) {
+		t.Fatal("expected recent time to not be expired")
+	}
+}
+
+// ======================== STATEFUL GUARD INTERFACE ========================
+
+func TestSessionGuardImplementsStatefulGuard(t *testing.T) {
+	t.Parallel()
+
+	var _ StatefulGuard = (*SessionGuard)(nil)
 }
