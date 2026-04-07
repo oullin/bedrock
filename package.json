@@ -8,9 +8,9 @@
     "pnpm": ">=10.33.0"
   },
   "scripts": {
-    "preinstall": "node scripts/enforce-pnpm.mjs",
-    "bootstrap:illuminate": "node scripts/bootstrap-illuminate.mjs",
-    "sync:laravel": "node scripts/sync-laravel-upstream.mjs",
+    "preinstall": "sh packages/infra/scripts/enforce-pnpm.sh",
+    "bootstrap:illuminate": "sh packages/infra/scripts/bootstrap-illuminate.sh",
+    "sync:laravel": "sh packages/infra/scripts/sync-laravel-upstream.sh",
     "build": "turbo run build --cache-dir=storage/.turbo",
     "dev": "turbo run dev --cache-dir=storage/.turbo",
     "typecheck": "turbo run typecheck --cache-dir=storage/.turbo",
