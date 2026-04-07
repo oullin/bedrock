@@ -26,6 +26,11 @@ func (c *Context) Render(name string, data any) error {
 	return c.Renderer.WriteHTML(c.Writer, nethttp.StatusOK, name, data)
 }
 
+// Param returns a route parameter value by name.
+func (c *Context) Param(name string) string {
+	return c.Request.PathValue(name)
+}
+
 // Text writes a plain-text response.
 func (c *Context) Text(status int, body string) error {
 	c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -71,6 +76,21 @@ func (r *Router) Handle(method string, route string, handler HandlerFunc) {
 // Get registers a GET route.
 func (r *Router) Get(route string, handler HandlerFunc) {
 	r.Handle(nethttp.MethodGet, route, handler)
+}
+
+// Post registers a POST route.
+func (r *Router) Post(route string, handler HandlerFunc) {
+	r.Handle(nethttp.MethodPost, route, handler)
+}
+
+// Put registers a PUT route.
+func (r *Router) Put(route string, handler HandlerFunc) {
+	r.Handle(nethttp.MethodPut, route, handler)
+}
+
+// Delete registers a DELETE route.
+func (r *Router) Delete(route string, handler HandlerFunc) {
+	r.Handle(nethttp.MethodDelete, route, handler)
 }
 
 // ServeHTTP serves the configured routes.

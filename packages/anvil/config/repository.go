@@ -225,6 +225,36 @@ func (r *Repository) StringSlice(key string) ([]string, error) {
 	}
 }
 
+// Float returns a float64 value.
+func (r *Repository) Float(key string) (float64, error) {
+	value, ok := lookup(r.items, key)
+
+	if !ok {
+		return 0, fmt.Errorf("config: missing key %q", key)
+	}
+
+	switch typed := value.(type) {
+	case float64:
+		return typed, nil
+	case float32:
+		return float64(typed), nil
+	case int:
+		return float64(typed), nil
+	case int64:
+		return float64(typed), nil
+	case string:
+		parsed, err := strconv.ParseFloat(strings.TrimSpace(typed), 64)
+
+		if err != nil {
+			return 0, typeError(key, "float64", value)
+		}
+
+		return parsed, nil
+	default:
+		return 0, typeError(key, "float64", value)
+	}
+}
+
 // Map returns a cloned map value.
 func (r *Repository) Map(key string) (map[string]any, error) {
 	value, ok := lookup(r.items, key)

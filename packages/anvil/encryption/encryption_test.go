@@ -1042,6 +1042,71 @@ func TestTamperedPayloadIsRejected(t *testing.T) {
 	}
 }
 
+// Upstream: testItValidatesMacOnPerKeyBasis
+func TestMACValidationPerKey(t *testing.T) {
+	keyA := []byte("aaaaaaaaaaaaaaaa")
+	keyB := []byte("bbbbbbbbbbbbbbbb")
+	keyC := []byte("cccccccccccccccc")
+
+	encA, err := New(Config{Key: keyA, Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New key-A: %v", err)
+	}
+
+	encrypted, err := encA.EncryptString("secret")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	// Decrypter with key-B as current and key-A as previous should succeed
+	// because the MAC was produced by key-A and key-A is in the previous list.
+	decWithPrevious, err := New(Config{Key: keyB, PreviousKeys: [][]byte{keyA}, Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New key-B+A: %v", err)
+	}
+
+	decrypted, err := decWithPrevious.DecryptString(encrypted)
+	if err != nil {
+		t.Fatalf("DecryptString with previous key: %v", err)
+	}
+	if decrypted != "secret" {
+		t.Fatalf("expected 'secret', got %q", decrypted)
+	}
+
+	// Decrypter with key-C as current and key-B as previous should fail
+	// because neither key-C nor key-B produced the MAC (key-A did).
+	decWrongKeys, err := New(Config{Key: keyC, PreviousKeys: [][]byte{keyB}, Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New key-C+B: %v", err)
+	}
+
+	if _, err := decWrongKeys.DecryptString(encrypted); !errors.Is(err, errInvalidMAC) {
+		t.Fatalf("expected invalid MAC when no key matches, got %v", err)
+	}
+
+	// AEAD cipher: tag is per-key by construction (decryption itself fails).
+	gcmKeyA := []byte("0123456789abcdef0123456789abcdef")
+	gcmKeyB := []byte("abcdef0123456789abcdef0123456789")
+
+	gcmA, _ := New(Config{Key: gcmKeyA, Cipher: AES256GCM})
+	gcmEncrypted, _ := gcmA.EncryptString("aead-secret")
+
+	gcmWrong, _ := New(Config{Key: gcmKeyB, PreviousKeys: [][]byte{}, Cipher: AES256GCM})
+	if _, err := gcmWrong.DecryptString(gcmEncrypted); err == nil {
+		t.Fatal("expected AEAD decryption to fail with wrong key")
+	}
+
+	// AEAD with correct previous key should succeed.
+	gcmCorrect, _ := New(Config{Key: gcmKeyB, PreviousKeys: [][]byte{gcmKeyA}, Cipher: AES256GCM})
+	decrypted, err = gcmCorrect.DecryptString(gcmEncrypted)
+	if err != nil {
+		t.Fatalf("AEAD DecryptString with previous key: %v", err)
+	}
+	if decrypted != "aead-secret" {
+		t.Fatalf("expected 'aead-secret', got %q", decrypted)
+	}
+}
+
 func reflectBytes(a []byte, b []byte) bool {
 	if len(a) != len(b) {
 		return false

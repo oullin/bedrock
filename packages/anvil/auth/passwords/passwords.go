@@ -162,6 +162,34 @@ func (b *Broker) Reset(ctx context.Context, email string, token string, password
 	return user, nil
 }
 
+// ResetLinkNotifier is called with the user and plain-text token
+// when a reset link is dispatched.
+type ResetLinkNotifier func(ctx context.Context, user auth.Authenticatable, token string) error
+
+// SendResetLink creates a token and dispatches it via the notifier.
+func (b *Broker) SendResetLink(ctx context.Context, email string, notifier ResetLinkNotifier) error {
+	user, err := b.Users.RetrieveByCredentials(ctx, map[string]string{"email": NormalizeEmail(email)})
+	if err != nil {
+		return err
+	}
+
+	canCreate, err := b.CanCreateToken(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	if !canCreate {
+		return auth.ErrThrottled
+	}
+
+	token, err := b.CreateToken(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	return notifier(ctx, user, token)
+}
+
 // NormalizeEmail normalizes a password-reset email address.
 func NormalizeEmail(email string) string {
 	return strings.TrimSpace(strings.ToLower(email))

@@ -156,3 +156,42 @@ func TestRendererEmptyDirectory(t *testing.T) {
 		t.Fatal("expected error for view in empty directory")
 	}
 }
+
+// Upstream: testViewShareGlobalData
+func TestRendererShareGlobalData(t *testing.T) {
+	t.Parallel()
+
+	renderer := view.NewRenderer(t.TempDir())
+
+	renderer.Share("appName", "Bedrock")
+	renderer.Share("version", "1.0")
+
+	shared := renderer.Shared()
+	if shared["appName"] != "Bedrock" {
+		t.Fatalf("expected shared 'appName' = 'Bedrock', got %v", shared["appName"])
+	}
+	if shared["version"] != "1.0" {
+		t.Fatalf("expected shared 'version' = '1.0', got %v", shared["version"])
+	}
+
+	// Overwrite existing shared value.
+	renderer.Share("appName", "Bedrock v2")
+	shared = renderer.Shared()
+	if shared["appName"] != "Bedrock v2" {
+		t.Fatalf("expected overwritten 'appName' = 'Bedrock v2', got %v", shared["appName"])
+	}
+}
+
+func TestRendererSharedReturnsEmptyMapWhenNothingShared(t *testing.T) {
+	t.Parallel()
+
+	renderer := view.NewRenderer(t.TempDir())
+	shared := renderer.Shared()
+
+	if shared == nil {
+		t.Fatal("expected non-nil map")
+	}
+	if len(shared) != 0 {
+		t.Fatalf("expected empty map, got %d entries", len(shared))
+	}
+}

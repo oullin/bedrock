@@ -14,6 +14,8 @@ import (
 type Response struct {
 	Allowed bool
 	Message string
+	Code    int
+	Status  int
 }
 
 // AuthorizationException reports an authorization failure.
@@ -60,6 +62,11 @@ func Allow() Response {
 // Deny returns a denied response.
 func Deny(message string) Response {
 	return Response{Allowed: false, Message: message}
+}
+
+// DenyWithCode returns a denied response carrying a custom application code and HTTP status.
+func DenyWithCode(message string, code int, status int) Response {
+	return Response{Allowed: false, Message: message, Code: code, Status: status}
 }
 
 func (e AuthorizationException) Error() string {
@@ -172,6 +179,81 @@ func (g *Gate) Any(ctx context.Context, user auth.Authenticatable, abilities []s
 // Denies reports whether an ability is denied.
 func (g *Gate) Denies(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) bool {
 	return !g.Check(ctx, user, ability, arguments...)
+}
+
+// Has reports whether an ability has been defined.
+func (g *Gate) Has(ability string) bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	_, ok := g.abilities[strings.TrimSpace(ability)]
+	return ok
+}
+
+// None reports whether all given abilities are denied.
+func (g *Gate) None(ctx context.Context, user auth.Authenticatable, abilities []string, arguments ...any) bool {
+	return !g.Any(ctx, user, abilities, arguments...)
+}
+
+// AllowIf grants access when the condition is true, otherwise denies with the given message.
+func (g *Gate) AllowIf(condition bool, message string) Response {
+	if condition {
+		return Allow()
+	}
+
+	return Deny(message)
+}
+
+// DenyIf denies access when the condition is true, otherwise allows.
+func (g *Gate) DenyIf(condition bool, message string) Response {
+	if condition {
+		return Deny(message)
+	}
+
+	return Allow()
+}
+
+// ForUser returns a copy of the gate with all definitions but no user binding
+// (Go gates are stateless; this clones abilities/policies/hooks so the caller
+// can layer per-user overrides without mutating the original).
+func (g *Gate) ForUser() *Gate {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	child := &Gate{
+		abilities: make(map[string]AbilityFunc, len(g.abilities)),
+		policies:  make(map[string]PolicyFunc, len(g.policies)),
+		before:    append([]BeforeFunc(nil), g.before...),
+		after:     append([]AfterFunc(nil), g.after...),
+	}
+
+	for k, v := range g.abilities {
+		child.abilities[k] = v
+	}
+
+	for k, v := range g.policies {
+		child.policies[k] = v
+	}
+
+	return child
+}
+
+// Resource bulk-registers CRUD abilities (viewAny, view, create, update, delete)
+// for a named resource using the supplied policy.
+func (g *Gate) Resource(resource string, policy PolicyFunc) {
+	for _, ability := range []string{"viewAny", "view", "create", "update", "delete"} {
+		name := resource + "." + ability
+		localAbility := ability
+
+		g.Define(name, func(ctx context.Context, user auth.Authenticatable, arguments ...any) Response {
+			result, handled := policy(ctx, user, localAbility, arguments...)
+			if handled {
+				return result
+			}
+
+			return Deny("auth: ability is not defined")
+		})
+	}
 }
 
 // Authorize authorizes an ability or returns an exception.
