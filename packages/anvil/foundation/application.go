@@ -141,6 +141,25 @@ func (a *Application) Config() *configpkg.Repository {
 	return a.config
 }
 
+// Environment returns the current application environment (e.g. "local", "production", "testing").
+func (a *Application) Environment() string {
+	if a.config == nil {
+		return "production"
+	}
+
+	env, err := a.config.String("app.env")
+	if err != nil || env == "" {
+		return "production"
+	}
+
+	return env
+}
+
+// IsProduction reports whether the app is running in production.
+func (a *Application) IsProduction() bool {
+	return a.Environment() == "production"
+}
+
 // Console returns the application console kernel.
 func (a *Application) Console() *console.Kernel {
 	return a.console

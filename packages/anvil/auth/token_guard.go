@@ -85,3 +85,18 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 
 	return user, nil
 }
+
+// Validate checks the given credentials without setting user state.
+func (g *TokenGuard) Validate(ctx context.Context, credentials map[string]string) (bool, error) {
+	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+	if err != nil {
+		return false, nil
+	}
+
+	valid, err := g.provider.ValidateCredentials(ctx, user, credentials)
+	if err != nil {
+		return false, err
+	}
+
+	return valid, nil
+}
