@@ -8,16 +8,18 @@ import (
 // Container is an IoC service container that manages bindings and resolves
 // dependencies. It is safe for concurrent use.
 type Container struct {
-	mu                      sync.RWMutex
-	bindings                map[string]*binding
-	instances               map[string]any
-	aliases                 map[string]string
-	tags                    map[string][]string
-	contextual              map[string]map[string]any
-	resolved                map[string]bool
-	reboundCallbacks        map[string][]func(any)
-	resolvingCallbacks      []func(string, any)
-	afterResolvingCallbacks []func(string, any)
+	mu                       sync.RWMutex
+	bindings                 map[string]*binding
+	instances                map[string]any
+	aliases                  map[string]string
+	tags                     map[string][]string
+	contextual               map[string]map[string]any
+	resolved                 map[string]bool
+	extenders                map[string][]func(any, *Container) any
+	reboundCallbacks         map[string][]func(any)
+	beforeResolvingCallbacks []func(string, *Container)
+	resolvingCallbacks       []func(string, any)
+	afterResolvingCallbacks  []func(string, any)
 }
 
 // New creates an empty container.
@@ -29,6 +31,7 @@ func New() *Container {
 		tags:             make(map[string][]string),
 		contextual:       make(map[string]map[string]any),
 		resolved:         make(map[string]bool),
+		extenders:        make(map[string][]func(any, *Container) any),
 		reboundCallbacks: make(map[string][]func(any)),
 	}
 }
@@ -189,10 +192,14 @@ func (c *Container) Make(abstract string) (any, error) {
 		return nil, fmt.Errorf("%w: %q", ErrNotBound, abstract)
 	}
 
+	c.fireBeforeResolvingCallbacks(abstract)
+
 	value, err := b.resolve(c)
 	if err != nil {
 		return nil, fmt.Errorf("%w: resolving %q: %v", ErrResolve, abstract, err)
 	}
+
+	value = c.applyExtenders(abstract, value)
 
 	c.mu.Lock()
 	c.resolved[abstract] = true
@@ -306,7 +313,9 @@ func (c *Container) Flush() {
 	c.tags = make(map[string][]string)
 	c.contextual = make(map[string]map[string]any)
 	c.resolved = make(map[string]bool)
+	c.extenders = make(map[string][]func(any, *Container) any)
 	c.reboundCallbacks = make(map[string][]func(any))
+	c.beforeResolvingCallbacks = nil
 	c.resolvingCallbacks = nil
 	c.afterResolvingCallbacks = nil
 }
@@ -327,6 +336,57 @@ func (c *Container) ForgetInstances() {
 	c.instances = make(map[string]any)
 }
 
+// Extend registers a decorator for abstract. Each time abstract is resolved,
+// the extender receives the resolved value and may return a replacement.
+// Multiple extenders are applied in registration order.
+func (c *Container) Extend(abstract string, extender func(any, *Container) any) {
+	c.mu.Lock()
+
+	abstract = c.resolveAlias(abstract)
+
+	if value, ok := c.instances[abstract]; ok {
+		c.instances[abstract] = extender(value, c)
+		callbacks := c.reboundCallbacks[abstract]
+		newValue := c.instances[abstract]
+
+		c.mu.Unlock()
+
+		for _, cb := range callbacks {
+			cb(newValue)
+		}
+
+		return
+	}
+
+	c.extenders[abstract] = append(c.extenders[abstract], extender)
+	wasResolved := c.resolved[abstract]
+
+	c.mu.Unlock()
+
+	if wasResolved {
+		value, err := c.Make(abstract)
+		if err == nil {
+			c.mu.RLock()
+			callbacks := make([]func(any), len(c.reboundCallbacks[abstract]))
+			copy(callbacks, c.reboundCallbacks[abstract])
+			c.mu.RUnlock()
+
+			for _, cb := range callbacks {
+				cb(value)
+			}
+		}
+	}
+}
+
+// ForgetExtenders removes all extenders for abstract.
+func (c *Container) ForgetExtenders(abstract string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	abstract = c.resolveAlias(abstract)
+	delete(c.extenders, abstract)
+}
+
 // Rebinding registers a callback that fires when abstract is re-bound.
 func (c *Container) Rebinding(abstract string, callback func(any)) {
 	c.mu.Lock()
@@ -334,6 +394,14 @@ func (c *Container) Rebinding(abstract string, callback func(any)) {
 
 	abstract = c.resolveAlias(abstract)
 	c.reboundCallbacks[abstract] = append(c.reboundCallbacks[abstract], callback)
+}
+
+// BeforeResolving registers a callback that fires before each resolution begins.
+func (c *Container) BeforeResolving(callback func(string, *Container)) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.beforeResolvingCallbacks = append(c.beforeResolvingCallbacks, callback)
 }
 
 // Resolving registers a callback that fires each time any abstract is resolved.
@@ -370,6 +438,30 @@ func (c *Container) resolveAlias(name string) string {
 		visited[name] = true
 		name = target
 	}
+}
+
+func (c *Container) fireBeforeResolvingCallbacks(abstract string) {
+	c.mu.RLock()
+	callbacks := make([]func(string, *Container), len(c.beforeResolvingCallbacks))
+	copy(callbacks, c.beforeResolvingCallbacks)
+	c.mu.RUnlock()
+
+	for _, cb := range callbacks {
+		cb(abstract, c)
+	}
+}
+
+func (c *Container) applyExtenders(abstract string, value any) any {
+	c.mu.RLock()
+	exts := make([]func(any, *Container) any, len(c.extenders[abstract]))
+	copy(exts, c.extenders[abstract])
+	c.mu.RUnlock()
+
+	for _, ext := range exts {
+		value = ext(value, c)
+	}
+
+	return value
 }
 
 func (c *Container) fireResolvingCallbacks(abstract string, value any) {

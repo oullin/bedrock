@@ -21,11 +21,8 @@ func TestApplicationBootsAndServesWelcome(t *testing.T) {
 		t.Fatalf("unexpected status: %d", recorder.Code)
 	}
 
-	body := recorder.Body.String()
-	for _, snippet := range []string{"Bedrock Demo", "Upstream 13 Demo Port", "/build/app.css", "/up"} {
-		if !strings.Contains(body, snippet) {
-			t.Fatalf("expected %q in response body", snippet)
-		}
+	if got := strings.TrimSpace(recorder.Body.String()); got != "Bedrock" {
+		t.Fatalf("expected %q, got %q", "Bedrock", got)
 	}
 }
 

@@ -14,7 +14,6 @@ require (
 	github.com/bedrock/packages/anvil/config v0.0.0 // indirect
 	github.com/bedrock/packages/anvil/http v0.0.0 // indirect
 	github.com/bedrock/packages/anvil/support v0.0.0 // indirect
-	github.com/bedrock/packages/anvil/view v0.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -41,5 +40,3 @@ replace github.com/bedrock/packages/anvil/http => ../anvil/http
 replace github.com/bedrock/packages/anvil/routing => ../anvil/routing
 
 replace github.com/bedrock/packages/anvil/support => ../anvil/support
-
-replace github.com/bedrock/packages/anvil/view => ../anvil/view

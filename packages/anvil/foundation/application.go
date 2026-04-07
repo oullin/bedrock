@@ -13,7 +13,6 @@ import (
 	"github.com/bedrock/packages/anvil/console"
 	"github.com/bedrock/packages/anvil/foundation/configuration"
 	"github.com/bedrock/packages/anvil/routing"
-	"github.com/bedrock/packages/anvil/view"
 )
 
 // RoutingConfig declares the route and command registrars for an application.
@@ -37,7 +36,6 @@ type Application struct {
 	config               *configpkg.Repository
 	router               *routing.Router
 	console              *console.Kernel
-	renderer             *view.Renderer
 	httpHandler          http.Handler
 	bootingCallbacks     []func(*Application)
 	bootedCallbacks      []func(*Application)
@@ -80,8 +78,7 @@ func (b *Builder) Create() (*Application, error) {
 		return nil, err
 	}
 
-	renderer := view.NewRenderer(filepath.Join(b.basePath, "resources", "views"))
-	router := routing.New(renderer)
+	router := routing.New()
 	kernel := console.New()
 
 	if b.routing.Health != "" {
@@ -131,7 +128,6 @@ func (b *Builder) Create() (*Application, error) {
 		config:      repo,
 		router:      router,
 		console:     kernel,
-		renderer:    renderer,
 		httpHandler: exceptions.Wrap(middleware.Wrap(handler)),
 	}, nil
 }
@@ -168,11 +164,6 @@ func (a *Application) IsProduction() bool {
 // Console returns the application console kernel.
 func (a *Application) Console() *console.Kernel {
 	return a.console
-}
-
-// Renderer returns the application view renderer.
-func (a *Application) Renderer() *view.Renderer {
-	return a.renderer
 }
 
 // HandleCommand executes a console command and returns its exit code.
