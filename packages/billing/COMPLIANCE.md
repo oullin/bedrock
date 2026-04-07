@@ -16,6 +16,43 @@ This package ports three PHP codebases into a single provider-agnostic Go packag
 
 ---
 
+## Executive Summary
+
+| Metric | Count |
+|--------|-------|
+| Go source files | 62 |
+| Files with tests | 7 |
+| Files without tests | 55 |
+| **Test file coverage** | **11.3%** |
+
+### Untested File Breakdown
+
+| Category | Files | Examples |
+|----------|-------|----------|
+| Business logic (critical) | 8 | `gate.go`, `entitlement.go`, `entitlement_sync.go`, `lifecycle.go`, `lifecycle_state.go`, `lifecycle_transition.go`, `checkout_reconciler.go`, `webhook_signature.go` |
+| Handlers / Controllers | 6 | `handler_billing.go`, `handler_inquiry.go`, `handler_invoice.go`, `handler_payment.go`, `handler_portal.go`, `handler_subscription.go` |
+| Checkout flow | 5 | `checkout.go`, `checkout_recovery.go`, `checkout_session.go`, `checkout_syncer.go`, `checkout_reconciler.go` |
+| Catalog / Pricing | 4 | `catalog.go`, `catalog_presentation.go`, `catalog_price_manager.go`, `catalog_seeder.go` |
+| Commands / Jobs | 4 | `command_expire.go`, `command_reconcile.go`, `command_recover.go`, `job_reconcile.go` |
+| Listeners | 4 | `listener_reconcile.go`, `listener_subscription_created.go`, `listener_sync_entitlements.go`, `listener_sync_update.go` |
+| Views / Frontend | 3 | `view.go`, `frontend_state.go`, `snapshot.go` |
+| Infrastructure | 21 | `billing.go`, `currency.go`, `errors.go`, `event.go`, `interfaces.go`, `invoice.go`, `mail.go`, `middleware.go`, `routes.go`, `webhook.go`, etc. |
+
+### High-Priority Gaps
+
+These 8 business-logic files carry the highest risk without test coverage:
+
+1. `gate.go` — SubscriptionGate.CheckRequirements (authorization decisions)
+2. `entitlement.go` — EntitlementAccess (feature access, capacity)
+3. `lifecycle_transition.go` — SubscriptionTransitioner (state machine)
+4. `lifecycle.go` — SubscriptionRepository (subscription creation)
+5. `checkout_reconciler.go` — SubscriptionReconciler (post-checkout matching)
+6. `webhook_signature.go` — HMAC verification
+7. `errors.go` — InvalidPlanPriceError construction
+8. `snapshot.go` — PlanConfig.MatchesPriceID, HasConfiguredProviderIDs
+
+---
+
 ## Test Coverage
 
 | Go File | Test File | Status |
