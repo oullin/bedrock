@@ -33,12 +33,17 @@ type Builder struct {
 
 // Application is a bootstrapped demo application.
 type Application struct {
-	basePath    string
-	config      *configpkg.Repository
-	router      *routing.Router
-	console     *console.Kernel
-	renderer    *view.Renderer
-	httpHandler http.Handler
+	basePath             string
+	config               *configpkg.Repository
+	router               *routing.Router
+	console              *console.Kernel
+	renderer             *view.Renderer
+	httpHandler          http.Handler
+	bootingCallbacks     []func(*Application)
+	bootedCallbacks      []func(*Application)
+	terminatingCallbacks []func()
+	booted               bool
+	runningInConsole     bool
 }
 
 // Configure begins application construction.
@@ -183,6 +188,75 @@ func (a *Application) HandleRequest(writer http.ResponseWriter, request *http.Re
 // ServeHTTP implements http.Handler.
 func (a *Application) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	a.HandleRequest(writer, request)
+}
+
+// Booting registers a callback to execute during application boot.
+func (a *Application) Booting(callback func(*Application)) {
+	a.bootingCallbacks = append(a.bootingCallbacks, callback)
+}
+
+// Booted registers a callback to execute after the application has booted.
+// If the application has already booted, the callback is executed immediately.
+func (a *Application) Booted(callback func(*Application)) {
+	if a.booted {
+		callback(a)
+		return
+	}
+	a.bootedCallbacks = append(a.bootedCallbacks, callback)
+}
+
+// Boot bootstraps the application by executing booting and booted callbacks.
+func (a *Application) Boot() {
+	if a.booted {
+		return
+	}
+
+	for _, cb := range a.bootingCallbacks {
+		cb(a)
+	}
+
+	a.booted = true
+
+	for _, cb := range a.bootedCallbacks {
+		cb(a)
+	}
+}
+
+// IsBooted reports whether the application has been booted.
+func (a *Application) IsBooted() bool {
+	return a.booted
+}
+
+// Terminating registers a callback to execute during application termination.
+func (a *Application) Terminating(callback func()) {
+	a.terminatingCallbacks = append(a.terminatingCallbacks, callback)
+}
+
+// Terminate executes all registered termination callbacks.
+func (a *Application) Terminate() {
+	for _, cb := range a.terminatingCallbacks {
+		cb()
+	}
+}
+
+// IsLocal reports whether the app is running in a local environment.
+func (a *Application) IsLocal() bool {
+	return a.Environment() == "local"
+}
+
+// IsTesting reports whether the app is running in a testing environment.
+func (a *Application) IsTesting() bool {
+	return a.Environment() == "testing"
+}
+
+// RunningInConsole reports whether the application is running via CLI.
+func (a *Application) RunningInConsole() bool {
+	return a.runningInConsole
+}
+
+// SetRunningInConsole marks the application as running in console mode.
+func (a *Application) SetRunningInConsole(v bool) {
+	a.runningInConsole = v
 }
 
 func loadEnvironment(basePath string) map[string]string {

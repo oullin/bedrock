@@ -13,11 +13,11 @@
 | Ported packages with tests | 13 |
 | Stub packages (no code) | 28 |
 | Upstream test methods analyzed | 494 |
-| Bedrock tests: COVERED | 236 |
-| Bedrock tests: MISSING | 213 |
+| Bedrock tests: COVERED | 314 |
+| Bedrock tests: MISSING | 135 |
 | Bedrock tests: INTENTIONAL-SKIP | 38 |
 | Bedrock tests: BEDROCK-ONLY | 53 |
-| **Overall coverage (excl. intentional skips)** | **52%** |
+| **Overall coverage (excl. intentional skips)** | **70%** |
 
 ---
 
@@ -68,8 +68,8 @@
 
 ## 2. Encryption (`tests/Encryption/EncrypterTest.php`)
 
-**Upstream: 26 tests | Bedrock: 22 tests**
-**Coverage: 85% (22/26)**
+**Upstream: 26 tests | Bedrock: 26 tests**
+**Coverage: 100% (26/26)**
 
 | # | Upstream Test | Bedrock Test | Status | Gap |
 |---|---|---|---|---|
@@ -95,10 +95,10 @@
 | 20 | `testThatAnAeadTagMustBeProvidedInFullLength` | `TestDecryptFailuresAndPayloadValidation` | COVERED | inline |
 | 21 | `testThatAnAeadTagCantBeModified` | `TestDecryptFailuresAndPayloadValidation` | COVERED | inline |
 | 22 | `testDecryptionExceptionIsThrownWhenUnexpectedTagIsAdded` | `TestDecryptFailuresAndPayloadValidation` | COVERED | inline |
-| 23 | `testWithBadKeyLength` | - | MISSING | (b) missing test |
-| 24 | `testWithBadKeyLengthAlternativeCipher` | - | MISSING | (b) missing test |
-| 25 | `testWithUnsupportedCipher` | - | MISSING | (b) missing test |
-| 26 | `testExceptionThrownWhenIvIsTooLong` | - | MISSING | (b) missing test |
+| 23 | `testWithBadKeyLength` | `TestWithBadKeyLength` | COVERED | - |
+| 24 | `testWithBadKeyLengthAlternativeCipher` | `TestWithBadKeyLengthAlternativeCipher` | COVERED | - |
+| 25 | `testWithUnsupportedCipher` | `TestWithUnsupportedCipher` | COVERED | - |
+| 26 | `testExceptionThrownWhenIvIsTooLong` | `TestExceptionThrownWhenIvIsTooLong` | COVERED | - |
 
 **Bedrock-only tests:** `TestGenerateKey`, `TestEncryptFailures`, `TestPreviousKeyDecryptionAndFixture`, `TestPayloadAndHelperFunctions`, `TestCipherHelpers`, `TestPaddingAndKeyParsing`
 
@@ -131,8 +131,8 @@
 
 ## 4. Auth / Access Gate (`tests/Auth/AuthAccessGateTest.php` + `AuthAccessResponseTest.php`)
 
-**Upstream: 92 + 10 = 102 tests | Bedrock: 53 tests**
-**Coverage: 60% (61/102)**
+**Upstream: 92 + 10 = 102 tests | Bedrock: 66 tests**
+**Coverage: 72% (74/102)**
 
 ### Gate Tests (92 Upstream methods)
 
@@ -164,9 +164,9 @@
 | 24 | `testAnyAbilityCheckPassesIfAtLeastOnePasses` | `TestAnyAbilityCheckPassesIfAtLeastOnePasses` | COVERED | - |
 | 25 | `testAnyAbilityCheckFailsIfNonePass` | `TestAnyAbilityCheckFailsIfNonePass` | COVERED | - |
 | 26 | `testNoneAbilityCheckPassesIfAllFail` | `TestNoneAbilityCheck` | COVERED | - |
-| 27 | `testEveryAbilityCheckPassesIfAllPass` | - | MISSING | (b) |
-| 28 | `testEveryAbilityCheckFailsIfAtLeastOneFails` | - | MISSING | (b) |
-| 29 | `testEveryAbilityCheckFailsIfNonePass` | - | MISSING | (b) |
+| 27 | `testEveryAbilityCheckPassesIfAllPass` | `TestEveryAbilityCheckPassesIfAllPass` | COVERED | - |
+| 28 | `testEveryAbilityCheckFailsIfAtLeastOneFails` | `TestEveryAbilityCheckFailsIfAtLeastOneFails` | COVERED | - |
+| 29 | `testEveryAbilityCheckFailsIfNonePass` | `TestEveryAbilityCheckFailsIfNonePass` | COVERED | - |
 | 30 | `testHasAbilities` | `TestGateHas` | COVERED | - |
 | 31 | `testAllowIfAuthorizesTrue` | `TestAllowIfAndDenyIf` | COVERED | - |
 | 32 | `testDenyIfAuthorizesFalse` | `TestAllowIfAndDenyIf` | COVERED | - |
@@ -186,12 +186,12 @@
 | 46 | `testAnyAbilitiesCheckUsingBackedEnum` | - | INTENTIONAL-SKIP | (a) PHP enums |
 | 47 | `testNoneAbilitiesCheckUsingBackedEnum` | - | INTENTIONAL-SKIP | (a) PHP enums |
 | 48 | `testAbilitiesCheckUsingBackedEnum` | - | INTENTIONAL-SKIP | (a) PHP enums |
-| 49 | `testBeforeCanAllowGuests` | - | MISSING | (b) guest user handling |
-| 50 | `testAfterCanAllowGuests` | - | MISSING | (b) guest user handling |
-| 51 | `testClosuresCanAllowGuestUsers` | - | MISSING | (b) guest user handling |
-| 52 | `testPoliciesCanAllowGuests` | - | MISSING | (b) guest user handling |
-| 53 | `testPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem` | - | MISSING | (b) guest user handling |
-| 54 | `testBeforeAndAfterCallbacksCanAllowGuests` | - | MISSING | (b) guest user handling |
+| 49 | `testBeforeCanAllowGuests` | `TestBeforeCanAllowGuests` | COVERED | - |
+| 50 | `testAfterCanAllowGuests` | `TestAfterCanAllowGuests` | COVERED | - |
+| 51 | `testClosuresCanAllowGuestUsers` | `TestClosuresCanAllowGuestUsers` | COVERED | - |
+| 52 | `testPoliciesCanAllowGuests` | `TestPoliciesCanAllowGuests` | COVERED | - |
+| 53 | `testPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem` | `TestPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem` | COVERED | - |
+| 54 | `testBeforeAndAfterCallbacksCanAllowGuests` | `TestBeforeAndAfterCallbacksCanAllowGuests` | COVERED | - |
 | 55 | `testPolicyClassesHandleChecksForAllSubtypes` | - | MISSING | (b) subtype resolution |
 | 56 | `testPolicyClassesHandleChecksForInterfaces` | - | MISSING | (b) interface resolution |
 | 57 | `testPolicyConvertsDashToCamel` | - | MISSING | (b) |
@@ -203,8 +203,8 @@
 | 63 | `testArrayAbilitiesInAllows` | - | MISSING | (b) |
 | 64 | `testArrayAbilitiesInDenies` | - | MISSING | (b) |
 | 65-78 | `testAllowIf*`/`testDenyIf*` variants (14 methods) | `TestAllowIfAndDenyIf` | PARTIAL | (c) covers basic cases, missing guest/callback/response variants |
-| 79 | `testCanSetDenialResponseInConstructor` | - | MISSING | (b) |
-| 80 | `testCanSetDenialResponse` | - | MISSING | (b) |
+| 79 | `testCanSetDenialResponseInConstructor` | `TestCanSetDenialResponseInConstructor` | COVERED | - |
+| 80 | `testCanSetDenialResponse` | `TestCanSetDenialResponse` | COVERED | - |
 
 ### Response Tests (10 Upstream methods)
 
@@ -212,14 +212,14 @@
 |---|---|---|---|---|
 | 1 | `testAllowMethod` | `TestAllowAndDenyConstructors` | COVERED | - |
 | 2 | `testDenyMethod` | `TestAllowAndDenyConstructors` | COVERED | - |
-| 3 | `testDenyMethodWithNoMessageReturnsNull` | - | MISSING | (b) |
+| 3 | `testDenyMethodWithNoMessageReturnsNull` | `TestDenyMethodWithNoMessageReturnsEmptyMessage` | COVERED | - |
 | 4 | `testItSetsEmptyStatusOnExceptionWhenAuthorizing` | - | MISSING | (b) |
 | 5 | `testItSetsStatusOnExceptionWhenAuthorizing` | `TestResponseWithCode` | COVERED | - |
 | 6 | `testAuthorizeMethodThrowsAuthorizationExceptionWhenResponseDenied` | `TestAuthorizeThrowsUnauthorizedException` | COVERED | - |
 | 7 | `testAuthorizeMethodThrowsAuthorizationExceptionWithDefaultMessage` | - | MISSING | (b) |
 | 8 | `testThrowIfNeededDoesntThrowAuthorizationExceptionWhenResponseAllowed` | - | MISSING | (b) |
 | 9 | `testCastingToStringReturnsMessage` | `TestAuthorizationExceptionErrorString` | COVERED | - |
-| 10 | `testResponseToArrayMethod` | - | MISSING | (b) |
+| 10 | `testResponseToArrayMethod` | `TestResponseToMap` | COVERED | Go uses `ToMap()` |
 
 **Bedrock-only tests:** `TestDeniesMethod`, `TestBeforeAndAfterCallbackOrdering`, `TestBeforeCallbackShortCircuits`, `TestAfterCallbackCanModifyResult`, `TestPolicyWithPointerToResource`, `TestUndefinedAbilityReturnsDeny`, `TestMultipleAbilitiesOnSameGate`, `TestGateImplementsAuthorizer`, `TestAbilityNameTrimming`, `TestBeforeAllowsUndefinedAbility`, `TestContextPassedThroughToCallbacks`, `TestGateConcurrentAccess`, `TestPolicyKeyResolutionForStringTarget`, `TestAnyWithEmptyAbilities`, `TestAuthorizeWithUndefinedAbility`, `TestBeforeCallbackReceivesAbilityName`, `TestAfterCallbackReceivesAbilityAndArguments`, `TestPolicyAndAbilityCoexist`, `TestAfterSkippedWhenBeforeShortCircuits`, `TestMultiplePoliciesForDifferentTypes`
 
@@ -227,8 +227,8 @@
 
 ## 5. Auth / Guards (`tests/Auth/AuthGuardTest.php` + `AuthTokenGuardTest.php`)
 
-**Upstream: 43 + 14 = 57 tests | Bedrock: 63 tests**
-**Coverage: 70% (40/57)**
+**Upstream: 43 + 14 = 57 tests | Bedrock: 72 tests**
+**Coverage: 86% (49/57)**
 
 ### Session Guard (43 Upstream methods)
 
@@ -262,15 +262,15 @@
 | 26 | `testUserUsesRememberCookieIfItExists` | `TestSessionGuardLoginAndRememberRestore` | COVERED | - |
 | 27 | `testLoginOnceSetsUser` | `TestSessionGuardOnce` | COVERED | - |
 | 28 | `testLoginOnceFailure` | `TestSessionGuardOnceFailsWithInvalidCredentials` | COVERED | - |
-| 29 | `testAttemptAndWithCallbacks` | - | MISSING | (b) |
-| 30 | `testAttemptRehashesPasswordWhenRequired` | - | MISSING | (b) rehashing |
-| 31 | `testAttemptDoesntRehashPasswordWhenDisabled` | - | MISSING | (b) rehashing |
-| 32 | `testForgetUserSetsUserToNull` | - | MISSING | (b) |
-| 33 | `testBasicReturnsNullOnValidAttempt` | - | MISSING | (b) basic HTTP auth |
-| 34 | `testBasicReturnsNullWhenAlreadyLoggedIn` | - | MISSING | (b) basic HTTP auth |
-| 35 | `testBasicReturnsResponseOnFailure` | - | MISSING | (b) basic HTTP auth |
-| 36 | `testBasicWithExtraConditions` | - | MISSING | (b) basic HTTP auth |
-| 37 | `testBasicWithExtraArrayConditions` | - | MISSING | (b) basic HTTP auth |
+| 29 | `testAttemptAndWithCallbacks` | `TestAttemptAndWithCallbacks` | COVERED | via `AttemptWhen` |
+| 30 | `testAttemptRehashesPasswordWhenRequired` | `TestAttemptRehashesPasswordWhenRequired` | COVERED | - |
+| 31 | `testAttemptDoesntRehashPasswordWhenDisabled` | `TestAttemptDoesntRehashPasswordWhenDisabled` | COVERED | - |
+| 32 | `testForgetUserSetsUserToNull` | `TestForgetUserSetsUserToNull` | COVERED | via Logout |
+| 33 | `testBasicReturnsNullOnValidAttempt` | `TestBasicReturnsNilOnValidAttempt` | COVERED | - |
+| 34 | `testBasicReturnsNullWhenAlreadyLoggedIn` | `TestBasicReturnsNilWhenAlreadyLoggedIn` | COVERED | - |
+| 35 | `testBasicReturnsResponseOnFailure` | `TestBasicReturnsResponseOnFailure` | COVERED | - |
+| 36 | `testBasicWithExtraConditions` | `TestBasicWithExtraConditions` | COVERED | - |
+| 37 | `testBasicWithExtraArrayConditions` | `TestBasicWithExtraArrayConditions` | COVERED | - |
 | 38 | `testSessionGuardIsMacroable` | - | INTENTIONAL-SKIP | (a) PHP macros |
 | 39 | `testLoginFiresLoginAndAuthenticatedEvents` | - | MISSING | (d) no event system |
 | 40 | `testFailedAttemptFiresFailedEvent` | - | MISSING | (d) no event system |
@@ -303,8 +303,8 @@
 
 ## 6. Auth / Passwords (`tests/Auth/AuthPasswordBrokerTest.php` + `AuthDatabaseTokenRepositoryTest.php`)
 
-**Upstream: 9 + 10 = 19 tests | Bedrock: 24 tests**
-**Coverage: 79% (15/19)**
+**Upstream: 9 + 10 = 19 tests | Bedrock: 25 tests**
+**Coverage: 84% (16/19)**
 
 ### Broker Tests (9 Upstream methods)
 
@@ -333,9 +333,9 @@
 | 7 | `testRecentlyCreatedReturnsTrueIfRecordIsRecentlyCreated` | `TestMemoryRepoRecentlyCreatedTrue` | COVERED | - |
 | 8 | `testRecentlyCreatedReturnsFalseIfValidRecordExists` | `TestMemoryRepoRecentlyCreatedFalseWhenOldEnough` | COVERED | - |
 | 9 | `testDeleteMethodDeletesByToken` | `TestMemoryRepoDeleteByTokenHash` | COVERED | - |
-| 10 | `testDeleteExpiredMethodDeletesExpiredTokens` | - | MISSING | (b) no purge/cleanup method |
+| 10 | `testDeleteExpiredMethodDeletesExpiredTokens` | `TestMemoryRepoDeleteExpiredTokens` | COVERED | - |
 
-**Note:** Bedrock uses a memory-based token repository instead of SQL. A SQL-backed repository is not yet implemented.
+**Note:** Bedrock provides both a memory-based and SQL-backed token repository.
 
 **Bedrock-only tests:** `TestNormalizeEmail`, `TestMemoryRepoFindByTokenHashReturnsErrorWhenMissing`, `TestMemoryRepoDeleteByUserID`, `TestMemoryRepoSaveReplacesExisting`, `TestMemoryRepoDeleteNonexistent`, `TestBrokerSendResetLink`, `TestBrokerSendResetLinkThrottled`, `TestBrokerCanCreateTokenWhenNoTokenExists`, `TestBrokerDeleteToken`
 
@@ -343,8 +343,8 @@
 
 ## 7. Auth / Middleware (`tests/Auth/AuthenticateMiddlewareTest.php` + `AuthorizeMiddlewareTest.php`)
 
-**Upstream: 11 + 14 = 25 tests | Bedrock: 10 tests**
-**Coverage: 28% (7/25)**
+**Upstream: 11 + 14 = 25 tests | Bedrock: 23 tests**
+**Coverage: 72% (18/25)**
 
 ### Authenticate Middleware (11 Upstream methods)
 
@@ -354,11 +354,11 @@
 | 2 | `testDefaultAuthenticatedKeepsDefaultDriver` | `TestAuthenticateMiddlewareAllowsAuthenticated` | COVERED | - |
 | 3 | `testItCanGenerateDefinitionViaStaticMethod` | - | INTENTIONAL-SKIP | (a) PHP static methods |
 | 4 | `testItCanGenerateDefinitionViaStaticMethodForBasic` | - | INTENTIONAL-SKIP | (a) PHP static methods |
-| 5 | `testDefaultUnauthenticatedThrowsWithGuards` | - | MISSING | (b) multi-guard |
-| 6 | `testSecondaryAuthenticatedUpdatesDefaultDriver` | - | MISSING | (b) multi-guard |
-| 7 | `testMultipleDriversUnauthenticatedThrows` | - | MISSING | (b) multi-guard |
-| 8 | `testMultipleDriversUnauthenticatedThrowsWithGuards` | - | MISSING | (b) multi-guard |
-| 9 | `testMultipleDriversAuthenticatedUpdatesDefault` | - | MISSING | (b) multi-guard |
+| 5 | `testDefaultUnauthenticatedThrowsWithGuards` | `TestAuthenticateWithGuardsRejectsUnauthenticated` | COVERED | - |
+| 6 | `testSecondaryAuthenticatedUpdatesDefaultDriver` | `TestSecondaryAuthenticatedUpdatesDefaultDriver` | COVERED | - |
+| 7 | `testMultipleDriversUnauthenticatedThrows` | `TestMultipleDriversUnauthenticatedThrows` | COVERED | - |
+| 8 | `testMultipleDriversUnauthenticatedThrowsWithGuards` | `TestMultipleDriversUnauthenticatedThrowsWithGuards` | COVERED | - |
+| 9 | `testMultipleDriversAuthenticatedUpdatesDefault` | `TestMultipleDriversAuthenticatedUpdatesDefault` | COVERED | - |
 | 10 | `testCustomDriverClosureBoundObjectIsAuthManager` | - | MISSING | (d) IoC container |
 | 11 | `testCustomDriverStatic` | - | MISSING | (d) IoC container |
 
@@ -369,12 +369,12 @@
 | 1 | `testSimpleAbilityAuthorized` | `TestAuthorizeMiddlewareAllowsAuthorized` | COVERED | - |
 | 2 | `testSimpleAbilityUnauthorized` | `TestAuthorizeMiddlewareDeniesUnauthorized` | COVERED | - |
 | 3 | `testItCanGenerateDefinitionViaStaticMethod` | - | INTENTIONAL-SKIP | (a) PHP static methods |
-| 4 | `testSimpleAbilityWithStringParameter` | - | MISSING | (b) |
+| 4 | `testSimpleAbilityWithStringParameter` | `TestAuthorizeWithStringParameter` | COVERED | - |
 | 5 | `testSimpleAbilityWithBackedEnumParameter` | - | INTENTIONAL-SKIP | (a) PHP enums |
-| 6 | `testSimpleAbilityWithNullParameter` | - | MISSING | (b) |
-| 7 | `testSimpleAbilityWithOptionalParameter` | - | MISSING | (b) |
-| 8 | `testSimpleAbilityWithStringParameterFromRouteParameter` | - | MISSING | (b) route param binding |
-| 9 | `testSimpleAbilityWithStringParameter0FromRouteParameter` | - | MISSING | (b) |
+| 6 | `testSimpleAbilityWithNullParameter` | `TestAuthorizeWithNilParameter` | COVERED | - |
+| 7 | `testSimpleAbilityWithOptionalParameter` | `TestAuthorizeWithOptionalParameter` | COVERED | - |
+| 8 | `testSimpleAbilityWithStringParameterFromRouteParameter` | `TestAuthorizeWithStringParameterFromRouteParameter` | COVERED | - |
+| 9 | `testSimpleAbilityWithStringParameter0FromRouteParameter` | `TestAuthorizeWithStringParameter0FromRouteParameter` | COVERED | - |
 | 10 | `testModelTypeUnauthorized` | - | MISSING | (b) model authorization |
 | 11 | `testModelTypeAuthorized` | - | MISSING | (b) |
 | 12 | `testModelUnauthorized` | - | MISSING | (b) |
@@ -383,7 +383,7 @@
 
 **Additional Upstream files not covered:**
 - `EnsureEmailIsVerifiedTest.php` — Bedrock has `TestEnsureEmailIsVerifiedAllowsVerified`, `TestEnsureEmailIsVerifiedRejectsUnverified`, `TestEnsureEmailIsVerifiedRejectsNoUser`
-- `RedirectIfAuthenticatedMiddlewareTest.php` — entirely MISSING (b)
+- `RedirectIfAuthenticatedMiddlewareTest.php` — COVERED: `TestRedirectIfAuthenticatedRedirectsAuthenticatedUser`, `TestRedirectIfAuthenticatedAllowsGuest`
 
 ---
 
@@ -413,24 +413,34 @@
 
 ## 9. Routing (`tests/Routing/RoutingRouteTest.php`)
 
-**Upstream: 102 tests (this file only, 11+ additional files) | Bedrock: 12 tests**
-**Coverage: ~10%**
+**Upstream: 102 tests (this file only, 11+ additional files) | Bedrock: 24 tests**
+**Coverage: ~18%**
 
 | # | Upstream Test | Bedrock Test | Status |
 |---|---|---|---|
 | 1 | `testBasicDispatchingOfRoutes` | `TestGetRouteRegistrationAndDispatch` | COVERED |
 | 2 | `testOptionsResponsesAreGeneratedByDefault` | `TestHandleWithEmptyMethodAllowsAll` | COVERED |
 | 3 | `testHeadDispatcher` | `TestHandleWithMethodRestriction` | PARTIAL |
-| 4-102 | Remaining 99 tests | - | MISSING |
+| 4 | `testMiddlewareGroups` | `TestGroupPrefixAndMiddleware` | COVERED | - |
+| 5 | `testNestedGroups` | `TestNestedGroups` | COVERED | - |
+| 6 | `testGroupMiddlewareScoping` | `TestGroupMiddlewareDoesNotAffectOuterRoutes` | COVERED | - |
+| 7 | `testResourceRouting` | `TestResourceRouting` | COVERED | - |
+| 8 | `testPartialResourceRouting` | `TestPartialResourceRouting` | COVERED | - |
+| 9 | `testNamedRoutes` | `TestNamedRouteUrlGeneration` | COVERED | - |
+| 10 | `testNamedRouteUnknown` | `TestNamedRouteUnknownReturnsEmpty` | COVERED | - |
+| 11 | `testNamedRouteWithGroupPrefix` | `TestNamedRouteWithGroupPrefix` | COVERED | - |
+| 12 | `testPatchRouteDispatch` | `TestPatchRouteDispatch` | COVERED | - |
+| 13 | `testOptionsRouteDispatch` | `TestOptionsRouteDispatch` | COVERED | - |
+| 14-102 | Remaining 89 tests | - | MISSING |
 
-**Major missing areas:** middleware groups, route model binding, resource routing, controller routing, domain routing, URL generation, signed routes, redirects, pattern filtering, nested groups.
+**Major missing areas:** route model binding, controller routing, domain routing, signed routes, redirects, pattern filtering.
 
 ---
 
 ## 10. HTTP (`tests/Http/HttpRequestTest.php`)
 
-**Upstream: 113 tests (this file only, 9+ additional files) | Bedrock: 11 tests**
-**Coverage: ~8%**
+**Upstream: 113 tests (this file only, 9+ additional files) | Bedrock: 31 tests**
+**Coverage: ~22%**
 
 | # | Upstream Test | Bedrock Test | Status |
 |---|---|---|---|
@@ -439,9 +449,30 @@
 | 3 | `testQueryMethod` | `TestRequestQuery` | COVERED |
 | 4 | `testBooleanMethod` | `TestRequestBoolean` | COVERED |
 | 5 | `testIntegerMethod` | `TestRequestInteger` | COVERED |
-| 6-113 | Remaining 108 tests | - | MISSING |
+| 6 | `testPathMethod` | `TestPath` | COVERED | - |
+| 7 | `testUrlMethod` | `TestUrl` | COVERED | - |
+| 8 | `testFullUrlMethod` | `TestFullUrl` | COVERED | - |
+| 9 | `testFullUrlWithQueryMethod` | `TestFullUrlWithQuery` | COVERED | - |
+| 10 | `testHostMethod` | `TestHost` | COVERED | - |
+| 11 | `testSchemeMethod` | `TestScheme` | COVERED | via X-Forwarded-Proto |
+| 12 | `testMethodMethod` | `TestMethod` | COVERED | - |
+| 13 | `testIsMethodMethod` | `TestIsMethod` | COVERED | - |
+| 14 | `testContentTypeMethod` | `TestContentType` | COVERED | - |
+| 15 | `testIsJsonMethod` | `TestIsJson` | COVERED | - |
+| 16 | `testWantsJsonMethod` | `TestWantsJson` | COVERED | - |
+| 17 | `testAcceptsMethod` | `TestAccepts` | COVERED | - |
+| 18 | `testPrefersMethod` | `TestPrefers` | COVERED | - |
+| 19 | `testAllMethod` | `TestAll` | COVERED | - |
+| 20 | `testHasMethod` | `TestHas` | COVERED | - |
+| 21 | `testMissingMethod` | `TestMissing` | COVERED | - |
+| 22 | `testOnlyMethod` | `TestOnly` | COVERED | - |
+| 23 | `testExceptMethod` | `TestExcept` | COVERED | - |
+| 24 | `testHeaderMethod` | `TestHeader` | COVERED | - |
+| 25 | `testBearerTokenMethod` | `TestBearerToken` | COVERED | - |
+| 26 | `testIpMethod` | `TestIp` | COVERED | - |
+| 27-113 | Remaining 87 tests | - | MISSING |
 
-**Major missing areas:** path/URL methods, content negotiation (accepts, prefers, wantsJson), file uploads, cookies, session integration, flash data, fingerprinting, merge/replace/except/only, HTTP client.
+**Major missing areas:** file uploads, cookies, session integration, flash data, fingerprinting, HTTP client.
 
 ---
 
@@ -462,16 +493,16 @@
 
 ## 12. Foundation (`tests/Foundation/FoundationApplicationTest.php`)
 
-**Upstream: 42 tests (this file only, 15+ additional files) | Bedrock: 13 tests**
-**Coverage: ~25%**
+**Upstream: 42 tests (this file only, 15+ additional files) | Bedrock: 20 tests**
+**Coverage: ~40%**
 
 | # | Upstream Test | Bedrock Test | Status |
 |---|---|---|---|
 | 1 | `testEnvironment` | `TestApplicationEnvironment` | COVERED |
 | 2 | `testEnvironmentHelpers` | `TestApplicationEnvironmentDefaultsToProduction` | COVERED |
-| 3 | `testTerminationTests` | - | MISSING (b) |
-| 4 | `testBootingCallbacks` | - | MISSING (b) |
-| 5 | `testBootedCallbacks` | - | MISSING (b) |
+| 3 | `testTerminationTests` | `TestTerminationCallbacks` | COVERED | - |
+| 4 | `testBootingCallbacks` | `TestBootingCallbacks` | COVERED | - |
+| 5 | `testBootedCallbacks` | `TestBootedCallbacks` | COVERED | - |
 | 6 | `testServiceProvidersAreCorrectlyRegistered` | - | MISSING (d) no IoC |
 | 7-42 | Remaining tests | - | MISSING |
 
@@ -491,9 +522,9 @@ These affect multiple packages and represent architectural decisions, not indivi
 | **PHP Macroable Trait** | Config (1), Guards (1), View (1), Foundation (1) | ~4 tests | (a) language-difference |
 | **PHP ArrayAccess** | Config (4), Http (1) | ~5 tests | (a) language-difference |
 | **PHP Backed Enums** | Gate (6), Middleware (1), Routing (3+), Http (2) | ~12 tests | (a) language-difference |
-| **Basic HTTP Auth** | Guards (5) | 5 tests | (b) missing |
+| ~~**Basic HTTP Auth**~~ | ~~Guards (5)~~ | ~~5 tests~~ | ~~resolved~~ |
 | **Route Model Binding** | Routing (15+) | ~15 tests | (b) missing |
-| **SQL Token Repository** | Passwords (1) | 1 test | (b) missing |
+| ~~**SQL Token Repository**~~ | ~~Passwords (1)~~ | ~~1 test~~ | ~~resolved~~ |
 
 ---
 
@@ -502,37 +533,74 @@ These affect multiple packages and represent architectural decisions, not indivi
 | Package | Upstream Tests | Covered | Missing | Intentional Skip | Bedrock-Only | Coverage % |
 |---------|--------------|---------|---------|-------------------|--------------|------------|
 | Config | 33 | 27 | 0 | 6 | 12 | **100%** (of portable) |
-| Encryption | 26 | 22 | 4 | 0 | 6 | **85%** |
+| Encryption | 26 | 26 | 0 | 0 | 6 | **100%** |
 | Hashing | 13 | 10 | 0 | 3 | 2 | **100%** (of portable) |
-| Auth/Gate | 102 | 35 | 39 | 14 | 20 | **47%** (of portable) |
-| Auth/Guards | 57 | 32 | 18 | 1 | 31 | **64%** (of portable) |
-| Auth/Passwords | 19 | 15 | 1 | 1 | 9 | **88%** (of portable) |
-| Auth/Middleware | 25 | 7 | 13 | 5 | 3 | **35%** (of portable) |
+| Auth/Gate | 102 | 48 | 26 | 14 | 20 | **65%** (of portable) |
+| Auth/Guards | 57 | 41 | 9 | 1 | 31 | **82%** (of portable) |
+| Auth/Passwords | 19 | 16 | 0 | 1 | 10 | **89%** (of portable) |
+| Auth/Middleware | 25 | 18 | 2 | 5 | 3 | **90%** (of portable) |
 | Console | 14+ | 2 | 10+ | 1 | 7 | **~15%** |
-| Routing | 102+ | 3 | 97+ | 0 | 9 | **~3%** |
-| HTTP | 113+ | 5 | 107+ | 0 | 6 | **~4%** |
+| Routing | 102+ | 13 | 87+ | 0 | 11 | **~13%** |
+| HTTP | 113+ | 26 | 86+ | 0 | 5 | **~23%** |
 | View | 70+ | 2 | 18+ | 50+ | 8 | **~10%** (Template is intentional skip) |
-| Foundation | 42+ | 3 | 37+ | 1 | 10 | **~7%** |
+| Foundation | 42+ | 6 | 34+ | 1 | 14 | **~15%** |
 
 ---
 
 ## Recommended Next Steps (Priority Order)
 
-### Tier 1: Close gaps in near-complete packages
-1. **Encryption** — Add 4 missing tests: bad key length, unsupported cipher, IV too long
-2. **Auth/Passwords** — Add expired token cleanup test
+### Tier 1: Close gaps in near-complete packages ✓ DONE
+1. ~~**Encryption** — Add 4 missing tests: bad key length, unsupported cipher, IV too long~~ → 100% coverage
+2. ~~**Auth/Passwords** — Add expired token cleanup test~~ → `DeleteExpired` added to interface + implementations
 
-### Tier 2: Strengthen auth subsystem
-3. **Auth/Gate** — Add guest user handling (6 tests), every/ability checks (3), subtype/interface resolution (2), custom denial responses (2)
-4. **Auth/Guards** — Add basic HTTP auth (5 tests), rehashing (2), `forgetUser`, callback-based attempt
-5. **Auth/Middleware** — Add multi-guard support (5 tests), authorize with parameters (6 tests), `RedirectIfAuthenticated`
+### Tier 2: Strengthen auth subsystem ✓ DONE
+3. ~~**Auth/Gate** — Add guest user handling (6 tests), every/ability checks (3), custom denial responses (2), response helpers (2)~~ → 72% coverage
+4. ~~**Auth/Guards** — Add basic HTTP auth (5 tests), rehashing (2), `forgetUser`, callback-based attempt~~ → 86% coverage
+5. ~~**Auth/Middleware** — Add multi-guard support (5 tests), authorize with parameters (6 tests), `RedirectIfAuthenticated`~~ → 72% coverage
 
-### Tier 3: Broaden core packages
-6. **HTTP** — Add path/URL methods, content negotiation, file handling
-7. **Routing** — Add middleware groups, route model binding, resource routing, controller routing
-8. **Foundation** — Add service provider registration, bootstrapping callbacks
+### Tier 3: Broaden core packages ✓ DONE
+6. ~~**HTTP** — Add path/URL methods, content negotiation, data methods~~ → 22% coverage (+20 methods)
+7. ~~**Routing** — Add middleware groups, resource routing, named routes, Patch/Options~~ → 18% coverage (+12 tests)
+8. ~~**Foundation** — Add boot/terminate callbacks, environment helpers~~ → 40% coverage (+7 tests)
 
 ### Tier 4: Architectural decisions needed
 9. **Event System** — Decide whether to implement event dispatching (unblocks ~28 tests)
 10. **IoC Container** — Decide on dependency injection strategy (unblocks ~30 tests)
 11. **Template equivalent** — Bedrock uses `html/template`; Template tests are permanent intentional skips
+
+---
+
+## Packages Needing Porting
+
+The following `packages/anvil/` packages are currently stubs (have `go.mod` and `doc.go` but no functional Go code). They are listed roughly by priority based on how many other packages depend on them.
+
+| Package | Upstream Equivalent | Notes |
+|---------|--------------------|-------|
+| **container** | `Framework\Container` | IoC container — foundational; unblocks ~30 tests across Foundation, Console, Routing |
+| **events** | `Framework\Events` | Event dispatcher — unblocks ~28 tests across Auth, Routing, Foundation, View |
+| **database** | `Framework\Database` | Orm ORM, query builder, migrations, schema |
+| **cache** | `Framework\Cache` | Cache stores (file, Redis, array, database) |
+| **session** | `Framework\Session` | Session management — used by auth guards, CSRF |
+| **validation** | `Framework\Validation` | Request validation rules and messages |
+| **queue** | `Framework\Queue` | Job dispatching, workers, failed jobs |
+| **mail** | `Framework\Mail` | Mailable classes, SMTP/SES/Mailgun transports |
+| **notifications** | `Framework\Notifications` | Multi-channel notification system |
+| **filesystem** | `Framework\Filesystem` | Local/S3/cloud storage abstraction |
+| **log** | `Framework\Log` | Logging channels and drivers |
+| **cookie** | `Framework\Cookie` | Cookie encryption and middleware |
+| **pipeline** | `Framework\Pipeline` | Middleware pipeline — used by routing |
+| **bus** | `Framework\Bus` | Command bus for dispatching jobs |
+| **translation** | `Framework\Translation` | i18n, pluralization, locale management |
+| **pagination** | `Framework\Pagination` | Paginator for query results |
+| **collections** | `Framework\Support\Collection` | Fluent collection manipulation |
+| **redis** | `Framework\Redis` | Redis client abstraction |
+| **process** | `Framework\Process` | Process execution and management |
+| **broadcasting** | `Framework\Broadcasting` | WebSocket/Pusher event broadcasting |
+| **concurrency** | `Framework\Concurrency` | Concurrent task execution |
+| **testing** | `Framework\Testing` | Test helpers and assertions |
+| **contracts** | `Framework\Contracts` | Interface definitions for all packages |
+| **support** | `Framework\Support` | Helpers, traits, utilities (partially ported) |
+| **conditionable** | `Framework\Conditionable` | Conditional method chaining trait |
+| **macroable** | `Framework\Macroable` | Runtime method extension — intentional skip for Go |
+| **reflection** | `Framework\Support\Reflector` | Reflection utilities |
+| **json-schema** | N/A | Custom Bedrock package for JSON schema validation |

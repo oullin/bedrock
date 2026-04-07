@@ -105,6 +105,69 @@ func TestNewSupportedAndAccessors(t *testing.T) {
 	}
 }
 
+// Upstream: testWithBadKeyLength
+func TestWithBadKeyLength(t *testing.T) {
+	t.Parallel()
+
+	_, err := New(Config{Key: []byte("short"), Cipher: AES128CBC})
+	if !errors.Is(err, errUnsupportedCipher) {
+		t.Fatalf("expected unsupported cipher error, got %v", err)
+	}
+}
+
+// Upstream: testWithBadKeyLengthAlternativeCipher
+func TestWithBadKeyLengthAlternativeCipher(t *testing.T) {
+	t.Parallel()
+
+	_, err := New(Config{Key: []byte("1234567890abcdef"), Cipher: AES256CBC})
+	if !errors.Is(err, errUnsupportedCipher) {
+		t.Fatalf("expected unsupported cipher error for 16-byte key with AES-256-CBC, got %v", err)
+	}
+}
+
+// Upstream: testWithUnsupportedCipher
+func TestWithUnsupportedCipher(t *testing.T) {
+	t.Parallel()
+
+	_, err := New(Config{Key: []byte("1234567890abcdef"), Cipher: Cipher("aes-256-cfb8")})
+	if !errors.Is(err, errUnsupportedCipher) {
+		t.Fatalf("expected unsupported cipher error, got %v", err)
+	}
+}
+
+// Upstream: testExceptionThrownWhenIvIsTooLong
+func TestExceptionThrownWhenIvIsTooLong(t *testing.T) {
+	t.Parallel()
+
+	e, err := New(Config{Key: []byte("aaaaaaaaaaaaaaaa"), Cipher: AES128CBC})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	encrypted, err := e.EncryptString("foo")
+	if err != nil {
+		t.Fatalf("EncryptString: %v", err)
+	}
+
+	payload := decodePayload(t, encrypted)
+
+	// Decode the IV, append a byte to make it too long (17 instead of 16).
+	iv, err := base64.StdEncoding.DecodeString(payload.IV)
+	if err != nil {
+		t.Fatalf("DecodeString IV: %v", err)
+	}
+
+	iv = append(iv, 0xFF)
+	payload.IV = base64.StdEncoding.EncodeToString(iv)
+
+	tampered := encodePayload(payload)
+
+	_, err = e.DecryptString(tampered)
+	if !errors.Is(err, errInvalidPayload) {
+		t.Fatalf("expected invalid payload error for oversized IV, got %v", err)
+	}
+}
+
 func TestGenerateKey(t *testing.T) {
 	restoreRandom := stubRandomReader(t, bytesReader(make([]byte, 64)))
 

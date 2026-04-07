@@ -41,17 +41,19 @@ type Authorizer interface {
 	Inspect(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) Response
 	Check(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) bool
 	Any(ctx context.Context, user auth.Authenticatable, abilities []string, arguments ...any) bool
+	Every(ctx context.Context, user auth.Authenticatable, abilities []string, arguments ...any) bool
 	Denies(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) bool
 	Authorize(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) error
 }
 
 // Gate stores defined abilities and policies.
 type Gate struct {
-	mu        sync.RWMutex
-	abilities map[string]AbilityFunc
-	policies  map[string]PolicyFunc
-	before    []BeforeFunc
-	after     []AfterFunc
+	mu                    sync.RWMutex
+	abilities             map[string]AbilityFunc
+	policies              map[string]PolicyFunc
+	before                []BeforeFunc
+	after                 []AfterFunc
+	defaultDenialResponse *Response
 }
 
 // Allow returns an allowed response.
@@ -67,6 +69,16 @@ func Deny(message string) Response {
 // DenyWithCode returns a denied response carrying a custom application code and HTTP status.
 func DenyWithCode(message string, code int, status int) Response {
 	return Response{Allowed: false, Message: message, Code: code, Status: status}
+}
+
+// ToMap returns the response as a map.
+func (r Response) ToMap() map[string]any {
+	return map[string]any{
+		"allowed": r.Allowed,
+		"message": r.Message,
+		"code":    r.Code,
+		"status":  r.Status,
+	}
 }
 
 func (e AuthorizationException) Error() string {
@@ -87,6 +99,23 @@ func NewGate() *Gate {
 		abilities: map[string]AbilityFunc{},
 		policies:  map[string]PolicyFunc{},
 	}
+}
+
+// NewGateWithDenialResponse returns a gate with a default denial response.
+func NewGateWithDenialResponse(response Response) *Gate {
+	return &Gate{
+		abilities:             map[string]AbilityFunc{},
+		policies:              map[string]PolicyFunc{},
+		defaultDenialResponse: &response,
+	}
+}
+
+// SetDefaultDenialResponse sets a default denial response used by Authorize.
+func (g *Gate) SetDefaultDenialResponse(response Response) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.defaultDenialResponse = &response
 }
 
 // Define registers an ability callback.
@@ -176,6 +205,17 @@ func (g *Gate) Any(ctx context.Context, user auth.Authenticatable, abilities []s
 	return false
 }
 
+// Every reports whether all given abilities are authorized.
+func (g *Gate) Every(ctx context.Context, user auth.Authenticatable, abilities []string, arguments ...any) bool {
+	for _, ability := range abilities {
+		if !g.Check(ctx, user, ability, arguments...) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Denies reports whether an ability is denied.
 func (g *Gate) Denies(ctx context.Context, user auth.Authenticatable, ability string, arguments ...any) bool {
 	return !g.Check(ctx, user, ability, arguments...)
@@ -263,7 +303,18 @@ func (g *Gate) Authorize(ctx context.Context, user auth.Authenticatable, ability
 		return nil
 	}
 
-	return AuthorizationException{Ability: ability, Message: response.Message}
+	message := response.Message
+	if message == "" || message == "auth: ability is not defined" {
+		g.mu.RLock()
+		def := g.defaultDenialResponse
+		g.mu.RUnlock()
+
+		if def != nil {
+			message = def.Message
+		}
+	}
+
+	return AuthorizationException{Ability: ability, Message: message}
 }
 
 func policyKey(target any) string {

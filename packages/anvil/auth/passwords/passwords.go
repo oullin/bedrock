@@ -31,6 +31,7 @@ type TokenRepository interface {
 	FindByTokenHash(ctx context.Context, tokenHash string) (*Token, error)
 	DeleteByTokenHash(ctx context.Context, tokenHash string) error
 	DeleteByUserID(ctx context.Context, userID string) error
+	DeleteExpired(ctx context.Context, now time.Time) error
 	RecentlyCreated(ctx context.Context, userID string, since time.Time) (bool, error)
 }
 

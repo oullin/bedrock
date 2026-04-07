@@ -2,8 +2,10 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bedrock/packages/anvil/encryption"
@@ -174,6 +176,13 @@ func (g *SessionGuard) Logout(ctx context.Context, w http.ResponseWriter, sessio
 
 // Attempt validates the given credentials and logs the user in on success.
 func (g *SessionGuard) Attempt(ctx context.Context, w http.ResponseWriter, credentials map[string]string, remember bool) (bool, error) {
+	return g.AttemptWhen(ctx, w, credentials, remember)
+}
+
+// AttemptWhen validates credentials and runs optional callbacks before login.
+// Each callback receives the authenticated user; if any returns false the
+// attempt is aborted and AttemptWhen returns false.
+func (g *SessionGuard) AttemptWhen(ctx context.Context, w http.ResponseWriter, credentials map[string]string, remember bool, callbacks ...func(Authenticatable) bool) (bool, error) {
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
 	if err != nil {
 		return false, nil
@@ -188,11 +197,82 @@ func (g *SessionGuard) Attempt(ctx context.Context, w http.ResponseWriter, crede
 		return false, nil
 	}
 
+	for _, cb := range callbacks {
+		if !cb(user) {
+			return false, nil
+		}
+	}
+
+	if err := g.provider.RehashPasswordIfRequired(ctx, user, credentials, false); err != nil {
+		return false, err
+	}
+
 	if _, _, err := g.Login(ctx, w, user, remember, false); err != nil {
 		return false, err
 	}
 
 	return true, nil
+}
+
+// Basic performs HTTP Basic authentication. It parses the Authorization header
+// and validates credentials using Once (no session is created). If the user is
+// already authenticated in the request context, it succeeds immediately.
+// The field parameter determines which credential key is used for the identifier
+// (e.g., "email"). Extra conditions are merged into the credential map.
+func (g *SessionGuard) Basic(ctx context.Context, w http.ResponseWriter, r *http.Request, field string, extraConditions map[string]string) error {
+	if _, ok := UserFromContext(r.Context()); ok {
+		return nil
+	}
+
+	if field == "" {
+		field = "email"
+	}
+
+	username, password, ok := parseBasicAuth(r)
+	if !ok {
+		writeBasicAuthFailure(w)
+		return ErrUnauthorized
+	}
+
+	credentials := map[string]string{
+		field:      username,
+		"password": password,
+	}
+
+	for k, v := range extraConditions {
+		credentials[k] = v
+	}
+
+	if _, err := g.Once(ctx, credentials); err != nil {
+		writeBasicAuthFailure(w)
+		return ErrUnauthorized
+	}
+
+	return nil
+}
+
+func parseBasicAuth(r *http.Request) (string, string, bool) {
+	auth := r.Header.Get("Authorization")
+	if auth == "" || !strings.HasPrefix(auth, "Basic ") {
+		return "", "", false
+	}
+
+	decoded, err := base64.StdEncoding.DecodeString(auth[len("Basic "):])
+	if err != nil {
+		return "", "", false
+	}
+
+	parts := strings.SplitN(string(decoded), ":", 2)
+	if len(parts) != 2 {
+		return "", "", false
+	}
+
+	return parts[0], parts[1], true
+}
+
+func writeBasicAuthFailure(w http.ResponseWriter) {
+	w.Header().Set("WWW-Authenticate", `Basic`)
+	http.Error(w, "Invalid credentials.", http.StatusUnauthorized)
 }
 
 // LoginUsingId retrieves a user by ID and logs them in.
