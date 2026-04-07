@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/framework-auth",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/dist/auth && go build ./... && touch ../../../storage/dist/auth/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/coverage/go/auth && go test ./... -coverprofile=../../../storage/coverage/go/auth/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
