@@ -78,6 +78,21 @@ func (r *MemoryTokenRepository) DeleteByUserID(_ context.Context, userID string)
 	return nil
 }
 
+// DeleteExpired removes all tokens that have expired as of the given time.
+func (r *MemoryTokenRepository) DeleteExpired(_ context.Context, now time.Time) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for hash, token := range r.byHash {
+		if !token.ExpiresAt.After(now) {
+			delete(r.byUserID, token.UserID)
+			delete(r.byHash, hash)
+		}
+	}
+
+	return nil
+}
+
 // RecentlyCreated reports whether a token was created since the provided time.
 func (r *MemoryTokenRepository) RecentlyCreated(_ context.Context, userID string, since time.Time) (bool, error) {
 	r.mu.Lock()

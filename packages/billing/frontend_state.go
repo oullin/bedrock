@@ -4,26 +4,26 @@ import "context"
 
 // FrontendStateView is the complete state object served to the billing portal.
 type FrontendStateView struct {
-	AppName     string         `json:"app_name"`
-	BillableID  int64          `json:"billable_id"`
-	BillableName string        `json:"billable_name"`
-	BillableType string        `json:"billable_type"`
-	Plans       []BillingPlan    `json:"plans"`
-	State       string         `json:"state"` // "pending", "onGracePeriod", "past_due", "active", "none"
-	DashboardURL string        `json:"dashboard_url"`
-	TermsURL    string         `json:"terms_url"`
-	Sandbox     bool           `json:"sandbox"`
-	DateFormat  string         `json:"date_format"`
+	AppName      string      `json:"app_name"`
+	BillableID   int64       `json:"billable_id"`
+	BillableName string      `json:"billable_name"`
+	BillableType string      `json:"billable_type"`
+	Plans        []BillingPlan `json:"plans"`
+	State        string      `json:"state"` // "pending", "onGracePeriod", "past_due", "active", "none"
+	DashboardURL string      `json:"dashboard_url"`
+	TermsURL     string      `json:"terms_url"`
+	Sandbox      bool        `json:"sandbox"`
+	DateFormat   string      `json:"date_format"`
 }
 
 // FrontendStateBuilder builds the frontend state for the billing portal.
 type FrontendStateBuilder struct {
-	manager       *Manager
-	config        *Config
-	subscriptions SubscriptionStore
-	customers     CustomerStore
+	manager        *Manager
+	config         *Config
+	subscriptions  SubscriptionStore
+	customers      CustomerStore
 	pricePreviewer ProviderPricePreviewer
-	clock         Clock
+	clock          Clock
 }
 
 // NewFrontendStateBuilder creates a new builder.

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -50,8 +51,10 @@ func (u *testUser) GetEmailForVerification() string  { return u.email }
 func (u *testUser) GetEmailForPasswordReset() string { return u.email }
 
 type fakeProvider struct {
-	user   *testUser
-	hasher PasswordHasher
+	user          *testUser
+	hasher        PasswordHasher
+	rehashCalled  bool
+	rehashEnabled bool
 }
 
 func (p *fakeProvider) RetrieveByID(_ context.Context, id string) (Authenticatable, error) {
@@ -118,7 +121,10 @@ func (p *fakeProvider) ValidateCredentials(ctx context.Context, user Authenticat
 	return true, nil
 }
 
-func (p *fakeProvider) RehashPasswordIfRequired(context.Context, Authenticatable, map[string]string, bool) error {
+func (p *fakeProvider) RehashPasswordIfRequired(_ context.Context, _ Authenticatable, _ map[string]string, _ bool) error {
+	if p.rehashEnabled {
+		p.rehashCalled = true
+	}
 	return nil
 }
 
@@ -1573,4 +1579,262 @@ func TestSessionGuardOnceFailsWithInvalidCredentials(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected Once to fail with invalid credentials")
 	}
+}
+
+// ======================== BASIC AUTH TESTS ========================
+
+// Upstream: testBasicReturnsNullOnValidAttempt
+func TestBasicReturnsNilOnValidAttempt(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Basic "+basicAuth("user@example.com", "secret"))
+	rec := httptest.NewRecorder()
+
+	err := guard.Basic(context.Background(), rec, req, "email", nil)
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+}
+
+// Upstream: testBasicReturnsNullWhenAlreadyLoggedIn
+func TestBasicReturnsNilWhenAlreadyLoggedIn(t *testing.T) {
+	t.Parallel()
+
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req = req.WithContext(WithUser(req.Context(), user))
+	rec := httptest.NewRecorder()
+
+	err := guard.Basic(context.Background(), rec, req, "email", nil)
+	if err != nil {
+		t.Fatalf("expected nil when already logged in, got %v", err)
+	}
+}
+
+// Upstream: testBasicReturnsResponseOnFailure
+func TestBasicReturnsResponseOnFailure(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Basic "+basicAuth("user@example.com", "wrong"))
+	rec := httptest.NewRecorder()
+
+	err := guard.Basic(context.Background(), rec, req, "email", nil)
+	if err == nil {
+		t.Fatal("expected error on invalid credentials")
+	}
+	if rec.Header().Get("WWW-Authenticate") != "Basic" {
+		t.Fatal("expected WWW-Authenticate header")
+	}
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", rec.Code)
+	}
+}
+
+// Upstream: testBasicWithExtraConditions
+func TestBasicWithExtraConditions(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Basic "+basicAuth("user@example.com", "secret"))
+	rec := httptest.NewRecorder()
+
+	err := guard.Basic(context.Background(), rec, req, "email", map[string]string{"active": "1"})
+	if err != nil {
+		t.Fatalf("expected nil with extra conditions, got %v", err)
+	}
+}
+
+// Upstream: testBasicWithExtraArrayConditions
+func TestBasicWithExtraArrayConditions(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Basic "+basicAuth("user@example.com", "secret"))
+	rec := httptest.NewRecorder()
+
+	err := guard.Basic(context.Background(), rec, req, "email", map[string]string{"active": "1", "role": "admin"})
+	if err != nil {
+		t.Fatalf("expected nil with multiple extra conditions, got %v", err)
+	}
+}
+
+// ======================== REHASHING TESTS ========================
+
+// Upstream: testAttemptRehashesPasswordWhenRequired
+func TestAttemptRehashesPasswordWhenRequired(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+	provider := &fakeProvider{user: user, hasher: hasher, rehashEnabled: true}
+
+	guard := NewSessionGuard("web", defaultCfg(), provider, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	ok, err := guard.Attempt(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	}, false)
+	if err != nil {
+		t.Fatalf("Attempt: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected Attempt to succeed")
+	}
+	if !provider.rehashCalled {
+		t.Fatal("expected RehashPasswordIfRequired to be called")
+	}
+}
+
+// Upstream: testAttemptDoesntRehashPasswordWhenDisabled
+func TestAttemptDoesntRehashPasswordWhenDisabled(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+	provider := &fakeProvider{user: user, hasher: hasher, rehashEnabled: false}
+
+	guard := NewSessionGuard("web", defaultCfg(), provider, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	ok, err := guard.Attempt(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	}, false)
+	if err != nil {
+		t.Fatalf("Attempt: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected Attempt to succeed")
+	}
+	if provider.rehashCalled {
+		t.Fatal("expected RehashPasswordIfRequired NOT to be called")
+	}
+}
+
+// ======================== FORGET USER / ATTEMPT CALLBACKS ========================
+
+// Upstream: testForgetUserSetsUserToNull
+func TestForgetUserSetsUserToNull(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-1", email: "user@example.com"}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	rec := httptest.NewRecorder()
+	session, _, err := guard.Login(context.Background(), rec, user, false, false)
+	if err != nil {
+		t.Fatalf("Login: %v", err)
+	}
+
+	// Logout clears the session — next auth attempt should fail.
+	if err := guard.Logout(context.Background(), rec, session, user); err != nil {
+		t.Fatalf("Logout: %v", err)
+	}
+
+	cookies.values["session"] = session.ID
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	_, _, err = guard.AuthenticateRequest(context.Background(), httptest.NewRecorder(), req)
+	if err == nil {
+		t.Fatal("expected auth to fail after logout/forget")
+	}
+}
+
+// Upstream: testAttemptAndWithCallbacks
+func TestAttemptAndWithCallbacks(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	// Callback rejects the attempt.
+	ok, err := guard.AttemptWhen(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	}, false, func(u Authenticatable) bool {
+		return u.GetAuthIdentifier() == "admin" // rejects user-1
+	})
+	if err != nil {
+		t.Fatalf("AttemptWhen: %v", err)
+	}
+	if ok {
+		t.Fatal("expected AttemptWhen to return false when callback rejects")
+	}
+
+	// Callback allows the attempt.
+	ok, err = guard.AttemptWhen(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	}, false, func(u Authenticatable) bool {
+		return u.GetAuthIdentifier() == "user-1"
+	})
+	if err != nil {
+		t.Fatalf("AttemptWhen: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected AttemptWhen to succeed when callback allows")
+	}
+}
+
+func basicAuth(username, password string) string {
+	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
 }
