@@ -594,6 +594,127 @@ func TestManagerAndHelpers(t *testing.T) {
 	}
 }
 
+// ======================== Additional Laravel compliance tests ========================
+
+// Laravel: testEmptyHashedValueReturnsFalse
+func TestEmptyHashedValueReturnsFalse(t *testing.T) {
+	bcryptHasher := NewBcrypt(BcryptConfig{Rounds: 4})
+
+	ok, err := bcryptHasher.Check("password", "", nil)
+	if err != nil {
+		t.Fatalf("Check: %v", err)
+	}
+	if ok {
+		t.Fatal("expected empty hashed value to return false")
+	}
+}
+
+// Laravel: testNullHashedValueReturnsFalse (Go equivalent: empty string)
+func TestCheckAgainstEmptyPasswordHash(t *testing.T) {
+	argonHasher := NewArgon2id(ArgonConfig{Memory: 1024, Time: 2, Threads: 2})
+
+	ok, err := argonHasher.Check("password", "", nil)
+	if err != nil {
+		t.Fatalf("Check: %v", err)
+	}
+	if ok {
+		t.Fatal("expected check against empty hash to return false")
+	}
+}
+
+// Laravel: testIsHashedWithNonHashedValue
+func TestIsHashedWithNonHashedValue(t *testing.T) {
+	manager, err := NewManager(Config{Driver: DriverBcrypt, Bcrypt: BcryptConfig{Rounds: 4}})
+	if err != nil {
+		t.Fatalf("NewManager: %v", err)
+	}
+
+	if manager.IsHashed("not-a-hash") {
+		t.Fatal("expected plain text to not be detected as hashed")
+	}
+	if manager.IsHashed("") {
+		t.Fatal("expected empty string to not be detected as hashed")
+	}
+	if manager.IsHashed("password123") {
+		t.Fatal("expected simple string to not be detected as hashed")
+	}
+
+	hash, _ := manager.Make("secret", nil)
+	if !manager.IsHashed(hash) {
+		t.Fatal("expected actual hash to be detected as hashed")
+	}
+}
+
+// Laravel: testBcryptValueTooLong
+// In Laravel/PHP, bcrypt silently truncates at 72 bytes.
+// In Go, golang.org/x/crypto/bcrypt rejects passwords exceeding 72 bytes with an error.
+// This is a behavioral difference — Go enforces the limit strictly.
+func TestBcryptValueTooLong(t *testing.T) {
+	bcryptHasher := NewBcrypt(BcryptConfig{Rounds: 4})
+
+	longPassword := strings.Repeat("a", 100)
+	_, err := bcryptHasher.Make(longPassword, nil)
+	if err == nil {
+		t.Fatal("expected Go bcrypt to reject passwords longer than 72 bytes")
+	}
+
+	// Exactly 72 bytes should work
+	maxPassword := strings.Repeat("a", 72)
+	hash, err := bcryptHasher.Make(maxPassword, nil)
+	if err != nil {
+		t.Fatalf("Make with 72-byte password: %v", err)
+	}
+
+	ok, err := bcryptHasher.Check(maxPassword, hash, nil)
+	if err != nil {
+		t.Fatalf("Check: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected 72-byte password to verify")
+	}
+}
+
+// Laravel: testBasicBcryptVerification / testBasicArgon2iVerification / testBasicArgon2idVerification
+func TestCrossHasherVerification(t *testing.T) {
+	bcryptHasher := NewBcrypt(BcryptConfig{Rounds: 4})
+	argon2idHasher := NewArgon2id(ArgonConfig{Memory: 1024, Time: 2, Threads: 2})
+
+	// Hash with bcrypt
+	bcryptHash, _ := bcryptHasher.Make("secret", nil)
+
+	// Verify bcrypt hash works with bcrypt
+	ok, _ := bcryptHasher.Check("secret", bcryptHash, nil)
+	if !ok {
+		t.Fatal("expected bcrypt to verify its own hash")
+	}
+
+	// Verify bcrypt hash fails with wrong password
+	ok, _ = bcryptHasher.Check("wrong", bcryptHash, nil)
+	if ok {
+		t.Fatal("expected bcrypt to reject wrong password")
+	}
+
+	// Hash with argon2id
+	argonHash, _ := argon2idHasher.Make("secret", nil)
+
+	// Verify argon hash works with argon
+	ok, _ = argon2idHasher.Check("secret", argonHash, nil)
+	if !ok {
+		t.Fatal("expected argon2id to verify its own hash")
+	}
+
+	// Cross-check: bcrypt hasher should fail on argon hash
+	ok, _ = bcryptHasher.Check("secret", argonHash, nil)
+	if ok {
+		t.Fatal("expected bcrypt to not verify argon2id hash")
+	}
+}
+
+// Laravel: testBasicBcryptNotSupported / testBasicArgon2iNotSupported / testBasicArgon2idNotSupported
+// These tests verify that unavailable drivers are handled. In Go, all drivers are always available
+// since they're compiled in, so this is a gap documentation.
+// GAP: Go doesn't have runtime driver availability issues like PHP extensions.
+
 func stubArgonRandomReader(t *testing.T, reader io.Reader) func() {
 	t.Helper()
 	previous := argonRandomReader

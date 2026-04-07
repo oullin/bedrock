@@ -590,6 +590,338 @@ func TestLookupHelperPaths(t *testing.T) {
 	}
 }
 
+// ======================== Additional Laravel compliance tests ========================
+
+// Laravel: testGetValueWhenKeyContainDot
+func TestGetValueWhenKeyContainsDot(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Laravel",
+		},
+	})
+
+	if got := repo.Get("app.name", nil); got != "Laravel" {
+		t.Fatalf("expected 'Laravel', got %v", got)
+	}
+}
+
+// Laravel: testGetBooleanValue
+func TestGetBooleanValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"debug": true,
+		},
+	})
+
+	got, err := repo.Bool("app.debug")
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+	if !got {
+		t.Fatal("expected true")
+	}
+}
+
+// Laravel: testGetNullValue
+func TestGetNullValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"empty": nil,
+		},
+	})
+
+	if got := repo.Get("app.empty", "default"); got != nil {
+		t.Fatalf("expected nil, got %v", got)
+	}
+}
+
+// Laravel: testGetWithDefault
+func TestGetWithDefault(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+
+	if got := repo.Get("missing.key", "default-value"); got != "default-value" {
+		t.Fatalf("expected 'default-value', got %v", got)
+	}
+}
+
+// Laravel: testGetWithArrayOfKeys / testGetMany
+func TestGetManyWithDefaults(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Laravel",
+		},
+	})
+
+	result := repo.GetMany(map[string]any{
+		"app.name":   nil,
+		"app.locale": "en",
+	})
+
+	if result["app.name"] != "Laravel" {
+		t.Fatalf("expected 'Laravel', got %v", result["app.name"])
+	}
+	if result["app.locale"] != "en" {
+		t.Fatalf("expected 'en' default, got %v", result["app.locale"])
+	}
+}
+
+// Laravel: testSet
+func TestSetValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Set("app.name", "MyApp")
+
+	if got := repo.Get("app.name", nil); got != "MyApp" {
+		t.Fatalf("expected 'MyApp', got %v", got)
+	}
+}
+
+// Laravel: testSetArray
+func TestSetArray(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Set(map[string]any{
+		"app.name": "MyApp",
+		"app.env":  "testing",
+	})
+
+	if got := repo.Get("app.name", nil); got != "MyApp" {
+		t.Fatalf("expected 'MyApp', got %v", got)
+	}
+	if got := repo.Get("app.env", nil); got != "testing" {
+		t.Fatalf("expected 'testing', got %v", got)
+	}
+}
+
+// Laravel: testPrepend
+func TestPrependToExistingSlice(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"items": []any{"b", "c"},
+	})
+
+	repo.Prepend("items", "a")
+	got := repo.Get("items", nil).([]any)
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Laravel: testPush
+func TestPushToExistingSlice(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"items": []any{"a", "b"},
+	})
+
+	repo.Push("items", "c")
+	got := repo.Get("items", nil).([]any)
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Laravel: testPrependWithNewKey
+func TestPrependWithNewKey(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Prepend("new_list", "first")
+	got := repo.Get("new_list", nil).([]any)
+	if len(got) != 1 || got[0] != "first" {
+		t.Fatalf("expected [first], got %v", got)
+	}
+}
+
+// Laravel: testPushWithNewKey
+func TestPushWithNewKey(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Push("new_list", "first")
+	got := repo.Get("new_list", nil).([]any)
+	if len(got) != 1 || got[0] != "first" {
+		t.Fatalf("expected [first], got %v", got)
+	}
+}
+
+// Laravel: testHasIsTrue / testHasIsFalse
+func TestHasTrueAndFalse(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Laravel",
+		},
+	})
+
+	if !repo.Has("app.name") {
+		t.Fatal("expected Has to return true for existing key")
+	}
+	if repo.Has("app.missing") {
+		t.Fatal("expected Has to return false for missing key")
+	}
+}
+
+// Laravel: testAll
+func TestAllReturnsFullConfig(t *testing.T) {
+	t.Parallel()
+
+	items := map[string]any{
+		"app": map[string]any{"name": "Laravel"},
+	}
+	repo := NewRepository(items)
+
+	all := repo.All()
+	if all["app"] == nil {
+		t.Fatal("expected All to return full config")
+	}
+}
+
+// Laravel: testItGetsAsString
+func TestStringAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "value",
+	})
+
+	got, err := repo.String("key")
+	if err != nil {
+		t.Fatalf("String: %v", err)
+	}
+	if got != "value" {
+		t.Fatalf("expected 'value', got %q", got)
+	}
+}
+
+// Laravel: testItGetsAsInteger
+func TestIntAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"count": 42,
+	})
+
+	got, err := repo.Int("count")
+	if err != nil {
+		t.Fatalf("Int: %v", err)
+	}
+	if got != 42 {
+		t.Fatalf("expected 42, got %d", got)
+	}
+}
+
+// Laravel: testItGetsAsBoolean
+func TestBoolAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"flag": false,
+	})
+
+	got, err := repo.Bool("flag")
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+	if got {
+		t.Fatal("expected false")
+	}
+}
+
+// Laravel: testItGetsAsArray (Go equivalent: StringSlice)
+func TestStringSliceAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"tags": []any{"a", "b", "c"},
+	})
+
+	got, err := repo.StringSlice("tags")
+	if err != nil {
+		t.Fatalf("StringSlice: %v", err)
+	}
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Laravel: testItThrowsAnExceptionWhenTryingToGetNonStringValueAsString
+func TestStringAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": 42,
+	})
+
+	_, err := repo.String("key")
+	if err == nil {
+		t.Fatal("expected error for non-string value")
+	}
+}
+
+// Laravel: testItThrowsAnExceptionWhenTryingToGetNonBooleanValueAsBoolean
+func TestBoolAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "not-a-bool",
+	})
+
+	_, err := repo.Bool("key")
+	if err == nil {
+		t.Fatal("expected error for non-bool value")
+	}
+}
+
+// Laravel: testItThrowsAnExceptionWhenTryingToGetNonIntegerValueAsInteger
+func TestIntAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "not-an-int",
+	})
+
+	_, err := repo.Int("key")
+	if err == nil {
+		t.Fatal("expected error for non-int value")
+	}
+}
+
+// Laravel: testConstruct
+func TestConstructorSetsItems(t *testing.T) {
+	t.Parallel()
+
+	items := map[string]any{
+		"key1": "value1",
+		"key2": "value2",
+	}
+	repo := NewRepository(items)
+
+	if repo.Get("key1", nil) != "value1" || repo.Get("key2", nil) != "value2" {
+		t.Fatal("expected constructor to set all items")
+	}
+}
+
+// GAP: Laravel: testItGetsAsFloat — Bedrock does not have a Float() accessor
+// GAP: Laravel: testItGetsAsCollection — Bedrock does not have a Collection type
+// GAP: Laravel: testOffsetExists/Get/Set/Unset — Bedrock does not implement ArrayAccess pattern
+// GAP: Laravel: testItIsMacroable — Go does not have macroability
+
 func TestRepositoryErrorMessagesStayStable(t *testing.T) {
 	t.Parallel()
 
