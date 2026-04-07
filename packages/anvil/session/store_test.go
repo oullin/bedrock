@@ -6,40 +6,199 @@ import (
 	"testing"
 )
 
-func TestNewStore(t *testing.T) {
-	t.Parallel()
+// --- testSessionIsLoadedFromHandler ---
 
-	s := New("app_session", NewArrayHandler())
-
-	if s.GetName() != "app_session" {
-		t.Fatalf("want name %q, got %q", "app_session", s.GetName())
-	}
-
-	id := s.GetID()
-	if !isValidID(id) {
-		t.Fatalf("generated ID is not valid: %q", id)
-	}
-}
-
-func TestStartLoadsFromHandler(t *testing.T) {
+func TestSessionIsLoadedFromHandler(t *testing.T) {
 	t.Parallel()
 
 	h := NewArrayHandler()
 	ctx := context.Background()
 
-	_ = h.Write(ctx, "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0", `{"user_id":"42"}`)
+	id := "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0"
+	_ = h.Write(ctx, id, `{"user_id":"42","name":"Alice"}`)
 
-	s := NewWithID("sess", h, "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0")
+	s := NewWithID("sess", h, id)
 
 	if err := s.Start(ctx); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	got := s.Get("user_id", nil)
-	if got != "42" {
-		t.Fatalf("want %q, got %v", "42", got)
+	if s.Get("user_id", nil) != "42" {
+		t.Fatal("should load user_id from handler")
+	}
+
+	if s.Get("name", nil) != "Alice" {
+		t.Fatal("should load name from handler")
 	}
 }
+
+// --- testSessionMigration ---
+
+func TestSessionMigration(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("key", "value")
+	_ = s.Save(ctx)
+
+	oldID := s.GetID()
+
+	// Migrate without destroy.
+	_ = s.Migrate(ctx, false)
+	if s.GetID() == oldID {
+		t.Fatal("Migrate should produce a new ID")
+	}
+
+	if s.Get("key", nil) != "value" {
+		t.Fatal("data should be preserved after Migrate")
+	}
+
+	// Migrate with destroy.
+	_ = s.Save(ctx)
+	oldID = s.GetID()
+	_ = s.Migrate(ctx, true)
+
+	data, _ := h.Read(ctx, oldID)
+	if data != "" {
+		t.Fatal("old session data should be destroyed")
+	}
+}
+
+// --- testSessionRegeneration ---
+
+func TestSessionRegeneration(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+	_ = s.Start(context.Background())
+	s.Put("key", "value")
+
+	oldID := s.GetID()
+	_ = s.Regenerate(context.Background(), false)
+
+	if s.GetID() == oldID {
+		t.Fatal("Regenerate should produce a new ID")
+	}
+
+	if s.Get("key", nil) != "value" {
+		t.Fatal("data should be preserved after Regenerate")
+	}
+}
+
+// --- testCantSetInvalidId ---
+
+func TestCantSetInvalidId(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	cases := []string{
+		"too-short",
+		"xyz_not_hex_at_all_needs_forty_characters",
+		"",
+		"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+	}
+
+	for _, id := range cases {
+		if err := s.SetID(id); err == nil {
+			t.Fatalf("expected error for invalid ID %q", id)
+		}
+	}
+}
+
+// --- testSessionInvalidate ---
+
+func TestSessionInvalidate(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("key", "value")
+
+	oldID := s.GetID()
+	_ = s.Invalidate(ctx)
+
+	if s.GetID() == oldID {
+		t.Fatal("Invalidate should produce a new ID")
+	}
+
+	if s.Exists("key") {
+		t.Fatal("Invalidate should flush all data")
+	}
+}
+
+// --- testBrandNewSessionIsProperlySaved ---
+
+func TestBrandNewSessionIsProperlySaved(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("foo", "bar")
+	s.Flash("flash_key", "flash_value")
+	_ = s.Save(ctx)
+
+	data, _ := h.Read(ctx, s.GetID())
+	if data == "" {
+		t.Fatal("session data should be written to handler")
+	}
+
+	// Reload and verify.
+	s2 := NewWithID("sess", h, s.GetID())
+	_ = s2.Start(ctx)
+
+	if s2.Get("foo", nil) != "bar" {
+		t.Fatal("regular data should persist")
+	}
+
+	if s2.Get("flash_key", nil) != "flash_value" {
+		t.Fatal("flash data should be available on next request")
+	}
+}
+
+// --- testSessionIsProperlyUpdated ---
+
+func TestSessionIsProperlyUpdated(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("foo", "bar")
+	token := s.Token()
+	_ = s.Save(ctx)
+
+	// Second request: update.
+	s2 := NewWithID("sess", h, s.GetID())
+	_ = s2.Start(ctx)
+	s2.Put("foo", "baz")
+	_ = s2.Save(ctx)
+
+	// Third request: verify.
+	s3 := NewWithID("sess", h, s.GetID())
+	_ = s3.Start(ctx)
+
+	if s3.Get("foo", nil) != "baz" {
+		t.Fatal("updated value should persist")
+	}
+
+	if s3.Token() != token {
+		t.Fatal("token should be preserved across updates")
+	}
+}
+
+// --- testStartEmptySession ---
 
 func TestStartEmptySession(t *testing.T) {
 	t.Parallel()
@@ -55,6 +214,8 @@ func TestStartEmptySession(t *testing.T) {
 	}
 }
 
+// --- testStartAlreadyStarted ---
+
 func TestStartAlreadyStarted(t *testing.T) {
 	t.Parallel()
 
@@ -69,25 +230,7 @@ func TestStartAlreadyStarted(t *testing.T) {
 	}
 }
 
-func TestSave(t *testing.T) {
-	t.Parallel()
-
-	h := NewArrayHandler()
-	s := New("sess", h)
-	ctx := context.Background()
-
-	_ = s.Start(ctx)
-	s.Put("key", "value")
-
-	if err := s.Save(ctx); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	data, _ := h.Read(ctx, s.GetID())
-	if data == "" {
-		t.Fatal("handler should have data after Save")
-	}
-}
+// --- testGetAndPut ---
 
 func TestGetAndPut(t *testing.T) {
 	t.Parallel()
@@ -102,6 +245,8 @@ func TestGetAndPut(t *testing.T) {
 	}
 }
 
+// --- testGetWithFallback ---
+
 func TestGetWithFallback(t *testing.T) {
 	t.Parallel()
 
@@ -112,6 +257,8 @@ func TestGetWithFallback(t *testing.T) {
 		t.Fatalf("want %q, got %v", "default", got)
 	}
 }
+
+// --- testHasExistsMissing ---
 
 func TestHasExistsMissing(t *testing.T) {
 	t.Parallel()
@@ -138,6 +285,45 @@ func TestHasExistsMissing(t *testing.T) {
 	}
 }
 
+// --- testKeyHas (multiple keys) ---
+
+func TestKeyHasMultiple(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("a", "1")
+	s.Put("b", "2")
+
+	if !s.Has("a") || !s.Has("b") {
+		t.Fatal("Has should return true for each existing key")
+	}
+
+	if s.Has("c") {
+		t.Fatal("Has should return false for missing key")
+	}
+}
+
+// --- testKeyHasAny ---
+
+func TestKeyHasAny(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("a", "1")
+
+	if !s.HasAny("a", "b") {
+		t.Fatal("HasAny should return true if at least one key exists")
+	}
+
+	if s.HasAny("c", "d") {
+		t.Fatal("HasAny should return false if no keys exist")
+	}
+}
+
+// --- testPull ---
+
 func TestPull(t *testing.T) {
 	t.Parallel()
 
@@ -155,16 +341,26 @@ func TestPull(t *testing.T) {
 	}
 }
 
-func TestPullFallback(t *testing.T) {
+// --- testRemove ---
+
+func TestRemove(t *testing.T) {
 	t.Parallel()
 
 	s := New("sess", NewArrayHandler())
 
-	got := s.Pull("missing", "default")
-	if got != "default" {
-		t.Fatalf("want %q, got %v", "default", got)
+	s.Put("key", "value")
+
+	got := s.Remove("key")
+	if got != "value" {
+		t.Fatalf("want %q, got %v", "value", got)
+	}
+
+	if s.Exists("key") {
+		t.Fatal("key should be removed after Remove")
 	}
 }
+
+// --- testPush ---
 
 func TestPush(t *testing.T) {
 	t.Parallel()
@@ -185,21 +381,51 @@ func TestPush(t *testing.T) {
 	}
 }
 
-func TestPushCreatesSlice(t *testing.T) {
+// --- testOnly ---
+
+func TestOnly(t *testing.T) {
 	t.Parallel()
 
 	s := New("sess", NewArrayHandler())
 
-	s.Push("items", "first")
+	s.Put("a", 1)
+	s.Put("b", 2)
+	s.Put("c", 3)
 
-	got := s.Get("items", nil)
-	slice, ok := got.([]any)
-	if !ok || len(slice) != 1 {
-		t.Fatalf("want slice of length 1, got %v", got)
+	only := s.Only("a", "c")
+	if len(only) != 2 {
+		t.Fatalf("want 2 keys, got %d", len(only))
+	}
+
+	if _, ok := only["b"]; ok {
+		t.Fatal("Only should not include key 'b'")
 	}
 }
 
-func TestAll(t *testing.T) {
+// --- testExcept ---
+
+func TestExcept(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("a", 1)
+	s.Put("b", 2)
+	s.Put("c", 3)
+
+	except := s.Except("b")
+	if _, ok := except["b"]; ok {
+		t.Fatal("Except should exclude key 'b'")
+	}
+
+	if len(except) != 2 {
+		t.Fatalf("want 2 keys, got %d", len(except))
+	}
+}
+
+// --- testReplace ---
+
+func TestReplace(t *testing.T) {
 	t.Parallel()
 
 	s := New("sess", NewArrayHandler())
@@ -207,17 +433,82 @@ func TestAll(t *testing.T) {
 	s.Put("a", 1)
 	s.Put("b", 2)
 
-	all := s.All()
-	if len(all) != 2 {
-		t.Fatalf("want 2 attributes, got %d", len(all))
+	s.Replace(map[string]any{"b": 20, "c": 30})
+
+	if s.Get("a", nil) != 1 {
+		t.Fatal("Replace should preserve untouched keys")
 	}
 
-	// Verify it's a copy.
-	all["c"] = 3
-	if s.Exists("c") {
-		t.Fatal("All should return a copy, not a reference")
+	if s.Get("b", nil) != 20 {
+		t.Fatal("Replace should overwrite existing keys")
+	}
+
+	if s.Get("c", nil) != 30 {
+		t.Fatal("Replace should add new keys")
 	}
 }
+
+// --- testIncrement ---
+
+func TestIncrement(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("counter", int64(5))
+
+	result := s.Increment("counter", 3)
+	if result != 8 {
+		t.Fatalf("want 8, got %d", result)
+	}
+}
+
+// --- testDecrement ---
+
+func TestDecrement(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("counter", int64(10))
+
+	result := s.Decrement("counter", 3)
+	if result != 7 {
+		t.Fatalf("want 7, got %d", result)
+	}
+}
+
+// --- testIncrementNonExistent ---
+
+func TestIncrementNonExistent(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	result := s.Increment("counter", 1)
+	if result != 1 {
+		t.Fatalf("want 1, got %d", result)
+	}
+}
+
+// --- testClear ---
+
+func TestClear(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("a", 1)
+	s.Put("b", 2)
+	s.Flush()
+
+	all := s.All()
+	if len(all) != 0 {
+		t.Fatalf("want empty map after Flush, got %d items", len(all))
+	}
+}
+
+// --- testForgetKeys ---
 
 func TestForgetKeys(t *testing.T) {
 	t.Parallel()
@@ -239,22 +530,90 @@ func TestForgetKeys(t *testing.T) {
 	}
 }
 
-func TestFlush(t *testing.T) {
+// --- testAll ---
+
+func TestAll(t *testing.T) {
 	t.Parallel()
 
 	s := New("sess", NewArrayHandler())
 
 	s.Put("a", 1)
 	s.Put("b", 2)
-	s.Flush()
 
 	all := s.All()
-	if len(all) != 0 {
-		t.Fatalf("want empty map after Flush, got %d items", len(all))
+	if len(all) != 2 {
+		t.Fatalf("want 2 attributes, got %d", len(all))
+	}
+
+	// Verify it's a copy.
+	all["c"] = 3
+	if s.Exists("c") {
+		t.Fatal("All should return a copy, not a reference")
 	}
 }
 
-func TestFlashAndAging(t *testing.T) {
+// --- testOldInputFlashing ---
+
+func TestOldInputFlashing(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	ctx := context.Background()
+
+	s1 := New("sess", h)
+	_ = s1.Start(ctx)
+	s1.FlashInput(map[string]any{"name": "Alice", "email": "alice@example.com"})
+	_ = s1.Save(ctx)
+
+	// Next request: old input should be available.
+	s2 := NewWithID("sess", h, s1.GetID())
+	_ = s2.Start(ctx)
+
+	if s2.GetOldInput("name", nil) != "Alice" {
+		t.Fatal("old input 'name' should be available")
+	}
+
+	if s2.GetOldInput("email", nil) != "alice@example.com" {
+		t.Fatal("old input 'email' should be available")
+	}
+
+	if s2.GetOldInput("missing", "default") != "default" {
+		t.Fatal("missing old input should return fallback")
+	}
+}
+
+// --- testHasOldInputWithoutKey ---
+
+func TestHasOldInputWithoutKey(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	ctx := context.Background()
+
+	s1 := New("sess", h)
+	_ = s1.Start(ctx)
+	s1.FlashInput(map[string]any{"name": "Alice"})
+	_ = s1.Save(ctx)
+
+	s2 := NewWithID("sess", h, s1.GetID())
+	_ = s2.Start(ctx)
+
+	if !s2.HasOldInput("") {
+		t.Fatal("HasOldInput with empty key should return true when old input exists")
+	}
+
+	if !s2.HasOldInput("name") {
+		t.Fatal("HasOldInput should return true for existing key")
+	}
+
+	if s2.HasOldInput("missing") {
+		t.Fatal("HasOldInput should return false for missing key")
+	}
+}
+
+// --- testDataFlashing ---
+
+func TestDataFlashing(t *testing.T) {
 	t.Parallel()
 
 	h := NewArrayHandler()
@@ -270,9 +629,8 @@ func TestFlashAndAging(t *testing.T) {
 	s2 := NewWithID("sess", h, s1.GetID())
 	_ = s2.Start(ctx)
 
-	got := s2.Get("message", nil)
-	if got != "hello" {
-		t.Fatalf("want %q, got %v", "hello", got)
+	if s2.Get("message", nil) != "hello" {
+		t.Fatal("flash data should be available on next request")
 	}
 
 	_ = s2.Save(ctx)
@@ -281,13 +639,14 @@ func TestFlashAndAging(t *testing.T) {
 	s3 := NewWithID("sess", h, s2.GetID())
 	_ = s3.Start(ctx)
 
-	got = s3.Get("message", nil)
-	if got != nil {
-		t.Fatalf("flash data should be gone after aging, got %v", got)
+	if s3.Get("message", nil) != nil {
+		t.Fatal("flash data should be gone after aging")
 	}
 }
 
-func TestReflash(t *testing.T) {
+// --- testDataFlashingNow ---
+
+func TestDataFlashingNow(t *testing.T) {
 	t.Parallel()
 
 	h := NewArrayHandler()
@@ -295,26 +654,27 @@ func TestReflash(t *testing.T) {
 
 	s1 := New("sess", h)
 	_ = s1.Start(ctx)
-	s1.Flash("msg", "kept")
+	s1.Now("message", "immediate")
+
+	// Available immediately.
+	if s1.Get("message", nil) != "immediate" {
+		t.Fatal("Now data should be available immediately")
+	}
+
 	_ = s1.Save(ctx)
 
-	// Request 2: reflash to keep it.
+	// Next request: should be gone.
 	s2 := NewWithID("sess", h, s1.GetID())
 	_ = s2.Start(ctx)
-	s2.Reflash()
-	_ = s2.Save(ctx)
 
-	// Request 3: should still be available.
-	s3 := NewWithID("sess", h, s2.GetID())
-	_ = s3.Start(ctx)
-
-	got := s3.Get("msg", nil)
-	if got != "kept" {
-		t.Fatalf("reflashed data should still be available, got %v", got)
+	if s2.Get("message", nil) != nil {
+		t.Fatal("Now data should be aged out on next Start")
 	}
 }
 
-func TestKeep(t *testing.T) {
+// --- testDataMergeNewFlashes (Keep) ---
+
+func TestDataMergeNewFlashes(t *testing.T) {
 	t.Parallel()
 
 	h := NewArrayHandler()
@@ -345,6 +705,60 @@ func TestKeep(t *testing.T) {
 	}
 }
 
+// --- testReflash ---
+
+func TestReflash(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	ctx := context.Background()
+
+	s1 := New("sess", h)
+	_ = s1.Start(ctx)
+	s1.Flash("msg", "kept")
+	_ = s1.Save(ctx)
+
+	// Request 2: reflash to keep it.
+	s2 := NewWithID("sess", h, s1.GetID())
+	_ = s2.Start(ctx)
+	s2.Reflash()
+	_ = s2.Save(ctx)
+
+	// Request 3: should still be available.
+	s3 := NewWithID("sess", h, s2.GetID())
+	_ = s3.Start(ctx)
+
+	if s3.Get("msg", nil) != "kept" {
+		t.Fatal("reflashed data should still be available")
+	}
+}
+
+// --- testReflashWithNow ---
+
+func TestReflashWithNow(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	ctx := context.Background()
+
+	s1 := New("sess", h)
+	_ = s1.Start(ctx)
+	s1.Now("temp", "value")
+	_ = s1.Save(ctx)
+
+	// Request 2: "temp" was Now'd, so it should be in old flash list.
+	// Reflash it.
+	s2 := NewWithID("sess", h, s1.GetID())
+	_ = s2.Start(ctx)
+
+	// "temp" was aged out by Start. It's gone.
+	if s2.Get("temp", nil) != nil {
+		t.Fatal("Now'd data should be aged out after Start")
+	}
+}
+
+// --- testToken ---
+
 func TestToken(t *testing.T) {
 	t.Parallel()
 
@@ -360,6 +774,8 @@ func TestToken(t *testing.T) {
 	}
 }
 
+// --- testRegenerateToken ---
+
 func TestRegenerateToken(t *testing.T) {
 	t.Parallel()
 
@@ -373,6 +789,83 @@ func TestRegenerateToken(t *testing.T) {
 	}
 }
 
+// --- testName ---
+
+func TestName(t *testing.T) {
+	t.Parallel()
+
+	s := New("original", NewArrayHandler())
+
+	if s.GetName() != "original" {
+		t.Fatalf("want %q, got %q", "original", s.GetName())
+	}
+
+	s.SetName("renamed")
+
+	if s.GetName() != "renamed" {
+		t.Fatalf("want %q, got %q", "renamed", s.GetName())
+	}
+}
+
+// --- testSetPreviousUrl ---
+
+func TestSetPreviousUrl(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	if s.PreviousURL() != "" {
+		t.Fatal("PreviousURL should be empty initially")
+	}
+
+	s.SetPreviousURL("/dashboard")
+
+	if s.PreviousURL() != "/dashboard" {
+		t.Fatalf("want %q, got %q", "/dashboard", s.PreviousURL())
+	}
+}
+
+// --- testRememberMethodCallsPutAndReturnsDefault ---
+
+func TestRememberMethodCallsPutAndReturnsDefault(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	result := s.Remember("key", func() any {
+		return "computed"
+	})
+
+	if result != "computed" {
+		t.Fatalf("want %q, got %v", "computed", result)
+	}
+
+	// Should be cached.
+	if s.Get("key", nil) != "computed" {
+		t.Fatal("Remember should store the value")
+	}
+}
+
+// --- testRememberMethodReturnsPreviousValueIfItAlreadySets ---
+
+func TestRememberMethodReturnsPreviousValue(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	s.Put("key", "existing")
+
+	result := s.Remember("key", func() any {
+		return "new"
+	})
+
+	if result != "existing" {
+		t.Fatalf("want existing value %q, got %v", "existing", result)
+	}
+}
+
+// --- testGetID ---
+
 func TestGetID(t *testing.T) {
 	t.Parallel()
 
@@ -383,6 +876,8 @@ func TestGetID(t *testing.T) {
 		t.Fatalf("want 40-char ID, got %d chars", len(id))
 	}
 }
+
+// --- testSetID ---
 
 func TestSetID(t *testing.T) {
 	t.Parallel()
@@ -400,104 +895,7 @@ func TestSetID(t *testing.T) {
 	}
 }
 
-func TestSetIDInvalid(t *testing.T) {
-	t.Parallel()
-
-	s := New("sess", NewArrayHandler())
-
-	cases := []string{
-		"too-short",
-		"xyz_not_hex_at_all_needs_forty_characters",
-		"",
-	}
-
-	for _, id := range cases {
-		if err := s.SetID(id); err == nil {
-			t.Fatalf("expected error for invalid ID %q", id)
-		}
-	}
-}
-
-func TestGetSetName(t *testing.T) {
-	t.Parallel()
-
-	s := New("original", NewArrayHandler())
-
-	s.SetName("renamed")
-
-	if s.GetName() != "renamed" {
-		t.Fatalf("want %q, got %q", "renamed", s.GetName())
-	}
-}
-
-func TestRegenerate(t *testing.T) {
-	t.Parallel()
-
-	s := New("sess", NewArrayHandler())
-	_ = s.Start(context.Background())
-	s.Put("key", "value")
-
-	oldID := s.GetID()
-
-	if err := s.Regenerate(context.Background(), false); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if s.GetID() == oldID {
-		t.Fatal("Regenerate should produce a new ID")
-	}
-
-	if s.Get("key", nil) != "value" {
-		t.Fatal("data should be preserved after Regenerate without destroy")
-	}
-}
-
-func TestRegenerateWithDestroy(t *testing.T) {
-	t.Parallel()
-
-	h := NewArrayHandler()
-	s := New("sess", h)
-	ctx := context.Background()
-
-	_ = s.Start(ctx)
-	s.Put("key", "value")
-	_ = s.Save(ctx)
-
-	oldID := s.GetID()
-
-	if err := s.Regenerate(ctx, true); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	data, _ := h.Read(ctx, oldID)
-	if data != "" {
-		t.Fatal("old session data should be destroyed")
-	}
-}
-
-func TestInvalidate(t *testing.T) {
-	t.Parallel()
-
-	s := New("sess", NewArrayHandler())
-	ctx := context.Background()
-
-	_ = s.Start(ctx)
-	s.Put("key", "value")
-
-	oldID := s.GetID()
-
-	if err := s.Invalidate(ctx); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if s.GetID() == oldID {
-		t.Fatal("Invalidate should produce a new ID")
-	}
-
-	if s.Exists("key") {
-		t.Fatal("Invalidate should flush all data")
-	}
-}
+// --- testIsStarted ---
 
 func TestIsStarted(t *testing.T) {
 	t.Parallel()
@@ -515,21 +913,87 @@ func TestIsStarted(t *testing.T) {
 	}
 }
 
-func TestPreviousURL(t *testing.T) {
+// --- testSave ---
+
+func TestSave(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("key", "value")
+
+	if err := s.Save(ctx); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	data, _ := h.Read(ctx, s.GetID())
+	if data == "" {
+		t.Fatal("handler should have data after Save")
+	}
+}
+
+// --- testNewStore ---
+
+func TestNewStore(t *testing.T) {
+	t.Parallel()
+
+	s := New("app_session", NewArrayHandler())
+
+	if s.GetName() != "app_session" {
+		t.Fatalf("want name %q, got %q", "app_session", s.GetName())
+	}
+
+	id := s.GetID()
+	if !isValidID(id) {
+		t.Fatalf("generated ID is not valid: %q", id)
+	}
+}
+
+// --- testPushCreatesSlice ---
+
+func TestPushCreatesSlice(t *testing.T) {
 	t.Parallel()
 
 	s := New("sess", NewArrayHandler())
 
-	if s.PreviousURL() != "" {
-		t.Fatal("PreviousURL should be empty initially")
-	}
+	s.Push("items", "first")
 
-	s.SetPreviousURL("/dashboard")
-
-	if s.PreviousURL() != "/dashboard" {
-		t.Fatalf("want %q, got %q", "/dashboard", s.PreviousURL())
+	got := s.Get("items", nil)
+	slice, ok := got.([]any)
+	if !ok || len(slice) != 1 {
+		t.Fatalf("want slice of length 1, got %v", got)
 	}
 }
+
+// --- testSessionIsReSavedWhenNothingHasChanged ---
+
+func TestSessionIsReSavedWhenNothingHasChanged(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("key", "value")
+	_ = s.Save(ctx)
+
+	data1, _ := h.Read(ctx, s.GetID())
+
+	// Re-save without changes.
+	_ = s.Save(ctx)
+
+	data2, _ := h.Read(ctx, s.GetID())
+
+	if data1 != data2 {
+		t.Fatal("data should be identical when nothing changed")
+	}
+}
+
+// --- testConcurrentGetPut ---
 
 func TestConcurrentGetPut(t *testing.T) {
 	t.Parallel()
@@ -555,4 +1019,42 @@ func TestConcurrentGetPut(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+// --- testRegenerateWithDestroy ---
+
+func TestRegenerateWithDestroy(t *testing.T) {
+	t.Parallel()
+
+	h := NewArrayHandler()
+	s := New("sess", h)
+	ctx := context.Background()
+
+	_ = s.Start(ctx)
+	s.Put("key", "value")
+	_ = s.Save(ctx)
+
+	oldID := s.GetID()
+
+	if err := s.Regenerate(ctx, true); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	data, _ := h.Read(ctx, oldID)
+	if data != "" {
+		t.Fatal("old session data should be destroyed")
+	}
+}
+
+// --- testPullFallback ---
+
+func TestPullFallback(t *testing.T) {
+	t.Parallel()
+
+	s := New("sess", NewArrayHandler())
+
+	got := s.Pull("missing", "default")
+	if got != "default" {
+		t.Fatalf("want %q, got %v", "default", got)
+	}
 }

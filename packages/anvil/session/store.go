@@ -248,6 +248,108 @@ func (s *Store) Flush() {
 	s.attributes = make(map[string]any)
 }
 
+// Only returns a map containing only the specified keys.
+func (s *Store) Only(keys ...string) map[string]any {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	result := make(map[string]any, len(keys))
+	for _, key := range keys {
+		if v, ok := s.attributes[key]; ok {
+			result[key] = v
+		}
+	}
+
+	return result
+}
+
+// Except returns all attributes except the specified keys.
+func (s *Store) Except(keys ...string) map[string]any {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	exclude := make(map[string]bool, len(keys))
+	for _, k := range keys {
+		exclude[k] = true
+	}
+
+	result := make(map[string]any, len(s.attributes))
+	for k, v := range s.attributes {
+		if !exclude[k] {
+			result[k] = v
+		}
+	}
+
+	return result
+}
+
+// Replace merges the given key-value pairs into the session, overwriting
+// existing keys but preserving others.
+func (s *Store) Replace(values map[string]any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for k, v := range values {
+		s.attributes[k] = v
+	}
+}
+
+// Remove retrieves and removes a value (alias for Pull with nil fallback).
+func (s *Store) Remove(key string) any {
+	return s.Pull(key, nil)
+}
+
+// Increment increments a numeric session value by the given amount.
+func (s *Store) Increment(key string, amount int64) int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	var current int64
+	if v, ok := s.attributes[key]; ok {
+		current = toSessionInt64(v)
+	}
+
+	result := current + amount
+	s.attributes[key] = result
+
+	return result
+}
+
+// Decrement decrements a numeric session value by the given amount.
+func (s *Store) Decrement(key string, amount int64) int64 {
+	return s.Increment(key, -amount)
+}
+
+// Remember retrieves a value or stores the result of the callback if the
+// key does not exist.
+func (s *Store) Remember(key string, callback func() any) any {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if v, ok := s.attributes[key]; ok {
+		return v
+	}
+
+	value := callback()
+	s.attributes[key] = value
+
+	return value
+}
+
+// HasAny reports whether any of the given keys exist with non-nil values.
+func (s *Store) HasAny(keys ...string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for _, key := range keys {
+		if v, ok := s.attributes[key]; ok && v != nil {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Flash stores a value available only for the next request.
 func (s *Store) Flash(key string, value any) {
 	s.mu.Lock()
@@ -256,6 +358,75 @@ func (s *Store) Flash(key string, value any) {
 	s.attributes[key] = value
 	s.pushFlashKey(key)
 	s.removeFromOldFlash(key)
+}
+
+// Now stores a value available only for the current request (not flashed
+// to next request). The value is placed directly in attributes and added
+// to the old flash list so it will be removed on the next Start.
+func (s *Store) Now(key string, value any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.attributes[key] = value
+	old := s.getFlashOld()
+	s.setFlashOld(append(old, key))
+}
+
+// FlashInput stores input data to be available as "old input" on the next
+// request.
+func (s *Store) FlashInput(values map[string]any) {
+	s.Flash("_old_input", values)
+}
+
+// GetOldInput retrieves a previously flashed input value.
+func (s *Store) GetOldInput(key string, fallback any) any {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	raw, ok := s.attributes["_old_input"]
+	if !ok {
+		return fallback
+	}
+
+	m, ok := raw.(map[string]any)
+	if !ok {
+		return fallback
+	}
+
+	if key == "" {
+		return m
+	}
+
+	if v, ok := m[key]; ok {
+		return v
+	}
+
+	return fallback
+}
+
+// HasOldInput reports whether old input data exists, optionally for a
+// specific key.
+func (s *Store) HasOldInput(key string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	raw, ok := s.attributes["_old_input"]
+	if !ok {
+		return false
+	}
+
+	m, ok := raw.(map[string]any)
+	if !ok {
+		return false
+	}
+
+	if key == "" {
+		return len(m) > 0
+	}
+
+	_, exists := m[key]
+
+	return exists
 }
 
 // Reflash keeps all flash data for an additional request.
@@ -320,6 +491,12 @@ func (s *Store) Regenerate(ctx context.Context, destroy bool) error {
 	s.mu.Unlock()
 
 	return nil
+}
+
+// Migrate generates a new session ID (alias for Regenerate for Laravel
+// compatibility).
+func (s *Store) Migrate(ctx context.Context, destroy bool) error {
+	return s.Regenerate(ctx, destroy)
 }
 
 // Invalidate flushes all data and regenerates the session ID.
@@ -514,6 +691,21 @@ func toStringSlice(v any) []string {
 	}
 
 	return nil
+}
+
+func toSessionInt64(v any) int64 {
+	switch n := v.(type) {
+	case int:
+		return int64(n)
+	case int64:
+		return n
+	case float64:
+		return int64(n)
+	case int32:
+		return int64(n)
+	default:
+		return 0
+	}
 }
 
 func toAnySlice(ss []string) []any {
