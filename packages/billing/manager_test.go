@@ -12,11 +12,11 @@ type stubBillable struct {
 	btype string
 }
 
-func (s stubBillable) BillableID() int64      { return s.id }
-func (s stubBillable) BillableType() string    { return s.btype }
-func (s stubBillable) BillableUUID() string    { return "uuid-123" }
-func (s stubBillable) BillableName() string    { return "Test Team" }
-func (s stubBillable) BillableEmail() string   { return "team@example.com" }
+func (s stubBillable) BillableID() int64     { return s.id }
+func (s stubBillable) BillableType() string  { return s.btype }
+func (s stubBillable) BillableUUID() string  { return "uuid-123" }
+func (s stubBillable) BillableName() string  { return "Test Team" }
+func (s stubBillable) BillableEmail() string { return "team@example.com" }
 
 func TestManagerBillableRegistration(t *testing.T) {
 	m := billing.NewManager()
