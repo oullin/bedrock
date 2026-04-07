@@ -114,9 +114,77 @@ func (s *ArrayStore) PutMultiple(_ context.Context, values map[string]any, ttl t
 	return nil
 }
 
+// Add stores a value only if the key does not already exist (or has expired).
+// Returns true if the value was stored, false if the key already exists.
+func (s *ArrayStore) Add(_ context.Context, key string, value any, ttl time.Duration) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	itm, ok := s.items[key]
+	if ok && !s.isExpired(itm) {
+		return false, nil
+	}
+
+	var expiresAt time.Time
+	if ttl > 0 {
+		expiresAt = s.now().Add(ttl)
+	}
+
+	s.items[key] = item{value: value, expiresAt: expiresAt}
+
+	return true, nil
+}
+
 // Forever stores a value that never expires.
 func (s *ArrayStore) Forever(ctx context.Context, key string, value any) error {
 	return s.Put(ctx, key, value, 0)
+}
+
+// Remember retrieves a value or stores the result of callback if the key
+// does not exist.
+func (s *ArrayStore) Remember(ctx context.Context, key string, ttl time.Duration, callback func() (any, error)) (any, error) {
+	v, err := s.Get(ctx, key)
+	if err == nil {
+		return v, nil
+	}
+
+	result, err := callback()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.Put(ctx, key, result, ttl); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// RememberForever retrieves a value or stores the result of callback
+// indefinitely if the key does not exist.
+func (s *ArrayStore) RememberForever(ctx context.Context, key string, callback func() (any, error)) (any, error) {
+	return s.Remember(ctx, key, 0, callback)
+}
+
+// Touch extends the TTL of an existing key. Returns true if the key exists
+// and was updated, false if the key does not exist.
+func (s *ArrayStore) Touch(_ context.Context, key string, ttl time.Duration) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	itm, ok := s.items[key]
+	if !ok || s.isExpired(itm) {
+		return false, nil
+	}
+
+	var expiresAt time.Time
+	if ttl > 0 {
+		expiresAt = s.now().Add(ttl)
+	}
+
+	s.items[key] = item{value: itm.value, expiresAt: expiresAt}
+
+	return true, nil
 }
 
 // Has reports whether a non-expired value exists for key.
@@ -126,6 +194,11 @@ func (s *ArrayStore) Has(_ context.Context, key string) bool {
 	s.mu.RUnlock()
 
 	return ok && !s.isExpired(itm)
+}
+
+// Missing reports whether a key does not exist or has expired.
+func (s *ArrayStore) Missing(ctx context.Context, key string) bool {
+	return !s.Has(ctx, key)
 }
 
 // Increment increments a numeric value by delta. If the key does not exist,
