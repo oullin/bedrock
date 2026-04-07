@@ -32,21 +32,12 @@ demo:
 
 clean:
 	rm -rf $(ROOT_PATH)/storage/.cache
-	rm -rf $(ROOT_PATH)/storage/.pnpm-store
 	rm -rf $(ROOT_PATH)/storage/.turbo
-	rm -rf $(ROOT_PATH)/storage/dist
-	rm -rf $(ROOT_PATH)/storage/coverage
 	rm -rf $(ROOT_PATH)/packages/app/public/build
-	mkdir -p $(ROOT_PATH)/storage/.cache
-	mkdir -p $(ROOT_PATH)/storage/.pnpm-store
+	mkdir -p $(ROOT_PATH)/storage/.cache/.pnpm-store
+	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
+	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/playwright
 	mkdir -p $(ROOT_PATH)/storage/.turbo
-	mkdir -p $(ROOT_PATH)/storage/dist
-	mkdir -p $(ROOT_PATH)/storage/coverage/go
-	mkdir -p $(ROOT_PATH)/storage/coverage/playwright
 	mkdir -p $(ROOT_PATH)/packages/app/public/build
 	touch $(ROOT_PATH)/storage/.cache/.gitkeep
 	touch $(ROOT_PATH)/storage/.turbo/.gitkeep
-	touch $(ROOT_PATH)/storage/dist/.gitkeep
-	touch $(ROOT_PATH)/storage/coverage/.gitkeep
-	touch $(ROOT_PATH)/storage/coverage/go/.gitkeep
-	touch $(ROOT_PATH)/storage/coverage/playwright/.gitkeep

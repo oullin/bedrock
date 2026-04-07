@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "cacheDir": "storage/.turbo",
   "globalDependencies": [
     ".npmrc",
     "pnpm-lock.yaml",
@@ -11,8 +12,8 @@
         "^build"
       ],
       "outputs": [
-        "../storage/dist/**",
-        "../../storage/dist/**"
+        "../storage/.turbo/dist/**",
+        "../../storage/.turbo/dist/**"
       ]
     },
     "dev": {
@@ -36,8 +37,8 @@
         "^build"
       ],
       "outputs": [
-        "../storage/coverage/**",
-        "../../storage/coverage/**"
+        "../storage/.cache/coverage/**",
+        "../../storage/.cache/coverage/**"
       ]
     },
     "fmt": {
