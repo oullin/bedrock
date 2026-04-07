@@ -8,9 +8,9 @@
     "pnpm": ">=10.33.0"
   },
   "scripts": {
-    "preinstall": "node scripts/enforce-pnpm.mjs",
-    "bootstrap:framework": "node scripts/bootstrap-framework.mjs",
-    "sync:upstream": "node scripts/sync-upstream-upstream.mjs",
+    "preinstall": "sh packages/infra/scripts/enforce-pnpm.sh",
+    "bootstrap:framework": "sh packages/infra/scripts/bootstrap-framework.sh",
+    "sync:upstream": "sh packages/infra/scripts/sync-upstream-upstream.sh",
     "build": "turbo run build --cache-dir=storage/.turbo",
     "dev": "turbo run dev --cache-dir=storage/.turbo",
     "typecheck": "turbo run typecheck --cache-dir=storage/.turbo",
