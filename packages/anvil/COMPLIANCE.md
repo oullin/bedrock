@@ -19,6 +19,21 @@
 | Bedrock tests: BEDROCK-ONLY | 53 |
 | **Overall coverage (excl. intentional skips)** | **70%** |
 
+### Missing Test Breakdown
+
+| Area | Missing | Root Cause |
+|------|---------|------------|
+| Routing | ~89 | Bulk of `RoutingRouteTest.php` not yet ported |
+| HTTP Request | ~87 | Most of `HttpRequestTest.php` not yet ported |
+| View | ~68 | Most of `ViewFactoryTest.php` not yet ported |
+| Foundation | ~36+ | Application bootstrap, IoC container, service providers |
+| Auth / Gate | ~13 | Policy resolution: subtypes, interfaces, dash-to-camel, class-name policies, array abilities |
+| Auth / Guards | ~12 | Session guard cookie lifecycle, event firing; Token guard custom fields |
+| Console | ~10 | Interactive prompts, IoC command resolution, alias attributes |
+| Auth / Middleware | ~7 | Authorize middleware model authorization, custom driver IoC |
+
+> **Note:** All 38 INTENTIONAL-SKIPs are PHP-specific constructs (ArrayAccess, macros, `__invoke`, PHP enums, array callbacks) with no Go equivalent.
+
 ---
 
 ## 1. Config (`tests/Config/RepositoryTest.php`)
