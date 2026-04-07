@@ -27,8 +27,8 @@ build:
 	pnpm build
 
 demo:
-	cd $(ROOT_PATH)/demo && node scripts/build-assets.mjs
-	cd $(ROOT_PATH)/demo && go run ./public
+	cd $(ROOT_PATH)/packages/app && node scripts/build-assets.mjs
+	cd $(ROOT_PATH)/packages/app && go run ./public
 
 clean:
 	rm -rf $(ROOT_PATH)/storage/.cache
@@ -36,14 +36,14 @@ clean:
 	rm -rf $(ROOT_PATH)/storage/.turbo
 	rm -rf $(ROOT_PATH)/storage/dist
 	rm -rf $(ROOT_PATH)/storage/coverage
-	rm -rf $(ROOT_PATH)/demo/public/build
+	rm -rf $(ROOT_PATH)/packages/app/public/build
 	mkdir -p $(ROOT_PATH)/storage/.cache
 	mkdir -p $(ROOT_PATH)/storage/.pnpm-store
 	mkdir -p $(ROOT_PATH)/storage/.turbo
 	mkdir -p $(ROOT_PATH)/storage/dist
 	mkdir -p $(ROOT_PATH)/storage/coverage/go
 	mkdir -p $(ROOT_PATH)/storage/coverage/playwright
-	mkdir -p $(ROOT_PATH)/demo/public/build
+	mkdir -p $(ROOT_PATH)/packages/app/public/build
 	touch $(ROOT_PATH)/storage/.cache/.gitkeep
 	touch $(ROOT_PATH)/storage/.turbo/.gitkeep
 	touch $(ROOT_PATH)/storage/dist/.gitkeep
