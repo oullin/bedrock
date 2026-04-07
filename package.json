@@ -11,13 +11,13 @@
     "preinstall": "sh packages/infra/scripts/enforce-pnpm.sh",
     "bootstrap:illuminate": "sh packages/infra/scripts/bootstrap-illuminate.sh",
     "sync:laravel": "sh packages/infra/scripts/sync-laravel-upstream.sh",
-    "build": "turbo run build --cache-dir=storage/.turbo",
-    "dev": "turbo run dev --cache-dir=storage/.turbo",
-    "typecheck": "turbo run typecheck --cache-dir=storage/.turbo",
-    "test": "turbo run test --cache-dir=storage/.turbo",
-    "test:coverage": "turbo run test:coverage --cache-dir=storage/.turbo",
-    "fmt": "turbo run fmt --cache-dir=storage/.turbo",
-    "fmt:check": "turbo run fmt:check --cache-dir=storage/.turbo"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "fmt": "turbo run fmt",
+    "fmt:check": "turbo run fmt:check"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.2",

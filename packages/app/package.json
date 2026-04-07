@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "node scripts/build-assets.mjs && sh -c 'mkdir -p ../../storage/dist/demo && go build -o ../../storage/dist/demo/http ./public && go build -o ../../storage/dist/demo/artisan ./cmd/artisan && touch ../../storage/dist/demo/.build-stamp'",
+    "build": "node scripts/build-assets.mjs && sh -c 'mkdir -p ../../storage/.turbo/dist/demo && go build -o ../../storage/.turbo/dist/demo/http ./public && go build -o ../../storage/.turbo/dist/demo/artisan ./cmd/artisan && touch ../../storage/.turbo/dist/demo/.build-stamp'",
     "dev": "go run ./public",
     "test": "go test ./...",
-    "test:coverage": "sh -c 'mkdir -p ../../storage/coverage/go/demo && go test ./... -coverprofile=../../storage/coverage/go/demo/coverage.out'",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/demo && go test ./... -coverprofile=../../storage/.cache/coverage/go/demo/coverage.out'",
     "typecheck": "go test ./... -run '^$'",
     "fmt": "gofmt -w .",
     "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
