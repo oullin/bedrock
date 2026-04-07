@@ -172,6 +172,73 @@ func (g *SessionGuard) Logout(ctx context.Context, w http.ResponseWriter, sessio
 	return g.clearCookie(w, g.config.Cookies.RememberName)
 }
 
+// Attempt validates the given credentials and logs the user in on success.
+func (g *SessionGuard) Attempt(ctx context.Context, w http.ResponseWriter, credentials map[string]string, remember bool) (bool, error) {
+	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+	if err != nil {
+		return false, nil
+	}
+
+	valid, err := g.provider.ValidateCredentials(ctx, user, credentials)
+	if err != nil {
+		return false, err
+	}
+
+	if !valid {
+		return false, nil
+	}
+
+	if _, _, err := g.Login(ctx, w, user, remember, false); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// LoginUsingId retrieves a user by ID and logs them in.
+func (g *SessionGuard) LoginUsingId(ctx context.Context, w http.ResponseWriter, id string, remember bool) (*Session, Authenticatable, error) {
+	user, err := g.provider.RetrieveByID(ctx, id)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	session, _, err := g.Login(ctx, w, user, remember, false)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return session, user, nil
+}
+
+// Once validates credentials for a single request without creating a session.
+func (g *SessionGuard) Once(ctx context.Context, credentials map[string]string) (Authenticatable, error) {
+	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+	if err != nil {
+		return nil, ErrUnauthorized
+	}
+
+	valid, err := g.provider.ValidateCredentials(ctx, user, credentials)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, ErrUnauthorized
+	}
+
+	return user, nil
+}
+
+// OnceUsingId retrieves a user by ID for a single request without creating a session.
+func (g *SessionGuard) OnceUsingId(ctx context.Context, id string) (Authenticatable, error) {
+	user, err := g.provider.RetrieveByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (g *SessionGuard) sessionFromID(ctx context.Context, id string) (*Session, Authenticatable, error) {
 	session, err := g.sessions.FindByID(ctx, id)
 	if err != nil {

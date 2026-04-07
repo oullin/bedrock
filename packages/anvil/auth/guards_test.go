@@ -883,6 +883,67 @@ func TestTokenGuardDefaultInputKey(t *testing.T) {
 	}
 }
 
+// Upstream: testTokenGuardValidate
+func TestTokenGuardValidateSuccess(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+
+	guard := NewTokenGuard(&fakeProvider{user: user, hasher: hasher}, nil, "", "", false)
+
+	ok, err := guard.Validate(context.Background(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	})
+	if err != nil {
+		t.Fatalf("Validate: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected Validate to return true for valid credentials")
+	}
+}
+
+func TestTokenGuardValidateFailure(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+
+	guard := NewTokenGuard(&fakeProvider{user: user, hasher: hasher}, nil, "", "", false)
+
+	ok, err := guard.Validate(context.Background(), map[string]string{
+		"email":    "user@example.com",
+		"password": "wrong",
+	})
+	if err != nil {
+		t.Fatalf("Validate: %v", err)
+	}
+	if ok {
+		t.Fatal("expected Validate to return false for invalid credentials")
+	}
+}
+
+func TestTokenGuardValidateUserNotFound(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	guard := NewTokenGuard(&fakeProvider{user: nil, hasher: hasher}, nil, "", "", false)
+
+	ok, err := guard.Validate(context.Background(), map[string]string{
+		"email":    "nobody@example.com",
+		"password": "secret",
+	})
+	if err != nil {
+		t.Fatalf("Validate: %v", err)
+	}
+	if ok {
+		t.Fatal("expected Validate to return false when user not found")
+	}
+}
+
 // ======================== REQUEST GUARD TESTS ========================
 
 func TestRequestGuardResolvesUser(t *testing.T) {
@@ -1312,4 +1373,204 @@ func TestSessionGuardImplementsStatefulGuard(t *testing.T) {
 	t.Parallel()
 
 	var _ StatefulGuard = (*SessionGuard)(nil)
+}
+
+// ======================== ATTEMPT / LOGIN USING ID / ONCE TESTS ========================
+
+// Upstream: testAttemptCallsRetrieveByCredentials + testAttemptReturnsTrue
+func TestSessionGuardAttemptSuccess(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	ok, err := guard.Attempt(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	}, false)
+	if err != nil {
+		t.Fatalf("Attempt: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected Attempt to return true for valid credentials")
+	}
+
+	// A session should have been created.
+	if len(sessions.sessions) == 0 {
+		t.Fatal("expected a session to be created after successful attempt")
+	}
+}
+
+// Upstream: testAttemptReturnsFalse
+func TestSessionGuardAttemptFailure(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	ok, err := guard.Attempt(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "user@example.com",
+		"password": "wrong-password",
+	}, false)
+	if err != nil {
+		t.Fatalf("Attempt: %v", err)
+	}
+	if ok {
+		t.Fatal("expected Attempt to return false for invalid credentials")
+	}
+
+	if len(sessions.sessions) != 0 {
+		t.Fatal("expected no session to be created after failed attempt")
+	}
+}
+
+// Upstream: testAttemptReturnsFalseWhenUserNotFound
+func TestSessionGuardAttemptUserNotFound(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: nil, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	ok, err := guard.Attempt(context.Background(), httptest.NewRecorder(), map[string]string{
+		"email":    "nobody@example.com",
+		"password": "secret",
+	}, false)
+	if err != nil {
+		t.Fatalf("Attempt: %v", err)
+	}
+	if ok {
+		t.Fatal("expected Attempt to return false when user not found")
+	}
+}
+
+// Upstream: testLoginUsingId
+func TestSessionGuardLoginUsingId(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-42", email: "user@example.com"}
+	clock := fixedClock{now: time.Date(2026, 4, 5, 0, 0, 0, 0, time.UTC)}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	session, authedUser, err := guard.LoginUsingId(context.Background(), httptest.NewRecorder(), "user-42", false)
+	if err != nil {
+		t.Fatalf("LoginUsingId: %v", err)
+	}
+	if session == nil {
+		t.Fatal("expected session to be created")
+	}
+	if authedUser.GetAuthIdentifier() != "user-42" {
+		t.Fatalf("expected user ID 'user-42', got %q", authedUser.GetAuthIdentifier())
+	}
+}
+
+// Upstream: testLoginUsingIdFailsWhenUserNotFound
+func TestSessionGuardLoginUsingIdNotFound(t *testing.T) {
+	t.Parallel()
+
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: nil}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	_, _, err := guard.LoginUsingId(context.Background(), httptest.NewRecorder(), "nonexistent", false)
+	if err == nil {
+		t.Fatal("expected error when user not found")
+	}
+}
+
+// Upstream: testOnceUsingId
+func TestSessionGuardOnceUsingId(t *testing.T) {
+	t.Parallel()
+
+	user := &testUser{id: "user-42", email: "user@example.com"}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user}, sessions, cookies, nil, nil, clock, fixedIDs{value: "s1"})
+
+	authedUser, err := guard.OnceUsingId(context.Background(), "user-42")
+	if err != nil {
+		t.Fatalf("OnceUsingId: %v", err)
+	}
+	if authedUser.GetAuthIdentifier() != "user-42" {
+		t.Fatalf("expected user ID 'user-42', got %q", authedUser.GetAuthIdentifier())
+	}
+
+	// No session should be created for stateless auth.
+	if len(sessions.sessions) != 0 {
+		t.Fatal("expected no session for stateless OnceUsingId")
+	}
+}
+
+// Upstream: testOnce
+func TestSessionGuardOnce(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	authedUser, err := guard.Once(context.Background(), map[string]string{
+		"email":    "user@example.com",
+		"password": "secret",
+	})
+	if err != nil {
+		t.Fatalf("Once: %v", err)
+	}
+	if authedUser.GetAuthIdentifier() != "user-1" {
+		t.Fatalf("expected user ID 'user-1', got %q", authedUser.GetAuthIdentifier())
+	}
+
+	// No session should be created for stateless auth.
+	if len(sessions.sessions) != 0 {
+		t.Fatal("expected no session for stateless Once")
+	}
+}
+
+// Upstream: testOnceFailsWithInvalidCredentials
+func TestSessionGuardOnceFailsWithInvalidCredentials(t *testing.T) {
+	t.Parallel()
+
+	hasher, _ := NewDefaultPasswordHasher()
+	passwordHash, _ := hasher.Hash(context.Background(), "secret")
+	user := &testUser{id: "user-1", email: "user@example.com", passwordHash: passwordHash}
+	clock := fixedClock{now: time.Now().UTC()}
+	cookies := &fakeCookieManager{}
+	sessions := &fakeSessionStore{}
+
+	guard := NewSessionGuard("web", defaultCfg(), &fakeProvider{user: user, hasher: hasher}, sessions, cookies, hasher, nil, clock, fixedIDs{value: "s1"})
+
+	_, err := guard.Once(context.Background(), map[string]string{
+		"email":    "user@example.com",
+		"password": "wrong",
+	})
+	if err == nil {
+		t.Fatal("expected Once to fail with invalid credentials")
+	}
 }
