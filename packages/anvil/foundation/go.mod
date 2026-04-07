@@ -8,7 +8,6 @@ require (
 	github.com/bedrock/packages/anvil/http v0.0.0
 	github.com/bedrock/packages/anvil/routing v0.0.0
 	github.com/bedrock/packages/anvil/support v0.0.0
-	github.com/bedrock/packages/anvil/view v0.0.0
 )
 
 require (
@@ -38,5 +37,3 @@ replace github.com/bedrock/packages/anvil/http => ../http
 replace github.com/bedrock/packages/anvil/routing => ../routing
 
 replace github.com/bedrock/packages/anvil/support => ../support
-
-replace github.com/bedrock/packages/anvil/view => ../view

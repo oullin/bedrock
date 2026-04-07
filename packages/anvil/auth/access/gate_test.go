@@ -33,9 +33,6 @@ type post struct {
 }
 
 var ctx = context.Background()
-
-// ---------- Laravel: testBasicClosuresCanBeDefined ----------
-
 func TestBasicClosuresCanBeDefined(t *testing.T) {
 	t.Parallel()
 
@@ -56,9 +53,6 @@ func TestBasicClosuresCanBeDefined(t *testing.T) {
 		t.Fatal("expected closed-gate to deny")
 	}
 }
-
-// ---------- Laravel: testBeforeCallbacksCanOverrideResultIfNecessary ----------
-
 func TestBeforeCallbacksCanOverrideResultIfNecessary(t *testing.T) {
 	t.Parallel()
 
@@ -75,9 +69,6 @@ func TestBeforeCallbacksCanOverrideResultIfNecessary(t *testing.T) {
 		t.Fatal("expected before callback to override and deny")
 	}
 }
-
-// ---------- Laravel: testBeforeCallbacksDontInterruptGateCheckIfNoValueIsReturned ----------
-
 func TestBeforeCallbacksDontInterruptGateCheckIfNoValueIsReturned(t *testing.T) {
 	t.Parallel()
 
@@ -94,9 +85,6 @@ func TestBeforeCallbacksDontInterruptGateCheckIfNoValueIsReturned(t *testing.T) 
 		t.Fatal("expected before callback to pass through when not handled")
 	}
 }
-
-// ---------- Laravel: testAfterCallbacksAreCalledWithResult ----------
-
 func TestAfterCallbacksAreCalledWithResult(t *testing.T) {
 	t.Parallel()
 
@@ -118,9 +106,6 @@ func TestAfterCallbacksAreCalledWithResult(t *testing.T) {
 		t.Fatal("expected after callback to receive allowed result")
 	}
 }
-
-// ---------- Laravel: testAfterCallbacksCanAllowIfNull ----------
-
 func TestAfterCallbacksCanAllowUndefined(t *testing.T) {
 	t.Parallel()
 
@@ -138,9 +123,6 @@ func TestAfterCallbacksCanAllowUndefined(t *testing.T) {
 		t.Fatal("expected after callback to override undefined ability to allow")
 	}
 }
-
-// ---------- Laravel: testAfterCallbacksDoNotOverridePreviousResult ----------
-
 func TestAfterCallbacksDoNotOverridePreviousResult(t *testing.T) {
 	t.Parallel()
 
@@ -158,9 +140,6 @@ func TestAfterCallbacksDoNotOverridePreviousResult(t *testing.T) {
 		t.Fatal("expected after callback not to override denied result")
 	}
 }
-
-// ---------- Laravel: testAfterCallbacksDoNotOverrideEachOther ----------
-
 func TestAfterCallbacksDoNotOverrideEachOther(t *testing.T) {
 	t.Parallel()
 
@@ -186,9 +165,6 @@ func TestAfterCallbacksDoNotOverrideEachOther(t *testing.T) {
 		t.Fatal("expected both after callbacks to run")
 	}
 }
-
-// ---------- Laravel: testCurrentUserThatIsOnGateAlwaysInjectedIntoClosureCallbacks ----------
-
 func TestCurrentUserIsInjectedIntoClosureCallbacks(t *testing.T) {
 	t.Parallel()
 
@@ -206,9 +182,6 @@ func TestCurrentUserIsInjectedIntoClosureCallbacks(t *testing.T) {
 		t.Fatalf("expected user id 'user-42', got %q", receivedID)
 	}
 }
-
-// ---------- Laravel: testASingleArgumentCanBePassedWhenCheckingAbilities ----------
-
 func TestSingleArgumentCanBePassedWhenCheckingAbilities(t *testing.T) {
 	t.Parallel()
 
@@ -229,9 +202,6 @@ func TestSingleArgumentCanBePassedWhenCheckingAbilities(t *testing.T) {
 		t.Fatal("expected non-owner to be denied")
 	}
 }
-
-// ---------- Laravel: testMultipleArgumentsCanBePassedWhenCheckingAbilities ----------
-
 func TestMultipleArgumentsCanBePassedWhenCheckingAbilities(t *testing.T) {
 	t.Parallel()
 
@@ -248,9 +218,6 @@ func TestMultipleArgumentsCanBePassedWhenCheckingAbilities(t *testing.T) {
 		t.Fatal("expected multiple arguments to be passed correctly")
 	}
 }
-
-// ---------- Laravel: testPolicyClassesCanBeDefinedToHandleChecksForGivenType ----------
-
 func TestPolicyClassesCanBeDefinedToHandleChecksForGivenType(t *testing.T) {
 	t.Parallel()
 
@@ -271,9 +238,6 @@ func TestPolicyClassesCanBeDefinedToHandleChecksForGivenType(t *testing.T) {
 		t.Fatal("expected policy to deny non-owner")
 	}
 }
-
-// ---------- Laravel: testPolicyDefaultToFalseIfMethodDoesNotExistAndGateDoesNotExist ----------
-
 func TestPolicyDefaultToFalseIfMethodDoesNotExistAndGateDoesNotExist(t *testing.T) {
 	t.Parallel()
 
@@ -285,9 +249,6 @@ func TestPolicyDefaultToFalseIfMethodDoesNotExistAndGateDoesNotExist(t *testing.
 		t.Fatal("expected undefined ability to default to deny")
 	}
 }
-
-// ---------- Laravel: testPoliciesAlwaysOverrideClosuresWithSameName ----------
-
 func TestPoliciesOverrideClosuresForSameResource(t *testing.T) {
 	t.Parallel()
 
@@ -312,9 +273,6 @@ func TestPoliciesOverrideClosuresForSameResource(t *testing.T) {
 		t.Fatal("expected policy to override the closure and deny")
 	}
 }
-
-// ---------- Laravel: testPoliciesDeferToGatesIfMethodDoesNotExist ----------
-
 func TestPoliciesDeferToGatesIfMethodDoesNotExist(t *testing.T) {
 	t.Parallel()
 
@@ -336,9 +294,6 @@ func TestPoliciesDeferToGatesIfMethodDoesNotExist(t *testing.T) {
 		t.Fatal("expected gate closure to handle when policy defers")
 	}
 }
-
-// ---------- Laravel: testAuthorizeThrowsUnauthorizedException ----------
-
 func TestAuthorizeThrowsUnauthorizedException(t *testing.T) {
 	t.Parallel()
 
@@ -364,9 +319,6 @@ func TestAuthorizeThrowsUnauthorizedException(t *testing.T) {
 		t.Fatalf("expected message 'not allowed', got %q", authErr.Message)
 	}
 }
-
-// ---------- Laravel: testAuthorizeReturnsAllowedResponse ----------
-
 func TestAuthorizeReturnsNilForAllowedAbility(t *testing.T) {
 	t.Parallel()
 
@@ -380,9 +332,6 @@ func TestAuthorizeReturnsNilForAllowedAbility(t *testing.T) {
 		t.Fatalf("expected Authorize to succeed, got %v", err)
 	}
 }
-
-// ---------- Laravel: testResponseReturnsResponseWhenAbilityGranted ----------
-
 func TestInspectReturnsResponseWhenAbilityGranted(t *testing.T) {
 	t.Parallel()
 
@@ -401,9 +350,6 @@ func TestInspectReturnsResponseWhenAbilityGranted(t *testing.T) {
 		t.Fatalf("expected empty message for allowed response, got %q", response.Message)
 	}
 }
-
-// ---------- Laravel: testResponseReturnsResponseWhenAbilityDenied ----------
-
 func TestInspectReturnsResponseWhenAbilityDenied(t *testing.T) {
 	t.Parallel()
 
@@ -422,9 +368,6 @@ func TestInspectReturnsResponseWhenAbilityDenied(t *testing.T) {
 		t.Fatalf("expected message 'you cannot edit', got %q", response.Message)
 	}
 }
-
-// ---------- Laravel: testAnyAbilityCheckPassesIfAllPass ----------
-
 func TestAnyAbilityCheckPassesIfAllPass(t *testing.T) {
 	t.Parallel()
 
@@ -441,9 +384,6 @@ func TestAnyAbilityCheckPassesIfAllPass(t *testing.T) {
 		t.Fatal("expected Any to pass when all abilities pass")
 	}
 }
-
-// ---------- Laravel: testAnyAbilityCheckPassesIfAtLeastOnePasses ----------
-
 func TestAnyAbilityCheckPassesIfAtLeastOnePasses(t *testing.T) {
 	t.Parallel()
 
@@ -460,9 +400,6 @@ func TestAnyAbilityCheckPassesIfAtLeastOnePasses(t *testing.T) {
 		t.Fatal("expected Any to pass when at least one ability passes")
 	}
 }
-
-// ---------- Laravel: testAnyAbilityCheckFailsIfNonePass ----------
-
 func TestAnyAbilityCheckFailsIfNonePass(t *testing.T) {
 	t.Parallel()
 
@@ -479,9 +416,6 @@ func TestAnyAbilityCheckFailsIfNonePass(t *testing.T) {
 		t.Fatal("expected Any to fail when none pass")
 	}
 }
-
-// ---------- Laravel: testDenies ----------
-
 func TestDeniesMethod(t *testing.T) {
 	t.Parallel()
 
@@ -501,9 +435,6 @@ func TestDeniesMethod(t *testing.T) {
 		t.Fatal("expected Denies to return true for denied ability")
 	}
 }
-
-// ---------- Laravel: testPoliciesMayHaveBeforeMethodsToOverrideChecks ----------
-
 func TestPoliciesBeforeHooksOverrideChecks(t *testing.T) {
 	t.Parallel()
 
@@ -529,9 +460,6 @@ func TestPoliciesBeforeHooksOverrideChecks(t *testing.T) {
 		t.Fatal("expected regular user to be denied")
 	}
 }
-
-// ---------- Laravel: testAuthorizationExceptionError ----------
-
 func TestAuthorizationExceptionErrorString(t *testing.T) {
 	t.Parallel()
 
@@ -565,9 +493,6 @@ func TestAuthorizationExceptionErrorString(t *testing.T) {
 		})
 	}
 }
-
-// ---------- Laravel: testAuthorizeReturnsAnAllowedResponseForATruthyReturn ----------
-
 func TestAuthorizeReturnsNilForTruthyPolicyReturn(t *testing.T) {
 	t.Parallel()
 
@@ -584,9 +509,6 @@ func TestAuthorizeReturnsNilForTruthyPolicyReturn(t *testing.T) {
 		t.Fatalf("expected Authorize to succeed, got %v", err)
 	}
 }
-
-// ---------- Laravel: testAuthorizeWithPolicyThatReturnsDeniedResponseObjectThrowsException ----------
-
 func TestAuthorizeWithPolicyDeniedResponseThrowsException(t *testing.T) {
 	t.Parallel()
 
@@ -1106,9 +1028,6 @@ func TestAfterSkippedWhenBeforeShortCircuits(t *testing.T) {
 		t.Fatal("in current implementation, after should NOT run when before short-circuits")
 	}
 }
-
-// ---------- Laravel: testAllowIfRespondsTrue / testAllowIfRespondsFalse ----------
-
 func TestAllowIfAndDenyIf(t *testing.T) {
 	t.Parallel()
 
@@ -1148,9 +1067,6 @@ func TestAllowIfAndDenyIf(t *testing.T) {
 		}
 	})
 }
-
-// ---------- Laravel: testGateHasAbility ----------
-
 func TestGateHas(t *testing.T) {
 	t.Parallel()
 
@@ -1169,9 +1085,6 @@ func TestGateHas(t *testing.T) {
 		t.Fatal("expected Has with extra whitespace to match after trimming")
 	}
 }
-
-// ---------- Laravel: testNoneAbilityCheckPassesIfNonePass ----------
-
 func TestNoneAbilityCheck(t *testing.T) {
 	t.Parallel()
 
@@ -1198,9 +1111,6 @@ func TestNoneAbilityCheck(t *testing.T) {
 		t.Fatal("expected None with empty abilities to return true")
 	}
 }
-
-// ---------- Laravel: testEveryAbilityCheck* ----------
-
 // Laravel: testEveryAbilityCheckPassesIfAllPass
 func TestEveryAbilityCheckPassesIfAllPass(t *testing.T) {
 	t.Parallel()
@@ -1257,9 +1167,6 @@ func TestEveryAbilityCheckFailsIfNonePass(t *testing.T) {
 		t.Fatal("expected Every to return false when no abilities pass")
 	}
 }
-
-// ---------- Laravel: testResponseReturnsWithCode ----------
-
 func TestResponseWithCode(t *testing.T) {
 	t.Parallel()
 
@@ -1282,9 +1189,6 @@ func TestResponseWithCode(t *testing.T) {
 		t.Fatal("expected Allow() to have zero Code and Status")
 	}
 }
-
-// ---------- Laravel: testForUser ----------
-
 func TestGateForUser(t *testing.T) {
 	t.Parallel()
 
@@ -1312,9 +1216,6 @@ func TestGateForUser(t *testing.T) {
 		t.Fatal("expected parent gate to be unaffected by child mutation")
 	}
 }
-
-// ---------- Laravel: testResourceGates ----------
-
 func TestGateResource(t *testing.T) {
 	t.Parallel()
 
@@ -1343,9 +1244,6 @@ func TestGateResource(t *testing.T) {
 		}
 	}
 }
-
-// ---------- Laravel: guest user handling ----------
-
 // Laravel: testBeforeCanAllowGuests
 func TestBeforeCanAllowGuests(t *testing.T) {
 	t.Parallel()
@@ -1476,9 +1374,6 @@ func TestBeforeAndAfterCallbacksCanAllowGuests(t *testing.T) {
 		t.Fatal("expected after callback to be called for guest user")
 	}
 }
-
-// ---------- Laravel: custom denial responses ----------
-
 // Laravel: testCanSetDenialResponseInConstructor
 func TestCanSetDenialResponseInConstructor(t *testing.T) {
 	t.Parallel()
@@ -1524,9 +1419,6 @@ func TestCanSetDenialResponse(t *testing.T) {
 		t.Fatalf("expected custom denial message, got %q", authErr.Message)
 	}
 }
-
-// ---------- Laravel: response helper tests ----------
-
 // Laravel: testDenyMethodWithNoMessageReturnsNull
 func TestDenyMethodWithNoMessageReturnsEmptyMessage(t *testing.T) {
 	t.Parallel()
@@ -1558,5 +1450,59 @@ func TestResponseToMap(t *testing.T) {
 	}
 	if m["status"] != 403 {
 		t.Fatalf("expected status 403, got %v", m["status"])
+	}
+}
+
+// ---------- Laravel: testDenyHasNullStatus ----------
+
+func TestDenyHasZeroStatus(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.Deny("denied")
+	if resp.Status != 0 {
+		t.Fatalf("expected zero status for Deny, got %d", resp.Status)
+	}
+	if resp.Code != 0 {
+		t.Fatalf("expected zero code for Deny, got %d", resp.Code)
+	}
+}
+
+// ---------- Laravel: testItCanDenyWithStatus ----------
+
+func TestDenyWithHTTPStatus(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.DenyWithCode("I'm a teapot", 3, 418)
+	if resp.Allowed {
+		t.Fatal("expected denial")
+	}
+	if resp.Status != 418 {
+		t.Fatalf("expected status 418, got %d", resp.Status)
+	}
+	if resp.Message != "I'm a teapot" {
+		t.Fatalf("expected message %q, got %q", "I'm a teapot", resp.Message)
+	}
+	if resp.Code != 3 {
+		t.Fatalf("expected code 3, got %d", resp.Code)
+	}
+}
+
+// ---------- Laravel: testItCanDenyAsNotFound ----------
+
+func TestDenyAsNotFound(t *testing.T) {
+	t.Parallel()
+
+	resp := authaccess.DenyWithCode("This action is unauthorized.", 0, 404)
+	if resp.Allowed {
+		t.Fatal("expected denial")
+	}
+	if resp.Status != 404 {
+		t.Fatalf("expected status 404, got %d", resp.Status)
+	}
+	if resp.Message != "This action is unauthorized." {
+		t.Fatalf("expected message %q, got %q", "This action is unauthorized.", resp.Message)
+	}
+	if resp.Code != 0 {
+		t.Fatalf("expected code 0, got %d", resp.Code)
 	}
 }

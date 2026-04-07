@@ -1,11 +1,8 @@
 package routing
 
 import (
-	"fmt"
 	nethttp "net/http"
 	"strings"
-
-	viewpkg "github.com/bedrock/packages/anvil/view"
 )
 
 // Middleware decorates an HTTP handler.
@@ -16,18 +13,8 @@ type HandlerFunc func(*Context) error
 
 // Context holds request-scoped routing state.
 type Context struct {
-	Writer   nethttp.ResponseWriter
-	Request  *nethttp.Request
-	Renderer *viewpkg.Renderer
-}
-
-// Render renders a named view with a 200 status.
-func (c *Context) Render(name string, data any) error {
-	if c.Renderer == nil {
-		return fmt.Errorf("routing: renderer is not configured")
-	}
-
-	return c.Renderer.WriteHTML(c.Writer, nethttp.StatusOK, name, data)
+	Writer  nethttp.ResponseWriter
+	Request *nethttp.Request
 }
 
 // Param returns a route parameter value by name.
@@ -56,18 +43,16 @@ type ResourceHandlers struct {
 // Router routes HTTP requests to handlers.
 type Router struct {
 	mux        *nethttp.ServeMux
-	renderer   *viewpkg.Renderer
 	prefix     string
 	middleware []Middleware
 	names      map[string]string
 }
 
-// New constructs a router bound to a view renderer.
-func New(renderer *viewpkg.Renderer) *Router {
+// New constructs a router.
+func New() *Router {
 	return &Router{
-		mux:      nethttp.NewServeMux(),
-		renderer: renderer,
-		names:    map[string]string{},
+		mux:   nethttp.NewServeMux(),
+		names: map[string]string{},
 	}
 }
 
@@ -85,9 +70,8 @@ func (r *Router) Handle(method string, route string, handler HandlerFunc) {
 	r.mux.HandleFunc(pattern, func(writer nethttp.ResponseWriter, request *nethttp.Request) {
 		var h nethttp.Handler = nethttp.HandlerFunc(func(w nethttp.ResponseWriter, req *nethttp.Request) {
 			if err := handler(&Context{
-				Writer:   w,
-				Request:  req,
-				Renderer: r.renderer,
+				Writer:  w,
+				Request: req,
 			}); err != nil {
 				nethttp.Error(w, err.Error(), nethttp.StatusInternalServerError)
 			}
@@ -135,7 +119,6 @@ func (r *Router) Options(route string, handler HandlerFunc) {
 func (r *Router) Group(prefix string, middleware []Middleware, register func(*Router)) {
 	child := &Router{
 		mux:        r.mux,
-		renderer:   r.renderer,
 		prefix:     r.prefix + prefix,
 		middleware: append(append([]Middleware(nil), r.middleware...), middleware...),
 		names:      r.names,

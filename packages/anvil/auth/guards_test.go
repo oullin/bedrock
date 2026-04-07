@@ -1835,6 +1835,18 @@ func TestAttemptAndWithCallbacks(t *testing.T) {
 	}
 }
 
+// ---------- Laravel: testItReturnsSameRememberTokenForString ----------
+
+func TestAuthenticatableRememberTokenRoundTrip(t *testing.T) {
+	t.Parallel()
+
+	u := &testUser{}
+	u.SetRememberToken("sample_token")
+	if got := u.GetRememberToken(); got != "sample_token" {
+		t.Fatalf("expected remember token %q, got %q", "sample_token", got)
+	}
+}
+
 func basicAuth(username, password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
 }
