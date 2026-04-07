@@ -7,12 +7,10 @@ import (
 
 	"github.com/bedrock/packages/anvil/routing"
 )
-
-// Upstream: testBasicRouting
 func TestGetRouteRegistrationAndDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/hello", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "hello world")
 	})
@@ -28,12 +26,10 @@ func TestGetRouteRegistrationAndDispatch(t *testing.T) {
 		t.Fatalf("expected 'hello world', got %q", rec.Body.String())
 	}
 }
-
-// Test method-specific routing
 func TestHandleWithMethodRestriction(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Handle(http.MethodPost, "/submit", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusCreated, "created")
 	})
@@ -57,11 +53,12 @@ func TestHandleWithMethodRestriction(t *testing.T) {
 	}
 }
 
-// Test context text response
+// ---------- Context text response ----------
+
 func TestContextTextResponse(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/text", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusAccepted, "accepted")
 	})
@@ -81,11 +78,12 @@ func TestContextTextResponse(t *testing.T) {
 	}
 }
 
-// Test handler error returns 500
+// ---------- Handler error returns 500 ----------
+
 func TestHandlerErrorReturns500(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/error", func(_ *routing.Context) error {
 		return http.ErrNoCookie // any error
 	})
@@ -99,11 +97,12 @@ func TestHandlerErrorReturns500(t *testing.T) {
 	}
 }
 
-// Test context has request and writer
+// ---------- Context has request and writer ----------
+
 func TestContextHasRequestAndWriter(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	var gotPath string
 	router.Get("/check", func(ctx *routing.Context) error {
 		gotPath = ctx.Request.URL.Path
@@ -118,31 +117,10 @@ func TestContextHasRequestAndWriter(t *testing.T) {
 		t.Fatalf("expected path '/check', got %q", gotPath)
 	}
 }
-
-// Test context render without renderer returns error
-func TestContextRenderWithoutRendererReturnsError(t *testing.T) {
-	t.Parallel()
-
-	router := routing.New(nil)
-	router.Get("/render", func(ctx *routing.Context) error {
-		return ctx.Render("welcome", nil)
-	})
-
-	req := httptest.NewRequest(http.MethodGet, "/render", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	// Should return 500 because renderer is nil
-	if rec.Code != http.StatusInternalServerError {
-		t.Fatalf("expected 500 when renderer is nil, got %d", rec.Code)
-	}
-}
-
-// Test multiple routes
 func TestMultipleRoutes(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/a", func(ctx *routing.Context) error { return ctx.Text(http.StatusOK, "route-a") })
 	router.Get("/b", func(ctx *routing.Context) error { return ctx.Text(http.StatusOK, "route-b") })
 
@@ -153,19 +131,19 @@ func TestMultipleRoutes(t *testing.T) {
 		{"/a", "route-a"},
 		{"/b", "route-b"},
 	} {
-		rec := httptest.NewRecorder()
-		router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))
-		if rec.Body.String() != tc.want {
-			t.Fatalf("path %s: expected %q, got %q", tc.path, tc.want, rec.Body.String())
-		}
+		t.Run(tc.path, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))
+			if rec.Body.String() != tc.want {
+				t.Fatalf("path %s: expected %q, got %q", tc.path, tc.want, rec.Body.String())
+			}
+		})
 	}
 }
-
-// Upstream: testRouteParameterBinding
 func TestRouteParameterBinding(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/users/{id}", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "user:"+ctx.Param("id"))
 	})
@@ -195,12 +173,10 @@ func TestRouteParameterBinding(t *testing.T) {
 		}
 	})
 }
-
-// Upstream: test POST/PUT/DELETE route registration
 func TestPostRouteDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Post("/items", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusCreated, "created")
 	})
@@ -218,11 +194,10 @@ func TestPostRouteDispatch(t *testing.T) {
 		t.Fatalf("expected 405 for GET on POST route, got %d", rec.Code)
 	}
 }
-
 func TestPutRouteDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Put("/items/{id}", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "updated:"+ctx.Param("id"))
 	})
@@ -236,11 +211,10 @@ func TestPutRouteDispatch(t *testing.T) {
 		t.Fatalf("expected 'updated:7', got %q", rec.Body.String())
 	}
 }
-
 func TestDeleteRouteDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Delete("/items/{id}", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusNoContent, "")
 	})
@@ -252,30 +226,30 @@ func TestDeleteRouteDispatch(t *testing.T) {
 	}
 }
 
-// Test Handle with empty method allows all methods
+// ---------- Handle with empty method allows all ----------
+
 func TestHandleWithEmptyMethodAllowsAll(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Handle("", "/any", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "any method")
 	})
 
 	for _, method := range []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete} {
-		rec := httptest.NewRecorder()
-		router.ServeHTTP(rec, httptest.NewRequest(method, "/any", nil))
-		if rec.Code != http.StatusOK {
-			t.Fatalf("method %s: expected 200, got %d", method, rec.Code)
-		}
+		t.Run(method, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, httptest.NewRequest(method, "/any", nil))
+			if rec.Code != http.StatusOK {
+				t.Fatalf("method %s: expected 200, got %d", method, rec.Code)
+			}
+		})
 	}
 }
-
-// ======================== PATCH / OPTIONS TESTS ========================
-
 func TestPatchRouteDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Patch("/items/{id}", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "patched-"+ctx.Param("id"))
 	})
@@ -289,11 +263,10 @@ func TestPatchRouteDispatch(t *testing.T) {
 		t.Fatalf("expected 'patched-5', got %q", rec.Body.String())
 	}
 }
-
 func TestOptionsRouteDispatch(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Options("/cors", func(ctx *routing.Context) error {
 		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		return ctx.Text(http.StatusNoContent, "")
@@ -308,13 +281,10 @@ func TestOptionsRouteDispatch(t *testing.T) {
 		t.Fatal("expected CORS header")
 	}
 }
-
-// ======================== GROUP TESTS ========================
-
 func TestGroupPrefixAndMiddleware(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 
 	auth := routing.Middleware(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -341,11 +311,10 @@ func TestGroupPrefixAndMiddleware(t *testing.T) {
 		t.Fatal("expected group middleware to be applied")
 	}
 }
-
 func TestNestedGroups(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Group("/api", nil, func(api *routing.Router) {
 		api.Group("/v1", nil, func(v1 *routing.Router) {
 			v1.Get("/status", func(ctx *routing.Context) error {
@@ -364,10 +333,12 @@ func TestNestedGroups(t *testing.T) {
 	}
 }
 
+// ---------- Group middleware does not affect outer routes ----------
+
 func TestGroupMiddlewareDoesNotAffectOuterRoutes(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/public", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "public")
 	})
@@ -397,13 +368,10 @@ func TestGroupMiddlewareDoesNotAffectOuterRoutes(t *testing.T) {
 		t.Fatal("expected admin route to have admin middleware")
 	}
 }
-
-// ======================== RESOURCE TESTS ========================
-
 func TestResourceRouting(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Resource("posts", routing.ResourceHandlers{
 		Index: func(ctx *routing.Context) error {
 			return ctx.Text(http.StatusOK, "index")
@@ -436,21 +404,22 @@ func TestResourceRouting(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		rec := httptest.NewRecorder()
-		router.ServeHTTP(rec, httptest.NewRequest(tc.method, tc.path, nil))
-		if rec.Code != tc.code {
-			t.Fatalf("%s %s: expected %d, got %d", tc.method, tc.path, tc.code, rec.Code)
-		}
-		if tc.body != "" && rec.Body.String() != tc.body {
-			t.Fatalf("%s %s: expected %q, got %q", tc.method, tc.path, tc.body, rec.Body.String())
-		}
+		t.Run(tc.method+" "+tc.path, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, httptest.NewRequest(tc.method, tc.path, nil))
+			if rec.Code != tc.code {
+				t.Fatalf("%s %s: expected %d, got %d", tc.method, tc.path, tc.code, rec.Code)
+			}
+			if tc.body != "" && rec.Body.String() != tc.body {
+				t.Fatalf("%s %s: expected %q, got %q", tc.method, tc.path, tc.body, rec.Body.String())
+			}
+		})
 	}
 }
-
 func TestPartialResourceRouting(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Resource("comments", routing.ResourceHandlers{
 		Index: func(ctx *routing.Context) error {
 			return ctx.Text(http.StatusOK, "comments")
@@ -463,13 +432,10 @@ func TestPartialResourceRouting(t *testing.T) {
 		t.Fatalf("expected 200, got %d", rec.Code)
 	}
 }
-
-// ======================== NAMED ROUTE TESTS ========================
-
 func TestNamedRouteUrlGeneration(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Get("/users/{id}", func(ctx *routing.Context) error {
 		return ctx.Text(http.StatusOK, "user")
 	})
@@ -481,19 +447,20 @@ func TestNamedRouteUrlGeneration(t *testing.T) {
 	}
 }
 
+// ---------- Named route unknown returns empty ----------
+
 func TestNamedRouteUnknownReturnsEmpty(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	if url := router.Route("nonexistent", nil); url != "" {
 		t.Fatalf("expected empty string for unknown route, got %q", url)
 	}
 }
-
 func TestNamedRouteWithGroupPrefix(t *testing.T) {
 	t.Parallel()
 
-	router := routing.New(nil)
+	router := routing.New()
 	router.Group("/api", nil, func(api *routing.Router) {
 		api.Get("/users/{id}", func(ctx *routing.Context) error {
 			return ctx.Text(http.StatusOK, "user")
