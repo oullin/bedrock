@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/framework-queue",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/queue && go build ./... && touch ../../../storage/.turbo/dist/queue/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/queue && go test ./... -coverprofile=../../../storage/.cache/coverage/go/queue/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
