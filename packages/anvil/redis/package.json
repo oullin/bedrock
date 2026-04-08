@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/illuminate-redis",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/redis && go build ./... && touch ../../../storage/.turbo/dist/redis/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/redis && go test ./... -coverprofile=../../../storage/.cache/coverage/go/redis/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
