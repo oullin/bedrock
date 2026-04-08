@@ -1,0 +1,993 @@
+package config
+
+import (
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+)
+
+func TestRepositoryLookupAndTypedAccessors(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"foo":     "bar",
+		"boolean": true,
+		"integer": 1,
+		"float":   1.25,
+		"null":    nil,
+		"auth": map[string]any{
+			"session_lifetime": "24h",
+			"session_duration": 2 * time.Hour,
+			"cookies": map[string]any{
+				"secure": true,
+			},
+			"middleware": []any{"web", "auth"},
+			"providers":  []string{"email", "sms"},
+			"count_text": "7",
+			"flags":      "true",
+		},
+		"mail.mailers.smtp": "literal",
+		"mail": map[string]any{
+			"mailers": map[string]any{
+				"smtp": "nested",
+			},
+		},
+		"a": map[string]any{
+			"b.c": "shadowed",
+			"b": map[string]any{
+				"c": "nested",
+			},
+		},
+		"x": map[string]any{
+			"z": "zoo",
+		},
+	})
+
+	if !repo.Has("auth.session_lifetime") {
+		t.Fatal("expected nested key to exist")
+	}
+
+	if repo.Has("auth.missing") {
+		t.Fatal("expected missing nested key to be absent")
+	}
+
+	if got := repo.Get("foo", nil); got != "bar" {
+		t.Fatalf("unexpected direct value: %#v", got)
+	}
+
+	if got := repo.Get("auth.missing", "fallback"); got != "fallback" {
+		t.Fatalf("unexpected fallback value: %#v", got)
+	}
+
+	if got := repo.Get("mail.mailers.smtp", nil); got != "literal" {
+		t.Fatalf("unexpected dotted key precedence: %#v", got)
+	}
+
+	if got := repo.Get("a.b.c", nil); got != "shadowed" {
+		t.Fatalf("unexpected nested dotted key precedence: %#v", got)
+	}
+
+	if got := repo.Get("x.y.z", nil); got != nil {
+		t.Fatalf("expected nil for missing deep key, got %#v", got)
+	}
+
+	if got := repo.Get(".", nil); got != nil {
+		t.Fatalf("expected nil for invalid dot path, got %#v", got)
+	}
+
+	if got := repo.Get("null", "fallback"); got != nil {
+		t.Fatalf("expected nil value to be preserved, got %#v", got)
+	}
+
+	if got := repo.Get("", nil); !reflect.DeepEqual(got, repo.All()) {
+		t.Fatalf("expected empty key to return all config, got %#v", got)
+	}
+
+	values := repo.GetMany(map[string]any{
+		"foo": "default",
+		"x.y": "default",
+		"x.z": "default",
+		"baz": nil,
+	})
+	expectedValues := map[string]any{
+		"foo": "bar",
+		"x.y": "default",
+		"x.z": "zoo",
+		"baz": nil,
+	}
+
+	if !reflect.DeepEqual(values, expectedValues) {
+		t.Fatalf("unexpected GetMany result: %#v", values)
+	}
+
+	if got := repo.GetMany(nil); len(got) != 0 {
+		t.Fatalf("expected empty GetMany result, got %#v", got)
+	}
+
+	duration, err := repo.Duration("auth.session_lifetime")
+
+	if err != nil {
+		t.Fatalf("Duration: %v", err)
+	}
+
+	if duration != 24*time.Hour {
+		t.Fatalf("unexpected duration: %v", duration)
+	}
+
+	duration, err = repo.Duration("auth.session_duration")
+
+	if err != nil {
+		t.Fatalf("Duration direct: %v", err)
+	}
+
+	if duration != 2*time.Hour {
+		t.Fatalf("unexpected direct duration: %v", duration)
+	}
+
+	secure, err := repo.Bool("auth.cookies.secure")
+
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+
+	if !secure {
+		t.Fatal("expected secure cookie")
+	}
+
+	boolFromString, err := repo.Bool("auth.flags")
+
+	if err != nil {
+		t.Fatalf("Bool string coercion: %v", err)
+	}
+
+	if !boolFromString {
+		t.Fatal("expected bool string coercion to succeed")
+	}
+
+	number, err := repo.Int("integer")
+
+	if err != nil {
+		t.Fatalf("Int direct: %v", err)
+	}
+
+	if number != 1 {
+		t.Fatalf("unexpected integer: %d", number)
+	}
+
+	number, err = repo.Int("auth.count_text")
+
+	if err != nil {
+		t.Fatalf("Int string coercion: %v", err)
+	}
+
+	if number != 7 {
+		t.Fatalf("unexpected coerced integer: %d", number)
+	}
+
+	number, err = repo.Int("float")
+
+	if err != nil {
+		t.Fatalf("Int float coercion: %v", err)
+	}
+
+	if number != 1 {
+		t.Fatalf("unexpected float-to-int coercion: %d", number)
+	}
+
+	middleware, err := repo.StringSlice("auth.middleware")
+
+	if err != nil {
+		t.Fatalf("StringSlice: %v", err)
+	}
+
+	if !reflect.DeepEqual(middleware, []string{"web", "auth"}) {
+		t.Fatalf("unexpected middleware: %#v", middleware)
+	}
+
+	providers, err := repo.StringSlice("auth.providers")
+
+	if err != nil {
+		t.Fatalf("StringSlice []string: %v", err)
+	}
+
+	if !reflect.DeepEqual(providers, []string{"email", "sms"}) {
+		t.Fatalf("unexpected []string providers: %#v", providers)
+	}
+
+	if got, err := repo.String("foo"); err != nil || got != "bar" {
+		t.Fatalf("String: got=%q err=%v", got, err)
+	}
+}
+
+func TestRepositorySetMutatorsAndCloneSemantics(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(nil)
+	repo.Set("authflows.limiters.login", "login")
+	repo.Set("authflows.nil-value")
+	repo.Set(map[string]any{
+		"authflows.limiters.two-factor":                       "two-factor",
+		"authflows.options.two-factor-authentication.confirm": true,
+		"authflows.alt-middleware":                            []string{"api", "signed"},
+	})
+	repo.Set("authflows.limiters", "replaced")
+	repo.Set("authflows.limiters.login", "login")
+	repo.Push("authflows.middleware", "web")
+	repo.Push("authflows.middleware", "guest")
+	repo.Prepend("authflows.middleware", "trim")
+	repo.Prepend("authflows.new-middleware", "first")
+	repo.Push("authflows.new-middleware", "second")
+	repo.Push("authflows.alt-middleware", "verified")
+
+	mapped, err := repo.Map("authflows.options")
+
+	if err != nil {
+		t.Fatalf("Map: %v", err)
+	}
+
+	inner, ok := mapped["two-factor-authentication"].(map[string]any)
+
+	if !ok || inner["confirm"] != true {
+		t.Fatalf("unexpected nested option map: %#v", mapped)
+	}
+
+	middleware, err := repo.StringSlice("authflows.middleware")
+
+	if err != nil {
+		t.Fatalf("StringSlice middleware: %v", err)
+	}
+
+	if !reflect.DeepEqual(middleware, []string{"trim", "web", "guest"}) {
+		t.Fatalf("unexpected middleware order: %#v", middleware)
+	}
+
+	altMiddleware, err := repo.StringSlice("authflows.alt-middleware")
+
+	if err != nil {
+		t.Fatalf("StringSlice alt middleware: %v", err)
+	}
+
+	if !reflect.DeepEqual(altMiddleware, []string{"api", "signed", "verified"}) {
+		t.Fatalf("unexpected alt middleware: %#v", altMiddleware)
+	}
+
+	newMiddleware, err := repo.StringSlice("authflows.new-middleware")
+
+	if err != nil {
+		t.Fatalf("StringSlice new middleware: %v", err)
+	}
+
+	if !reflect.DeepEqual(newMiddleware, []string{"first", "second"}) {
+		t.Fatalf("unexpected new middleware: %#v", newMiddleware)
+	}
+
+	if got := repo.Get("authflows.nil-value", "fallback"); got != nil {
+		t.Fatalf("expected nil value from single-arg Set, got %#v", got)
+	}
+
+	all := repo.All()
+	authflows := all["authflows"].(map[string]any)
+	mutatedOptions := authflows["options"].(map[string]any)
+	mutatedOptions["added"] = "mutated"
+	authflows["middleware"] = []any{"mutated"}
+
+	options, err := repo.Map("authflows.options")
+
+	if err != nil {
+		t.Fatalf("Map after clone mutation: %v", err)
+	}
+
+	if _, ok := options["added"]; ok {
+		t.Fatal("repository mutated through All clone")
+	}
+
+	currentMiddleware, err := repo.StringSlice("authflows.middleware")
+
+	if err != nil {
+		t.Fatalf("StringSlice after clone mutation: %v", err)
+	}
+
+	if !reflect.DeepEqual(currentMiddleware, []string{"trim", "web", "guest"}) {
+		t.Fatalf("repository middleware mutated through All clone: %#v", currentMiddleware)
+	}
+
+	loginValue, err := repo.String("authflows.limiters.login")
+
+	if err != nil {
+		t.Fatalf("String limiter: %v", err)
+	}
+
+	if loginValue != "login" {
+		t.Fatalf("unexpected login limiter: %q", loginValue)
+	}
+
+	limits, err := repo.Map("authflows.limiters")
+
+	if err != nil {
+		t.Fatalf("Map limiters: %v", err)
+	}
+
+	limits["login"] = "mutated"
+	loginValue, err = repo.String("authflows.limiters.login")
+
+	if err != nil {
+		t.Fatalf("String limiter after map mutation: %v", err)
+	}
+
+	if loginValue != "login" {
+		t.Fatalf("repository mutated through Map clone: %q", loginValue)
+	}
+}
+
+func TestRepositoryTypeFailuresAndMissingKeys(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"authflows": map[string]any{
+			"views":            "not-a-bool",
+			"features":         []any{"registration", 42},
+			"middleware":       "web",
+			"not-string":       true,
+			"not-int":          "abc",
+			"not-int-default":  true,
+			"not-bool":         1,
+			"not-duration":     "tomorrow",
+			"not-duration-alt": true,
+			"not-map":          []any{"web"},
+			"not-slice":        true,
+			"int64-value":      int64(9),
+			"string-list-text": "web, auth , signed",
+			"empty-list-text":  "   ",
+		},
+	})
+
+	stringList, err := repo.StringSlice("authflows.string-list-text")
+
+	if err != nil {
+		t.Fatalf("StringSlice csv: %v", err)
+	}
+
+	if !reflect.DeepEqual(stringList, []string{"web", "auth", "signed"}) {
+		t.Fatalf("unexpected csv slice: %#v", stringList)
+	}
+
+	emptyList, err := repo.StringSlice("authflows.empty-list-text")
+
+	if err != nil {
+		t.Fatalf("StringSlice empty csv: %v", err)
+	}
+
+	if len(emptyList) != 0 {
+		t.Fatalf("expected empty slice, got %#v", emptyList)
+	}
+
+	int64Value, err := repo.Int("authflows.int64-value")
+
+	if err != nil {
+		t.Fatalf("Int int64 coercion: %v", err)
+	}
+
+	if int64Value != 9 {
+		t.Fatalf("unexpected int64 coercion result: %d", int64Value)
+	}
+
+	for _, tc := range []struct {
+		name string
+		fn   func() error
+		want string
+	}{
+
+		{name: "bool type", fn: func() error { _, err := repo.Bool("authflows.views"); return err }, want: `config: key "authflows.views" must be bool, got string`},
+
+		{name: "string type", fn: func() error { _, err := repo.String("authflows.not-string"); return err }, want: `config: key "authflows.not-string" must be string, got bool`},
+
+		{name: "int type", fn: func() error { _, err := repo.Int("authflows.not-int"); return err }, want: `config: key "authflows.not-int" must be int, got string`},
+
+		{name: "int default type", fn: func() error { _, err := repo.Int("authflows.not-int-default"); return err }, want: `config: key "authflows.not-int-default" must be int, got bool`},
+
+		{name: "bool default type", fn: func() error { _, err := repo.Bool("authflows.not-bool"); return err }, want: `config: key "authflows.not-bool" must be bool, got int`},
+
+		{name: "duration type", fn: func() error { _, err := repo.Duration("authflows.not-duration"); return err }, want: `config: key "authflows.not-duration" must be duration, got string`},
+
+		{name: "duration default type", fn: func() error { _, err := repo.Duration("authflows.not-duration-alt"); return err }, want: `config: key "authflows.not-duration-alt" must be duration, got bool`},
+
+		{name: "slice type", fn: func() error { _, err := repo.StringSlice("authflows.features"); return err }, want: `config: key "authflows.features" must be []string, got []interface {}`},
+
+		{name: "slice default type", fn: func() error { _, err := repo.StringSlice("authflows.not-slice"); return err }, want: `config: key "authflows.not-slice" must be []string, got bool`},
+
+		{name: "map type", fn: func() error { _, err := repo.Map("authflows.not-map"); return err }, want: `config: key "authflows.not-map" must be map[string]any, got []interface {}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.fn()
+
+			if err == nil {
+				t.Fatal("expected error")
+			}
+
+			if err.Error() != tc.want {
+				t.Fatalf("unexpected error: %v", err)
+			}
+		})
+	}
+
+	for _, tc := range []struct {
+		name string
+		fn   func() error
+		want string
+	}{
+
+		{name: "missing string", fn: func() error { _, err := repo.String("missing"); return err }, want: `config: missing key "missing"`},
+
+		{name: "missing int", fn: func() error { _, err := repo.Int("missing"); return err }, want: `config: missing key "missing"`},
+
+		{name: "missing bool", fn: func() error { _, err := repo.Bool("missing"); return err }, want: `config: missing key "missing"`},
+
+		{name: "missing duration", fn: func() error { _, err := repo.Duration("missing"); return err }, want: `config: missing key "missing"`},
+
+		{name: "missing slice", fn: func() error { _, err := repo.StringSlice("missing"); return err }, want: `config: missing key "missing"`},
+
+		{name: "missing map", fn: func() error { _, err := repo.Map("missing"); return err }, want: `config: missing key "missing"`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.fn()
+
+			if err == nil {
+				t.Fatal("expected error")
+			}
+
+			if err.Error() != tc.want {
+				t.Fatalf("unexpected missing-key error: %v", err)
+			}
+		})
+	}
+}
+
+func TestInternalHelpers(t *testing.T) {
+	t.Parallel()
+
+	if got := splitKey("  auth.cookies.secure  "); !reflect.DeepEqual(got, []string{"auth", "cookies", "secure"}) {
+		t.Fatalf("unexpected split key: %#v", got)
+	}
+
+	if got := splitKey("   "); got != nil {
+		t.Fatalf("expected nil split for empty key, got %#v", got)
+	}
+
+	if err := typeError("foo", "string", 123); err.Error() != `config: key "foo" must be string, got int` {
+		t.Fatalf("unexpected type error: %v", err)
+	}
+
+	source := map[string]any{
+		"nested": map[string]any{
+			"value": []any{
+				map[string]any{"key": "value"},
+				[]string{"a", "b"},
+			},
+		},
+	}
+	cloned := cloneMap(source)
+	clonedNested := cloned["nested"].(map[string]any)
+	clonedSlice := clonedNested["value"].([]any)
+	clonedSlice[0].(map[string]any)["key"] = "mutated"
+	clonedSlice[1].([]string)[0] = "mutated"
+
+	originalNested := source["nested"].(map[string]any)
+	originalSlice := originalNested["value"].([]any)
+
+	if originalSlice[0].(map[string]any)["key"] != "value" {
+		t.Fatal("expected nested map clone protection")
+	}
+
+	if originalSlice[1].([]string)[0] != "a" {
+		t.Fatal("expected []string clone protection")
+	}
+
+	if got := cloneValue([]string{"x", "y"}).([]string); !reflect.DeepEqual(got, []string{"x", "y"}) {
+		t.Fatalf("unexpected []string clone: %#v", got)
+	}
+
+	if got := cloneValue(99).(int); got != 99 {
+		t.Fatalf("unexpected scalar clone result: %d", got)
+	}
+
+	repo := NewRepository(map[string]any{
+		"slice":       []any{"a", "b"},
+		"stringSlice": []string{"x", "y"},
+		"scalar":      "value",
+	})
+
+	if got := repo.sliceValue("slice"); !reflect.DeepEqual(got, []any{"a", "b"}) {
+		t.Fatalf("unexpected []any slice value: %#v", got)
+	}
+
+	if got := repo.sliceValue("stringSlice"); !reflect.DeepEqual(got, []any{"x", "y"}) {
+		t.Fatalf("unexpected []string slice value: %#v", got)
+	}
+
+	if got := repo.sliceValue("scalar"); len(got) != 0 {
+		t.Fatalf("expected empty slice for scalar, got %#v", got)
+	}
+
+	if got := repo.sliceValue("missing"); len(got) != 0 {
+		t.Fatalf("expected empty slice for missing key, got %#v", got)
+	}
+
+	if got := repo.Get("scalar.deeper", "fallback"); got != "fallback" {
+		t.Fatalf("expected fallback for scalar intermediate path, got %#v", got)
+	}
+
+	repo.setPath("branch.leaf", "value")
+
+	if got := repo.Get("branch.leaf", nil); got != "value" {
+		t.Fatalf("unexpected setPath value: %#v", got)
+	}
+
+	repo.setPath("branch.leaf.deep", "shadowed")
+
+	if got := repo.Get("branch.leaf.deep", nil); got != "shadowed" {
+		t.Fatalf("expected setPath to replace scalar with nested map, got %#v", got)
+	}
+
+	before := repo.All()
+	repo.setPath("   ", "ignored")
+	after := repo.All()
+
+	if !reflect.DeepEqual(before, after) {
+		t.Fatalf("expected empty setPath to be ignored: before=%#v after=%#v", before, after)
+	}
+}
+
+func TestLookupHelperPaths(t *testing.T) {
+	t.Parallel()
+
+	items := map[string]any{
+		"direct": "value",
+		"a": map[string]any{
+			"b": map[string]any{
+				"c": "nested",
+			},
+			"b.c": "shadowed",
+		},
+		"plain": map[string]any{
+			"nested": map[string]any{
+				"leaf": "value",
+			},
+		},
+		"scalar": "leaf",
+	}
+
+	if got, ok := lookup(items, "direct"); !ok || got != "value" {
+		t.Fatalf("unexpected direct lookup: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, ""); !ok || !reflect.DeepEqual(got, items) {
+		t.Fatalf("unexpected root lookup: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "a.b.c"); !ok || got != "shadowed" {
+		t.Fatalf("unexpected shadowed lookup: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "a.b"); !ok || !reflect.DeepEqual(got, map[string]any{"c": "nested"}) {
+		t.Fatalf("unexpected nested lookup: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "plain.nested.leaf"); !ok || got != "value" {
+		t.Fatalf("unexpected terminal nested lookup: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "a.missing"); ok || got != nil {
+		t.Fatalf("expected nested miss: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "scalar.deep"); ok || got != nil {
+		t.Fatalf("expected scalar intermediate miss: got=%#v ok=%v", got, ok)
+	}
+
+	if got, ok := lookup(items, "scalar.deep.more"); ok || got != nil {
+		t.Fatalf("expected deep scalar intermediate miss: got=%#v ok=%v", got, ok)
+	}
+}
+
+// ======================== Additional Upstream compliance tests ========================
+
+// Upstream: testGetValueWhenKeyContainDot
+func TestGetValueWhenKeyContainsDot(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Upstream",
+		},
+	})
+
+	if got := repo.Get("app.name", nil); got != "Upstream" {
+		t.Fatalf("expected 'Upstream', got %v", got)
+	}
+}
+
+// Upstream: testGetBooleanValue
+func TestGetBooleanValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"debug": true,
+		},
+	})
+
+	got, err := repo.Bool("app.debug")
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+	if !got {
+		t.Fatal("expected true")
+	}
+}
+
+// Upstream: testGetNullValue
+func TestGetNullValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"empty": nil,
+		},
+	})
+
+	if got := repo.Get("app.empty", "default"); got != nil {
+		t.Fatalf("expected nil, got %v", got)
+	}
+}
+
+// Upstream: testGetWithDefault
+func TestGetWithDefault(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+
+	if got := repo.Get("missing.key", "default-value"); got != "default-value" {
+		t.Fatalf("expected 'default-value', got %v", got)
+	}
+}
+
+// Upstream: testGetWithArrayOfKeys / testGetMany
+func TestGetManyWithDefaults(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Upstream",
+		},
+	})
+
+	result := repo.GetMany(map[string]any{
+		"app.name":   nil,
+		"app.locale": "en",
+	})
+
+	if result["app.name"] != "Upstream" {
+		t.Fatalf("expected 'Upstream', got %v", result["app.name"])
+	}
+	if result["app.locale"] != "en" {
+		t.Fatalf("expected 'en' default, got %v", result["app.locale"])
+	}
+}
+
+// Upstream: testSet
+func TestSetValue(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Set("app.name", "MyApp")
+
+	if got := repo.Get("app.name", nil); got != "MyApp" {
+		t.Fatalf("expected 'MyApp', got %v", got)
+	}
+}
+
+// Upstream: testSetArray
+func TestSetArray(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Set(map[string]any{
+		"app.name": "MyApp",
+		"app.env":  "testing",
+	})
+
+	if got := repo.Get("app.name", nil); got != "MyApp" {
+		t.Fatalf("expected 'MyApp', got %v", got)
+	}
+	if got := repo.Get("app.env", nil); got != "testing" {
+		t.Fatalf("expected 'testing', got %v", got)
+	}
+}
+
+// Upstream: testPrepend
+func TestPrependToExistingSlice(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"items": []any{"b", "c"},
+	})
+
+	repo.Prepend("items", "a")
+	got := repo.Get("items", nil).([]any)
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Upstream: testPush
+func TestPushToExistingSlice(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"items": []any{"a", "b"},
+	})
+
+	repo.Push("items", "c")
+	got := repo.Get("items", nil).([]any)
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Upstream: testPrependWithNewKey
+func TestPrependWithNewKey(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Prepend("new_list", "first")
+	got := repo.Get("new_list", nil).([]any)
+	if len(got) != 1 || got[0] != "first" {
+		t.Fatalf("expected [first], got %v", got)
+	}
+}
+
+// Upstream: testPushWithNewKey
+func TestPushWithNewKey(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{})
+	repo.Push("new_list", "first")
+	got := repo.Get("new_list", nil).([]any)
+	if len(got) != 1 || got[0] != "first" {
+		t.Fatalf("expected [first], got %v", got)
+	}
+}
+
+// Upstream: testHasIsTrue / testHasIsFalse
+func TestHasTrueAndFalse(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"app": map[string]any{
+			"name": "Upstream",
+		},
+	})
+
+	if !repo.Has("app.name") {
+		t.Fatal("expected Has to return true for existing key")
+	}
+	if repo.Has("app.missing") {
+		t.Fatal("expected Has to return false for missing key")
+	}
+}
+
+// Upstream: testAll
+func TestAllReturnsFullConfig(t *testing.T) {
+	t.Parallel()
+
+	items := map[string]any{
+		"app": map[string]any{"name": "Upstream"},
+	}
+	repo := NewRepository(items)
+
+	all := repo.All()
+	if all["app"] == nil {
+		t.Fatal("expected All to return full config")
+	}
+}
+
+// Upstream: testItGetsAsString
+func TestStringAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "value",
+	})
+
+	got, err := repo.String("key")
+	if err != nil {
+		t.Fatalf("String: %v", err)
+	}
+	if got != "value" {
+		t.Fatalf("expected 'value', got %q", got)
+	}
+}
+
+// Upstream: testItGetsAsInteger
+func TestIntAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"count": 42,
+	})
+
+	got, err := repo.Int("count")
+	if err != nil {
+		t.Fatalf("Int: %v", err)
+	}
+	if got != 42 {
+		t.Fatalf("expected 42, got %d", got)
+	}
+}
+
+// Upstream: testItGetsAsBoolean
+func TestBoolAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"flag": false,
+	})
+
+	got, err := repo.Bool("flag")
+	if err != nil {
+		t.Fatalf("Bool: %v", err)
+	}
+	if got {
+		t.Fatal("expected false")
+	}
+}
+
+// Upstream: testItGetsAsArray (Go equivalent: StringSlice)
+func TestStringSliceAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"tags": []any{"a", "b", "c"},
+	})
+
+	got, err := repo.StringSlice("tags")
+	if err != nil {
+		t.Fatalf("StringSlice: %v", err)
+	}
+	if len(got) != 3 || got[0] != "a" || got[1] != "b" || got[2] != "c" {
+		t.Fatalf("expected [a b c], got %v", got)
+	}
+}
+
+// Upstream: testItThrowsAnExceptionWhenTryingToGetNonStringValueAsString
+func TestStringAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": 42,
+	})
+
+	_, err := repo.String("key")
+	if err == nil {
+		t.Fatal("expected error for non-string value")
+	}
+}
+
+// Upstream: testItThrowsAnExceptionWhenTryingToGetNonBooleanValueAsBoolean
+func TestBoolAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "not-a-bool",
+	})
+
+	_, err := repo.Bool("key")
+	if err == nil {
+		t.Fatal("expected error for non-bool value")
+	}
+}
+
+// Upstream: testItThrowsAnExceptionWhenTryingToGetNonIntegerValueAsInteger
+func TestIntAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"key": "not-an-int",
+	})
+
+	_, err := repo.Int("key")
+	if err == nil {
+		t.Fatal("expected error for non-int value")
+	}
+}
+
+// Upstream: testConstruct
+func TestConstructorSetsItems(t *testing.T) {
+	t.Parallel()
+
+	items := map[string]any{
+		"key1": "value1",
+		"key2": "value2",
+	}
+	repo := NewRepository(items)
+
+	if repo.Get("key1", nil) != "value1" || repo.Get("key2", nil) != "value2" {
+		t.Fatal("expected constructor to set all items")
+	}
+}
+
+// Upstream: testItGetsAsFloat
+func TestFloatAccessor(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"price":  3.14,
+		"count":  42,
+		"text":   "2.718",
+		"bad":    "not-a-float",
+		"nested": map[string]any{"val": 1.5},
+	})
+
+	if val, err := repo.Float("price"); err != nil || val != 3.14 {
+		t.Fatalf("expected 3.14, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("count"); err != nil || val != 42.0 {
+		t.Fatalf("expected 42.0 from int, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("text"); err != nil || val != 2.718 {
+		t.Fatalf("expected 2.718 from string, got %v (err=%v)", val, err)
+	}
+
+	if val, err := repo.Float("nested.val"); err != nil || val != 1.5 {
+		t.Fatalf("expected 1.5, got %v (err=%v)", val, err)
+	}
+}
+
+// Upstream: testItThrowsAnExceptionWhenTryingToGetNonFloatValueAsFloat
+func TestFloatAccessorTypeError(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"bad":  "not-a-float",
+		"bool": true,
+	})
+
+	if _, err := repo.Float("bad"); err == nil {
+		t.Fatal("expected error for non-float string")
+	}
+
+	if _, err := repo.Float("bool"); err == nil {
+		t.Fatal("expected error for bool value")
+	}
+
+	if _, err := repo.Float("missing"); err == nil {
+		t.Fatal("expected error for missing key")
+	}
+}
+
+// GAP: Upstream: testItGetsAsCollection — Bedrock does not have a Collection type
+// GAP: Upstream: testOffsetExists/Get/Set/Unset — Bedrock does not implement ArrayAccess pattern
+// GAP: Upstream: testItIsMacroable — Go does not have macroability
+
+func TestRepositoryErrorMessagesStayStable(t *testing.T) {
+	t.Parallel()
+
+	repo := NewRepository(map[string]any{
+		"authflows": map[string]any{
+			"views": "not-a-bool",
+		},
+	})
+
+	_, err := repo.Bool("authflows.views")
+
+	if err == nil {
+		t.Fatal("expected bool error")
+	}
+
+	if !strings.Contains(err.Error(), `config: key "authflows.views" must be bool`) {
+		t.Fatalf("unexpected bool error message: %v", err)
+	}
+}

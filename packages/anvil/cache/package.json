@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/framework-cache",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/cache && go build ./... && touch ../../../storage/.turbo/dist/cache/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/cache && go test ./... -coverprofile=../../../storage/.cache/coverage/go/cache/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
