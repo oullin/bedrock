@@ -1,3 +1,4 @@
 packages:
-  - demo
-  - packages/*
+  - packages/app
+  - packages/infra
+  - packages/anvil/*

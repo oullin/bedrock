@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/framework-notifications",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/notifications && go build ./... && touch ../../../storage/.turbo/dist/notifications/.build-stamp'",
+    "dev": "go test ./... -count=1",
+    "test": "go test ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/notifications && go test ./... -coverprofile=../../../storage/.cache/coverage/go/notifications/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
