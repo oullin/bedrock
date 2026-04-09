@@ -6,6 +6,8 @@ require (
 	github.com/bedrock/packages/anvil/console v0.0.0
 	github.com/bedrock/packages/anvil/foundation v0.0.0
 	github.com/bedrock/packages/anvil/routing v0.0.0
+	github.com/bedrock/packages/authflows v0.0.0
+	github.com/bedrock/packages/authkit v0.0.0
 )
 
 require (
@@ -40,3 +42,7 @@ replace github.com/bedrock/packages/anvil/http => ../anvil/http
 replace github.com/bedrock/packages/anvil/routing => ../anvil/routing
 
 replace github.com/bedrock/packages/anvil/support => ../anvil/support
+
+replace github.com/bedrock/packages/authflows => ../authflows
+
+replace github.com/bedrock/packages/authkit => ../authkit
