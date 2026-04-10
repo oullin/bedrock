@@ -4,37 +4,24 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	contracts "github.com/bedrock/packages/contracts/auth"
 )
 
 // Authenticatable is any entity that can be authenticated.
-type Authenticatable interface {
-	GetAuthIdentifierName() string
-	GetAuthIdentifier() any
-	GetAuthPassword() string
-	GetRememberToken() string
-	SetRememberToken(token string)
-	GetRememberTokenName() string
-}
+type Authenticatable = contracts.Authenticatable
 
 // MustVerifyEmail is implemented by users that require email verification.
-type MustVerifyEmail interface {
-	HasVerifiedEmail() bool
-	MarkEmailAsVerified() error
-	SendEmailVerificationNotification()
-	GetEmailForVerification() string
-}
+type MustVerifyEmail = contracts.MustVerifyEmail
+
+// CanResetPassword is implemented by users that support password resets.
+type CanResetPassword = contracts.CanResetPassword
 
 // TwoFactorAuthenticatable is implemented by users that support 2FA.
 type TwoFactorAuthenticatable interface {
 	GetTwoFactorSecret() string
 	GetTwoFactorRecoveryCodes() []string
 	TwoFactorEnabled() bool
-}
-
-// CanResetPassword is implemented by users that support password resets.
-type CanResetPassword interface {
-	GetEmailForPasswordReset() string
-	SendPasswordResetNotification(token string)
 }
 
 // UserProvider retrieves users from a persistence layer.
@@ -88,6 +75,11 @@ type PasswordHasher interface {
 	Hash(password string) (string, error)
 	Check(password, hash string) bool
 	NeedsRehash(hash string) bool
+}
+
+// EventDispatcher dispatches auth lifecycle events.
+type EventDispatcher interface {
+	Dispatch(ctx context.Context, event any) error
 }
 
 // RequestCallback is a function that resolves the user from a request.
