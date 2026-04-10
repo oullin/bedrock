@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router, usePage } from "@inertiajs/vue3";
 import { ref, computed } from "vue";
 
 const props = defineProps<{
   title?: string;
 }>();
 
-const page = computed(() => router.page);
-const user = computed(() => page.value?.props?.auth?.user);
-const currentTeam = computed(() => page.value?.props?.auth?.currentTeam);
+const page = usePage<{
+  auth?: {
+    user?: { name?: string; email?: string };
+    currentTeam?: { name: string; id: string };
+  };
+  jetstream?: { hasApiTokens?: boolean };
+}>();
+const user = computed(() => page.props?.auth?.user);
+const currentTeam = computed(() => page.props?.auth?.currentTeam);
 
 const showNav = ref(false);
 

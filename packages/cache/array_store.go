@@ -23,6 +23,8 @@ type ArrayStore struct {
 
 var _ Store = (*ArrayStore)(nil)
 var _ Locker = (*ArrayStore)(nil)
+var _ LockFlusher = (*ArrayStore)(nil)
+var _ TaggableStore = (*ArrayStore)(nil)
 
 // NewArrayStore creates an ArrayStore using the real wall clock.
 func NewArrayStore() *ArrayStore {
@@ -196,6 +198,22 @@ func (s *ArrayStore) Flush(_ context.Context) error {
 	s.items = make(map[string]cacheItem)
 
 	return nil
+}
+
+// FlushLocks removes all locks from the store.
+func (s *ArrayStore) FlushLocks(_ context.Context) error {
+	s.mu.Lock()
+
+	defer s.mu.Unlock()
+
+	s.locks = make(map[string]*arrayLock)
+
+	return nil
+}
+
+// Tags returns a tag-scoped view of the store.
+func (s *ArrayStore) Tags(tags ...string) TaggedCache {
+	return NewTaggedCache(s, NewTagSet(s, tags))
 }
 
 // Lock returns an in-memory lock for the named resource.
