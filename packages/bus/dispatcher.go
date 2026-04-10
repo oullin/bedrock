@@ -12,21 +12,21 @@ import (
 
 // BusDispatcher is the concrete implementation of QueueingDispatcher.
 type BusDispatcher struct {
-	mu             sync.RWMutex
-	handlers       map[reflect.Type]Handler
-	pipes          []Pipe
-	deferred       []any
-	queueBackend   queue.Queue
-	batchRepo      BatchRepository
+	mu           sync.RWMutex
+	handlers     map[reflect.Type]Handler
+	pipes        []Pipe
+	deferred     []any
+	queueBackend queue.Queue
+	batchRepo    BatchRepository
 }
 
 // NewDispatcher creates a BusDispatcher.
 // queueBackend may be nil if DispatchToQueue is never called.
 func NewDispatcher(queueBackend queue.Queue, batchRepo BatchRepository) *BusDispatcher {
 	return &BusDispatcher{
-		handlers:  make(map[reflect.Type]Handler),
+		handlers:     make(map[reflect.Type]Handler),
 		queueBackend: queueBackend,
-		batchRepo: batchRepo,
+		batchRepo:    batchRepo,
 	}
 }
 
@@ -124,9 +124,37 @@ func (d *BusDispatcher) FindBatch(ctx context.Context, id string) (*Batch, error
 	return d.batchRepo.Get(ctx, id)
 }
 
+// HasCommandHandler reports whether a handler is registered for the command type.
+func (d *BusDispatcher) HasCommandHandler(command any) bool {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	_, ok := d.handlers[reflect.TypeOf(command)]
+
+	return ok
+}
+
+// GetCommandHandler returns the handler for the given command type.
+func (d *BusDispatcher) GetCommandHandler(command any) (Handler, bool) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	h, ok := d.handlers[reflect.TypeOf(command)]
+
+	return h, ok
+}
+
+// Chain creates a PendingChain for sequential job execution.
+func (d *BusDispatcher) Chain(jobs []any) *PendingChain {
+	return NewPendingChain(d, jobs)
+}
+
 // Batch creates a PendingBatch for the given jobs.
 func (d *BusDispatcher) Batch(jobs []any) *PendingBatch {
-	return NewPendingBatch(d, jobs)
+	pb := NewPendingBatch(d, jobs)
+	pb.batchRepo = d.batchRepo
+
+	return pb
 }
 
 func (d *BusDispatcher) runThroughPipeline(ctx context.Context, command any) (any, error) {
