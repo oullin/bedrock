@@ -43,12 +43,18 @@ type redisLock struct {
 
 var _ Store = (*RedisStore)(nil)
 var _ Locker = (*RedisStore)(nil)
+var _ TaggableStore = (*RedisStore)(nil)
 
 func NewRedisStore(client RedisClient, prefix string) *RedisStore {
 	return &RedisStore{client: client, prefix: prefix}
 }
 
 func (s *RedisStore) GetPrefix() string { return s.prefix }
+
+// Tags returns a tag-scoped view of the store.
+func (s *RedisStore) Tags(tags ...string) TaggedCache {
+	return NewTaggedCache(s, NewTagSet(s, tags))
+}
 
 func (s *RedisStore) prefixed(key string) string {
 	if s.prefix == "" {

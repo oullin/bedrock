@@ -10,4 +10,6 @@ var (
 	// ErrLockTimeout is returned when a lock cannot be acquired within the
 	// configured timeout.
 	ErrLockTimeout = errors.New("cache: lock timeout")
+	// ErrTooManyAttempts is returned when a rate limit is exceeded.
+	ErrTooManyAttempts = errors.New("cache: too many attempts")
 )

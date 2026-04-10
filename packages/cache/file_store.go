@@ -29,7 +29,15 @@ type fileEntry struct {
 	Value     any
 }
 
+func init() {
+	gob.Register(map[string]any{})
+	gob.Register([]any{})
+}
+
 var _ Store = (*FileStore)(nil)
+var _ Locker = (*FileStore)(nil)
+var _ LockFlusher = (*FileStore)(nil)
+var _ TaggableStore = (*FileStore)(nil)
 
 // NewFileStore creates a FileStore that persists to dir.
 func NewFileStore(dir string) *FileStore {
@@ -50,6 +58,11 @@ func (s *FileStore) now() time.Time {
 }
 
 func (s *FileStore) GetPrefix() string { return s.prefix }
+
+// Tags returns a tag-scoped view of the store.
+func (s *FileStore) Tags(tags ...string) TaggedCache {
+	return NewTaggedCache(s, NewTagSet(s, tags))
+}
 
 func (s *FileStore) path(key string) string {
 	h := sha256.Sum256([]byte(s.prefix + key))
@@ -177,6 +190,14 @@ func (s *FileStore) Increment(ctx context.Context, key string, delta int64) (int
 	var exp time.Time
 
 	if err == nil {
+		// Check if expired.
+		if !entry.ExpiresAt.IsZero() && s.now().After(entry.ExpiresAt) {
+			// Expired: treat as non-existent.
+			entry = nil
+		}
+	}
+
+	if entry != nil {
 		current, err = toInt64(entry.Value)
 
 		if err != nil {
@@ -227,6 +248,26 @@ func (s *FileStore) Forget(_ context.Context, key string) error {
 	}
 
 	return err
+}
+
+// FlushLocks removes all lock files from the lock directory.
+func (s *FileStore) FlushLocks(_ context.Context) error {
+	lockDir := filepath.Join(s.dir, "locks")
+
+	err := os.RemoveAll(lockDir)
+
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	return err
+}
+
+// Lock returns a file-based lock for the named resource.
+func (s *FileStore) Lock(name, owner string, ttl time.Duration) Lock {
+	lockDir := filepath.Join(s.dir, "locks")
+
+	return NewFileLock(lockDir, name, owner, ttl, s.clock)
 }
 
 // Flush removes all files under the store's directory.

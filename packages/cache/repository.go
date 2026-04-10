@@ -2,17 +2,25 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
 // Repository wraps a Store and adds high-level helpers.
 type Repository struct {
-	store Store
+	store     Store
+	events    EventDispatcher
+	storeName string
 }
 
 // NewRepository wraps a Store in a Repository.
 func NewRepository(store Store) *Repository {
 	return &Repository{store: store}
+}
+
+// NewRepositoryWithEvents wraps a Store in a Repository that dispatches events.
+func NewRepositoryWithEvents(store Store, storeName string, dispatcher EventDispatcher) *Repository {
+	return &Repository{store: store, events: dispatcher, storeName: storeName}
 }
 
 // Store returns the underlying Store.
@@ -35,15 +43,35 @@ func (r *Repository) Get(ctx context.Context, key string, defaultVal any) any {
 	v, err := r.store.Get(ctx, key)
 
 	if err != nil {
+		r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
+
 		return defaultVal
 	}
+
+	r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
 
 	return v
 }
 
 // GetMany retrieves multiple values. Missing keys are omitted.
 func (r *Repository) GetMany(ctx context.Context, keys []string) (map[string]any, error) {
-	return r.store.GetMany(ctx, keys)
+	result, err := r.store.GetMany(ctx, keys)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if r.events != nil {
+		for _, key := range keys {
+			if v, ok := result[key]; ok {
+				r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
+			} else {
+				r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
+			}
+		}
+	}
+
+	return result, nil
 }
 
 // Pull retrieves a value and then deletes it. Returns defaultVal if absent.
@@ -56,22 +84,62 @@ func (r *Repository) Pull(ctx context.Context, key string, defaultVal any) any {
 
 // Put stores a value.
 func (r *Repository) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
-	return r.store.Put(ctx, key, value, ttl)
+	r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+
+	if err := r.store.Put(ctx, key, value, ttl); err != nil {
+		return err
+	}
+
+	r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+
+	return nil
 }
 
 // PutMany stores multiple values.
 func (r *Repository) PutMany(ctx context.Context, values map[string]any, ttl time.Duration) error {
-	return r.store.PutMany(ctx, values, ttl)
+	if r.events != nil {
+		for k, v := range values {
+			r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: k, Value: v, TTL: ttl})
+		}
+	}
+
+	if err := r.store.PutMany(ctx, values, ttl); err != nil {
+		return err
+	}
+
+	if r.events != nil {
+		for k, v := range values {
+			r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: k, Value: v, TTL: ttl})
+		}
+	}
+
+	return nil
 }
 
 // Add stores a value only if the key is absent.
 func (r *Repository) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
-	return r.store.Add(ctx, key, value, ttl)
+	r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+
+	ok, err := r.store.Add(ctx, key, value, ttl)
+
+	if ok {
+		r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+	}
+
+	return ok, err
 }
 
 // Forever stores a value with no expiry.
 func (r *Repository) Forever(ctx context.Context, key string, value any) error {
-	return r.store.Forever(ctx, key, value)
+	r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: key, Value: value})
+
+	if err := r.store.Forever(ctx, key, value); err != nil {
+		return err
+	}
+
+	r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value})
+
+	return nil
 }
 
 // Increment increments a numeric value.
@@ -91,12 +159,28 @@ func (r *Repository) Touch(ctx context.Context, key string, ttl time.Duration) (
 
 // Forget removes a key.
 func (r *Repository) Forget(ctx context.Context, key string) error {
-	return r.store.Forget(ctx, key)
+	r.dispatch(ctx, ForgettingKey{StoreName: r.storeName, Key: key})
+
+	if err := r.store.Forget(ctx, key); err != nil {
+		return err
+	}
+
+	r.dispatch(ctx, KeyForgotten{StoreName: r.storeName, Key: key})
+
+	return nil
 }
 
 // Flush removes all keys.
 func (r *Repository) Flush(ctx context.Context) error {
-	return r.store.Flush(ctx)
+	r.dispatch(ctx, CacheFlushing{StoreName: r.storeName})
+
+	if err := r.store.Flush(ctx); err != nil {
+		return err
+	}
+
+	r.dispatch(ctx, CacheFlushed{StoreName: r.storeName})
+
+	return nil
 }
 
 // GetPrefix returns the store's key prefix.
@@ -107,8 +191,12 @@ func (r *Repository) GetPrefix() string {
 // Remember retrieves a value or stores the result of fn if key is absent.
 func (r *Repository) Remember(ctx context.Context, key string, ttl time.Duration, fn func() (any, error)) (any, error) {
 	if v, err := r.store.Get(ctx, key); err == nil {
+		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
+
 		return v, nil
 	}
+
+	r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
 
 	result, err := fn()
 
@@ -122,8 +210,12 @@ func (r *Repository) Remember(ctx context.Context, key string, ttl time.Duration
 // RememberForever retrieves a value or stores the result of fn indefinitely.
 func (r *Repository) RememberForever(ctx context.Context, key string, fn func() (any, error)) (any, error) {
 	if v, err := r.store.Get(ctx, key); err == nil {
+		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
+
 		return v, nil
 	}
+
+	r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
 
 	result, err := fn()
 
@@ -147,4 +239,218 @@ func (r *Repository) Lock(name, owner string, ttl time.Duration) Lock {
 	}
 
 	return nil
+}
+
+// Tags returns a tag-scoped view of the underlying store. Returns nil if
+// the store does not implement TaggableStore.
+func (r *Repository) Tags(tags ...string) TaggedCache {
+	if ts, ok := r.store.(TaggableStore); ok {
+		return ts.Tags(tags...)
+	}
+
+	return nil
+}
+
+// Funnel creates a ConcurrencyLimiter using this repository's store.
+func (r *Repository) Funnel(name string, maxSlots int, releaseAfter time.Duration) *ConcurrencyLimiter {
+	return NewConcurrencyLimiter(r.store, name, maxSlots, releaseAfter)
+}
+
+// FlushLocks removes all locks from the underlying store. The store must
+// implement the LockFlusher interface.
+func (r *Repository) FlushLocks(ctx context.Context) error {
+	if f, ok := r.store.(LockFlusher); ok {
+		return f.FlushLocks(ctx)
+	}
+
+	return fmt.Errorf("cache: store does not support flushing locks")
+}
+
+// String retrieves a value as a string. Returns ErrNotFound if the key is
+// absent and ErrInvalidValue if the value cannot be converted to string.
+func (r *Repository) String(ctx context.Context, key string) (string, error) {
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		return "", err
+	}
+
+	switch val := v.(type) {
+	case string:
+		return val, nil
+	case float64:
+		return fmt.Sprintf("%v", val), nil
+	case float32:
+		return fmt.Sprintf("%v", val), nil
+	case int:
+		return fmt.Sprintf("%d", val), nil
+	case int64:
+		return fmt.Sprintf("%d", val), nil
+	case bool:
+		return fmt.Sprintf("%t", val), nil
+	default:
+		return "", fmt.Errorf("%w: expected string, got %T", ErrInvalidValue, v)
+	}
+}
+
+// Integer retrieves a value as an int64. Returns ErrNotFound if the key is
+// absent and ErrInvalidValue if the value is not numeric.
+func (r *Repository) Integer(ctx context.Context, key string) (int64, error) {
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		return 0, err
+	}
+
+	n, err := toInt64(v)
+
+	if err != nil {
+		return 0, fmt.Errorf("%w: expected numeric, got %T", ErrInvalidValue, v)
+	}
+
+	return n, nil
+}
+
+// Float retrieves a value as a float64. Returns ErrNotFound if the key is
+// absent and ErrInvalidValue if the value is not numeric.
+func (r *Repository) Float(ctx context.Context, key string) (float64, error) {
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		return 0, err
+	}
+
+	switch n := v.(type) {
+	case float64:
+		return n, nil
+	case float32:
+		return float64(n), nil
+	case int:
+		return float64(n), nil
+	case int64:
+		return float64(n), nil
+	case int32:
+		return float64(n), nil
+	case uint:
+		return float64(n), nil
+	case uint64:
+		return float64(n), nil
+	default:
+		return 0, fmt.Errorf("%w: expected numeric, got %T", ErrInvalidValue, v)
+	}
+}
+
+// Boolean retrieves a value as a bool. Returns ErrNotFound if the key is
+// absent and ErrInvalidValue if the value is not a bool.
+func (r *Repository) Boolean(ctx context.Context, key string) (bool, error) {
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		return false, err
+	}
+
+	b, ok := v.(bool)
+
+	if !ok {
+		return false, fmt.Errorf("%w: expected bool, got %T", ErrInvalidValue, v)
+	}
+
+	return b, nil
+}
+
+// Map retrieves a value as a map[string]any. Returns ErrNotFound if the key
+// is absent and ErrInvalidValue if the value is not a map.
+func (r *Repository) Map(ctx context.Context, key string) (map[string]any, error) {
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	m, ok := v.(map[string]any)
+
+	if !ok {
+		return nil, fmt.Errorf("%w: expected map[string]any, got %T", ErrInvalidValue, v)
+	}
+
+	return m, nil
+}
+
+// Flexible retrieves a cached value using stale-while-revalidate strategy.
+// If the value is within freshTTL, it is returned directly. If between
+// freshTTL and staleTTL, the stale value is returned and a background goroutine
+// refreshes the cache. If fully expired, fn is called synchronously.
+func (r *Repository) Flexible(ctx context.Context, key string, freshTTL, staleTTL time.Duration, fn func() (any, error)) (any, error) {
+	metaKey := key + ":flexible:fresh_until"
+
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		result, err := fn()
+
+		if err != nil {
+			return nil, err
+		}
+
+		if putErr := r.store.Put(ctx, key, result, staleTTL); putErr != nil {
+			return result, putErr
+		}
+
+		_ = r.store.Put(ctx, metaKey, time.Now().Add(freshTTL).UnixNano(), staleTTL)
+
+		return result, nil
+	}
+
+	freshUntil, metaErr := r.store.Get(ctx, metaKey)
+
+	if metaErr != nil {
+		go r.refreshFlexible(ctx, key, metaKey, freshTTL, staleTTL, fn)
+
+		return v, nil
+	}
+
+	ts, ok := toNano(freshUntil)
+
+	if !ok {
+		go r.refreshFlexible(ctx, key, metaKey, freshTTL, staleTTL, fn)
+
+		return v, nil
+	}
+
+	if time.Now().UnixNano() > ts {
+		go r.refreshFlexible(ctx, key, metaKey, freshTTL, staleTTL, fn)
+	}
+
+	return v, nil
+}
+
+func (r *Repository) refreshFlexible(ctx context.Context, key, metaKey string, freshTTL, staleTTL time.Duration, fn func() (any, error)) {
+	result, err := fn()
+
+	if err != nil {
+		return
+	}
+
+	_ = r.store.Put(ctx, key, result, staleTTL)
+	_ = r.store.Put(ctx, metaKey, time.Now().Add(freshTTL).UnixNano(), staleTTL)
+}
+
+func (r *Repository) dispatch(ctx context.Context, event Event) {
+	if r.events != nil {
+		r.events.Dispatch(ctx, event)
+	}
+}
+
+// toNano converts a stored value to a nanosecond timestamp.
+func toNano(v any) (int64, bool) {
+	switch n := v.(type) {
+	case int64:
+		return n, true
+	case int:
+		return int64(n), true
+	case float64:
+		return int64(n), true
+	default:
+		return 0, false
+	}
 }
