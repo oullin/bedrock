@@ -1,0 +1,52 @@
+package bus
+
+import (
+	"context"
+)
+
+// Handler handles a command/job.
+type Handler func(ctx context.Context, command any) (any, error)
+
+// Pipe is middleware in the command pipeline.
+// It receives the command and a next function to call the remaining pipeline.
+type Pipe func(ctx context.Context, command any, next Handler) (any, error)
+
+// Dispatcher dispatches commands synchronously or to a queue.
+type Dispatcher interface {
+	// Dispatch sends a command through the pipeline and executes it.
+	Dispatch(ctx context.Context, command any) (any, error)
+	// DispatchSync executes the command synchronously, bypassing the queue.
+	DispatchSync(ctx context.Context, command any) (any, error)
+	// DispatchNow is an alias for DispatchSync.
+	DispatchNow(ctx context.Context, command any) (any, error)
+	// DispatchAfterResponse queues a command for execution after the response is sent.
+	DispatchAfterResponse(ctx context.Context, command any) error
+	// PipeThrough sets the middleware pipeline.
+	PipeThrough(pipes ...Pipe) Dispatcher
+	// Map registers a command→handler mapping.
+	Map(command any, handler Handler) Dispatcher
+}
+
+// QueueingDispatcher extends Dispatcher with queue-based dispatch.
+type QueueingDispatcher interface {
+	Dispatcher
+	// DispatchToQueue sends a command to the queue backend.
+	DispatchToQueue(ctx context.Context, command any) error
+	// FindBatch retrieves a batch by ID.
+	FindBatch(ctx context.Context, id string) (*Batch, error)
+	// Batch creates a PendingBatch for the given jobs.
+	Batch(jobs []any) *PendingBatch
+}
+
+// BatchRepository persists batch state.
+type BatchRepository interface {
+	Get(ctx context.Context, id string) (*Batch, error)
+	Store(ctx context.Context, batch *Batch) error
+	IncrementTotalJobs(ctx context.Context, id string, amount int) error
+	DecrementPendingJobs(ctx context.Context, id string) (*UpdatedBatchJobCounts, error)
+	IncrementFailedJobs(ctx context.Context, id string, failedJobID string) (*UpdatedBatchJobCounts, error)
+	MarkAsFinished(ctx context.Context, id string) error
+	Cancel(ctx context.Context, id string) error
+	Delete(ctx context.Context, id string) error
+	Transaction(ctx context.Context, fn func(BatchRepository) error) error
+}
