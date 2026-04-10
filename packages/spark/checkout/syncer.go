@@ -35,6 +35,7 @@ func (s *Syncer) SyncUpdated(ctx context.Context, sub *spark.Subscription) error
 	}
 
 	price, err := s.catalog.PriceForProviderID(ctx, sub.Items[0].PriceID)
+
 	if err != nil || price == nil {
 		return err
 	}

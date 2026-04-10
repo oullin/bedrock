@@ -13,12 +13,12 @@ import (
 
 // mockDynamoClient implements bus.DynamoClient for testing.
 type mockDynamoClient struct {
-	mu      sync.Mutex
-	items   map[string]map[string]any // keyed by "app:id"
-	putErr  error
-	getErr  error
-	updErr  error
-	delErr  error
+	mu     sync.Mutex
+	items  map[string]map[string]any // keyed by "app:id"
+	putErr error
+	getErr error
+	updErr error
+	delErr error
 }
 
 func newMockDynamoClient() *mockDynamoClient {
@@ -31,6 +31,7 @@ func (c *mockDynamoClient) itemKey(key map[string]any) string {
 
 func (c *mockDynamoClient) PutItem(_ context.Context, _ string, item map[string]any) error {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	if c.putErr != nil {
@@ -45,6 +46,7 @@ func (c *mockDynamoClient) PutItem(_ context.Context, _ string, item map[string]
 
 func (c *mockDynamoClient) GetItem(_ context.Context, _ string, key map[string]any) (map[string]any, error) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	if c.getErr != nil {
@@ -56,6 +58,7 @@ func (c *mockDynamoClient) GetItem(_ context.Context, _ string, key map[string]a
 
 func (c *mockDynamoClient) UpdateItem(_ context.Context, _ string, key map[string]any, _ string, values map[string]any) error {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	if c.updErr != nil {
@@ -64,6 +67,7 @@ func (c *mockDynamoClient) UpdateItem(_ context.Context, _ string, key map[strin
 
 	k := c.itemKey(key)
 	item, ok := c.items[k]
+
 	if !ok {
 		return nil
 	}
@@ -78,6 +82,7 @@ func (c *mockDynamoClient) UpdateItem(_ context.Context, _ string, key map[strin
 
 func (c *mockDynamoClient) DeleteItem(_ context.Context, _ string, key map[string]any) error {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	if c.delErr != nil {
@@ -108,14 +113,17 @@ func TestDynamoRepoStore(t *testing.T) {
 	}
 
 	err := repo.Store(context.Background(), batch)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	client.mu.Lock()
+
 	defer client.mu.Unlock()
 
 	item, ok := client.items["myapp:batch-1"]
+
 	if !ok {
 		t.Fatal("expected item to be stored")
 	}
@@ -144,6 +152,7 @@ func TestDynamoRepoGet(t *testing.T) {
 	}
 
 	batch, err := repo.Get(context.Background(), "batch-1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,6 +175,7 @@ func TestDynamoRepoGetNotFound(t *testing.T) {
 	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
 
 	batch, err := repo.Get(context.Background(), "nonexistent")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,6 +195,7 @@ func TestDynamoRepoMarkAsFinished(t *testing.T) {
 	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
 
 	err := repo.MarkAsFinished(context.Background(), "batch-1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,6 +211,7 @@ func TestDynamoRepoCancel(t *testing.T) {
 	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
 
 	err := repo.Cancel(context.Background(), "batch-1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,6 +227,7 @@ func TestDynamoRepoDelete(t *testing.T) {
 	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
 
 	err := repo.Delete(context.Background(), "batch-1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,6 +253,7 @@ func TestDynamoRepoStoreWithTTL(t *testing.T) {
 	}
 
 	err := repo.Store(context.Background(), batch)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,6 +299,7 @@ func TestDynamoRepoStoreError(t *testing.T) {
 
 	batch := &bus.Batch{ID: "err", Options: map[string]any{}, CreatedAt: time.Now()}
 	err := repo.Store(context.Background(), batch)
+
 	if err == nil {
 		t.Error("expected error")
 	}
@@ -300,6 +315,7 @@ func TestDynamoRepoIncrementTotalJobs(t *testing.T) {
 	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
 
 	err := repo.IncrementTotalJobs(context.Background(), "batch-1", 5)
+
 	if err != nil {
 		t.Fatal(err)
 	}

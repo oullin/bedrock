@@ -22,6 +22,7 @@ func (r *testSessionRepo) FindByUser(_ context.Context, _ string) ([]BrowserSess
 
 func (r *testSessionRepo) DeleteOthers(_ context.Context, _ string, _ string) error {
 	r.deletedOthers = true
+
 	return nil
 }
 
@@ -50,6 +51,7 @@ func TestListSessionsSuccess(t *testing.T) {
 	}
 
 	var result []BrowserSession
+
 	_ = json.NewDecoder(w.Body).Decode(&result)
 
 	if len(result) != 2 {

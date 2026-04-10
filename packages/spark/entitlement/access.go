@@ -38,6 +38,7 @@ func (e *Access) HasAccessibleSubscription(ctx context.Context, billableType str
 // Returns 0 if no subscription, math.MaxInt if unlimited.
 func (e *Access) ActiveRoleCapacity(ctx context.Context, billableType string, billableID int64) int {
 	sub, err := e.currentSubscription(ctx, billableType, billableID)
+
 	if err != nil || sub == nil {
 		return 0
 	}
@@ -52,6 +53,7 @@ func (e *Access) IsUnlimitedCapacity(ctx context.Context, billableType string, b
 
 func (e *Access) capacityForSubscription(ctx context.Context, sub *spark.Subscription) int {
 	features, err := e.features.FeaturesForSubscription(ctx, sub.ID)
+
 	if err != nil {
 		return 0
 	}
@@ -70,6 +72,7 @@ func (e *Access) capacityForSubscription(ctx context.Context, sub *spark.Subscri
 		}
 
 		v := 0
+
 		for _, c := range *f.Value {
 			if c < '0' || c > '9' {
 				return 0
@@ -87,6 +90,7 @@ func (e *Access) capacityForSubscription(ctx context.Context, sub *spark.Subscri
 // HasFeature reports whether the billable's subscription includes the given feature.
 func (e *Access) HasFeature(ctx context.Context, billableType string, billableID int64, featureCode string) bool {
 	sub, err := e.currentSubscription(ctx, billableType, billableID)
+
 	if err != nil || sub == nil {
 		return false
 	}
@@ -97,6 +101,7 @@ func (e *Access) HasFeature(ctx context.Context, billableType string, billableID
 // SubscriptionHasFeature reports whether a subscription includes the given feature.
 func (e *Access) SubscriptionHasFeature(ctx context.Context, sub *spark.Subscription, featureCode string) bool {
 	features, err := e.features.FeaturesForSubscription(ctx, sub.ID)
+
 	if err != nil {
 		return false
 	}

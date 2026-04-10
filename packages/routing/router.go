@@ -48,6 +48,7 @@ func (r *Router) Handle(method, route string, handler HandlerFunc) {
 	mw := append([]MiddlewareFunc(nil), r.middleware...)
 
 	pattern := fullRoute
+
 	if method != "" {
 		pattern = strings.ToUpper(method) + " " + fullRoute
 	}
@@ -115,15 +116,19 @@ func (r *Router) Resource(name string, handlers ResourceHandlers) {
 	if handlers.Index != nil {
 		r.Get(base, handlers.Index)
 	}
+
 	if handlers.Show != nil {
 		r.Get(item, handlers.Show)
 	}
+
 	if handlers.Store != nil {
 		r.Post(base, handlers.Store)
 	}
+
 	if handlers.Update != nil {
 		r.Put(item, handlers.Update)
 	}
+
 	if handlers.Destroy != nil {
 		r.Delete(item, handlers.Destroy)
 	}

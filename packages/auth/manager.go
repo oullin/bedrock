@@ -9,13 +9,13 @@ import (
 
 // Manager creates and manages named guards and user providers.
 type Manager struct {
-	mu              sync.RWMutex
-	guards          map[string]Guard
-	guardCreators   map[string]GuardCreator
-	providers       map[string]UserProvider
+	mu               sync.RWMutex
+	guards           map[string]Guard
+	guardCreators    map[string]GuardCreator
+	providers        map[string]UserProvider
 	providerCreators map[string]ProviderCreator
-	configs         map[string]map[string]any
-	defaultGuard    string
+	configs          map[string]map[string]any
+	defaultGuard     string
 }
 
 // NewManager creates an AuthManager with no pre-registered drivers.
@@ -33,6 +33,7 @@ func NewManager(defaultGuard string) *Manager {
 // Extend registers a custom guard driver factory.
 func (m *Manager) Extend(driver string, creator GuardCreator) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.guardCreators[driver] = creator
@@ -43,6 +44,7 @@ func (m *Manager) Extend(driver string, creator GuardCreator) *Manager {
 // Provider registers a custom user provider factory.
 func (m *Manager) Provider(name string, creator ProviderCreator) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.providerCreators[name] = creator
@@ -53,6 +55,7 @@ func (m *Manager) Provider(name string, creator ProviderCreator) *Manager {
 // ViaRequest registers a guard that resolves users via a custom callback.
 func (m *Manager) ViaRequest(name string, callback RequestCallback) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.guards[name] = NewRequestGuard(callback)
@@ -63,6 +66,7 @@ func (m *Manager) ViaRequest(name string, callback RequestCallback) *Manager {
 // SetConfig stores configuration for a named guard.
 func (m *Manager) SetConfig(name string, config map[string]any) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.configs[name] = config
@@ -77,6 +81,7 @@ func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
 	}
 
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if g, ok := m.guards[name]; ok {
@@ -87,13 +92,16 @@ func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
 	driver, _ := cfg["driver"].(string)
 
 	creator, ok := m.guardCreators[driver]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q (driver: %q)", ErrInvalidGuard, name, driver)
 	}
 
 	var provider UserProvider
+
 	if providerName, ok := cfg["provider"].(string); ok {
 		p, err := m.resolveProvider(ctx, providerName)
+
 		if err != nil {
 			return nil, err
 		}
@@ -102,6 +110,7 @@ func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
 	}
 
 	guard, err := creator(name, cfg, provider)
+
 	if err != nil {
 		return nil, fmt.Errorf("auth: create guard %q: %w", name, err)
 	}
@@ -114,6 +123,7 @@ func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
 // SetRequest sets the HTTP request on all request-aware guards.
 func (m *Manager) SetRequest(r *http.Request) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	type requestSetter interface{ SetRequest(*http.Request) }
@@ -131,16 +141,19 @@ func (m *Manager) resolveProvider(ctx context.Context, name string) (UserProvide
 	}
 
 	creator, ok := m.providerCreators[name]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrInvalidProvider, name)
 	}
 
 	cfg := m.configs["provider."+name]
+
 	if cfg == nil {
 		cfg = make(map[string]any)
 	}
 
 	p, err := creator(cfg)
+
 	if err != nil {
 		return nil, fmt.Errorf("auth: create provider %q: %w", name, err)
 	}

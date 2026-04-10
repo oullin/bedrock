@@ -8,6 +8,11 @@ import (
 	"github.com/bedrock/packages/bus"
 )
 
+type chainableJob struct {
+	bus.Queueable
+	Name string
+}
+
 func TestQueueableOnConnection(t *testing.T) {
 	q := &bus.Queueable{}
 	q.OnConnection("redis")
@@ -65,11 +70,13 @@ func TestQueueableFluentChaining(t *testing.T) {
 
 func TestBatchableBatching(t *testing.T) {
 	b := &bus.Batchable{}
+
 	if b.Batching() {
 		t.Error("expected Batching() to be false when BatchID is empty")
 	}
 
 	b.WithBatchID("batch-123")
+
 	if !b.Batching() {
 		t.Error("expected Batching() to be true when BatchID is set")
 	}
@@ -138,11 +145,6 @@ func TestQueueableThrough(t *testing.T) {
 	}
 }
 
-type chainableJob struct {
-	bus.Queueable
-	Name string
-}
-
 func TestQueueableAllOnConnection(t *testing.T) {
 	j1 := &chainableJob{Name: "j1"}
 	j2 := &chainableJob{Name: "j2"}
@@ -171,6 +173,7 @@ func TestQueueableAllOnQueue(t *testing.T) {
 
 func TestBatchableReturnsBatchInstance(t *testing.T) {
 	b := &bus.Batchable{}
+
 	if b.Batch() != nil {
 		t.Error("expected nil Batch before SetBatch")
 	}

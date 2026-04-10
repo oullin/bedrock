@@ -25,6 +25,7 @@ func NewJar(defaults Options) *Jar {
 // SetDefaults replaces the default cookie options.
 func (j *Jar) SetDefaults(opts Options) {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	j.defaults = opts
@@ -33,6 +34,7 @@ func (j *Jar) SetDefaults(opts Options) {
 // Defaults returns the current default options.
 func (j *Jar) Defaults() Options {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	return j.defaults
@@ -58,6 +60,7 @@ func (j *Jar) Forget(name string, opts Options) *http.Cookie {
 // with the same name is replaced.
 func (j *Jar) Queue(c *http.Cookie) {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	j.queued[c.Name] = c
@@ -81,6 +84,7 @@ func (j *Jar) Expire(name string, opts Options) {
 // Unqueue removes the cookie with the given name from the queue.
 func (j *Jar) Unqueue(name string) {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	delete(j.queued, name)
@@ -89,6 +93,7 @@ func (j *Jar) Unqueue(name string) {
 // HasQueued reports whether a cookie with the given name is queued.
 func (j *Jar) HasQueued(name string) bool {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	_, ok := j.queued[name]
@@ -99,6 +104,7 @@ func (j *Jar) HasQueued(name string) bool {
 // Queued returns the queued cookie with the given name, or nil.
 func (j *Jar) Queued(name string) *http.Cookie {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	return j.queued[name]
@@ -107,9 +113,11 @@ func (j *Jar) Queued(name string) *http.Cookie {
 // GetQueued returns all queued cookies in an unspecified order.
 func (j *Jar) GetQueued() []*http.Cookie {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	cookies := make([]*http.Cookie, 0, len(j.queued))
+
 	for _, c := range j.queued {
 		cookies = append(cookies, c)
 	}
@@ -120,6 +128,7 @@ func (j *Jar) GetQueued() []*http.Cookie {
 // Flush clears all queued cookies.
 func (j *Jar) Flush() {
 	j.mu.Lock()
+
 	defer j.mu.Unlock()
 
 	j.queued = make(map[string]*http.Cookie)
@@ -132,12 +141,15 @@ func (j *Jar) merge(opts Options) Options {
 	if opts.Path != "" {
 		d.Path = opts.Path
 	}
+
 	if opts.Domain != "" {
 		d.Domain = opts.Domain
 	}
+
 	if opts.MaxAge != 0 {
 		d.MaxAge = opts.MaxAge
 	}
+
 	if opts.SameSite != 0 {
 		d.SameSite = opts.SameSite
 	}

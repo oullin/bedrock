@@ -22,11 +22,13 @@ func NewPortalHandler(manager *spark.Manager, frontendState *subscription.Fronte
 // Show renders the billing portal with full frontend state.
 func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
 	billableType := r.PathValue("type")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -41,6 +43,7 @@ func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	state, err := h.frontendState.Current(ctx, billableType, billable)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 

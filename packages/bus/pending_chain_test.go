@@ -27,6 +27,7 @@ func TestPendingChainDispatch(t *testing.T) {
 
 	chain := bus.NewPendingChain(d, []any{j1, j2, j3})
 	result, err := chain.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,6 +54,7 @@ func TestPendingChainOnConnectionOnQueue(t *testing.T) {
 		OnQueue("high")
 
 	_, err := chain.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,6 +73,7 @@ func TestPendingChainEmptyError(t *testing.T) {
 	chain := bus.NewPendingChain(d, []any{})
 
 	_, err := chain.Dispatch(context.Background())
+
 	if err == nil {
 		t.Error("expected error for empty chain")
 	}

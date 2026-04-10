@@ -35,6 +35,7 @@ func (c *PlanCatalog) PlanBySlug(ctx context.Context, slug string) (*spark.Plan,
 // MarketingName returns the human-readable name for a plan code.
 func (c *PlanCatalog) MarketingName(ctx context.Context, code string) string {
 	plan, err := c.plans.FindByCode(ctx, code)
+
 	if err != nil || plan == nil {
 		return code
 	}
@@ -46,6 +47,7 @@ func (c *PlanCatalog) MarketingName(ctx context.Context, code string) string {
 // If the plan has a yearly price, it defaults to yearly; otherwise monthly.
 func (c *PlanCatalog) DefaultPeriodForPlan(ctx context.Context, planCode string) spark.BillingPeriod {
 	plan, err := c.plans.FindByCode(ctx, planCode)
+
 	if err != nil || plan == nil {
 		return spark.PeriodMonthly
 	}
@@ -53,6 +55,7 @@ func (c *PlanCatalog) DefaultPeriodForPlan(ctx context.Context, planCode string)
 	for _, pp := range plan.PlanPeriods {
 		if pp.PeriodCode == spark.PeriodYearly {
 			price, _ := c.prices.ActiveForPeriod(ctx, pp.ID)
+
 			if price != nil {
 				return spark.PeriodYearly
 			}
@@ -65,6 +68,7 @@ func (c *PlanCatalog) DefaultPeriodForPlan(ctx context.Context, planCode string)
 // ActivePriceFor returns the active price for a plan and billing period.
 func (c *PlanCatalog) ActivePriceFor(ctx context.Context, planCode string, period spark.BillingPeriod) (*spark.PlanPeriodPrice, error) {
 	plan, err := c.plans.FindByCode(ctx, planCode)
+
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +78,7 @@ func (c *PlanCatalog) ActivePriceFor(ctx context.Context, planCode string, perio
 	}
 
 	pp, err := c.plans.FindPlanPeriod(ctx, plan.ID, period)
+
 	if err != nil {
 		return nil, err
 	}

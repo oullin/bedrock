@@ -5,13 +5,63 @@ import "time"
 // SubscriptionPlan identifies a plan tier.
 type SubscriptionPlan string
 
+// Valid reports whether p is a recognised plan.
+
+// SubscriptionStatus represents the lifecycle state of a subscription.
+type SubscriptionStatus string
+
+// Valid reports whether s is a recognised status.
+
+// GrantsAccess reports whether a subscription in this status should grant
+// access to gated features.
+
+// IsTerminal reports whether the subscription has reached an end state.
+
+// BillingPeriod represents the billing cycle length.
+type BillingPeriod string
+
+// Valid reports whether p is a recognised billing period.
+
+// DisplayLabel returns a human-readable label for the billing period.
+
+// SubscriptionFeatureCode identifies an entitlement granted by a plan.
+type SubscriptionFeatureCode string
+
+// Valid reports whether c is a recognised feature code.
+
+// PlanPricingMode describes how a plan period price is calculated.
+type PlanPricingMode string
+
+// Valid reports whether m is a recognised pricing mode.
+
+// DisplayLabel returns a human-readable label for the pricing mode.
+
+// TransactionStatus represents the state of a payment transaction.
+type TransactionStatus string
+
+// Valid reports whether s is a recognised transaction status.
+
+// SubscriptionHoldDays is the number of days a pending subscription is kept
+// before it is considered stale and eligible for expiry.
+
+// DefaultSubscriptionType is the default subscription type used when none is
+// specified explicitly.
+
+// ProrationBehavior controls how charges are adjusted when a subscription
+// plan or quantity changes mid-cycle.
+type ProrationBehavior string
+
+// Valid reports whether b is a recognised proration behavior.
+
+// SubscriptionInterval represents a billing frequency on the provider side.
+type SubscriptionInterval string
+
 const (
 	PlanStarter    SubscriptionPlan = "starter"
 	PlanPro        SubscriptionPlan = "pro"
 	PlanEnterprise SubscriptionPlan = "enterprise"
 )
 
-// Valid reports whether p is a recognised plan.
 func (p SubscriptionPlan) Valid() bool {
 	switch p {
 	case PlanStarter, PlanPro, PlanEnterprise:
@@ -20,9 +70,6 @@ func (p SubscriptionPlan) Valid() bool {
 
 	return false
 }
-
-// SubscriptionStatus represents the lifecycle state of a subscription.
-type SubscriptionStatus string
 
 const (
 	StatusPending         SubscriptionStatus = "pending"
@@ -35,7 +82,6 @@ const (
 	StatusExpired         SubscriptionStatus = "expired"
 )
 
-// Valid reports whether s is a recognised status.
 func (s SubscriptionStatus) Valid() bool {
 	switch s {
 	case StatusPending, StatusAwaitingPayment, StatusActive,
@@ -47,8 +93,6 @@ func (s SubscriptionStatus) Valid() bool {
 	return false
 }
 
-// GrantsAccess reports whether a subscription in this status should grant
-// access to gated features.
 func (s SubscriptionStatus) GrantsAccess() bool {
 	switch s {
 	case StatusActive, StatusTrialing, StatusPastDue:
@@ -58,13 +102,9 @@ func (s SubscriptionStatus) GrantsAccess() bool {
 	return false
 }
 
-// IsTerminal reports whether the subscription has reached an end state.
 func (s SubscriptionStatus) IsTerminal() bool {
 	return s == StatusCanceled || s == StatusExpired
 }
-
-// BillingPeriod represents the billing cycle length.
-type BillingPeriod string
 
 const (
 	PeriodMonthly BillingPeriod = "monthly"
@@ -73,7 +113,6 @@ const (
 	PeriodCustom  BillingPeriod = "custom"
 )
 
-// Valid reports whether p is a recognised billing period.
 func (p BillingPeriod) Valid() bool {
 	switch p {
 	case PeriodMonthly, PeriodYearly, PeriodFree, PeriodCustom:
@@ -83,7 +122,6 @@ func (p BillingPeriod) Valid() bool {
 	return false
 }
 
-// DisplayLabel returns a human-readable label for the billing period.
 func (p BillingPeriod) DisplayLabel() string {
 	switch p {
 	case PeriodMonthly:
@@ -99,9 +137,6 @@ func (p BillingPeriod) DisplayLabel() string {
 	}
 }
 
-// SubscriptionFeatureCode identifies an entitlement granted by a plan.
-type SubscriptionFeatureCode string
-
 const (
 	FeatureActiveRoleCapacity   SubscriptionFeatureCode = "active_role_capacity"
 	FeatureBookingDispatch      SubscriptionFeatureCode = "booking_dispatch"
@@ -109,7 +144,6 @@ const (
 	FeatureViewLLMAnalysis      SubscriptionFeatureCode = "view_llm_analysis"
 )
 
-// Valid reports whether c is a recognised feature code.
 func (c SubscriptionFeatureCode) Valid() bool {
 	switch c {
 	case FeatureActiveRoleCapacity, FeatureBookingDispatch,
@@ -120,16 +154,12 @@ func (c SubscriptionFeatureCode) Valid() bool {
 	return false
 }
 
-// PlanPricingMode describes how a plan period price is calculated.
-type PlanPricingMode string
-
 const (
 	PricingModeMoney  PlanPricingMode = "money"
 	PricingModeFree   PlanPricingMode = "free"
 	PricingModeCustom PlanPricingMode = "custom"
 )
 
-// Valid reports whether m is a recognised pricing mode.
 func (m PlanPricingMode) Valid() bool {
 	switch m {
 	case PricingModeMoney, PricingModeFree, PricingModeCustom:
@@ -139,7 +169,6 @@ func (m PlanPricingMode) Valid() bool {
 	return false
 }
 
-// DisplayLabel returns a human-readable label for the pricing mode.
 func (m PlanPricingMode) DisplayLabel() string {
 	switch m {
 	case PricingModeMoney:
@@ -153,9 +182,6 @@ func (m PlanPricingMode) DisplayLabel() string {
 	}
 }
 
-// TransactionStatus represents the state of a payment transaction.
-type TransactionStatus string
-
 const (
 	TransactionDraft     TransactionStatus = "draft"
 	TransactionReady     TransactionStatus = "ready"
@@ -166,7 +192,6 @@ const (
 	TransactionPastDue   TransactionStatus = "past_due"
 )
 
-// Valid reports whether s is a recognised transaction status.
 func (s TransactionStatus) Valid() bool {
 	switch s {
 	case TransactionDraft, TransactionReady, TransactionBilled,
@@ -178,17 +203,9 @@ func (s TransactionStatus) Valid() bool {
 	return false
 }
 
-// SubscriptionHoldDays is the number of days a pending subscription is kept
-// before it is considered stale and eligible for expiry.
 const SubscriptionHoldDays = 14
 
-// DefaultSubscriptionType is the default subscription type used when none is
-// specified explicitly.
 const DefaultSubscriptionType = "default"
-
-// ProrationBehavior controls how charges are adjusted when a subscription
-// plan or quantity changes mid-cycle.
-type ProrationBehavior string
 
 const (
 	ProratedNextBillingPeriod ProrationBehavior = "prorated_next_billing_period"
@@ -198,7 +215,6 @@ const (
 	DoNotBill                 ProrationBehavior = "do_not_bill"
 )
 
-// Valid reports whether b is a recognised proration behavior.
 func (b ProrationBehavior) Valid() bool {
 	switch b {
 	case ProratedNextBillingPeriod, FullNextBillingPeriod,
@@ -208,9 +224,6 @@ func (b ProrationBehavior) Valid() bool {
 
 	return false
 }
-
-// SubscriptionInterval represents a billing frequency on the provider side.
-type SubscriptionInterval string
 
 const (
 	IntervalDay   SubscriptionInterval = "day"

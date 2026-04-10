@@ -12,6 +12,26 @@ import (
 
 type stubGuard struct{}
 
+type stubProvider struct{}
+
+type stubHasher struct{}
+
+type stubResponder struct{}
+
+type stubCreatesNewUsers struct{}
+
+type stubUpdatesProfile struct{}
+
+type stubUpdatesPasswords struct{}
+
+type stubBroker struct{}
+
+type stubResets struct{}
+
+type stubVerifier struct{}
+
+type stubConfirms struct{}
+
 func (s *stubGuard) Name() string { return "web" }
 func (s *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (Authenticatable, error) {
 	return nil, nil
@@ -25,8 +45,6 @@ func (s *stubGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.Response
 func (s *stubGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
 	return nil
 }
-
-type stubProvider struct{}
 
 func (s *stubProvider) RetrieveByID(_ context.Context, _ string) (Authenticatable, error) {
 	return nil, nil
@@ -47,14 +65,10 @@ func (s *stubProvider) RehashPasswordIfRequired(_ context.Context, _ Authenticat
 	return nil
 }
 
-type stubHasher struct{}
-
 func (s *stubHasher) Hash(_ context.Context, _ string) (string, error) { return "hashed", nil }
 func (s *stubHasher) Compare(_ context.Context, _ string, _ string) error {
 	return nil
 }
-
-type stubResponder struct{}
 
 func (s *stubResponder) LoginResponse(_ http.ResponseWriter, _ *http.Request)                     {}
 func (s *stubResponder) LogoutResponse(_ http.ResponseWriter, _ *http.Request)                    {}
@@ -69,43 +83,29 @@ func (s *stubResponder) TwoFactorChallengeResponse(_ http.ResponseWriter, _ *htt
 func (s *stubResponder) TwoFactorEnabledResponse(_ http.ResponseWriter, _ *http.Request)          {}
 func (s *stubResponder) TwoFactorDisabledResponse(_ http.ResponseWriter, _ *http.Request)         {}
 
-type stubCreatesNewUsers struct{}
-
 func (s *stubCreatesNewUsers) Create(_ context.Context, _ map[string]string) (Authenticatable, error) {
 	return nil, nil
 }
-
-type stubUpdatesProfile struct{}
 
 func (s *stubUpdatesProfile) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
 	return nil
 }
 
-type stubUpdatesPasswords struct{}
-
 func (s *stubUpdatesPasswords) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
 	return nil
 }
-
-type stubBroker struct{}
 
 func (s *stubBroker) SendResetLink(_ context.Context, _ map[string]string) error { return nil }
 func (s *stubBroker) Reset(_ context.Context, _ map[string]string, _ func(Authenticatable, string) error) error {
 	return nil
 }
 
-type stubResets struct{}
-
 func (s *stubResets) Reset(_ context.Context, _ Authenticatable, _ string) error { return nil }
-
-type stubVerifier struct{}
 
 func (s *stubVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
 	return nil
 }
 func (s *stubVerifier) Verify(_ context.Context, _ string, _ string) error { return nil }
-
-type stubConfirms struct{}
 
 func (s *stubConfirms) Confirm(_ context.Context, _ Authenticatable, _ string) error { return nil }
 

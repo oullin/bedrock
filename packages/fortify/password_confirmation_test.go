@@ -77,6 +77,7 @@ func TestWithPasswordConfirmedAtRoundTrip(t *testing.T) {
 	r = r.WithContext(WithPasswordConfirmedAt(r.Context(), now))
 
 	got := PasswordConfirmedAtFromContext(r.Context())
+
 	if got == nil {
 		t.Fatal("expected confirmed at to be set")
 	}

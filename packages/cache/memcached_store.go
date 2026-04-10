@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var _ Store = (*MemcachedStore)(nil)
-
 // MemcachedClient is the subset of Memcached operations required by MemcachedStore.
 type MemcachedClient interface {
 	Get(key string) ([]byte, error)
@@ -26,6 +24,8 @@ type MemcachedStore struct {
 	client MemcachedClient
 	prefix string
 }
+
+var _ Store = (*MemcachedStore)(nil)
 
 // NewMemcachedStore creates a MemcachedStore.
 func NewMemcachedStore(client MemcachedClient, prefix string) *MemcachedStore {
@@ -52,11 +52,13 @@ func (s *MemcachedStore) ttlSeconds(ttl time.Duration) int32 {
 
 func (s *MemcachedStore) Get(_ context.Context, key string) (any, error) {
 	data, err := s.client.Get(s.prefixed(key))
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %q", ErrNotFound, key)
 	}
 
 	var v any
+
 	if err := json.Unmarshal(data, &v); err != nil {
 		return string(data), nil
 	}
@@ -66,11 +68,13 @@ func (s *MemcachedStore) Get(_ context.Context, key string) (any, error) {
 
 func (s *MemcachedStore) GetMany(_ context.Context, keys []string) (map[string]any, error) {
 	prefixed := make([]string, len(keys))
+
 	for i, k := range keys {
 		prefixed[i] = s.prefixed(k)
 	}
 
 	data, err := s.client.GetMulti(prefixed)
+
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +84,7 @@ func (s *MemcachedStore) GetMany(_ context.Context, keys []string) (map[string]a
 	for i, pk := range prefixed {
 		if v, ok := data[pk]; ok {
 			var decoded any
+
 			if err := json.Unmarshal(v, &decoded); err != nil {
 				out[keys[i]] = string(v)
 			} else {
@@ -93,6 +98,7 @@ func (s *MemcachedStore) GetMany(_ context.Context, keys []string) (map[string]a
 
 func (s *MemcachedStore) Put(_ context.Context, key string, value any, ttl time.Duration) error {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
@@ -112,11 +118,13 @@ func (s *MemcachedStore) PutMany(ctx context.Context, values map[string]any, ttl
 
 func (s *MemcachedStore) Add(_ context.Context, key string, value any, ttl time.Duration) (bool, error) {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return false, err
 	}
 
 	err = s.client.Add(s.prefixed(key), encoded, s.ttlSeconds(ttl))
+
 	if err != nil {
 		// ADD fails if key exists in Memcached.
 		return false, nil
@@ -147,6 +155,7 @@ func (s *MemcachedStore) Decrement(ctx context.Context, key string, delta int64)
 
 func (s *MemcachedStore) Touch(ctx context.Context, key string, ttl time.Duration) (bool, error) {
 	v, err := s.Get(ctx, key)
+
 	if err != nil {
 		return false, nil
 	}

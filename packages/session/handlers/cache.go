@@ -30,6 +30,7 @@ func (h *CacheBasedHandler) Close(_ context.Context) error { return nil }
 
 func (h *CacheBasedHandler) Read(ctx context.Context, id string) (string, error) {
 	val, err := h.cache.Get(ctx, h.key(id))
+
 	if err != nil {
 		return "", nil // Cache miss is not an error for sessions.
 	}

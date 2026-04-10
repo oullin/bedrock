@@ -26,6 +26,7 @@ func TestRegistryURLSubstitution(t *testing.T) {
 	reg.Add("posts.show", "GET", "/posts/{id}/comments/{cid}")
 
 	url := reg.URL("posts.show", map[string]string{"id": "5", "cid": "3"})
+
 	if url != "/posts/5/comments/3" {
 		t.Fatalf("unexpected url: %q", url)
 	}
@@ -52,6 +53,7 @@ func TestRegistryGroup(t *testing.T) {
 	})
 
 	url := reg.URL("api.users.show", map[string]string{"id": "42"})
+
 	if url != "/api/users/42" {
 		t.Fatalf("expected /api/users/42, got %q", url)
 	}
@@ -65,6 +67,7 @@ func TestRegistryManifest(t *testing.T) {
 	reg.Add("about", "GET", "/about")
 
 	m := reg.Manifest()
+
 	if m["home"] != "/" || m["about"] != "/about" {
 		t.Fatalf("unexpected manifest: %v", m)
 	}
@@ -77,11 +80,13 @@ func TestRegistryToJSON(t *testing.T) {
 	reg.Add("home", "GET", "/")
 
 	b, err := reg.ToJSON()
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var routes []routing.Route
+
 	if err := json.Unmarshal(b, &routes); err != nil {
 		t.Fatal(err)
 	}
@@ -111,6 +116,7 @@ func TestRegistryExportOrder(t *testing.T) {
 	reg.Add("third", "GET", "/third")
 
 	routes := reg.Export()
+
 	if len(routes) != 3 || routes[0].Name != "first" || routes[2].Name != "third" {
 		t.Fatalf("unexpected order: %v", routes)
 	}
@@ -123,11 +129,13 @@ func TestRegistryLookup(t *testing.T) {
 	reg.Add("users.show", "GET", "/users/{id}")
 
 	r, ok := reg.Lookup("users.show")
+
 	if !ok || r.Pattern != "/users/{id}" {
 		t.Fatalf("unexpected lookup: %v %v", ok, r)
 	}
 
 	_, ok = reg.Lookup("missing")
+
 	if ok {
 		t.Fatal("expected not found")
 	}

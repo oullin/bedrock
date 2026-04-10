@@ -20,6 +20,7 @@ func TestTokenGuardUserCanBeRetrievedByQueryStringVariable(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,6 +52,7 @@ func TestTokenGuardUserCanBeRetrievedByBearerToken(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,6 +72,7 @@ func TestTokenGuardUserCanBeRetrievedByAuthHeaders(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,6 +93,7 @@ func TestTokenGuardUserCanBeRetrievedByFormField(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,6 +111,7 @@ func TestTokenGuardReturnsNilWhenTokenIsEmpty(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,6 +130,7 @@ func TestTokenGuardReturnsNilWhenUserNotFound(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,6 +168,7 @@ func TestTokenGuardSetRequestClearsCache(t *testing.T) {
 	guard.SetRequest(req1)
 
 	u1, _ := guard.User(context.Background())
+
 	if u1 == nil {
 		t.Fatal("expected user from first request")
 	}
@@ -170,6 +177,7 @@ func TestTokenGuardSetRequestClearsCache(t *testing.T) {
 	guard.SetRequest(req2)
 
 	u2, _ := guard.User(context.Background())
+
 	if u2 != nil {
 		t.Error("expected nil user after SetRequest clears cache")
 	}
@@ -186,6 +194,7 @@ func TestTokenGuardCustomKeys(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -207,6 +216,7 @@ func TestTokenGuardCustomKeyBearerToken(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -232,6 +242,7 @@ func TestTokenGuardSetUser(t *testing.T) {
 	}
 
 	got, _ := guard.User(context.Background())
+
 	if got != user {
 		t.Error("User() should return the user set via SetUser")
 	}

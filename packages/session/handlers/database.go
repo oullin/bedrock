@@ -64,6 +64,7 @@ func (h *DatabaseHandler) Read(ctx context.Context, id string) (string, error) {
 	var payload string
 
 	err := row.Scan(&payload)
+
 	if err != nil {
 		// No row found — return empty string (not an error for sessions).
 		return "", nil

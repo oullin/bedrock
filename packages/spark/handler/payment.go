@@ -33,11 +33,13 @@ func NewPaymentHandler(
 // UpdatePaymentMethod returns a transaction ID for updating the payment method.
 func (h *PaymentHandler) UpdatePaymentMethod(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -46,6 +48,7 @@ func (h *PaymentHandler) UpdatePaymentMethod(w http.ResponseWriter, r *http.Requ
 
 	ctx := r.Context()
 	sub, err := h.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || sub == nil {
 		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
 
@@ -53,6 +56,7 @@ func (h *PaymentHandler) UpdatePaymentMethod(w http.ResponseWriter, r *http.Requ
 	}
 
 	txnID, err := h.provider.PaymentMethodUpdateTransaction(ctx, sub.ProviderID)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
@@ -66,11 +70,13 @@ func (h *PaymentHandler) UpdatePaymentMethod(w http.ResponseWriter, r *http.Requ
 // NewPendingCheckout marks a pending checkout on the customer record.
 func (h *PaymentHandler) NewPendingCheckout(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -78,6 +84,7 @@ func (h *PaymentHandler) NewPendingCheckout(w http.ResponseWriter, r *http.Reque
 	}
 
 	checkoutID := r.FormValue("checkout_id")
+
 	if checkoutID == "" {
 		w.WriteHeader(http.StatusOK)
 
@@ -86,6 +93,7 @@ func (h *PaymentHandler) NewPendingCheckout(w http.ResponseWriter, r *http.Reque
 
 	ctx := r.Context()
 	customer, err := h.customers.FindByBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || customer == nil {
 		w.WriteHeader(http.StatusOK)
 

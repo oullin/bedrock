@@ -48,6 +48,7 @@ func TestRepositoryGet(t *testing.T) {
 	ctx := context.Background()
 
 	got := r.Get(ctx, "missing", "default")
+
 	if got != "default" {
 		t.Fatalf("expected default, got %v", got)
 	}
@@ -69,6 +70,7 @@ func TestRepositoryPull(t *testing.T) {
 	_ = r.Put(ctx, "k", "v", time.Minute)
 
 	got := r.Pull(ctx, "k", nil)
+
 	if got != "v" {
 		t.Fatalf("expected 'v', got %v", got)
 	}
@@ -150,6 +152,7 @@ func TestRepositoryLock(t *testing.T) {
 	ctx := context.Background()
 
 	ok, _ := l.Acquire(ctx)
+
 	if !ok {
 		t.Fatal("expected acquire to succeed")
 	}

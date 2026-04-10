@@ -13,13 +13,22 @@ type PlanPresentation struct {
 }
 
 // NewPlanPresentation creates a PlanPresentation service.
+
+// LandingPlans returns plans formatted for the landing/marketing page.
+
+// SparkPlanRegistry registers plans from the database with the Spark Manager.
+type SparkPlanRegistry struct {
+	catalog *PlanCatalog
+	manager *spark.Manager
+}
+
 func NewPlanPresentation(catalog *PlanCatalog) *PlanPresentation {
 	return &PlanPresentation{catalog: catalog}
 }
 
-// LandingPlans returns plans formatted for the landing/marketing page.
 func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]spark.LandingPlanView, error) {
 	plans, err := p.catalog.Plans(ctx)
+
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +41,7 @@ func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]spark.LandingPla
 		}
 
 		var periods []spark.PlanPeriodView
+
 		for _, pp := range plan.PlanPeriods {
 			for _, price := range pp.Prices {
 				if !price.IsActive {
@@ -63,12 +73,6 @@ func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]spark.LandingPla
 	return views, nil
 }
 
-// SparkPlanRegistry registers plans from the database with the Spark Manager.
-type SparkPlanRegistry struct {
-	catalog *PlanCatalog
-	manager *spark.Manager
-}
-
 // NewSparkPlanRegistry creates a SparkPlanRegistry.
 func NewSparkPlanRegistry(catalog *PlanCatalog, manager *spark.Manager) *SparkPlanRegistry {
 	return &SparkPlanRegistry{catalog: catalog, manager: manager}
@@ -78,6 +82,7 @@ func NewSparkPlanRegistry(catalog *PlanCatalog, manager *spark.Manager) *SparkPl
 // Spark Manager for the given billable type.
 func (r *SparkPlanRegistry) Register(ctx context.Context, billableType string) error {
 	plans, err := r.catalog.Plans(ctx)
+
 	if err != nil {
 		return err
 	}

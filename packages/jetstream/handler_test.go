@@ -21,6 +21,47 @@ type testTeamUser struct {
 	permissions map[string]bool
 }
 
+// --- test guard ---
+
+type testGuard struct {
+	user fortify.Authenticatable
+}
+
+// --- test repos ---
+
+type testTeamRepo struct {
+	teams   map[string]*Team
+	created bool
+	deleted bool
+}
+
+type testInvitationRepo struct {
+	invitations map[string]*TeamInvitation
+	deleted     bool
+}
+
+// --- test events ---
+
+type testEvents struct {
+	dispatched []Event
+}
+
+// --- test actions ---
+
+type testCreatesTeams struct {
+	created bool
+}
+
+type testUpdatesTeams struct{ called bool }
+
+type testDeletesTeams struct{ called bool }
+
+type testAddsMembers struct{ called bool }
+
+type testRemovesMembers struct{ called bool }
+
+type testInvitesMembers struct{ called bool }
+
 func (u *testTeamUser) GetAuthIdentifierName() string { return "id" }
 func (u *testTeamUser) GetAuthIdentifier() string     { return u.id }
 func (u *testTeamUser) GetAuthPasswordName() string   { return "password" }
@@ -39,6 +80,7 @@ func (u *testTeamUser) BelongsToTeam(t *Team) bool {
 			return true
 		}
 	}
+
 	return false
 }
 func (u *testTeamUser) TeamRole(_ *Team) string { return "admin" }
@@ -46,13 +88,8 @@ func (u *testTeamUser) HasTeamPermission(_ *Team, perm string) bool {
 	if u.permissions == nil {
 		return true
 	}
+
 	return u.permissions[perm]
-}
-
-// --- test guard ---
-
-type testGuard struct {
-	user fortify.Authenticatable
 }
 
 func (g *testGuard) Name() string { return "test" }
@@ -69,25 +106,20 @@ func (g *testGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Req
 	return nil
 }
 
-// --- test repos ---
-
-type testTeamRepo struct {
-	teams   map[string]*Team
-	created bool
-	deleted bool
-}
-
 func newTestTeamRepo(teams ...*Team) *testTeamRepo {
 	r := &testTeamRepo{teams: make(map[string]*Team)}
+
 	for _, t := range teams {
 		r.teams[t.ID] = t
 	}
+
 	return r
 }
 
 func (r *testTeamRepo) Create(_ context.Context, t *Team) error {
 	r.created = true
 	r.teams[t.ID] = t
+
 	return nil
 }
 func (r *testTeamRepo) FindByID(_ context.Context, id string) (*Team, error) {
@@ -97,6 +129,7 @@ func (r *testTeamRepo) Update(_ context.Context, _ *Team) error { return nil }
 func (r *testTeamRepo) Delete(_ context.Context, id string) error {
 	r.deleted = true
 	delete(r.teams, id)
+
 	return nil
 }
 func (r *testTeamRepo) FindByOwner(_ context.Context, _ string) ([]Team, error)   { return nil, nil }
@@ -107,21 +140,19 @@ func (r *testTeamRepo) UpdateMemberRole(_ context.Context, _ string, _ string, _
 }
 func (r *testTeamRepo) RemoveMember(_ context.Context, _ string, _ string) error { return nil }
 
-type testInvitationRepo struct {
-	invitations map[string]*TeamInvitation
-	deleted     bool
-}
-
 func newTestInvitationRepo(invs ...*TeamInvitation) *testInvitationRepo {
 	r := &testInvitationRepo{invitations: make(map[string]*TeamInvitation)}
+
 	for _, inv := range invs {
 		r.invitations[inv.ID] = inv
 	}
+
 	return r
 }
 
 func (r *testInvitationRepo) Create(_ context.Context, inv *TeamInvitation) error {
 	r.invitations[inv.ID] = inv
+
 	return nil
 }
 func (r *testInvitationRepo) FindByID(_ context.Context, id string) (*TeamInvitation, error) {
@@ -136,63 +167,49 @@ func (r *testInvitationRepo) FindByEmail(_ context.Context, _ string, _ string) 
 func (r *testInvitationRepo) Delete(_ context.Context, id string) error {
 	r.deleted = true
 	delete(r.invitations, id)
+
 	return nil
-}
-
-// --- test events ---
-
-type testEvents struct {
-	dispatched []Event
 }
 
 func (e *testEvents) Dispatch(_ context.Context, event Event) error {
 	e.dispatched = append(e.dispatched, event)
+
 	return nil
-}
-
-// --- test actions ---
-
-type testCreatesTeams struct {
-	created bool
 }
 
 func (a *testCreatesTeams) Create(_ context.Context, _ HasTeams, input map[string]string) (*Team, error) {
 	a.created = true
+
 	return &Team{ID: "new-team", Name: input["name"], OwnerID: "1"}, nil
 }
 
-type testUpdatesTeams struct{ called bool }
-
 func (a *testUpdatesTeams) Update(_ context.Context, _ HasTeams, _ *Team, _ map[string]string) error {
 	a.called = true
+
 	return nil
 }
-
-type testDeletesTeams struct{ called bool }
 
 func (a *testDeletesTeams) Delete(_ context.Context, _ HasTeams, _ *Team) error {
 	a.called = true
+
 	return nil
 }
-
-type testAddsMembers struct{ called bool }
 
 func (a *testAddsMembers) Add(_ context.Context, _ HasTeams, _ *Team, _ string, _ string) error {
 	a.called = true
+
 	return nil
 }
-
-type testRemovesMembers struct{ called bool }
 
 func (a *testRemovesMembers) Remove(_ context.Context, _ HasTeams, _ *Team, _ string) error {
 	a.called = true
+
 	return nil
 }
 
-type testInvitesMembers struct{ called bool }
-
 func (a *testInvitesMembers) Invite(_ context.Context, _ HasTeams, _ *Team, email string, role string) (*TeamInvitation, error) {
 	a.called = true
+
 	return &TeamInvitation{ID: "inv-1", Email: email, Role: role}, nil
 }
 
@@ -224,12 +241,14 @@ func buildTestJetstream(user *testTeamUser, teams *testTeamRepo, invitations *te
 func postForm(path string, body string) *http.Request {
 	req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	return req
 }
 
 func putForm(path string, body string) *http.Request {
 	req := httptest.NewRequest(http.MethodPut, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	return req
 }
 
@@ -251,7 +270,9 @@ func TestCreateTeamSuccess(t *testing.T) {
 	}
 
 	var team Team
+
 	_ = json.NewDecoder(w.Body).Decode(&team)
+
 	if team.Name != "My Team" {
 		t.Fatalf("expected team name 'My Team', got %s", team.Name)
 	}

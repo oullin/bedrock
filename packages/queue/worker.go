@@ -46,10 +46,12 @@ func NewWorker(q Queue, handler Handler, emitter EventEmitter, opts WorkerOption
 // It handles SIGTERM and SIGQUIT for graceful shutdown.
 func (w *Worker) Run(ctx context.Context, queueName string) error {
 	ctx, cancel := context.WithCancel(ctx)
+
 	defer cancel()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+
 	defer signal.Stop(sigs)
 
 	go func() {
@@ -79,6 +81,7 @@ func (w *Worker) Run(ctx context.Context, queueName string) error {
 		}
 
 		job, err := w.queue.Pop(ctx, queueName)
+
 		if err == ErrNoJob {
 			if w.opts.StopOnEmpty {
 				return nil

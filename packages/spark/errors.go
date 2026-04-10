@@ -7,6 +7,41 @@ import (
 )
 
 // Sentinel errors used across the package.
+
+// ProviderError represents an error returned by the payment provider.
+type ProviderError struct {
+	Code    string
+	Message string
+	Err     error
+}
+
+// Error implements the error interface.
+
+// Unwrap returns the underlying error.
+
+// InvalidPlanPriceError indicates that a plan price is missing required fields.
+type InvalidPlanPriceError struct {
+	Identifier  string
+	PricingMode string
+	Missing     []string
+}
+
+// Error implements the error interface.
+
+// NewInvalidPlanPriceError builds an InvalidPlanPriceError for a price with
+// incomplete money fields.
+
+// ValidationError holds field-level validation errors.
+type ValidationError struct {
+	Field   string
+	Message string
+}
+
+// Error implements the error interface.
+
+// ValidationErrors collects multiple field validation failures.
+type ValidationErrors []ValidationError
+
 var (
 	ErrNotFound               = errors.New("spark: resource not found")
 	ErrAlreadySubscribed      = errors.New("spark: billable is already subscribed")
@@ -21,14 +56,6 @@ var (
 	ErrBillableRequired       = errors.New("spark: billable context is required")
 )
 
-// ProviderError represents an error returned by the payment provider.
-type ProviderError struct {
-	Code    string
-	Message string
-	Err     error
-}
-
-// Error implements the error interface.
 func (e *ProviderError) Error() string {
 	if e.Code != "" {
 		return fmt.Sprintf("spark: provider error [%s]: %s", e.Code, e.Message)
@@ -37,19 +64,10 @@ func (e *ProviderError) Error() string {
 	return fmt.Sprintf("spark: provider error: %s", e.Message)
 }
 
-// Unwrap returns the underlying error.
 func (e *ProviderError) Unwrap() error {
 	return e.Err
 }
 
-// InvalidPlanPriceError indicates that a plan price is missing required fields.
-type InvalidPlanPriceError struct {
-	Identifier  string
-	PricingMode string
-	Missing     []string
-}
-
-// Error implements the error interface.
 func (e *InvalidPlanPriceError) Error() string {
 	return fmt.Sprintf(
 		"spark: plan price [%s] with pricing mode [%s] is missing required money fields [%s]",
@@ -59,8 +77,6 @@ func (e *InvalidPlanPriceError) Error() string {
 	)
 }
 
-// NewInvalidPlanPriceError builds an InvalidPlanPriceError for a price with
-// incomplete money fields.
 func NewInvalidPlanPriceError(identifier, pricingMode string, amountMinor *int64, currency string) *InvalidPlanPriceError {
 	var missing []string
 
@@ -79,19 +95,9 @@ func NewInvalidPlanPriceError(identifier, pricingMode string, amountMinor *int64
 	}
 }
 
-// ValidationError holds field-level validation errors.
-type ValidationError struct {
-	Field   string
-	Message string
-}
-
-// Error implements the error interface.
 func (e *ValidationError) Error() string {
 	return fmt.Sprintf("spark: validation error on %s: %s", e.Field, e.Message)
 }
-
-// ValidationErrors collects multiple field validation failures.
-type ValidationErrors []ValidationError
 
 // Error implements the error interface.
 func (e ValidationErrors) Error() string {

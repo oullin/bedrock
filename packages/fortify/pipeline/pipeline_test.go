@@ -36,6 +36,7 @@ func TestPipelineStageCanShortCircuit(t *testing.T) {
 			},
 			func(_ context.Context, _ any, next func(any) (any, error)) (any, error) {
 				t.Fatal("second stage should not be called")
+
 				return next(nil)
 			},
 		).

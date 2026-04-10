@@ -80,6 +80,7 @@ func TestRegisterRoutesAllFeatures(t *testing.T) {
 	for _, tc := range routes {
 		t.Run(tc.method+" "+tc.path, func(t *testing.T) {
 			var body *strings.Reader
+
 			switch tc.method {
 			case "POST":
 				body = strings.NewReader("name=Test&email=test@example.com&role=member&permissions=read")
@@ -152,7 +153,9 @@ func TestFullTeamLifecycle(t *testing.T) {
 	}
 
 	var created Team
+
 	_ = json.NewDecoder(w.Body).Decode(&created)
+
 	if created.Name != "New Team" {
 		t.Fatalf("step 1: expected 'New Team', got %s", created.Name)
 	}
@@ -187,7 +190,9 @@ func TestFullTeamLifecycle(t *testing.T) {
 	}
 
 	var sessions []BrowserSession
+
 	_ = json.NewDecoder(w.Body).Decode(&sessions)
+
 	if len(sessions) != 1 {
 		t.Fatalf("step 3: expected 1 session, got %d", len(sessions))
 	}

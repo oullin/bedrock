@@ -5,14 +5,47 @@ GO_FMT_RUN := docker compose -f $(GO_FMT_COMPOSE_FILE) run --rm $(GO_FMT_SERVICE
 PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
 
-.PHONY: format typecheck test coverage build clean demo
+GO_PACKAGES := \
+	packages/auth \
+	packages/bus \
+	packages/cache \
+	packages/contracts/auth \
+	packages/cookie \
+	packages/fortify \
+	packages/jetstream \
+	packages/queue \
+	packages/routing \
+	packages/session \
+	packages/spark \
+	dist/app
+
+.PHONY: format vet tidy typecheck test coverage build clean demo
 
 format:
 	$(PACKAGE_FMT)
-	$(GO_FMT_RUN) format .
+	@for pkg in $(GO_PACKAGES); do \
+		echo "go vet ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
+	done
+	@for pkg in $(GO_PACKAGES); do \
+		echo "go-fmt format in $$pkg"; \
+		$(GO_FMT_RUN) format --host-path $(ROOT_PATH)/$$pkg; \
+	done
 	@if [ -n "$(MARKDOWN_FILES)" ]; then \
 		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
 	fi
+
+vet:
+	@for pkg in $(GO_PACKAGES); do \
+		echo "go vet ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
+	done
+
+tidy:
+	@for pkg in $(GO_PACKAGES); do \
+		echo "go mod tidy in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
+	done
 
 typecheck:
 	pnpm typecheck

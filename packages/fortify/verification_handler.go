@@ -8,34 +8,47 @@ type SendVerificationHandler struct {
 }
 
 // NewSendVerificationHandler creates a new send verification handler.
+
+// ServeHTTP handles the send verification notification request.
+
+// VerifyEmailHandler handles GET /verify-email/{id}/{hash} requests.
+type VerifyEmailHandler struct {
+	fortify *Fortify
+}
+
 func NewSendVerificationHandler(f *Fortify) *SendVerificationHandler {
 	return &SendVerificationHandler{fortify: f}
 }
 
-// ServeHTTP handles the send verification notification request.
 func (h *SendVerificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.fortify.config.Features.EmailVerification {
 		http.Error(w, "email verification is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.fortify.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	if verifiable, ok := user.(MustVerifyEmail); ok && verifiable.HasVerifiedEmail() {
 		w.WriteHeader(http.StatusNoContent)
+
 		return
 	}
 
 	if h.fortify.limiter != nil {
 		key := "verification|" + user.GetAuthIdentifier()
+
 		if h.fortify.limiter.TooManyAttempts(key, 1) {
 			http.Error(w, ErrTooManyAttempts.Error(), http.StatusTooManyRequests)
+
 			return
 		}
 
@@ -44,15 +57,11 @@ func (h *SendVerificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 
 	if err := h.fortify.verifier.SendVerificationNotification(ctx, user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
 	h.fortify.responder.EmailVerificationSentResponse(w, r)
-}
-
-// VerifyEmailHandler handles GET /verify-email/{id}/{hash} requests.
-type VerifyEmailHandler struct {
-	fortify *Fortify
 }
 
 // NewVerifyEmailHandler creates a new verify email handler.
@@ -64,6 +73,7 @@ func NewVerifyEmailHandler(f *Fortify) *VerifyEmailHandler {
 func (h *VerifyEmailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.fortify.config.Features.EmailVerification {
 		http.Error(w, "email verification is disabled", http.StatusNotFound)
+
 		return
 	}
 
@@ -74,11 +84,13 @@ func (h *VerifyEmailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if id == "" || hash == "" {
 		http.Error(w, "invalid verification link", http.StatusBadRequest)
+
 		return
 	}
 
 	if err := h.fortify.verifier.Verify(ctx, id, hash); err != nil {
 		http.Error(w, err.Error(), http.StatusForbidden)
+
 		return
 	}
 

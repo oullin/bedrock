@@ -8,22 +8,32 @@ type UpdatePasswordHandler struct {
 }
 
 // NewUpdatePasswordHandler creates a new update password handler.
+
+// ServeHTTP handles the password update request.
+
+// ConfirmPasswordHandler handles POST /user/confirm-password requests.
+type ConfirmPasswordHandler struct {
+	fortify *Fortify
+}
+
 func NewUpdatePasswordHandler(f *Fortify) *UpdatePasswordHandler {
 	return &UpdatePasswordHandler{fortify: f}
 }
 
-// ServeHTTP handles the password update request.
 func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.fortify.config.Features.UpdatePasswords {
 		http.Error(w, "password updates are disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.fortify.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
@@ -31,6 +41,7 @@ func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	if err := h.fortify.updatePass.Update(ctx, user, input); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
 		return
 	}
 
@@ -39,11 +50,6 @@ func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	h.fortify.responder.PasswordUpdateResponse(w, r)
-}
-
-// ConfirmPasswordHandler handles POST /user/confirm-password requests.
-type ConfirmPasswordHandler struct {
-	fortify *Fortify
 }
 
 // NewConfirmPasswordHandler creates a new confirm password handler.
@@ -55,14 +61,17 @@ func NewConfirmPasswordHandler(f *Fortify) *ConfirmPasswordHandler {
 func (h *ConfirmPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.fortify.config.Features.ConfirmPassword {
 		http.Error(w, "password confirmation is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.fortify.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
@@ -71,6 +80,7 @@ func (h *ConfirmPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	if err := h.fortify.confirmPass.Confirm(ctx, user, password); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
 		return
 	}
 

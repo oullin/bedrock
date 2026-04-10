@@ -25,55 +25,70 @@ type Fortify struct {
 }
 
 // Config returns the Fortify configuration.
-func (f *Fortify) Config() Config { return f.config }
 
 // Guard returns the configured guard.
-func (f *Fortify) Guard() Guard { return f.guard }
 
 // Provider returns the configured user provider.
-func (f *Fortify) Provider() UserProvider { return f.provider }
 
 // Hasher returns the configured password hasher.
-func (f *Fortify) Hasher() PasswordHasher { return f.hasher }
 
 // Broker returns the configured password broker.
-func (f *Fortify) Broker() PasswordBroker { return f.broker }
 
 // Verifier returns the configured email verifier.
-func (f *Fortify) Verifier() EmailVerifier { return f.verifier }
 
 // Events returns the configured event dispatcher.
-func (f *Fortify) Events() EventDispatcher { return f.events }
 
 // Limiter returns the configured rate limiter.
-func (f *Fortify) Limiter() RateLimiter { return f.limiter }
 
 // Responder returns the configured response handler.
-func (f *Fortify) Responder() Responder { return f.responder }
 
 // CreateUser returns the user creation action.
-func (f *Fortify) CreateUser() CreatesNewUsers { return f.createUser }
 
 // Authenticator returns the custom authenticator, if any.
-func (f *Fortify) Authenticator() AuthenticatesUsers { return f.authenticator }
 
 // UpdateProfile returns the profile update action.
-func (f *Fortify) UpdateProfile() UpdatesUserProfileInformation { return f.updateProfile }
 
 // UpdatePassword returns the password update action.
-func (f *Fortify) UpdatePassword() UpdatesUserPasswords { return f.updatePass }
 
 // ResetPassword returns the password reset action.
-func (f *Fortify) ResetPassword() ResetsUserPasswords { return f.resetPass }
 
 // ConfirmPassword returns the password confirmation action.
-func (f *Fortify) ConfirmPassword() ConfirmsPasswords { return f.confirmPass }
 
 // Builder constructs a Fortify instance with required dependencies.
 type Builder struct {
 	fortify *Fortify
 	errors  []error
 }
+
+func (f *Fortify) Config() Config { return f.config }
+
+func (f *Fortify) Guard() Guard { return f.guard }
+
+func (f *Fortify) Provider() UserProvider { return f.provider }
+
+func (f *Fortify) Hasher() PasswordHasher { return f.hasher }
+
+func (f *Fortify) Broker() PasswordBroker { return f.broker }
+
+func (f *Fortify) Verifier() EmailVerifier { return f.verifier }
+
+func (f *Fortify) Events() EventDispatcher { return f.events }
+
+func (f *Fortify) Limiter() RateLimiter { return f.limiter }
+
+func (f *Fortify) Responder() Responder { return f.responder }
+
+func (f *Fortify) CreateUser() CreatesNewUsers { return f.createUser }
+
+func (f *Fortify) Authenticator() AuthenticatesUsers { return f.authenticator }
+
+func (f *Fortify) UpdateProfile() UpdatesUserProfileInformation { return f.updateProfile }
+
+func (f *Fortify) UpdatePassword() UpdatesUserPasswords { return f.updatePass }
+
+func (f *Fortify) ResetPassword() ResetsUserPasswords { return f.resetPass }
+
+func (f *Fortify) ConfirmPassword() ConfirmsPasswords { return f.confirmPass }
 
 // NewBuilder creates a new Fortify builder.
 func NewBuilder() *Builder {
@@ -87,90 +102,105 @@ func NewBuilder() *Builder {
 // WithConfig sets the configuration.
 func (b *Builder) WithConfig(config Config) *Builder {
 	b.fortify.config = config
+
 	return b
 }
 
 // WithGuard sets the authentication guard.
 func (b *Builder) WithGuard(guard Guard) *Builder {
 	b.fortify.guard = guard
+
 	return b
 }
 
 // WithProvider sets the user provider.
 func (b *Builder) WithProvider(provider UserProvider) *Builder {
 	b.fortify.provider = provider
+
 	return b
 }
 
 // WithHasher sets the password hasher.
 func (b *Builder) WithHasher(hasher PasswordHasher) *Builder {
 	b.fortify.hasher = hasher
+
 	return b
 }
 
 // WithBroker sets the password broker.
 func (b *Builder) WithBroker(broker PasswordBroker) *Builder {
 	b.fortify.broker = broker
+
 	return b
 }
 
 // WithVerifier sets the email verifier.
 func (b *Builder) WithVerifier(verifier EmailVerifier) *Builder {
 	b.fortify.verifier = verifier
+
 	return b
 }
 
 // WithEvents sets the event dispatcher.
 func (b *Builder) WithEvents(events EventDispatcher) *Builder {
 	b.fortify.events = events
+
 	return b
 }
 
 // WithLimiter sets the rate limiter.
 func (b *Builder) WithLimiter(limiter RateLimiter) *Builder {
 	b.fortify.limiter = limiter
+
 	return b
 }
 
 // WithResponder sets the response handler.
 func (b *Builder) WithResponder(responder Responder) *Builder {
 	b.fortify.responder = responder
+
 	return b
 }
 
 // WithCreateUser sets the user creation action.
 func (b *Builder) WithCreateUser(action CreatesNewUsers) *Builder {
 	b.fortify.createUser = action
+
 	return b
 }
 
 // WithAuthenticator sets a custom authenticator (optional).
 func (b *Builder) WithAuthenticator(action AuthenticatesUsers) *Builder {
 	b.fortify.authenticator = action
+
 	return b
 }
 
 // WithUpdateProfile sets the profile update action.
 func (b *Builder) WithUpdateProfile(action UpdatesUserProfileInformation) *Builder {
 	b.fortify.updateProfile = action
+
 	return b
 }
 
 // WithUpdatePassword sets the password update action.
 func (b *Builder) WithUpdatePassword(action UpdatesUserPasswords) *Builder {
 	b.fortify.updatePass = action
+
 	return b
 }
 
 // WithResetPassword sets the password reset action.
 func (b *Builder) WithResetPassword(action ResetsUserPasswords) *Builder {
 	b.fortify.resetPass = action
+
 	return b
 }
 
 // WithConfirmPassword sets the password confirmation action.
 func (b *Builder) WithConfirmPassword(action ConfirmsPasswords) *Builder {
 	b.fortify.confirmPass = action
+
 	return b
 }
 

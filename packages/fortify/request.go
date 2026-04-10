@@ -14,6 +14,7 @@ func RequestInput(r *http.Request, keys ...string) map[string]string {
 
 	if strings.Contains(contentType, "application/json") {
 		var body map[string]any
+
 		if err := json.NewDecoder(r.Body).Decode(&body); err == nil {
 			for _, key := range keys {
 				if v, ok := body[key]; ok {
@@ -40,6 +41,7 @@ func RequestInput(r *http.Request, keys ...string) map[string]string {
 func RequestIP(r *http.Request) string {
 	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
 		parts := strings.SplitN(forwarded, ",", 2)
+
 		return strings.TrimSpace(parts[0])
 	}
 
@@ -48,6 +50,7 @@ func RequestIP(r *http.Request) string {
 	}
 
 	addr := r.RemoteAddr
+
 	if idx := strings.LastIndex(addr, ":"); idx != -1 {
 		return addr[:idx]
 	}

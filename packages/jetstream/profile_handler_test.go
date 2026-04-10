@@ -17,22 +17,25 @@ type testUpdatesPhotos struct {
 	url    string
 }
 
-func (a *testUpdatesPhotos) Update(_ context.Context, _ HasTeams, _ io.Reader) (string, error) {
-	a.called = true
-	return a.url, nil
-}
-
 type testDeletesPhotos struct{ called bool }
-
-func (a *testDeletesPhotos) Delete(_ context.Context, _ HasTeams) error {
-	a.called = true
-	return nil
-}
 
 type testDeletesUsers struct{ called bool }
 
+func (a *testUpdatesPhotos) Update(_ context.Context, _ HasTeams, _ io.Reader) (string, error) {
+	a.called = true
+
+	return a.url, nil
+}
+
+func (a *testDeletesPhotos) Delete(_ context.Context, _ HasTeams) error {
+	a.called = true
+
+	return nil
+}
+
 func (a *testDeletesUsers) Delete(_ context.Context, _ HasTeams) error {
 	a.called = true
+
 	return nil
 }
 
@@ -45,6 +48,7 @@ func multipartPhotoRequest(path string) *http.Request {
 
 	req := httptest.NewRequest(http.MethodPut, path, &buf)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+
 	return req
 }
 

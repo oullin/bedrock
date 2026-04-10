@@ -52,6 +52,7 @@ func NewWithID(name string, handler Handler, id string) *Store {
 // ErrAlreadyStarted if called twice without an intervening Invalidate.
 func (s *Store) Start(ctx context.Context) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if s.started {
@@ -59,12 +60,14 @@ func (s *Store) Start(ctx context.Context) error {
 	}
 
 	data, err := s.handler.Read(ctx, s.id)
+
 	if err != nil {
 		return fmt.Errorf("session: read: %w", err)
 	}
 
 	if data != "" {
 		attrs, err := deserialize(data)
+
 		if err != nil {
 			return fmt.Errorf("session: deserialize: %w", err)
 		}
@@ -95,6 +98,7 @@ func (s *Store) Save(ctx context.Context) error {
 // IsStarted reports whether the session has been started.
 func (s *Store) IsStarted() bool {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	return s.started
@@ -103,6 +107,7 @@ func (s *Store) IsStarted() bool {
 // GetID returns the session ID.
 func (s *Store) GetID() string {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	return s.id
@@ -115,6 +120,7 @@ func (s *Store) SetID(id string) error {
 	}
 
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.id = id
@@ -125,6 +131,7 @@ func (s *Store) SetID(id string) error {
 // GetName returns the session name.
 func (s *Store) GetName() string {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	return s.name
@@ -133,6 +140,7 @@ func (s *Store) GetName() string {
 // SetName sets the session name.
 func (s *Store) SetName(name string) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.name = name
@@ -141,6 +149,7 @@ func (s *Store) SetName(name string) {
 // Get retrieves an attribute value or returns the fallback.
 func (s *Store) Get(key string, fallback any) any {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	if v, ok := s.attributes[key]; ok {
@@ -153,6 +162,7 @@ func (s *Store) Get(key string, fallback any) any {
 // Put stores an attribute value.
 func (s *Store) Put(key string, value any) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.attributes[key] = value
@@ -161,6 +171,7 @@ func (s *Store) Put(key string, value any) {
 // Has reports whether a non-nil value exists for the key.
 func (s *Store) Has(key string) bool {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	v, ok := s.attributes[key]
@@ -171,6 +182,7 @@ func (s *Store) Has(key string) bool {
 // Exists reports whether the key exists, even if nil.
 func (s *Store) Exists(key string) bool {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	_, ok := s.attributes[key]
@@ -186,9 +198,11 @@ func (s *Store) Missing(key string) bool {
 // Pull retrieves and removes a value.
 func (s *Store) Pull(key string, fallback any) any {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	v, ok := s.attributes[key]
+
 	if !ok {
 		return fallback
 	}
@@ -201,9 +215,11 @@ func (s *Store) Pull(key string, fallback any) any {
 // Push appends a value to a slice attribute.
 func (s *Store) Push(key string, value any) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	existing, ok := s.attributes[key]
+
 	if !ok {
 		s.attributes[key] = []any{value}
 
@@ -220,9 +236,11 @@ func (s *Store) Push(key string, value any) {
 // All returns a shallow copy of all attributes.
 func (s *Store) All() map[string]any {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	result := make(map[string]any, len(s.attributes))
+
 	for k, v := range s.attributes {
 		result[k] = v
 	}
@@ -233,6 +251,7 @@ func (s *Store) All() map[string]any {
 // Forget removes one or more keys.
 func (s *Store) Forget(keys ...string) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	for _, key := range keys {
@@ -243,6 +262,7 @@ func (s *Store) Forget(keys ...string) {
 // Flush removes all attributes.
 func (s *Store) Flush() {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.attributes = make(map[string]any)
@@ -251,9 +271,11 @@ func (s *Store) Flush() {
 // Only returns a map containing only the specified keys.
 func (s *Store) Only(keys ...string) map[string]any {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	result := make(map[string]any, len(keys))
+
 	for _, key := range keys {
 		if v, ok := s.attributes[key]; ok {
 			result[key] = v
@@ -266,14 +288,17 @@ func (s *Store) Only(keys ...string) map[string]any {
 // Except returns all attributes except the specified keys.
 func (s *Store) Except(keys ...string) map[string]any {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	exclude := make(map[string]bool, len(keys))
+
 	for _, k := range keys {
 		exclude[k] = true
 	}
 
 	result := make(map[string]any, len(s.attributes))
+
 	for k, v := range s.attributes {
 		if !exclude[k] {
 			result[k] = v
@@ -286,6 +311,7 @@ func (s *Store) Except(keys ...string) map[string]any {
 // Replace merges the given key-value pairs into the session.
 func (s *Store) Replace(values map[string]any) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	for k, v := range values {
@@ -301,9 +327,11 @@ func (s *Store) Remove(key string) any {
 // Increment increments a numeric session value by the given amount.
 func (s *Store) Increment(key string, amount int64) int64 {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	var current int64
+
 	if v, ok := s.attributes[key]; ok {
 		current = toSessionInt64(v)
 	}
@@ -322,6 +350,7 @@ func (s *Store) Decrement(key string, amount int64) int64 {
 // Remember retrieves a value or stores the result of the callback.
 func (s *Store) Remember(key string, callback func() any) any {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if v, ok := s.attributes[key]; ok {
@@ -337,6 +366,7 @@ func (s *Store) Remember(key string, callback func() any) any {
 // HasAny reports whether any of the given keys exist with non-nil values.
 func (s *Store) HasAny(keys ...string) bool {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	for _, key := range keys {
@@ -351,6 +381,7 @@ func (s *Store) HasAny(keys ...string) bool {
 // Flash stores a value available only for the next request.
 func (s *Store) Flash(key string, value any) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.attributes[key] = value
@@ -361,6 +392,7 @@ func (s *Store) Flash(key string, value any) {
 // Now stores a value for the current request only (expires this request).
 func (s *Store) Now(key string, value any) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.attributes[key] = value
@@ -376,14 +408,17 @@ func (s *Store) FlashInput(values map[string]any) {
 // GetOldInput retrieves a previously flashed input value.
 func (s *Store) GetOldInput(key string, fallback any) any {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	raw, ok := s.attributes["_old_input"]
+
 	if !ok {
 		return fallback
 	}
 
 	m, ok := raw.(map[string]any)
+
 	if !ok {
 		return fallback
 	}
@@ -402,14 +437,17 @@ func (s *Store) GetOldInput(key string, fallback any) any {
 // HasOldInput reports whether old input data exists for the given key.
 func (s *Store) HasOldInput(key string) bool {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	raw, ok := s.attributes["_old_input"]
+
 	if !ok {
 		return false
 	}
 
 	m, ok := raw.(map[string]any)
+
 	if !ok {
 		return false
 	}
@@ -426,6 +464,7 @@ func (s *Store) HasOldInput(key string) bool {
 // Reflash keeps all current flash data for an additional request.
 func (s *Store) Reflash() {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	old := s.getFlashOld()
@@ -436,6 +475,7 @@ func (s *Store) Reflash() {
 // Keep keeps specific flash keys for an additional request.
 func (s *Store) Keep(keys ...string) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	for _, key := range keys {
@@ -447,6 +487,7 @@ func (s *Store) Keep(keys ...string) {
 // Token returns the CSRF token, generating one if absent.
 func (s *Store) Token() string {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if token, ok := s.attributes["_token"].(string); ok && token != "" {
@@ -462,6 +503,7 @@ func (s *Store) Token() string {
 // RegenerateToken generates a new CSRF token.
 func (s *Store) RegenerateToken() {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.attributes["_token"] = generateToken()
@@ -532,6 +574,7 @@ func (s *Store) PasswordConfirmedAt() int64 {
 
 func (s *Store) getFlashMeta() map[string]any {
 	raw, ok := s.attributes["_flash"]
+
 	if !ok {
 		return nil
 	}
@@ -545,6 +588,7 @@ func (s *Store) getFlashMeta() map[string]any {
 
 func (s *Store) ensureFlashMeta() map[string]any {
 	m := s.getFlashMeta()
+
 	if m == nil {
 		m = map[string]any{"old": []any{}, "new": []any{}}
 		s.attributes["_flash"] = m
@@ -555,6 +599,7 @@ func (s *Store) ensureFlashMeta() map[string]any {
 
 func (s *Store) getFlashOld() []string {
 	m := s.getFlashMeta()
+
 	if m == nil {
 		return nil
 	}
@@ -564,6 +609,7 @@ func (s *Store) getFlashOld() []string {
 
 func (s *Store) getFlashNew() []string {
 	m := s.getFlashMeta()
+
 	if m == nil {
 		return nil
 	}
@@ -597,6 +643,7 @@ func (s *Store) removeFromOldFlash(key string) {
 	old := s.getFlashOld()
 
 	filtered := make([]string, 0, len(old))
+
 	for _, k := range old {
 		if k != key {
 			filtered = append(filtered, k)
@@ -650,6 +697,7 @@ func isValidID(id string) bool {
 
 func serialize(attrs map[string]any) (string, error) {
 	b, err := json.Marshal(attrs)
+
 	if err != nil {
 		return "", err
 	}
@@ -659,6 +707,7 @@ func serialize(attrs map[string]any) (string, error) {
 
 func deserialize(data string) (map[string]any, error) {
 	var attrs map[string]any
+
 	if err := json.Unmarshal([]byte(data), &attrs); err != nil {
 		return nil, err
 	}
@@ -676,6 +725,7 @@ func toStringSlice(v any) []string {
 		return sl
 	case []any:
 		result := make([]string, 0, len(sl))
+
 		for _, item := range sl {
 			if s, ok := item.(string); ok {
 				result = append(result, s)
@@ -705,6 +755,7 @@ func toSessionInt64(v any) int64 {
 
 func toAnySlice(ss []string) []any {
 	result := make([]any, len(ss))
+
 	for i, s := range ss {
 		result[i] = s
 	}

@@ -8,6 +8,7 @@ import (
 
 func TestGenerateSecret(t *testing.T) {
 	secret, err := GenerateSecret(DefaultSecretSize)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -17,6 +18,7 @@ func TestGenerateSecret(t *testing.T) {
 	}
 
 	secret2, _ := GenerateSecret(DefaultSecretSize)
+
 	if secret == secret2 {
 		t.Fatal("secrets should be unique")
 	}
@@ -24,6 +26,7 @@ func TestGenerateSecret(t *testing.T) {
 
 func TestGenerateSecretDefaultSize(t *testing.T) {
 	secret, err := GenerateSecret(0)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -56,11 +59,13 @@ func TestValidateWithClockSkew(t *testing.T) {
 	now := time.Now()
 
 	pastCode := CodeAt(secret, now.Add(-30*time.Second))
+
 	if !ValidateAt(pastCode, secret, now) {
 		t.Fatal("code from previous period should be valid (clock skew)")
 	}
 
 	futureCode := CodeAt(secret, now.Add(30*time.Second))
+
 	if !ValidateAt(futureCode, secret, now) {
 		t.Fatal("code from next period should be valid (clock skew)")
 	}
@@ -71,6 +76,7 @@ func TestValidateRejectsFarFutureCode(t *testing.T) {
 	now := time.Now()
 
 	farCode := CodeAt(secret, now.Add(5*time.Minute))
+
 	if ValidateAt(farCode, secret, now) {
 		t.Fatal("code from far future should be rejected")
 	}

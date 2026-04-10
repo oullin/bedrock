@@ -12,6 +12,7 @@ func NormaliseBillableRouteParam(resolver spark.BillableResolver) func(http.Hand
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			id := r.PathValue("id")
+
 			if id == "" {
 				next.ServeHTTP(w, r)
 
@@ -44,6 +45,7 @@ func VerifyBillableIsSubscribed(
 			billableType := manager.DefaultBillableType()
 
 			billable, err := manager.ResolveBillable(billableType, r)
+
 			if err != nil {
 				redirectToBilling(w, r, billableType)
 
@@ -52,6 +54,7 @@ func VerifyBillableIsSubscribed(
 
 			ctx := r.Context()
 			sub, err := subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 			if err != nil || sub == nil || !sub.Valid(clock, keepPastDueActive) {
 				redirectToBilling(w, r, billableType)
 
@@ -65,6 +68,7 @@ func VerifyBillableIsSubscribed(
 
 func redirectToBilling(w http.ResponseWriter, r *http.Request, billableType string) {
 	path := "/billing"
+
 	if billableType != "user" {
 		path = "/billing/" + billableType
 	}

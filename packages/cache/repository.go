@@ -33,6 +33,7 @@ func (r *Repository) Missing(ctx context.Context, key string) bool {
 // Get retrieves a value. Returns defaultVal if key is absent or expired.
 func (r *Repository) Get(ctx context.Context, key string, defaultVal any) any {
 	v, err := r.store.Get(ctx, key)
+
 	if err != nil {
 		return defaultVal
 	}
@@ -110,6 +111,7 @@ func (r *Repository) Remember(ctx context.Context, key string, ttl time.Duration
 	}
 
 	result, err := fn()
+
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +126,7 @@ func (r *Repository) RememberForever(ctx context.Context, key string, fn func() 
 	}
 
 	result, err := fn()
+
 	if err != nil {
 		return nil, err
 	}

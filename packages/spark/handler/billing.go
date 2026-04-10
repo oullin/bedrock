@@ -22,6 +22,7 @@ func NewBillingHandler(b *billing.Workflow, resolver spark.BillableResolver) *Bi
 // Show renders the billing page data as JSON.
 func (h *BillingHandler) Show(w http.ResponseWriter, r *http.Request) {
 	billable, err := h.resolver.Resolve(r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -38,6 +39,7 @@ func (h *BillingHandler) Show(w http.ResponseWriter, r *http.Request) {
 // StartCheckout initiates a checkout from the billing page.
 func (h *BillingHandler) StartCheckout(w http.ResponseWriter, r *http.Request) {
 	billable, err := h.resolver.Resolve(r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -45,6 +47,7 @@ func (h *BillingHandler) StartCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input CheckoutInput
+
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 
@@ -75,6 +78,7 @@ func (h *BillingHandler) StartCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url, err := h.billing.StartCheckout(ctx, billable, input.Plan, input.Period)
+
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnprocessableEntity)

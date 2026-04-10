@@ -44,6 +44,7 @@ func TestMemoryLimiterAvailableIn(t *testing.T) {
 	l.Hit("key", time.Minute)
 
 	remaining := l.AvailableIn("key")
+
 	if remaining <= 0 || remaining > time.Minute {
 		t.Fatalf("expected remaining between 0 and 1m, got %v", remaining)
 	}

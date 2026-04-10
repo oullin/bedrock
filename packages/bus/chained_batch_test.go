@@ -19,6 +19,7 @@ func TestChainedBatchFromPendingBatch(t *testing.T) {
 
 	// Verify ToPendingBatch round-trips correctly.
 	restored := cb.ToPendingBatch(d)
+
 	if restored.GetName() != "test-batch" {
 		t.Errorf("expected name 'test-batch', got %q", restored.GetName())
 	}
@@ -61,6 +62,7 @@ func TestChainedBatchHandle(t *testing.T) {
 
 	ctx := bus.WithDispatcher(context.Background(), d)
 	_, err := cb.Handle(ctx)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,6 +85,7 @@ func TestChainedBatchHandleWithoutDispatcher(t *testing.T) {
 
 	// No dispatcher in context -- should be a no-op.
 	_, err := cb.Handle(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}

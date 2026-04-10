@@ -37,6 +37,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	body, err := io.ReadAll(r.Body)
+
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 
@@ -44,6 +45,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload map[string]any
+
 	if err := json.Unmarshal(body, &payload); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 

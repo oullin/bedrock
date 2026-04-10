@@ -22,6 +22,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sig := r.Header.Get("Paddle-Signature")
+
 			if sig == "" {
 				http.Error(w, "missing signature", http.StatusForbidden)
 
@@ -29,6 +30,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 			}
 
 			body, err := io.ReadAll(r.Body)
+
 			if err != nil {
 				http.Error(w, "bad request", http.StatusBadRequest)
 
@@ -36,6 +38,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 			}
 
 			ts, hashes := parseSignature(sig)
+
 			if ts == "" || len(hashes) == 0 {
 				http.Error(w, "invalid signature format", http.StatusForbidden)
 
@@ -43,6 +46,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 			}
 
 			tsInt, err := strconv.ParseInt(ts, 10, 64)
+
 			if err != nil {
 				http.Error(w, "invalid timestamp", http.StatusForbidden)
 
@@ -50,6 +54,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 			}
 
 			drift := math.Abs(float64(time.Now().Unix() - tsInt))
+
 			if drift > maxDrift.Seconds() {
 				http.Error(w, "timestamp drift too large", http.StatusForbidden)
 
@@ -59,6 +64,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 			expected := computeHMAC(secret, ts, body)
 
 			verified := false
+
 			for _, h := range hashes {
 				if hmac.Equal([]byte(expected), []byte(h)) {
 					verified = true
@@ -82,6 +88,7 @@ func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) h
 
 func parseSignature(sig string) (string, []string) {
 	var ts string
+
 	var hashes []string
 
 	for _, part := range strings.Split(sig, ";") {

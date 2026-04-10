@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var _ Store = (*DatabaseStore)(nil)
-
 // DBConnection is the database connection interface required by DatabaseStore.
 type DBConnection interface {
 	// QueryRow executes a query and returns a single row result.
@@ -30,6 +28,8 @@ type DatabaseStore struct {
 	prefix string
 	clock  Clock
 }
+
+var _ Store = (*DatabaseStore)(nil)
 
 // NewDatabaseStore creates a DatabaseStore using the given connection.
 // table is the cache table name (default "cache").
@@ -61,6 +61,7 @@ func (s *DatabaseStore) prefixed(key string) string {
 
 func (s *DatabaseStore) Get(ctx context.Context, key string) (any, error) {
 	var encoded string
+
 	var expiration int64
 
 	row := s.conn.QueryRow(ctx,
@@ -79,6 +80,7 @@ func (s *DatabaseStore) Get(ctx context.Context, key string) (any, error) {
 	}
 
 	var value any
+
 	if err := json.Unmarshal([]byte(encoded), &value); err != nil {
 		return nil, err
 	}
@@ -100,11 +102,13 @@ func (s *DatabaseStore) GetMany(ctx context.Context, keys []string) (map[string]
 
 func (s *DatabaseStore) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
 
 	var exp int64
+
 	if ttl > 0 {
 		exp = s.now().Add(ttl).Unix()
 	}
@@ -145,6 +149,7 @@ func (s *DatabaseStore) Increment(ctx context.Context, key string, delta int64) 
 
 	if err == nil {
 		val, err = toInt64(current)
+
 		if err != nil {
 			return 0, fmt.Errorf("%w: key %q", ErrInvalidValue, key)
 		}
@@ -161,6 +166,7 @@ func (s *DatabaseStore) Decrement(ctx context.Context, key string, delta int64) 
 
 func (s *DatabaseStore) Touch(ctx context.Context, key string, ttl time.Duration) (bool, error) {
 	v, err := s.Get(ctx, key)
+
 	if err != nil {
 		return false, nil
 	}

@@ -35,11 +35,13 @@ func NewSubscriptionHandler(
 // Create handles new subscription creation.
 func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -47,6 +49,7 @@ func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	planID := r.FormValue("plan")
+
 	if !spark.ValidPlan(h.manager, billableType, planID) {
 		http.Error(w, "invalid plan", http.StatusUnprocessableEntity)
 
@@ -55,6 +58,7 @@ func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Find the plan.
 	var plan spark.SparkPlan
+
 	for _, p := range h.manager.Plans(billableType) {
 		if p.ID == planID {
 			plan = p
@@ -71,6 +75,7 @@ func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	customer, err := findOrCreateCustomer(ctx, billable, h.subscriptions)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
@@ -78,11 +83,13 @@ func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	items := []spark.CheckoutItem{{PriceID: planID, Quantity: 1}}
+
 	if h.manager.ChargesPerSeat(billableType) {
 		items[0].Quantity = h.manager.SeatCount(billableType, billable)
 	}
 
 	session, err := h.checkout.Generate(ctx, customer, items, nil)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
@@ -96,11 +103,13 @@ func (h *SubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) {
 // Update handles subscription plan changes.
 func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -108,6 +117,7 @@ func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	planID := r.FormValue("plan")
+
 	if !spark.ValidPlan(h.manager, billableType, planID) {
 		http.Error(w, "invalid plan", http.StatusUnprocessableEntity)
 
@@ -115,6 +125,7 @@ func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var plan spark.SparkPlan
+
 	for _, p := range h.manager.Plans(billableType) {
 		if p.ID == planID {
 			plan = p
@@ -131,6 +142,7 @@ func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	sub, err := h.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || sub == nil {
 		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
 
@@ -138,11 +150,13 @@ func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	items := []spark.CheckoutItem{{PriceID: planID, Quantity: 1}}
+
 	if h.manager.ChargesPerSeat(billableType) {
 		items[0].Quantity = h.manager.SeatCount(billableType, billable)
 	}
 
 	proration := spark.ProratedNextBillingPeriod
+
 	if h.manager.Prorates() {
 		proration = spark.ProratedImmediately
 	}
@@ -159,11 +173,13 @@ func (h *SubscriptionHandler) Update(w http.ResponseWriter, r *http.Request) {
 // Cancel handles subscription cancellation.
 func (h *SubscriptionHandler) Cancel(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -172,6 +188,7 @@ func (h *SubscriptionHandler) Cancel(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	sub, err := h.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || sub == nil {
 		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
 
@@ -190,11 +207,13 @@ func (h *SubscriptionHandler) Cancel(w http.ResponseWriter, r *http.Request) {
 // Resume handles subscription resumption within a grace period.
 func (h *SubscriptionHandler) Resume(w http.ResponseWriter, r *http.Request) {
 	billableType := r.FormValue("billableType")
+
 	if billableType == "" {
 		billableType = h.manager.DefaultBillableType()
 	}
 
 	billable, err := h.manager.ResolveBillable(billableType, r)
+
 	if err != nil {
 		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
 
@@ -203,6 +222,7 @@ func (h *SubscriptionHandler) Resume(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	sub, err := h.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || sub == nil {
 		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
 
@@ -218,6 +238,7 @@ func (h *SubscriptionHandler) Resume(w http.ResponseWriter, r *http.Request) {
 	if h.manager.ChargesPerSeat(billableType) {
 		quantity := h.manager.SeatCount(billableType, billable)
 		priceID := ""
+
 		if len(sub.Items) > 0 {
 			priceID = sub.Items[0].PriceID
 		}

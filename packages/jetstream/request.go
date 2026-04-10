@@ -14,6 +14,7 @@ func RequestInput(r *http.Request, keys ...string) map[string]string {
 
 	if strings.Contains(contentType, "application/json") {
 		var body map[string]any
+
 		if err := json.NewDecoder(r.Body).Decode(&body); err == nil {
 			for _, key := range keys {
 				if v, ok := body[key]; ok {

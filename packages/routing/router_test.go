@@ -9,6 +9,8 @@ import (
 	"github.com/bedrock/packages/routing"
 )
 
+type testError struct{ msg string }
+
 func newRouter() *routing.Router {
 	return routing.New(nil)
 }
@@ -28,6 +30,7 @@ func TestGetRoute(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)
 	}
+
 	if rec.Body.String() != "hello world" {
 		t.Fatalf("expected 'hello world', got %q", rec.Body.String())
 	}
@@ -119,6 +122,7 @@ func TestGroup(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)
 	}
+
 	if rec.Body.String() != "users" {
 		t.Fatalf("expected 'users', got %q", rec.Body.String())
 	}
@@ -151,6 +155,7 @@ func TestResource(t *testing.T) {
 		if rec.Code != tc.code {
 			t.Errorf("%s %s: expected %d, got %d", tc.method, tc.path, tc.code, rec.Code)
 		}
+
 		if !strings.Contains(rec.Body.String(), tc.body) {
 			t.Errorf("%s %s: expected body %q, got %q", tc.method, tc.path, tc.body, rec.Body.String())
 		}
@@ -172,6 +177,7 @@ func TestJSONResponse(t *testing.T) {
 	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
 		t.Fatalf("expected application/json, got %q", ct)
 	}
+
 	if !strings.Contains(rec.Body.String(), `"key"`) {
 		t.Fatalf("unexpected body: %q", rec.Body.String())
 	}
@@ -186,6 +192,7 @@ func TestNamedRoute(t *testing.T) {
 	reg.Add("users.show", "GET", "/users/{id}")
 
 	url := r.Route("users.show", map[string]string{"id": "7"})
+
 	if url != "/users/7" {
 		t.Fatalf("expected /users/7, got %q", url)
 	}
@@ -207,7 +214,5 @@ func TestHandlerError(t *testing.T) {
 		t.Fatalf("expected 500, got %d", rec.Code)
 	}
 }
-
-type testError struct{ msg string }
 
 func (e *testError) Error() string { return e.msg }

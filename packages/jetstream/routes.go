@@ -16,24 +16,12 @@ type StdMuxRouter struct {
 }
 
 // Post registers a POST route.
-func (r *StdMuxRouter) Post(pattern string, handler http.Handler) {
-	r.Mux.Handle("POST "+pattern, handler)
-}
 
 // Put registers a PUT route.
-func (r *StdMuxRouter) Put(pattern string, handler http.Handler) {
-	r.Mux.Handle("PUT "+pattern, handler)
-}
 
 // Get registers a GET route.
-func (r *StdMuxRouter) Get(pattern string, handler http.Handler) {
-	r.Mux.Handle("GET "+pattern, handler)
-}
 
 // Delete registers a DELETE route.
-func (r *StdMuxRouter) Delete(pattern string, handler http.Handler) {
-	r.Mux.Handle("DELETE "+pattern, handler)
-}
 
 // RouteConfig holds optional dependencies for route registration.
 // Only the dependencies relevant to enabled features need to be set.
@@ -43,6 +31,22 @@ type RouteConfig struct {
 	Photos       UpdatesProfilePhotos
 	DeletePhotos DeletesProfilePhotos
 	DeleteUser   DeletesUsers
+}
+
+func (r *StdMuxRouter) Post(pattern string, handler http.Handler) {
+	r.Mux.Handle("POST "+pattern, handler)
+}
+
+func (r *StdMuxRouter) Put(pattern string, handler http.Handler) {
+	r.Mux.Handle("PUT "+pattern, handler)
+}
+
+func (r *StdMuxRouter) Get(pattern string, handler http.Handler) {
+	r.Mux.Handle("GET "+pattern, handler)
+}
+
+func (r *StdMuxRouter) Delete(pattern string, handler http.Handler) {
+	r.Mux.Handle("DELETE "+pattern, handler)
 }
 
 // RegisterRoutes registers all enabled Jetstream routes on the given router.

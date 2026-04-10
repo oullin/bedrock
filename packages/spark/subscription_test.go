@@ -21,6 +21,7 @@ func TestSubscriptionIsActive(t *testing.T) {
 
 	for _, tt := range tests {
 		s := &spark.Subscription{Status: tt.status}
+
 		if got := s.IsActive(); got != tt.want {
 			t.Errorf("Subscription{Status: %q}.IsActive() = %v, want %v", tt.status, got, tt.want)
 		}
@@ -45,16 +46,19 @@ func TestSubscriptionOnTrial(t *testing.T) {
 	past := now.Add(-24 * time.Hour)
 
 	s := &spark.Subscription{TrialEndsAt: &future}
+
 	if !s.OnTrial(clock) {
 		t.Error("should be on trial with future end date")
 	}
 
 	s.TrialEndsAt = &past
+
 	if s.OnTrial(clock) {
 		t.Error("should not be on trial with past end date")
 	}
 
 	s.TrialEndsAt = nil
+
 	if s.OnTrial(clock) {
 		t.Error("should not be on trial with nil end date")
 	}
@@ -66,11 +70,13 @@ func TestSubscriptionOnGracePeriod(t *testing.T) {
 	future := now.Add(24 * time.Hour)
 
 	s := &spark.Subscription{Status: spark.StatusCanceled, EndsAt: &future}
+
 	if !s.OnGracePeriod(clock) {
 		t.Error("canceled subscription with future EndsAt should be on grace period")
 	}
 
 	s.Status = spark.StatusActive
+
 	if s.OnGracePeriod(clock) {
 		t.Error("active subscription should not be on grace period")
 	}
@@ -82,11 +88,13 @@ func TestSubscriptionOnPausedGracePeriod(t *testing.T) {
 	future := now.Add(24 * time.Hour)
 
 	s := &spark.Subscription{Status: spark.StatusPaused, PausedAt: &future}
+
 	if !s.OnPausedGracePeriod(clock) {
 		t.Error("paused subscription with future PausedAt should be on paused grace period")
 	}
 
 	s.PausedAt = nil
+
 	if s.OnPausedGracePeriod(clock) {
 		t.Error("paused subscription with nil PausedAt should not be on paused grace period")
 	}
@@ -130,11 +138,13 @@ func TestSubscriptionValid(t *testing.T) {
 	clock := fixedClock{now: now}
 
 	active := &spark.Subscription{Status: spark.StatusActive}
+
 	if !active.Valid(clock, false) {
 		t.Error("active subscription should be valid")
 	}
 
 	pastDue := &spark.Subscription{Status: spark.StatusPastDue}
+
 	if pastDue.Valid(clock, false) {
 		t.Error("past_due subscription should not be valid without keepPastDueActive")
 	}
@@ -145,6 +155,7 @@ func TestSubscriptionValid(t *testing.T) {
 
 	future := now.Add(24 * time.Hour)
 	trialing := &spark.Subscription{Status: spark.StatusTrialing, TrialEndsAt: &future}
+
 	if !trialing.Valid(clock, false) {
 		t.Error("trialing subscription with future trial should be valid")
 	}
@@ -158,11 +169,13 @@ func TestSubscriptionProration(t *testing.T) {
 	}
 
 	s.NoProrate()
+
 	if s.ProrationBehavior() != spark.FullNextBillingPeriod {
 		t.Errorf("after NoProrate, got %q", s.ProrationBehavior())
 	}
 
 	s.ProrateImmediately()
+
 	if s.ProrationBehavior() != spark.ProratedImmediately {
 		t.Errorf("after ProrateImmediately, got %q", s.ProrationBehavior())
 	}

@@ -13,6 +13,22 @@ import (
 
 type stubGuard struct{}
 
+type stubTeamRepo struct{}
+
+type stubInvitationRepo struct{}
+
+type stubCreatesTeams struct{}
+
+type stubUpdatesTeams struct{}
+
+type stubDeletesTeams struct{}
+
+type stubAddsMembers struct{}
+
+type stubRemovesMembers struct{}
+
+type stubInvitesMembers struct{}
+
 func (g *stubGuard) Name() string { return "web" }
 func (g *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (fortify.Authenticatable, error) {
 	return nil, nil
@@ -27,8 +43,6 @@ func (g *stubGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Req
 	return nil
 }
 
-type stubTeamRepo struct{}
-
 func (r *stubTeamRepo) Create(_ context.Context, _ *Team) error                   { return nil }
 func (r *stubTeamRepo) FindByID(_ context.Context, _ string) (*Team, error)       { return nil, nil }
 func (r *stubTeamRepo) Update(_ context.Context, _ *Team) error                   { return nil }
@@ -40,8 +54,6 @@ func (r *stubTeamRepo) UpdateMemberRole(_ context.Context, _ string, _ string, _
 	return nil
 }
 func (r *stubTeamRepo) RemoveMember(_ context.Context, _ string, _ string) error { return nil }
-
-type stubInvitationRepo struct{}
 
 func (r *stubInvitationRepo) Create(_ context.Context, _ *TeamInvitation) error { return nil }
 func (r *stubInvitationRepo) FindByID(_ context.Context, _ string) (*TeamInvitation, error) {
@@ -55,35 +67,23 @@ func (r *stubInvitationRepo) FindByEmail(_ context.Context, _ string, _ string) 
 }
 func (r *stubInvitationRepo) Delete(_ context.Context, _ string) error { return nil }
 
-type stubCreatesTeams struct{}
-
 func (a *stubCreatesTeams) Create(_ context.Context, _ HasTeams, _ map[string]string) (*Team, error) {
 	return &Team{}, nil
 }
-
-type stubUpdatesTeams struct{}
 
 func (a *stubUpdatesTeams) Update(_ context.Context, _ HasTeams, _ *Team, _ map[string]string) error {
 	return nil
 }
 
-type stubDeletesTeams struct{}
-
 func (a *stubDeletesTeams) Delete(_ context.Context, _ HasTeams, _ *Team) error { return nil }
-
-type stubAddsMembers struct{}
 
 func (a *stubAddsMembers) Add(_ context.Context, _ HasTeams, _ *Team, _ string, _ string) error {
 	return nil
 }
 
-type stubRemovesMembers struct{}
-
 func (a *stubRemovesMembers) Remove(_ context.Context, _ HasTeams, _ *Team, _ string) error {
 	return nil
 }
-
-type stubInvitesMembers struct{}
 
 func (a *stubInvitesMembers) Invite(_ context.Context, _ HasTeams, _ *Team, _ string, _ string) (*TeamInvitation, error) {
 	return &TeamInvitation{}, nil

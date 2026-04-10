@@ -21,6 +21,7 @@ func NewInvoiceHandler(manager *spark.Manager, transactions spark.TransactionSto
 // Download redirects to the invoice PDF URL.
 func (h *InvoiceHandler) Download(w http.ResponseWriter, r *http.Request) {
 	transactionID := r.PathValue("transaction")
+
 	if transactionID == "" {
 		http.Error(w, "transaction ID required", http.StatusBadRequest)
 
@@ -29,6 +30,7 @@ func (h *InvoiceHandler) Download(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	txn, err := h.transactions.FindByProviderID(ctx, transactionID)
+
 	if err != nil || txn == nil {
 		http.NotFound(w, r)
 
@@ -36,6 +38,7 @@ func (h *InvoiceHandler) Download(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pdfURL, err := h.provider.InvoicePDFURL(ctx, txn.ProviderID)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 

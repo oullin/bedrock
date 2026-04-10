@@ -14,15 +14,35 @@ type CreateTokenHandler struct {
 }
 
 // NewCreateTokenHandler creates a new create token handler.
+
+// ServeHTTP handles the create token request.
+
+// UpdateTokenHandler handles PUT /user/api-tokens/{token} requests.
+type UpdateTokenHandler struct {
+	js     *Jetstream
+	tokens TokenRepository
+}
+
+// NewUpdateTokenHandler creates a new update token handler.
+
+// ServeHTTP handles the update token request.
+
+// DeleteTokenHandler handles DELETE /user/api-tokens/{token} requests.
+type DeleteTokenHandler struct {
+	js     *Jetstream
+	tokens TokenRepository
+}
+
 func NewCreateTokenHandler(js *Jetstream, tokens TokenRepository) *CreateTokenHandler {
 	return &CreateTokenHandler{js: js, tokens: tokens}
 }
 
-// ServeHTTP handles the create token request.
 func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.js, w, r)
+
 	if err != nil {
 		http.Error(w, err.Error(), statusForError(err))
+
 		return
 	}
 
@@ -31,10 +51,12 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if name == "" {
 		http.Error(w, "token name is required", http.StatusUnprocessableEntity)
+
 		return
 	}
 
 	var permissions []string
+
 	if raw := input["permissions"]; raw != "" {
 		permissions = strings.Split(raw, ",")
 	} else {
@@ -42,8 +64,10 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	plain, hash, err := GeneratePlainToken()
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
@@ -57,6 +81,7 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.tokens.Create(r.Context(), token); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
@@ -72,45 +97,44 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateTokenHandler handles PUT /user/api-tokens/{token} requests.
-type UpdateTokenHandler struct {
-	js     *Jetstream
-	tokens TokenRepository
-}
-
-// NewUpdateTokenHandler creates a new update token handler.
 func NewUpdateTokenHandler(js *Jetstream, tokens TokenRepository) *UpdateTokenHandler {
 	return &UpdateTokenHandler{js: js, tokens: tokens}
 }
 
-// ServeHTTP handles the update token request.
 func (h *UpdateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.js, w, r)
+
 	if err != nil {
 		http.Error(w, err.Error(), statusForError(err))
+
 		return
 	}
 
 	tokenID := r.PathValue("token")
 
 	token, err := h.tokens.FindByID(r.Context(), tokenID)
+
 	if err != nil || token == nil {
 		http.Error(w, "token not found", http.StatusNotFound)
+
 		return
 	}
 
 	if token.UserID != user.GetAuthIdentifier() {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusForbidden)
+
 		return
 	}
 
 	input := RequestInput(r, "permissions")
+
 	if raw := input["permissions"]; raw != "" {
 		token.Permissions = strings.Split(raw, ",")
 	}
 
 	if err := h.tokens.Update(r.Context(), token); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
@@ -121,12 +145,6 @@ func (h *UpdateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// DeleteTokenHandler handles DELETE /user/api-tokens/{token} requests.
-type DeleteTokenHandler struct {
-	js     *Jetstream
-	tokens TokenRepository
-}
-
 // NewDeleteTokenHandler creates a new delete token handler.
 func NewDeleteTokenHandler(js *Jetstream, tokens TokenRepository) *DeleteTokenHandler {
 	return &DeleteTokenHandler{js: js, tokens: tokens}
@@ -135,26 +153,32 @@ func NewDeleteTokenHandler(js *Jetstream, tokens TokenRepository) *DeleteTokenHa
 // ServeHTTP handles the delete token request.
 func (h *DeleteTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.js, w, r)
+
 	if err != nil {
 		http.Error(w, err.Error(), statusForError(err))
+
 		return
 	}
 
 	tokenID := r.PathValue("token")
 
 	token, err := h.tokens.FindByID(r.Context(), tokenID)
+
 	if err != nil || token == nil {
 		http.Error(w, "token not found", http.StatusNotFound)
+
 		return
 	}
 
 	if token.UserID != user.GetAuthIdentifier() {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusForbidden)
+
 		return
 	}
 
 	if err := h.tokens.Delete(r.Context(), tokenID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 

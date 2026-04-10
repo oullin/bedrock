@@ -16,6 +16,7 @@ func NewResetPasswordHandler(f *Fortify) *ResetPasswordHandler {
 func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.fortify.config.Features.ResetPasswords {
 		http.Error(w, "password resets are disabled", http.StatusNotFound)
+
 		return
 	}
 
@@ -29,6 +30,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
 		return
 	}
 

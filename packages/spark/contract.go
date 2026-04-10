@@ -14,7 +14,6 @@ type Clock interface {
 type SystemClock struct{}
 
 // Now returns the current time.
-func (SystemClock) Now() time.Time { return time.Now() }
 
 // CurrencyFormatter formats monetary amounts for display.
 type CurrencyFormatter interface {
@@ -70,3 +69,5 @@ type URLResolver interface {
 	PortalURL(billableType string, billableUUID string) (string, bool)
 	BillingPortalRedirect(billableType string) string
 }
+
+func (SystemClock) Now() time.Time { return time.Now() }

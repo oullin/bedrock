@@ -8,16 +8,16 @@ import (
 
 // FrontendStateView is the complete state object served to the billing portal.
 type FrontendStateView struct {
-	AppName      string           `json:"app_name"`
-	BillableID   int64            `json:"billable_id"`
-	BillableName string           `json:"billable_name"`
-	BillableType string           `json:"billable_type"`
+	AppName      string            `json:"app_name"`
+	BillableID   int64             `json:"billable_id"`
+	BillableName string            `json:"billable_name"`
+	BillableType string            `json:"billable_type"`
 	Plans        []spark.SparkPlan `json:"plans"`
-	State        string           `json:"state"` // "pending", "onGracePeriod", "past_due", "active", "none"
-	DashboardURL string           `json:"dashboard_url"`
-	TermsURL     string           `json:"terms_url"`
-	Sandbox      bool             `json:"sandbox"`
-	DateFormat   string           `json:"date_format"`
+	State        string            `json:"state"` // "pending", "onGracePeriod", "past_due", "active", "none"
+	DashboardURL string            `json:"dashboard_url"`
+	TermsURL     string            `json:"terms_url"`
+	Sandbox      bool              `json:"sandbox"`
+	DateFormat   string            `json:"date_format"`
 }
 
 // FrontendStateBuilder builds the frontend state for the billing portal.
@@ -74,6 +74,7 @@ func (f *FrontendStateBuilder) resolveState(ctx context.Context, billable spark.
 	if sub == nil {
 		// Check for pending checkout.
 		customer, err := f.customers.FindByBillable(ctx, billable.BillableType(), billable.BillableID())
+
 		if err == nil && customer != nil && customer.PendingCheckout != nil {
 			return "pending"
 		}

@@ -7,15 +7,17 @@ import (
 )
 
 // ErrTooManyAttempts is returned when login attempts are rate limited.
-var ErrTooManyAttempts = errors.New("fortify: too many login attempts")
 
 // ErrInvalidCredentials is returned when login credentials are invalid.
-var ErrInvalidCredentials = errors.New("fortify: invalid credentials")
 
 // LoginHandler handles POST /login requests.
 type LoginHandler struct {
 	fortify *Fortify
 }
+
+var ErrTooManyAttempts = errors.New("fortify: too many login attempts")
+
+var ErrInvalidCredentials = errors.New("fortify: invalid credentials")
 
 // NewLoginHandler creates a new login handler.
 func NewLoginHandler(f *Fortify) *LoginHandler {
@@ -32,6 +34,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.ensureNotRateLimited(identifier, r); err != nil {
 		http.Error(w, err.Error(), http.StatusTooManyRequests)
+
 		return
 	}
 
@@ -41,14 +44,17 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	user, err := h.authenticate(ctx, input)
+
 	if err != nil {
 		h.onFailure(ctx, w, r, identifier)
+
 		return
 	}
 
 	if tfa, ok := user.(TwoFactorAuthenticatable); ok && tfa.IsTwoFactorEnabled() && tfa.GetTwoFactorConfirmedAt() != nil {
 		if err := h.fortify.guard.LoginWithPendingTwoFactor(ctx, w, user); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+
 			return
 		}
 
@@ -74,6 +80,7 @@ func (h *LoginHandler) authenticate(ctx context.Context, input map[string]string
 	}
 
 	user, err := h.fortify.provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil || user == nil {
 		return nil, ErrInvalidCredentials
 	}
@@ -92,6 +99,7 @@ func (h *LoginHandler) authenticate(ctx context.Context, input map[string]string
 
 func (h *LoginHandler) ensureNotRateLimited(identifier string, r *http.Request) error {
 	limiter := h.fortify.limiter
+
 	if limiter == nil {
 		return nil
 	}
@@ -112,6 +120,7 @@ func (h *LoginHandler) onSuccess(ctx context.Context, w http.ResponseWriter, r *
 
 	if err := h.fortify.guard.Login(ctx, w, user, remember); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 

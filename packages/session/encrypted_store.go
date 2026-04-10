@@ -18,6 +18,7 @@ func NewEncryptedStore(name string, handler Handler, enc Encrypter) *EncryptedSt
 func (s *EncryptedStore) Put(key string, value any) {
 	if str, ok := value.(string); ok {
 		encrypted, err := s.enc.Encrypt(str)
+
 		if err == nil {
 			s.Store.Put(key, encrypted)
 
