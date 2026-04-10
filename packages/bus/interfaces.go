@@ -2,6 +2,7 @@ package bus
 
 import (
 	"context"
+	"time"
 )
 
 // Handler handles a command/job.
@@ -25,6 +26,12 @@ type Dispatcher interface {
 	PipeThrough(pipes ...Pipe) Dispatcher
 	// Map registers a command→handler mapping.
 	Map(command any, handler Handler) Dispatcher
+	// HasCommandHandler reports whether a handler is registered for the command type.
+	HasCommandHandler(command any) bool
+	// GetCommandHandler returns the handler for the given command type.
+	GetCommandHandler(command any) (Handler, bool)
+	// Chain creates a PendingChain for sequential job execution.
+	Chain(jobs []any) *PendingChain
 }
 
 // QueueingDispatcher extends Dispatcher with queue-based dispatch.
@@ -49,4 +56,12 @@ type BatchRepository interface {
 	Cancel(ctx context.Context, id string) error
 	Delete(ctx context.Context, id string) error
 	Transaction(ctx context.Context, fn func(BatchRepository) error) error
+}
+
+// PrunableBatchRepository extends BatchRepository with cleanup operations.
+type PrunableBatchRepository interface {
+	BatchRepository
+	Prune(ctx context.Context, before time.Time) (int, error)
+	PruneCancelled(ctx context.Context, before time.Time) (int, error)
+	PruneUnfinished(ctx context.Context, before time.Time) (int, error)
 }
