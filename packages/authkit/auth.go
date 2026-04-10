@@ -17,11 +17,13 @@ var ErrUnauthorized = errors.New("authkit: unauthorized")
 // authenticateTeamUser resolves the authenticated user as a HasTeams from the request.
 func authenticateTeamUser(j *AuthKit, w http.ResponseWriter, r *http.Request) (HasTeams, error) {
 	user, err := j.guard.AuthenticateRequest(r.Context(), w, r)
+
 	if err != nil || user == nil {
 		return nil, ErrUnauthenticated
 	}
 
 	teamUser, ok := user.(HasTeams)
+
 	if !ok {
 		return nil, ErrNotTeamUser
 	}

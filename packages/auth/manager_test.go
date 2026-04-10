@@ -18,12 +18,30 @@ type stubProvider struct {
 	users map[any]auth.Authenticatable
 }
 
+// stubSession is a minimal in-memory SessionStore.
+type stubSession struct {
+	data map[string]any
+}
+
+// stubCookieManager is a minimal in-memory CookieManager.
+type stubCookieManager struct {
+	queued    []*http.Cookie
+	forgotten []string
+}
+
+// recordingDispatcher collects dispatched events for assertions.
+type recordingDispatcher struct {
+	mu     sync.Mutex
+	events []any
+}
+
 func (p *stubProvider) RetrieveByID(_ context.Context, id any) (auth.Authenticatable, error) {
 	return p.users[id], nil
 }
 
 func (p *stubProvider) RetrieveByToken(_ context.Context, id any, token string) (auth.Authenticatable, error) {
 	u := p.users[id]
+
 	if u == nil || u.GetRememberToken() != token {
 		return nil, nil
 	}
@@ -40,11 +58,13 @@ func (p *stubProvider) UpdateRememberToken(_ context.Context, user auth.Authenti
 func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string]any) (auth.Authenticatable, error) {
 	for _, u := range p.users {
 		gen, ok := u.(*auth.GenericUser)
+
 		if !ok {
 			continue
 		}
 
 		match := true
+
 		for k, v := range creds {
 			if k == "password" {
 				continue
@@ -52,6 +72,7 @@ func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string
 
 			if gen.Attributes[k] != v {
 				match = false
+
 				break
 			}
 		}
@@ -72,11 +93,6 @@ func (p *stubProvider) ValidateCredentials(_ context.Context, user auth.Authenti
 
 func (p *stubProvider) RehashPasswordIfRequired(_ context.Context, _ auth.Authenticatable, _ map[string]any, _ bool) error {
 	return nil
-}
-
-// stubSession is a minimal in-memory SessionStore.
-type stubSession struct {
-	data map[string]any
 }
 
 func newStubSession() *stubSession {
@@ -108,12 +124,6 @@ func (s *stubSession) Forget(keys ...string) {
 
 func (s *stubSession) Migrate(_ context.Context, _ bool) error { return nil }
 
-// stubCookieManager is a minimal in-memory CookieManager.
-type stubCookieManager struct {
-	queued    []*http.Cookie
-	forgotten []string
-}
-
 func (m *stubCookieManager) Queue(cookie *http.Cookie) {
 	m.queued = append(m.queued, cookie)
 }
@@ -124,14 +134,9 @@ func (m *stubCookieManager) Forget(name, path, domain string) *http.Cookie {
 	return &http.Cookie{Name: name, Path: path, Domain: domain, MaxAge: -1}
 }
 
-// recordingDispatcher collects dispatched events for assertions.
-type recordingDispatcher struct {
-	mu     sync.Mutex
-	events []any
-}
-
 func (d *recordingDispatcher) Dispatch(_ context.Context, event any) error {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.events = append(d.events, event)
@@ -143,6 +148,7 @@ func (d *recordingDispatcher) has(t *testing.T, typeName string) {
 	t.Helper()
 
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	for _, e := range d.events {
@@ -158,6 +164,7 @@ func (d *recordingDispatcher) hasNot(t *testing.T, typeName string) {
 	t.Helper()
 
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	for _, e := range d.events {
@@ -171,6 +178,7 @@ func (d *recordingDispatcher) hasNot(t *testing.T, typeName string) {
 
 func (d *recordingDispatcher) typeNames() []string {
 	names := make([]string, len(d.events))
+
 	for i, e := range d.events {
 		names[i] = typeNameOf(e)
 	}
@@ -199,6 +207,7 @@ func TestGenericUser(t *testing.T) {
 	}
 
 	u.SetRememberToken("tok")
+
 	if u.GetRememberToken() != "tok" {
 		t.Error("remember token not stored")
 	}
@@ -240,6 +249,7 @@ func TestGenericUserEmptyRememberToken(t *testing.T) {
 
 func TestRecallerValid(t *testing.T) {
 	r := auth.NewRecaller("1|tok|hash")
+
 	if r == nil || !r.Valid() {
 		t.Fatal("expected valid recaller")
 	}
@@ -265,16 +275,19 @@ func TestRecallerInvalidFormat(t *testing.T) {
 
 func TestRecallerEmptySegments(t *testing.T) {
 	r := auth.NewRecaller("|tok|hash")
+
 	if r != nil && r.Valid() {
 		t.Error("expected invalid recaller with empty ID")
 	}
 
 	r = auth.NewRecaller("1||hash")
+
 	if r != nil && r.Valid() {
 		t.Error("expected invalid recaller with empty token")
 	}
 
 	r = auth.NewRecaller("1|tok|")
+
 	if r != nil && r.Valid() {
 		t.Error("expected invalid recaller with empty hash")
 	}
@@ -298,6 +311,7 @@ func TestTimeboxDoesNotDelayLongOperations(t *testing.T) {
 	})
 
 	elapsed := time.Since(start)
+
 	if elapsed < 40*time.Millisecond {
 		t.Errorf("Timebox should have taken at least the fn duration: %v", elapsed)
 	}
@@ -309,6 +323,7 @@ func TestBcryptHasher(t *testing.T) {
 	h := auth.NewBcryptHasher(0)
 
 	hash, err := h.Hash("password123")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -327,6 +342,7 @@ func TestBcryptHasherNeedsRehash(t *testing.T) {
 	h10 := auth.NewBcryptHasher(10)
 
 	hash, err := h4.Hash("pw")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -358,6 +374,7 @@ func TestManagerGuardResolvesDefaultGuard(t *testing.T) {
 	m.SetConfig("web", map[string]any{"driver": "session"})
 
 	g, err := m.Guard(context.Background(), "")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -375,6 +392,7 @@ func TestManagerGuardResolvesNamedGuard(t *testing.T) {
 	m.SetConfig("api", map[string]any{"driver": "token"})
 
 	g, err := m.Guard(context.Background(), "api")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -404,6 +422,7 @@ func TestManagerGuardReturnsErrorForUnknownDriver(t *testing.T) {
 	m.SetConfig("web", map[string]any{"driver": "unknown"})
 
 	_, err := m.Guard(context.Background(), "web")
+
 	if err == nil {
 		t.Error("expected error for unknown driver")
 	}
@@ -417,6 +436,7 @@ func TestManagerViaRequest(t *testing.T) {
 	})
 
 	g, err := m.Guard(context.Background(), "custom")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -448,6 +468,7 @@ func TestManagerSetRequestPropagates(t *testing.T) {
 	m.SetRequest(req)
 
 	u, _ := g.User(context.Background())
+
 	if u == nil {
 		t.Error("expected user after SetRequest propagation")
 	}

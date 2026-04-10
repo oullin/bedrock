@@ -13,13 +13,22 @@ type PlanPresentation struct {
 }
 
 // NewPlanPresentation creates a PlanPresentation service.
+
+// LandingPlans returns plans formatted for the landing/marketing page.
+
+// BillingPlanRegistry registers plans from the database with the Billing Manager.
+type BillingPlanRegistry struct {
+	catalog *PlanCatalog
+	manager *billing.Manager
+}
+
 func NewPlanPresentation(catalog *PlanCatalog) *PlanPresentation {
 	return &PlanPresentation{catalog: catalog}
 }
 
-// LandingPlans returns plans formatted for the landing/marketing page.
 func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]billing.LandingPlanView, error) {
 	plans, err := p.catalog.Plans(ctx)
+
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +41,7 @@ func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]billing.LandingP
 		}
 
 		var periods []billing.PlanPeriodView
+
 		for _, pp := range plan.PlanPeriods {
 			for _, price := range pp.Prices {
 				if !price.IsActive {
@@ -63,12 +73,6 @@ func (p *PlanPresentation) LandingPlans(ctx context.Context) ([]billing.LandingP
 	return views, nil
 }
 
-// BillingPlanRegistry registers plans from the database with the Billing Manager.
-type BillingPlanRegistry struct {
-	catalog *PlanCatalog
-	manager *billing.Manager
-}
-
 // NewBillingPlanRegistry creates a BillingPlanRegistry.
 func NewBillingPlanRegistry(catalog *PlanCatalog, manager *billing.Manager) *BillingPlanRegistry {
 	return &BillingPlanRegistry{catalog: catalog, manager: manager}
@@ -78,6 +82,7 @@ func NewBillingPlanRegistry(catalog *PlanCatalog, manager *billing.Manager) *Bil
 // Billing Manager for the given billable type.
 func (r *BillingPlanRegistry) Register(ctx context.Context, billableType string) error {
 	plans, err := r.catalog.Plans(ctx)
+
 	if err != nil {
 		return err
 	}

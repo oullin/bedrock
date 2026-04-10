@@ -36,6 +36,7 @@ func TestPendingBatchCallbackRegistration(t *testing.T) {
 	pb.Finally(func(_ context.Context, _ *bus.Batch) {})
 
 	batch, err := pb.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,6 +67,7 @@ func TestPendingBatchDispatchCreatesValidBatch(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1", "job2", "job3"}).Name("test-batch")
 
 	batch, err := pb.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,6 +98,7 @@ func TestPendingBatchDispatchCallsDispatchToQueue(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1", "job2"})
 
 	_, err := pb.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,6 +120,7 @@ func TestPendingBatchDispatchStopsOnQueueError(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1", "job2", "job3"})
 
 	_, err := pb.Dispatch(context.Background())
+
 	if err == nil {
 		t.Error("expected error from Dispatch")
 	}
@@ -135,11 +139,13 @@ func TestPendingBatchAllowFailuresOption(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1"}).AllowFailures()
 
 	batch, err := pb.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	v, ok := batch.Options["allowFailures"]
+
 	if !ok || v != true {
 		t.Error("expected Options['allowFailures'] to be true")
 	}
@@ -153,6 +159,7 @@ func TestPendingBatchDispatchStoresToRepository(t *testing.T) {
 	pb := d.Batch([]any{"job1", "job2"}).Name("stored-batch")
 
 	batch, err := pb.Dispatch(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,6 +178,7 @@ func TestPendingBatchDispatchStoreErrorAborts(t *testing.T) {
 
 	pb := d.Batch([]any{"job1"})
 	_, err := pb.Dispatch(context.Background())
+
 	if err == nil {
 		t.Error("expected error from Store failure")
 	}
@@ -189,6 +197,7 @@ func TestPendingBatchDispatchIfTrue(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1"})
 
 	batch, err := pb.DispatchIf(context.Background(), true)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,6 +212,7 @@ func TestPendingBatchDispatchIfFalse(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1"})
 
 	batch, err := pb.DispatchIf(context.Background(), false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,6 +235,7 @@ func TestPendingBatchDispatchUnless(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1"})
 
 	batch, err := pb.DispatchUnless(context.Background(), false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,6 +250,7 @@ func TestPendingBatchDispatchAfterResponse(t *testing.T) {
 	pb := bus.NewPendingBatch(d, []any{"job1", "job2"})
 
 	batch, err := pb.DispatchAfterResponse(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}

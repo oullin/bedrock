@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-var _ Store = (*FileStore)(nil)
-
 // FileStore caches values on the filesystem. Each key is stored as a gob file
 // under a two-level directory tree derived from the SHA-256 hash of the key.
 type FileStore struct {
@@ -30,6 +28,8 @@ type fileEntry struct {
 	ExpiresAt time.Time
 	Value     any
 }
+
+var _ Store = (*FileStore)(nil)
 
 // NewFileStore creates a FileStore that persists to dir.
 func NewFileStore(dir string) *FileStore {
@@ -60,9 +60,11 @@ func (s *FileStore) path(key string) string {
 
 func (s *FileStore) read(key string) (*fileEntry, error) {
 	f, err := os.Open(s.path(key))
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %q", ErrNotFound, key)
 	}
+
 	defer f.Close()
 
 	var entry fileEntry
@@ -82,6 +84,7 @@ func (s *FileStore) write(key string, entry fileEntry) error {
 	}
 
 	f, err := os.CreateTemp(filepath.Dir(p), "cache-")
+
 	if err != nil {
 		return err
 	}
@@ -128,11 +131,13 @@ func (s *FileStore) GetMany(ctx context.Context, keys []string) (map[string]any,
 
 func (s *FileStore) Put(_ context.Context, key string, value any, ttl time.Duration) error {
 	var exp time.Time
+
 	if ttl > 0 {
 		exp = s.now().Add(ttl)
 	}
 
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	return s.write(key, fileEntry{ExpiresAt: exp, Value: value})
@@ -162,15 +167,18 @@ func (s *FileStore) Forever(ctx context.Context, key string, value any) error {
 
 func (s *FileStore) Increment(ctx context.Context, key string, delta int64) (int64, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	entry, err := s.read(key)
 
 	var current int64
+
 	var exp time.Time
 
 	if err == nil {
 		current, err = toInt64(entry.Value)
+
 		if err != nil {
 			return 0, fmt.Errorf("%w: key %q", ErrInvalidValue, key)
 		}
@@ -189,14 +197,17 @@ func (s *FileStore) Decrement(ctx context.Context, key string, delta int64) (int
 
 func (s *FileStore) Touch(ctx context.Context, key string, ttl time.Duration) (bool, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	entry, err := s.read(key)
+
 	if err != nil {
 		return false, nil
 	}
 
 	var exp time.Time
+
 	if ttl > 0 {
 		exp = s.now().Add(ttl)
 	}
@@ -206,9 +217,11 @@ func (s *FileStore) Touch(ctx context.Context, key string, ttl time.Duration) (b
 
 func (s *FileStore) Forget(_ context.Context, key string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	err := os.Remove(s.path(key))
+
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -219,6 +232,7 @@ func (s *FileStore) Forget(_ context.Context, key string) error {
 // Flush removes all files under the store's directory.
 func (s *FileStore) Flush(_ context.Context) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	return os.RemoveAll(s.dir)

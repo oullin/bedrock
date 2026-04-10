@@ -32,6 +32,7 @@ func NewDeferredDriver(connection string, dispatcher func(ctx context.Context, e
 
 func (d *DeferredDriver) Push(_ context.Context, queueName string, payload []byte) (string, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.deferred = append(d.deferred, DeferredEntry{Queue: queueName, Payload: payload, After: time.Now()})
@@ -41,6 +42,7 @@ func (d *DeferredDriver) Push(_ context.Context, queueName string, payload []byt
 
 func (d *DeferredDriver) PushDelayed(_ context.Context, queueName string, payload []byte, delay time.Duration) (string, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.deferred = append(d.deferred, DeferredEntry{Queue: queueName, Payload: payload, After: time.Now().Add(delay)})
@@ -50,6 +52,7 @@ func (d *DeferredDriver) PushDelayed(_ context.Context, queueName string, payloa
 
 func (d *DeferredDriver) PushMultiple(_ context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	for _, p := range payloads {
@@ -65,6 +68,7 @@ func (d *DeferredDriver) Pop(_ context.Context, _ string) (queue.Job, error) {
 
 func (d *DeferredDriver) Size(_ context.Context, _ string) (int64, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	return int64(len(d.deferred)), nil

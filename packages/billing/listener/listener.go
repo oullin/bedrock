@@ -14,14 +14,8 @@ type ReconcileAfterCheckout struct {
 }
 
 // NewReconcileAfterCheckout creates the listener.
-func NewReconcileAfterCheckout(b *billing.Workflow) *ReconcileAfterCheckout {
-	return &ReconcileAfterCheckout{billing: b}
-}
 
 // Handle processes a subscription created event.
-func (l *ReconcileAfterCheckout) Handle(ctx context.Context, sub *billing.Subscription, billableID int64) error {
-	return l.billing.ReconcileCreated(ctx, sub, billableID)
-}
 
 // SubscriptionCreated handles new subscriptions from the provider,
 // clearing the pending checkout and canceling other active subscriptions.
@@ -32,6 +26,36 @@ type SubscriptionCreated struct {
 }
 
 // NewSubscriptionCreated creates the listener.
+
+// Handle clears the pending checkout and cancels other active subscriptions.
+
+// Clear pending checkout.
+
+// Cancel other active subscriptions.
+
+// SyncEntitlements syncs entitlements after a subscription state transition.
+type SyncEntitlements struct {
+	billing *billing.Workflow
+	events  billing.EventDispatcher
+}
+
+// NewSyncEntitlements creates the listener.
+
+// Handle processes a subscription transition and syncs entitlements.
+
+// SyncAfterUpdate syncs local subscription data after a provider update event.
+type SyncAfterUpdate struct {
+	billing *billing.Workflow
+}
+
+func NewReconcileAfterCheckout(b *billing.Workflow) *ReconcileAfterCheckout {
+	return &ReconcileAfterCheckout{billing: b}
+}
+
+func (l *ReconcileAfterCheckout) Handle(ctx context.Context, sub *billing.Subscription, billableID int64) error {
+	return l.billing.ReconcileCreated(ctx, sub, billableID)
+}
+
 func NewSubscriptionCreated(
 	customers billing.CustomerStore,
 	subscriptions billing.SubscriptionStore,
@@ -44,17 +68,17 @@ func NewSubscriptionCreated(
 	}
 }
 
-// Handle clears the pending checkout and cancels other active subscriptions.
 func (l *SubscriptionCreated) Handle(ctx context.Context, sub *billing.Subscription, billableID int64) error {
-	// Clear pending checkout.
+
 	customer, err := l.customers.FindByBillable(ctx, sub.BillableType, billableID)
+
 	if err == nil && customer != nil && customer.PendingCheckout != nil {
 		customer.PendingCheckout = nil
 		_ = l.customers.Save(ctx, customer)
 	}
 
-	// Cancel other active subscriptions.
 	active, err := l.subscriptions.ActiveForBillable(ctx, sub.BillableType, billableID)
+
 	if err != nil {
 		return err
 	}
@@ -72,18 +96,10 @@ func (l *SubscriptionCreated) Handle(ctx context.Context, sub *billing.Subscript
 	return nil
 }
 
-// SyncEntitlements syncs entitlements after a subscription state transition.
-type SyncEntitlements struct {
-	billing *billing.Workflow
-	events  billing.EventDispatcher
-}
-
-// NewSyncEntitlements creates the listener.
 func NewSyncEntitlements(b *billing.Workflow, events billing.EventDispatcher) *SyncEntitlements {
 	return &SyncEntitlements{billing: b, events: events}
 }
 
-// Handle processes a subscription transition and syncs entitlements.
 func (l *SyncEntitlements) Handle(ctx context.Context, sub *billing.Subscription) error {
 	if err := l.billing.SyncEntitlements(ctx, sub); err != nil {
 		return err
@@ -94,11 +110,6 @@ func (l *SyncEntitlements) Handle(ctx context.Context, sub *billing.Subscription
 		Plan:   sub.Plan,
 		Status: string(sub.Status),
 	})
-}
-
-// SyncAfterUpdate syncs local subscription data after a provider update event.
-type SyncAfterUpdate struct {
-	billing *billing.Workflow
 }
 
 // NewSyncAfterUpdate creates the listener.

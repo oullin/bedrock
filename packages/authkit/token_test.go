@@ -20,25 +20,48 @@ type testTokenRepo struct {
 	deleted bool
 }
 
+// --- token type tests ---
+
+// --- create token handler tests ---
+
+// --- update token handler tests ---
+
+// --- delete token handler tests ---
+
+// --- token guard tests ---
+
+// --- TokenCan middleware tests ---
+
+// --- stub user provider ---
+
+type stubUserProvider struct {
+	user *testTeamUser
+}
+
 func newTestTokenRepo(tokens ...*PersonalAccessToken) *testTokenRepo {
 	r := &testTokenRepo{
 		tokens: make(map[string]*PersonalAccessToken),
 		byHash: make(map[string]*PersonalAccessToken),
 	}
+
 	for _, t := range tokens {
 		r.tokens[t.ID] = t
 		r.byHash[t.TokenHash] = t
 	}
+
 	return r
 }
 
 func (r *testTokenRepo) Create(_ context.Context, t *PersonalAccessToken) error {
 	r.created = true
+
 	if t.ID == "" {
 		t.ID = "generated-id"
 	}
+
 	r.tokens[t.ID] = t
 	r.byHash[t.TokenHash] = t
+
 	return nil
 }
 func (r *testTokenRepo) FindByID(_ context.Context, id string) (*PersonalAccessToken, error) {
@@ -52,15 +75,15 @@ func (r *testTokenRepo) FindByUser(_ context.Context, _ string) ([]PersonalAcces
 }
 func (r *testTokenRepo) Update(_ context.Context, t *PersonalAccessToken) error {
 	r.tokens[t.ID] = t
+
 	return nil
 }
 func (r *testTokenRepo) Delete(_ context.Context, id string) error {
 	r.deleted = true
 	delete(r.tokens, id)
+
 	return nil
 }
-
-// --- token type tests ---
 
 func TestPersonalAccessTokenHasPermission(t *testing.T) {
 	token := &PersonalAccessToken{Permissions: []string{"read", "write"}}
@@ -87,16 +110,19 @@ func TestPersonalAccessTokenIsExpired(t *testing.T) {
 	future := time.Now().Add(time.Hour)
 
 	expired := &PersonalAccessToken{ExpiresAt: &past}
+
 	if !expired.IsExpired() {
 		t.Fatal("token with past expiry should be expired")
 	}
 
 	valid := &PersonalAccessToken{ExpiresAt: &future}
+
 	if valid.IsExpired() {
 		t.Fatal("token with future expiry should not be expired")
 	}
 
 	noExpiry := &PersonalAccessToken{ExpiresAt: nil}
+
 	if noExpiry.IsExpired() {
 		t.Fatal("token with no expiry should not be expired")
 	}
@@ -104,6 +130,7 @@ func TestPersonalAccessTokenIsExpired(t *testing.T) {
 
 func TestGeneratePlainToken(t *testing.T) {
 	plain, hash, err := GeneratePlainToken()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -117,12 +144,11 @@ func TestGeneratePlainToken(t *testing.T) {
 	}
 
 	plain2, _, _ := GeneratePlainToken()
+
 	if plain == plain2 {
 		t.Fatal("tokens should be unique")
 	}
 }
-
-// --- create token handler tests ---
 
 func TestCreateTokenSuccess(t *testing.T) {
 	user := &testTeamUser{id: "1"}
@@ -140,6 +166,7 @@ func TestCreateTokenSuccess(t *testing.T) {
 	}
 
 	var result NewTokenResult
+
 	_ = json.NewDecoder(w.Body).Decode(&result)
 
 	if result.PlainText == "" {
@@ -190,14 +217,13 @@ func TestCreateTokenDefaultPermissions(t *testing.T) {
 	handler.ServeHTTP(w, r)
 
 	var result NewTokenResult
+
 	_ = json.NewDecoder(w.Body).Decode(&result)
 
 	if len(result.Token.Permissions) != 1 || result.Token.Permissions[0] != "*" {
 		t.Fatalf("expected wildcard permission by default, got %v", result.Token.Permissions)
 	}
 }
-
-// --- update token handler tests ---
 
 func TestUpdateTokenSuccess(t *testing.T) {
 	token := &PersonalAccessToken{ID: "tok-1", UserID: "1", Permissions: []string{"read"}}
@@ -217,6 +243,7 @@ func TestUpdateTokenSuccess(t *testing.T) {
 	}
 
 	updated := tokenRepo.tokens["tok-1"]
+
 	if len(updated.Permissions) != 3 {
 		t.Fatalf("expected 3 permissions, got %d", len(updated.Permissions))
 	}
@@ -244,8 +271,6 @@ func TestUpdateTokenForbiddenForOtherUser(t *testing.T) {
 	}
 }
 
-// --- delete token handler tests ---
-
 func TestDeleteTokenSuccess(t *testing.T) {
 	token := &PersonalAccessToken{ID: "tok-1", UserID: "1"}
 	user := &testTeamUser{id: "1"}
@@ -272,8 +297,6 @@ func TestDeleteTokenSuccess(t *testing.T) {
 	}
 }
 
-// --- token guard tests ---
-
 func TestTokenGuardAuthenticate(t *testing.T) {
 	plain, hash, _ := GeneratePlainToken()
 	token := &PersonalAccessToken{ID: "tok-1", UserID: "1", TokenHash: hash}
@@ -287,6 +310,7 @@ func TestTokenGuardAuthenticate(t *testing.T) {
 	r.Header.Set("Authorization", "Bearer "+plain)
 
 	authUser, authToken, err := guard.Authenticate(r.Context(), r)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -312,6 +336,7 @@ func TestTokenGuardRejectsExpired(t *testing.T) {
 	r.Header.Set("Authorization", "Bearer "+plain)
 
 	_, _, err := guard.Authenticate(r.Context(), r)
+
 	if err != ErrUnauthenticated {
 		t.Fatalf("expected unauthenticated error, got %v", err)
 	}
@@ -323,12 +348,11 @@ func TestTokenGuardRejectsMissingBearer(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/api/test", nil)
 
 	_, _, err := guard.Authenticate(r.Context(), r)
+
 	if err != ErrUnauthenticated {
 		t.Fatalf("expected unauthenticated error, got %v", err)
 	}
 }
-
-// --- TokenCan middleware tests ---
 
 func TestTokenCanAllows(t *testing.T) {
 	called := false
@@ -386,16 +410,11 @@ func TestTokenCanDeniesNoToken(t *testing.T) {
 	}
 }
 
-// --- stub user provider ---
-
-type stubUserProvider struct {
-	user *testTeamUser
-}
-
 func (p *stubUserProvider) RetrieveByID(_ context.Context, _ string) (authflows.Authenticatable, error) {
 	if p.user == nil {
 		return nil, nil
 	}
+
 	return p.user, nil
 }
 func (p *stubUserProvider) RetrieveByToken(_ context.Context, _ string, _ string) (authflows.Authenticatable, error) {

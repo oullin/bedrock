@@ -33,6 +33,39 @@ type Batch struct {
 }
 
 // NewBatchWithRepo creates a Batch with the given ID and repository.
+
+// Finished reports whether all jobs have run (pending == 0).
+
+// Cancelled reports whether the batch was cancelled.
+
+// HasFailures reports whether any jobs have failed.
+
+// Cancel marks the batch as cancelled.
+
+// RecordSuccessfulJob decrements PendingJobs. Returns updated counts.
+
+// RecordFailedJob increments FailedJobs and decrements PendingJobs.
+
+// Fresh retrieves the latest batch state from the repository.
+
+// Progress returns the batch completion percentage (0–100).
+
+// ProcessedJobs returns the number of jobs that have been processed.
+
+// Delete removes the batch from the repository.
+
+// AllowsFailures reports whether the batch is configured to tolerate job failures.
+
+// Add adds jobs to a dispatched batch and dispatches them.
+
+// MarshalJSON serialises the batch to JSON.
+
+// UpdatedBatchJobCounts is a DTO for updated batch job counts.
+type UpdatedBatchJobCounts struct {
+	PendingJobs int
+	FailedJobs  int
+}
+
 func NewBatchWithRepo(id string, repo BatchRepository) *Batch {
 	return &Batch{
 		ID:      id,
@@ -41,37 +74,37 @@ func NewBatchWithRepo(id string, repo BatchRepository) *Batch {
 	}
 }
 
-// Finished reports whether all jobs have run (pending == 0).
 func (b *Batch) Finished() bool {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	return b.PendingJobs == 0
 }
 
-// Cancelled reports whether the batch was cancelled.
 func (b *Batch) Cancelled() bool {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	return b.CancelledAt != nil
 }
 
-// HasFailures reports whether any jobs have failed.
 func (b *Batch) HasFailures() bool {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	return b.FailedJobs > 0
 }
 
-// Cancel marks the batch as cancelled.
 func (b *Batch) Cancel(ctx context.Context) error {
 	if b.repo != nil {
 		return b.repo.Cancel(ctx, b.ID)
 	}
 
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	now := time.Now()
@@ -80,13 +113,13 @@ func (b *Batch) Cancel(ctx context.Context) error {
 	return nil
 }
 
-// RecordSuccessfulJob decrements PendingJobs. Returns updated counts.
 func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts, error) {
 	if b.repo != nil {
 		return b.repo.DecrementPendingJobs(ctx, b.ID)
 	}
 
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	if b.PendingJobs > 0 {
@@ -96,17 +129,18 @@ func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts
 	return &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}, nil
 }
 
-// RecordFailedJob increments FailedJobs and decrements PendingJobs.
 func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string) (*UpdatedBatchJobCounts, error) {
 	if b.repo != nil {
 		return b.repo.IncrementFailedJobs(ctx, b.ID, failedJobID)
 	}
 
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	b.FailedJobs++
 	b.FailedJobIDs = append(b.FailedJobIDs, failedJobID)
+
 	if b.PendingJobs > 0 {
 		b.PendingJobs--
 	}
@@ -114,7 +148,6 @@ func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string) (*Updat
 	return &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}, nil
 }
 
-// Fresh retrieves the latest batch state from the repository.
 func (b *Batch) Fresh(ctx context.Context) (*Batch, error) {
 	if b.repo == nil {
 		return b, nil
@@ -123,9 +156,9 @@ func (b *Batch) Fresh(ctx context.Context) (*Batch, error) {
 	return b.repo.Get(ctx, b.ID)
 }
 
-// Progress returns the batch completion percentage (0–100).
 func (b *Batch) Progress() float64 {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	if b.TotalJobs == 0 {
@@ -135,15 +168,14 @@ func (b *Batch) Progress() float64 {
 	return float64(b.TotalJobs-b.PendingJobs) / float64(b.TotalJobs) * 100
 }
 
-// ProcessedJobs returns the number of jobs that have been processed.
 func (b *Batch) ProcessedJobs() int {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	return b.TotalJobs - b.PendingJobs
 }
 
-// Delete removes the batch from the repository.
 func (b *Batch) Delete(ctx context.Context) error {
 	if b.repo != nil {
 		return b.repo.Delete(ctx, b.ID)
@@ -152,12 +184,13 @@ func (b *Batch) Delete(ctx context.Context) error {
 	return nil
 }
 
-// AllowsFailures reports whether the batch is configured to tolerate job failures.
 func (b *Batch) AllowsFailures() bool {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	v, ok := b.Options["allowFailures"]
+
 	if !ok {
 		return false
 	}
@@ -167,7 +200,6 @@ func (b *Batch) AllowsFailures() bool {
 	return allowed
 }
 
-// Add adds jobs to a dispatched batch and dispatches them.
 func (b *Batch) Add(ctx context.Context, jobs []any) error {
 	if b.repo != nil {
 		if err := b.repo.IncrementTotalJobs(ctx, b.ID, len(jobs)); err != nil {
@@ -191,9 +223,9 @@ func (b *Batch) Add(ctx context.Context, jobs []any) error {
 	return nil
 }
 
-// MarshalJSON serialises the batch to JSON.
 func (b *Batch) MarshalJSON() ([]byte, error) {
 	b.mu.RLock()
+
 	defer b.mu.RUnlock()
 
 	return json.Marshal(struct {
@@ -229,12 +261,6 @@ func (b *Batch) progressLocked() float64 {
 	}
 
 	return float64(b.TotalJobs-b.PendingJobs) / float64(b.TotalJobs) * 100
-}
-
-// UpdatedBatchJobCounts is a DTO for updated batch job counts.
-type UpdatedBatchJobCounts struct {
-	PendingJobs int
-	FailedJobs  int
 }
 
 // AllJobsRanExactlyOnce reports whether all jobs completed without failure.

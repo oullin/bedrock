@@ -52,6 +52,7 @@ func (r *DynamoBatchRepository) Get(ctx context.Context, id string) (*Batch, err
 	}
 
 	item, err := r.client.GetItem(ctx, r.table, key)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: dynamo get batch: %w", err)
 	}
@@ -66,11 +67,13 @@ func (r *DynamoBatchRepository) Get(ctx context.Context, id string) (*Batch, err
 // Store persists a new batch.
 func (r *DynamoBatchRepository) Store(ctx context.Context, batch *Batch) error {
 	failedIDs, err := json.Marshal(batch.FailedJobIDs)
+
 	if err != nil {
 		return fmt.Errorf("bus: marshal failed_job_ids: %w", err)
 	}
 
 	opts, err := json.Marshal(batch.Options)
+
 	if err != nil {
 		return fmt.Errorf("bus: marshal options: %w", err)
 	}
@@ -117,6 +120,7 @@ func (r *DynamoBatchRepository) IncrementTotalJobs(ctx context.Context, id strin
 		"SET total_jobs = total_jobs + :amount, pending_jobs = pending_jobs + :amount",
 		map[string]any{":amount": amount},
 	)
+
 	if err != nil {
 		return fmt.Errorf("bus: dynamo increment total jobs: %w", err)
 	}
@@ -135,6 +139,7 @@ func (r *DynamoBatchRepository) DecrementPendingJobs(ctx context.Context, id str
 		"SET pending_jobs = pending_jobs - :one",
 		map[string]any{":one": 1},
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: dynamo decrement pending jobs: %w", err)
 	}
@@ -146,6 +151,7 @@ func (r *DynamoBatchRepository) DecrementPendingJobs(ctx context.Context, id str
 func (r *DynamoBatchRepository) IncrementFailedJobs(ctx context.Context, id string, failedJobID string) (*UpdatedBatchJobCounts, error) {
 	// First fetch current failed_job_ids.
 	batch, err := r.Get(ctx, id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +162,7 @@ func (r *DynamoBatchRepository) IncrementFailedJobs(ctx context.Context, id stri
 
 	failedIDs := append(batch.FailedJobIDs, failedJobID)
 	failedJSON, err := json.Marshal(failedIDs)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: marshal failed_job_ids: %w", err)
 	}
@@ -169,6 +176,7 @@ func (r *DynamoBatchRepository) IncrementFailedJobs(ctx context.Context, id stri
 		"SET failed_jobs = failed_jobs + :one, pending_jobs = pending_jobs - :one, failed_job_ids = :ids",
 		map[string]any{":one": 1, ":ids": string(failedJSON)},
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: dynamo increment failed jobs: %w", err)
 	}
@@ -187,6 +195,7 @@ func (r *DynamoBatchRepository) MarkAsFinished(ctx context.Context, id string) e
 		"SET finished_at = :ts",
 		map[string]any{":ts": time.Now().Unix()},
 	)
+
 	if err != nil {
 		return fmt.Errorf("bus: dynamo mark as finished: %w", err)
 	}
@@ -205,6 +214,7 @@ func (r *DynamoBatchRepository) Cancel(ctx context.Context, id string) error {
 		"SET cancelled_at = :ts",
 		map[string]any{":ts": time.Now().Unix()},
 	)
+
 	if err != nil {
 		return fmt.Errorf("bus: dynamo cancel batch: %w", err)
 	}
@@ -234,6 +244,7 @@ func (r *DynamoBatchRepository) Transaction(_ context.Context, fn func(BatchRepo
 
 func (r *DynamoBatchRepository) fetchCounts(ctx context.Context, id string) (*UpdatedBatchJobCounts, error) {
 	batch, err := r.Get(ctx, id)
+
 	if err != nil {
 		return nil, err
 	}

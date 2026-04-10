@@ -121,6 +121,7 @@ func (p *PendingBatch) CatchCallbacks() []func(ctx context.Context, batch *Batch
 // Options returns the batch options map.
 func (p *PendingBatch) Options() map[string]any {
 	opts := make(map[string]any)
+
 	if p.allowFailures {
 		opts["allowFailures"] = true
 	}
@@ -131,6 +132,7 @@ func (p *PendingBatch) Options() map[string]any {
 // Dispatch creates and persists the batch, then dispatches all jobs.
 func (p *PendingBatch) Dispatch(ctx context.Context) (*Batch, error) {
 	id, err := generateBatchID()
+
 	if err != nil {
 		return nil, err
 	}
@@ -193,6 +195,7 @@ func (p *PendingBatch) DispatchUnless(ctx context.Context, condition bool) (*Bat
 // DispatchAfterResponse creates and persists the batch, then defers job dispatch.
 func (p *PendingBatch) DispatchAfterResponse(ctx context.Context) (*Batch, error) {
 	id, err := generateBatchID()
+
 	if err != nil {
 		return nil, err
 	}
@@ -237,6 +240,7 @@ func (p *PendingBatch) DispatchAfterResponse(ctx context.Context) (*Batch, error
 
 func generateBatchID() (string, error) {
 	b := make([]byte, 16)
+
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}

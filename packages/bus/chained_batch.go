@@ -18,6 +18,22 @@ type ChainedBatch struct {
 
 // NewChainedBatch creates a ChainedBatch from a PendingBatch,
 // capturing its jobs, name, options, connection, queue, and catch callbacks.
+
+// Handle dispatches the batch. If the batch completes successfully
+// (is not cancelled), the remaining chain jobs are dispatched.
+
+// When the batch succeeds, dispatch remaining chain jobs.
+
+// Attach catch callbacks.
+
+// ToPendingBatch reconstructs a PendingBatch from the ChainedBatch's stored config.
+
+// PrepareNestedBatches converts any *PendingBatch items in a job slice
+// into *ChainedBatch instances for queue dispatch.
+
+// dispatcherContextKey is the context key for the QueueingDispatcher.
+type dispatcherContextKey struct{}
+
 func NewChainedBatch(pb *PendingBatch) *ChainedBatch {
 	cb := &ChainedBatch{
 		jobs:           pb.Jobs(),
@@ -32,17 +48,15 @@ func NewChainedBatch(pb *PendingBatch) *ChainedBatch {
 	return cb
 }
 
-// Handle dispatches the batch. If the batch completes successfully
-// (is not cancelled), the remaining chain jobs are dispatched.
 func (cb *ChainedBatch) Handle(ctx context.Context) (any, error) {
 	dispatcher, ok := ctx.Value(dispatcherContextKey{}).(QueueingDispatcher)
+
 	if !ok {
 		return nil, nil
 	}
 
 	pb := cb.ToPendingBatch(dispatcher)
 
-	// When the batch succeeds, dispatch remaining chain jobs.
 	if len(cb.ChainJobs) > 0 {
 		remaining := cb.ChainJobs
 		pb.Then(func(ctx context.Context, batch *Batch) {
@@ -56,7 +70,6 @@ func (cb *ChainedBatch) Handle(ctx context.Context) (any, error) {
 		})
 	}
 
-	// Attach catch callbacks.
 	for _, fn := range cb.catchCallbacks {
 		pb.Catch(fn)
 	}
@@ -66,7 +79,6 @@ func (cb *ChainedBatch) Handle(ctx context.Context) (any, error) {
 	return nil, err
 }
 
-// ToPendingBatch reconstructs a PendingBatch from the ChainedBatch's stored config.
 func (cb *ChainedBatch) ToPendingBatch(dispatcher QueueingDispatcher) *PendingBatch {
 	pb := NewPendingBatch(dispatcher, cb.jobs).Name(cb.name)
 
@@ -87,8 +99,6 @@ func (cb *ChainedBatch) ToPendingBatch(dispatcher QueueingDispatcher) *PendingBa
 	return pb
 }
 
-// PrepareNestedBatches converts any *PendingBatch items in a job slice
-// into *ChainedBatch instances for queue dispatch.
 func PrepareNestedBatches(jobs []any) []any {
 	result := make([]any, 0, len(jobs))
 
@@ -102,9 +112,6 @@ func PrepareNestedBatches(jobs []any) []any {
 
 	return result
 }
-
-// dispatcherContextKey is the context key for the QueueingDispatcher.
-type dispatcherContextKey struct{}
 
 // WithDispatcher returns a context with the QueueingDispatcher set.
 func WithDispatcher(ctx context.Context, d QueueingDispatcher) context.Context {

@@ -29,6 +29,7 @@ func (c *Context) Text(status int, body string) error {
 // JSON marshals v as JSON and writes it with the given status code.
 func (c *Context) JSON(status int, v any) error {
 	b, err := json.Marshal(v)
+
 	if err != nil {
 		return err
 	}

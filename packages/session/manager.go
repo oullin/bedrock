@@ -11,11 +11,11 @@ type DriverCreator func(config map[string]any) (Handler, error)
 
 // Manager creates and manages named session stores backed by registered drivers.
 type Manager struct {
-	mu       sync.RWMutex
-	stores   map[string]*Store
-	drivers  map[string]DriverCreator
-	config   map[string]map[string]any
-	name     string // default session name / cookie name
+	mu      sync.RWMutex
+	stores  map[string]*Store
+	drivers map[string]DriverCreator
+	config  map[string]map[string]any
+	name    string // default session name / cookie name
 }
 
 // NewManager creates a Manager. name is the default session name.
@@ -31,6 +31,7 @@ func NewManager(name string) *Manager {
 // Extend registers a custom driver factory under driverName.
 func (m *Manager) Extend(driverName string, creator DriverCreator) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.drivers[driverName] = creator
@@ -41,6 +42,7 @@ func (m *Manager) Extend(driverName string, creator DriverCreator) *Manager {
 // SetDriverConfig stores the configuration map for a specific driver.
 func (m *Manager) SetDriverConfig(driverName string, config map[string]any) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.config[driverName] = config
@@ -51,6 +53,7 @@ func (m *Manager) SetDriverConfig(driverName string, config map[string]any) *Man
 // Driver creates (or returns a cached) Store for the given driver name.
 func (m *Manager) Driver(ctx context.Context, driverName string) (*Store, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if s, ok := m.stores[driverName]; ok {
@@ -58,6 +61,7 @@ func (m *Manager) Driver(ctx context.Context, driverName string) (*Store, error)
 	}
 
 	creator, ok := m.drivers[driverName]
+
 	if !ok {
 		return nil, fmt.Errorf("session: unsupported driver %q", driverName)
 	}
@@ -65,6 +69,7 @@ func (m *Manager) Driver(ctx context.Context, driverName string) (*Store, error)
 	cfg := m.config[driverName]
 
 	handler, err := creator(cfg)
+
 	if err != nil {
 		return nil, fmt.Errorf("session: create driver %q: %w", driverName, err)
 	}

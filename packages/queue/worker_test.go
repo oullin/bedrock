@@ -19,6 +19,7 @@ func TestSyncDriverProcessesImmediately(t *testing.T) {
 
 	drv := drivers.NewSyncDriver("default", handler)
 	_, err := drv.Push(context.Background(), "default", []byte(`{"job":"test"}`))
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,6 +32,7 @@ func TestSyncDriverProcessesImmediately(t *testing.T) {
 func TestNullDriverDiscardsJobs(t *testing.T) {
 	drv := drivers.NewNullDriver("null")
 	id, err := drv.Push(context.Background(), "default", []byte("payload"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,6 +40,7 @@ func TestNullDriverDiscardsJobs(t *testing.T) {
 	_ = id
 
 	n, _ := drv.Size(context.Background(), "default")
+
 	if n != 0 {
 		t.Errorf("null driver should always report size 0, got %d", n)
 	}
@@ -53,6 +56,7 @@ func TestWorkerStopsOnEmpty(t *testing.T) {
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
 	defer cancel()
 
 	if err := w.Run(ctx, "default"); err != nil {
@@ -68,6 +72,7 @@ func TestFailoverDriverFallsBack(t *testing.T) {
 	drv := drivers.NewFailoverDriver("failover", d1, d2)
 
 	_, err := drv.Push(context.Background(), "q", []byte("payload"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +90,7 @@ func TestDeferredDriverFlush(t *testing.T) {
 	_, _ = drv.Push(context.Background(), "q", []byte("b"))
 
 	n, _ := drv.Size(context.Background(), "q")
+
 	if n != 2 {
 		t.Errorf("expected 2 deferred, got %d", n)
 	}
@@ -98,6 +104,7 @@ func TestDeferredDriverFlush(t *testing.T) {
 	}
 
 	n2, _ := drv.Size(context.Background(), "q")
+
 	if n2 != 0 {
 		t.Errorf("expected 0 after flush, got %d", n2)
 	}

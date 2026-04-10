@@ -25,30 +25,12 @@ type Response struct {
 }
 
 // Allow returns an allowing Response.
-func Allow(message string) Response {
-	return Response{Allowed: true, Message: message, StatusCode: http.StatusOK}
-}
 
 // Deny returns a denying Response.
-func Deny(message string, statusCode int) Response {
-	if statusCode == 0 {
-		statusCode = http.StatusForbidden
-	}
-
-	return Response{Allowed: false, Message: message, StatusCode: statusCode}
-}
 
 // AuthorizationException is returned when a gate check fails.
 type AuthorizationException struct {
 	Response Response
-}
-
-func (e *AuthorizationException) Error() string {
-	if e.Response.Message != "" {
-		return e.Response.Message
-	}
-
-	return fmt.Sprintf("this action is unauthorized (HTTP %d)", e.Response.StatusCode)
 }
 
 // Gate manages abilities and policies for authorization.
@@ -58,6 +40,26 @@ type Gate struct {
 	before       []func(ctx context.Context, user auth.Authenticatable, ability string, model any) (bool, bool)
 	after        []func(ctx context.Context, user auth.Authenticatable, ability string, result bool, model any)
 	userResolver func(ctx context.Context) auth.Authenticatable
+}
+
+func Allow(message string) Response {
+	return Response{Allowed: true, Message: message, StatusCode: http.StatusOK}
+}
+
+func Deny(message string, statusCode int) Response {
+	if statusCode == 0 {
+		statusCode = http.StatusForbidden
+	}
+
+	return Response{Allowed: false, Message: message, StatusCode: statusCode}
+}
+
+func (e *AuthorizationException) Error() string {
+	if e.Response.Message != "" {
+		return e.Response.Message
+	}
+
+	return fmt.Sprintf("this action is unauthorized (HTTP %d)", e.Response.StatusCode)
 }
 
 // New creates a Gate with the given user resolver.
@@ -71,6 +73,7 @@ func New(userResolver func(ctx context.Context) auth.Authenticatable) *Gate {
 // Define registers an ability by name.
 func (g *Gate) Define(ability string, fn Ability) *Gate {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.abilities[ability] = fn
@@ -82,6 +85,7 @@ func (g *Gate) Define(ability string, fn Ability) *Gate {
 // If the hook returns (result, true) the ability check is skipped.
 func (g *Gate) Before(fn func(ctx context.Context, user auth.Authenticatable, ability string, model any) (bool, bool)) *Gate {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.before = append(g.before, fn)
@@ -92,6 +96,7 @@ func (g *Gate) Before(fn func(ctx context.Context, user auth.Authenticatable, ab
 // After registers a hook that runs after any ability check.
 func (g *Gate) After(fn func(ctx context.Context, user auth.Authenticatable, ability string, result bool, model any)) *Gate {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.after = append(g.after, fn)
@@ -127,6 +132,7 @@ func (g *Gate) Inspect(ctx context.Context, ability string, model any) Response 
 	}
 
 	allowed, err := fn(ctx, user, model)
+
 	if err != nil {
 		resp := Deny(err.Error(), http.StatusInternalServerError)
 
@@ -176,6 +182,7 @@ func (g *Gate) Every(ctx context.Context, abilities []string, model any) bool {
 // Authorize checks the ability and returns an error if unauthorized.
 func (g *Gate) Authorize(ctx context.Context, ability string, model any) error {
 	resp := g.Inspect(ctx, ability, model)
+
 	if !resp.Allowed {
 		return &AuthorizationException{Response: resp}
 	}

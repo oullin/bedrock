@@ -21,8 +21,8 @@ type ModelQuery interface {
 
 // ORMUserProvider retrieves users via an injected ORM ModelQuery interface.
 type ORMUserProvider struct {
-	model   ModelQuery
-	hasher  auth.PasswordHasher
+	model  ModelQuery
+	hasher auth.PasswordHasher
 }
 
 // NewORMUserProvider creates an ORMUserProvider.
@@ -36,6 +36,7 @@ func (p *ORMUserProvider) RetrieveByID(ctx context.Context, id any) (auth.Authen
 
 func (p *ORMUserProvider) RetrieveByToken(ctx context.Context, id any, token string) (auth.Authenticatable, error) {
 	user, err := p.model.FindByToken(ctx, id, token)
+
 	if err != nil || user == nil {
 		return nil, err
 	}
@@ -54,6 +55,7 @@ func (p *ORMUserProvider) UpdateRememberToken(ctx context.Context, user auth.Aut
 func (p *ORMUserProvider) RetrieveByCredentials(ctx context.Context, credentials map[string]any) (auth.Authenticatable, error) {
 	// Strip password from query credentials.
 	query := make(map[string]any, len(credentials))
+
 	for k, v := range credentials {
 		if k != "password" {
 			query[k] = v
@@ -65,6 +67,7 @@ func (p *ORMUserProvider) RetrieveByCredentials(ctx context.Context, credentials
 
 func (p *ORMUserProvider) ValidateCredentials(_ context.Context, user auth.Authenticatable, credentials map[string]any) bool {
 	plain, ok := credentials["password"].(string)
+
 	if !ok {
 		return false
 	}
@@ -78,11 +81,13 @@ func (p *ORMUserProvider) RehashPasswordIfRequired(ctx context.Context, user aut
 	}
 
 	plain, ok := credentials["password"].(string)
+
 	if !ok {
 		return nil
 	}
 
 	hash, err := p.hasher.Hash(plain)
+
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 
 func main() {
 	addr := os.Getenv("DEMO_ADDR")
+
 	if addr == "" {
 		addr = ":8080"
 	}

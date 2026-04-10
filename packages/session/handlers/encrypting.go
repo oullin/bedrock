@@ -46,6 +46,7 @@ func (h *EncryptingHandler) Close(ctx context.Context) error {
 
 func (h *EncryptingHandler) Read(ctx context.Context, id string) (string, error) {
 	ciphertext, err := h.wrap.Read(ctx, id)
+
 	if err != nil {
 		return "", err
 	}
@@ -55,6 +56,7 @@ func (h *EncryptingHandler) Read(ctx context.Context, id string) (string, error)
 	}
 
 	plaintext, err := h.inner.Decrypt(ciphertext)
+
 	if err != nil {
 		return "", fmt.Errorf("session: decrypt: %w", err)
 	}
@@ -64,6 +66,7 @@ func (h *EncryptingHandler) Read(ctx context.Context, id string) (string, error)
 
 func (h *EncryptingHandler) Write(ctx context.Context, id, data string) error {
 	ciphertext, err := h.inner.Encrypt(data)
+
 	if err != nil {
 		return fmt.Errorf("session: encrypt: %w", err)
 	}

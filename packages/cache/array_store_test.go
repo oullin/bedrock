@@ -18,6 +18,7 @@ type fakeClock struct {
 
 func (c *fakeClock) Now() time.Time {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	return c.now
@@ -25,6 +26,7 @@ func (c *fakeClock) Now() time.Time {
 
 func (c *fakeClock) Advance(d time.Duration) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.now = c.now.Add(d)
@@ -39,6 +41,7 @@ func TestArrayStoreBasicGet(t *testing.T) {
 	_ = s.Put(ctx, "key", "value", time.Minute)
 
 	got, err := s.Get(ctx, "key")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,6 +73,7 @@ func TestArrayStoreExpiry(t *testing.T) {
 	clk.Advance(11 * time.Second)
 
 	_, err := s.Get(ctx, "key")
+
 	if !errors.Is(err, cache.ErrNotFound) {
 		t.Fatalf("expected ErrNotFound after expiry, got %v", err)
 	}
@@ -86,6 +90,7 @@ func TestArrayStoreNoExpiry(t *testing.T) {
 	clk.Advance(365 * 24 * time.Hour)
 
 	_, err := s.Get(ctx, "key")
+
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -98,16 +103,19 @@ func TestArrayStoreAdd(t *testing.T) {
 	ctx := context.Background()
 
 	ok, _ := s.Add(ctx, "k", "v1", time.Minute)
+
 	if !ok {
 		t.Fatal("expected Add to succeed")
 	}
 
 	ok, _ = s.Add(ctx, "k", "v2", time.Minute)
+
 	if ok {
 		t.Fatal("expected Add to fail on existing key")
 	}
 
 	got, _ := s.Get(ctx, "k")
+
 	if got != "v1" {
 		t.Fatalf("expected original value, got %v", got)
 	}
@@ -120,16 +128,19 @@ func TestArrayStoreIncrement(t *testing.T) {
 	ctx := context.Background()
 
 	v, _ := s.Increment(ctx, "counter", 1)
+
 	if v != 1 {
 		t.Fatalf("expected 1, got %d", v)
 	}
 
 	v, _ = s.Increment(ctx, "counter", 5)
+
 	if v != 6 {
 		t.Fatalf("expected 6, got %d", v)
 	}
 
 	v, _ = s.Decrement(ctx, "counter", 2)
+
 	if v != 4 {
 		t.Fatalf("expected 4, got %d", v)
 	}
@@ -173,6 +184,7 @@ func TestArrayStoreConcurrentAccess(t *testing.T) {
 	ctx := context.Background()
 
 	var wg sync.WaitGroup
+
 	var failures atomic.Int32
 
 	for i := 0; i < 100; i++ {
@@ -207,11 +219,13 @@ func TestArrayStoreLock(t *testing.T) {
 	l2 := s.Lock("resource", "owner-2", time.Minute)
 
 	ok, _ := l1.Acquire(ctx)
+
 	if !ok {
 		t.Fatal("expected owner-1 to acquire lock")
 	}
 
 	ok, _ = l2.Acquire(ctx)
+
 	if ok {
 		t.Fatal("expected owner-2 to fail acquiring held lock")
 	}
@@ -219,6 +233,7 @@ func TestArrayStoreLock(t *testing.T) {
 	l1.Release(ctx) //nolint:errcheck
 
 	ok, _ = l2.Acquire(ctx)
+
 	if !ok {
 		t.Fatal("expected owner-2 to acquire after release")
 	}
@@ -234,6 +249,7 @@ func TestArrayStoreGetMany(t *testing.T) {
 	_ = s.Put(ctx, "b", 2, 0)
 
 	got, err := s.GetMany(ctx, []string{"a", "b", "missing"})
+
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -42,11 +42,13 @@ func (h *CookieHandler) Read(_ context.Context, _ string) (string, error) {
 	}
 
 	c, err := h.request.Cookie(h.name)
+
 	if err != nil {
 		return "", nil
 	}
 
 	plaintext, err := h.enc.Decrypt(c.Value)
+
 	if err != nil {
 		return "", nil
 	}
@@ -60,6 +62,7 @@ func (h *CookieHandler) Write(_ context.Context, _, data string) error {
 	}
 
 	ciphertext, err := h.enc.Encrypt(data)
+
 	if err != nil {
 		return err
 	}
