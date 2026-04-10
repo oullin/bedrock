@@ -8,9 +8,7 @@
     "pnpm": ">=10.33.0"
   },
   "scripts": {
-    "preinstall": "sh packages/infra/scripts/enforce-pnpm.sh",
-    "bootstrap:illuminate": "sh packages/infra/scripts/bootstrap-illuminate.sh",
-    "sync:laravel": "sh packages/infra/scripts/sync-laravel-upstream.sh",
+    "preinstall": "sh infra/scripts/enforce-pnpm.sh",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",

@@ -1,4 +1,4 @@
 packages:
-  - packages/app
-  - packages/infra
-  - packages/anvil/*
+  - dist/app
+  - infra
+  - storage
