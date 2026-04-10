@@ -29,6 +29,7 @@ type DynamoDbStore struct {
 }
 
 var _ Store = (*DynamoDbStore)(nil)
+var _ Locker = (*DynamoDbStore)(nil)
 
 // NewDynamoDbStore creates a DynamoDbStore with sensible defaults.
 func NewDynamoDbStore(client DynamoClient, table, prefix string) *DynamoDbStore {
@@ -51,6 +52,11 @@ func (s *DynamoDbStore) now() time.Time {
 }
 
 func (s *DynamoDbStore) GetPrefix() string { return s.prefix }
+
+// Lock returns a DynamoDB-backed lock for the named resource.
+func (s *DynamoDbStore) Lock(name, owner string, ttl time.Duration) Lock {
+	return NewDynamoDbLock(s.client, s.table, name, owner, ttl, s.clock)
+}
 
 func (s *DynamoDbStore) prefixed(key string) string {
 	if s.prefix == "" {

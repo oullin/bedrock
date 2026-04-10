@@ -10,13 +10,6 @@ import (
 // Useful for disabling caching or as a test double.
 type NullStore struct{}
 
-// NewNullStore creates a NullStore.
-
-// Lock returns a no-op lock.
-
-// noLock is a no-op Lock that always appears to succeed.
-type noLock struct{}
-
 var _ Store = (*NullStore)(nil)
 var _ Locker = (*NullStore)(nil)
 
@@ -56,11 +49,5 @@ func (s *NullStore) Forget(_ context.Context, _ string) error { return nil }
 
 func (s *NullStore) Flush(_ context.Context) error { return nil }
 
-func (s *NullStore) Lock(_, _ string, _ time.Duration) Lock { return &noLock{} }
-
-func (l *noLock) Acquire(_ context.Context) (bool, error)        { return true, nil }
-func (l *noLock) Release(_ context.Context) (bool, error)        { return true, nil }
-func (l *noLock) ForceRelease(_ context.Context) error           { return nil }
-func (l *noLock) Get(ctx context.Context, fn func() error) error { return fn() }
-func (l *noLock) Block(_ context.Context, _ time.Duration) error { return nil }
-func (l *noLock) Blocked(_ context.Context) (bool, error)        { return false, nil }
+// Lock returns a no-op lock.
+func (s *NullStore) Lock(_, _ string, _ time.Duration) Lock { return &NoLock{} }
