@@ -10,18 +10,20 @@ import (
 // TokenGuard authenticates requests via a bearer token found in the query
 // string, form body, request header, or HTTP Basic Auth.
 type TokenGuard struct {
-	mu           sync.RWMutex
-	provider     UserProvider
-	request      *http.Request
-	user         Authenticatable
-	inputKey     string // query/form field name (default: "api_token")
-	storageKey   string // user attribute key (default: "api_token")
-	hashable     bool   // whether tokens are hashed in storage
+	mu         sync.RWMutex
+	name       string
+	provider   UserProvider
+	request    *http.Request
+	user       Authenticatable
+	inputKey   string // query/form field name (default: "api_token")
+	storageKey string // user attribute key (default: "api_token")
+	hashable   bool   // whether tokens are hashed in storage
 }
 
 // NewTokenGuard creates a TokenGuard with default key names.
-func NewTokenGuard(provider UserProvider) *TokenGuard {
+func NewTokenGuard(name string, provider UserProvider) *TokenGuard {
 	return &TokenGuard{
+		name:       name,
 		provider:   provider,
 		inputKey:   "api_token",
 		storageKey: "api_token",
@@ -40,6 +42,30 @@ func (g *TokenGuard) SetRequest(r *http.Request) {
 	defer g.mu.Unlock()
 
 	g.request = r
+	g.user = nil
+}
+
+// SetUser sets the authenticated user on the guard.
+func (g *TokenGuard) SetUser(user Authenticatable) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.user = user
+}
+
+// HasUser reports whether the guard has a resolved user without triggering resolution.
+func (g *TokenGuard) HasUser() bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	return g.user != nil
+}
+
+// ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
+func (g *TokenGuard) ForgetUser() {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
 	g.user = nil
 }
 

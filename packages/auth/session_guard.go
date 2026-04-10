@@ -7,22 +7,25 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+
+	"github.com/bedrock/packages/auth/events"
 )
 
 const sessionKey = "_auth_user"
 
 // SessionGuard is the stateful, cookie+session backed authentication guard.
 type SessionGuard struct {
-	mu           sync.RWMutex
-	name         string
-	provider     UserProvider
-	session      SessionStore
-	cookies      CookieManager
-	hasher       PasswordHasher
-	request      *http.Request
-	user         Authenticatable
-	viaRemember  bool
+	mu            sync.RWMutex
+	name          string
+	provider      UserProvider
+	session       SessionStore
+	cookies       CookieManager
+	hasher        PasswordHasher
+	request       *http.Request
+	user          Authenticatable
+	viaRemember   bool
 	remCookieName string
+	events        EventDispatcher
 }
 
 // NewSessionGuard creates a SessionGuard.
@@ -41,6 +44,45 @@ func NewSessionGuard(
 		hasher:        hasher,
 		remCookieName: name + "_remember",
 	}
+}
+
+// SetEventDispatcher sets the event dispatcher for auth lifecycle events.
+func (g *SessionGuard) SetEventDispatcher(d EventDispatcher) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.events = d
+}
+
+func (g *SessionGuard) dispatch(ctx context.Context, event any) {
+	if g.events != nil {
+		_ = g.events.Dispatch(ctx, event)
+	}
+}
+
+// SetUser sets the authenticated user and fires the Authenticated event.
+func (g *SessionGuard) SetUser(ctx context.Context, user Authenticatable) {
+	g.mu.Lock()
+	g.user = user
+	g.mu.Unlock()
+
+	g.dispatch(ctx, events.Authenticated{Guard: g.name, User: user})
+}
+
+// HasUser reports whether the guard has a resolved user without triggering resolution.
+func (g *SessionGuard) HasUser() bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	return g.user != nil
+}
+
+// ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
+func (g *SessionGuard) ForgetUser() {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.user = nil
 }
 
 // SetRequest sets the current HTTP request (required before resolving user).
@@ -66,6 +108,7 @@ func (g *SessionGuard) User(ctx context.Context) (Authenticatable, error) {
 		user, err := g.provider.RetrieveByID(ctx, id)
 		if err == nil && user != nil {
 			g.user = user
+			g.dispatch(ctx, events.Authenticated{Guard: g.name, User: user})
 
 			return user, nil
 		}
@@ -81,6 +124,8 @@ func (g *SessionGuard) User(ctx context.Context) (Authenticatable, error) {
 					g.user = user
 					g.viaRemember = true
 					g.session.Put(sessionKey, user.GetAuthIdentifier())
+					g.dispatch(ctx, events.Login{Guard: g.name, User: user, Remember: true})
+					g.dispatch(ctx, events.Authenticated{Guard: g.name, User: user})
 
 					return user, nil
 				}
@@ -125,15 +170,22 @@ func (g *SessionGuard) Validate(ctx context.Context, credentials map[string]any)
 
 // Attempt attempts to authenticate with credentials. Logs in on success.
 func (g *SessionGuard) Attempt(ctx context.Context, credentials map[string]any, remember bool) bool {
+	g.dispatch(ctx, events.Attempting{Guard: g.name, Credentials: credentials, Remember: remember})
+
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
 	if err != nil || user == nil {
+		g.dispatch(ctx, events.Failed{Guard: g.name, User: nil, Credentials: credentials})
+
 		return false
 	}
 
 	if !g.provider.ValidateCredentials(ctx, user, credentials) {
+		g.dispatch(ctx, events.Failed{Guard: g.name, User: user, Credentials: credentials})
+
 		return false
 	}
 
+	g.dispatch(ctx, events.Validated{Guard: g.name, User: user})
 	_ = g.Login(ctx, user, remember)
 
 	return true
@@ -180,6 +232,9 @@ func (g *SessionGuard) Login(ctx context.Context, user Authenticatable, remember
 	g.mu.Lock()
 	g.user = user
 	g.mu.Unlock()
+
+	g.dispatch(ctx, events.Login{Guard: g.name, User: user, Remember: remember})
+	g.dispatch(ctx, events.Authenticated{Guard: g.name, User: user})
 
 	return nil
 }
@@ -243,13 +298,50 @@ func (g *SessionGuard) Logout(ctx context.Context) error {
 	g.viaRemember = false
 	g.mu.Unlock()
 
+	if user != nil {
+		g.dispatch(ctx, events.Logout{Guard: g.name, User: user})
+	}
+
 	return g.session.Migrate(ctx, true)
+}
+
+// LogoutCurrentDevice removes the current device's session without cycling the
+// remember token (other devices remain authenticated).
+func (g *SessionGuard) LogoutCurrentDevice(ctx context.Context) error {
+	user, _ := g.User(ctx)
+
+	g.session.Forget(sessionKey)
+
+	if g.cookies != nil {
+		g.cookies.Forget(g.remCookieName, "/", "")
+	}
+
+	g.mu.Lock()
+	g.user = nil
+	g.viaRemember = false
+	g.mu.Unlock()
+
+	if user != nil {
+		g.dispatch(ctx, events.CurrentDeviceLogout{Guard: g.name, User: user})
+	}
+
+	return nil
 }
 
 // LogoutOtherDevices invalidates all other sessions for the current user.
 // It re-authenticates the user with their current session after doing so.
 func (g *SessionGuard) LogoutOtherDevices(ctx context.Context) error {
-	return g.session.Migrate(ctx, true)
+	user, _ := g.User(ctx)
+
+	if err := g.session.Migrate(ctx, true); err != nil {
+		return err
+	}
+
+	if user != nil {
+		g.dispatch(ctx, events.OtherDeviceLogout{Guard: g.name, User: user})
+	}
+
+	return nil
 }
 
 func (g *SessionGuard) refreshRememberToken(ctx context.Context, user Authenticatable) error {
