@@ -14,6 +14,9 @@ type SyncDriver struct {
 }
 
 // NewSyncDriver creates a SyncDriver. handler is called synchronously for every Push.
+
+type syncJob struct{ BaseJob }
+
 func NewSyncDriver(connection string, handler queue.Handler) *SyncDriver {
 	return &SyncDriver{connection: connection, handler: handler}
 }
@@ -35,8 +38,10 @@ func (d *SyncDriver) PushDelayed(ctx context.Context, queueName string, payload 
 
 func (d *SyncDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	ids := make([]string, 0, len(payloads))
+
 	for _, p := range payloads {
 		id, err := d.Push(ctx, queueName, p)
+
 		if err != nil {
 			return ids, err
 		}
@@ -54,5 +59,3 @@ func (d *SyncDriver) PendingSize(_ context.Context, _ string) (int64, error)  { 
 func (d *SyncDriver) DelayedSize(_ context.Context, _ string) (int64, error)  { return 0, nil }
 func (d *SyncDriver) ReservedSize(_ context.Context, _ string) (int64, error) { return 0, nil }
 func (d *SyncDriver) ConnectionName() string                                  { return d.connection }
-
-type syncJob struct{ BaseJob }

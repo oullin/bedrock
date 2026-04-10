@@ -20,6 +20,7 @@ func NewEmailVerificationRequest(user auth.Authenticatable) *EmailVerificationRe
 // Fulfill marks the user's email as verified if it has not been verified yet.
 func (e *EmailVerificationRequest) Fulfill(r *http.Request) error {
 	mv, ok := e.user.(auth.MustVerifyEmail)
+
 	if !ok {
 		return errors.New("user does not implement MustVerifyEmail")
 	}
@@ -38,6 +39,7 @@ func (e *EmailVerificationRequest) Fulfill(r *http.Request) error {
 // HasVerifiedEmail reports whether the user's email is already verified.
 func (e *EmailVerificationRequest) HasVerifiedEmail() bool {
 	mv, ok := e.user.(auth.MustVerifyEmail)
+
 	if !ok {
 		return false
 	}

@@ -50,6 +50,11 @@ type DatabaseDriver struct {
 }
 
 // NewDatabaseDriver creates a DatabaseDriver.
+
+// Reserve the job.
+
+type dbJob struct{ BaseJob }
+
 func NewDatabaseDriver(db DBExecer, table, connection string) *DatabaseDriver {
 	if table == "" {
 		table = "jobs"
@@ -81,8 +86,10 @@ func (d *DatabaseDriver) PushDelayed(ctx context.Context, queueName string, payl
 
 func (d *DatabaseDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	ids := make([]string, 0, len(payloads))
+
 	for _, p := range payloads {
 		id, err := d.Push(ctx, queueName, p)
+
 		if err != nil {
 			return ids, err
 		}
@@ -101,14 +108,15 @@ func (d *DatabaseDriver) Pop(ctx context.Context, queueName string) (queue.Job, 
 	)
 
 	var id int64
+
 	var payload string
+
 	var attempts int
 
 	if err := row.Scan(&id, &payload, &attempts); err != nil {
 		return nil, queue.ErrNoJob
 	}
 
-	// Reserve the job.
 	_ = d.db.Exec(ctx,
 		fmt.Sprintf("UPDATE %s SET reserved_at=$1, attempts=attempts+1 WHERE id=$2", d.table),
 		now, id,
@@ -124,16 +132,20 @@ func (d *DatabaseDriver) Pop(ctx context.Context, queueName string) (queue.Job, 
 	}
 	job.releaseFunc = func(delay time.Duration) error {
 		availAt := time.Now().Add(delay).Unix()
+
 		return d.db.Exec(ctx,
 			fmt.Sprintf("UPDATE %s SET reserved_at=NULL, available_at=$1 WHERE id=$2", d.table),
 			availAt, id,
 		)
 	}
+
 	job.deleteFunc = func() error {
 		return d.db.Exec(ctx, fmt.Sprintf("DELETE FROM %s WHERE id=$1", d.table), id)
 	}
+
 	job.failFunc = func(err error) error {
 		var errMsg string
+
 		if err != nil {
 			errMsg = err.Error()
 		}
@@ -172,11 +184,10 @@ func (d *DatabaseDriver) count(ctx context.Context, query string, args ...any) (
 	row := d.db.QueryRow(ctx, query, args...)
 
 	var n int64
+
 	if err := row.Scan(&n); err != nil {
 		return 0, err
 	}
 
 	return n, nil
 }
-
-type dbJob struct{ BaseJob }

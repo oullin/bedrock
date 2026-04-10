@@ -15,19 +15,9 @@ type testUpdatesPasswords struct {
 	returnError error
 }
 
-func (a *testUpdatesPasswords) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
-	a.called = true
-	return a.returnError
-}
-
 type testConfirmsPasswords struct {
 	called      bool
 	returnError error
-}
-
-func (a *testConfirmsPasswords) Confirm(_ context.Context, _ Authenticatable, _ string) error {
-	a.called = true
-	return a.returnError
 }
 
 // --- test responder extension ---
@@ -36,6 +26,18 @@ type testPasswordUpdateResponder struct {
 	testResponder
 	updateCalled  bool
 	confirmCalled bool
+}
+
+func (a *testUpdatesPasswords) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
+	a.called = true
+
+	return a.returnError
+}
+
+func (a *testConfirmsPasswords) Confirm(_ context.Context, _ Authenticatable, _ string) error {
+	a.called = true
+
+	return a.returnError
 }
 
 func (r *testPasswordUpdateResponder) PasswordUpdateResponse(w http.ResponseWriter, _ *http.Request) {

@@ -34,6 +34,7 @@ func NewDispatcher(queueBackend queue.Queue, batchRepo BatchRepository) *BusDisp
 // command should be a zero-value instance of the command struct (e.g. MyCommand{}).
 func (d *BusDispatcher) Map(command any, handler Handler) Dispatcher {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	t := reflect.TypeOf(command)
@@ -45,6 +46,7 @@ func (d *BusDispatcher) Map(command any, handler Handler) Dispatcher {
 // PipeThrough replaces the current pipe list with the given pipes.
 func (d *BusDispatcher) PipeThrough(pipes ...Pipe) Dispatcher {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.pipes = pipes
@@ -71,6 +73,7 @@ func (d *BusDispatcher) DispatchNow(ctx context.Context, command any) (any, erro
 // Call FlushDeferred() to process all buffered commands.
 func (d *BusDispatcher) DispatchAfterResponse(_ context.Context, command any) error {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.deferred = append(d.deferred, command)
@@ -101,11 +104,13 @@ func (d *BusDispatcher) DispatchToQueue(ctx context.Context, command any) error 
 	}
 
 	payload, err := marshalCommand(command)
+
 	if err != nil {
 		return err
 	}
 
 	queueName := "default"
+
 	if q, ok := command.(interface{ GetQueue() string }); ok {
 		queueName = q.GetQueue()
 	}
@@ -127,6 +132,7 @@ func (d *BusDispatcher) FindBatch(ctx context.Context, id string) (*Batch, error
 // HasCommandHandler reports whether a handler is registered for the command type.
 func (d *BusDispatcher) HasCommandHandler(command any) bool {
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	_, ok := d.handlers[reflect.TypeOf(command)]
@@ -137,6 +143,7 @@ func (d *BusDispatcher) HasCommandHandler(command any) bool {
 // GetCommandHandler returns the handler for the given command type.
 func (d *BusDispatcher) GetCommandHandler(command any) (Handler, bool) {
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	h, ok := d.handlers[reflect.TypeOf(command)]
@@ -164,6 +171,7 @@ func (d *BusDispatcher) runThroughPipeline(ctx context.Context, command any) (an
 
 	// Convert bus.Pipe to pipeline.Pipe.
 	pipelinePipes := make([]pipeline.Pipe, len(pipes))
+
 	for i, p := range pipes {
 		p := p // capture loop variable.
 		pipelinePipes[i] = func(ctx context.Context, cmd any, next pipeline.Handler) (any, error) {
@@ -201,6 +209,7 @@ func (d *BusDispatcher) execute(ctx context.Context, command any) (any, error) {
 
 func marshalCommand(command any) ([]byte, error) {
 	p, err := marshalJSON(command)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: marshal command: %w", err)
 	}

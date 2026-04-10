@@ -41,6 +41,7 @@ func TestPipelineExecution(t *testing.T) {
 	}
 
 	expected := []string{"p1_before", "p2_before", "terminal", "p2_after", "p1_after"}
+
 	for i, e := range expected {
 		if i >= len(order) || order[i] != e {
 			t.Errorf("order[%d]: got %q, want %q", i, func() string {

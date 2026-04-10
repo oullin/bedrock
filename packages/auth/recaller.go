@@ -10,6 +10,7 @@ type Recaller struct {
 // NewRecaller parses a remember-me cookie value. Returns nil if invalid.
 func NewRecaller(value string) *Recaller {
 	parts := strings.Split(value, "|")
+
 	if len(parts) != 3 {
 		return nil
 	}

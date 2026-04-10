@@ -3,8 +3,8 @@ package listeners
 import (
 	"context"
 
-	contracts "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/auth/events"
+	contracts "github.com/bedrock/packages/contracts/auth"
 )
 
 // SendEmailVerificationNotification sends an email verification notification
@@ -15,6 +15,7 @@ type SendEmailVerificationNotification struct{}
 // Handle processes a Registered event.
 func (l *SendEmailVerificationNotification) Handle(_ context.Context, event events.Registered) {
 	mv, ok := event.User.(contracts.MustVerifyEmail)
+
 	if !ok {
 		return
 	}

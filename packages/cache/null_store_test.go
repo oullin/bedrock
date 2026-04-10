@@ -16,6 +16,7 @@ func TestNullStoreGet(t *testing.T) {
 	_ = s.Put(context.Background(), "k", "v", time.Minute)
 
 	_, err := s.Get(context.Background(), "k")
+
 	if !errors.Is(err, cache.ErrNotFound) {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -50,11 +51,13 @@ func TestNullStoreLock(t *testing.T) {
 	l := s.Lock("r", "owner", time.Minute)
 
 	ok, err := l.Acquire(context.Background())
+
 	if err != nil || !ok {
 		t.Fatalf("expected no-op lock acquire to succeed")
 	}
 
 	blocked, err := l.Blocked(context.Background())
+
 	if err != nil || blocked {
 		t.Fatalf("expected no-op lock to report not blocked")
 	}

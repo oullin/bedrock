@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-var _ Store = (*ArrayStore)(nil)
-var _ Locker = (*ArrayStore)(nil)
-
 type cacheItem struct {
 	value     any
 	expiresAt time.Time // zero = no expiry
@@ -23,6 +20,9 @@ type ArrayStore struct {
 	prefix string
 	clock  Clock
 }
+
+var _ Store = (*ArrayStore)(nil)
+var _ Locker = (*ArrayStore)(nil)
 
 // NewArrayStore creates an ArrayStore using the real wall clock.
 func NewArrayStore() *ArrayStore {
@@ -77,9 +77,11 @@ func (s *ArrayStore) Get(_ context.Context, key string) (any, error) {
 
 func (s *ArrayStore) GetMany(_ context.Context, keys []string) (map[string]any, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	out := make(map[string]any, len(keys))
+
 	for _, key := range keys {
 		if itm, ok := s.items[key]; ok && !s.expired(itm) {
 			out[key] = itm.value
@@ -91,6 +93,7 @@ func (s *ArrayStore) GetMany(_ context.Context, keys []string) (map[string]any, 
 
 func (s *ArrayStore) Put(_ context.Context, key string, value any, ttl time.Duration) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.items[key] = cacheItem{value: value, expiresAt: s.expiryFor(ttl)}
@@ -100,9 +103,11 @@ func (s *ArrayStore) Put(_ context.Context, key string, value any, ttl time.Dura
 
 func (s *ArrayStore) PutMany(_ context.Context, values map[string]any, ttl time.Duration) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	exp := s.expiryFor(ttl)
+
 	for k, v := range values {
 		s.items[k] = cacheItem{value: v, expiresAt: exp}
 	}
@@ -112,6 +117,7 @@ func (s *ArrayStore) PutMany(_ context.Context, values map[string]any, ttl time.
 
 func (s *ArrayStore) Add(_ context.Context, key string, value any, ttl time.Duration) (bool, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if itm, ok := s.items[key]; ok && !s.expired(itm) {
@@ -129,9 +135,11 @@ func (s *ArrayStore) Forever(ctx context.Context, key string, value any) error {
 
 func (s *ArrayStore) Increment(_ context.Context, key string, delta int64) (int64, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	itm, ok := s.items[key]
+
 	if !ok || s.expired(itm) {
 		s.items[key] = cacheItem{value: delta}
 
@@ -139,6 +147,7 @@ func (s *ArrayStore) Increment(_ context.Context, key string, delta int64) (int6
 	}
 
 	current, err := toInt64(itm.value)
+
 	if err != nil {
 		return 0, fmt.Errorf("%w: key %q", ErrInvalidValue, key)
 	}
@@ -155,9 +164,11 @@ func (s *ArrayStore) Decrement(ctx context.Context, key string, delta int64) (in
 
 func (s *ArrayStore) Touch(_ context.Context, key string, ttl time.Duration) (bool, error) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	itm, ok := s.items[key]
+
 	if !ok || s.expired(itm) {
 		return false, nil
 	}
@@ -169,6 +180,7 @@ func (s *ArrayStore) Touch(_ context.Context, key string, ttl time.Duration) (bo
 
 func (s *ArrayStore) Forget(_ context.Context, key string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	delete(s.items, key)
@@ -178,6 +190,7 @@ func (s *ArrayStore) Forget(_ context.Context, key string) error {
 
 func (s *ArrayStore) Flush(_ context.Context) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.items = make(map[string]cacheItem)
@@ -188,9 +201,11 @@ func (s *ArrayStore) Flush(_ context.Context) error {
 // Lock returns an in-memory lock for the named resource.
 func (s *ArrayStore) Lock(name, owner string, ttl time.Duration) Lock {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	l, ok := s.locks[name]
+
 	if !ok {
 		l = &arrayLock{store: s, name: name}
 		s.locks[name] = l

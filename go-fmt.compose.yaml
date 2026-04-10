@@ -1,6 +1,6 @@
 services:
   go-fmt:
-    image: ghcr.io/oullin/go-fmt:latest
+    image: ghcr.io/oullin/go-fmt:v0.0.18
     working_dir: /work
     volumes:
       - .:/work

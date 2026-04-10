@@ -18,6 +18,7 @@ func TestUniqueLockAcquireSuccess(t *testing.T) {
 
 	// Verify cache.Put was called with correct key and TTL.
 	found := false
+
 	for _, call := range cache.calls {
 		if call.Method == "Put" && call.Key == "unique_lock:my-job" && call.TTL == 60 {
 			found = true
@@ -66,6 +67,7 @@ func TestUniqueLockRelease(t *testing.T) {
 	}
 
 	found := false
+
 	for _, call := range cache.calls {
 		if call.Method == "Forget" && call.Key == "unique_lock:my-job" {
 			found = true

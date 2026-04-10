@@ -15,6 +15,13 @@ type arrayLock struct {
 	expiresAt time.Time
 }
 
+// arrayLockHandle is a per-caller view of an arrayLock.
+type arrayLockHandle struct {
+	lock  *arrayLock
+	owner string
+	ttl   time.Duration
+}
+
 func (l *arrayLock) isHeld() bool {
 	if l.owner == "" {
 		return false
@@ -30,15 +37,9 @@ func (l *arrayLock) isHeld() bool {
 	return true
 }
 
-// arrayLockHandle is a per-caller view of an arrayLock.
-type arrayLockHandle struct {
-	lock  *arrayLock
-	owner string
-	ttl   time.Duration
-}
-
 func (h *arrayLockHandle) Acquire(_ context.Context) (bool, error) {
 	h.lock.mu.Lock()
+
 	defer h.lock.mu.Unlock()
 
 	if h.lock.isHeld() {
@@ -56,6 +57,7 @@ func (h *arrayLockHandle) Acquire(_ context.Context) (bool, error) {
 
 func (h *arrayLockHandle) Release(_ context.Context) (bool, error) {
 	h.lock.mu.Lock()
+
 	defer h.lock.mu.Unlock()
 
 	if h.lock.owner != h.owner {
@@ -70,6 +72,7 @@ func (h *arrayLockHandle) Release(_ context.Context) (bool, error) {
 
 func (h *arrayLockHandle) ForceRelease(_ context.Context) error {
 	h.lock.mu.Lock()
+
 	defer h.lock.mu.Unlock()
 
 	h.lock.owner = ""
@@ -80,6 +83,7 @@ func (h *arrayLockHandle) ForceRelease(_ context.Context) error {
 
 func (h *arrayLockHandle) Get(ctx context.Context, fn func() error) error {
 	ok, err := h.Acquire(ctx)
+
 	if err != nil {
 		return err
 	}
@@ -98,6 +102,7 @@ func (h *arrayLockHandle) Block(ctx context.Context, timeout time.Duration) erro
 
 	for {
 		ok, err := h.Acquire(ctx)
+
 		if err != nil {
 			return err
 		}
@@ -120,6 +125,7 @@ func (h *arrayLockHandle) Block(ctx context.Context, timeout time.Duration) erro
 
 func (h *arrayLockHandle) Blocked(_ context.Context) (bool, error) {
 	h.lock.mu.Lock()
+
 	defer h.lock.mu.Unlock()
 
 	held := h.lock.isHeld() && h.lock.owner != h.owner

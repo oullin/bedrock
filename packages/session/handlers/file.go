@@ -29,6 +29,7 @@ func (h *FileHandler) Close(_ context.Context) error { return nil }
 
 func (h *FileHandler) Read(_ context.Context, id string) (string, error) {
 	data, err := os.ReadFile(h.filePath(id))
+
 	if os.IsNotExist(err) {
 		return "", nil
 	}
@@ -42,6 +43,7 @@ func (h *FileHandler) Read(_ context.Context, id string) (string, error) {
 
 func (h *FileHandler) Write(_ context.Context, id, data string) error {
 	tmp, err := os.CreateTemp(h.path, "sess-*")
+
 	if err != nil {
 		return err
 	}
@@ -64,6 +66,7 @@ func (h *FileHandler) Write(_ context.Context, id, data string) error {
 
 func (h *FileHandler) Destroy(_ context.Context, id string) error {
 	err := os.Remove(h.filePath(id))
+
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -75,6 +78,7 @@ func (h *FileHandler) GC(_ context.Context, maxLifetime int) error {
 	cutoff := time.Now().Add(-time.Duration(maxLifetime) * time.Second)
 
 	entries, err := os.ReadDir(h.path)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -89,6 +93,7 @@ func (h *FileHandler) GC(_ context.Context, maxLifetime int) error {
 		}
 
 		info, err := entry.Info()
+
 		if err != nil {
 			continue
 		}

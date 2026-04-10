@@ -30,6 +30,7 @@ func TestManagerBillableRegistration(t *testing.T) {
 		})
 
 	b, err := m.ResolveBillable("team", nil)
+
 	if err != nil {
 		t.Fatalf("ResolveBillable() error = %v", err)
 	}
@@ -50,6 +51,7 @@ func TestManagerPlans(t *testing.T) {
 	m.AddPlan("team", billing.BillingPlan{ID: "pri_yearly", Name: "Pro", Interval: "yearly"})
 
 	plans := m.Plans("team")
+
 	if len(plans) != 2 {
 		t.Fatalf("Plans() returned %d plans, want 2", len(plans))
 	}

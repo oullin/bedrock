@@ -18,11 +18,6 @@ type testProfileUser struct {
 	unverified bool
 }
 
-func (u *testProfileUser) HasVerifiedEmail() bool          { return u.verified }
-func (u *testProfileUser) MarkEmailAsVerified(_ time.Time) {}
-func (u *testProfileUser) MarkEmailAsUnverified()          { u.unverified = true }
-func (u *testProfileUser) GetEmailForVerification() string { return u.email }
-
 // --- test profile action ---
 
 type testUpdatesProfile struct {
@@ -31,8 +26,21 @@ type testUpdatesProfile struct {
 	err      error
 }
 
+// --- test responder extension ---
+
+type testProfileResponder struct {
+	testResponder
+	profileUpdatedCalled bool
+}
+
+func (u *testProfileUser) HasVerifiedEmail() bool          { return u.verified }
+func (u *testProfileUser) MarkEmailAsVerified(_ time.Time) {}
+func (u *testProfileUser) MarkEmailAsUnverified()          { u.unverified = true }
+func (u *testProfileUser) GetEmailForVerification() string { return u.email }
+
 func (a *testUpdatesProfile) Update(_ context.Context, user Authenticatable, input map[string]string) error {
 	a.called = true
+
 	if a.err != nil {
 		return a.err
 	}
@@ -45,13 +53,6 @@ func (a *testUpdatesProfile) Update(_ context.Context, user Authenticatable, inp
 	}
 
 	return nil
-}
-
-// --- test responder extension ---
-
-type testProfileResponder struct {
-	testResponder
-	profileUpdatedCalled bool
 }
 
 func (r *testProfileResponder) ProfileInformationUpdatedResponse(w http.ResponseWriter, _ *http.Request) {

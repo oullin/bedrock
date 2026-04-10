@@ -12,6 +12,14 @@ type AuthenticationException struct {
 	RedirectPath string
 }
 
+// NewAuthenticationException creates an AuthenticationException.
+
+// AuthorizationException is returned when authorization fails.
+type AuthorizationException struct {
+	Message    string
+	StatusCode int
+}
+
 func (e *AuthenticationException) Error() string {
 	if e.Message != "" {
 		return e.Message
@@ -20,19 +28,12 @@ func (e *AuthenticationException) Error() string {
 	return "unauthenticated"
 }
 
-// NewAuthenticationException creates an AuthenticationException.
 func NewAuthenticationException(guards []string, redirectPath string) *AuthenticationException {
 	return &AuthenticationException{
 		Message:      "unauthenticated",
 		Guards:       guards,
 		RedirectPath: redirectPath,
 	}
-}
-
-// AuthorizationException is returned when authorization fails.
-type AuthorizationException struct {
-	Message    string
-	StatusCode int
 }
 
 func (e *AuthorizationException) Error() string {

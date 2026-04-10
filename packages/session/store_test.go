@@ -51,6 +51,7 @@ func TestStorePull(t *testing.T) {
 	s.Put("k", "v")
 
 	got := s.Pull("k", nil)
+
 	if got != "v" {
 		t.Errorf("got %v, want v", got)
 	}
@@ -68,6 +69,7 @@ func TestStorePush(t *testing.T) {
 
 	v := s.Get("list", nil)
 	sl, ok := v.([]any)
+
 	if !ok || len(sl) != 2 {
 		t.Errorf("expected slice of length 2, got %v", v)
 	}
@@ -105,6 +107,7 @@ func TestStoreToken(t *testing.T) {
 	s := newStore()
 
 	tok := s.Token()
+
 	if len(tok) == 0 {
 		t.Error("expected non-empty CSRF token")
 	}
@@ -152,11 +155,13 @@ func TestStoreIncrement(t *testing.T) {
 	s.Put("n", int64(10))
 
 	got := s.Increment("n", 5)
+
 	if got != 15 {
 		t.Errorf("got %d, want 15", got)
 	}
 
 	got = s.Decrement("n", 3)
+
 	if got != 12 {
 		t.Errorf("got %d, want 12", got)
 	}
@@ -197,6 +202,7 @@ func TestStorePasswordConfirmed(t *testing.T) {
 	s := newStore()
 
 	before := s.PasswordConfirmedAt()
+
 	if before != 0 {
 		t.Error("expected 0 before confirmation")
 	}
@@ -204,6 +210,7 @@ func TestStorePasswordConfirmed(t *testing.T) {
 	s.PasswordConfirmed()
 
 	after := s.PasswordConfirmedAt()
+
 	if after == 0 {
 		t.Error("expected non-zero timestamp after confirmation")
 	}

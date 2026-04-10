@@ -28,6 +28,7 @@ func NewManager() *Manager {
 // Register registers a named driver creator (e.g. "sync", "redis").
 func (m *Manager) Register(driver string, creator DriverCreator) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.creators[driver] = creator
@@ -43,6 +44,7 @@ func (m *Manager) Extend(driver string, creator DriverCreator) *Manager {
 // SetConfig stores the configuration for a named connection.
 func (m *Manager) SetConfig(connection string, config map[string]any) *Manager {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.configs[connection] = config
@@ -53,6 +55,7 @@ func (m *Manager) SetConfig(connection string, config map[string]any) *Manager {
 // Driver returns (or creates) the Queue for the given connection name.
 func (m *Manager) Driver(connection string) (Queue, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if q, ok := m.queues[connection]; ok {
@@ -63,11 +66,13 @@ func (m *Manager) Driver(connection string) (Queue, error) {
 	driver, _ := cfg["driver"].(string)
 
 	creator, ok := m.creators[driver]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q (driver: %q)", ErrInvalidDriver, connection, driver)
 	}
 
 	q, err := creator(cfg)
+
 	if err != nil {
 		return nil, fmt.Errorf("queue: create driver %q: %w", driver, err)
 	}

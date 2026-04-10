@@ -35,6 +35,7 @@ func NewStateResolver(
 // Read returns the current billing state for the billable.
 func (r *StateResolver) Read(ctx context.Context, billableType string, billableID int64) billing.BillingStateSnapshot {
 	sub, err := r.subscriptions.CurrentSubscription(ctx, billableType, billableID)
+
 	if err != nil || sub == nil {
 		return billing.EmptyBillingState()
 	}
@@ -43,12 +44,14 @@ func (r *StateResolver) Read(ctx context.Context, billableType string, billableI
 	portalURL, _ := r.urls.PortalURL(billableType, "")
 
 	var pendingExpiresAt *string
+
 	if sub.PendingExpiresAt != nil {
 		s := sub.PendingExpiresAt.Format(time.RFC3339)
 		pendingExpiresAt = &s
 	}
 
 	var paymentReadyAt *string
+
 	if sub.PaymentReadyAt != nil {
 		s := sub.PaymentReadyAt.Format(time.RFC3339)
 		paymentReadyAt = &s
@@ -78,10 +81,12 @@ func (r *StateResolver) buildCTA(sub *billing.Subscription, planName string, pen
 	}
 
 	status := string(sub.Status)
+
 	var remaining *int
 
 	if sub.PendingExpiresAt != nil {
 		days := int(math.Ceil(time.Until(*sub.PendingExpiresAt).Hours() / 24))
+
 		if days < 0 {
 			days = 0
 		}

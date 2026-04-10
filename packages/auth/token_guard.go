@@ -39,6 +39,7 @@ func (g *TokenGuard) SetStorageKey(key string) { g.storageKey = key }
 // SetRequest attaches the incoming HTTP request.
 func (g *TokenGuard) SetRequest(r *http.Request) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.request = r
@@ -48,6 +49,7 @@ func (g *TokenGuard) SetRequest(r *http.Request) {
 // SetUser sets the authenticated user on the guard.
 func (g *TokenGuard) SetUser(user Authenticatable) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.user = user
@@ -56,6 +58,7 @@ func (g *TokenGuard) SetUser(user Authenticatable) {
 // HasUser reports whether the guard has a resolved user without triggering resolution.
 func (g *TokenGuard) HasUser() bool {
 	g.mu.RLock()
+
 	defer g.mu.RUnlock()
 
 	return g.user != nil
@@ -64,6 +67,7 @@ func (g *TokenGuard) HasUser() bool {
 // ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
 func (g *TokenGuard) ForgetUser() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.user = nil
@@ -72,6 +76,7 @@ func (g *TokenGuard) ForgetUser() {
 // User returns the authenticated user, or nil if the token is absent/invalid.
 func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	if g.user != nil {
@@ -79,6 +84,7 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 	}
 
 	token := g.getTokenFromRequest()
+
 	if token == "" {
 		return nil, nil
 	}
@@ -86,6 +92,7 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 	user, err := g.provider.RetrieveByCredentials(ctx, map[string]any{
 		g.storageKey: token,
 	})
+
 	if err != nil || user == nil {
 		return nil, err
 	}
@@ -105,6 +112,7 @@ func (g *TokenGuard) Guest(ctx context.Context) bool { return !g.Check(ctx) }
 
 func (g *TokenGuard) ID(ctx context.Context) any {
 	u, _ := g.User(ctx)
+
 	if u == nil {
 		return nil
 	}

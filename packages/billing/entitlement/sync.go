@@ -37,6 +37,7 @@ func NewSynchronizer(
 func (s *Synchronizer) Sync(ctx context.Context, sub *billing.Subscription) error {
 	return s.txn.RunInTransaction(ctx, func(ctx context.Context) error {
 		plan, err := s.plans.FindByCode(ctx, sub.Plan)
+
 		if err != nil {
 			return err
 		}

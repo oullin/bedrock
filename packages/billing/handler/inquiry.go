@@ -16,13 +16,24 @@ type InquiryHandler struct {
 }
 
 // NewInquiryHandler creates an InquiryHandler.
+
+// Store validates the inquiry and sends notification emails.
+
+// InquiryInput holds the validated input for a custom plan inquiry.
+type InquiryInput struct {
+	Name    string
+	Email   string
+	Company string
+	Message string
+}
+
 func NewInquiryHandler(mailer billing.Mailer, config *billing.Config) *InquiryHandler {
 	return &InquiryHandler{mailer: mailer, config: config}
 }
 
-// Store validates the inquiry and sends notification emails.
 func (h *InquiryHandler) Store(w http.ResponseWriter, r *http.Request) {
 	var input InquiryInput
+
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 
@@ -62,20 +73,13 @@ func (h *InquiryHandler) resolveContactEmail() string {
 
 	if email == "" || !strings.Contains(email, "@") || strings.HasSuffix(strings.ToLower(email), "@example.com") {
 		fallback := strings.TrimSpace(h.config.ContactFallbackEmail)
+
 		if fallback != "" {
 			return fallback
 		}
 	}
 
 	return email
-}
-
-// InquiryInput holds the validated input for a custom plan inquiry.
-type InquiryInput struct {
-	Name    string
-	Email   string
-	Company string
-	Message string
 }
 
 // Validate checks that the inquiry input fields are valid.

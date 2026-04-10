@@ -13,8 +13,44 @@ type EncryptCookies struct {
 }
 
 // NewEncryptCookies creates EncryptCookies middleware.
+
+// Wrap returns an http.Handler that decrypts request cookies before calling
+// next, then encrypts response cookies set by next.
+
+// decryptRequest returns a copy of r with encrypted cookies decrypted.
+
+// Keep original value on decryption failure.
+
+// encryptingResponseWriter intercepts Set-Cookie headers and encrypts values.
+type encryptingResponseWriter struct {
+	http.ResponseWriter
+	enc    Encrypter
+	except map[string]bool
+}
+
+// AttachQueued is middleware that flushes a Jar's queued cookies onto the
+// outgoing response.
+type AttachQueued struct {
+	jar *Jar
+}
+
+// NewAttachQueued creates AttachQueued middleware.
+
+// Wrap returns an http.Handler that attaches queued cookies to the response.
+// Cookies are written before the handler runs, allowing them to be overridden
+// by the handler if needed.
+
+// queueingResponseWriter intercepts the first write/header flush to inject
+// queued cookies before the response headers are sent.
+type queueingResponseWriter struct {
+	http.ResponseWriter
+	jar     *Jar
+	flushed bool
+}
+
 func NewEncryptCookies(enc Encrypter, except ...string) *EncryptCookies {
 	m := &EncryptCookies{enc: enc, except: make(map[string]bool, len(except))}
+
 	for _, name := range except {
 		m.except[name] = true
 	}
@@ -22,8 +58,6 @@ func NewEncryptCookies(enc Encrypter, except ...string) *EncryptCookies {
 	return m
 }
 
-// Wrap returns an http.Handler that decrypts request cookies before calling
-// next, then encrypts response cookies set by next.
 func (m *EncryptCookies) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = m.decryptRequest(r)
@@ -32,7 +66,6 @@ func (m *EncryptCookies) Wrap(next http.Handler) http.Handler {
 	})
 }
 
-// decryptRequest returns a copy of r with encrypted cookies decrypted.
 func (m *EncryptCookies) decryptRequest(r *http.Request) *http.Request {
 	r2 := r.Clone(r.Context())
 	r2.Header.Del("Cookie")
@@ -40,13 +73,16 @@ func (m *EncryptCookies) decryptRequest(r *http.Request) *http.Request {
 	for _, c := range r.Cookies() {
 		if m.except[c.Name] {
 			r2.AddCookie(c)
+
 			continue
 		}
 
 		plain, err := m.enc.Decrypt(c.Value)
+
 		if err != nil {
-			// Keep original value on decryption failure.
+
 			r2.AddCookie(c)
+
 			continue
 		}
 
@@ -56,13 +92,6 @@ func (m *EncryptCookies) decryptRequest(r *http.Request) *http.Request {
 	}
 
 	return r2
-}
-
-// encryptingResponseWriter intercepts Set-Cookie headers and encrypts values.
-type encryptingResponseWriter struct {
-	http.ResponseWriter
-	enc    Encrypter
-	except map[string]bool
 }
 
 func (w *encryptingResponseWriter) WriteHeader(code int) {
@@ -90,12 +119,15 @@ func (w *encryptingResponseWriter) encryptResponseCookies() {
 	for _, c := range parsed {
 		if w.except[c.Name] {
 			header.Add("Set-Cookie", c.String())
+
 			continue
 		}
 
 		enc, err := w.enc.Encrypt(c.Value)
+
 		if err != nil {
 			header.Add("Set-Cookie", c.String())
+
 			continue
 		}
 
@@ -105,34 +137,16 @@ func (w *encryptingResponseWriter) encryptResponseCookies() {
 	}
 }
 
-// AttachQueued is middleware that flushes a Jar's queued cookies onto the
-// outgoing response.
-type AttachQueued struct {
-	jar *Jar
-}
-
-// NewAttachQueued creates AttachQueued middleware.
 func NewAttachQueued(jar *Jar) *AttachQueued {
 	return &AttachQueued{jar: jar}
 }
 
-// Wrap returns an http.Handler that attaches queued cookies to the response.
-// Cookies are written before the handler runs, allowing them to be overridden
-// by the handler if needed.
 func (m *AttachQueued) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rw := &queueingResponseWriter{ResponseWriter: w, jar: m.jar}
 		next.ServeHTTP(rw, r)
 		rw.flush()
 	})
-}
-
-// queueingResponseWriter intercepts the first write/header flush to inject
-// queued cookies before the response headers are sent.
-type queueingResponseWriter struct {
-	http.ResponseWriter
-	jar     *Jar
-	flushed bool
 }
 
 func (w *queueingResponseWriter) flush() {

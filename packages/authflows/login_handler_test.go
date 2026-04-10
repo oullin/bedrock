@@ -18,6 +18,50 @@ type testUser struct {
 	twoFA    bool
 }
 
+// --- test guard ---
+
+type testGuard struct {
+	loggedIn          Authenticatable
+	loggedInRemember  bool
+	pendingTwoFactor  bool
+	loggedOut         bool
+	authenticatedUser Authenticatable
+}
+
+// --- test provider ---
+
+type testProvider struct {
+	user           Authenticatable
+	validPassword  string
+	validateCalled bool
+}
+
+// --- test event dispatcher ---
+
+type testEvents struct {
+	dispatched []Event
+}
+
+// --- test responder ---
+
+type testResponder struct {
+	loginCalled              bool
+	logoutCalled             bool
+	twoFactorChallengeCalled bool
+}
+
+// --- helpers ---
+
+// --- tests ---
+
+// --- stub limiter for tests ---
+
+type stubLimiter struct {
+	tooMany bool
+	hits    int
+	cleared bool
+}
+
 func (u *testUser) GetAuthIdentifierName() string        { return "id" }
 func (u *testUser) GetAuthIdentifier() string            { return u.id }
 func (u *testUser) GetAuthPasswordName() string          { return "password" }
@@ -35,21 +79,13 @@ func (u *testUser) SetTwoFactorRecoveryCodes(_ []string) {}
 func (u *testUser) GetTwoFactorConfirmedAt() *time.Time {
 	if u.twoFA {
 		t := time.Now()
+
 		return &t
 	}
+
 	return nil
 }
 func (u *testUser) SetTwoFactorConfirmedAt(_ *time.Time) {}
-
-// --- test guard ---
-
-type testGuard struct {
-	loggedIn          Authenticatable
-	loggedInRemember  bool
-	pendingTwoFactor  bool
-	loggedOut         bool
-	authenticatedUser Authenticatable
-}
 
 func (g *testGuard) Name() string { return "test" }
 func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (Authenticatable, error) {
@@ -58,24 +94,19 @@ func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter
 func (g *testGuard) Login(_ context.Context, _ http.ResponseWriter, user Authenticatable, remember bool) error {
 	g.loggedIn = user
 	g.loggedInRemember = remember
+
 	return nil
 }
 func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, user Authenticatable) error {
 	g.pendingTwoFactor = true
 	g.loggedIn = user
+
 	return nil
 }
 func (g *testGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
 	g.loggedOut = true
+
 	return nil
-}
-
-// --- test provider ---
-
-type testProvider struct {
-	user           Authenticatable
-	validPassword  string
-	validateCalled bool
 }
 
 func (p *testProvider) RetrieveByID(_ context.Context, _ string) (Authenticatable, error) {
@@ -92,29 +123,17 @@ func (p *testProvider) UpdateRememberToken(_ context.Context, _ Authenticatable,
 }
 func (p *testProvider) ValidateCredentials(_ context.Context, _ Authenticatable, creds map[string]string) (bool, error) {
 	p.validateCalled = true
+
 	return creds["password"] == p.validPassword, nil
 }
 func (p *testProvider) RehashPasswordIfRequired(_ context.Context, _ Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
 
-// --- test event dispatcher ---
-
-type testEvents struct {
-	dispatched []Event
-}
-
 func (e *testEvents) Dispatch(_ context.Context, event Event) error {
 	e.dispatched = append(e.dispatched, event)
+
 	return nil
-}
-
-// --- test responder ---
-
-type testResponder struct {
-	loginCalled              bool
-	logoutCalled             bool
-	twoFactorChallengeCalled bool
 }
 
 func (r *testResponder) LoginResponse(w http.ResponseWriter, _ *http.Request) {
@@ -138,8 +157,6 @@ func (r *testResponder) TwoFactorChallengeResponse(w http.ResponseWriter, _ *htt
 }
 func (r *testResponder) TwoFactorEnabledResponse(_ http.ResponseWriter, _ *http.Request)  {}
 func (r *testResponder) TwoFactorDisabledResponse(_ http.ResponseWriter, _ *http.Request) {}
-
-// --- helpers ---
 
 func buildTestAuthFlows(guard *testGuard, provider *testProvider, events *testEvents, responder *testResponder) *AuthFlows {
 	config := DefaultConfig()
@@ -172,8 +189,6 @@ func jsonLoginRequest(email string, password string) *http.Request {
 
 	return req
 }
-
-// --- tests ---
 
 func TestLoginHandlerSuccess(t *testing.T) {
 	user := &testUser{id: "1", email: "user@example.com", password: "hashed"}
@@ -308,14 +323,6 @@ func TestLoginHandlerTwoFactorChallenge(t *testing.T) {
 	if !guard.pendingTwoFactor {
 		t.Fatal("expected pending two factor login")
 	}
-}
-
-// --- stub limiter for tests ---
-
-type stubLimiter struct {
-	tooMany bool
-	hits    int
-	cleared bool
 }
 
 func (l *stubLimiter) TooManyAttempts(_ string, _ int) bool { return l.tooMany }

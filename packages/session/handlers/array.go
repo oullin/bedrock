@@ -22,6 +22,7 @@ func (h *ArrayHandler) Close(_ context.Context) error { return nil }
 
 func (h *ArrayHandler) Read(_ context.Context, id string) (string, error) {
 	h.mu.RLock()
+
 	defer h.mu.RUnlock()
 
 	return h.sessions[id], nil
@@ -29,6 +30,7 @@ func (h *ArrayHandler) Read(_ context.Context, id string) (string, error) {
 
 func (h *ArrayHandler) Write(_ context.Context, id, data string) error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	h.sessions[id] = data
@@ -38,6 +40,7 @@ func (h *ArrayHandler) Write(_ context.Context, id, data string) error {
 
 func (h *ArrayHandler) Destroy(_ context.Context, id string) error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	delete(h.sessions, id)

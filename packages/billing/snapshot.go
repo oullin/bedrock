@@ -14,9 +14,6 @@ type SubscriptionStateSnapshot struct {
 }
 
 // EmptySubscriptionState returns a zero-value snapshot.
-func EmptySubscriptionState() SubscriptionStateSnapshot {
-	return SubscriptionStateSnapshot{}
-}
 
 // SubscriptionCTASnapshot holds the call-to-action state for the subscription
 // banner/widget.
@@ -31,9 +28,6 @@ type SubscriptionCTASnapshot struct {
 }
 
 // EmptySubscriptionCTA returns a zero-value CTA snapshot.
-func EmptySubscriptionCTA() SubscriptionCTASnapshot {
-	return SubscriptionCTASnapshot{}
-}
 
 // BillingStateSnapshot combines the subscription state and CTA.
 type BillingStateSnapshot struct {
@@ -42,12 +36,6 @@ type BillingStateSnapshot struct {
 }
 
 // EmptyBillingState returns a zero-value billing state.
-func EmptyBillingState() BillingStateSnapshot {
-	return BillingStateSnapshot{
-		Subscription: EmptySubscriptionState(),
-		CTA:          EmptySubscriptionCTA(),
-	}
-}
 
 // TransactionSnapshot holds a serialisable view of a transaction.
 type TransactionSnapshot struct {
@@ -63,15 +51,31 @@ type TransactionSnapshot struct {
 }
 
 // EmptyTransactionSnapshot returns a zero-value transaction snapshot.
-func EmptyTransactionSnapshot() TransactionSnapshot {
-	return TransactionSnapshot{}
-}
 
 // PlanConfig holds the provider price IDs for a plan's monthly and yearly
 // variants.
 type PlanConfig struct {
 	MonthlyID string
 	YearlyID  string
+}
+
+func EmptySubscriptionState() SubscriptionStateSnapshot {
+	return SubscriptionStateSnapshot{}
+}
+
+func EmptySubscriptionCTA() SubscriptionCTASnapshot {
+	return SubscriptionCTASnapshot{}
+}
+
+func EmptyBillingState() BillingStateSnapshot {
+	return BillingStateSnapshot{
+		Subscription: EmptySubscriptionState(),
+		CTA:          EmptySubscriptionCTA(),
+	}
+}
+
+func EmptyTransactionSnapshot() TransactionSnapshot {
+	return TransactionSnapshot{}
 }
 
 // HasConfiguredProviderIDs reports whether at least one provider price ID is set.

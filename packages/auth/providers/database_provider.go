@@ -25,10 +25,10 @@ type RowMapper func(row map[string]any) auth.Authenticatable
 
 // DatabaseUserProvider retrieves users from a raw SQL table.
 type DatabaseUserProvider struct {
-	db         DBQuerier
-	table      string
-	hasher     auth.PasswordHasher
-	rowMapper  RowMapper
+	db        DBQuerier
+	table     string
+	hasher    auth.PasswordHasher
+	rowMapper RowMapper
 }
 
 // NewDatabaseUserProvider creates a DatabaseUserProvider.
@@ -92,6 +92,7 @@ func (p *DatabaseUserProvider) RetrieveByCredentials(ctx context.Context, creden
 
 func (p *DatabaseUserProvider) ValidateCredentials(_ context.Context, user auth.Authenticatable, credentials map[string]any) bool {
 	plain, ok := credentials["password"].(string)
+
 	if !ok {
 		return false
 	}
@@ -105,11 +106,13 @@ func (p *DatabaseUserProvider) RehashPasswordIfRequired(ctx context.Context, use
 	}
 
 	plain, ok := credentials["password"].(string)
+
 	if !ok {
 		return nil
 	}
 
 	hash, err := p.hasher.Hash(plain)
+
 	if err != nil {
 		return err
 	}
@@ -132,6 +135,7 @@ func (p *DatabaseUserProvider) mapRow(row DBRow) (auth.Authenticatable, error) {
 	// For a concrete example using database/sql, wrap *sql.Row so Scan returns
 	// column values into a []any and then build the map before calling rowMapper.
 	var dest map[string]any
+
 	if err := row.Scan(&dest); err != nil {
 		return nil, nil // Row not found.
 	}

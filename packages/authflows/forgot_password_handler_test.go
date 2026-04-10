@@ -17,8 +17,17 @@ type testBroker struct {
 	returnError error
 }
 
+// --- test responder extensions ---
+
+type testPasswordResponder struct {
+	testResponder
+	linkSentCalled bool
+	resetCalled    bool
+}
+
 func (b *testBroker) SendResetLink(_ context.Context, _ map[string]string) error {
 	b.sentLink = true
+
 	return b.returnError
 }
 
@@ -30,14 +39,6 @@ func (b *testBroker) Reset(_ context.Context, _ map[string]string, callback func
 	b.resetCalled = true
 
 	return callback(&testUser{id: "1"}, "newpassword")
-}
-
-// --- test responder extensions ---
-
-type testPasswordResponder struct {
-	testResponder
-	linkSentCalled bool
-	resetCalled    bool
 }
 
 func (r *testPasswordResponder) PasswordResetLinkSentResponse(w http.ResponseWriter, _ *http.Request) {

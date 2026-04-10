@@ -22,6 +22,7 @@ func NewRequestGuard(callback RequestCallback) *RequestGuard {
 // SetUser sets the authenticated user on the guard.
 func (g *RequestGuard) SetUser(user Authenticatable) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.user = user
@@ -30,6 +31,7 @@ func (g *RequestGuard) SetUser(user Authenticatable) {
 // HasUser reports whether the guard has a resolved user without triggering resolution.
 func (g *RequestGuard) HasUser() bool {
 	g.mu.RLock()
+
 	defer g.mu.RUnlock()
 
 	return g.user != nil
@@ -38,6 +40,7 @@ func (g *RequestGuard) HasUser() bool {
 // ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
 func (g *RequestGuard) ForgetUser() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.user = nil
@@ -46,6 +49,7 @@ func (g *RequestGuard) ForgetUser() {
 // SetRequest attaches the incoming HTTP request.
 func (g *RequestGuard) SetRequest(r *http.Request) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.request = r
@@ -55,6 +59,7 @@ func (g *RequestGuard) SetRequest(r *http.Request) {
 // User resolves the user via the callback.
 func (g *RequestGuard) User(ctx context.Context) (Authenticatable, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	if g.user != nil {
@@ -66,6 +71,7 @@ func (g *RequestGuard) User(ctx context.Context) (Authenticatable, error) {
 	}
 
 	user, err := g.callback(ctx, g.request)
+
 	if err != nil || user == nil {
 		return nil, err
 	}
@@ -85,6 +91,7 @@ func (g *RequestGuard) Guest(ctx context.Context) bool { return !g.Check(ctx) }
 
 func (g *RequestGuard) ID(ctx context.Context) any {
 	u, _ := g.User(ctx)
+
 	if u == nil {
 		return nil
 	}

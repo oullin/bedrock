@@ -19,6 +19,21 @@ type Reconciler struct {
 }
 
 // NewReconciler creates a Reconciler.
+
+// ReconcileCreated handles post-checkout reconciliation. It matches a
+// provider subscription with the local pending record.
+
+// Resolve price from provider items.
+
+// ReconcilePending batch-reconciles all pending subscriptions without a
+// provider ID by querying the payment provider.
+
+// billableRef is a minimal Billable implementation for reconciliation.
+type billableRef struct {
+	id    int64
+	btype string
+}
+
 func NewReconciler(
 	subscriptions billing.SubscriptionStore,
 	cat *catalog.PlanCatalog,
@@ -35,14 +50,13 @@ func NewReconciler(
 	}
 }
 
-// ReconcileCreated handles post-checkout reconciliation. It matches a
-// provider subscription with the local pending record.
 func (r *Reconciler) ReconcileCreated(ctx context.Context, providerSub *billing.Subscription, billableID int64) error {
 	if providerSub == nil || providerSub.ProviderID == "" {
 		return nil
 	}
 
 	localSub, err := r.subscriptions.CurrentForBillable(ctx, providerSub.BillableType, billableID)
+
 	if err != nil || localSub == nil {
 		return err
 	}
@@ -58,9 +72,9 @@ func (r *Reconciler) ReconcileCreated(ctx context.Context, providerSub *billing.
 		return err
 	}
 
-	// Resolve price from provider items.
 	if len(providerSub.Items) > 0 {
 		price, _ := r.catalog.PriceForProviderID(ctx, providerSub.Items[0].PriceID)
+
 		if price != nil {
 			localSub.PlanPeriodPriceID = &price.ID
 			_ = r.subscriptions.Save(ctx, localSub)
@@ -72,10 +86,9 @@ func (r *Reconciler) ReconcileCreated(ctx context.Context, providerSub *billing.
 	return err
 }
 
-// ReconcilePending batch-reconciles all pending subscriptions without a
-// provider ID by querying the payment provider.
 func (r *Reconciler) ReconcilePending(ctx context.Context) error {
 	pending, err := r.subscriptions.FindPendingWithoutProvider(ctx)
+
 	if err != nil {
 		return err
 	}
@@ -85,6 +98,7 @@ func (r *Reconciler) ReconcilePending(ctx context.Context) error {
 			id:    sub.BillableID,
 			btype: sub.BillableType,
 		})
+
 		if err != nil || providerSub == nil {
 			continue
 		}
@@ -100,12 +114,6 @@ func (r *Reconciler) ReconcilePending(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// billableRef is a minimal Billable implementation for reconciliation.
-type billableRef struct {
-	id    int64
-	btype string
 }
 
 func (b *billableRef) BillableID() int64     { return b.id }

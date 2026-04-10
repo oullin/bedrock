@@ -28,6 +28,7 @@ func (p *Payload) Marshal() ([]byte, error) {
 // UnmarshalPayload deserializes a JSON payload.
 func UnmarshalPayload(data []byte) (*Payload, error) {
 	var p Payload
+
 	if err := json.Unmarshal(data, &p); err != nil {
 		return nil, fmt.Errorf("queue: unmarshal payload: %w", err)
 	}

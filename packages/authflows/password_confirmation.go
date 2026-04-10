@@ -21,6 +21,7 @@ func SetPasswordConfirmedAt(r *http.Request) {
 // GetPasswordConfirmedAt retrieves the password confirmation timestamp from context.
 func GetPasswordConfirmedAt(r *http.Request) *time.Time {
 	v, ok := r.Context().Value(passwordConfirmedAtKey).(time.Time)
+
 	if !ok {
 		return nil
 	}
@@ -33,6 +34,7 @@ func GetPasswordConfirmedAt(r *http.Request) *time.Time {
 // (e.g., loaded from session during request lifecycle).
 func PasswordConfirmedAtFromContext(ctx context.Context) *time.Time {
 	v, ok := ctx.Value(passwordConfirmedAtKey).(time.Time)
+
 	if !ok {
 		return nil
 	}
@@ -54,6 +56,7 @@ func EnsurePasswordIsConfirmed(timeout time.Duration) func(http.Handler) http.Ha
 
 			if confirmedAt == nil || time.Since(*confirmedAt) > timeout {
 				http.Error(w, "password confirmation required", http.StatusLocked)
+
 				return
 			}
 

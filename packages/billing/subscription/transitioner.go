@@ -145,6 +145,7 @@ func (t *Transitioner) Expire(ctx context.Context, sub *billing.Subscription) (*
 // hold window has elapsed.
 func (t *Transitioner) ExpireStaleSubscriptions(ctx context.Context) (int, error) {
 	subs, err := t.subscriptions.FindExpirable(ctx, t.clock.Now())
+
 	if err != nil {
 		return 0, err
 	}

@@ -27,11 +27,13 @@ func (l *UniqueLock) Acquire(ctx context.Context, key string, ttl time.Duration)
 	// Use a conditional put: only set if not already set.
 	// We attempt to get first; if already set, lock is taken.
 	existing, _ := l.cache.Get(ctx, l.key(key))
+
 	if existing != "" {
 		return false
 	}
 
 	ttlSeconds := int(ttl.Seconds())
+
 	if ttlSeconds == 0 {
 		ttlSeconds = 3600
 	}

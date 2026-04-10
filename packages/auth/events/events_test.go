@@ -95,6 +95,7 @@ func TestOtherDeviceLogoutFields(t *testing.T) {
 
 func TestPasswordResetFields(t *testing.T) {
 	e := events.PasswordReset{User: nil}
+
 	if e.User != nil {
 		t.Error("expected nil user")
 	}
@@ -102,6 +103,7 @@ func TestPasswordResetFields(t *testing.T) {
 
 func TestPasswordResetLinkSentAcceptsCanResetPassword(t *testing.T) {
 	e := events.PasswordResetLinkSent{User: nil}
+
 	if e.User != nil {
 		t.Error("expected nil user")
 	}
@@ -109,6 +111,7 @@ func TestPasswordResetLinkSentAcceptsCanResetPassword(t *testing.T) {
 
 func TestRegisteredFields(t *testing.T) {
 	e := events.Registered{User: nil}
+
 	if e.User != nil {
 		t.Error("expected nil user")
 	}
@@ -124,6 +127,7 @@ func TestValidatedFields(t *testing.T) {
 
 func TestVerifiedAcceptsMustVerifyEmail(t *testing.T) {
 	e := events.Verified{User: nil}
+
 	if e.User != nil {
 		t.Error("expected nil user")
 	}

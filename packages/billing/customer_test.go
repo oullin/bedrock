@@ -31,6 +31,7 @@ func TestCustomerOnGenericTrial(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &billing.Customer{TrialEndsAt: tt.trialEnd}
+
 			if got := c.OnGenericTrial(clock); got != tt.want {
 				t.Errorf("OnGenericTrial() = %v, want %v", got, tt.want)
 			}
@@ -60,6 +61,7 @@ func TestCustomerHasExpiredGenericTrial(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &billing.Customer{TrialEndsAt: tt.trialEnd}
+
 			if got := c.HasExpiredGenericTrial(clock); got != tt.want {
 				t.Errorf("HasExpiredGenericTrial() = %v, want %v", got, tt.want)
 			}

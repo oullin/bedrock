@@ -40,6 +40,7 @@ func NewSQLRepository(db SQLQuerier, table string, expiry time.Duration) *SQLRep
 
 func (r *SQLRepository) Create(ctx context.Context, email string) (string, error) {
 	token, err := GenerateToken()
+
 	if err != nil {
 		return "", err
 	}
@@ -51,6 +52,7 @@ func (r *SQLRepository) Create(ctx context.Context, email string) (string, error
 			"ON CONFLICT (email) DO UPDATE SET token=$2, created_at=$3",
 		email, token, now,
 	)
+
 	if err != nil {
 		return "", err
 	}
@@ -65,6 +67,7 @@ func (r *SQLRepository) Exists(ctx context.Context, email, token string) bool {
 	)
 
 	var storedToken string
+
 	var createdAt time.Time
 
 	if err := row.Scan(&storedToken, &createdAt); err != nil {

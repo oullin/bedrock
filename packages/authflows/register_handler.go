@@ -16,6 +16,7 @@ func NewRegisterHandler(f *AuthFlows) *RegisterHandler {
 func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.Registration {
 		http.Error(w, "registration is disabled", http.StatusNotFound)
+
 		return
 	}
 
@@ -24,8 +25,10 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	input := RequestInput(r, config.IdentifierField, "name", "password", "password_confirmation")
 
 	user, err := h.authflows.createUser.Create(ctx, input)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
 		return
 	}
 
@@ -46,6 +49,7 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.authflows.guard.Login(ctx, w, user, false); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 

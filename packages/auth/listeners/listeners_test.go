@@ -15,24 +15,24 @@ type stubUser struct {
 	rememberToken string
 }
 
-func (u *stubUser) GetAuthIdentifierName() string  { return "id" }
-func (u *stubUser) GetAuthIdentifier() any          { return u.id }
-func (u *stubUser) GetAuthPassword() string         { return u.password }
-func (u *stubUser) GetRememberToken() string        { return u.rememberToken }
-func (u *stubUser) SetRememberToken(token string)   { u.rememberToken = token }
-func (u *stubUser) GetRememberTokenName() string    { return "remember_token" }
-
 // verifiableUser implements both Authenticatable and MustVerifyEmail.
 type verifiableUser struct {
 	stubUser
-	verified          bool
-	notificationSent  bool
+	verified         bool
+	notificationSent bool
 }
 
-func (u *verifiableUser) HasVerifiedEmail() bool                { return u.verified }
-func (u *verifiableUser) MarkEmailAsVerified() error            { u.verified = true; return nil }
-func (u *verifiableUser) SendEmailVerificationNotification()    { u.notificationSent = true }
-func (u *verifiableUser) GetEmailForVerification() string       { return "test@example.com" }
+func (u *stubUser) GetAuthIdentifierName() string { return "id" }
+func (u *stubUser) GetAuthIdentifier() any        { return u.id }
+func (u *stubUser) GetAuthPassword() string       { return u.password }
+func (u *stubUser) GetRememberToken() string      { return u.rememberToken }
+func (u *stubUser) SetRememberToken(token string) { u.rememberToken = token }
+func (u *stubUser) GetRememberTokenName() string  { return "remember_token" }
+
+func (u *verifiableUser) HasVerifiedEmail() bool             { return u.verified }
+func (u *verifiableUser) MarkEmailAsVerified() error         { u.verified = true; return nil }
+func (u *verifiableUser) SendEmailVerificationNotification() { u.notificationSent = true }
+func (u *verifiableUser) GetEmailForVerification() string    { return "test@example.com" }
 
 func TestSendEmailVerificationNotification_UnverifiedUser(t *testing.T) {
 	user := &verifiableUser{

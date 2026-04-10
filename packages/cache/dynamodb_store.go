@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var _ Store = (*DynamoDbStore)(nil)
-
 // DynamoClient is the DynamoDB operations required by DynamoDbStore.
 type DynamoClient interface {
 	GetItem(ctx context.Context, table, keyAttr, key string) (map[string]any, error)
@@ -21,14 +19,16 @@ type DynamoClient interface {
 // The table must have a string partition key (keyAttr) and an optional
 // TTL attribute (ttlAttr) for native expiration support.
 type DynamoDbStore struct {
-	client   DynamoClient
-	table    string
-	keyAttr  string // partition key attribute name (default "key")
-	valAttr  string // value attribute name (default "value")
-	ttlAttr  string // TTL attribute name (default "expiration")
-	prefix   string
-	clock    Clock
+	client  DynamoClient
+	table   string
+	keyAttr string // partition key attribute name (default "key")
+	valAttr string // value attribute name (default "value")
+	ttlAttr string // TTL attribute name (default "expiration")
+	prefix  string
+	clock   Clock
 }
+
+var _ Store = (*DynamoDbStore)(nil)
 
 // NewDynamoDbStore creates a DynamoDbStore with sensible defaults.
 func NewDynamoDbStore(client DynamoClient, table, prefix string) *DynamoDbStore {
@@ -62,6 +62,7 @@ func (s *DynamoDbStore) prefixed(key string) string {
 
 func (s *DynamoDbStore) Get(ctx context.Context, key string) (any, error) {
 	item, err := s.client.GetItem(ctx, s.table, s.keyAttr, s.prefixed(key))
+
 	if err != nil || item == nil {
 		return nil, fmt.Errorf("%w: %q", ErrNotFound, key)
 	}
@@ -76,16 +77,19 @@ func (s *DynamoDbStore) Get(ctx context.Context, key string) (any, error) {
 	}
 
 	raw, ok := item[s.valAttr]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrNotFound, key)
 	}
 
 	str, ok := raw.(string)
+
 	if !ok {
 		return raw, nil
 	}
 
 	var v any
+
 	if err := json.Unmarshal([]byte(str), &v); err != nil {
 		return str, nil
 	}
@@ -107,6 +111,7 @@ func (s *DynamoDbStore) GetMany(ctx context.Context, keys []string) (map[string]
 
 func (s *DynamoDbStore) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
@@ -152,6 +157,7 @@ func (s *DynamoDbStore) Increment(ctx context.Context, key string, delta int64) 
 
 	if err == nil {
 		val, err = toInt64(current)
+
 		if err != nil {
 			return 0, fmt.Errorf("%w: key %q", ErrInvalidValue, key)
 		}
@@ -168,6 +174,7 @@ func (s *DynamoDbStore) Decrement(ctx context.Context, key string, delta int64) 
 
 func (s *DynamoDbStore) Touch(ctx context.Context, key string, ttl time.Duration) (bool, error) {
 	v, err := s.Get(ctx, key)
+
 	if err != nil {
 		return false, nil
 	}
@@ -181,12 +188,14 @@ func (s *DynamoDbStore) Forget(ctx context.Context, key string) error {
 
 func (s *DynamoDbStore) Flush(ctx context.Context) error {
 	items, err := s.client.Scan(ctx, s.table)
+
 	if err != nil {
 		return err
 	}
 
 	for _, item := range items {
 		key, ok := item[s.keyAttr].(string)
+
 		if !ok {
 			continue
 		}

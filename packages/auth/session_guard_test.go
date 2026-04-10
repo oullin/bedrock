@@ -18,6 +18,7 @@ func TestSessionGuardUserReturnsNilWhenNoUserFound(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	u, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,6 +54,7 @@ func TestSessionGuardUserIsSetToRetrievedUser(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,6 +76,7 @@ func TestSessionGuardUserUsesRememberCookieIfItExists(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,6 +191,7 @@ func TestSessionGuardAttemptCallsRetrieveByCredentials(t *testing.T) {
 	guard.SetEventDispatcher(dispatcher)
 
 	ok := guard.Attempt(context.Background(), map[string]any{"email": "foo@bar.com", "password": "secret"}, false)
+
 	if ok {
 		t.Error("Attempt should fail when user not found")
 	}
@@ -206,6 +210,7 @@ func TestSessionGuardAttemptReturnsTrue(t *testing.T) {
 	guard.SetEventDispatcher(dispatcher)
 
 	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"}, false)
+
 	if !ok {
 		t.Error("Attempt should return true with valid credentials")
 	}
@@ -225,6 +230,7 @@ func TestSessionGuardAttemptReturnsFalseWithInvalidPassword(t *testing.T) {
 	guard.SetEventDispatcher(dispatcher)
 
 	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"}, false)
+
 	if ok {
 		t.Error("Attempt should return false with invalid password")
 	}
@@ -243,6 +249,7 @@ func TestSessionGuardAttemptReturnsFalseIfUserNotFound(t *testing.T) {
 	guard.SetEventDispatcher(dispatcher)
 
 	ok := guard.Attempt(context.Background(), map[string]any{"email": "unknown@b.com", "password": "pw"}, false)
+
 	if ok {
 		t.Error("Attempt should return false when user not found")
 	}
@@ -259,6 +266,7 @@ func TestSessionGuardAttemptWithRememberSetsRememberCookie(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
 
 	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"}, true)
+
 	if !ok {
 		t.Fatal("Attempt with remember should succeed")
 	}
@@ -279,6 +287,7 @@ func TestSessionGuardFailedEventContainsUserWhenPasswordInvalid(t *testing.T) {
 	guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"}, false)
 
 	dispatcher.mu.Lock()
+
 	defer dispatcher.mu.Unlock()
 
 	for _, e := range dispatcher.events {
@@ -308,6 +317,7 @@ func TestSessionGuardFailedEventHasNilUserWhenNotFound(t *testing.T) {
 	guard.Attempt(context.Background(), map[string]any{"email": "missing@b.com", "password": "pw"}, false)
 
 	dispatcher.mu.Lock()
+
 	defer dispatcher.mu.Unlock()
 
 	for _, e := range dispatcher.events {
@@ -363,6 +373,7 @@ func TestSessionGuardLoginFiresLoginEventWithRemember(t *testing.T) {
 	_ = guard.Login(context.Background(), user, true)
 
 	dispatcher.mu.Lock()
+
 	defer dispatcher.mu.Unlock()
 
 	for _, e := range dispatcher.events {
@@ -423,6 +434,7 @@ func TestSessionGuardLoginUsingIDLogsInWithUser(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	got, err := guard.LoginUsingID(context.Background(), 10, false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -442,6 +454,7 @@ func TestSessionGuardLoginUsingIDFailure(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	_, err := guard.LoginUsingID(context.Background(), 11, false)
+
 	if err == nil {
 		t.Error("expected error for missing user")
 	}
@@ -456,6 +469,7 @@ func TestSessionGuardOnceUsingIDSetsUser(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	got, err := guard.OnceUsingID(context.Background(), 10)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -480,6 +494,7 @@ func TestSessionGuardOnceUsingIDFailure(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	_, err := guard.OnceUsingID(context.Background(), 11)
+
 	if err == nil {
 		t.Error("expected error for missing user")
 	}
@@ -494,6 +509,7 @@ func TestSessionGuardOnceSetsUserWithoutSession(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	ok := guard.Once(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"})
+
 	if !ok {
 		t.Error("Once should return true for valid credentials")
 	}
@@ -515,6 +531,7 @@ func TestSessionGuardOnceFailure(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	ok := guard.Once(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"})
+
 	if ok {
 		t.Error("Once should return false for invalid credentials")
 	}
@@ -529,6 +546,7 @@ func TestSessionGuardValidateReturnsTrue(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	ok := guard.Validate(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"})
+
 	if !ok {
 		t.Error("Validate should return true for valid credentials")
 	}
@@ -546,6 +564,7 @@ func TestSessionGuardValidateReturnsFalse(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	ok := guard.Validate(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"})
+
 	if ok {
 		t.Error("Validate should return false for invalid credentials")
 	}
@@ -642,6 +661,7 @@ func TestSessionGuardLogoutOtherDevicesDispatchesEvent(t *testing.T) {
 	dispatcher.events = nil
 
 	err := guard.LogoutOtherDevices(ctx)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -727,6 +747,7 @@ func TestSessionGuardLogoutCurrentDeviceFiresEvent(t *testing.T) {
 	dispatcher.events = nil
 
 	err := guard.LogoutCurrentDevice(ctx)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -806,6 +827,7 @@ func TestSessionGuardWorksWithoutDispatcher(t *testing.T) {
 
 	// All operations should work without panic.
 	ok := guard.Attempt(ctx, map[string]any{"email": "a@b.com", "password": "pw"}, false)
+
 	if !ok {
 		t.Fatal("Attempt should succeed without dispatcher")
 	}

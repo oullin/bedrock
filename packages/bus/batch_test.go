@@ -11,11 +11,13 @@ import (
 
 func TestBatchFinished(t *testing.T) {
 	b := &bus.Batch{PendingJobs: 0}
+
 	if !b.Finished() {
 		t.Error("expected Finished() to be true when PendingJobs == 0")
 	}
 
 	b.PendingJobs = 1
+
 	if b.Finished() {
 		t.Error("expected Finished() to be false when PendingJobs > 0")
 	}
@@ -23,12 +25,14 @@ func TestBatchFinished(t *testing.T) {
 
 func TestBatchCancelled(t *testing.T) {
 	b := &bus.Batch{}
+
 	if b.Cancelled() {
 		t.Error("expected Cancelled() to be false when CancelledAt is nil")
 	}
 
 	now := time.Now()
 	b.CancelledAt = &now
+
 	if !b.Cancelled() {
 		t.Error("expected Cancelled() to be true when CancelledAt is set")
 	}
@@ -36,11 +40,13 @@ func TestBatchCancelled(t *testing.T) {
 
 func TestBatchHasFailures(t *testing.T) {
 	b := &bus.Batch{FailedJobs: 0}
+
 	if b.HasFailures() {
 		t.Error("expected HasFailures() to be false when FailedJobs == 0")
 	}
 
 	b.FailedJobs = 1
+
 	if !b.HasFailures() {
 		t.Error("expected HasFailures() to be true when FailedJobs > 0")
 	}
@@ -48,6 +54,7 @@ func TestBatchHasFailures(t *testing.T) {
 
 func TestBatchCancelWithoutRepo(t *testing.T) {
 	b := &bus.Batch{ID: "batch-1"}
+
 	if err := b.Cancel(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -73,6 +80,7 @@ func TestBatchCancelWithRepo(t *testing.T) {
 func TestBatchRecordSuccessfulJobWithoutRepo(t *testing.T) {
 	b := &bus.Batch{PendingJobs: 3, FailedJobs: 0}
 	counts, err := b.RecordSuccessfulJob(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,6 +97,7 @@ func TestBatchRecordSuccessfulJobWithoutRepo(t *testing.T) {
 func TestBatchRecordSuccessfulJobNeverNegative(t *testing.T) {
 	b := &bus.Batch{PendingJobs: 0}
 	counts, err := b.RecordSuccessfulJob(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,6 +113,7 @@ func TestBatchRecordSuccessfulJobWithRepo(t *testing.T) {
 
 	b := bus.NewBatchWithRepo("batch-1", repo)
 	counts, err := b.RecordSuccessfulJob(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,6 +130,7 @@ func TestBatchRecordSuccessfulJobWithRepo(t *testing.T) {
 func TestBatchRecordFailedJobWithoutRepo(t *testing.T) {
 	b := &bus.Batch{PendingJobs: 3, FailedJobs: 0}
 	counts, err := b.RecordFailedJob(context.Background(), "job-42")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,6 +154,7 @@ func TestBatchRecordFailedJobWithRepo(t *testing.T) {
 
 	b := bus.NewBatchWithRepo("batch-1", repo)
 	counts, err := b.RecordFailedJob(context.Background(), "job-7")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,6 +174,7 @@ func TestBatchFreshWithRepo(t *testing.T) {
 
 	b := bus.NewBatchWithRepo("batch-1", repo)
 	fresh, err := b.Fresh(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -174,6 +187,7 @@ func TestBatchFreshWithRepo(t *testing.T) {
 func TestBatchFreshWithoutRepo(t *testing.T) {
 	b := &bus.Batch{ID: "batch-1", Name: "original"}
 	fresh, err := b.Fresh(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -232,11 +246,13 @@ func TestBatchDeleteWithoutRepo(t *testing.T) {
 
 func TestBatchAllowsFailures(t *testing.T) {
 	b := &bus.Batch{Options: map[string]any{"allowFailures": true}}
+
 	if !b.AllowsFailures() {
 		t.Error("expected AllowsFailures to be true")
 	}
 
 	b2 := &bus.Batch{Options: map[string]any{}}
+
 	if b2.AllowsFailures() {
 		t.Error("expected AllowsFailures to be false")
 	}
@@ -254,11 +270,13 @@ func TestBatchMarshalJSON(t *testing.T) {
 	}
 
 	data, err := b.MarshalJSON()
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var m map[string]any
+
 	if err := json.Unmarshal(data, &m); err != nil {
 		t.Fatal(err)
 	}

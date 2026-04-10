@@ -11,15 +11,8 @@ import (
 type currentSessionKey struct{}
 
 // WithCurrentSessionID returns a context with the current session ID.
-func WithCurrentSessionID(ctx context.Context, id string) context.Context {
-	return context.WithValue(ctx, currentSessionKey{}, id)
-}
 
 // CurrentSessionID retrieves the current session ID from context.
-func CurrentSessionID(ctx context.Context) string {
-	id, _ := ctx.Value(currentSessionKey{}).(string)
-	return id
-}
 
 // ListSessionsHandler handles GET /user/sessions requests.
 type ListSessionsHandler struct {
@@ -28,37 +21,54 @@ type ListSessionsHandler struct {
 }
 
 // NewListSessionsHandler creates a new list sessions handler.
-func NewListSessionsHandler(js *AuthKit, sessions SessionRepository) *ListSessionsHandler {
-	return &ListSessionsHandler{js: js, sessions: sessions}
-}
 
 // ServeHTTP handles the list sessions request.
-func (h *ListSessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if !h.js.features.BrowserSessions {
-		http.Error(w, "browser sessions are disabled", http.StatusNotFound)
-		return
-	}
-
-	user, err := authenticateTeamUser(h.js, w, r)
-	if err != nil {
-		http.Error(w, err.Error(), statusForError(err))
-		return
-	}
-
-	sessions, err := h.sessions.FindByUser(r.Context(), user.GetAuthIdentifier())
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(sessions)
-}
 
 // DeleteOtherSessionsHandler handles DELETE /user/other-sessions requests.
 type DeleteOtherSessionsHandler struct {
 	js       *AuthKit
 	sessions SessionRepository
+}
+
+func WithCurrentSessionID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, currentSessionKey{}, id)
+}
+
+func CurrentSessionID(ctx context.Context) string {
+	id, _ := ctx.Value(currentSessionKey{}).(string)
+
+	return id
+}
+
+func NewListSessionsHandler(js *AuthKit, sessions SessionRepository) *ListSessionsHandler {
+	return &ListSessionsHandler{js: js, sessions: sessions}
+}
+
+func (h *ListSessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if !h.js.features.BrowserSessions {
+		http.Error(w, "browser sessions are disabled", http.StatusNotFound)
+
+		return
+	}
+
+	user, err := authenticateTeamUser(h.js, w, r)
+
+	if err != nil {
+		http.Error(w, err.Error(), statusForError(err))
+
+		return
+	}
+
+	sessions, err := h.sessions.FindByUser(r.Context(), user.GetAuthIdentifier())
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(sessions)
 }
 
 // NewDeleteOtherSessionsHandler creates a new delete other sessions handler.
@@ -70,23 +80,29 @@ func NewDeleteOtherSessionsHandler(js *AuthKit, sessions SessionRepository) *Del
 func (h *DeleteOtherSessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.js.features.BrowserSessions {
 		http.Error(w, "browser sessions are disabled", http.StatusNotFound)
+
 		return
 	}
 
 	user, err := authenticateTeamUser(h.js, w, r)
+
 	if err != nil {
 		http.Error(w, err.Error(), statusForError(err))
+
 		return
 	}
 
 	currentID := CurrentSessionID(r.Context())
+
 	if currentID == "" {
 		http.Error(w, "current session ID not found", http.StatusBadRequest)
+
 		return
 	}
 
 	if err := h.sessions.DeleteOthers(r.Context(), user.GetAuthIdentifier(), currentID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 

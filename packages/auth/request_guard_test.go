@@ -20,6 +20,7 @@ func TestRequestGuardResolvesUserViaCallback(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,6 +60,7 @@ func TestRequestGuardReturnsNilWhenCallbackReturnsNil(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,6 +100,7 @@ func TestRequestGuardReturnsNilWithNoRequest(t *testing.T) {
 
 	// No SetRequest called.
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,6 +117,7 @@ func TestRequestGuardReturnsNilWithNilCallback(t *testing.T) {
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,6 +180,7 @@ func TestRequestGuardSetUser(t *testing.T) {
 	}
 
 	got, _ := guard.User(context.Background())
+
 	if got != user {
 		t.Error("User() should return user set via SetUser")
 	}

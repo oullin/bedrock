@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-var _ Store = (*FailoverStore)(nil)
-
 // FailoverStore reads from the first available store and writes to all stores.
 // If the primary fails, it falls back to the next store in order.
 type FailoverStore struct {
 	stores []Store
 	prefix string
 }
+
+var _ Store = (*FailoverStore)(nil)
 
 // NewFailoverStore creates a FailoverStore with the given stores in priority order.
 func NewFailoverStore(stores ...Store) *FailoverStore {
@@ -27,12 +27,14 @@ func (s *FailoverStore) Get(ctx context.Context, key string) (any, error) {
 
 	for _, store := range s.stores {
 		v, err := store.Get(ctx, key)
+
 		if err == nil {
 			return v, nil
 		}
 
 		if !errors.Is(err, ErrNotFound) {
 			lastErr = err
+
 			continue
 		}
 
@@ -45,6 +47,7 @@ func (s *FailoverStore) Get(ctx context.Context, key string) (any, error) {
 func (s *FailoverStore) GetMany(ctx context.Context, keys []string) (map[string]any, error) {
 	for _, store := range s.stores {
 		v, err := store.GetMany(ctx, keys)
+
 		if err == nil {
 			return v, nil
 		}
@@ -80,6 +83,7 @@ func (s *FailoverStore) PutMany(ctx context.Context, values map[string]any, ttl 
 func (s *FailoverStore) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
 	for _, store := range s.stores {
 		ok, err := store.Add(ctx, key, value, ttl)
+
 		if err == nil {
 			return ok, nil
 		}
@@ -95,6 +99,7 @@ func (s *FailoverStore) Forever(ctx context.Context, key string, value any) erro
 func (s *FailoverStore) Increment(ctx context.Context, key string, delta int64) (int64, error) {
 	for _, store := range s.stores {
 		v, err := store.Increment(ctx, key, delta)
+
 		if err == nil {
 			return v, nil
 		}
@@ -112,6 +117,7 @@ func (s *FailoverStore) Touch(ctx context.Context, key string, ttl time.Duration
 
 	for _, store := range s.stores {
 		ok, err := store.Touch(ctx, key, ttl)
+
 		if err == nil && ok {
 			any = true
 		}

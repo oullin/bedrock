@@ -28,11 +28,13 @@ func NewMemoryRepository(expiry time.Duration) *MemoryRepository {
 
 func (r *MemoryRepository) Create(_ context.Context, email string) (string, error) {
 	token, err := GenerateToken()
+
 	if err != nil {
 		return "", err
 	}
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.tokens[email] = tokenEntry{token: token, createdAt: time.Now()}
@@ -42,9 +44,11 @@ func (r *MemoryRepository) Create(_ context.Context, email string) (string, erro
 
 func (r *MemoryRepository) Exists(_ context.Context, email, token string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	entry, ok := r.tokens[email]
+
 	if !ok {
 		return false
 	}
@@ -58,6 +62,7 @@ func (r *MemoryRepository) Exists(_ context.Context, email, token string) bool {
 
 func (r *MemoryRepository) Delete(_ context.Context, email string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	delete(r.tokens, email)
@@ -67,6 +72,7 @@ func (r *MemoryRepository) Delete(_ context.Context, email string) error {
 
 func (r *MemoryRepository) DeleteExpired(_ context.Context) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for email, entry := range r.tokens {
