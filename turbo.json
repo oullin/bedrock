@@ -12,7 +12,7 @@
         "^build"
       ],
       "outputs": [
-        "../storage/.turbo/dist/**",
+        "../bin/**",
         "../../storage/.turbo/dist/**"
       ]
     },
@@ -37,7 +37,6 @@
         "^build"
       ],
       "outputs": [
-        "../storage/.cache/coverage/**",
         "../../storage/.cache/coverage/**"
       ]
     },
