@@ -15,11 +15,6 @@ type testVerificationResponder struct {
 	verificationSentCalled bool
 }
 
-func (r *testVerificationResponder) EmailVerificationSentResponse(w http.ResponseWriter, _ *http.Request) {
-	r.verificationSentCalled = true
-	w.WriteHeader(http.StatusOK)
-}
-
 // --- test verifier with error support ---
 
 type testVerifierWithError struct {
@@ -27,11 +22,24 @@ type testVerifierWithError struct {
 	verifyError error
 }
 
+// --- tests: send verification ---
+
+// --- tests: verify email ---
+
+// --- failing verifier ---
+
+type failingVerifier struct {
+	err error
+}
+
+func (r *testVerificationResponder) EmailVerificationSentResponse(w http.ResponseWriter, _ *http.Request) {
+	r.verificationSentCalled = true
+	w.WriteHeader(http.StatusOK)
+}
+
 func (v *testVerifierWithError) Verify(_ context.Context, _ string, _ string) error {
 	return v.verifyError
 }
-
-// --- tests: send verification ---
 
 func TestSendVerificationSuccess(t *testing.T) {
 	user := &testUser{id: "1", email: "user@example.com"}
@@ -123,8 +131,6 @@ func TestSendVerificationAlreadyVerified(t *testing.T) {
 	}
 }
 
-// --- tests: verify email ---
-
 func TestVerifyEmailSuccess(t *testing.T) {
 	verifier := &testVerifier{}
 	events := &testEvents{}
@@ -208,12 +214,6 @@ func TestVerifyEmailVerifierFails(t *testing.T) {
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("expected 403, got %d", w.Code)
 	}
-}
-
-// --- failing verifier ---
-
-type failingVerifier struct {
-	err error
 }
 
 func (v *failingVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {

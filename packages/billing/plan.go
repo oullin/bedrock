@@ -60,26 +60,6 @@ type PlanPeriodPrice struct {
 }
 
 // DisplayAmount returns a human-readable price string based on the pricing mode.
-func (p *PlanPeriodPrice) DisplayAmount(formatter CurrencyFormatter) string {
-	switch p.PricingMode {
-	case PricingModeFree:
-		return "Free"
-	case PricingModeCustom:
-		return "Custom"
-	case PricingModeMoney:
-		if p.AmountMinor == nil || p.Currency == "" {
-			return "N/A"
-		}
-
-		if formatter != nil {
-			return formatter.FormatAmount(*p.AmountMinor, p.Currency, "")
-		}
-
-		return fmt.Sprintf("%d %s", *p.AmountMinor, p.Currency)
-	default:
-		return string(p.PricingMode)
-	}
-}
 
 // Feature represents a billable feature definition.
 type Feature struct {
@@ -122,4 +102,25 @@ type BillingPlan struct {
 	PriceIncludesVAT bool
 	Price            float64
 	Currency         string
+}
+
+func (p *PlanPeriodPrice) DisplayAmount(formatter CurrencyFormatter) string {
+	switch p.PricingMode {
+	case PricingModeFree:
+		return "Free"
+	case PricingModeCustom:
+		return "Custom"
+	case PricingModeMoney:
+		if p.AmountMinor == nil || p.Currency == "" {
+			return "N/A"
+		}
+
+		if formatter != nil {
+			return formatter.FormatAmount(*p.AmountMinor, p.Currency, "")
+		}
+
+		return fmt.Sprintf("%d %s", *p.AmountMinor, p.Currency)
+	default:
+		return string(p.PricingMode)
+	}
 }

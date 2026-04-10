@@ -31,7 +31,9 @@ func TestStartSessionWritesCookie(t *testing.T) {
 	}
 
 	cookies := rr.Result().Cookies()
+
 	var found bool
+
 	for _, c := range cookies {
 		if c.Name == "sess" {
 			found = true
@@ -77,6 +79,7 @@ func TestStartSessionReusesID(t *testing.T) {
 	mw(inner).ServeHTTP(rr2, req2)
 
 	var secondID string
+
 	for _, c := range rr2.Result().Cookies() {
 		if c.Name == "sess" {
 			secondID = c.Value

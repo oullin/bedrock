@@ -22,16 +22,19 @@ func TestRoleRegistryDefine(t *testing.T) {
 	rr := NewRoleRegistry()
 
 	admin := rr.Define("admin", "Administrator", "Full access", []string{"*"})
+
 	if admin.Key != "admin" {
 		t.Fatalf("expected key admin, got %s", admin.Key)
 	}
 
 	editor := rr.Define("editor", "Editor", "Can edit", []string{"read", "update"})
+
 	if editor.Name != "Editor" {
 		t.Fatalf("expected name Editor, got %s", editor.Name)
 	}
 
 	all := rr.All()
+
 	if len(all) != 2 {
 		t.Fatalf("expected 2 roles, got %d", len(all))
 	}
@@ -42,11 +45,13 @@ func TestRoleRegistryFind(t *testing.T) {
 	rr.Define("admin", "Admin", "", []string{"*"})
 
 	found := rr.Find("admin")
+
 	if found == nil {
 		t.Fatal("expected to find admin role")
 	}
 
 	notFound := rr.Find("nonexistent")
+
 	if notFound != nil {
 		t.Fatal("expected nil for nonexistent role")
 	}

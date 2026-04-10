@@ -27,6 +27,7 @@ func EnsureAuthenticated(guard Guard) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := guard.User(r.Context())
+
 			if err != nil || user == nil {
 				http.Error(w, "unauthenticated", http.StatusUnauthorized)
 
@@ -58,6 +59,7 @@ func EnsureEmailIsVerified(guard Guard) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := guard.User(r.Context())
+
 			if err != nil || user == nil {
 				http.Error(w, "unauthenticated", http.StatusUnauthorized)
 
@@ -100,6 +102,7 @@ func AuthenticateWithBasicAuth(provider UserProvider, hasher PasswordHasher) fun
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			username, password, ok := r.BasicAuth()
+
 			if !ok {
 				w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
@@ -108,6 +111,7 @@ func AuthenticateWithBasicAuth(provider UserProvider, hasher PasswordHasher) fun
 			}
 
 			user, err := provider.RetrieveByCredentials(r.Context(), map[string]any{"email": username})
+
 			if err != nil || user == nil || !hasher.Check(password, user.GetAuthPassword()) {
 				w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 				http.Error(w, "unauthorized", http.StatusUnauthorized)

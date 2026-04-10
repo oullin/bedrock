@@ -42,6 +42,7 @@ func (r *Repository) StartPendingSubscription(
 	period billing.BillingPeriod,
 ) (*billing.Subscription, error) {
 	existing, _ := r.subscriptions.LatestForPlan(ctx, billable.BillableType(), billable.BillableID(), string(plan))
+
 	if existing != nil && !existing.Status.IsTerminal() {
 		return existing, nil
 	}
@@ -70,11 +71,13 @@ func (r *Repository) StartPendingSubscription(
 // StartStarterTrial creates a trialing subscription for the starter plan.
 func (r *Repository) StartStarterTrial(ctx context.Context, billable billing.Billable) (*billing.Subscription, error) {
 	exists, _ := r.subscriptions.ExistsAccessibleNonStarter(ctx, billable.BillableType(), billable.BillableID())
+
 	if exists {
 		return nil, billing.ErrAlreadySubscribed
 	}
 
 	existing, _ := r.subscriptions.LatestForPlan(ctx, billable.BillableType(), billable.BillableID(), string(billing.PlanStarter))
+
 	if existing != nil && !existing.Status.IsTerminal() {
 		return existing, nil
 	}
@@ -109,6 +112,7 @@ func (r *Repository) BeginCheckout(
 	price *billing.PlanPeriodPrice,
 ) (string, error) {
 	sub, err := r.StartPendingSubscription(ctx, billable, plan, period)
+
 	if err != nil {
 		return "", err
 	}
@@ -116,6 +120,7 @@ func (r *Repository) BeginCheckout(
 	_ = sub // The subscription is tracked locally for reconciliation.
 
 	customer, err := r.customers.FindByBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil {
 		return "", err
 	}
@@ -123,6 +128,7 @@ func (r *Repository) BeginCheckout(
 	session, err := r.checkout.Generate(ctx, customer, []billing.CheckoutItem{
 		{PriceID: price.ProviderPriceID, Quantity: 1},
 	}, nil)
+
 	if err != nil {
 		return "", err
 	}

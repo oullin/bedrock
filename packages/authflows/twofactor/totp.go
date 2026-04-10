@@ -52,6 +52,7 @@ func ValidateAt(code string, secret string, at time.Time) bool {
 
 	for offset := int64(-1); offset <= 1; offset++ {
 		expected := generateCode(secret, uint64(int64(counter)+offset))
+
 		if expected == code {
 			return true
 		}

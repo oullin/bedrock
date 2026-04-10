@@ -31,6 +31,9 @@ type BeanstalkdDriver struct {
 }
 
 // NewBeanstalkdDriver creates a BeanstalkdDriver. ttr is the job TTR.
+
+type bsJob struct{ BaseJob }
+
 func NewBeanstalkdDriver(client BeanstalkdClient, connection string, ttr time.Duration) *BeanstalkdDriver {
 	if ttr == 0 {
 		ttr = 60 * time.Second
@@ -53,8 +56,10 @@ func (d *BeanstalkdDriver) PushDelayed(ctx context.Context, queueName string, pa
 
 func (d *BeanstalkdDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	ids := make([]string, 0, len(payloads))
+
 	for _, p := range payloads {
 		id, err := d.Push(ctx, queueName, p)
+
 		if err != nil {
 			return ids, err
 		}
@@ -67,6 +72,7 @@ func (d *BeanstalkdDriver) PushMultiple(ctx context.Context, queueName string, p
 
 func (d *BeanstalkdDriver) Pop(ctx context.Context, queueName string) (queue.Job, error) {
 	id, body, err := d.client.ReserveWithTimeout(ctx, queueName, 5*time.Second)
+
 	if err != nil {
 		return nil, queue.ErrNoJob
 	}
@@ -82,9 +88,11 @@ func (d *BeanstalkdDriver) Pop(ctx context.Context, queueName string) (queue.Job
 	job.deleteFunc = func() error {
 		return d.client.Delete(ctx, id)
 	}
+
 	job.releaseFunc = func(delay time.Duration) error {
 		return d.client.Release(ctx, id, 1024, delay)
 	}
+
 	job.failFunc = func(_ error) error {
 		return d.client.Bury(ctx, id, 1024)
 	}
@@ -94,6 +102,7 @@ func (d *BeanstalkdDriver) Pop(ctx context.Context, queueName string) (queue.Job
 
 func (d *BeanstalkdDriver) Size(ctx context.Context, queueName string) (int64, error) {
 	stats, err := d.client.StatsTube(ctx, queueName)
+
 	if err != nil {
 		return 0, err
 	}
@@ -107,6 +116,7 @@ func (d *BeanstalkdDriver) PendingSize(ctx context.Context, queueName string) (i
 
 func (d *BeanstalkdDriver) DelayedSize(ctx context.Context, queueName string) (int64, error) {
 	stats, err := d.client.StatsTube(ctx, queueName)
+
 	if err != nil {
 		return 0, err
 	}
@@ -116,6 +126,7 @@ func (d *BeanstalkdDriver) DelayedSize(ctx context.Context, queueName string) (i
 
 func (d *BeanstalkdDriver) ReservedSize(ctx context.Context, queueName string) (int64, error) {
 	stats, err := d.client.StatsTube(ctx, queueName)
+
 	if err != nil {
 		return 0, err
 	}
@@ -124,5 +135,3 @@ func (d *BeanstalkdDriver) ReservedSize(ctx context.Context, queueName string) (
 }
 
 func (d *BeanstalkdDriver) ConnectionName() string { return d.connection }
-
-type bsJob struct{ BaseJob }

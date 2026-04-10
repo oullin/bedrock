@@ -19,12 +19,14 @@ func New() *Pipeline {
 // Send sets the value being sent through the pipeline.
 func (p *Pipeline) Send(passable any) *Pipeline {
 	p.passable = passable
+
 	return p
 }
 
 // Through sets the stages the passable will be sent through.
 func (p *Pipeline) Through(stages ...Stage) *Pipeline {
 	p.stages = stages
+
 	return p
 }
 

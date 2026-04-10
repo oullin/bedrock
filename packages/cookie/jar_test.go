@@ -20,6 +20,7 @@ func TestMake(t *testing.T) {
 	if c.Name != "session" || c.Value != "abc" {
 		t.Fatalf("unexpected cookie: %+v", c)
 	}
+
 	if !c.HttpOnly {
 		t.Fatal("expected HttpOnly")
 	}
@@ -35,6 +36,7 @@ func TestForever(t *testing.T) {
 	}
 	// 400 days in seconds
 	expected := int((400 * 24 * time.Hour).Seconds())
+
 	if c.MaxAge != expected {
 		t.Fatalf("expected %d, got %d", expected, c.MaxAge)
 	}
@@ -61,6 +63,7 @@ func TestJarQueue(t *testing.T) {
 	}
 
 	c := j.Queued("foo")
+
 	if c == nil || c.Value != "bar" {
 		t.Fatalf("unexpected queued cookie: %v", c)
 	}
@@ -99,9 +102,11 @@ func TestJarMakeInheritsDefaults(t *testing.T) {
 	j := cookie.NewJar(opts)
 
 	c := j.Make("x", "y", cookie.Options{})
+
 	if !c.Secure {
 		t.Fatal("expected Secure from defaults")
 	}
+
 	if c.Path != "/" {
 		t.Fatalf("expected path '/', got %q", c.Path)
 	}

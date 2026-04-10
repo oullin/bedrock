@@ -31,6 +31,7 @@ func TestEncryptCookiesDecryptsRequest(t *testing.T) {
 
 	h := mw.Wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, _ := r.Cookie("session")
+
 		if c != nil {
 			got = c.Value
 		}
@@ -55,6 +56,7 @@ func TestEncryptCookiesExceptPassThrough(t *testing.T) {
 
 	h := mw.Wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, _ := r.Cookie("csrf")
+
 		if c != nil {
 			got = c.Value
 		}

@@ -38,6 +38,9 @@ type SQSDriver struct {
 }
 
 // NewSQSDriver creates an SQSDriver. queueURLs maps logical queue names to SQS queue URLs.
+
+type sqsJob struct{ BaseJob }
+
 func NewSQSDriver(client SQSClient, queueURLs map[string]string, connection string) *SQSDriver {
 	return &SQSDriver{client: client, queueURLs: queueURLs, connection: connection}
 }
@@ -52,6 +55,7 @@ func (d *SQSDriver) PushDelayed(ctx context.Context, queueName string, payload [
 
 func (d *SQSDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	bodies := make([]string, len(payloads))
+
 	for i, p := range payloads {
 		bodies[i] = string(p)
 	}
@@ -61,6 +65,7 @@ func (d *SQSDriver) PushMultiple(ctx context.Context, queueName string, payloads
 
 func (d *SQSDriver) Pop(ctx context.Context, queueName string) (queue.Job, error) {
 	msgs, err := d.client.ReceiveMessage(ctx, d.url(queueName), 1, 20)
+
 	if err != nil || len(msgs) == 0 {
 		return nil, queue.ErrNoJob
 	}
@@ -79,9 +84,11 @@ func (d *SQSDriver) Pop(ctx context.Context, queueName string) (queue.Job, error
 	job.deleteFunc = func() error {
 		return d.client.DeleteMessage(ctx, queueURL, msg.ReceiptHandle)
 	}
+
 	job.releaseFunc = func(delay time.Duration) error {
 		return d.client.ChangeMessageVisibility(ctx, queueURL, msg.ReceiptHandle, delay)
 	}
+
 	job.failFunc = func(_ error) error {
 		return job.deleteFunc()
 	}
@@ -91,6 +98,7 @@ func (d *SQSDriver) Pop(ctx context.Context, queueName string) (queue.Job, error
 
 func (d *SQSDriver) Size(ctx context.Context, queueName string) (int64, error) {
 	attrs, err := d.client.GetQueueAttributes(ctx, d.url(queueName), []string{"ApproximateNumberOfMessages"})
+
 	if err != nil {
 		return 0, err
 	}
@@ -106,6 +114,7 @@ func (d *SQSDriver) DelayedSize(_ context.Context, _ string) (int64, error) { re
 
 func (d *SQSDriver) ReservedSize(ctx context.Context, queueName string) (int64, error) {
 	attrs, err := d.client.GetQueueAttributes(ctx, d.url(queueName), []string{"ApproximateNumberOfMessagesNotVisible"})
+
 	if err != nil {
 		return 0, err
 	}
@@ -122,5 +131,3 @@ func (d *SQSDriver) url(queueName string) string {
 
 	return queueName
 }
-
-type sqsJob struct{ BaseJob }

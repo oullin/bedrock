@@ -35,6 +35,7 @@ func NewRecovery(
 // local subscription.
 func (r *Recovery) Recover(ctx context.Context, billable billing.Billable, providerSubID string) (*billing.Subscription, error) {
 	providerSub, err := r.fetcher.FetchExplicit(ctx, providerSubID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +45,7 @@ func (r *Recovery) Recover(ctx context.Context, billable billing.Billable, provi
 	}
 
 	localSub, err := r.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+
 	if err != nil || localSub == nil {
 		return nil, billing.ErrRecoveryFailed
 	}
@@ -56,6 +58,7 @@ func (r *Recovery) Recover(ctx context.Context, billable billing.Billable, provi
 	}
 
 	activated, err := r.transitioner.Activate(ctx, localSub)
+
 	if err != nil {
 		return nil, err
 	}

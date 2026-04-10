@@ -50,9 +50,11 @@ func TestConsoleCommand(t *testing.T) {
 	app := newTestApp(t)
 
 	var stdout bytes.Buffer
+
 	var stderr bytes.Buffer
 
 	status := app.HandleCommand([]string{"inspire"}, &stdout, &stderr)
+
 	if status != 0 {
 		t.Fatalf("unexpected status: %d stderr=%q", status, stderr.String())
 	}
@@ -68,6 +70,7 @@ func TestAppConfigUsesEnvironmentFile(t *testing.T) {
 	app := newTestApp(t)
 
 	name, err := app.Config().String("app.name")
+
 	if err != nil {
 		t.Fatalf("Config String: %v", err)
 	}

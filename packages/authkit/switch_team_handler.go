@@ -15,8 +15,10 @@ func NewSwitchTeamHandler(js *AuthKit) *SwitchTeamHandler {
 // ServeHTTP handles the switch team request.
 func (h *SwitchTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.js, w, r)
+
 	if err != nil {
 		http.Error(w, err.Error(), statusForError(err))
+
 		return
 	}
 
@@ -24,13 +26,16 @@ func (h *SwitchTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	teamID := input["team_id"]
 
 	team, err := h.js.teams.FindByID(r.Context(), teamID)
+
 	if err != nil || team == nil {
 		http.Error(w, "team not found", http.StatusNotFound)
+
 		return
 	}
 
 	if !user.BelongsToTeam(team) && !user.OwnsTeam(team) {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusForbidden)
+
 		return
 	}
 

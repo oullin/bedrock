@@ -16,6 +16,7 @@ func NewForgotPasswordHandler(f *AuthFlows) *ForgotPasswordHandler {
 func (h *ForgotPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.ResetPasswords {
 		http.Error(w, "password resets are disabled", http.StatusNotFound)
+
 		return
 	}
 
@@ -24,11 +25,13 @@ func (h *ForgotPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	if err := h.ensureNotRateLimited(input[h.authflows.config.IdentifierField], r); err != nil {
 		http.Error(w, err.Error(), http.StatusTooManyRequests)
+
 		return
 	}
 
 	if err := h.authflows.broker.SendResetLink(ctx, input); err != nil {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
 		return
 	}
 

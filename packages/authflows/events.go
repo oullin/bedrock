@@ -1,22 +1,6 @@
 package authflows
 
 // Event names dispatched by AuthFlows.
-const (
-	EventLoginAttempted  = "authflows.login.attempted"
-	EventLoginSucceeded  = "authflows.login.succeeded"
-	EventLoginFailed     = "authflows.login.failed"
-	EventLoggedOut       = "authflows.logged_out"
-	EventRegistered      = "authflows.registered"
-	EventPasswordReset   = "authflows.password.reset"
-	EventPasswordUpdated = "authflows.password.updated"
-	EventVerified        = "authflows.email.verified"
-
-	EventTwoFactorEnabled   = "authflows.two_factor.enabled"
-	EventTwoFactorConfirmed = "authflows.two_factor.confirmed"
-	EventTwoFactorDisabled  = "authflows.two_factor.disabled"
-	EventTwoFactorChallenge = "authflows.two_factor.challenge"
-	EventRecoveryCodeUsed   = "authflows.two_factor.recovery_used"
-)
 
 // LoginAttemptedPayload is dispatched when a login attempt begins.
 type LoginAttemptedPayload struct {
@@ -44,3 +28,20 @@ type LoggedOutPayload struct {
 type RegisteredPayload struct {
 	User Authenticatable
 }
+
+const (
+	EventLoginAttempted  = "authflows.login.attempted"
+	EventLoginSucceeded  = "authflows.login.succeeded"
+	EventLoginFailed     = "authflows.login.failed"
+	EventLoggedOut       = "authflows.logged_out"
+	EventRegistered      = "authflows.registered"
+	EventPasswordReset   = "authflows.password.reset"
+	EventPasswordUpdated = "authflows.password.updated"
+	EventVerified        = "authflows.email.verified"
+
+	EventTwoFactorEnabled   = "authflows.two_factor.enabled"
+	EventTwoFactorConfirmed = "authflows.two_factor.confirmed"
+	EventTwoFactorDisabled  = "authflows.two_factor.disabled"
+	EventTwoFactorChallenge = "authflows.two_factor.challenge"
+	EventRecoveryCodeUsed   = "authflows.two_factor.recovery_used"
+)

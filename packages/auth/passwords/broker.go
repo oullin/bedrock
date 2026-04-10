@@ -27,9 +27,9 @@ type ResetCallback func(ctx context.Context, user auth.CanResetPassword, token, 
 
 // Broker orchestrates the password reset flow.
 type Broker struct {
-	users    auth.UserProvider
-	tokens   TokenRepository
-	expiry   time.Duration
+	users  auth.UserProvider
+	tokens TokenRepository
+	expiry time.Duration
 }
 
 // NewBroker creates a Broker. expiry is the token lifetime.
@@ -40,11 +40,13 @@ func NewBroker(users auth.UserProvider, tokens TokenRepository, expiry time.Dura
 // SendResetLink finds the user by email and sends them a password reset notification.
 func (b *Broker) SendResetLink(ctx context.Context, email string) error {
 	user, err := b.getUser(ctx, email)
+
 	if err != nil {
 		return err
 	}
 
 	token, err := b.tokens.Create(ctx, email)
+
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,7 @@ func (b *Broker) Reset(ctx context.Context, credentials map[string]any, resetFn 
 	password, _ := credentials["password"].(string)
 
 	user, err := b.getUser(ctx, email)
+
 	if err != nil {
 		return err
 	}
@@ -78,6 +81,7 @@ func (b *Broker) Reset(ctx context.Context, credentials map[string]any, resetFn 
 
 func (b *Broker) getUser(ctx context.Context, email string) (auth.CanResetPassword, error) {
 	u, err := b.users.RetrieveByCredentials(ctx, map[string]any{"email": email})
+
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +91,7 @@ func (b *Broker) getUser(ctx context.Context, email string) (auth.CanResetPasswo
 	}
 
 	crp, ok := u.(auth.CanResetPassword)
+
 	if !ok {
 		return nil, errors.New("passwords: user does not implement CanResetPassword")
 	}
@@ -97,6 +102,7 @@ func (b *Broker) getUser(ctx context.Context, email string) (auth.CanResetPasswo
 // GenerateToken creates a cryptographically random reset token.
 func GenerateToken() (string, error) {
 	b := make([]byte, 32)
+
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}

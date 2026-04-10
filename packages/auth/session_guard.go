@@ -11,8 +11,6 @@ import (
 	"github.com/bedrock/packages/auth/events"
 )
 
-const sessionKey = "_auth_user"
-
 // SessionGuard is the stateful, cookie+session backed authentication guard.
 type SessionGuard struct {
 	mu            sync.RWMutex
@@ -27,6 +25,8 @@ type SessionGuard struct {
 	remCookieName string
 	events        EventDispatcher
 }
+
+const sessionKey = "_auth_user"
 
 // NewSessionGuard creates a SessionGuard.
 func NewSessionGuard(
@@ -49,6 +49,7 @@ func NewSessionGuard(
 // SetEventDispatcher sets the event dispatcher for auth lifecycle events.
 func (g *SessionGuard) SetEventDispatcher(d EventDispatcher) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.events = d
@@ -72,6 +73,7 @@ func (g *SessionGuard) SetUser(ctx context.Context, user Authenticatable) {
 // HasUser reports whether the guard has a resolved user without triggering resolution.
 func (g *SessionGuard) HasUser() bool {
 	g.mu.RLock()
+
 	defer g.mu.RUnlock()
 
 	return g.user != nil
@@ -80,6 +82,7 @@ func (g *SessionGuard) HasUser() bool {
 // ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
 func (g *SessionGuard) ForgetUser() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.user = nil
@@ -88,6 +91,7 @@ func (g *SessionGuard) ForgetUser() {
 // SetRequest sets the current HTTP request (required before resolving user).
 func (g *SessionGuard) SetRequest(r *http.Request) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.request = r
@@ -96,6 +100,7 @@ func (g *SessionGuard) SetRequest(r *http.Request) {
 // User returns the authenticated user, or nil if unauthenticated.
 func (g *SessionGuard) User(ctx context.Context) (Authenticatable, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	if g.user != nil {
@@ -104,8 +109,10 @@ func (g *SessionGuard) User(ctx context.Context) (Authenticatable, error) {
 
 	// Try session.
 	id := g.session.Get(sessionKey, nil)
+
 	if id != nil {
 		user, err := g.provider.RetrieveByID(ctx, id)
+
 		if err == nil && user != nil {
 			g.user = user
 			g.dispatch(ctx, events.Authenticated{Guard: g.name, User: user})
@@ -118,8 +125,10 @@ func (g *SessionGuard) User(ctx context.Context) (Authenticatable, error) {
 	if g.request != nil {
 		if c, err := g.request.Cookie(g.remCookieName); err == nil {
 			rec := NewRecaller(c.Value)
+
 			if rec != nil && rec.Valid() {
 				user, err := g.provider.RetrieveByToken(ctx, rec.ID(), rec.Token())
+
 				if err == nil && user != nil {
 					g.user = user
 					g.viaRemember = true
@@ -151,6 +160,7 @@ func (g *SessionGuard) Guest(ctx context.Context) bool {
 // ID returns the authenticated user's identifier, or nil.
 func (g *SessionGuard) ID(ctx context.Context) any {
 	u, _ := g.User(ctx)
+
 	if u == nil {
 		return nil
 	}
@@ -161,6 +171,7 @@ func (g *SessionGuard) ID(ctx context.Context) any {
 // Validate checks credentials without logging in.
 func (g *SessionGuard) Validate(ctx context.Context, credentials map[string]any) bool {
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil || user == nil {
 		return false
 	}
@@ -173,6 +184,7 @@ func (g *SessionGuard) Attempt(ctx context.Context, credentials map[string]any, 
 	g.dispatch(ctx, events.Attempting{Guard: g.name, Credentials: credentials, Remember: remember})
 
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil || user == nil {
 		g.dispatch(ctx, events.Failed{Guard: g.name, User: nil, Credentials: credentials})
 
@@ -194,6 +206,7 @@ func (g *SessionGuard) Attempt(ctx context.Context, credentials map[string]any, 
 // Once authenticates for a single request without persisting state.
 func (g *SessionGuard) Once(ctx context.Context, credentials map[string]any) bool {
 	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
 	if err != nil || user == nil {
 		return false
 	}
@@ -242,6 +255,7 @@ func (g *SessionGuard) Login(ctx context.Context, user Authenticatable, remember
 // LoginUsingID logs in the user identified by id.
 func (g *SessionGuard) LoginUsingID(ctx context.Context, id any, remember bool) (Authenticatable, error) {
 	user, err := g.provider.RetrieveByID(ctx, id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -256,6 +270,7 @@ func (g *SessionGuard) LoginUsingID(ctx context.Context, id any, remember bool) 
 // OnceUsingID authenticates a single request by ID without persisting state.
 func (g *SessionGuard) OnceUsingID(ctx context.Context, id any) (Authenticatable, error) {
 	user, err := g.provider.RetrieveByID(ctx, id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -274,6 +289,7 @@ func (g *SessionGuard) OnceUsingID(ctx context.Context, id any) (Authenticatable
 // ViaRemember reports whether the user was authenticated via remember-me cookie.
 func (g *SessionGuard) ViaRemember(_ context.Context) bool {
 	g.mu.RLock()
+
 	defer g.mu.RUnlock()
 
 	return g.viaRemember
@@ -346,6 +362,7 @@ func (g *SessionGuard) LogoutOtherDevices(ctx context.Context) error {
 
 func (g *SessionGuard) refreshRememberToken(ctx context.Context, user Authenticatable) error {
 	token, err := generateRememberToken()
+
 	if err != nil {
 		return err
 	}
@@ -355,6 +372,7 @@ func (g *SessionGuard) refreshRememberToken(ctx context.Context, user Authentica
 
 func generateRememberToken() (string, error) {
 	b := make([]byte, 20)
+
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}

@@ -12,6 +12,15 @@ import (
 
 // --- EnsureAuthenticated ---
 
+// --- RedirectIfAuthenticated ---
+
+// --- EnsureEmailIsVerified ---
+
+type verifiedUser struct {
+	auth.GenericUser
+	verified bool
+}
+
 func TestEnsureAuthenticatedRejects(t *testing.T) {
 	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
@@ -60,6 +69,7 @@ func TestEnsureAuthenticatedSetsUserInContext(t *testing.T) {
 	mw := auth.EnsureAuthenticated(guard)
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		u := auth.UserFromContext(r.Context())
+
 		if u == nil {
 			t.Error("expected user in context")
 		}
@@ -81,8 +91,6 @@ func TestEnsureAuthenticatedSetsUserInContext(t *testing.T) {
 		t.Errorf("expected 200, got %d", rr.Code)
 	}
 }
-
-// --- RedirectIfAuthenticated ---
 
 func TestRedirectIfAuthenticatedRedirectsWhenLoggedIn(t *testing.T) {
 	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
@@ -129,17 +137,10 @@ func TestRedirectIfAuthenticatedPassesThroughWhenGuest(t *testing.T) {
 	}
 }
 
-// --- EnsureEmailIsVerified ---
-
-type verifiedUser struct {
-	auth.GenericUser
-	verified bool
-}
-
-func (u *verifiedUser) HasVerifiedEmail() bool                { return u.verified }
-func (u *verifiedUser) MarkEmailAsVerified() error            { return nil }
-func (u *verifiedUser) SendEmailVerificationNotification()    {}
-func (u *verifiedUser) GetEmailForVerification() string       { return "test@example.com" }
+func (u *verifiedUser) HasVerifiedEmail() bool             { return u.verified }
+func (u *verifiedUser) MarkEmailAsVerified() error         { return nil }
+func (u *verifiedUser) SendEmailVerificationNotification() {}
+func (u *verifiedUser) GetEmailForVerification() string    { return "test@example.com" }
 
 func TestEnsureEmailIsVerifiedRejects(t *testing.T) {
 	user := &verifiedUser{
@@ -322,6 +323,7 @@ func TestAuthenticateWithBasicAuthAcceptsValid(t *testing.T) {
 	mw := auth.AuthenticateWithBasicAuth(provider, hasher)
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		u := auth.UserFromContext(r.Context())
+
 		if u == nil {
 			t.Error("expected user in context after basic auth")
 		}
@@ -369,6 +371,7 @@ func TestWithUserAndUserFromContext(t *testing.T) {
 	req = auth.WithUser(req, user)
 
 	got := auth.UserFromContext(req.Context())
+
 	if got == nil {
 		t.Fatal("expected user from context")
 	}
@@ -380,6 +383,7 @@ func TestWithUserAndUserFromContext(t *testing.T) {
 
 func TestUserFromContextReturnsNilWhenNotSet(t *testing.T) {
 	got := auth.UserFromContext(context.Background())
+
 	if got != nil {
 		t.Error("expected nil when no user in context")
 	}

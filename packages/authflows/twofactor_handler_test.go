@@ -232,6 +232,7 @@ func TestTwoFactorQRCodeSuccess(t *testing.T) {
 	}
 
 	var body map[string]string
+
 	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
@@ -281,6 +282,7 @@ func TestRecoveryCodesGet(t *testing.T) {
 	handler.ServeHTTP(w, r)
 
 	var codes []string
+
 	if err := json.NewDecoder(w.Body).Decode(&codes); err != nil {
 		t.Fatalf("failed to decode: %v", err)
 	}

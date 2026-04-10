@@ -18,24 +18,10 @@ type testCreatesUsers struct {
 	returnError error
 }
 
-func (a *testCreatesUsers) Create(_ context.Context, _ map[string]string) (Authenticatable, error) {
-	a.created = true
-	return a.returnUser, a.returnError
-}
-
 // --- test verifier ---
 
 type testVerifier struct {
 	sent bool
-}
-
-func (v *testVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
-	v.sent = true
-	return nil
-}
-
-func (v *testVerifier) Verify(_ context.Context, _ string, _ string) error {
-	return nil
 }
 
 // --- test responder extension ---
@@ -45,12 +31,37 @@ type testRegisterResponder struct {
 	registerCalled bool
 }
 
+// --- helpers ---
+
+// --- tests ---
+
+// --- verifiable test user ---
+
+type testVerifiableUser struct {
+	testUser
+	verified bool
+}
+
+func (a *testCreatesUsers) Create(_ context.Context, _ map[string]string) (Authenticatable, error) {
+	a.created = true
+
+	return a.returnUser, a.returnError
+}
+
+func (v *testVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
+	v.sent = true
+
+	return nil
+}
+
+func (v *testVerifier) Verify(_ context.Context, _ string, _ string) error {
+	return nil
+}
+
 func (r *testRegisterResponder) RegisterResponse(w http.ResponseWriter, _ *http.Request) {
 	r.registerCalled = true
 	w.WriteHeader(http.StatusCreated)
 }
-
-// --- helpers ---
 
 func registerRequest(email string, name string, password string) *http.Request {
 	body := strings.NewReader("email=" + email + "&name=" + name + "&password=" + password + "&password_confirmation=" + password)
@@ -59,8 +70,6 @@ func registerRequest(email string, name string, password string) *http.Request {
 
 	return req
 }
-
-// --- tests ---
 
 func TestRegisterHandlerSuccess(t *testing.T) {
 	user := &testUser{id: "1", email: "new@example.com"}
@@ -198,13 +207,6 @@ func TestRegisterHandlerSkipsVerificationWhenAlreadyVerified(t *testing.T) {
 	if verifier.sent {
 		t.Fatal("should not send verification when already verified")
 	}
-}
-
-// --- verifiable test user ---
-
-type testVerifiableUser struct {
-	testUser
-	verified bool
 }
 
 func (u *testVerifiableUser) HasVerifiedEmail() bool          { return u.verified }

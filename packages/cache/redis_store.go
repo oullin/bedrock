@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-var _ Store = (*RedisStore)(nil)
-var _ Locker = (*RedisStore)(nil)
-
 // RedisClient is the subset of Redis operations required by RedisStore.
 // Compatible with go-redis and similar clients.
 type RedisClient interface {
@@ -33,6 +30,20 @@ type RedisStore struct {
 }
 
 // NewRedisStore creates a RedisStore with the given client.
+
+// Lock returns a Redis-based distributed lock using a SET NX PX Lua script.
+
+// redisLock implements Lock using Redis SET NX.
+type redisLock struct {
+	client RedisClient
+	key    string
+	owner  string
+	ttl    time.Duration
+}
+
+var _ Store = (*RedisStore)(nil)
+var _ Locker = (*RedisStore)(nil)
+
 func NewRedisStore(client RedisClient, prefix string) *RedisStore {
 	return &RedisStore{client: client, prefix: prefix}
 }
@@ -49,11 +60,13 @@ func (s *RedisStore) prefixed(key string) string {
 
 func (s *RedisStore) Get(ctx context.Context, key string) (any, error) {
 	val, err := s.client.Get(ctx, s.prefixed(key))
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %q", ErrNotFound, key)
 	}
 
 	var v any
+
 	if err := json.Unmarshal([]byte(val), &v); err != nil {
 		return val, nil
 	}
@@ -63,11 +76,13 @@ func (s *RedisStore) Get(ctx context.Context, key string) (any, error) {
 
 func (s *RedisStore) GetMany(ctx context.Context, keys []string) (map[string]any, error) {
 	prefixed := make([]string, len(keys))
+
 	for i, k := range keys {
 		prefixed[i] = s.prefixed(k)
 	}
 
 	vals, err := s.client.MGet(ctx, prefixed...)
+
 	if err != nil {
 		return nil, err
 	}
@@ -80,12 +95,15 @@ func (s *RedisStore) GetMany(ctx context.Context, keys []string) (map[string]any
 		}
 
 		str, ok := v.(string)
+
 		if !ok {
 			out[keys[i]] = v
+
 			continue
 		}
 
 		var decoded any
+
 		if err := json.Unmarshal([]byte(str), &decoded); err != nil {
 			out[keys[i]] = str
 		} else {
@@ -98,6 +116,7 @@ func (s *RedisStore) GetMany(ctx context.Context, keys []string) (map[string]any
 
 func (s *RedisStore) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
@@ -117,6 +136,7 @@ func (s *RedisStore) PutMany(ctx context.Context, values map[string]any, ttl tim
 
 func (s *RedisStore) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return false, err
 	}
@@ -148,7 +168,6 @@ func (s *RedisStore) Flush(ctx context.Context) error {
 	return s.client.FlushDB(ctx)
 }
 
-// Lock returns a Redis-based distributed lock using a SET NX PX Lua script.
 func (s *RedisStore) Lock(name, owner string, ttl time.Duration) Lock {
 	return &redisLock{
 		client: s.client,
@@ -156,14 +175,6 @@ func (s *RedisStore) Lock(name, owner string, ttl time.Duration) Lock {
 		owner:  owner,
 		ttl:    ttl,
 	}
-}
-
-// redisLock implements Lock using Redis SET NX.
-type redisLock struct {
-	client RedisClient
-	key    string
-	owner  string
-	ttl    time.Duration
 }
 
 // acquireScript acquires the lock only if it's not held or has expired.
@@ -185,11 +196,13 @@ end`
 
 func (l *redisLock) Acquire(ctx context.Context) (bool, error) {
 	ms := int64(l.ttl / time.Millisecond)
+
 	if ms <= 0 {
 		ms = 0
 	}
 
 	result, err := l.client.Eval(ctx, redisAcquireScript, []string{l.key}, l.owner, ms)
+
 	if err != nil {
 		return false, err
 	}
@@ -199,6 +212,7 @@ func (l *redisLock) Acquire(ctx context.Context) (bool, error) {
 
 func (l *redisLock) Release(ctx context.Context) (bool, error) {
 	result, err := l.client.Eval(ctx, redisReleaseScript, []string{l.key}, l.owner)
+
 	if err != nil {
 		return false, err
 	}
@@ -212,6 +226,7 @@ func (l *redisLock) ForceRelease(ctx context.Context) error {
 
 func (l *redisLock) Get(ctx context.Context, fn func() error) error {
 	ok, err := l.Acquire(ctx)
+
 	if err != nil {
 		return err
 	}
@@ -230,6 +245,7 @@ func (l *redisLock) Block(ctx context.Context, timeout time.Duration) error {
 
 	for {
 		ok, err := l.Acquire(ctx)
+
 		if err != nil {
 			return err
 		}
@@ -252,6 +268,7 @@ func (l *redisLock) Block(ctx context.Context, timeout time.Duration) error {
 
 func (l *redisLock) Blocked(ctx context.Context) (bool, error) {
 	val, err := l.client.Get(ctx, l.key)
+
 	if err != nil {
 		return false, nil
 	}

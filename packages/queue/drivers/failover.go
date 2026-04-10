@@ -24,6 +24,7 @@ func (d *FailoverDriver) Push(ctx context.Context, queueName string, payload []b
 
 	for _, drv := range d.drivers {
 		id, err := drv.Push(ctx, queueName, payload)
+
 		if err == nil {
 			return id, nil
 		}
@@ -39,6 +40,7 @@ func (d *FailoverDriver) PushDelayed(ctx context.Context, queueName string, payl
 
 	for _, drv := range d.drivers {
 		id, err := drv.PushDelayed(ctx, queueName, payload, delay)
+
 		if err == nil {
 			return id, nil
 		}
@@ -54,6 +56,7 @@ func (d *FailoverDriver) PushMultiple(ctx context.Context, queueName string, pay
 
 	for _, drv := range d.drivers {
 		ids, err := drv.PushMultiple(ctx, queueName, payloads)
+
 		if err == nil {
 			return ids, nil
 		}
@@ -67,6 +70,7 @@ func (d *FailoverDriver) PushMultiple(ctx context.Context, queueName string, pay
 func (d *FailoverDriver) Pop(ctx context.Context, queueName string) (queue.Job, error) {
 	for _, drv := range d.drivers {
 		job, err := drv.Pop(ctx, queueName)
+
 		if err == nil && job != nil {
 			return job, nil
 		}
@@ -78,6 +82,7 @@ func (d *FailoverDriver) Pop(ctx context.Context, queueName string) (queue.Job, 
 func (d *FailoverDriver) Size(ctx context.Context, queueName string) (int64, error) {
 	for _, drv := range d.drivers {
 		n, err := drv.Size(ctx, queueName)
+
 		if err == nil {
 			return n, nil
 		}
@@ -89,6 +94,7 @@ func (d *FailoverDriver) Size(ctx context.Context, queueName string) (int64, err
 func (d *FailoverDriver) PendingSize(ctx context.Context, queueName string) (int64, error) {
 	for _, drv := range d.drivers {
 		n, err := drv.PendingSize(ctx, queueName)
+
 		if err == nil {
 			return n, nil
 		}
@@ -100,6 +106,7 @@ func (d *FailoverDriver) PendingSize(ctx context.Context, queueName string) (int
 func (d *FailoverDriver) DelayedSize(ctx context.Context, queueName string) (int64, error) {
 	for _, drv := range d.drivers {
 		n, err := drv.DelayedSize(ctx, queueName)
+
 		if err == nil {
 			return n, nil
 		}
@@ -111,6 +118,7 @@ func (d *FailoverDriver) DelayedSize(ctx context.Context, queueName string) (int
 func (d *FailoverDriver) ReservedSize(ctx context.Context, queueName string) (int64, error) {
 	for _, drv := range d.drivers {
 		n, err := drv.ReservedSize(ctx, queueName)
+
 		if err == nil {
 			return n, nil
 		}

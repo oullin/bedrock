@@ -21,6 +21,7 @@ func NewBcryptHasher(cost int) *BcryptHasher {
 // Hash hashes the password using bcrypt.
 func (h *BcryptHasher) Hash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), h.cost)
+
 	if err != nil {
 		return "", err
 	}
@@ -36,6 +37,7 @@ func (h *BcryptHasher) Check(password, hash string) bool {
 // NeedsRehash reports whether the hash was generated with a different cost.
 func (h *BcryptHasher) NeedsRehash(hash string) bool {
 	cost, err := bcrypt.Cost([]byte(hash))
+
 	if err != nil {
 		return true
 	}

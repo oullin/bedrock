@@ -34,6 +34,7 @@ func NewBackgroundDriver(command string, args []string, inner queue.Queue, conne
 
 func (d *BackgroundDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
 	id, err := d.inner.Push(ctx, queueName, payload)
+
 	if err != nil {
 		return "", err
 	}
@@ -45,6 +46,7 @@ func (d *BackgroundDriver) Push(ctx context.Context, queueName string, payload [
 
 func (d *BackgroundDriver) PushDelayed(ctx context.Context, queueName string, payload []byte, delay time.Duration) (string, error) {
 	id, err := d.inner.PushDelayed(ctx, queueName, payload, delay)
+
 	if err != nil {
 		return "", err
 	}

@@ -89,11 +89,14 @@ func (r *DatabaseBatchRepository) GetList(ctx context.Context, limit int, before
 	if err != nil {
 		return nil, fmt.Errorf("bus: get batches: %w", err)
 	}
+
 	defer rows.Close()
 
 	var batches []*Batch
+
 	for rows.Next() {
 		b, err := r.scanBatchFromRows(rows)
+
 		if err != nil {
 			return batches, err
 		}
@@ -107,11 +110,13 @@ func (r *DatabaseBatchRepository) GetList(ctx context.Context, limit int, before
 // Store persists a new batch.
 func (r *DatabaseBatchRepository) Store(ctx context.Context, batch *Batch) error {
 	failedIDs, err := json.Marshal(batch.FailedJobIDs)
+
 	if err != nil {
 		return fmt.Errorf("bus: marshal failed_job_ids: %w", err)
 	}
 
 	opts, err := json.Marshal(batch.Options)
+
 	if err != nil {
 		return fmt.Errorf("bus: marshal options: %w", err)
 	}
@@ -125,6 +130,7 @@ func (r *DatabaseBatchRepository) Store(ctx context.Context, batch *Batch) error
 		batch.ID, batch.Name, batch.TotalJobs, batch.PendingJobs, batch.FailedJobs,
 		string(failedIDs), string(opts), batch.CreatedAt, batch.CancelledAt, batch.FinishedAt,
 	)
+
 	if err != nil {
 		return fmt.Errorf("bus: store batch: %w", err)
 	}
@@ -140,6 +146,7 @@ func (r *DatabaseBatchRepository) IncrementTotalJobs(ctx context.Context, id str
 	)
 
 	_, err := r.db.ExecContext(ctx, query, amount, amount, id)
+
 	if err != nil {
 		return fmt.Errorf("bus: increment total jobs: %w", err)
 	}
@@ -169,11 +176,13 @@ func (r *DatabaseBatchRepository) IncrementFailedJobs(ctx context.Context, id st
 	query := fmt.Sprintf("SELECT failed_job_ids FROM %s WHERE id = ?", r.table)
 
 	row := r.db.QueryRowContext(ctx, query, id)
+
 	if err := row.Scan(&failedIDsJSON); err != nil {
 		return nil, fmt.Errorf("bus: read failed_job_ids: %w", err)
 	}
 
 	var failedIDs []string
+
 	if err := json.Unmarshal([]byte(failedIDsJSON), &failedIDs); err != nil {
 		failedIDs = []string{}
 	}
@@ -181,6 +190,7 @@ func (r *DatabaseBatchRepository) IncrementFailedJobs(ctx context.Context, id st
 	failedIDs = append(failedIDs, failedJobID)
 
 	updatedJSON, err := json.Marshal(failedIDs)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: marshal failed_job_ids: %w", err)
 	}
@@ -202,6 +212,7 @@ func (r *DatabaseBatchRepository) MarkAsFinished(ctx context.Context, id string)
 	query := fmt.Sprintf("UPDATE %s SET finished_at = ? WHERE id = ?", r.table)
 
 	_, err := r.db.ExecContext(ctx, query, time.Now(), id)
+
 	if err != nil {
 		return fmt.Errorf("bus: mark as finished: %w", err)
 	}
@@ -214,6 +225,7 @@ func (r *DatabaseBatchRepository) Cancel(ctx context.Context, id string) error {
 	query := fmt.Sprintf("UPDATE %s SET cancelled_at = ? WHERE id = ?", r.table)
 
 	_, err := r.db.ExecContext(ctx, query, time.Now(), id)
+
 	if err != nil {
 		return fmt.Errorf("bus: cancel batch: %w", err)
 	}
@@ -226,6 +238,7 @@ func (r *DatabaseBatchRepository) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", r.table)
 
 	_, err := r.db.ExecContext(ctx, query, id)
+
 	if err != nil {
 		return fmt.Errorf("bus: delete batch: %w", err)
 	}
@@ -251,11 +264,13 @@ func (r *DatabaseBatchRepository) PruneUnfinished(ctx context.Context, before ti
 // Transaction executes fn within a database transaction.
 func (r *DatabaseBatchRepository) Transaction(ctx context.Context, fn func(BatchRepository) error) error {
 	txDB, ok := r.db.(DBTransactor)
+
 	if !ok {
 		return fn(r)
 	}
 
 	tx, err := txDB.BeginTx(ctx, nil)
+
 	if err != nil {
 		return fmt.Errorf("bus: begin transaction: %w", err)
 	}
@@ -275,6 +290,7 @@ func (r *DatabaseBatchRepository) fetchCounts(ctx context.Context, id string) (*
 	query := fmt.Sprintf("SELECT pending_jobs, failed_jobs FROM %s WHERE id = ?", r.table)
 
 	var counts UpdatedBatchJobCounts
+
 	if err := r.db.QueryRowContext(ctx, query, id).Scan(&counts.PendingJobs, &counts.FailedJobs); err != nil {
 		return nil, fmt.Errorf("bus: fetch counts: %w", err)
 	}
@@ -289,11 +305,13 @@ func (r *DatabaseBatchRepository) pruneWhere(ctx context.Context, where string, 
 		query := fmt.Sprintf("DELETE FROM %s WHERE %s LIMIT 1000", r.table, where)
 
 		result, err := r.db.ExecContext(ctx, query, before)
+
 		if err != nil {
 			return total, fmt.Errorf("bus: prune: %w", err)
 		}
 
 		affected, err := result.RowsAffected()
+
 		if err != nil {
 			return total, fmt.Errorf("bus: prune rows affected: %w", err)
 		}
@@ -321,6 +339,7 @@ func (r *DatabaseBatchRepository) scanBatch(row *sql.Row) (*Batch, error) {
 		&b.ID, &b.Name, &b.TotalJobs, &b.PendingJobs, &b.FailedJobs,
 		&failedIDsJSON, &optionsJSON, &b.CreatedAt, &cancelledAt, &finishedAt,
 	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -361,6 +380,7 @@ func (r *DatabaseBatchRepository) scanBatchFromRows(rows *sql.Rows) (*Batch, err
 		&b.ID, &b.Name, &b.TotalJobs, &b.PendingJobs, &b.FailedJobs,
 		&failedIDsJSON, &optionsJSON, &b.CreatedAt, &cancelledAt, &finishedAt,
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("bus: scan batch row: %w", err)
 	}

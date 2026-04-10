@@ -14,34 +14,76 @@ type EnableTwoFactorHandler struct {
 }
 
 // NewEnableTwoFactorHandler creates a new enable two-factor handler.
+
+// ServeHTTP enables two-factor authentication for the authenticated user.
+
+// ConfirmTwoFactorHandler handles POST /user/confirmed-two-factor-authentication.
+type ConfirmTwoFactorHandler struct {
+	authflows *AuthFlows
+}
+
+// NewConfirmTwoFactorHandler creates a new confirm two-factor handler.
+
+// ServeHTTP confirms two-factor authentication by validating a TOTP code.
+
+// DisableTwoFactorHandler handles DELETE /user/two-factor-authentication.
+type DisableTwoFactorHandler struct {
+	authflows *AuthFlows
+}
+
+// NewDisableTwoFactorHandler creates a new disable two-factor handler.
+
+// ServeHTTP disables two-factor authentication for the authenticated user.
+
+// TwoFactorQRCodeHandler handles GET /user/two-factor-qr-code.
+type TwoFactorQRCodeHandler struct {
+	authflows *AuthFlows
+	issuer  string
+}
+
+// NewTwoFactorQRCodeHandler creates a new QR code handler.
+
+// ServeHTTP returns the TOTP provisioning URI for QR code rendering.
+
+// TwoFactorRecoveryCodesHandler handles GET/POST /user/two-factor-recovery-codes.
+type TwoFactorRecoveryCodesHandler struct {
+	authflows *AuthFlows
+}
+
 func NewEnableTwoFactorHandler(f *AuthFlows) *EnableTwoFactorHandler {
 	return &EnableTwoFactorHandler{authflows: f}
 }
 
-// ServeHTTP enables two-factor authentication for the authenticated user.
 func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.authflows.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	tfa, ok := user.(TwoFactorAuthenticatable)
+
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
+
 		return
 	}
 
 	secret, err := twofactor.GenerateSecret(0)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
@@ -50,8 +92,10 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	tfa.SetTwoFactorConfirmedAt(nil)
 
 	codes, err := twofactor.GenerateRecoveryCodes(0)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
@@ -64,34 +108,32 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	h.authflows.responder.TwoFactorEnabledResponse(w, r)
 }
 
-// ConfirmTwoFactorHandler handles POST /user/confirmed-two-factor-authentication.
-type ConfirmTwoFactorHandler struct {
-	authflows *AuthFlows
-}
-
-// NewConfirmTwoFactorHandler creates a new confirm two-factor handler.
 func NewConfirmTwoFactorHandler(f *AuthFlows) *ConfirmTwoFactorHandler {
 	return &ConfirmTwoFactorHandler{authflows: f}
 }
 
-// ServeHTTP confirms two-factor authentication by validating a TOTP code.
 func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.authflows.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	tfa, ok := user.(TwoFactorAuthenticatable)
+
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
+
 		return
 	}
 
@@ -100,6 +142,7 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 
 	if !twofactor.Validate(code, tfa.GetTwoFactorSecret()) {
 		http.Error(w, "invalid two-factor code", http.StatusUnprocessableEntity)
+
 		return
 	}
 
@@ -113,34 +156,32 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 }
 
-// DisableTwoFactorHandler handles DELETE /user/two-factor-authentication.
-type DisableTwoFactorHandler struct {
-	authflows *AuthFlows
-}
-
-// NewDisableTwoFactorHandler creates a new disable two-factor handler.
 func NewDisableTwoFactorHandler(f *AuthFlows) *DisableTwoFactorHandler {
 	return &DisableTwoFactorHandler{authflows: f}
 }
 
-// ServeHTTP disables two-factor authentication for the authenticated user.
 func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.authflows.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	tfa, ok := user.(TwoFactorAuthenticatable)
+
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
+
 		return
 	}
 
@@ -156,45 +197,45 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	h.authflows.responder.TwoFactorDisabledResponse(w, r)
 }
 
-// TwoFactorQRCodeHandler handles GET /user/two-factor-qr-code.
-type TwoFactorQRCodeHandler struct {
-	authflows *AuthFlows
-	issuer  string
-}
-
-// NewTwoFactorQRCodeHandler creates a new QR code handler.
 func NewTwoFactorQRCodeHandler(f *AuthFlows, issuer string) *TwoFactorQRCodeHandler {
 	return &TwoFactorQRCodeHandler{authflows: f, issuer: issuer}
 }
 
-// ServeHTTP returns the TOTP provisioning URI for QR code rendering.
 func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.authflows.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	tfa, ok := user.(TwoFactorAuthenticatable)
+
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
+
 		return
 	}
 
 	secret := tfa.GetTwoFactorSecret()
+
 	if secret == "" {
 		http.Error(w, "two-factor authentication is not enabled", http.StatusBadRequest)
+
 		return
 	}
 
 	email := ""
+
 	if verifiable, ok := user.(MustVerifyEmail); ok {
 		email = verifiable.GetEmailForVerification()
 	}
@@ -208,11 +249,6 @@ func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-// TwoFactorRecoveryCodesHandler handles GET/POST /user/two-factor-recovery-codes.
-type TwoFactorRecoveryCodesHandler struct {
-	authflows *AuthFlows
-}
-
 // NewTwoFactorRecoveryCodesHandler creates a new recovery codes handler.
 func NewTwoFactorRecoveryCodesHandler(f *AuthFlows) *TwoFactorRecoveryCodesHandler {
 	return &TwoFactorRecoveryCodesHandler{authflows: f}
@@ -222,27 +258,34 @@ func NewTwoFactorRecoveryCodesHandler(f *AuthFlows) *TwoFactorRecoveryCodesHandl
 func (h *TwoFactorRecoveryCodesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.authflows.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
+
 		return
 	}
 
 	ctx := r.Context()
 
 	user, err := h.authflows.guard.AuthenticateRequest(ctx, w, r)
+
 	if err != nil || user == nil {
 		http.Error(w, "unauthenticated", http.StatusUnauthorized)
+
 		return
 	}
 
 	tfa, ok := user.(TwoFactorAuthenticatable)
+
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
+
 		return
 	}
 
 	if r.Method == http.MethodPost {
 		codes, err := twofactor.GenerateRecoveryCodes(0)
+
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+
 			return
 		}
 

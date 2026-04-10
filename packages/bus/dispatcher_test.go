@@ -10,6 +10,22 @@ import (
 
 type testCommand struct{ Value string }
 
+// selfHandlingCommand implements the Handle(ctx) interface.
+type selfHandlingCommand struct {
+	Value  string
+	Called bool
+}
+
+// DispatchSync should bypass pipeline.
+
+// Dispatch should go through pipeline.
+
+type customQueueCommand struct {
+	Value string
+}
+
+type anotherCommand struct{ Name string }
+
 func TestDispatcherSyncDispatch(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 	d.Map(testCommand{}, func(ctx context.Context, cmd any) (any, error) {
@@ -19,6 +35,7 @@ func TestDispatcherSyncDispatch(t *testing.T) {
 	})
 
 	result, err := d.Dispatch(context.Background(), testCommand{Value: "hello"})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,6 +75,7 @@ func TestDispatcherPipelineMiddleware(t *testing.T) {
 	_, _ = d.Dispatch(context.Background(), testCommand{})
 
 	expected := []string{"pipe1_before", "pipe2_before", "handler", "pipe2_after", "pipe1_after"}
+
 	for i, e := range expected {
 		if i >= len(order) || order[i] != e {
 			t.Errorf("pipeline order[%d]: got %q, want %q", i, func() string {
@@ -101,15 +119,10 @@ func TestDispatcherNoHandlerError(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	_, err := d.Dispatch(context.Background(), testCommand{})
+
 	if err == nil {
 		t.Error("expected error for unregistered command")
 	}
-}
-
-// selfHandlingCommand implements the Handle(ctx) interface.
-type selfHandlingCommand struct {
-	Value  string
-	Called bool
 }
 
 func (c *selfHandlingCommand) Handle(_ context.Context) (any, error) {
@@ -123,6 +136,7 @@ func TestDispatcherSelfHandlingCommand(t *testing.T) {
 
 	cmd := &selfHandlingCommand{Value: "hello"}
 	result, err := d.Dispatch(context.Background(), cmd)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,6 +159,7 @@ func TestDispatcherMappedHandlerOverSelfHandling(t *testing.T) {
 
 	cmd := &selfHandlingCommand{Value: "hello"}
 	result, err := d.Dispatch(context.Background(), cmd)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,14 +187,14 @@ func TestDispatchSyncBypassesPipeline(t *testing.T) {
 		return cmd.(testCommand).Value, nil
 	})
 
-	// DispatchSync should bypass pipeline.
 	_, _ = d.DispatchSync(context.Background(), testCommand{Value: "sync"})
+
 	if pipeCalled {
 		t.Error("expected DispatchSync to bypass pipeline")
 	}
 
-	// Dispatch should go through pipeline.
 	_, _ = d.Dispatch(context.Background(), testCommand{Value: "dispatch"})
+
 	if !pipeCalled {
 		t.Error("expected Dispatch to go through pipeline")
 	}
@@ -207,6 +222,7 @@ func TestDispatchToQueueNoBackendError(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	err := d.DispatchToQueue(context.Background(), testCommand{Value: "x"})
+
 	if err == nil {
 		t.Error("expected error when no queue backend configured")
 	}
@@ -217,11 +233,13 @@ func TestDispatchToQueueDefaultQueueName(t *testing.T) {
 	d := bus.NewDispatcher(q, nil)
 
 	err := d.DispatchToQueue(context.Background(), testCommand{Value: "test"})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	q.mu.Lock()
+
 	defer q.mu.Unlock()
 
 	if len(q.pushes) != 1 {
@@ -233,10 +251,6 @@ func TestDispatchToQueueDefaultQueueName(t *testing.T) {
 	}
 }
 
-type customQueueCommand struct {
-	Value string
-}
-
 func (c customQueueCommand) GetQueue() string { return "emails" }
 
 func TestDispatchToQueueCustomQueueName(t *testing.T) {
@@ -244,11 +258,13 @@ func TestDispatchToQueueCustomQueueName(t *testing.T) {
 	d := bus.NewDispatcher(q, nil)
 
 	err := d.DispatchToQueue(context.Background(), customQueueCommand{Value: "test"})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	q.mu.Lock()
+
 	defer q.mu.Unlock()
 
 	if len(q.pushes) != 1 {
@@ -265,11 +281,13 @@ func TestDispatchToQueueSerializesPayload(t *testing.T) {
 	d := bus.NewDispatcher(q, nil)
 
 	err := d.DispatchToQueue(context.Background(), testCommand{Value: "hello"})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	q.mu.Lock()
+
 	defer q.mu.Unlock()
 
 	if len(q.pushes) == 0 {
@@ -277,12 +295,11 @@ func TestDispatchToQueueSerializesPayload(t *testing.T) {
 	}
 
 	payload := string(q.pushes[0].Payload)
+
 	if payload == "" {
 		t.Error("expected non-empty payload")
 	}
 }
-
-type anotherCommand struct{ Name string }
 
 func TestDispatcherMapMultipleCommands(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
@@ -312,6 +329,7 @@ func TestFlushDeferredStopsOnError(t *testing.T) {
 	count := 0
 	d.Map(testCommand{}, func(_ context.Context, _ any) (any, error) {
 		count++
+
 		if count == 2 {
 			return nil, errTestFailure
 		}
@@ -324,6 +342,7 @@ func TestFlushDeferredStopsOnError(t *testing.T) {
 	_ = d.DispatchAfterResponse(context.Background(), testCommand{})
 
 	err := d.FlushDeferred(context.Background())
+
 	if err == nil {
 		t.Error("expected error from FlushDeferred")
 	}
@@ -376,6 +395,7 @@ func TestDispatcherConcurrentMapAndDispatch(t *testing.T) {
 
 		go func() {
 			defer wg.Done()
+
 			d.Map(testCommand{}, func(_ context.Context, _ any) (any, error) {
 				return "ok", nil
 			})
@@ -383,6 +403,7 @@ func TestDispatcherConcurrentMapAndDispatch(t *testing.T) {
 
 		go func() {
 			defer wg.Done()
+
 			_, _ = d.Dispatch(context.Background(), testCommand{Value: "concurrent"})
 		}()
 	}
@@ -394,6 +415,7 @@ func TestFindBatchNoRepoError(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	_, err := d.FindBatch(context.Background(), "any-id")
+
 	if err == nil {
 		t.Error("expected error when no batch repository configured")
 	}
@@ -407,6 +429,7 @@ func TestFindBatchDelegatesToRepo(t *testing.T) {
 	d := bus.NewDispatcher(nil, repo)
 
 	result, err := d.FindBatch(context.Background(), "batch-42")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -420,6 +443,7 @@ func TestBatchReturnsPendingBatch(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	pb := d.Batch([]any{"job1", "job2"})
+
 	if pb == nil {
 		t.Fatal("expected non-nil PendingBatch")
 	}
@@ -443,6 +467,7 @@ func TestGetCommandHandler(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	_, ok := d.GetCommandHandler(testCommand{})
+
 	if ok {
 		t.Error("expected GetCommandHandler to return false for unmapped type")
 	}
@@ -450,11 +475,13 @@ func TestGetCommandHandler(t *testing.T) {
 	d.Map(testCommand{}, func(_ context.Context, _ any) (any, error) { return "found", nil })
 
 	handler, ok := d.GetCommandHandler(testCommand{})
+
 	if !ok {
 		t.Error("expected GetCommandHandler to return true for mapped type")
 	}
 
 	result, _ := handler(context.Background(), testCommand{})
+
 	if result != "found" {
 		t.Errorf("expected 'found', got %v", result)
 	}
@@ -464,6 +491,7 @@ func TestChainReturnsNonNil(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 
 	chain := d.Chain([]any{"j1", "j2"})
+
 	if chain == nil {
 		t.Fatal("expected non-nil PendingChain")
 	}

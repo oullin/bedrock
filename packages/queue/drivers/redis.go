@@ -34,6 +34,15 @@ type RedisDriver struct {
 }
 
 // NewRedisDriver creates a RedisDriver.
+
+// Migrate any delayed jobs that are now due.
+
+// Already popped.
+
+// Redis queue does not keep a reserved set by default.
+
+type redisJob struct{ BaseJob }
+
 func NewRedisDriver(client RedisClient, connection string) *RedisDriver {
 	return &RedisDriver{client: client, connection: connection}
 }
@@ -50,8 +59,10 @@ func (d *RedisDriver) PushDelayed(ctx context.Context, queueName string, payload
 
 func (d *RedisDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	ids := make([]string, 0, len(payloads))
+
 	for _, p := range payloads {
 		id, err := d.Push(ctx, queueName, p)
+
 		if err != nil {
 			return ids, err
 		}
@@ -63,10 +74,11 @@ func (d *RedisDriver) PushMultiple(ctx context.Context, queueName string, payloa
 }
 
 func (d *RedisDriver) Pop(ctx context.Context, queueName string) (queue.Job, error) {
-	// Migrate any delayed jobs that are now due.
+
 	d.migrateDue(ctx, queueName)
 
 	raw, err := d.client.RPop(ctx, d.queueKey(queueName))
+
 	if err != nil || raw == "" {
 		return nil, queue.ErrNoJob
 	}
@@ -78,7 +90,7 @@ func (d *RedisDriver) Pop(ctx context.Context, queueName string) (queue.Job, err
 			connection: d.connection,
 		},
 	}
-	job.deleteFunc = func() error { return nil } // Already popped.
+	job.deleteFunc = func() error { return nil }
 	job.releaseFunc = func(delay time.Duration) error {
 		if delay > 0 {
 			_, err := d.PushDelayed(ctx, queueName, []byte(raw), delay)
@@ -90,8 +102,10 @@ func (d *RedisDriver) Pop(ctx context.Context, queueName string) (queue.Job, err
 
 		return err
 	}
+
 	job.failFunc = func(err error) error {
 		errMsg := ""
+
 		if err != nil {
 			errMsg = err.Error()
 		}
@@ -118,7 +132,7 @@ func (d *RedisDriver) DelayedSize(ctx context.Context, queueName string) (int64,
 }
 
 func (d *RedisDriver) ReservedSize(_ context.Context, _ string) (int64, error) {
-	// Redis queue does not keep a reserved set by default.
+
 	return 0, nil
 }
 
@@ -127,11 +141,13 @@ func (d *RedisDriver) ConnectionName() string { return d.connection }
 func (d *RedisDriver) migrateDue(ctx context.Context, queueName string) {
 	now := float64(time.Now().Unix())
 	due, err := d.client.ZRangeByScore(ctx, d.delayedKey(queueName), 0, now)
+
 	if err != nil || len(due) == 0 {
 		return
 	}
 
 	members := make([]any, len(due))
+
 	for i, m := range due {
 		members[i] = m
 		_ = d.client.LPush(ctx, d.queueKey(queueName), m)
@@ -143,5 +159,3 @@ func (d *RedisDriver) migrateDue(ctx context.Context, queueName string) {
 func (d *RedisDriver) queueKey(q string) string   { return fmt.Sprintf("queues:%s", q) }
 func (d *RedisDriver) delayedKey(q string) string { return fmt.Sprintf("queues:%s:delayed", q) }
 func (d *RedisDriver) failedKey(q string) string  { return fmt.Sprintf("queues:%s:failed", q) }
-
-type redisJob struct{ BaseJob }

@@ -6,12 +6,6 @@ import (
 )
 
 // SameSite matches the http.SameSite constants for convenient use.
-const (
-	SameSiteDefault = http.SameSiteDefaultMode
-	SameSiteLax     = http.SameSiteLaxMode
-	SameSiteStrict  = http.SameSiteStrictMode
-	SameSiteNone    = http.SameSiteNoneMode
-)
 
 // Options configures cookie attributes.
 type Options struct {
@@ -23,6 +17,13 @@ type Options struct {
 	SameSite http.SameSite
 	Raw      bool // do not URL-encode the value
 }
+
+const (
+	SameSiteDefault = http.SameSiteDefaultMode
+	SameSiteLax     = http.SameSiteLaxMode
+	SameSiteStrict  = http.SameSiteStrictMode
+	SameSiteNone    = http.SameSiteNoneMode
+)
 
 // DefaultOptions returns sensible production defaults.
 func DefaultOptions() Options {

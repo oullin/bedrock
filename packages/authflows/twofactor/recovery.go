@@ -26,6 +26,7 @@ func GenerateRecoveryCodes(count int) ([]string, error) {
 
 	for i := range codes {
 		buf := make([]byte, DefaultRecoveryCodeLength)
+
 		if _, err := rand.Read(buf); err != nil {
 			return nil, fmt.Errorf("twofactor: generate recovery code: %w", err)
 		}

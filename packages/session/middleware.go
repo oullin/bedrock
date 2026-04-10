@@ -22,6 +22,15 @@ type StartSessionConfig struct {
 	GCMaxLifetime int
 }
 
+// sessionResponseWriter intercepts WriteHeader / Write to flush the session
+// cookie before the response headers are committed.
+type sessionResponseWriter struct {
+	http.ResponseWriter
+	store   *Store
+	cfg     StartSessionConfig
+	flushed bool
+}
+
 func defaultConfig() StartSessionConfig {
 	return StartSessionConfig{
 		CookieName:    "session",
@@ -30,15 +39,6 @@ func defaultConfig() StartSessionConfig {
 		GCProbability: 2,
 		GCMaxLifetime: 7200,
 	}
-}
-
-// sessionResponseWriter intercepts WriteHeader / Write to flush the session
-// cookie before the response headers are committed.
-type sessionResponseWriter struct {
-	http.ResponseWriter
-	store   *Store
-	cfg     StartSessionConfig
-	flushed bool
 }
 
 func (w *sessionResponseWriter) WriteHeader(code int) {
@@ -81,11 +81,13 @@ func StartSession(handler Handler, cfg StartSessionConfig) func(http.Handler) ht
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Resolve session ID from incoming cookie.
 			var id string
+
 			if c, err := r.Cookie(cfg.CookieName); err == nil {
 				id = c.Value
 			}
 
 			var store *Store
+
 			if id != "" {
 				store = NewWithID(cfg.CookieName, handler, id)
 			} else {

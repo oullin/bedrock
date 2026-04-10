@@ -10,8 +10,6 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-var errTestFailure = fmt.Errorf("test failure")
-
 // mockQueue implements queue.Queue for testing.
 type mockQueue struct {
 	mu       sync.Mutex
@@ -25,12 +23,54 @@ type mockPush struct {
 	Payload []byte
 }
 
+// mockBatchRepository implements bus.BatchRepository for testing.
+type mockBatchRepository struct {
+	mu     sync.Mutex
+	calls  []string
+	batch  *bus.Batch
+	getErr error
+
+	storeErr              error
+	cancelErr             error
+	deleteErr             error
+	decrementResult       *bus.UpdatedBatchJobCounts
+	decrementErr          error
+	incrementFailedResult *bus.UpdatedBatchJobCounts
+	incrementFailedErr    error
+}
+
+// mockCacheStore implements bus.CacheStore for testing.
+type mockCacheStore struct {
+	mu    sync.Mutex
+	data  map[string]string
+	calls []mockCacheCall
+}
+
+type mockCacheCall struct {
+	Method string
+	Key    string
+	Value  string
+	TTL    int
+}
+
+// mockQueueingDispatcher implements bus.QueueingDispatcher for testing PendingBatch.
+type mockQueueingDispatcher struct {
+	mu              sync.Mutex
+	dispatchedQueue []any
+	dispatchErr     error
+	dispatchErrAt   int // fail at this index (0-based)
+	batchRepo       bus.BatchRepository
+}
+
+var errTestFailure = fmt.Errorf("test failure")
+
 func newMockQueue() *mockQueue {
 	return &mockQueue{connName: "mock"}
 }
 
 func (q *mockQueue) Push(_ context.Context, queueName string, payload []byte) (string, error) {
 	q.mu.Lock()
+
 	defer q.mu.Unlock()
 
 	if q.pushErr != nil {
@@ -48,8 +88,10 @@ func (q *mockQueue) PushDelayed(_ context.Context, queueName string, payload []b
 
 func (q *mockQueue) PushMultiple(_ context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	ids := make([]string, 0, len(payloads))
+
 	for _, p := range payloads {
 		id, err := q.Push(context.Background(), queueName, p)
+
 		if err != nil {
 			return ids, err
 		}
@@ -70,28 +112,13 @@ func (q *mockQueue) DelayedSize(_ context.Context, _ string) (int64, error)  { r
 func (q *mockQueue) ReservedSize(_ context.Context, _ string) (int64, error) { return 0, nil }
 func (q *mockQueue) ConnectionName() string                                  { return q.connName }
 
-// mockBatchRepository implements bus.BatchRepository for testing.
-type mockBatchRepository struct {
-	mu     sync.Mutex
-	calls  []string
-	batch  *bus.Batch
-	getErr error
-
-	storeErr              error
-	cancelErr             error
-	deleteErr             error
-	decrementResult       *bus.UpdatedBatchJobCounts
-	decrementErr          error
-	incrementFailedResult *bus.UpdatedBatchJobCounts
-	incrementFailedErr    error
-}
-
 func newMockBatchRepo() *mockBatchRepository {
 	return &mockBatchRepository{}
 }
 
 func (r *mockBatchRepository) Get(_ context.Context, id string) (*bus.Batch, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "Get:"+id)
@@ -101,6 +128,7 @@ func (r *mockBatchRepository) Get(_ context.Context, id string) (*bus.Batch, err
 
 func (r *mockBatchRepository) Store(_ context.Context, b *bus.Batch) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "Store:"+b.ID)
@@ -111,6 +139,7 @@ func (r *mockBatchRepository) Store(_ context.Context, b *bus.Batch) error {
 
 func (r *mockBatchRepository) IncrementTotalJobs(_ context.Context, id string, amount int) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, fmt.Sprintf("IncrementTotalJobs:%s:%d", id, amount))
@@ -120,6 +149,7 @@ func (r *mockBatchRepository) IncrementTotalJobs(_ context.Context, id string, a
 
 func (r *mockBatchRepository) DecrementPendingJobs(_ context.Context, id string) (*bus.UpdatedBatchJobCounts, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "DecrementPendingJobs:"+id)
@@ -133,6 +163,7 @@ func (r *mockBatchRepository) DecrementPendingJobs(_ context.Context, id string)
 
 func (r *mockBatchRepository) IncrementFailedJobs(_ context.Context, id string, failedJobID string) (*bus.UpdatedBatchJobCounts, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "IncrementFailedJobs:"+id+":"+failedJobID)
@@ -146,6 +177,7 @@ func (r *mockBatchRepository) IncrementFailedJobs(_ context.Context, id string, 
 
 func (r *mockBatchRepository) MarkAsFinished(_ context.Context, id string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "MarkAsFinished:"+id)
@@ -155,6 +187,7 @@ func (r *mockBatchRepository) MarkAsFinished(_ context.Context, id string) error
 
 func (r *mockBatchRepository) Cancel(_ context.Context, id string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "Cancel:"+id)
@@ -164,6 +197,7 @@ func (r *mockBatchRepository) Cancel(_ context.Context, id string) error {
 
 func (r *mockBatchRepository) Delete(_ context.Context, id string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.calls = append(r.calls, "Delete:"+id)
@@ -177,6 +211,7 @@ func (r *mockBatchRepository) Transaction(_ context.Context, fn func(bus.BatchRe
 
 func (r *mockBatchRepository) hasCalled(method string) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, c := range r.calls {
@@ -188,26 +223,13 @@ func (r *mockBatchRepository) hasCalled(method string) bool {
 	return false
 }
 
-// mockCacheStore implements bus.CacheStore for testing.
-type mockCacheStore struct {
-	mu    sync.Mutex
-	data  map[string]string
-	calls []mockCacheCall
-}
-
-type mockCacheCall struct {
-	Method string
-	Key    string
-	Value  string
-	TTL    int
-}
-
 func newMockCacheStore() *mockCacheStore {
 	return &mockCacheStore{data: make(map[string]string)}
 }
 
 func (c *mockCacheStore) Get(_ context.Context, key string) (string, error) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.calls = append(c.calls, mockCacheCall{Method: "Get", Key: key})
@@ -217,6 +239,7 @@ func (c *mockCacheStore) Get(_ context.Context, key string) (string, error) {
 
 func (c *mockCacheStore) Put(_ context.Context, key, value string, ttlSeconds int) error {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.calls = append(c.calls, mockCacheCall{Method: "Put", Key: key, Value: value, TTL: ttlSeconds})
@@ -227,21 +250,13 @@ func (c *mockCacheStore) Put(_ context.Context, key, value string, ttlSeconds in
 
 func (c *mockCacheStore) Forget(_ context.Context, key string) error {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.calls = append(c.calls, mockCacheCall{Method: "Forget", Key: key})
 	delete(c.data, key)
 
 	return nil
-}
-
-// mockQueueingDispatcher implements bus.QueueingDispatcher for testing PendingBatch.
-type mockQueueingDispatcher struct {
-	mu              sync.Mutex
-	dispatchedQueue []any
-	dispatchErr     error
-	dispatchErrAt   int // fail at this index (0-based)
-	batchRepo       bus.BatchRepository
 }
 
 func newMockQueueingDispatcher() *mockQueueingDispatcher {
@@ -262,6 +277,7 @@ func (d *mockQueueingDispatcher) DispatchNow(_ context.Context, command any) (an
 
 func (d *mockQueueingDispatcher) DispatchAfterResponse(_ context.Context, command any) error {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.dispatchedQueue = append(d.dispatchedQueue, command)
@@ -291,6 +307,7 @@ func (d *mockQueueingDispatcher) Chain(jobs []any) *bus.PendingChain {
 
 func (d *mockQueueingDispatcher) DispatchToQueue(_ context.Context, command any) error {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	idx := len(d.dispatchedQueue)

@@ -30,6 +30,7 @@ func (s *Starter) Start(
 ) (string, error) {
 	if plan == billing.PlanStarter {
 		_, err := s.subscriptions.StartStarterTrial(ctx, billable)
+
 		if err != nil {
 			return "", err
 		}
@@ -38,6 +39,7 @@ func (s *Starter) Start(
 	}
 
 	price, err := s.catalog.ActivePriceFor(ctx, string(plan), period)
+
 	if err != nil {
 		return "", err
 	}

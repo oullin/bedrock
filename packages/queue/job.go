@@ -44,7 +44,6 @@ type Handler interface {
 type HandlerFunc func(ctx context.Context, job Job) error
 
 // Handle implements Handler.
-func (f HandlerFunc) Handle(ctx context.Context, job Job) error { return f(ctx, job) }
 
 // JobOptions configures job dispatch options.
 type JobOptions struct {
@@ -60,3 +59,5 @@ type JobOptions struct {
 	UniqueFor               time.Duration
 	DeleteWhenMissingModels bool
 }
+
+func (f HandlerFunc) Handle(ctx context.Context, job Job) error { return f(ctx, job) }

@@ -28,15 +28,18 @@ func NewMemoryLimiter() *MemoryLimiter {
 // TooManyAttempts reports whether the key has exceeded maxAttempts.
 func (l *MemoryLimiter) TooManyAttempts(key string, maxAttempts int) bool {
 	l.mu.Lock()
+
 	defer l.mu.Unlock()
 
 	e, ok := l.entries[key]
+
 	if !ok {
 		return false
 	}
 
 	if l.now().After(e.expiresAt) {
 		delete(l.entries, key)
+
 		return false
 	}
 
@@ -46,9 +49,11 @@ func (l *MemoryLimiter) TooManyAttempts(key string, maxAttempts int) bool {
 // Hit increments the counter for the key and returns the new count.
 func (l *MemoryLimiter) Hit(key string, decay time.Duration) int {
 	l.mu.Lock()
+
 	defer l.mu.Unlock()
 
 	e, ok := l.entries[key]
+
 	if !ok || l.now().After(e.expiresAt) {
 		e = &entry{
 			hits:      0,
@@ -66,6 +71,7 @@ func (l *MemoryLimiter) Hit(key string, decay time.Duration) int {
 // Clear removes all attempts for the key.
 func (l *MemoryLimiter) Clear(key string) {
 	l.mu.Lock()
+
 	defer l.mu.Unlock()
 
 	delete(l.entries, key)
@@ -74,14 +80,17 @@ func (l *MemoryLimiter) Clear(key string) {
 // AvailableIn returns how long until the key's rate limit expires.
 func (l *MemoryLimiter) AvailableIn(key string) time.Duration {
 	l.mu.Lock()
+
 	defer l.mu.Unlock()
 
 	e, ok := l.entries[key]
+
 	if !ok {
 		return 0
 	}
 
 	remaining := e.expiresAt.Sub(l.now())
+
 	if remaining < 0 {
 		return 0
 	}
