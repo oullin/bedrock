@@ -39,6 +39,11 @@ type Store interface {
 	GetPrefix() string
 }
 
+// LockFlusher is implemented by stores that support flushing all locks.
+type LockFlusher interface {
+	FlushLocks(ctx context.Context) error
+}
+
 // TaggableStore is implemented by stores that support tag-scoped operations.
 type TaggableStore interface {
 	Store

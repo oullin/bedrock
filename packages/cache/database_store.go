@@ -30,6 +30,8 @@ type DatabaseStore struct {
 }
 
 var _ Store = (*DatabaseStore)(nil)
+var _ Locker = (*DatabaseStore)(nil)
+var _ TaggableStore = (*DatabaseStore)(nil)
 
 // NewDatabaseStore creates a DatabaseStore using the given connection.
 // table is the cache table name (default "cache").
@@ -50,6 +52,11 @@ func (s *DatabaseStore) now() time.Time {
 }
 
 func (s *DatabaseStore) GetPrefix() string { return s.prefix }
+
+// Tags returns a tag-scoped view of the store.
+func (s *DatabaseStore) Tags(tags ...string) TaggedCache {
+	return NewTaggedCache(s, NewTagSet(s, tags))
+}
 
 func (s *DatabaseStore) prefixed(key string) string {
 	if s.prefix == "" {
@@ -179,6 +186,11 @@ func (s *DatabaseStore) Forget(ctx context.Context, key string) error {
 		fmt.Sprintf("DELETE FROM %s WHERE key = $1", s.table),
 		s.prefixed(key),
 	)
+}
+
+// Lock returns a database-backed lock for the named resource.
+func (s *DatabaseStore) Lock(name, owner string, ttl time.Duration) Lock {
+	return NewDatabaseLock(s.conn, s.table+"_locks", name, owner, ttl, s.clock)
 }
 
 func (s *DatabaseStore) Flush(ctx context.Context) error {
