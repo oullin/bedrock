@@ -19,6 +19,30 @@ func NewRequestGuard(callback RequestCallback) *RequestGuard {
 	return &RequestGuard{callback: callback}
 }
 
+// SetUser sets the authenticated user on the guard.
+func (g *RequestGuard) SetUser(user Authenticatable) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.user = user
+}
+
+// HasUser reports whether the guard has a resolved user without triggering resolution.
+func (g *RequestGuard) HasUser() bool {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+
+	return g.user != nil
+}
+
+// ForgetUser clears the resolved user, forcing re-resolution on the next User() call.
+func (g *RequestGuard) ForgetUser() {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	g.user = nil
+}
+
 // SetRequest attaches the incoming HTTP request.
 func (g *RequestGuard) SetRequest(r *http.Request) {
 	g.mu.Lock()
