@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "vite build && sh -c 'mkdir -p ../../storage/.turbo/dist/demo && go build -o ../../storage/.turbo/dist/demo/http ./public && go build -o ../../storage/.turbo/dist/demo/cli ./cmd/cli && touch ../../storage/.turbo/dist/demo/.build-stamp'",
+    "build": "vite build && sh -c 'mkdir -p ../bin && go build -o ../bin/http ./public && go build -o ../bin/cli ./cmd/cli && mkdir -p ../../storage/.turbo/dist/demo && touch ../../storage/.turbo/dist/demo/.build-stamp'",
     "dev": "vite",
     "dev:go": "go run ./public",
     "test": "go test ./...",
