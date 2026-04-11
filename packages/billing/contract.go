@@ -3,17 +3,16 @@ package billing
 import (
 	"context"
 	"time"
-)
 
-// Clock abstracts time for testing.
-type Clock interface {
-	Now() time.Time
-}
+	"github.com/bedrock/packages/contracts"
+)
 
 // SystemClock returns the real wall clock.
 type SystemClock struct{}
 
 // Now returns the current time.
+
+// compile-time check: SystemClock implements contracts.Clock.
 
 // CurrencyFormatter formats monetary amounts for display.
 type CurrencyFormatter interface {
@@ -23,11 +22,6 @@ type CurrencyFormatter interface {
 // TransactionManager wraps database transactions.
 type TransactionManager interface {
 	RunInTransaction(ctx context.Context, fn func(ctx context.Context) error) error
-}
-
-// EventDispatcher publishes domain events.
-type EventDispatcher interface {
-	Dispatch(ctx context.Context, event any) error
 }
 
 // Mailer sends email messages.
@@ -71,3 +65,5 @@ type URLResolver interface {
 }
 
 func (SystemClock) Now() time.Time { return time.Now() }
+
+var _ contracts.Clock = SystemClock{}

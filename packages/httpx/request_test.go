@@ -176,6 +176,7 @@ func TestRequestSecure(t *testing.T) {
 	}
 
 	raw.Header.Set("X-Forwarded-Proto", "https")
+
 	if !req.Secure() {
 		t.Fatal("expected secure with X-Forwarded-Proto: https")
 	}

@@ -3,6 +3,7 @@ package entitlement
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/catalog"
 )
@@ -13,7 +14,7 @@ type Synchronizer struct {
 	plans    billing.PlanStore
 	features billing.SubscriptionFeatureStore
 	txn      billing.TransactionManager
-	clock    billing.Clock
+	clock    contracts.Clock
 }
 
 // NewSynchronizer creates a Synchronizer.
@@ -22,7 +23,7 @@ func NewSynchronizer(
 	plans billing.PlanStore,
 	features billing.SubscriptionFeatureStore,
 	txn billing.TransactionManager,
-	clock billing.Clock,
+	clock contracts.Clock,
 ) *Synchronizer {
 	return &Synchronizer{
 		seeder:   seeder,

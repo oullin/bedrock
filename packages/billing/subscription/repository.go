@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/catalog"
 )
@@ -14,7 +15,7 @@ type Repository struct {
 	catalog       *catalog.PlanCatalog
 	checkout      billing.ProviderCheckoutGenerator
 	customers     billing.CustomerStore
-	clock         billing.Clock
+	clock         contracts.Clock
 }
 
 // NewRepository creates a Repository.
@@ -23,7 +24,7 @@ func NewRepository(
 	cat *catalog.PlanCatalog,
 	checkout billing.ProviderCheckoutGenerator,
 	customers billing.CustomerStore,
-	clock billing.Clock,
+	clock contracts.Clock,
 ) *Repository {
 	return &Repository{
 		subscriptions: subscriptions,

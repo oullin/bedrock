@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	cauth "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/authflows/twofactor"
 )
 
@@ -71,7 +72,7 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -102,7 +103,7 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	tfa.SetTwoFactorRecoveryCodes(codes)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: EventTwoFactorEnabled})
+		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorEnabled)
 	}
 
 	h.authflows.responder.TwoFactorEnabledResponse(w, r)
@@ -129,7 +130,7 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -150,7 +151,7 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(&now)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: EventTwoFactorConfirmed})
+		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorConfirmed)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -177,7 +178,7 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -191,7 +192,7 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(nil)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: EventTwoFactorDisabled})
+		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorDisabled)
 	}
 
 	h.authflows.responder.TwoFactorDisabledResponse(w, r)
@@ -218,7 +219,7 @@ func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -236,7 +237,7 @@ func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	email := ""
 
-	if verifiable, ok := user.(MustVerifyEmail); ok {
+	if verifiable, ok := user.(cauth.MustVerifyEmail); ok {
 		email = verifiable.GetEmailForVerification()
 	}
 
@@ -272,7 +273,7 @@ func (h *TwoFactorRecoveryCodesHandler) ServeHTTP(w http.ResponseWriter, r *http
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)

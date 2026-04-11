@@ -33,8 +33,12 @@ func TestTwoFactorChallengeWithTOTP(t *testing.T) {
 		t.Fatal("expected login response")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTwoFactorChallenge {
+	if len(events.dispatched) != 1 {
 		t.Fatal("expected TwoFactorChallenge event")
+	}
+
+	if _, ok := events.dispatched[0].(LoginSucceededPayload); !ok {
+		t.Fatalf("expected LoginSucceededPayload event, got %T", events.dispatched[0])
 	}
 }
 
@@ -61,13 +65,13 @@ func TestTwoFactorChallengeWithRecoveryCode(t *testing.T) {
 		t.Fatalf("expected 2 remaining codes, got %d", len(user.codes))
 	}
 
-	// Should have RecoveryCodeUsed + TwoFactorChallenge events
+	// Should have RecoveryCodeUsed (string) + LoginSucceededPayload events
 	if len(events.dispatched) != 2 {
 		t.Fatalf("expected 2 events, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventRecoveryCodeUsed {
-		t.Fatalf("expected RecoveryCodeUsed event, got %s", events.dispatched[0].Name)
+	if s, ok := events.dispatched[0].(string); !ok || s != EventRecoveryCodeUsed {
+		t.Fatalf("expected RecoveryCodeUsed event string, got %T", events.dispatched[0])
 	}
 }
 

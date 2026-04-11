@@ -46,6 +46,7 @@ func TestPaginatedResponse(t *testing.T) {
 	}
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	// Check data array.

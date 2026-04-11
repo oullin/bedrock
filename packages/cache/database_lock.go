@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // DatabaseLock is a distributed lock backed by a SQL database. It stores lock
@@ -14,13 +16,13 @@ type DatabaseLock struct {
 	name  string
 	owner string
 	ttl   time.Duration
-	clock Clock
+	clock contracts.Clock
 }
 
 var _ Lock = (*DatabaseLock)(nil)
 
 // NewDatabaseLock creates a database-backed lock.
-func NewDatabaseLock(conn DBConnection, table, name, owner string, ttl time.Duration, clock Clock) *DatabaseLock {
+func NewDatabaseLock(conn DBConnection, table, name, owner string, ttl time.Duration, clock contracts.Clock) *DatabaseLock {
 	if table == "" {
 		table = "cache_locks"
 	}

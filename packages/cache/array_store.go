@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 type cacheItem struct {
@@ -18,7 +20,7 @@ type ArrayStore struct {
 	items  map[string]cacheItem
 	locks  map[string]*arrayLock
 	prefix string
-	clock  Clock
+	clock  contracts.Clock
 }
 
 var _ Store = (*ArrayStore)(nil)
@@ -35,7 +37,7 @@ func NewArrayStore() *ArrayStore {
 }
 
 // NewArrayStoreWithClock creates an ArrayStore with a custom clock.
-func NewArrayStoreWithClock(clock Clock) *ArrayStore {
+func NewArrayStoreWithClock(clock contracts.Clock) *ArrayStore {
 	return &ArrayStore{
 		items: make(map[string]cacheItem),
 		locks: make(map[string]*arrayLock),

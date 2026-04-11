@@ -1,18 +1,23 @@
 package authflows
 
-import "errors"
+import (
+	"errors"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/contracts/events"
+)
 
 // AuthFlows is the composition root for all authentication features.
 // It holds references to contracts and action implementations
 // provided by the consuming application.
 type AuthFlows struct {
 	config    Config
-	guard     Guard
-	provider  UserProvider
-	hasher    PasswordHasher
+	guard     cauth.HTTPGuard
+	provider  cauth.UserProvider
+	hasher    cauth.PasswordHasher
 	broker    PasswordBroker
 	verifier  EmailVerifier
-	events    EventDispatcher
+	events    events.Dispatcher
 	limiter   RateLimiter
 	responder Responder
 
@@ -62,17 +67,17 @@ type Builder struct {
 
 func (f *AuthFlows) Config() Config { return f.config }
 
-func (f *AuthFlows) Guard() Guard { return f.guard }
+func (f *AuthFlows) Guard() cauth.HTTPGuard { return f.guard }
 
-func (f *AuthFlows) Provider() UserProvider { return f.provider }
+func (f *AuthFlows) Provider() cauth.UserProvider { return f.provider }
 
-func (f *AuthFlows) Hasher() PasswordHasher { return f.hasher }
+func (f *AuthFlows) Hasher() cauth.PasswordHasher { return f.hasher }
 
 func (f *AuthFlows) Broker() PasswordBroker { return f.broker }
 
 func (f *AuthFlows) Verifier() EmailVerifier { return f.verifier }
 
-func (f *AuthFlows) Events() EventDispatcher { return f.events }
+func (f *AuthFlows) Events() events.Dispatcher { return f.events }
 
 func (f *AuthFlows) Limiter() RateLimiter { return f.limiter }
 
@@ -107,21 +112,21 @@ func (b *Builder) WithConfig(config Config) *Builder {
 }
 
 // WithGuard sets the authentication guard.
-func (b *Builder) WithGuard(guard Guard) *Builder {
+func (b *Builder) WithGuard(guard cauth.HTTPGuard) *Builder {
 	b.authflows.guard = guard
 
 	return b
 }
 
 // WithProvider sets the user provider.
-func (b *Builder) WithProvider(provider UserProvider) *Builder {
+func (b *Builder) WithProvider(provider cauth.UserProvider) *Builder {
 	b.authflows.provider = provider
 
 	return b
 }
 
 // WithHasher sets the password hasher.
-func (b *Builder) WithHasher(hasher PasswordHasher) *Builder {
+func (b *Builder) WithHasher(hasher cauth.PasswordHasher) *Builder {
 	b.authflows.hasher = hasher
 
 	return b
@@ -142,8 +147,8 @@ func (b *Builder) WithVerifier(verifier EmailVerifier) *Builder {
 }
 
 // WithEvents sets the event dispatcher.
-func (b *Builder) WithEvents(events EventDispatcher) *Builder {
-	b.authflows.events = events
+func (b *Builder) WithEvents(dispatcher events.Dispatcher) *Builder {
+	b.authflows.events = dispatcher
 
 	return b
 }

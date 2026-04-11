@@ -8,13 +8,15 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test action ---
 
 type testCreatesUsers struct {
 	created     bool
-	returnUser  Authenticatable
+	returnUser  cauth.Authenticatable
 	returnError error
 }
 
@@ -42,13 +44,13 @@ type testVerifiableUser struct {
 	verified bool
 }
 
-func (a *testCreatesUsers) Create(_ context.Context, _ map[string]string) (Authenticatable, error) {
+func (a *testCreatesUsers) Create(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	a.created = true
 
 	return a.returnUser, a.returnError
 }
 
-func (v *testVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
+func (v *testVerifier) SendVerificationNotification(_ context.Context, _ cauth.Authenticatable) error {
 	v.sent = true
 
 	return nil
@@ -109,8 +111,8 @@ func TestRegisterHandlerSuccess(t *testing.T) {
 		t.Fatalf("expected 1 event, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventRegistered {
-		t.Fatalf("expected Registered event, got %s", events.dispatched[0].Name)
+	if _, ok := events.dispatched[0].(RegisteredPayload); !ok {
+		t.Fatalf("expected RegisteredPayload event, got %T", events.dispatched[0])
 	}
 }
 

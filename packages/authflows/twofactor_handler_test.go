@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	cauth "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/authflows/twofactor"
 )
 
@@ -36,7 +37,7 @@ func (u *testTwoFactorUser) GetEmailForVerification() string      { return u.ema
 
 // --- helpers ---
 
-func build2FAAuthFlows(user Authenticatable) (*AuthFlows, *testGuard, *testEvents, *testResponder) {
+func build2FAAuthFlows(user cauth.Authenticatable) (*AuthFlows, *testGuard, *testEvents, *testResponder) {
 	guard := &testGuard{authenticatedUser: user}
 	events := &testEvents{}
 	responder := &testResponder{}
@@ -85,8 +86,12 @@ func TestEnableTwoFactorSuccess(t *testing.T) {
 		t.Fatal("expected confirmedAt to be nil until confirmation")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTwoFactorEnabled {
+	if len(events.dispatched) != 1 {
 		t.Fatal("expected TwoFactorEnabled event")
+	}
+
+	if s, ok := events.dispatched[0].(string); !ok || s != EventTwoFactorEnabled {
+		t.Fatal("expected TwoFactorEnabled event string")
 	}
 }
 
@@ -146,8 +151,12 @@ func TestConfirmTwoFactorSuccess(t *testing.T) {
 		t.Fatal("expected confirmedAt to be set")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTwoFactorConfirmed {
+	if len(events.dispatched) != 1 {
 		t.Fatal("expected TwoFactorConfirmed event")
+	}
+
+	if s, ok := events.dispatched[0].(string); !ok || s != EventTwoFactorConfirmed {
+		t.Fatal("expected TwoFactorConfirmed event string")
 	}
 }
 
@@ -205,8 +214,12 @@ func TestDisableTwoFactorSuccess(t *testing.T) {
 		t.Fatal("expected confirmedAt to be cleared")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTwoFactorDisabled {
+	if len(events.dispatched) != 1 {
 		t.Fatal("expected TwoFactorDisabled event")
+	}
+
+	if s, ok := events.dispatched[0].(string); !ok || s != EventTwoFactorDisabled {
+		t.Fatal("expected TwoFactorDisabled event string")
 	}
 }
 

@@ -3,6 +3,7 @@ package subscription
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 )
 
@@ -27,7 +28,7 @@ type FrontendStateBuilder struct {
 	subscriptions  billing.SubscriptionStore
 	customers      billing.CustomerStore
 	pricePreviewer billing.ProviderPricePreviewer
-	clock          billing.Clock
+	clock          contracts.Clock
 }
 
 // NewFrontendStateBuilder creates a new builder.
@@ -37,7 +38,7 @@ func NewFrontendStateBuilder(
 	subscriptions billing.SubscriptionStore,
 	customers billing.CustomerStore,
 	pricePreviewer billing.ProviderPricePreviewer,
-	clock billing.Clock,
+	clock contracts.Clock,
 ) *FrontendStateBuilder {
 	return &FrontendStateBuilder{
 		manager:        manager,

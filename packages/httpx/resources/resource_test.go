@@ -56,6 +56,7 @@ func TestJsonResourceToJSON(t *testing.T) {
 	}
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	// Default wrap key is "data".
@@ -81,6 +82,7 @@ func TestJsonResourceWithoutWrapping(t *testing.T) {
 	b, _ := resource.ToJSON(req)
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	if data["name"] != "Taylor" {
@@ -103,6 +105,7 @@ func TestJsonResourceWithAdditionalData(t *testing.T) {
 	b, _ := resource.ToJSON(req)
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	if data["version"] != "1.0" {

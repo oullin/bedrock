@@ -3,6 +3,7 @@ package checkout
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/catalog"
 )
@@ -11,14 +12,14 @@ import (
 type Syncer struct {
 	subscriptions billing.SubscriptionStore
 	catalog       *catalog.PlanCatalog
-	clock         billing.Clock
+	clock         contracts.Clock
 }
 
 // NewSyncer creates a Syncer.
 func NewSyncer(
 	subscriptions billing.SubscriptionStore,
 	cat *catalog.PlanCatalog,
-	clock billing.Clock,
+	clock contracts.Clock,
 ) *Syncer {
 	return &Syncer{
 		subscriptions: subscriptions,

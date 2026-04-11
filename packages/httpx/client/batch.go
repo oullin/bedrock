@@ -19,6 +19,7 @@ func NewBatch(factory *Factory) *Batch {
 // Add appends request callbacks to the batch.
 func (b *Batch) Add(callbacks ...PoolCallback) *Batch {
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	if b.started {
@@ -53,6 +54,7 @@ func (b *Batch) Execute() ([]*PoolResult, error) {
 // Pending returns the number of requests not yet executed.
 func (b *Batch) Pending() int {
 	b.mu.Lock()
+
 	defer b.mu.Unlock()
 
 	return len(b.callbacks)

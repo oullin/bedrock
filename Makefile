@@ -9,8 +9,10 @@ GO_PACKAGES := \
 	packages/auth \
 	packages/bus \
 	packages/cache \
+	packages/contracts \
 	packages/cookie \
 	packages/authflows \
+	packages/httpx \
 	packages/authkit \
 	packages/queue \
 	packages/routing \

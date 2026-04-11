@@ -42,6 +42,7 @@ func TestAnonymousCollectionToJSON(t *testing.T) {
 	}
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	arr, ok := data["data"].([]any)
@@ -65,6 +66,7 @@ func TestAnonymousCollectionWithoutWrapping(t *testing.T) {
 	b, _ := collection.ToJSON()
 
 	var data []any
+
 	json.Unmarshal(b, &data)
 
 	if len(data) != 1 {
@@ -82,6 +84,7 @@ func TestAnonymousCollectionWithAdditionalData(t *testing.T) {
 	b, _ := collection.ToJSON()
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	total, ok := data["total"].(float64)

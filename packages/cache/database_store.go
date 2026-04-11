@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // DBConnection is the database connection interface required by DatabaseStore.
@@ -26,7 +28,7 @@ type DatabaseStore struct {
 	conn   DBConnection
 	table  string
 	prefix string
-	clock  Clock
+	clock  contracts.Clock
 }
 
 var _ Store = (*DatabaseStore)(nil)

@@ -5,7 +5,6 @@ package resources
 type MissingValue struct{}
 
 // IsMissing returns true. It satisfies the PotentiallyMissing interface.
-func (MissingValue) IsMissing() bool { return true }
 
 // PotentiallyMissing is implemented by values that may signal omission.
 type PotentiallyMissing interface {
@@ -17,6 +16,8 @@ type PotentiallyMissing interface {
 type MergeValue struct {
 	Data map[string]any
 }
+
+func (MissingValue) IsMissing() bool { return true }
 
 // IsMissing returns false; merge values are never missing.
 func (MergeValue) IsMissing() bool { return false }

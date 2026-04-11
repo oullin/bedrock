@@ -9,6 +9,12 @@ import (
 	"github.com/bedrock/packages/httpx/resources/jsonapi"
 )
 
+type includedResource struct {
+	typeName string
+	id       string
+	name     string
+}
+
 func TestCollectionToDocument(t *testing.T) {
 	t.Parallel()
 
@@ -56,6 +62,7 @@ func TestCollectionToJSON(t *testing.T) {
 	}
 
 	var doc map[string]any
+
 	json.Unmarshal(b, &doc)
 
 	if _, ok := doc["data"]; !ok {
@@ -88,12 +95,6 @@ func TestCollectionResponse(t *testing.T) {
 	if ct := rec.Header().Get("Content-Type"); ct != "application/vnd.api+json" {
 		t.Fatalf("expected application/vnd.api+json, got %s", ct)
 	}
-}
-
-type includedResource struct {
-	typeName string
-	id       string
-	name     string
 }
 
 func (r includedResource) ToResourceObject(_ *http.Request) map[string]any {

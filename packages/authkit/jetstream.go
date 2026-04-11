@@ -3,14 +3,14 @@ package authkit
 import (
 	"errors"
 
-	"github.com/bedrock/packages/authflows"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // AuthKit is the composition root for all team and profile features.
 type AuthKit struct {
 	features    Features
 	roles       *RoleRegistry
-	guard       authflows.Guard
+	guard       cauth.HTTPGuard
 	teams       TeamRepository
 	invitations InvitationRepository
 	events      EventDispatcher
@@ -57,7 +57,7 @@ func (j *AuthKit) Features() Features { return j.features }
 
 func (j *AuthKit) Roles() *RoleRegistry { return j.roles }
 
-func (j *AuthKit) Guard() authflows.Guard { return j.guard }
+func (j *AuthKit) Guard() cauth.HTTPGuard { return j.guard }
 
 func (j *AuthKit) Teams() TeamRepository { return j.teams }
 
@@ -95,7 +95,7 @@ func (b *Builder) WithFeatures(features Features) *Builder {
 }
 
 // WithGuard sets the authentication guard.
-func (b *Builder) WithGuard(guard authflows.Guard) *Builder {
+func (b *Builder) WithGuard(guard cauth.HTTPGuard) *Builder {
 	b.js.guard = guard
 
 	return b

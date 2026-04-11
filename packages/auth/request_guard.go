@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"sync"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // RequestGuard authenticates requests via a custom callback function.
@@ -11,7 +13,7 @@ type RequestGuard struct {
 	mu       sync.RWMutex
 	callback RequestCallback
 	request  *http.Request
-	user     Authenticatable
+	user     cauth.Authenticatable
 }
 
 // NewRequestGuard creates a RequestGuard using the given callback.
@@ -20,7 +22,7 @@ func NewRequestGuard(callback RequestCallback) *RequestGuard {
 }
 
 // SetUser sets the authenticated user on the guard.
-func (g *RequestGuard) SetUser(user Authenticatable) {
+func (g *RequestGuard) SetUser(user cauth.Authenticatable) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -57,7 +59,7 @@ func (g *RequestGuard) SetRequest(r *http.Request) {
 }
 
 // User resolves the user via the callback.
-func (g *RequestGuard) User(ctx context.Context) (Authenticatable, error) {
+func (g *RequestGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()

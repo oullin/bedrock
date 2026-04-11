@@ -11,7 +11,7 @@ import (
 func TestAttemptingFields(t *testing.T) {
 	e := events.Attempting{
 		Guard:       "web",
-		Credentials: map[string]any{"email": "a@b.com"},
+		Credentials: map[string]string{"email": "a@b.com"},
 		Remember:    true,
 	}
 
@@ -40,7 +40,7 @@ func TestFailedNilUser(t *testing.T) {
 	e := events.Failed{
 		Guard:       "web",
 		User:        nil,
-		Credentials: map[string]any{"email": "x@y.com"},
+		Credentials: map[string]string{"email": "x@y.com"},
 	}
 
 	if e.User != nil {

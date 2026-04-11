@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,7 +21,7 @@ func NewBcryptHasher(cost int) *BcryptHasher {
 }
 
 // Hash hashes the password using bcrypt.
-func (h *BcryptHasher) Hash(password string) (string, error) {
+func (h *BcryptHasher) Hash(_ context.Context, password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), h.cost)
 
 	if err != nil {
@@ -29,14 +31,20 @@ func (h *BcryptHasher) Hash(password string) (string, error) {
 	return string(hash), nil
 }
 
-// Check reports whether password matches hash.
-func (h *BcryptHasher) Check(password, hash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+// Check reports whether password matches hashedPassword.
+func (h *BcryptHasher) Check(_ context.Context, password string, hashedPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+
+	if err != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // NeedsRehash reports whether the hash was generated with a different cost.
-func (h *BcryptHasher) NeedsRehash(hash string) bool {
-	cost, err := bcrypt.Cost([]byte(hash))
+func (h *BcryptHasher) NeedsRehash(hashedPassword string) bool {
+	cost, err := bcrypt.Cost([]byte(hashedPassword))
 
 	if err != nil {
 		return true
