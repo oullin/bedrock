@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"time"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 type contextKey string
@@ -11,19 +13,19 @@ type contextKey string
 const userContextKey contextKey = "auth_user"
 
 // WithUser stores an authenticated user in the request context.
-func WithUser(r *http.Request, user Authenticatable) *http.Request {
+func WithUser(r *http.Request, user cauth.Authenticatable) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), userContextKey, user))
 }
 
 // UserFromContext retrieves the authenticated user from the request context.
-func UserFromContext(ctx context.Context) Authenticatable {
-	u, _ := ctx.Value(userContextKey).(Authenticatable)
+func UserFromContext(ctx context.Context) cauth.Authenticatable {
+	u, _ := ctx.Value(userContextKey).(cauth.Authenticatable)
 
 	return u
 }
 
 // EnsureAuthenticated rejects unauthenticated requests with 401.
-func EnsureAuthenticated(guard Guard) func(http.Handler) http.Handler {
+func EnsureAuthenticated(guard cauth.Guard) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := guard.User(r.Context())
@@ -40,7 +42,7 @@ func EnsureAuthenticated(guard Guard) func(http.Handler) http.Handler {
 }
 
 // RedirectIfAuthenticated redirects authenticated users to the given path.
-func RedirectIfAuthenticated(guard Guard, redirectTo string) func(http.Handler) http.Handler {
+func RedirectIfAuthenticated(guard cauth.Guard, redirectTo string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if guard.Check(r.Context()) {
@@ -55,7 +57,7 @@ func RedirectIfAuthenticated(guard Guard, redirectTo string) func(http.Handler) 
 }
 
 // EnsureEmailIsVerified rejects users whose email is not verified.
-func EnsureEmailIsVerified(guard Guard) func(http.Handler) http.Handler {
+func EnsureEmailIsVerified(guard cauth.Guard) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := guard.User(r.Context())
@@ -66,7 +68,7 @@ func EnsureEmailIsVerified(guard Guard) func(http.Handler) http.Handler {
 				return
 			}
 
-			if mv, ok := user.(MustVerifyEmail); ok && !mv.HasVerifiedEmail() {
+			if mv, ok := user.(cauth.MustVerifyEmail); ok && !mv.HasVerifiedEmail() {
 				http.Error(w, "email not verified", http.StatusForbidden)
 
 				return
@@ -98,7 +100,7 @@ func RequirePassword(session SessionStore, timeout time.Duration, confirmPath st
 }
 
 // AuthenticateWithBasicAuth attempts HTTP Basic authentication on each request.
-func AuthenticateWithBasicAuth(provider UserProvider, hasher PasswordHasher) func(http.Handler) http.Handler {
+func AuthenticateWithBasicAuth(provider cauth.UserProvider, hasher cauth.PasswordHasher) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			username, password, ok := r.BasicAuth()
@@ -110,9 +112,18 @@ func AuthenticateWithBasicAuth(provider UserProvider, hasher PasswordHasher) fun
 				return
 			}
 
-			user, err := provider.RetrieveByCredentials(r.Context(), map[string]any{"email": username})
+			user, err := provider.RetrieveByCredentials(r.Context(), map[string]string{"email": username})
 
-			if err != nil || user == nil || !hasher.Check(password, user.GetAuthPassword()) {
+			if err != nil || user == nil {
+				w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+
+				return
+			}
+
+			match, err := hasher.Check(r.Context(), password, user.GetAuthPassword())
+
+			if err != nil || !match {
 				w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 

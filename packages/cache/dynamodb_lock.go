@@ -3,6 +3,8 @@ package cache
 import (
 	"context"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // DynamoDbLock is a distributed lock backed by AWS DynamoDB. It uses
@@ -13,13 +15,13 @@ type DynamoDbLock struct {
 	name   string
 	owner  string
 	ttl    time.Duration
-	clock  Clock
+	clock  contracts.Clock
 }
 
 var _ Lock = (*DynamoDbLock)(nil)
 
 // NewDynamoDbLock creates a DynamoDB-backed lock.
-func NewDynamoDbLock(client DynamoClient, table, name, owner string, ttl time.Duration, clock Clock) *DynamoDbLock {
+func NewDynamoDbLock(client DynamoClient, table, name, owner string, ttl time.Duration, clock contracts.Clock) *DynamoDbLock {
 	return &DynamoDbLock{client: client, table: table, name: name, owner: owner, ttl: ttl, clock: clock}
 }
 

@@ -1,6 +1,10 @@
 package authflows
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // RegisterHandler handles POST /register requests.
 type RegisterHandler struct {
@@ -33,14 +37,11 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{
-			Name:    EventRegistered,
-			Payload: RegisteredPayload{User: user},
-		})
+		_ = h.authflows.events.Dispatch(ctx, RegisteredPayload{User: user})
 	}
 
 	if config.Features.EmailVerification {
-		if verifiable, ok := user.(MustVerifyEmail); ok && !verifiable.HasVerifiedEmail() {
+		if verifiable, ok := user.(cauth.MustVerifyEmail); ok && !verifiable.HasVerifiedEmail() {
 			if h.authflows.verifier != nil {
 				_ = h.authflows.verifier.SendVerificationNotification(ctx, user)
 			}

@@ -21,6 +21,7 @@ func TestPendingRequestGet(t *testing.T) {
 
 		w.Write([]byte("ok"))
 	}))
+
 	defer server.Close()
 
 	resp, err := client.NewFactory().PendingRequest().Get(server.URL)
@@ -40,6 +41,7 @@ func TestPendingRequestGetWithQuery(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.URL.Query().Get("page")))
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().Get(server.URL, map[string]string{"page": "2"})
@@ -60,10 +62,12 @@ func TestPendingRequestPostJSON(t *testing.T) {
 		body, _ := io.ReadAll(r.Body)
 
 		var data map[string]string
+
 		json.Unmarshal(body, &data)
 
 		w.Write([]byte(data["name"]))
 	}))
+
 	defer server.Close()
 
 	resp, err := client.NewFactory().PendingRequest().AsJSON().Post(server.URL, map[string]string{"name": "Taylor"})
@@ -84,6 +88,7 @@ func TestPendingRequestPostForm(t *testing.T) {
 		r.ParseForm()
 		w.Write([]byte(r.PostForm.Get("email")))
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().AsForm().Post(server.URL, map[string]string{"email": "test@test.com"})
@@ -99,6 +104,7 @@ func TestPendingRequestWithHeaders(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.Header.Get("X-Custom")))
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().
@@ -116,6 +122,7 @@ func TestPendingRequestWithToken(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.Header.Get("Authorization")))
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().
@@ -134,6 +141,7 @@ func TestPendingRequestTimeout(t *testing.T) {
 		time.Sleep(200 * time.Millisecond)
 		w.Write([]byte("slow"))
 	}))
+
 	defer server.Close()
 
 	_, err := client.NewFactory().PendingRequest().
@@ -155,6 +163,7 @@ func TestPendingRequestPut(t *testing.T) {
 
 		w.WriteHeader(http.StatusOK)
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().Put(server.URL)
@@ -172,6 +181,7 @@ func TestPendingRequestPatch(t *testing.T) {
 			t.Fatalf("expected PATCH, got %s", r.Method)
 		}
 	}))
+
 	defer server.Close()
 
 	client.NewFactory().PendingRequest().Patch(server.URL)
@@ -187,6 +197,7 @@ func TestPendingRequestDelete(t *testing.T) {
 
 		w.WriteHeader(http.StatusNoContent)
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().Delete(server.URL)
@@ -202,6 +213,7 @@ func TestPendingRequestWithoutRedirecting(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/redirected", http.StatusFound)
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().
@@ -219,6 +231,7 @@ func TestPendingRequestMiddleware(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.Header.Get("X-Middleware")))
 	}))
+
 	defer server.Close()
 
 	mw := client.Middleware(func(req *http.Request, next client.RoundTripFunc) (*http.Response, error) {
@@ -246,6 +259,7 @@ func TestPendingRequestHead(t *testing.T) {
 
 		w.Header().Set("X-Custom", "exists")
 	}))
+
 	defer server.Close()
 
 	resp, _ := client.NewFactory().PendingRequest().Head(server.URL)

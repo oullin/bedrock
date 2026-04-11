@@ -5,11 +5,6 @@ import (
 	"time"
 )
 
-// Clock reports wall-clock time. Inject a fake for deterministic tests.
-type Clock interface {
-	Now() time.Time
-}
-
 // Store defines the low-level cache backend contract.
 type Store interface {
 	// Get retrieves a value by key. Returns ErrNotFound if missing or expired.

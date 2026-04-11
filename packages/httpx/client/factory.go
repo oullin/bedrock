@@ -67,6 +67,7 @@ func (f *Factory) PendingRequest() *PendingRequest {
 // Fake puts the factory in fake mode. All requests will be intercepted.
 func (f *Factory) Fake(stubs ...StubCallback) *Factory {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	f.faking = true
@@ -79,6 +80,7 @@ func (f *Factory) Fake(stubs ...StubCallback) *Factory {
 // FakeSequence registers a response sequence for a URL pattern.
 func (f *Factory) FakeSequence(urlPattern string, seq *ResponseSequence) *Factory {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	f.faking = true
@@ -92,6 +94,7 @@ func (f *Factory) FakeSequence(urlPattern string, seq *ResponseSequence) *Factor
 // that doesn't match a stub.
 func (f *Factory) PreventStrayRequests() *Factory {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	f.preventStray = true
@@ -102,6 +105,7 @@ func (f *Factory) PreventStrayRequests() *Factory {
 // isFaking returns true when the factory is in fake mode.
 func (f *Factory) isFaking() bool {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	return f.faking
@@ -110,6 +114,7 @@ func (f *Factory) isFaking() bool {
 // handleFake processes a request through the stub/sequence chain.
 func (f *Factory) handleFake(req *http.Request, body []byte) (*Response, error) {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	// Check sequences first.
@@ -163,6 +168,7 @@ func (f *Factory) handleFake(req *http.Request, body []byte) (*Response, error) 
 // Recorded returns all recorded requests.
 func (f *Factory) Recorded(filter ...func(RecordedRequest) bool) []RecordedRequest {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
 
 	if len(filter) == 0 {

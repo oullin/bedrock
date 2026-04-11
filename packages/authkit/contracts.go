@@ -3,12 +3,13 @@ package authkit
 import (
 	"context"
 
-	"github.com/bedrock/packages/authflows"
+	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/contracts/events"
 )
 
 // HasTeams is implemented by the user model to expose team membership.
 type HasTeams interface {
-	authflows.Authenticatable
+	cauth.Authenticatable
 	Teams() []Team
 	CurrentTeam() *Team
 	SetCurrentTeam(team *Team)
@@ -41,9 +42,7 @@ type InvitationRepository interface {
 }
 
 // EventDispatcher dispatches domain events.
-type EventDispatcher interface {
-	Dispatch(ctx context.Context, event Event) error
-}
+type EventDispatcher = events.Dispatcher
 
 // Event represents a domain event fired by AuthKit.
 type Event struct {

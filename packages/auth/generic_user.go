@@ -13,7 +13,15 @@ func NewGenericUser(attrs map[string]any) *GenericUser {
 
 func (u *GenericUser) GetAuthIdentifierName() string { return "id" }
 
-func (u *GenericUser) GetAuthIdentifier() any { return u.Attributes["id"] }
+func (u *GenericUser) GetAuthIdentifier() string {
+	if v, ok := u.Attributes["id"].(string); ok {
+		return v
+	}
+
+	return ""
+}
+
+func (u *GenericUser) GetAuthPasswordName() string { return "password" }
 
 func (u *GenericUser) GetAuthPassword() string {
 	if v, ok := u.Attributes["password"].(string); ok {
@@ -21,6 +29,10 @@ func (u *GenericUser) GetAuthPassword() string {
 	}
 
 	return ""
+}
+
+func (u *GenericUser) SetAuthPassword(password string) {
+	u.Attributes["password"] = password
 }
 
 func (u *GenericUser) GetRememberToken() string {

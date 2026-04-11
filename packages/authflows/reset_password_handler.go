@@ -1,6 +1,10 @@
 package authflows
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // ResetPasswordHandler handles POST /reset-password requests.
 type ResetPasswordHandler struct {
@@ -24,7 +28,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	config := h.authflows.config
 	input := RequestInput(r, config.IdentifierField, "password", "password_confirmation", "token")
 
-	err := h.authflows.broker.Reset(ctx, input, func(user Authenticatable, password string) error {
+	err := h.authflows.broker.Reset(ctx, input, func(user cauth.Authenticatable, password string) error {
 		return h.authflows.resetPass.Reset(ctx, user, password)
 	})
 
@@ -35,9 +39,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{
-			Name: EventPasswordReset,
-		})
+		_ = h.authflows.events.Dispatch(ctx, EventPasswordReset)
 	}
 
 	h.authflows.responder.PasswordResetResponse(w, r)

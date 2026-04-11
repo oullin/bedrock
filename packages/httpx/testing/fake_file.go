@@ -14,6 +14,7 @@ import (
 // FakeFile creates a fake UploadedFile with random content for testing.
 func FakeFile(name string, sizeKB int) *httpx.UploadedFile {
 	content := make([]byte, sizeKB*1024)
+
 	rand.Read(content)
 
 	encoded := base64.StdEncoding.EncodeToString(content)
@@ -33,6 +34,7 @@ func FakeImage(name string, width, height int) *httpx.UploadedFile {
 	}
 
 	var buf bytes.Buffer
+
 	png.Encode(&buf, img)
 
 	encoded := base64.StdEncoding.EncodeToString(buf.Bytes())

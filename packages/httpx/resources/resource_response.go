@@ -33,6 +33,23 @@ type PaginatedResponse[T any] struct {
 
 // NewPaginatedResponse creates a PaginatedResponse from a collection and
 // pagination metadata.
+
+// ToJSON serialises the paginated response including data, meta and links.
+
+// Merge additional top-level data from the collection.
+
+// Response writes the paginated collection as a JSON HTTP response.
+
+// ResourceResponse wraps a Resource and provides response-level features such
+// as automatic 201 status for recently created resources, custom headers, and
+// a response callback. This mirrors Upstream's ResourceResponse class.
+type ResourceResponse struct {
+	resource         Resource
+	recentlyCreated  bool
+	headers          map[string]string
+	responseCallback func(http.ResponseWriter, *http.Request)
+}
+
 func NewPaginatedResponse[T any](collection *Collection[T], meta PaginationMeta, links ...PaginationLinks) *PaginatedResponse[T] {
 	pr := &PaginatedResponse[T]{
 		Collection: collection,
@@ -46,7 +63,6 @@ func NewPaginatedResponse[T any](collection *Collection[T], meta PaginationMeta,
 	return pr
 }
 
-// ToJSON serialises the paginated response including data, meta and links.
 func (p *PaginatedResponse[T]) ToJSON(req *http.Request) ([]byte, error) {
 	data := p.Collection.ToSlice(req)
 
@@ -56,7 +72,6 @@ func (p *PaginatedResponse[T]) ToJSON(req *http.Request) ([]byte, error) {
 		"links": p.Links,
 	}
 
-	// Merge additional top-level data from the collection.
 	for k, v := range p.Collection.With {
 		result[k] = v
 	}
@@ -64,7 +79,6 @@ func (p *PaginatedResponse[T]) ToJSON(req *http.Request) ([]byte, error) {
 	return json.Marshal(result)
 }
 
-// Response writes the paginated collection as a JSON HTTP response.
 func (p *PaginatedResponse[T]) Response(w http.ResponseWriter, req *http.Request, status int) error {
 	b, err := p.ToJSON(req)
 
@@ -77,16 +91,6 @@ func (p *PaginatedResponse[T]) Response(w http.ResponseWriter, req *http.Request
 	_, err = w.Write(b)
 
 	return err
-}
-
-// ResourceResponse wraps a Resource and provides response-level features such
-// as automatic 201 status for recently created resources, custom headers, and
-// a response callback. This mirrors Upstream's ResourceResponse class.
-type ResourceResponse struct {
-	resource         Resource
-	recentlyCreated  bool
-	headers          map[string]string
-	responseCallback func(http.ResponseWriter, *http.Request)
 }
 
 // NewResourceResponse wraps a resource for HTTP response rendering.

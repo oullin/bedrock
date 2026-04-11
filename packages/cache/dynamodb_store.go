@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // DynamoClient is the DynamoDB operations required by DynamoDbStore.
@@ -25,7 +27,7 @@ type DynamoDbStore struct {
 	valAttr string // value attribute name (default "value")
 	ttlAttr string // TTL attribute name (default "expiration")
 	prefix  string
-	clock   Clock
+	clock   contracts.Clock
 }
 
 var _ Store = (*DynamoDbStore)(nil)

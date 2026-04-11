@@ -32,6 +32,7 @@ func NewResponseSequence(stubs ...ResponseStub) *ResponseSequence {
 // Push appends a stub to the sequence.
 func (s *ResponseSequence) Push(stubs ...ResponseStub) *ResponseSequence {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.stubs = append(s.stubs, stubs...)
@@ -42,6 +43,7 @@ func (s *ResponseSequence) Push(stubs ...ResponseStub) *ResponseSequence {
 // WhenEmpty sets a fallback response used when the sequence is exhausted.
 func (s *ResponseSequence) WhenEmpty(stub ResponseStub) *ResponseSequence {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.fallback = &stub
@@ -52,6 +54,7 @@ func (s *ResponseSequence) WhenEmpty(stub ResponseStub) *ResponseSequence {
 // Next returns the next stubbed response.
 func (s *ResponseSequence) Next() *http.Response {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	var stub ResponseStub
@@ -71,6 +74,7 @@ func (s *ResponseSequence) Next() *http.Response {
 // IsEmpty returns true when all stubs have been consumed.
 func (s *ResponseSequence) IsEmpty() bool {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	return s.index >= len(s.stubs)

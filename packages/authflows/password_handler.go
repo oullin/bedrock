@@ -46,7 +46,7 @@ func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: EventPasswordUpdated})
+		_ = h.authflows.events.Dispatch(ctx, EventPasswordUpdated)
 	}
 
 	h.authflows.responder.PasswordUpdateResponse(w, r)

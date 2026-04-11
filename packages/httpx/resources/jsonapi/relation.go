@@ -9,6 +9,15 @@ type Relation struct {
 }
 
 // HasOne creates a to-one relationship linkage.
+
+// HasMany creates a to-many relationship linkage.
+
+// RelationResolver maps a set of Relation values into JSON:API relationship
+// objects suitable for the "relationships" key of a resource object.
+type RelationResolver struct {
+	relations []Relation
+}
+
 func HasOne(name, resourceType, id string) Relation {
 	return Relation{
 		Name:   name,
@@ -18,7 +27,6 @@ func HasOne(name, resourceType, id string) Relation {
 	}
 }
 
-// HasMany creates a to-many relationship linkage.
 func HasMany(name, resourceType string, ids []string) Relation {
 	return Relation{
 		Name:   name,
@@ -26,12 +34,6 @@ func HasMany(name, resourceType string, ids []string) Relation {
 		IDs:    ids,
 		IsMany: true,
 	}
-}
-
-// RelationResolver maps a set of Relation values into JSON:API relationship
-// objects suitable for the "relationships" key of a resource object.
-type RelationResolver struct {
-	relations []Relation
 }
 
 // NewRelationResolver creates a RelationResolver from the given relations.

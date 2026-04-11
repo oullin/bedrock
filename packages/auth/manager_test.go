@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- Test helpers ---
 
 // stubProvider is a test UserProvider backed by a map.
 type stubProvider struct {
-	users map[any]auth.Authenticatable
+	users map[string]cauth.Authenticatable
 }
 
 // stubSession is a minimal in-memory SessionStore.
@@ -35,11 +36,11 @@ type recordingDispatcher struct {
 	events []any
 }
 
-func (p *stubProvider) RetrieveByID(_ context.Context, id any) (auth.Authenticatable, error) {
+func (p *stubProvider) RetrieveByID(_ context.Context, id string) (cauth.Authenticatable, error) {
 	return p.users[id], nil
 }
 
-func (p *stubProvider) RetrieveByToken(_ context.Context, id any, token string) (auth.Authenticatable, error) {
+func (p *stubProvider) RetrieveByToken(_ context.Context, id string, token string) (cauth.Authenticatable, error) {
 	u := p.users[id]
 
 	if u == nil || u.GetRememberToken() != token {
@@ -49,13 +50,13 @@ func (p *stubProvider) RetrieveByToken(_ context.Context, id any, token string) 
 	return u, nil
 }
 
-func (p *stubProvider) UpdateRememberToken(_ context.Context, user auth.Authenticatable, token string) error {
+func (p *stubProvider) UpdateRememberToken(_ context.Context, user cauth.Authenticatable, token string) error {
 	user.SetRememberToken(token)
 
 	return nil
 }
 
-func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string]any) (auth.Authenticatable, error) {
+func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string]string) (cauth.Authenticatable, error) {
 	for _, u := range p.users {
 		gen, ok := u.(*auth.GenericUser)
 
@@ -70,7 +71,9 @@ func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string
 				continue
 			}
 
-			if gen.Attributes[k] != v {
+			attr, _ := gen.Attributes[k].(string)
+
+			if attr != v {
 				match = false
 
 				break
@@ -85,13 +88,13 @@ func (p *stubProvider) RetrieveByCredentials(_ context.Context, creds map[string
 	return nil, nil
 }
 
-func (p *stubProvider) ValidateCredentials(_ context.Context, user auth.Authenticatable, creds map[string]any) bool {
-	pw, _ := creds["password"].(string)
+func (p *stubProvider) ValidateCredentials(_ context.Context, user cauth.Authenticatable, creds map[string]string) (bool, error) {
+	pw := creds["password"]
 
-	return user.GetAuthPassword() == pw
+	return user.GetAuthPassword() == pw, nil
 }
 
-func (p *stubProvider) RehashPasswordIfRequired(_ context.Context, _ auth.Authenticatable, _ map[string]any, _ bool) error {
+func (p *stubProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
 
@@ -194,11 +197,11 @@ func typeNameOf(v any) string {
 
 func TestGenericUser(t *testing.T) {
 	u := auth.NewGenericUser(map[string]any{
-		"id":       42,
+		"id":       "42",
 		"password": "secret",
 	})
 
-	if u.GetAuthIdentifier() != 42 {
+	if u.GetAuthIdentifier() != "42" {
 		t.Errorf("unexpected id: %v", u.GetAuthIdentifier())
 	}
 
@@ -214,7 +217,7 @@ func TestGenericUser(t *testing.T) {
 }
 
 func TestGenericUserIdentifierName(t *testing.T) {
-	u := auth.NewGenericUser(map[string]any{"id": 1})
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
 
 	if u.GetAuthIdentifierName() != "id" {
 		t.Errorf("identifier name = %q, want %q", u.GetAuthIdentifierName(), "id")
@@ -222,7 +225,7 @@ func TestGenericUserIdentifierName(t *testing.T) {
 }
 
 func TestGenericUserRememberTokenName(t *testing.T) {
-	u := auth.NewGenericUser(map[string]any{"id": 1})
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
 
 	if u.GetRememberTokenName() != "remember_token" {
 		t.Errorf("token name = %q, want %q", u.GetRememberTokenName(), "remember_token")
@@ -230,7 +233,7 @@ func TestGenericUserRememberTokenName(t *testing.T) {
 }
 
 func TestGenericUserEmptyPassword(t *testing.T) {
-	u := auth.NewGenericUser(map[string]any{"id": 1})
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
 
 	if u.GetAuthPassword() != "" {
 		t.Errorf("expected empty password, got %q", u.GetAuthPassword())
@@ -238,10 +241,28 @@ func TestGenericUserEmptyPassword(t *testing.T) {
 }
 
 func TestGenericUserEmptyRememberToken(t *testing.T) {
-	u := auth.NewGenericUser(map[string]any{"id": 1})
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
 
 	if u.GetRememberToken() != "" {
 		t.Errorf("expected empty remember token, got %q", u.GetRememberToken())
+	}
+}
+
+func TestGenericUserGetAuthPasswordName(t *testing.T) {
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
+
+	if u.GetAuthPasswordName() != "password" {
+		t.Errorf("password name = %q, want %q", u.GetAuthPasswordName(), "password")
+	}
+}
+
+func TestGenericUserSetAuthPassword(t *testing.T) {
+	u := auth.NewGenericUser(map[string]any{"id": "1"})
+
+	u.SetAuthPassword("newpw")
+
+	if u.GetAuthPassword() != "newpw" {
+		t.Errorf("expected password %q, got %q", "newpw", u.GetAuthPassword())
 	}
 }
 
@@ -321,18 +342,31 @@ func TestTimeboxDoesNotDelayLongOperations(t *testing.T) {
 
 func TestBcryptHasher(t *testing.T) {
 	h := auth.NewBcryptHasher(0)
+	ctx := context.Background()
 
-	hash, err := h.Hash("password123")
+	hash, err := h.Hash(ctx, "password123")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !h.Check("password123", hash) {
+	match, err := h.Check(ctx, "password123", hash)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !match {
 		t.Error("Check should return true for matching password")
 	}
 
-	if h.Check("wrong", hash) {
+	match, err = h.Check(ctx, "wrong", hash)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if match {
 		t.Error("Check should return false for wrong password")
 	}
 }
@@ -340,8 +374,9 @@ func TestBcryptHasher(t *testing.T) {
 func TestBcryptHasherNeedsRehash(t *testing.T) {
 	h4 := auth.NewBcryptHasher(4)
 	h10 := auth.NewBcryptHasher(10)
+	ctx := context.Background()
 
-	hash, err := h4.Hash("pw")
+	hash, err := h4.Hash(ctx, "pw")
 
 	if err != nil {
 		t.Fatal(err)
@@ -368,7 +403,7 @@ func TestBcryptHasherNeedsRehashInvalidHash(t *testing.T) {
 
 func TestManagerGuardResolvesDefaultGuard(t *testing.T) {
 	m := auth.NewManager("web")
-	m.Extend("session", func(name string, config map[string]any, provider auth.UserProvider) (auth.Guard, error) {
+	m.Extend("session", func(name string, config map[string]any, provider cauth.UserProvider) (cauth.Guard, error) {
 		return auth.NewSessionGuard(name, provider, newStubSession(), nil, nil), nil
 	})
 	m.SetConfig("web", map[string]any{"driver": "session"})
@@ -386,7 +421,7 @@ func TestManagerGuardResolvesDefaultGuard(t *testing.T) {
 
 func TestManagerGuardResolvesNamedGuard(t *testing.T) {
 	m := auth.NewManager("web")
-	m.Extend("token", func(name string, config map[string]any, provider auth.UserProvider) (auth.Guard, error) {
+	m.Extend("token", func(name string, config map[string]any, provider cauth.UserProvider) (cauth.Guard, error) {
 		return auth.NewTokenGuard(name, provider), nil
 	})
 	m.SetConfig("api", map[string]any{"driver": "token"})
@@ -404,7 +439,7 @@ func TestManagerGuardResolvesNamedGuard(t *testing.T) {
 
 func TestManagerGuardCachesInstances(t *testing.T) {
 	m := auth.NewManager("web")
-	m.Extend("session", func(name string, config map[string]any, provider auth.UserProvider) (auth.Guard, error) {
+	m.Extend("session", func(name string, config map[string]any, provider cauth.UserProvider) (cauth.Guard, error) {
 		return auth.NewSessionGuard(name, provider, newStubSession(), nil, nil), nil
 	})
 	m.SetConfig("web", map[string]any{"driver": "session"})
@@ -429,9 +464,9 @@ func TestManagerGuardReturnsErrorForUnknownDriver(t *testing.T) {
 }
 
 func TestManagerViaRequest(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1})
+	user := auth.NewGenericUser(map[string]any{"id": "1"})
 	m := auth.NewManager("custom")
-	m.ViaRequest("custom", func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	m.ViaRequest("custom", func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return user, nil
 	})
 
@@ -447,14 +482,14 @@ func TestManagerViaRequest(t *testing.T) {
 }
 
 func TestManagerSetRequestPropagates(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "tok"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "tok"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 
 	m := auth.NewManager("api")
-	m.Extend("token", func(name string, config map[string]any, p auth.UserProvider) (auth.Guard, error) {
+	m.Extend("token", func(name string, config map[string]any, p cauth.UserProvider) (cauth.Guard, error) {
 		return auth.NewTokenGuard(name, p), nil
 	})
-	m.Provider("users", func(config map[string]any) (auth.UserProvider, error) {
+	m.Provider("users", func(config map[string]any) (cauth.UserProvider, error) {
 		return provider, nil
 	})
 	m.SetConfig("api", map[string]any{"driver": "token", "provider": "users"})

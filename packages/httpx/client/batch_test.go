@@ -14,6 +14,7 @@ func TestBatchExecute(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	}))
+
 	defer server.Close()
 
 	factory := client.NewFactory().BaseURL(server.URL)

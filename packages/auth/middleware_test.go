@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- EnsureAuthenticated ---
@@ -22,7 +23,7 @@ type verifiedUser struct {
 }
 
 func TestEnsureAuthenticatedRejects(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	mw := auth.EnsureAuthenticated(guard)
@@ -41,8 +42,8 @@ func TestEnsureAuthenticatedRejects(t *testing.T) {
 }
 
 func TestEnsureAuthenticatedAllows(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "tok"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "tok"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	mw := auth.EnsureAuthenticated(guard)
@@ -62,8 +63,8 @@ func TestEnsureAuthenticatedAllows(t *testing.T) {
 }
 
 func TestEnsureAuthenticatedSetsUserInContext(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "tok"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "tok"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	mw := auth.EnsureAuthenticated(guard)
@@ -74,8 +75,8 @@ func TestEnsureAuthenticatedSetsUserInContext(t *testing.T) {
 			t.Error("expected user in context")
 		}
 
-		if u.GetAuthIdentifier() != 1 {
-			t.Errorf("user id = %v, want 1", u.GetAuthIdentifier())
+		if u.GetAuthIdentifier() != "1" {
+			t.Errorf("user id = %v, want \"1\"", u.GetAuthIdentifier())
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -93,8 +94,8 @@ func TestEnsureAuthenticatedSetsUserInContext(t *testing.T) {
 }
 
 func TestRedirectIfAuthenticatedRedirectsWhenLoggedIn(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -119,7 +120,7 @@ func TestRedirectIfAuthenticatedRedirectsWhenLoggedIn(t *testing.T) {
 }
 
 func TestRedirectIfAuthenticatedPassesThroughWhenGuest(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -137,17 +138,17 @@ func TestRedirectIfAuthenticatedPassesThroughWhenGuest(t *testing.T) {
 	}
 }
 
-func (u *verifiedUser) HasVerifiedEmail() bool             { return u.verified }
-func (u *verifiedUser) MarkEmailAsVerified() error         { return nil }
-func (u *verifiedUser) SendEmailVerificationNotification() {}
-func (u *verifiedUser) GetEmailForVerification() string    { return "test@example.com" }
+func (u *verifiedUser) HasVerifiedEmail() bool          { return u.verified }
+func (u *verifiedUser) MarkEmailAsVerified(_ time.Time) {}
+func (u *verifiedUser) MarkEmailAsUnverified()          {}
+func (u *verifiedUser) GetEmailForVerification() string { return "test@example.com" }
 
 func TestEnsureEmailIsVerifiedRejects(t *testing.T) {
 	user := &verifiedUser{
-		GenericUser: *auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"}),
+		GenericUser: *auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"}),
 		verified:    false,
 	}
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	_ = guard.Login(context.Background(), user, false)
@@ -168,10 +169,10 @@ func TestEnsureEmailIsVerifiedRejects(t *testing.T) {
 
 func TestEnsureEmailIsVerifiedAllowsVerifiedUser(t *testing.T) {
 	user := &verifiedUser{
-		GenericUser: *auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"}),
+		GenericUser: *auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"}),
 		verified:    true,
 	}
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	_ = guard.Login(context.Background(), user, false)
@@ -192,8 +193,8 @@ func TestEnsureEmailIsVerifiedAllowsVerifiedUser(t *testing.T) {
 
 func TestEnsureEmailIsVerifiedAllowsUserWithoutMustVerifyEmail(t *testing.T) {
 	// User doesn't implement MustVerifyEmail — should pass through.
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	_ = guard.Login(context.Background(), user, false)
@@ -213,7 +214,7 @@ func TestEnsureEmailIsVerifiedAllowsUserWithoutMustVerifyEmail(t *testing.T) {
 }
 
 func TestEnsureEmailIsVerifiedRejectsUnauthenticatedUser(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -293,7 +294,7 @@ func TestRequirePasswordRedirectsWhenExpired(t *testing.T) {
 // --- AuthenticateWithBasicAuth ---
 
 func TestAuthenticateWithBasicAuthRejectsNoCredentials(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	hasher := auth.NewBcryptHasher(0)
 
 	mw := auth.AuthenticateWithBasicAuth(provider, hasher)
@@ -316,9 +317,10 @@ func TestAuthenticateWithBasicAuthRejectsNoCredentials(t *testing.T) {
 
 func TestAuthenticateWithBasicAuthAcceptsValid(t *testing.T) {
 	hasher := auth.NewBcryptHasher(4)
-	hash, _ := hasher.Hash("secret")
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "user@test.com", "password": hash})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	ctx := context.Background()
+	hash, _ := hasher.Hash(ctx, "secret")
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "user@test.com", "password": hash})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 
 	mw := auth.AuthenticateWithBasicAuth(provider, hasher)
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -343,9 +345,10 @@ func TestAuthenticateWithBasicAuthAcceptsValid(t *testing.T) {
 
 func TestAuthenticateWithBasicAuthRejectsWrongPassword(t *testing.T) {
 	hasher := auth.NewBcryptHasher(4)
-	hash, _ := hasher.Hash("secret")
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "user@test.com", "password": hash})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	ctx := context.Background()
+	hash, _ := hasher.Hash(ctx, "secret")
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "user@test.com", "password": hash})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 
 	mw := auth.AuthenticateWithBasicAuth(provider, hasher)
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -365,7 +368,7 @@ func TestAuthenticateWithBasicAuthRejectsWrongPassword(t *testing.T) {
 // --- WithUser / UserFromContext ---
 
 func TestWithUserAndUserFromContext(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req = auth.WithUser(req, user)
@@ -376,8 +379,8 @@ func TestWithUserAndUserFromContext(t *testing.T) {
 		t.Fatal("expected user from context")
 	}
 
-	if got.GetAuthIdentifier() != 1 {
-		t.Errorf("user id = %v, want 1", got.GetAuthIdentifier())
+	if got.GetAuthIdentifier() != "1" {
+		t.Errorf("user id = %v, want \"1\"", got.GetAuthIdentifier())
 	}
 }
 

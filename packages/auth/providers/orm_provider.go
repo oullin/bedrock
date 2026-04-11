@@ -3,38 +3,38 @@ package providers
 import (
 	"context"
 
-	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // ModelQuery is the minimal interface for an ORM-backed user query.
 // Callers inject their ORM's query builder implementing this interface.
 type ModelQuery interface {
 	// FindByID returns a user by primary key, or nil if not found.
-	FindByID(ctx context.Context, id any) (auth.Authenticatable, error)
+	FindByID(ctx context.Context, id string) (cauth.Authenticatable, error)
 	// FindByToken returns a user matching id + rememberToken, or nil.
-	FindByToken(ctx context.Context, id any, token string) (auth.Authenticatable, error)
+	FindByToken(ctx context.Context, id string, token string) (cauth.Authenticatable, error)
 	// FindByCredentials returns a user matching the given credentials (excluding password).
-	FindByCredentials(ctx context.Context, credentials map[string]any) (auth.Authenticatable, error)
+	FindByCredentials(ctx context.Context, credentials map[string]string) (cauth.Authenticatable, error)
 	// UpdateToken stores a new remember token for the given user.
-	UpdateToken(ctx context.Context, user auth.Authenticatable, token string) error
+	UpdateToken(ctx context.Context, user cauth.Authenticatable, token string) error
 }
 
 // ORMUserProvider retrieves users via an injected ORM ModelQuery interface.
 type ORMUserProvider struct {
 	model  ModelQuery
-	hasher auth.PasswordHasher
+	hasher cauth.PasswordHasher
 }
 
 // NewORMUserProvider creates an ORMUserProvider.
-func NewORMUserProvider(model ModelQuery, hasher auth.PasswordHasher) *ORMUserProvider {
+func NewORMUserProvider(model ModelQuery, hasher cauth.PasswordHasher) *ORMUserProvider {
 	return &ORMUserProvider{model: model, hasher: hasher}
 }
 
-func (p *ORMUserProvider) RetrieveByID(ctx context.Context, id any) (auth.Authenticatable, error) {
+func (p *ORMUserProvider) RetrieveByID(ctx context.Context, id string) (cauth.Authenticatable, error) {
 	return p.model.FindByID(ctx, id)
 }
 
-func (p *ORMUserProvider) RetrieveByToken(ctx context.Context, id any, token string) (auth.Authenticatable, error) {
+func (p *ORMUserProvider) RetrieveByToken(ctx context.Context, id string, token string) (cauth.Authenticatable, error) {
 	user, err := p.model.FindByToken(ctx, id, token)
 
 	if err != nil || user == nil {
@@ -48,13 +48,13 @@ func (p *ORMUserProvider) RetrieveByToken(ctx context.Context, id any, token str
 	return user, nil
 }
 
-func (p *ORMUserProvider) UpdateRememberToken(ctx context.Context, user auth.Authenticatable, token string) error {
+func (p *ORMUserProvider) UpdateRememberToken(ctx context.Context, user cauth.Authenticatable, token string) error {
 	return p.model.UpdateToken(ctx, user, token)
 }
 
-func (p *ORMUserProvider) RetrieveByCredentials(ctx context.Context, credentials map[string]any) (auth.Authenticatable, error) {
+func (p *ORMUserProvider) RetrieveByCredentials(ctx context.Context, credentials map[string]string) (cauth.Authenticatable, error) {
 	// Strip password from query credentials.
-	query := make(map[string]any, len(credentials))
+	query := make(map[string]string, len(credentials))
 
 	for k, v := range credentials {
 		if k != "password" {
@@ -65,28 +65,28 @@ func (p *ORMUserProvider) RetrieveByCredentials(ctx context.Context, credentials
 	return p.model.FindByCredentials(ctx, query)
 }
 
-func (p *ORMUserProvider) ValidateCredentials(_ context.Context, user auth.Authenticatable, credentials map[string]any) bool {
-	plain, ok := credentials["password"].(string)
+func (p *ORMUserProvider) ValidateCredentials(ctx context.Context, user cauth.Authenticatable, credentials map[string]string) (bool, error) {
+	plain := credentials["password"]
 
-	if !ok {
-		return false
+	if plain == "" {
+		return false, nil
 	}
 
-	return p.hasher.Check(plain, user.GetAuthPassword())
+	return p.hasher.Check(ctx, plain, user.GetAuthPassword())
 }
 
-func (p *ORMUserProvider) RehashPasswordIfRequired(ctx context.Context, user auth.Authenticatable, credentials map[string]any, force bool) error {
+func (p *ORMUserProvider) RehashPasswordIfRequired(ctx context.Context, user cauth.Authenticatable, credentials map[string]string, force bool) error {
 	if !force && !p.hasher.NeedsRehash(user.GetAuthPassword()) {
 		return nil
 	}
 
-	plain, ok := credentials["password"].(string)
+	plain := credentials["password"]
 
-	if !ok {
+	if plain == "" {
 		return nil
 	}
 
-	hash, err := p.hasher.Hash(plain)
+	hash, err := p.hasher.Hash(ctx, plain)
 
 	if err != nil {
 		return err

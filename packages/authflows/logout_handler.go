@@ -25,10 +25,7 @@ func (h *LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.authflows.events != nil && user != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{
-			Name:    EventLoggedOut,
-			Payload: LoggedOutPayload{User: user},
-		})
+		_ = h.authflows.events.Dispatch(ctx, LoggedOutPayload{User: user})
 	}
 
 	h.authflows.responder.LogoutResponse(w, r)

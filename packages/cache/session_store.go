@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // Session is the interface required by SessionStore for reading and writing
@@ -23,7 +25,7 @@ type SessionStore struct {
 	mu      sync.RWMutex
 	session Session
 	prefix  string
-	clock   Clock
+	clock   contracts.Clock
 }
 
 var _ Store = (*SessionStore)(nil)
@@ -34,7 +36,7 @@ func NewSessionStore(session Session, prefix string) *SessionStore {
 }
 
 // NewSessionStoreWithClock creates a SessionStore with a custom clock.
-func NewSessionStoreWithClock(session Session, prefix string, clock Clock) *SessionStore {
+func NewSessionStoreWithClock(session Session, prefix string, clock contracts.Clock) *SessionStore {
 	return &SessionStore{session: session, prefix: prefix, clock: clock}
 }
 

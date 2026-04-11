@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	cauth "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/authflows/twofactor"
 )
 
@@ -44,7 +45,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -71,7 +72,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		tfa.SetTwoFactorRecoveryCodes(twofactor.ConsumeRecoveryCode(codes, idx))
 
 		if h.authflows.events != nil {
-			_ = h.authflows.events.Dispatch(ctx, Event{Name: EventRecoveryCodeUsed})
+			_ = h.authflows.events.Dispatch(ctx, EventRecoveryCodeUsed)
 		}
 	} else {
 		http.Error(w, "a code or recovery_code is required", http.StatusUnprocessableEntity)
@@ -88,10 +89,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{
-			Name:    EventTwoFactorChallenge,
-			Payload: LoginSucceededPayload{User: user, Remember: remember},
-		})
+		_ = h.authflows.events.Dispatch(ctx, LoginSucceededPayload{User: user, Remember: remember})
 	}
 
 	h.authflows.responder.LoginResponse(w, r)
