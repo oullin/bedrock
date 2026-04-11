@@ -1,7 +1,0 @@
-default: log
-mailers:
-  log:
-    driver: log
-from:
-  address: hello@example.com
-  name: Upstream

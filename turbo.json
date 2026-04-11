@@ -1,6 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "cacheDir": "service/storage/.turbo",
+  "cacheDir": "services/storage/.turbo",
   "globalDependencies": [
     ".npmrc",
     "pnpm-lock.yaml",
