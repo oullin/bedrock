@@ -1,0 +1,5 @@
+env GOFLAGS='$(broadcastclient ''cc"''; broadcastclient ''OOPS="oops'')'
+go env
+[GOOS:darwin] stdout 'GOFLAGS=''\$\(broadcastclient ''\\''''cc"''\\''''; broadcastclient ''\\''''OOPS="oops''\\''''\)'''
+[GOOS:linux] stdout 'GOFLAGS=''\$\(broadcastclient ''\\''''cc"''\\''''; broadcastclient ''\\''''OOPS="oops''\\''''\)'''
+[GOOS:windows] stdout 'set GOFLAGS=\$\(broadcastclient ''cc"''; broadcastclient ''OOPS="oops''\)'

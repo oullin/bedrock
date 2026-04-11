@@ -1,0 +1,4 @@
+./catalog.go
+./presentation.go
+./price_manager.go
+./seeder.go
