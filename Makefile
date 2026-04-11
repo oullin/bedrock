@@ -15,10 +15,9 @@ GO_PACKAGES := \
 	packages/queue \
 	packages/routing \
 	packages/session \
-	packages/billing \
-	service/demo
+	packages/billing
 
-.PHONY: format vet tidy typecheck test coverage build clean demo
+.PHONY: format vet tidy typecheck test coverage build clean
 
 format:
 	$(PACKAGE_FMT)
@@ -58,20 +57,14 @@ coverage:
 build:
 	pnpm build
 
-demo:
-	cd $(ROOT_PATH)/service/demo && node scripts/build-assets.mjs
-	cd $(ROOT_PATH)/service/demo && go run ./public
-
 clean:
 	rm -rf $(ROOT_PATH)/service/storage/.cache
 	rm -rf $(ROOT_PATH)/service/storage/.turbo
-	rm -rf $(ROOT_PATH)/service/demo/public/build
 	rm -rf $(ROOT_PATH)/service/storage/.bin
 	mkdir -p $(ROOT_PATH)/service/storage/.cache/.pnpm-store
 	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/go
 	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/playwright
 	mkdir -p $(ROOT_PATH)/service/storage/.turbo
 	mkdir -p $(ROOT_PATH)/service/storage/.bin
-	mkdir -p $(ROOT_PATH)/service/demo/public/build
 	touch $(ROOT_PATH)/service/storage/.cache/.gitkeep
 	touch $(ROOT_PATH)/service/storage/.turbo/.gitkeep

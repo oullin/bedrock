@@ -1,7 +1,0 @@
-default: sqlite
-connections:
-  sqlite:
-    driver: sqlite
-    database: database/database.sqlite
-    prefix: ""
-    foreign_key_constraints: true
