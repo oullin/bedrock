@@ -1,7 +1,7 @@
 node_modules/
 .pnpm-store/
 .turbo/
-dist/bin/
+service/storage/.bin/
 coverage/
 *.tsbuildinfo
 
@@ -39,10 +39,10 @@ go.work.sum
 .claude/*
 !.claude/.gitkeep
 
-storage/.cache/**
-!storage/.cache/
-!storage/.cache/.gitkeep
+service/storage/.cache/**
+!service/storage/.cache/
+!service/storage/.cache/.gitkeep
 
-storage/.turbo/**
-!storage/.turbo/
-!storage/.turbo/.gitkeep
+service/storage/.turbo/**
+!service/storage/.turbo/
+!service/storage/.turbo/.gitkeep

@@ -1,0 +1,5 @@
+./manager_test.go
+./middleware_test.go
+./request_guard_test.go
+./session_guard_test.go
+./token_guard_test.go
