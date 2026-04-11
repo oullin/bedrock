@@ -1,4 +1,4 @@
-package auth
+package contract
 
 // Authenticatable is any entity that can be authenticated.
 type Authenticatable interface {

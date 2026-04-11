@@ -3,7 +3,7 @@ package events
 import (
 	"net/http"
 
-	contracts "github.com/bedrock/packages/contracts/auth"
+	contracts "github.com/bedrock/packages/auth/contract"
 )
 
 // Attempting is dispatched when an authentication attempt begins.
