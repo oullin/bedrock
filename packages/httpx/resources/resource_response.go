@@ -78,3 +78,80 @@ func (p *PaginatedResponse[T]) Response(w http.ResponseWriter, req *http.Request
 
 	return err
 }
+
+// ResourceResponse wraps a Resource and provides response-level features such
+// as automatic 201 status for recently created resources, custom headers, and
+// a response callback. This mirrors Laravel's ResourceResponse class.
+type ResourceResponse struct {
+	resource         Resource
+	recentlyCreated  bool
+	headers          map[string]string
+	responseCallback func(http.ResponseWriter, *http.Request)
+}
+
+// NewResourceResponse wraps a resource for HTTP response rendering.
+func NewResourceResponse(resource Resource) *ResourceResponse {
+	return &ResourceResponse{
+		resource: resource,
+		headers:  make(map[string]string),
+	}
+}
+
+// RecentlyCreated marks the resource as recently created so that the response
+// automatically uses 201 instead of 200 when no explicit status is given.
+func (rr *ResourceResponse) RecentlyCreated() *ResourceResponse {
+	rr.recentlyCreated = true
+
+	return rr
+}
+
+// WithHeader adds a header to the response.
+func (rr *ResourceResponse) WithHeader(key, value string) *ResourceResponse {
+	rr.headers[key] = value
+
+	return rr
+}
+
+// WithResponse registers a callback invoked after headers are written but
+// before the body is sent.
+func (rr *ResourceResponse) WithResponse(fn func(http.ResponseWriter, *http.Request)) *ResourceResponse {
+	rr.responseCallback = fn
+
+	return rr
+}
+
+// calculateStatus returns 201 when the resource was recently created,
+// otherwise 200.
+func (rr *ResourceResponse) calculateStatus() int {
+	if rr.recentlyCreated {
+		return http.StatusCreated
+	}
+
+	return http.StatusOK
+}
+
+// Response writes the resource as a JSON HTTP response. The status code
+// defaults to the calculated status (200 or 201).
+func (rr *ResourceResponse) Response(w http.ResponseWriter, req *http.Request) error {
+	data := rr.resource.ToMap(req)
+	b, err := json.Marshal(data)
+
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	for k, v := range rr.headers {
+		w.Header().Set(k, v)
+	}
+
+	if rr.responseCallback != nil {
+		rr.responseCallback(w, req)
+	}
+
+	w.WriteHeader(rr.calculateStatus())
+	_, err = w.Write(b)
+
+	return err
+}
