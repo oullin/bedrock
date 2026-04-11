@@ -1,0 +1,11 @@
+./doc.go
+./errors.go
+./generic_user.go
+./hasher.go
+./interfaces.go
+./manager.go
+./middleware.go
+./recaller.go
+./request_guard.go
+./session_guard.go
+./token_guard.go

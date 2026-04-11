@@ -1,0 +1,8 @@
+./doc.go
+./errors.go
+./events.go
+./job.go
+./manager.go
+./payload.go
+./queue.go
+./worker.go

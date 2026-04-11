@@ -10,13 +10,14 @@ type Factory interface {
 }
 
 // QueueingFactory extends Factory with a queue for deferred attachment to
-// HTTP responses.
+// HTTP responses. Cookies are keyed by name and path, so the same cookie
+// name on different paths can coexist in the queue.
 type QueueingFactory interface {
 	Factory
 	Queue(c *http.Cookie)
-	Unqueue(name string)
-	HasQueued(name string) bool
-	Queued(name string) *http.Cookie
+	Unqueue(name string, path ...string)
+	HasQueued(name string, path ...string) bool
+	Queued(name string, path ...string) *http.Cookie
 	GetQueued() []*http.Cookie
 	Flush()
 }

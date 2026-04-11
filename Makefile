@@ -16,7 +16,7 @@ GO_PACKAGES := \
 	packages/routing \
 	packages/session \
 	packages/spark \
-	dist/app
+	service/demo
 
 .PHONY: format vet tidy typecheck test coverage build clean demo
 
@@ -59,19 +59,19 @@ build:
 	pnpm build
 
 demo:
-	cd $(ROOT_PATH)/dist/app && node scripts/build-assets.mjs
-	cd $(ROOT_PATH)/dist/app && go run ./public
+	cd $(ROOT_PATH)/service/demo && node scripts/build-assets.mjs
+	cd $(ROOT_PATH)/service/demo && go run ./public
 
 clean:
-	rm -rf $(ROOT_PATH)/storage/.cache
-	rm -rf $(ROOT_PATH)/storage/.turbo
-	rm -rf $(ROOT_PATH)/dist/app/public/build
-	rm -rf $(ROOT_PATH)/dist/bin
-	mkdir -p $(ROOT_PATH)/storage/.cache/.pnpm-store
-	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
-	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/playwright
-	mkdir -p $(ROOT_PATH)/storage/.turbo
-	mkdir -p $(ROOT_PATH)/dist/bin
-	mkdir -p $(ROOT_PATH)/dist/app/public/build
-	touch $(ROOT_PATH)/storage/.cache/.gitkeep
-	touch $(ROOT_PATH)/storage/.turbo/.gitkeep
+	rm -rf $(ROOT_PATH)/service/storage/.cache
+	rm -rf $(ROOT_PATH)/service/storage/.turbo
+	rm -rf $(ROOT_PATH)/service/demo/public/build
+	rm -rf $(ROOT_PATH)/service/storage/.bin
+	mkdir -p $(ROOT_PATH)/service/storage/.cache/.pnpm-store
+	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/go
+	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/playwright
+	mkdir -p $(ROOT_PATH)/service/storage/.turbo
+	mkdir -p $(ROOT_PATH)/service/storage/.bin
+	mkdir -p $(ROOT_PATH)/service/demo/public/build
+	touch $(ROOT_PATH)/service/storage/.cache/.gitkeep
+	touch $(ROOT_PATH)/service/storage/.turbo/.gitkeep

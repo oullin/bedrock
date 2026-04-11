@@ -1,4 +1,4 @@
 packages:
-  - dist/app
-  - infra
-  - storage
+  - service/demo
+  - service/infra
+  - service/storage
