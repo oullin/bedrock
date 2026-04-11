@@ -72,6 +72,7 @@ func (r *JsonApiResource[T]) ToResourceObject(req *http.Request) map[string]any 
 
 	// Apply sparse fieldsets.
 	apiReq := NewRequest(req)
+
 	if fields := apiReq.Fields(typeName); fields != nil {
 		attrs = sparseFilter(attrs, fields)
 	}

@@ -31,8 +31,8 @@ func TestLogoutHandler(t *testing.T) {
 		t.Fatalf("expected 1 event, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventLoggedOut {
-		t.Fatalf("expected LoggedOut event, got %s", events.dispatched[0].Name)
+	if _, ok := events.dispatched[0].(LoggedOutPayload); !ok {
+		t.Fatalf("expected LoggedOutPayload event, got %T", events.dispatched[0])
 	}
 }
 

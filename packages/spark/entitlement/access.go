@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/spark"
 )
 
@@ -11,14 +12,14 @@ import (
 type Access struct {
 	subscriptions spark.SubscriptionStore
 	features      spark.SubscriptionFeatureStore
-	clock         spark.Clock
+	clock         contracts.Clock
 }
 
 // NewAccess creates an Access service.
 func NewAccess(
 	subscriptions spark.SubscriptionStore,
 	features spark.SubscriptionFeatureStore,
-	clock spark.Clock,
+	clock contracts.Clock,
 ) *Access {
 	return &Access{
 		subscriptions: subscriptions,

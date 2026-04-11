@@ -3,6 +3,8 @@ package subscription
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
+	"github.com/bedrock/packages/contracts/events"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/entitlement"
 )
@@ -11,16 +13,16 @@ import (
 type Transitioner struct {
 	subscriptions spark.SubscriptionStore
 	entitlements  *entitlement.Synchronizer
-	events        spark.EventDispatcher
-	clock         spark.Clock
+	events        events.Dispatcher
+	clock         contracts.Clock
 }
 
 // NewTransitioner creates a Transitioner.
 func NewTransitioner(
 	subscriptions spark.SubscriptionStore,
 	entitlements *entitlement.Synchronizer,
-	events spark.EventDispatcher,
-	clock spark.Clock,
+	events events.Dispatcher,
+	clock contracts.Clock,
 ) *Transitioner {
 	return &Transitioner{
 		subscriptions: subscriptions,

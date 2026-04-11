@@ -256,6 +256,7 @@ func matchesType(actual string, patterns ...string) bool {
 			// Handle "+json" style suffixes.
 			if strings.HasPrefix(subPattern, "*+") {
 				suffix := subPattern[1:] // "+json"
+
 				if strings.HasSuffix(actParts[1], suffix) {
 					return true
 				}

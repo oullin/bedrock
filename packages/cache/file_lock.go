@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // FileLock is a filesystem-based lock. It creates a lock file in the specified
@@ -14,13 +16,13 @@ type FileLock struct {
 	name  string
 	owner string
 	ttl   time.Duration
-	clock Clock
+	clock contracts.Clock
 }
 
 var _ Lock = (*FileLock)(nil)
 
 // NewFileLock creates a file-based lock.
-func NewFileLock(dir, name, owner string, ttl time.Duration, clock Clock) *FileLock {
+func NewFileLock(dir, name, owner string, ttl time.Duration, clock contracts.Clock) *FileLock {
 	return &FileLock{dir: dir, name: name, owner: owner, ttl: ttl, clock: clock}
 }
 

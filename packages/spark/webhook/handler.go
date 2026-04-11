@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/bedrock/packages/contracts/events"
 	"github.com/bedrock/packages/spark"
 )
 
@@ -14,7 +15,7 @@ type Handler struct {
 	subscriptions spark.SubscriptionStore
 	customers     spark.CustomerStore
 	transactions  spark.TransactionStore
-	events        spark.EventDispatcher
+	events        events.Dispatcher
 }
 
 // NewHandler creates a Handler.
@@ -22,7 +23,7 @@ func NewHandler(
 	subscriptions spark.SubscriptionStore,
 	customers spark.CustomerStore,
 	transactions spark.TransactionStore,
-	events spark.EventDispatcher,
+	events events.Dispatcher,
 ) *Handler {
 	return &Handler{
 		subscriptions: subscriptions,

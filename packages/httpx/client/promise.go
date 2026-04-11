@@ -12,11 +12,34 @@ type Promise struct {
 }
 
 // NewPromise creates a Promise that will be resolved by calling Resolve.
+
+// Resolve sets the response and error, unblocking any waiters.
+
+// Wait blocks until the promise is resolved and returns the response and error.
+
+// Then registers a callback invoked when the promise resolves. The callback
+// runs in a new goroutine.
+
+// Catch registers a callback invoked only when the promise resolves with an
+// error. The callback runs in a new goroutine.
+
+// Otherwise registers a fallback that can recover from an error. If the
+// promise resolves with an error the callback is invoked and its return values
+// replace the original response and error. The callback runs in a new
+// goroutine; callers that need the recovered value should chain with Then or
+// call Wait.
+
+// LazyPromise defers execution of a request function until Wait is called.
+type LazyPromise struct {
+	once sync.Once
+	fn   func() (*Response, error)
+	p    *Promise
+}
+
 func NewPromise() *Promise {
 	return &Promise{done: make(chan struct{})}
 }
 
-// Resolve sets the response and error, unblocking any waiters.
 func (p *Promise) Resolve(resp *Response, err error) {
 	p.once.Do(func() {
 		p.response = resp
@@ -25,15 +48,12 @@ func (p *Promise) Resolve(resp *Response, err error) {
 	})
 }
 
-// Wait blocks until the promise is resolved and returns the response and error.
 func (p *Promise) Wait() (*Response, error) {
 	<-p.done
 
 	return p.response, p.err
 }
 
-// Then registers a callback invoked when the promise resolves. The callback
-// runs in a new goroutine.
 func (p *Promise) Then(fn func(*Response, error)) *Promise {
 	go func() {
 		<-p.done
@@ -43,11 +63,10 @@ func (p *Promise) Then(fn func(*Response, error)) *Promise {
 	return p
 }
 
-// Catch registers a callback invoked only when the promise resolves with an
-// error. The callback runs in a new goroutine.
 func (p *Promise) Catch(fn func(error)) *Promise {
 	go func() {
 		<-p.done
+
 		if p.err != nil {
 			fn(p.err)
 		}
@@ -56,11 +75,6 @@ func (p *Promise) Catch(fn func(error)) *Promise {
 	return p
 }
 
-// Otherwise registers a fallback that can recover from an error. If the
-// promise resolves with an error the callback is invoked and its return values
-// replace the original response and error. The callback runs in a new
-// goroutine; callers that need the recovered value should chain with Then or
-// call Wait.
 func (p *Promise) Otherwise(fn func(error) (*Response, error)) *Promise {
 	next := NewPromise()
 
@@ -76,13 +90,6 @@ func (p *Promise) Otherwise(fn func(error) (*Response, error)) *Promise {
 	}()
 
 	return next
-}
-
-// LazyPromise defers execution of a request function until Wait is called.
-type LazyPromise struct {
-	once sync.Once
-	fn   func() (*Response, error)
-	p    *Promise
 }
 
 // NewLazyPromise creates a promise that will not execute fn until Wait or Then

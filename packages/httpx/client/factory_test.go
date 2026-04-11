@@ -185,6 +185,7 @@ func TestFactoryRealRequest(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
 	}))
+
 	defer server.Close()
 
 	factory := client.NewFactory()
@@ -199,6 +200,7 @@ func TestFactoryRealRequest(t *testing.T) {
 	}
 
 	var data map[string]string
+
 	resp.JSON(&data)
 
 	if data["status"] != "ok" {
@@ -212,6 +214,7 @@ func TestFactoryBaseURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.URL.Path))
 	}))
+
 	defer server.Close()
 
 	factory := client.NewFactory().BaseURL(server.URL)

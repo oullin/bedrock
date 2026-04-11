@@ -16,6 +16,7 @@ func TestMiddlewareModifiesRequest(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.Header.Get("X-Injected")))
 	}))
+
 	defer server.Close()
 
 	mw := client.Middleware(func(req *http.Request, next client.RoundTripFunc) (*http.Response, error) {
@@ -45,6 +46,7 @@ func TestMiddlewareChainOrdering(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	}))
+
 	defer server.Close()
 
 	first := client.Middleware(func(req *http.Request, next client.RoundTripFunc) (*http.Response, error) {

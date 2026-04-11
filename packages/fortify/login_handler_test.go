@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test user ---
@@ -21,17 +23,17 @@ type testUser struct {
 // --- test guard ---
 
 type testGuard struct {
-	loggedIn          Authenticatable
+	loggedIn          cauth.Authenticatable
 	loggedInRemember  bool
 	pendingTwoFactor  bool
 	loggedOut         bool
-	authenticatedUser Authenticatable
+	authenticatedUser cauth.Authenticatable
 }
 
 // --- test provider ---
 
 type testProvider struct {
-	user           Authenticatable
+	user           cauth.Authenticatable
 	validPassword  string
 	validateCalled bool
 }
@@ -39,7 +41,7 @@ type testProvider struct {
 // --- test event dispatcher ---
 
 type testEvents struct {
-	dispatched []Event
+	dispatched []any
 }
 
 // --- test responder ---
@@ -88,16 +90,16 @@ func (u *testUser) GetTwoFactorConfirmedAt() *time.Time {
 func (u *testUser) SetTwoFactorConfirmedAt(_ *time.Time) {}
 
 func (g *testGuard) Name() string { return "test" }
-func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (Authenticatable, error) {
+func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return g.authenticatedUser, nil
 }
-func (g *testGuard) Login(_ context.Context, _ http.ResponseWriter, user Authenticatable, remember bool) error {
+func (g *testGuard) Login(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable, remember bool) error {
 	g.loggedIn = user
 	g.loggedInRemember = remember
 
 	return nil
 }
-func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, user Authenticatable) error {
+func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable) error {
 	g.pendingTwoFactor = true
 	g.loggedIn = user
 
@@ -109,28 +111,28 @@ func (g *testGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Req
 	return nil
 }
 
-func (p *testProvider) RetrieveByID(_ context.Context, _ string) (Authenticatable, error) {
+func (p *testProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *testProvider) RetrieveByToken(_ context.Context, _ string, _ string) (Authenticatable, error) {
+func (p *testProvider) RetrieveByToken(_ context.Context, _ string, _ string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *testProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (Authenticatable, error) {
+func (p *testProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *testProvider) UpdateRememberToken(_ context.Context, _ Authenticatable, _ string) error {
+func (p *testProvider) UpdateRememberToken(_ context.Context, _ cauth.Authenticatable, _ string) error {
 	return nil
 }
-func (p *testProvider) ValidateCredentials(_ context.Context, _ Authenticatable, creds map[string]string) (bool, error) {
+func (p *testProvider) ValidateCredentials(_ context.Context, _ cauth.Authenticatable, creds map[string]string) (bool, error) {
 	p.validateCalled = true
 
 	return creds["password"] == p.validPassword, nil
 }
-func (p *testProvider) RehashPasswordIfRequired(_ context.Context, _ Authenticatable, _ map[string]string, _ bool) error {
+func (p *testProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
 
-func (e *testEvents) Dispatch(_ context.Context, event Event) error {
+func (e *testEvents) Dispatch(_ context.Context, event any) error {
 	e.dispatched = append(e.dispatched, event)
 
 	return nil
@@ -220,12 +222,12 @@ func TestLoginHandlerSuccess(t *testing.T) {
 		t.Fatalf("expected 2 events, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventLoginAttempted {
-		t.Fatalf("expected LoginAttempted event, got %s", events.dispatched[0].Name)
+	if _, ok := events.dispatched[0].(LoginAttemptedPayload); !ok {
+		t.Fatalf("expected LoginAttemptedPayload event, got %T", events.dispatched[0])
 	}
 
-	if events.dispatched[1].Name != EventLoginSucceeded {
-		t.Fatalf("expected LoginSucceeded event, got %s", events.dispatched[1].Name)
+	if _, ok := events.dispatched[1].(LoginSucceededPayload); !ok {
+		t.Fatalf("expected LoginSucceededPayload event, got %T", events.dispatched[1])
 	}
 }
 
@@ -277,8 +279,8 @@ func TestLoginHandlerInvalidCredentials(t *testing.T) {
 		t.Fatalf("expected 2 events, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[1].Name != EventLoginFailed {
-		t.Fatalf("expected LoginFailed event, got %s", events.dispatched[1].Name)
+	if _, ok := events.dispatched[1].(LoginFailedPayload); !ok {
+		t.Fatalf("expected LoginFailedPayload event, got %T", events.dispatched[1])
 	}
 }
 

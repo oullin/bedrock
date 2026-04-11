@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/fortify"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test team user ---
@@ -24,7 +24,7 @@ type testTeamUser struct {
 // --- test guard ---
 
 type testGuard struct {
-	user fortify.Authenticatable
+	user cauth.Authenticatable
 }
 
 // --- test repos ---
@@ -43,7 +43,7 @@ type testInvitationRepo struct {
 // --- test events ---
 
 type testEvents struct {
-	dispatched []Event
+	dispatched []any
 }
 
 // --- test actions ---
@@ -93,13 +93,13 @@ func (u *testTeamUser) HasTeamPermission(_ *Team, perm string) bool {
 }
 
 func (g *testGuard) Name() string { return "test" }
-func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (fortify.Authenticatable, error) {
+func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return g.user, nil
 }
-func (g *testGuard) Login(_ context.Context, _ http.ResponseWriter, _ fortify.Authenticatable, _ bool) error {
+func (g *testGuard) Login(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable, _ bool) error {
 	return nil
 }
-func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ fortify.Authenticatable) error {
+func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable) error {
 	return nil
 }
 func (g *testGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
@@ -171,7 +171,7 @@ func (r *testInvitationRepo) Delete(_ context.Context, id string) error {
 	return nil
 }
 
-func (e *testEvents) Dispatch(_ context.Context, event Event) error {
+func (e *testEvents) Dispatch(_ context.Context, event any) error {
 	e.dispatched = append(e.dispatched, event)
 
 	return nil
@@ -277,7 +277,7 @@ func TestCreateTeamSuccess(t *testing.T) {
 		t.Fatalf("expected team name 'My Team', got %s", team.Name)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamCreated {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamCreated {
 		t.Fatal("expected TeamCreated event")
 	}
 }
@@ -316,7 +316,7 @@ func TestUpdateTeamSuccess(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamUpdated {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamUpdated {
 		t.Fatal("expected TeamUpdated event")
 	}
 }
@@ -358,7 +358,7 @@ func TestDeleteTeamSuccess(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamDeleted {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamDeleted {
 		t.Fatal("expected TeamDeleted event")
 	}
 }
@@ -400,7 +400,7 @@ func TestAddTeamMemberSuccess(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamMemberAdded {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamMemberAdded {
 		t.Fatal("expected TeamMemberAdded event")
 	}
 }
@@ -462,7 +462,7 @@ func TestRemoveTeamMemberSuccess(t *testing.T) {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamMemberRemoved {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamMemberRemoved {
 		t.Fatal("expected TeamMemberRemoved event")
 	}
 }
@@ -486,7 +486,7 @@ func TestInviteTeamMemberSuccess(t *testing.T) {
 		t.Fatalf("expected 201, got %d", w.Code)
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamMemberInvited {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamMemberInvited {
 		t.Fatal("expected TeamMemberInvited event")
 	}
 }
@@ -538,7 +538,7 @@ func TestAcceptInvitationSuccess(t *testing.T) {
 		t.Fatal("expected invitation to be deleted after acceptance")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamMemberAdded {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamMemberAdded {
 		t.Fatal("expected TeamMemberAdded event")
 	}
 }
@@ -565,7 +565,7 @@ func TestSwitchTeamSuccess(t *testing.T) {
 		t.Fatal("expected current team to be switched to t2")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTeamSwitched {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTeamSwitched {
 		t.Fatal("expected TeamSwitched event")
 	}
 }

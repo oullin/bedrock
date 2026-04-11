@@ -1,18 +1,23 @@
 package fortify
 
-import "errors"
+import (
+	"errors"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/contracts/events"
+)
 
 // Fortify is the composition root for all authentication features.
 // It holds references to contracts and action implementations
 // provided by the consuming application.
 type Fortify struct {
 	config    Config
-	guard     Guard
-	provider  UserProvider
-	hasher    PasswordHasher
+	guard     cauth.HTTPGuard
+	provider  cauth.UserProvider
+	hasher    cauth.PasswordHasher
 	broker    PasswordBroker
 	verifier  EmailVerifier
-	events    EventDispatcher
+	events    events.Dispatcher
 	limiter   RateLimiter
 	responder Responder
 
@@ -62,17 +67,17 @@ type Builder struct {
 
 func (f *Fortify) Config() Config { return f.config }
 
-func (f *Fortify) Guard() Guard { return f.guard }
+func (f *Fortify) Guard() cauth.HTTPGuard { return f.guard }
 
-func (f *Fortify) Provider() UserProvider { return f.provider }
+func (f *Fortify) Provider() cauth.UserProvider { return f.provider }
 
-func (f *Fortify) Hasher() PasswordHasher { return f.hasher }
+func (f *Fortify) Hasher() cauth.PasswordHasher { return f.hasher }
 
 func (f *Fortify) Broker() PasswordBroker { return f.broker }
 
 func (f *Fortify) Verifier() EmailVerifier { return f.verifier }
 
-func (f *Fortify) Events() EventDispatcher { return f.events }
+func (f *Fortify) Events() events.Dispatcher { return f.events }
 
 func (f *Fortify) Limiter() RateLimiter { return f.limiter }
 
@@ -107,21 +112,21 @@ func (b *Builder) WithConfig(config Config) *Builder {
 }
 
 // WithGuard sets the authentication guard.
-func (b *Builder) WithGuard(guard Guard) *Builder {
+func (b *Builder) WithGuard(guard cauth.HTTPGuard) *Builder {
 	b.fortify.guard = guard
 
 	return b
 }
 
 // WithProvider sets the user provider.
-func (b *Builder) WithProvider(provider UserProvider) *Builder {
+func (b *Builder) WithProvider(provider cauth.UserProvider) *Builder {
 	b.fortify.provider = provider
 
 	return b
 }
 
 // WithHasher sets the password hasher.
-func (b *Builder) WithHasher(hasher PasswordHasher) *Builder {
+func (b *Builder) WithHasher(hasher cauth.PasswordHasher) *Builder {
 	b.fortify.hasher = hasher
 
 	return b
@@ -142,8 +147,8 @@ func (b *Builder) WithVerifier(verifier EmailVerifier) *Builder {
 }
 
 // WithEvents sets the event dispatcher.
-func (b *Builder) WithEvents(events EventDispatcher) *Builder {
-	b.fortify.events = events
+func (b *Builder) WithEvents(dispatcher events.Dispatcher) *Builder {
+	b.fortify.events = dispatcher
 
 	return b
 }

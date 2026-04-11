@@ -1,6 +1,10 @@
 package fortify
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // RegisterHandler handles POST /register requests.
 type RegisterHandler struct {
@@ -33,14 +37,11 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, Event{
-			Name:    EventRegistered,
-			Payload: RegisteredPayload{User: user},
-		})
+		_ = h.fortify.events.Dispatch(ctx, RegisteredPayload{User: user})
 	}
 
 	if config.Features.EmailVerification {
-		if verifiable, ok := user.(MustVerifyEmail); ok && !verifiable.HasVerifiedEmail() {
+		if verifiable, ok := user.(cauth.MustVerifyEmail); ok && !verifiable.HasVerifiedEmail() {
 			if h.fortify.verifier != nil {
 				_ = h.fortify.verifier.SendVerificationNotification(ctx, user)
 			}

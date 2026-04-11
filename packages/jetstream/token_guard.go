@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bedrock/packages/fortify"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // TokenGuard authenticates requests using personal access tokens.
@@ -14,7 +14,7 @@ import (
 // both in context via the HasApiTokens interface.
 type TokenGuard struct {
 	tokens   TokenRepository
-	provider fortify.UserProvider
+	provider cauth.UserProvider
 }
 
 // NewTokenGuard creates a new API token guard.
@@ -26,11 +26,11 @@ type TokenGuard struct {
 
 type tokenContextKey struct{}
 
-func NewTokenGuard(tokens TokenRepository, provider fortify.UserProvider) *TokenGuard {
+func NewTokenGuard(tokens TokenRepository, provider cauth.UserProvider) *TokenGuard {
 	return &TokenGuard{tokens: tokens, provider: provider}
 }
 
-func (g *TokenGuard) Authenticate(ctx context.Context, r *http.Request) (fortify.Authenticatable, *PersonalAccessToken, error) {
+func (g *TokenGuard) Authenticate(ctx context.Context, r *http.Request) (cauth.Authenticatable, *PersonalAccessToken, error) {
 	plain := extractBearerToken(r)
 
 	if plain == "" {

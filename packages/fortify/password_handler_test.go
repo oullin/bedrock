@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test action doubles ---
@@ -28,13 +30,13 @@ type testPasswordUpdateResponder struct {
 	confirmCalled bool
 }
 
-func (a *testUpdatesPasswords) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
+func (a *testUpdatesPasswords) Update(_ context.Context, _ cauth.Authenticatable, _ map[string]string) error {
 	a.called = true
 
 	return a.returnError
 }
 
-func (a *testConfirmsPasswords) Confirm(_ context.Context, _ Authenticatable, _ string) error {
+func (a *testConfirmsPasswords) Confirm(_ context.Context, _ cauth.Authenticatable, _ string) error {
 	a.called = true
 
 	return a.returnError
@@ -79,8 +81,12 @@ func TestUpdatePasswordSuccess(t *testing.T) {
 		t.Fatal("expected password update response")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventPasswordUpdated {
+	if len(events.dispatched) != 1 {
 		t.Fatal("expected PasswordUpdated event")
+	}
+
+	if s, ok := events.dispatched[0].(string); !ok || s != EventPasswordUpdated {
+		t.Fatal("expected PasswordUpdated event string")
 	}
 }
 

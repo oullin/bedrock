@@ -3,6 +3,7 @@ package listener
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts/events"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/billing"
 )
@@ -36,7 +37,7 @@ type SubscriptionCreated struct {
 // SyncEntitlements syncs entitlements after a subscription state transition.
 type SyncEntitlements struct {
 	billing *billing.Workflow
-	events  spark.EventDispatcher
+	events  events.Dispatcher
 }
 
 // NewSyncEntitlements creates the listener.
@@ -96,7 +97,7 @@ func (l *SubscriptionCreated) Handle(ctx context.Context, sub *spark.Subscriptio
 	return nil
 }
 
-func NewSyncEntitlements(b *billing.Workflow, events spark.EventDispatcher) *SyncEntitlements {
+func NewSyncEntitlements(b *billing.Workflow, events events.Dispatcher) *SyncEntitlements {
 	return &SyncEntitlements{billing: b, events: events}
 }
 

@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // Ability is a function that determines whether a user can perform an action.
 // It receives the user, the optional model, and returns (allow bool, err error).
-type Ability func(ctx context.Context, user auth.Authenticatable, model any) (bool, error)
+type Ability func(ctx context.Context, user cauth.Authenticatable, model any) (bool, error)
 
 // Policy is a struct implementing named ability methods.
 // Methods must have the signature: func(ctx, user, model) (bool, error) or func(ctx, user) (bool, error).
@@ -37,9 +37,9 @@ type AuthorizationException struct {
 type Gate struct {
 	mu           sync.RWMutex
 	abilities    map[string]Ability
-	before       []func(ctx context.Context, user auth.Authenticatable, ability string, model any) (bool, bool)
-	after        []func(ctx context.Context, user auth.Authenticatable, ability string, result bool, model any)
-	userResolver func(ctx context.Context) auth.Authenticatable
+	before       []func(ctx context.Context, user cauth.Authenticatable, ability string, model any) (bool, bool)
+	after        []func(ctx context.Context, user cauth.Authenticatable, ability string, result bool, model any)
+	userResolver func(ctx context.Context) cauth.Authenticatable
 }
 
 func Allow(message string) Response {
@@ -63,7 +63,7 @@ func (e *AuthorizationException) Error() string {
 }
 
 // New creates a Gate with the given user resolver.
-func New(userResolver func(ctx context.Context) auth.Authenticatable) *Gate {
+func New(userResolver func(ctx context.Context) cauth.Authenticatable) *Gate {
 	return &Gate{
 		abilities:    make(map[string]Ability),
 		userResolver: userResolver,
@@ -83,7 +83,7 @@ func (g *Gate) Define(ability string, fn Ability) *Gate {
 
 // Before registers a hook that runs before any ability check.
 // If the hook returns (result, true) the ability check is skipped.
-func (g *Gate) Before(fn func(ctx context.Context, user auth.Authenticatable, ability string, model any) (bool, bool)) *Gate {
+func (g *Gate) Before(fn func(ctx context.Context, user cauth.Authenticatable, ability string, model any) (bool, bool)) *Gate {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -94,7 +94,7 @@ func (g *Gate) Before(fn func(ctx context.Context, user auth.Authenticatable, ab
 }
 
 // After registers a hook that runs after any ability check.
-func (g *Gate) After(fn func(ctx context.Context, user auth.Authenticatable, ability string, result bool, model any)) *Gate {
+func (g *Gate) After(fn func(ctx context.Context, user cauth.Authenticatable, ability string, result bool, model any)) *Gate {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -196,12 +196,12 @@ func (g *Gate) Denies(ctx context.Context, ability string, model any) bool {
 }
 
 // ForUser returns a new Gate that uses the given user instead of the resolver.
-func (g *Gate) ForUser(user auth.Authenticatable) *Gate {
+func (g *Gate) ForUser(user cauth.Authenticatable) *Gate {
 	clone := &Gate{
 		abilities:    g.abilities,
 		before:       g.before,
 		after:        g.after,
-		userResolver: func(_ context.Context) auth.Authenticatable { return user },
+		userResolver: func(_ context.Context) cauth.Authenticatable { return user },
 	}
 
 	return clone

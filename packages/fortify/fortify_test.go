@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test doubles ---
@@ -33,42 +35,43 @@ type stubVerifier struct{}
 type stubConfirms struct{}
 
 func (s *stubGuard) Name() string { return "web" }
-func (s *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (Authenticatable, error) {
+func (s *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (s *stubGuard) Login(_ context.Context, _ http.ResponseWriter, _ Authenticatable, _ bool) error {
+func (s *stubGuard) Login(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable, _ bool) error {
 	return nil
 }
-func (s *stubGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ Authenticatable) error {
+func (s *stubGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable) error {
 	return nil
 }
 func (s *stubGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
 	return nil
 }
 
-func (s *stubProvider) RetrieveByID(_ context.Context, _ string) (Authenticatable, error) {
+func (s *stubProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (s *stubProvider) RetrieveByToken(_ context.Context, _ string, _ string) (Authenticatable, error) {
+func (s *stubProvider) RetrieveByToken(_ context.Context, _ string, _ string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (s *stubProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (Authenticatable, error) {
+func (s *stubProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (s *stubProvider) UpdateRememberToken(_ context.Context, _ Authenticatable, _ string) error {
+func (s *stubProvider) UpdateRememberToken(_ context.Context, _ cauth.Authenticatable, _ string) error {
 	return nil
 }
-func (s *stubProvider) ValidateCredentials(_ context.Context, _ Authenticatable, _ map[string]string) (bool, error) {
+func (s *stubProvider) ValidateCredentials(_ context.Context, _ cauth.Authenticatable, _ map[string]string) (bool, error) {
 	return false, nil
 }
-func (s *stubProvider) RehashPasswordIfRequired(_ context.Context, _ Authenticatable, _ map[string]string, _ bool) error {
+func (s *stubProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
 
 func (s *stubHasher) Hash(_ context.Context, _ string) (string, error) { return "hashed", nil }
-func (s *stubHasher) Compare(_ context.Context, _ string, _ string) error {
-	return nil
+func (s *stubHasher) Check(_ context.Context, _ string, _ string) (bool, error) {
+	return true, nil
 }
+func (s *stubHasher) NeedsRehash(_ string) bool { return false }
 
 func (s *stubResponder) LoginResponse(_ http.ResponseWriter, _ *http.Request)                     {}
 func (s *stubResponder) LogoutResponse(_ http.ResponseWriter, _ *http.Request)                    {}
@@ -83,31 +86,33 @@ func (s *stubResponder) TwoFactorChallengeResponse(_ http.ResponseWriter, _ *htt
 func (s *stubResponder) TwoFactorEnabledResponse(_ http.ResponseWriter, _ *http.Request)          {}
 func (s *stubResponder) TwoFactorDisabledResponse(_ http.ResponseWriter, _ *http.Request)         {}
 
-func (s *stubCreatesNewUsers) Create(_ context.Context, _ map[string]string) (Authenticatable, error) {
+func (s *stubCreatesNewUsers) Create(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
 
-func (s *stubUpdatesProfile) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
+func (s *stubUpdatesProfile) Update(_ context.Context, _ cauth.Authenticatable, _ map[string]string) error {
 	return nil
 }
 
-func (s *stubUpdatesPasswords) Update(_ context.Context, _ Authenticatable, _ map[string]string) error {
+func (s *stubUpdatesPasswords) Update(_ context.Context, _ cauth.Authenticatable, _ map[string]string) error {
 	return nil
 }
 
 func (s *stubBroker) SendResetLink(_ context.Context, _ map[string]string) error { return nil }
-func (s *stubBroker) Reset(_ context.Context, _ map[string]string, _ func(Authenticatable, string) error) error {
+func (s *stubBroker) Reset(_ context.Context, _ map[string]string, _ func(cauth.Authenticatable, string) error) error {
 	return nil
 }
 
-func (s *stubResets) Reset(_ context.Context, _ Authenticatable, _ string) error { return nil }
+func (s *stubResets) Reset(_ context.Context, _ cauth.Authenticatable, _ string) error { return nil }
 
-func (s *stubVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
+func (s *stubVerifier) SendVerificationNotification(_ context.Context, _ cauth.Authenticatable) error {
 	return nil
 }
 func (s *stubVerifier) Verify(_ context.Context, _ string, _ string) error { return nil }
 
-func (s *stubConfirms) Confirm(_ context.Context, _ Authenticatable, _ string) error { return nil }
+func (s *stubConfirms) Confirm(_ context.Context, _ cauth.Authenticatable, _ string) error {
+	return nil
+}
 
 // --- tests ---
 

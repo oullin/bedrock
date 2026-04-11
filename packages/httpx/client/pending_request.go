@@ -17,13 +17,6 @@ import (
 // BodyFormat describes the request body encoding.
 type BodyFormat int
 
-const (
-	BodyJSON BodyFormat = iota
-	BodyForm
-	BodyMultipart
-	BodyRaw
-)
-
 // PendingRequest is a fluent builder for outbound HTTP requests.
 type PendingRequest struct {
 	factory    *Factory
@@ -41,6 +34,13 @@ type PendingRequest struct {
 	bodyBytes  []byte
 	ctx        context.Context
 }
+
+const (
+	BodyJSON BodyFormat = iota
+	BodyForm
+	BodyMultipart
+	BodyRaw
+)
 
 func newPendingRequest(f *Factory) *PendingRequest {
 	return &PendingRequest{
@@ -260,6 +260,7 @@ func (p *PendingRequest) send(method, requestURL string, data any) (*Response, e
 	}
 
 	var resp *Response
+
 	var lastErr error
 
 	for attempt := 0; attempt < p.retries; attempt++ {

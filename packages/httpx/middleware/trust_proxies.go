@@ -7,13 +7,11 @@ import (
 )
 
 // Trusted header constants matching Laravel's TrustProxies.
-const (
-	HeaderForwardedFor   = 1 << iota // X-Forwarded-For
-	HeaderForwardedHost              // X-Forwarded-Host
-	HeaderForwardedProto             // X-Forwarded-Proto
-	HeaderForwardedPort              // X-Forwarded-Port
-	HeaderForwardedAll   = HeaderForwardedFor | HeaderForwardedHost | HeaderForwardedProto | HeaderForwardedPort
-)
+
+// X-Forwarded-For
+// X-Forwarded-Host
+// X-Forwarded-Proto
+// X-Forwarded-Port
 
 // TrustProxies validates that proxy-related headers (X-Forwarded-*) only come
 // from trusted proxy IPs. Untrusted headers are stripped.
@@ -22,6 +20,14 @@ type TrustProxies struct {
 	headers  int
 	trustAll bool
 }
+
+const (
+	HeaderForwardedFor = 1 << iota
+	HeaderForwardedHost
+	HeaderForwardedProto
+	HeaderForwardedPort
+	HeaderForwardedAll = HeaderForwardedFor | HeaderForwardedHost | HeaderForwardedProto | HeaderForwardedPort
+)
 
 // NewTrustProxies creates the middleware. Pass "*" as a proxy to trust all.
 func NewTrustProxies(proxies []string, headers int) *TrustProxies {

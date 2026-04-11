@@ -9,8 +9,10 @@ GO_PACKAGES := \
 	packages/auth \
 	packages/bus \
 	packages/cache \
+	packages/contracts \
 	packages/cookie \
 	packages/fortify \
+	packages/httpx \
 	packages/jetstream \
 	packages/queue \
 	packages/routing \

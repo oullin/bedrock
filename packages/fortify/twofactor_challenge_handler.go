@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	cauth "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/fortify/twofactor"
 )
 
@@ -44,7 +45,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	tfa, ok := user.(TwoFactorAuthenticatable)
+	tfa, ok := user.(cauth.TwoFactorAuthenticatable)
 
 	if !ok {
 		http.Error(w, "user does not support two-factor authentication", http.StatusBadRequest)
@@ -71,7 +72,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		tfa.SetTwoFactorRecoveryCodes(twofactor.ConsumeRecoveryCode(codes, idx))
 
 		if h.fortify.events != nil {
-			_ = h.fortify.events.Dispatch(ctx, Event{Name: EventRecoveryCodeUsed})
+			_ = h.fortify.events.Dispatch(ctx, EventRecoveryCodeUsed)
 		}
 	} else {
 		http.Error(w, "a code or recovery_code is required", http.StatusUnprocessableEntity)
@@ -88,10 +89,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, Event{
-			Name:    EventTwoFactorChallenge,
-			Payload: LoginSucceededPayload{User: user, Remember: remember},
-		})
+		_ = h.fortify.events.Dispatch(ctx, LoginSucceededPayload{User: user, Remember: remember})
 	}
 
 	h.fortify.responder.LoginResponse(w, r)

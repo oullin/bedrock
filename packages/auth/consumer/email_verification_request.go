@@ -3,23 +3,24 @@ package consumer
 import (
 	"errors"
 	"net/http"
+	"time"
 
-	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // EmailVerificationRequest handles email verification logic for the current user.
 type EmailVerificationRequest struct {
-	user auth.Authenticatable
+	user cauth.Authenticatable
 }
 
 // NewEmailVerificationRequest creates a request for the given user.
-func NewEmailVerificationRequest(user auth.Authenticatable) *EmailVerificationRequest {
+func NewEmailVerificationRequest(user cauth.Authenticatable) *EmailVerificationRequest {
 	return &EmailVerificationRequest{user: user}
 }
 
 // Fulfill marks the user's email as verified if it has not been verified yet.
-func (e *EmailVerificationRequest) Fulfill(r *http.Request) error {
-	mv, ok := e.user.(auth.MustVerifyEmail)
+func (e *EmailVerificationRequest) Fulfill(_ *http.Request) error {
+	mv, ok := e.user.(cauth.MustVerifyEmail)
 
 	if !ok {
 		return errors.New("user does not implement MustVerifyEmail")
@@ -29,16 +30,14 @@ func (e *EmailVerificationRequest) Fulfill(r *http.Request) error {
 		return nil
 	}
 
-	if err := mv.MarkEmailAsVerified(); err != nil {
-		return err
-	}
+	mv.MarkEmailAsVerified(time.Now())
 
 	return nil
 }
 
 // HasVerifiedEmail reports whether the user's email is already verified.
 func (e *EmailVerificationRequest) HasVerifiedEmail() bool {
-	mv, ok := e.user.(auth.MustVerifyEmail)
+	mv, ok := e.user.(cauth.MustVerifyEmail)
 
 	if !ok {
 		return false

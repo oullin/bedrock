@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/spark"
 )
 
@@ -37,7 +38,7 @@ func NormaliseBillableRouteParam(resolver spark.BillableResolver) func(http.Hand
 func VerifyBillableIsSubscribed(
 	manager *spark.Manager,
 	subscriptions spark.SubscriptionStore,
-	clock spark.Clock,
+	clock contracts.Clock,
 	keepPastDueActive bool,
 ) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

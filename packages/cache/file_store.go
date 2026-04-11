@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // FileStore caches values on the filesystem. Each key is stored as a gob file
@@ -19,7 +21,7 @@ type FileStore struct {
 	mu     sync.RWMutex
 	dir    string
 	prefix string
-	clock  Clock
+	clock  contracts.Clock
 	perm   fs.FileMode
 }
 
@@ -45,7 +47,7 @@ func NewFileStore(dir string) *FileStore {
 }
 
 // NewFileStoreWithOptions creates a FileStore with custom options.
-func NewFileStoreWithOptions(dir, prefix string, perm fs.FileMode, clock Clock) *FileStore {
+func NewFileStoreWithOptions(dir, prefix string, perm fs.FileMode, clock contracts.Clock) *FileStore {
 	return &FileStore{dir: dir, prefix: prefix, perm: perm, clock: clock}
 }
 

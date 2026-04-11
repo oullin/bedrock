@@ -45,6 +45,7 @@ func TestCollectionToJSON(t *testing.T) {
 	}
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	items, ok := data["data"].([]any)
@@ -69,6 +70,7 @@ func TestCollectionWithoutWrapping(t *testing.T) {
 	b, _ := collection.ToJSON(req)
 
 	var data []any
+
 	json.Unmarshal(b, &data)
 
 	if len(data) != 1 {
@@ -87,6 +89,7 @@ func TestCollectionWithAdditionalData(t *testing.T) {
 	b, _ := collection.ToJSON(req)
 
 	var data map[string]any
+
 	json.Unmarshal(b, &data)
 
 	total, ok := data["total"].(float64)

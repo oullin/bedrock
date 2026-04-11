@@ -97,12 +97,14 @@ func (c *Collection[T]) Response(w http.ResponseWriter, req *http.Request, statu
 // type+id.
 func (c *Collection[T]) deduplicateIncluded(req *http.Request) []map[string]any {
 	seen := make(map[string]struct{})
+
 	var result []map[string]any
 
 	for _, inc := range c.Included {
 		obj := inc.ToResourceObject(req)
 
 		key := ""
+
 		if t, ok := obj["type"].(string); ok {
 			key += t
 		}

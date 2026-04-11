@@ -9,11 +9,12 @@ import (
 	"testing"
 
 	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 func TestTokenGuardUserCanBeRetrievedByQueryStringVariable(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/?api_token=foo", nil)
@@ -25,8 +26,8 @@ func TestTokenGuardUserCanBeRetrievedByQueryStringVariable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
-		t.Error("expected user with id 1")
+	if got == nil || got.GetAuthIdentifier() != "1" {
+		t.Error("expected user with id \"1\"")
 	}
 
 	if !guard.Check(context.Background()) {
@@ -37,14 +38,14 @@ func TestTokenGuardUserCanBeRetrievedByQueryStringVariable(t *testing.T) {
 		t.Error("Guest should return false")
 	}
 
-	if guard.ID(context.Background()) != 1 {
-		t.Errorf("ID = %v, want 1", guard.ID(context.Background()))
+	if guard.ID(context.Background()) != "1" {
+		t.Errorf("ID = %v, want \"1\"", guard.ID(context.Background()))
 	}
 }
 
 func TestTokenGuardUserCanBeRetrievedByBearerToken(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -57,14 +58,14 @@ func TestTokenGuardUserCanBeRetrievedByBearerToken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
-		t.Error("expected user with id 1 from Bearer token")
+	if got == nil || got.GetAuthIdentifier() != "1" {
+		t.Error("expected user with id \"1\" from Bearer token")
 	}
 }
 
 func TestTokenGuardUserCanBeRetrievedByAuthHeaders(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -77,14 +78,14 @@ func TestTokenGuardUserCanBeRetrievedByAuthHeaders(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
-		t.Error("expected user with id 1 from Basic Auth password")
+	if got == nil || got.GetAuthIdentifier() != "1" {
+		t.Error("expected user with id \"1\" from Basic Auth password")
 	}
 }
 
 func TestTokenGuardUserCanBeRetrievedByFormField(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	form := url.Values{"api_token": {"foo"}}
@@ -98,13 +99,13 @@ func TestTokenGuardUserCanBeRetrievedByFormField(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
-		t.Error("expected user with id 1 from form field")
+	if got == nil || got.GetAuthIdentifier() != "1" {
+		t.Error("expected user with id \"1\" from form field")
 	}
 }
 
 func TestTokenGuardReturnsNilWhenTokenIsEmpty(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -122,7 +123,7 @@ func TestTokenGuardReturnsNilWhenTokenIsEmpty(t *testing.T) {
 }
 
 func TestTokenGuardReturnsNilWhenUserNotFound(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -141,8 +142,8 @@ func TestTokenGuardReturnsNilWhenUserNotFound(t *testing.T) {
 }
 
 func TestTokenGuardCachesUserPerRequest(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -159,8 +160,8 @@ func TestTokenGuardCachesUserPerRequest(t *testing.T) {
 }
 
 func TestTokenGuardSetRequestClearsCache(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req1 := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -184,8 +185,8 @@ func TestTokenGuardSetRequestClearsCache(t *testing.T) {
 }
 
 func TestTokenGuardCustomKeys(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "custom_token": "bar"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "custom_token": "bar"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 	guard.SetInputKey("custom_token")
 	guard.SetStorageKey("custom_token")
@@ -199,14 +200,14 @@ func TestTokenGuardCustomKeys(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
+	if got == nil || got.GetAuthIdentifier() != "1" {
 		t.Error("expected user with custom token key")
 	}
 }
 
 func TestTokenGuardCustomKeyBearerToken(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "custom_token": "baz"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "custom_token": "baz"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 	guard.SetInputKey("custom_token")
 	guard.SetStorageKey("custom_token")
@@ -221,14 +222,14 @@ func TestTokenGuardCustomKeyBearerToken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got == nil || got.GetAuthIdentifier() != 1 {
+	if got == nil || got.GetAuthIdentifier() != "1" {
 		t.Error("expected user with custom key and Bearer token")
 	}
 }
 
 func TestTokenGuardSetUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	if guard.HasUser() {
@@ -249,8 +250,8 @@ func TestTokenGuardSetUser(t *testing.T) {
 }
 
 func TestTokenGuardForgetUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "api_token": "foo"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "foo"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	guard.SetUser(user)
@@ -262,7 +263,7 @@ func TestTokenGuardForgetUser(t *testing.T) {
 }
 
 func TestTokenGuardCheckAndGuestForUnauthenticatedUser(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -278,7 +279,7 @@ func TestTokenGuardCheckAndGuestForUnauthenticatedUser(t *testing.T) {
 }
 
 func TestTokenGuardIDReturnsNilWhenNoUser(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	guard := auth.NewTokenGuard("api", provider)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)

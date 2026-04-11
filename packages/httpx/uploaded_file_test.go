@@ -11,6 +11,11 @@ import (
 	"github.com/bedrock/packages/httpx"
 )
 
+// memoryFileStore is a test double for httpx.FileStore.
+type memoryFileStore struct {
+	files map[string][]byte
+}
+
 func createTestUploadedFile(t *testing.T, fieldName, fileName, content string) *httpx.UploadedFile {
 	t.Helper()
 
@@ -234,11 +239,6 @@ func TestCreateFromBase64Invalid(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for invalid base64")
 	}
-}
-
-// memoryFileStore is a test double for httpx.FileStore.
-type memoryFileStore struct {
-	files map[string][]byte
 }
 
 func (s *memoryFileStore) Put(path string, contents io.Reader) error {

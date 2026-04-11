@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // ErrTooManyAttempts is returned when login attempts are rate limited.
@@ -38,7 +40,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.dispatchEvent(ctx, EventLoginAttempted, LoginAttemptedPayload{
+	h.dispatchEvent(ctx, LoginAttemptedPayload{
 		Identifier: identifier,
 		Remember:   remember,
 	})
@@ -51,7 +53,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tfa, ok := user.(TwoFactorAuthenticatable); ok && tfa.IsTwoFactorEnabled() && tfa.GetTwoFactorConfirmedAt() != nil {
+	if tfa, ok := user.(cauth.TwoFactorAuthenticatable); ok && tfa.IsTwoFactorEnabled() && tfa.GetTwoFactorConfirmedAt() != nil {
 		if err := h.fortify.guard.LoginWithPendingTwoFactor(ctx, w, user); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
@@ -66,7 +68,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.onSuccess(ctx, w, r, user, remember)
 }
 
-func (h *LoginHandler) authenticate(ctx context.Context, input map[string]string) (Authenticatable, error) {
+func (h *LoginHandler) authenticate(ctx context.Context, input map[string]string) (cauth.Authenticatable, error) {
 	if custom := h.fortify.authenticator; custom != nil {
 		return custom.Authenticate(ctx, input)
 	}
@@ -113,7 +115,7 @@ func (h *LoginHandler) ensureNotRateLimited(identifier string, r *http.Request) 
 	return nil
 }
 
-func (h *LoginHandler) onSuccess(ctx context.Context, w http.ResponseWriter, r *http.Request, user Authenticatable, remember bool) {
+func (h *LoginHandler) onSuccess(ctx context.Context, w http.ResponseWriter, r *http.Request, user cauth.Authenticatable, remember bool) {
 	if limiter := h.fortify.limiter; limiter != nil {
 		limiter.Clear(ThrottleKey(user.GetAuthIdentifier(), RequestIP(r)))
 	}
@@ -124,7 +126,7 @@ func (h *LoginHandler) onSuccess(ctx context.Context, w http.ResponseWriter, r *
 		return
 	}
 
-	h.dispatchEvent(ctx, EventLoginSucceeded, LoginSucceededPayload{
+	h.dispatchEvent(ctx, LoginSucceededPayload{
 		User:     user,
 		Remember: remember,
 	})
@@ -138,17 +140,17 @@ func (h *LoginHandler) onFailure(ctx context.Context, w http.ResponseWriter, r *
 		limiter.Hit(key, h.fortify.config.LoginRateDecay)
 	}
 
-	h.dispatchEvent(ctx, EventLoginFailed, LoginFailedPayload{
+	h.dispatchEvent(ctx, LoginFailedPayload{
 		Identifier: identifier,
 	})
 
 	http.Error(w, ErrInvalidCredentials.Error(), http.StatusUnprocessableEntity)
 }
 
-func (h *LoginHandler) dispatchEvent(ctx context.Context, name string, payload any) {
+func (h *LoginHandler) dispatchEvent(ctx context.Context, payload any) {
 	if h.fortify.events == nil {
 		return
 	}
 
-	_ = h.fortify.events.Dispatch(ctx, Event{Name: name, Payload: payload})
+	_ = h.fortify.events.Dispatch(ctx, payload)
 }

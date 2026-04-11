@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/catalog"
 )
@@ -14,7 +15,7 @@ type StateResolver struct {
 	catalog       *catalog.PlanCatalog
 	subscriptions *Repository
 	urls          spark.URLResolver
-	clock         spark.Clock
+	clock         contracts.Clock
 }
 
 // NewStateResolver creates a StateResolver.
@@ -22,7 +23,7 @@ func NewStateResolver(
 	cat *catalog.PlanCatalog,
 	subscriptions *Repository,
 	urls spark.URLResolver,
-	clock spark.Clock,
+	clock contracts.Clock,
 ) *StateResolver {
 	return &StateResolver{
 		catalog:       cat,

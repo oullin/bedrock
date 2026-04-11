@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test broker ---
@@ -31,7 +33,7 @@ func (b *testBroker) SendResetLink(_ context.Context, _ map[string]string) error
 	return b.returnError
 }
 
-func (b *testBroker) Reset(_ context.Context, _ map[string]string, callback func(Authenticatable, string) error) error {
+func (b *testBroker) Reset(_ context.Context, _ map[string]string, callback func(cauth.Authenticatable, string) error) error {
 	if b.returnError != nil {
 		return b.returnError
 	}
@@ -161,8 +163,8 @@ func TestResetPasswordSuccess(t *testing.T) {
 		t.Fatalf("expected 1 event, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventPasswordReset {
-		t.Fatalf("expected PasswordReset event, got %s", events.dispatched[0].Name)
+	if s, ok := events.dispatched[0].(string); !ok || s != EventPasswordReset {
+		t.Fatalf("expected PasswordReset event string, got %T", events.dispatched[0])
 	}
 }
 

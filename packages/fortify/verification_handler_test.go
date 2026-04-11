@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test responder extension ---
@@ -156,8 +158,8 @@ func TestVerifyEmailSuccess(t *testing.T) {
 		t.Fatalf("expected 1 event, got %d", len(events.dispatched))
 	}
 
-	if events.dispatched[0].Name != EventVerified {
-		t.Fatalf("expected Verified event, got %s", events.dispatched[0].Name)
+	if s, ok := events.dispatched[0].(string); !ok || s != EventVerified {
+		t.Fatalf("expected Verified event string, got %T", events.dispatched[0])
 	}
 }
 
@@ -216,7 +218,7 @@ func TestVerifyEmailVerifierFails(t *testing.T) {
 	}
 }
 
-func (v *failingVerifier) SendVerificationNotification(_ context.Context, _ Authenticatable) error {
+func (v *failingVerifier) SendVerificationNotification(_ context.Context, _ cauth.Authenticatable) error {
 	return nil
 }
 

@@ -3,14 +3,14 @@ package jetstream
 import (
 	"errors"
 
-	"github.com/bedrock/packages/fortify"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // Jetstream is the composition root for all team and profile features.
 type Jetstream struct {
 	features    Features
 	roles       *RoleRegistry
-	guard       fortify.Guard
+	guard       cauth.HTTPGuard
 	teams       TeamRepository
 	invitations InvitationRepository
 	events      EventDispatcher
@@ -57,7 +57,7 @@ func (j *Jetstream) Features() Features { return j.features }
 
 func (j *Jetstream) Roles() *RoleRegistry { return j.roles }
 
-func (j *Jetstream) Guard() fortify.Guard { return j.guard }
+func (j *Jetstream) Guard() cauth.HTTPGuard { return j.guard }
 
 func (j *Jetstream) Teams() TeamRepository { return j.teams }
 
@@ -95,7 +95,7 @@ func (b *Builder) WithFeatures(features Features) *Builder {
 }
 
 // WithGuard sets the authentication guard.
-func (b *Builder) WithGuard(guard fortify.Guard) *Builder {
+func (b *Builder) WithGuard(guard cauth.HTTPGuard) *Builder {
 	b.js.guard = guard
 
 	return b

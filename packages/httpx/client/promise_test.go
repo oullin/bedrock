@@ -16,6 +16,7 @@ func TestPromiseWait(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("async result"))
 	}))
+
 	defer server.Close()
 
 	promise := client.NewFactory().PendingRequest().Async(http.MethodGet, server.URL)
@@ -37,6 +38,7 @@ func TestPromiseThen(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("callback"))
 	}))
+
 	defer server.Close()
 
 	done := make(chan string, 1)
@@ -171,6 +173,7 @@ func TestLazyPromiseDefersExecution(t *testing.T) {
 
 	lp := client.NewLazyPromise(func() (*client.Response, error) {
 		executed = true
+
 		return makeResponse(200, "lazy"), nil
 	})
 

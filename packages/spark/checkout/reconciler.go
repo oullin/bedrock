@@ -3,6 +3,7 @@ package checkout
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/catalog"
 	"github.com/bedrock/packages/spark/subscription"
@@ -15,7 +16,7 @@ type Reconciler struct {
 	catalog       *catalog.PlanCatalog
 	fetcher       spark.ProviderSubscriptionFetcher
 	transitioner  *subscription.Transitioner
-	clock         spark.Clock
+	clock         contracts.Clock
 }
 
 // NewReconciler creates a Reconciler.
@@ -39,7 +40,7 @@ func NewReconciler(
 	cat *catalog.PlanCatalog,
 	fetcher spark.ProviderSubscriptionFetcher,
 	transitioner *subscription.Transitioner,
-	clock spark.Clock,
+	clock contracts.Clock,
 ) *Reconciler {
 	return &Reconciler{
 		subscriptions: subscriptions,

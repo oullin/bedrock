@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // DBQuerier is the minimal raw-SQL interface for DatabaseUserProvider.
@@ -21,19 +21,19 @@ type DBRow interface {
 }
 
 // RowMapper converts a scanned row map into an Authenticatable.
-type RowMapper func(row map[string]any) auth.Authenticatable
+type RowMapper func(row map[string]any) cauth.Authenticatable
 
 // DatabaseUserProvider retrieves users from a raw SQL table.
 type DatabaseUserProvider struct {
 	db        DBQuerier
 	table     string
-	hasher    auth.PasswordHasher
+	hasher    cauth.PasswordHasher
 	rowMapper RowMapper
 }
 
 // NewDatabaseUserProvider creates a DatabaseUserProvider.
 // table is the users table name. rowMapper converts a row map to Authenticatable.
-func NewDatabaseUserProvider(db DBQuerier, table string, hasher auth.PasswordHasher, rowMapper RowMapper) *DatabaseUserProvider {
+func NewDatabaseUserProvider(db DBQuerier, table string, hasher cauth.PasswordHasher, rowMapper RowMapper) *DatabaseUserProvider {
 	return &DatabaseUserProvider{
 		db:        db,
 		table:     table,
@@ -42,13 +42,13 @@ func NewDatabaseUserProvider(db DBQuerier, table string, hasher auth.PasswordHas
 	}
 }
 
-func (p *DatabaseUserProvider) RetrieveByID(ctx context.Context, id any) (auth.Authenticatable, error) {
+func (p *DatabaseUserProvider) RetrieveByID(ctx context.Context, id string) (cauth.Authenticatable, error) {
 	row := p.db.QueryRow(ctx, fmt.Sprintf("SELECT * FROM %s WHERE id = $1 LIMIT 1", p.table), id)
 
 	return p.mapRow(row)
 }
 
-func (p *DatabaseUserProvider) RetrieveByToken(ctx context.Context, id any, token string) (auth.Authenticatable, error) {
+func (p *DatabaseUserProvider) RetrieveByToken(ctx context.Context, id string, token string) (cauth.Authenticatable, error) {
 	row := p.db.QueryRow(ctx,
 		fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND remember_token = $2 LIMIT 1", p.table),
 		id, token,
@@ -57,14 +57,14 @@ func (p *DatabaseUserProvider) RetrieveByToken(ctx context.Context, id any, toke
 	return p.mapRow(row)
 }
 
-func (p *DatabaseUserProvider) UpdateRememberToken(ctx context.Context, user auth.Authenticatable, token string) error {
+func (p *DatabaseUserProvider) UpdateRememberToken(ctx context.Context, user cauth.Authenticatable, token string) error {
 	return p.db.Exec(ctx,
 		fmt.Sprintf("UPDATE %s SET remember_token = $1 WHERE id = $2", p.table),
 		token, user.GetAuthIdentifier(),
 	)
 }
 
-func (p *DatabaseUserProvider) RetrieveByCredentials(ctx context.Context, credentials map[string]any) (auth.Authenticatable, error) {
+func (p *DatabaseUserProvider) RetrieveByCredentials(ctx context.Context, credentials map[string]string) (cauth.Authenticatable, error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE ", p.table)
 
 	args := make([]any, 0, len(credentials))
@@ -90,28 +90,28 @@ func (p *DatabaseUserProvider) RetrieveByCredentials(ctx context.Context, creden
 	return p.mapRow(row)
 }
 
-func (p *DatabaseUserProvider) ValidateCredentials(_ context.Context, user auth.Authenticatable, credentials map[string]any) bool {
-	plain, ok := credentials["password"].(string)
+func (p *DatabaseUserProvider) ValidateCredentials(ctx context.Context, user cauth.Authenticatable, credentials map[string]string) (bool, error) {
+	plain := credentials["password"]
 
-	if !ok {
-		return false
+	if plain == "" {
+		return false, nil
 	}
 
-	return p.hasher.Check(plain, user.GetAuthPassword())
+	return p.hasher.Check(ctx, plain, user.GetAuthPassword())
 }
 
-func (p *DatabaseUserProvider) RehashPasswordIfRequired(ctx context.Context, user auth.Authenticatable, credentials map[string]any, force bool) error {
+func (p *DatabaseUserProvider) RehashPasswordIfRequired(ctx context.Context, user cauth.Authenticatable, credentials map[string]string, force bool) error {
 	if !force && !p.hasher.NeedsRehash(user.GetAuthPassword()) {
 		return nil
 	}
 
-	plain, ok := credentials["password"].(string)
+	plain := credentials["password"]
 
-	if !ok {
+	if plain == "" {
 		return nil
 	}
 
-	hash, err := p.hasher.Hash(plain)
+	hash, err := p.hasher.Hash(ctx, plain)
 
 	if err != nil {
 		return err
@@ -123,7 +123,7 @@ func (p *DatabaseUserProvider) RehashPasswordIfRequired(ctx context.Context, use
 	)
 }
 
-func (p *DatabaseUserProvider) mapRow(row DBRow) (auth.Authenticatable, error) {
+func (p *DatabaseUserProvider) mapRow(row DBRow) (cauth.Authenticatable, error) {
 	// Scan into a map via column names is not directly supported by the DBRow
 	// interface; callers must provide a RowMapper that matches their DB driver's
 	// row type. Here we delegate to the injected mapper.

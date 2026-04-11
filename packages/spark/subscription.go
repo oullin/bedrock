@@ -1,6 +1,10 @@
 package spark
 
-import "time"
+import (
+	"time"
+
+	"github.com/bedrock/packages/contracts"
+)
 
 // Subscription represents a billing subscription linking a billable entity to
 // a plan through a payment provider.
@@ -43,7 +47,7 @@ func (s *Subscription) IsNew() bool {
 
 // Valid reports whether the subscription should be considered valid for access.
 // When keepPastDueActive is true, past-due subscriptions count as valid.
-func (s *Subscription) Valid(clock Clock, keepPastDueActive bool) bool {
+func (s *Subscription) Valid(clock contracts.Clock, keepPastDueActive bool) bool {
 	if s.OnTrial(clock) {
 		return true
 	}
@@ -60,7 +64,7 @@ func (s *Subscription) Valid(clock Clock, keepPastDueActive bool) bool {
 }
 
 // OnTrial reports whether the subscription is currently within its trial period.
-func (s *Subscription) OnTrial(clock Clock) bool {
+func (s *Subscription) OnTrial(clock contracts.Clock) bool {
 	if s.TrialEndsAt == nil {
 		return false
 	}
@@ -69,7 +73,7 @@ func (s *Subscription) OnTrial(clock Clock) bool {
 }
 
 // HasExpiredTrial reports whether the subscription had a trial that has elapsed.
-func (s *Subscription) HasExpiredTrial(clock Clock) bool {
+func (s *Subscription) HasExpiredTrial(clock contracts.Clock) bool {
 	if s.TrialEndsAt == nil {
 		return false
 	}
@@ -85,7 +89,7 @@ func (s *Subscription) Active() bool {
 }
 
 // Recurring reports whether the subscription is active and not on trial.
-func (s *Subscription) Recurring(clock Clock) bool {
+func (s *Subscription) Recurring(clock contracts.Clock) bool {
 	return s.Active() && !s.OnTrial(clock)
 }
 
@@ -106,7 +110,7 @@ func (s *Subscription) Canceled() bool {
 
 // OnGracePeriod reports whether the subscription is canceled but still within
 // its paid period.
-func (s *Subscription) OnGracePeriod(clock Clock) bool {
+func (s *Subscription) OnGracePeriod(clock contracts.Clock) bool {
 	if s.EndsAt == nil {
 		return false
 	}
@@ -116,7 +120,7 @@ func (s *Subscription) OnGracePeriod(clock Clock) bool {
 
 // OnPausedGracePeriod reports whether the subscription is paused but the pause
 // has not yet taken effect.
-func (s *Subscription) OnPausedGracePeriod(clock Clock) bool {
+func (s *Subscription) OnPausedGracePeriod(clock contracts.Clock) bool {
 	if s.PausedAt == nil {
 		return false
 	}

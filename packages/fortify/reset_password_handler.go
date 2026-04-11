@@ -1,6 +1,10 @@
 package fortify
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // ResetPasswordHandler handles POST /reset-password requests.
 type ResetPasswordHandler struct {
@@ -24,7 +28,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	config := h.fortify.config
 	input := RequestInput(r, config.IdentifierField, "password", "password_confirmation", "token")
 
-	err := h.fortify.broker.Reset(ctx, input, func(user Authenticatable, password string) error {
+	err := h.fortify.broker.Reset(ctx, input, func(user cauth.Authenticatable, password string) error {
 		return h.fortify.resetPass.Reset(ctx, user, password)
 	})
 
@@ -35,9 +39,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, Event{
-			Name: EventPasswordReset,
-		})
+		_ = h.fortify.events.Dispatch(ctx, EventPasswordReset)
 	}
 
 	h.fortify.responder.PasswordResetResponse(w, r)

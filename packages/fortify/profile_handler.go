@@ -1,6 +1,10 @@
 package fortify
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // UpdateProfileHandler handles PUT /user/profile-information requests.
 type UpdateProfileHandler struct {
@@ -34,7 +38,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	previousEmail := ""
 
-	if verifiable, ok := user.(MustVerifyEmail); ok {
+	if verifiable, ok := user.(cauth.MustVerifyEmail); ok {
 		previousEmail = verifiable.GetEmailForVerification()
 	}
 
@@ -45,7 +49,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.fortify.config.Features.EmailVerification && h.fortify.verifier != nil {
-		if verifiable, ok := user.(MustVerifyEmail); ok {
+		if verifiable, ok := user.(cauth.MustVerifyEmail); ok {
 			newEmail := verifiable.GetEmailForVerification()
 
 			if previousEmail != newEmail {
@@ -56,7 +60,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, Event{Name: "fortify.profile.updated"})
+		_ = h.fortify.events.Dispatch(ctx, "fortify.profile.updated")
 	}
 
 	h.fortify.responder.ProfileInformationUpdatedResponse(w, r)

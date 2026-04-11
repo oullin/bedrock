@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bedrock/packages/fortify"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test token repo ---
@@ -185,7 +185,7 @@ func TestCreateTokenSuccess(t *testing.T) {
 		t.Fatal("expected token to be created in repo")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTokenCreated {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTokenCreated {
 		t.Fatal("expected TokenCreated event")
 	}
 }
@@ -248,7 +248,7 @@ func TestUpdateTokenSuccess(t *testing.T) {
 		t.Fatalf("expected 3 permissions, got %d", len(updated.Permissions))
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTokenUpdated {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTokenUpdated {
 		t.Fatal("expected TokenUpdated event")
 	}
 }
@@ -292,7 +292,7 @@ func TestDeleteTokenSuccess(t *testing.T) {
 		t.Fatal("expected token to be deleted")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventTokenDeleted {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventTokenDeleted {
 		t.Fatal("expected TokenDeleted event")
 	}
 }
@@ -410,25 +410,25 @@ func TestTokenCanDeniesNoToken(t *testing.T) {
 	}
 }
 
-func (p *stubUserProvider) RetrieveByID(_ context.Context, _ string) (fortify.Authenticatable, error) {
+func (p *stubUserProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
 	if p.user == nil {
 		return nil, nil
 	}
 
 	return p.user, nil
 }
-func (p *stubUserProvider) RetrieveByToken(_ context.Context, _ string, _ string) (fortify.Authenticatable, error) {
+func (p *stubUserProvider) RetrieveByToken(_ context.Context, _ string, _ string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (p *stubUserProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (fortify.Authenticatable, error) {
+func (p *stubUserProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (p *stubUserProvider) UpdateRememberToken(_ context.Context, _ fortify.Authenticatable, _ string) error {
+func (p *stubUserProvider) UpdateRememberToken(_ context.Context, _ cauth.Authenticatable, _ string) error {
 	return nil
 }
-func (p *stubUserProvider) ValidateCredentials(_ context.Context, _ fortify.Authenticatable, _ map[string]string) (bool, error) {
+func (p *stubUserProvider) ValidateCredentials(_ context.Context, _ cauth.Authenticatable, _ map[string]string) (bool, error) {
 	return false, nil
 }
-func (p *stubUserProvider) RehashPasswordIfRequired(_ context.Context, _ fortify.Authenticatable, _ map[string]string, _ bool) error {
+func (p *stubUserProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
