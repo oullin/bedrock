@@ -43,6 +43,89 @@ func (p *Promise) Then(fn func(*Response, error)) *Promise {
 	return p
 }
 
+// Catch registers a callback invoked only when the promise resolves with an
+// error. The callback runs in a new goroutine.
+func (p *Promise) Catch(fn func(error)) *Promise {
+	go func() {
+		<-p.done
+		if p.err != nil {
+			fn(p.err)
+		}
+	}()
+
+	return p
+}
+
+// Otherwise registers a fallback that can recover from an error. If the
+// promise resolves with an error the callback is invoked and its return values
+// replace the original response and error. The callback runs in a new
+// goroutine; callers that need the recovered value should chain with Then or
+// call Wait.
+func (p *Promise) Otherwise(fn func(error) (*Response, error)) *Promise {
+	next := NewPromise()
+
+	go func() {
+		<-p.done
+
+		if p.err != nil {
+			resp, err := fn(p.err)
+			next.Resolve(resp, err)
+		} else {
+			next.Resolve(p.response, nil)
+		}
+	}()
+
+	return next
+}
+
+// LazyPromise defers execution of a request function until Wait is called.
+type LazyPromise struct {
+	once sync.Once
+	fn   func() (*Response, error)
+	p    *Promise
+}
+
+// NewLazyPromise creates a promise that will not execute fn until Wait or Then
+// is called.
+func NewLazyPromise(fn func() (*Response, error)) *LazyPromise {
+	return &LazyPromise{
+		fn: fn,
+		p:  NewPromise(),
+	}
+}
+
+func (lp *LazyPromise) build() {
+	lp.once.Do(func() {
+		resp, err := lp.fn()
+		lp.p.Resolve(resp, err)
+	})
+}
+
+// Wait triggers the deferred execution and blocks until the result is
+// available.
+func (lp *LazyPromise) Wait() (*Response, error) {
+	lp.build()
+
+	return lp.p.Wait()
+}
+
+// Then triggers the deferred execution and registers a callback for when it
+// completes.
+func (lp *LazyPromise) Then(fn func(*Response, error)) *LazyPromise {
+	lp.build()
+	lp.p.Then(fn)
+
+	return lp
+}
+
+// Catch triggers the deferred execution and registers an error-only callback.
+func (lp *LazyPromise) Catch(fn func(error)) *LazyPromise {
+	lp.build()
+	lp.p.Catch(fn)
+
+	return lp
+}
+
 // Async sends a request asynchronously and returns a Promise.
 func (p *PendingRequest) Async(method, url string, data ...any) *Promise {
 	promise := NewPromise()

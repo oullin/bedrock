@@ -114,3 +114,87 @@ func TestPaginatedResponseHTTP(t *testing.T) {
 		t.Fatal("expected application/json")
 	}
 }
+
+func TestResourceResponseDefaultStatus(t *testing.T) {
+	t.Parallel()
+
+	resource := resources.NewResource(User{ID: 1, Name: "Taylor"}, userMapper)
+	rr := resources.NewResourceResponse(resource)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/users/1", nil)
+
+	err := rr.Response(rec, req)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestResourceResponseRecentlyCreated(t *testing.T) {
+	t.Parallel()
+
+	resource := resources.NewResource(User{ID: 1, Name: "Taylor"}, userMapper)
+	rr := resources.NewResourceResponse(resource).RecentlyCreated()
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/users", nil)
+
+	err := rr.Response(rec, req)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", rec.Code)
+	}
+}
+
+func TestResourceResponseWithHeader(t *testing.T) {
+	t.Parallel()
+
+	resource := resources.NewResource(User{ID: 1, Name: "Taylor"}, userMapper)
+	rr := resources.NewResourceResponse(resource).
+		RecentlyCreated().
+		WithHeader("Location", "/users/1")
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/users", nil)
+
+	rr.Response(rec, req)
+
+	if rec.Header().Get("Location") != "/users/1" {
+		t.Fatalf("expected Location header, got %q", rec.Header().Get("Location"))
+	}
+}
+
+func TestResourceResponseWithCallback(t *testing.T) {
+	t.Parallel()
+
+	resource := resources.NewResource(User{ID: 1, Name: "Taylor"}, userMapper)
+
+	called := false
+	rr := resources.NewResourceResponse(resource).
+		WithResponse(func(w http.ResponseWriter, r *http.Request) {
+			called = true
+			w.Header().Set("X-Custom", "value")
+		})
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/users/1", nil)
+
+	rr.Response(rec, req)
+
+	if !called {
+		t.Fatal("expected callback to be called")
+	}
+
+	if rec.Header().Get("X-Custom") != "value" {
+		t.Fatalf("expected X-Custom header, got %q", rec.Header().Get("X-Custom"))
+	}
+}
