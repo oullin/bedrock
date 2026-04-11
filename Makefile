@@ -9,7 +9,6 @@ GO_PACKAGES := \
 	packages/auth \
 	packages/bus \
 	packages/cache \
-	packages/contracts/auth \
 	packages/cookie \
 	packages/authflows \
 	packages/authkit \

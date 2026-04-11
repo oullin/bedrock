@@ -3,8 +3,8 @@ package listeners
 import (
 	"context"
 
+	contracts "github.com/bedrock/packages/auth/contract"
 	"github.com/bedrock/packages/auth/events"
-	contracts "github.com/bedrock/packages/contracts/auth"
 )
 
 // SendEmailVerificationNotification sends an email verification notification
