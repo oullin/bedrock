@@ -1,0 +1,6 @@
+./config_test.go
+./customer_test.go
+./enum_test.go
+./manager_test.go
+./plan_test.go
+./subscription_test.go

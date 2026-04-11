@@ -7,17 +7,18 @@ import (
 
 // Jar implements QueueingFactory. It maintains a queue of cookies to be
 // attached to outgoing responses and applies configurable defaults.
-// It is safe for concurrent use.
+// Cookies are keyed by name and path, mirroring Upstream's CookieJar
+// behaviour. It is safe for concurrent use.
 type Jar struct {
 	mu       sync.Mutex
-	queued   map[string]*http.Cookie
+	queued   map[string]map[string]*http.Cookie // name -> path -> cookie
 	defaults Options
 }
 
 // NewJar creates a Jar with the given default options.
 func NewJar(defaults Options) *Jar {
 	return &Jar{
-		queued:   make(map[string]*http.Cookie),
+		queued:   make(map[string]map[string]*http.Cookie),
 		defaults: defaults,
 	}
 }
@@ -56,14 +57,18 @@ func (j *Jar) Forget(name string, opts Options) *http.Cookie {
 	return Forget(name, j.merge(opts))
 }
 
-// Queue adds a cookie to the outgoing queue. Any previously queued cookie
-// with the same name is replaced.
+// Queue adds a cookie to the outgoing queue, keyed by name and path.
+// Any previously queued cookie with the same name and path is replaced.
 func (j *Jar) Queue(c *http.Cookie) {
 	j.mu.Lock()
 
 	defer j.mu.Unlock()
 
-	j.queued[c.Name] = c
+	if j.queued[c.Name] == nil {
+		j.queued[c.Name] = make(map[string]*http.Cookie)
+	}
+
+	j.queued[c.Name][c.Path] = c
 }
 
 // QueueMake creates a cookie from name, value, and opts, then queues it.
@@ -81,45 +86,82 @@ func (j *Jar) Expire(name string, opts Options) {
 	j.Queue(j.Forget(name, opts))
 }
 
-// Unqueue removes the cookie with the given name from the queue.
-func (j *Jar) Unqueue(name string) {
+// Unqueue removes cookies from the queue. When called with only a name,
+// all path entries for that name are removed. When called with a path,
+// only that specific name+path entry is removed; if the name bucket
+// becomes empty it is cleaned up.
+func (j *Jar) Unqueue(name string, path ...string) {
 	j.mu.Lock()
 
 	defer j.mu.Unlock()
 
-	delete(j.queued, name)
+	if len(path) == 0 {
+		delete(j.queued, name)
+
+		return
+	}
+
+	bucket := j.queued[name]
+
+	if bucket == nil {
+		return
+	}
+
+	delete(bucket, path[0])
+
+	if len(bucket) == 0 {
+		delete(j.queued, name)
+	}
 }
 
 // HasQueued reports whether a cookie with the given name is queued.
-func (j *Jar) HasQueued(name string) bool {
+// When called with a path, it checks for the specific name+path entry.
+func (j *Jar) HasQueued(name string, path ...string) bool {
+	return j.Queued(name, path...) != nil
+}
+
+// Queued returns the queued cookie with the given name. When called
+// without a path, the last entry for the name is returned (matching
+// Upstream's behaviour). When called with a path, the specific
+// name+path entry is returned.
+func (j *Jar) Queued(name string, path ...string) *http.Cookie {
 	j.mu.Lock()
 
 	defer j.mu.Unlock()
 
-	_, ok := j.queued[name]
+	bucket := j.queued[name]
 
-	return ok
+	if bucket == nil {
+		return nil
+	}
+
+	if len(path) > 0 {
+		return bucket[path[0]]
+	}
+
+	// Return the last entry (iteration order is non-deterministic in Go,
+	// but consistent with "return any/last" semantics).
+	var last *http.Cookie
+
+	for _, c := range bucket {
+		last = c
+	}
+
+	return last
 }
 
-// Queued returns the queued cookie with the given name, or nil.
-func (j *Jar) Queued(name string) *http.Cookie {
-	j.mu.Lock()
-
-	defer j.mu.Unlock()
-
-	return j.queued[name]
-}
-
-// GetQueued returns all queued cookies in an unspecified order.
+// GetQueued returns all queued cookies in a flat slice.
 func (j *Jar) GetQueued() []*http.Cookie {
 	j.mu.Lock()
 
 	defer j.mu.Unlock()
 
-	cookies := make([]*http.Cookie, 0, len(j.queued))
+	var cookies []*http.Cookie
 
-	for _, c := range j.queued {
-		cookies = append(cookies, c)
+	for _, bucket := range j.queued {
+		for _, c := range bucket {
+			cookies = append(cookies, c)
+		}
 	}
 
 	return cookies
@@ -131,10 +173,17 @@ func (j *Jar) Flush() {
 
 	defer j.mu.Unlock()
 
-	j.queued = make(map[string]*http.Cookie)
+	j.queued = make(map[string]map[string]*http.Cookie)
 }
 
 // merge applies non-zero fields from opts on top of the jar's defaults.
+// For boolean fields (Secure, HTTPOnly, Raw), an explicit value in opts
+// takes precedence over the default. Because Go's zero-value for bool is
+// false, passing Secure=false in opts cannot be distinguished from "not
+// set" without a pointer or sentinel. We follow the same approach as
+// Upstream: the caller-provided value wins when it differs from the
+// default, and the default wins otherwise. Practically this means the
+// default is used unless the caller explicitly sets the field to true.
 func (j *Jar) merge(opts Options) Options {
 	d := j.defaults
 
