@@ -8,11 +8,12 @@ import (
 	"testing"
 
 	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 func TestRequestGuardResolvesUserViaCallback(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return user, nil
 	})
 
@@ -32,8 +33,8 @@ func TestRequestGuardResolvesUserViaCallback(t *testing.T) {
 
 func TestRequestGuardCachesResultPerRequest(t *testing.T) {
 	callCount := 0
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		callCount++
 
 		return user, nil
@@ -52,7 +53,7 @@ func TestRequestGuardCachesResultPerRequest(t *testing.T) {
 }
 
 func TestRequestGuardReturnsNilWhenCallbackReturnsNil(t *testing.T) {
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return nil, nil
 	})
 
@@ -71,7 +72,7 @@ func TestRequestGuardReturnsNilWhenCallbackReturnsNil(t *testing.T) {
 }
 
 func TestRequestGuardReturnsErrorFromCallback(t *testing.T) {
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return nil, errors.New("auth error")
 	})
 
@@ -94,8 +95,8 @@ func TestRequestGuardReturnsErrorFromCallback(t *testing.T) {
 }
 
 func TestRequestGuardReturnsNilWithNoRequest(t *testing.T) {
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
-		return auth.NewGenericUser(map[string]any{"id": 1}), nil
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
+		return auth.NewGenericUser(map[string]any{"id": "1"}), nil
 	})
 
 	// No SetRequest called.
@@ -129,8 +130,8 @@ func TestRequestGuardReturnsNilWithNilCallback(t *testing.T) {
 
 func TestRequestGuardSetRequestClearsCache(t *testing.T) {
 	callCount := 0
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		callCount++
 
 		return user, nil
@@ -150,8 +151,8 @@ func TestRequestGuardSetRequestClearsCache(t *testing.T) {
 }
 
 func TestRequestGuardCheckAndGuest(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return user, nil
 	})
 
@@ -170,7 +171,7 @@ func TestRequestGuardCheckAndGuest(t *testing.T) {
 }
 
 func TestRequestGuardSetUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	guard := auth.NewRequestGuard(nil)
 
 	guard.SetUser(user)
@@ -187,7 +188,7 @@ func TestRequestGuardSetUser(t *testing.T) {
 }
 
 func TestRequestGuardForgetUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	guard := auth.NewRequestGuard(nil)
 
 	guard.SetUser(user)
@@ -207,15 +208,15 @@ func TestRequestGuardHasUserReturnsFalseInitially(t *testing.T) {
 }
 
 func TestRequestGuardIDReturnsIdentifier(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 42, "password": "pw"})
-	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (auth.Authenticatable, error) {
+	user := auth.NewGenericUser(map[string]any{"id": "42", "password": "pw"})
+	guard := auth.NewRequestGuard(func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
 		return user, nil
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	guard.SetRequest(req)
 
-	if guard.ID(context.Background()) != 42 {
-		t.Errorf("ID = %v, want 42", guard.ID(context.Background()))
+	if guard.ID(context.Background()) != "42" {
+		t.Errorf("ID = %v, want \"42\"", guard.ID(context.Background()))
 	}
 }

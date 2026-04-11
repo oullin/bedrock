@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 )
 
@@ -37,7 +38,7 @@ func NormaliseBillableRouteParam(resolver billing.BillableResolver) func(http.Ha
 func VerifyBillableIsSubscribed(
 	manager *billing.Manager,
 	subscriptions billing.SubscriptionStore,
-	clock billing.Clock,
+	clock contracts.Clock,
 	keepPastDueActive bool,
 ) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

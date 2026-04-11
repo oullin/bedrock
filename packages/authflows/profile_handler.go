@@ -1,6 +1,10 @@
 package authflows
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // UpdateProfileHandler handles PUT /user/profile-information requests.
 type UpdateProfileHandler struct {
@@ -34,7 +38,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	previousEmail := ""
 
-	if verifiable, ok := user.(MustVerifyEmail); ok {
+	if verifiable, ok := user.(cauth.MustVerifyEmail); ok {
 		previousEmail = verifiable.GetEmailForVerification()
 	}
 
@@ -45,7 +49,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.authflows.config.Features.EmailVerification && h.authflows.verifier != nil {
-		if verifiable, ok := user.(MustVerifyEmail); ok {
+		if verifiable, ok := user.(cauth.MustVerifyEmail); ok {
 			newEmail := verifiable.GetEmailForVerification()
 
 			if previousEmail != newEmail {
@@ -56,7 +60,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: "authflows.profile.updated"})
+		_ = h.authflows.events.Dispatch(ctx, "authflows.profile.updated")
 	}
 
 	h.authflows.responder.ProfileInformationUpdatedResponse(w, r)

@@ -155,7 +155,7 @@ func TestDeleteAccountSuccess(t *testing.T) {
 		t.Fatal("expected DeletesUsers.Delete to be called")
 	}
 
-	if len(events.dispatched) != 1 || events.dispatched[0].Name != EventUserDeleted {
+	if len(events.dispatched) != 1 || events.dispatched[0].(Event).Name != EventUserDeleted {
 		t.Fatal("expected UserDeleted event")
 	}
 }

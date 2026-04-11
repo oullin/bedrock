@@ -179,6 +179,7 @@ func TestResourceToJSON(t *testing.T) {
 	}
 
 	var doc map[string]any
+
 	json.Unmarshal(b, &doc)
 
 	data, ok := doc["data"].(map[string]any)

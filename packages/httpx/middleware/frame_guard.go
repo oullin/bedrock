@@ -3,15 +3,16 @@ package middleware
 import "net/http"
 
 // FrameGuardMode defines the X-Frame-Options header value.
-const (
-	FrameDeny      = "DENY"
-	FrameSameOrgin = "SAMEORIGIN"
-)
 
 // FrameGuard sets the X-Frame-Options header to protect against clickjacking.
 type FrameGuard struct {
 	mode string
 }
+
+const (
+	FrameDeny      = "DENY"
+	FrameSameOrgin = "SAMEORIGIN"
+)
 
 // NewFrameGuard creates a FrameGuard middleware. mode should be "DENY" or
 // "SAMEORIGIN"; it defaults to "SAMEORIGIN".

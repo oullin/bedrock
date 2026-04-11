@@ -1,6 +1,10 @@
 package authflows
 
-import "net/http"
+import (
+	"net/http"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
+)
 
 // SendVerificationHandler handles POST /email/verification-notification requests.
 type SendVerificationHandler struct {
@@ -37,7 +41,7 @@ func (h *SendVerificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if verifiable, ok := user.(MustVerifyEmail); ok && verifiable.HasVerifiedEmail() {
+	if verifiable, ok := user.(cauth.MustVerifyEmail); ok && verifiable.HasVerifiedEmail() {
 		w.WriteHeader(http.StatusNoContent)
 
 		return
@@ -95,7 +99,7 @@ func (h *VerifyEmailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, Event{Name: EventVerified})
+		_ = h.authflows.events.Dispatch(ctx, EventVerified)
 	}
 
 	w.WriteHeader(http.StatusOK)

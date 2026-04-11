@@ -1,5 +1,7 @@
 package authflows
 
+import cauth "github.com/bedrock/packages/contracts/auth"
+
 // Event names dispatched by AuthFlows.
 
 // LoginAttemptedPayload is dispatched when a login attempt begins.
@@ -10,7 +12,7 @@ type LoginAttemptedPayload struct {
 
 // LoginSucceededPayload is dispatched after a successful login.
 type LoginSucceededPayload struct {
-	User     Authenticatable
+	User     cauth.Authenticatable
 	Remember bool
 }
 
@@ -21,12 +23,12 @@ type LoginFailedPayload struct {
 
 // LoggedOutPayload is dispatched after logout.
 type LoggedOutPayload struct {
-	User Authenticatable
+	User cauth.Authenticatable
 }
 
 // RegisteredPayload is dispatched after a new user registers.
 type RegisteredPayload struct {
-	User Authenticatable
+	User cauth.Authenticatable
 }
 
 const (

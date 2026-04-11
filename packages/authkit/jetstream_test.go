@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/authflows"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test doubles ---
@@ -30,13 +30,13 @@ type stubRemovesMembers struct{}
 type stubInvitesMembers struct{}
 
 func (g *stubGuard) Name() string { return "web" }
-func (g *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (authflows.Authenticatable, error) {
+func (g *stubGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return nil, nil
 }
-func (g *stubGuard) Login(_ context.Context, _ http.ResponseWriter, _ authflows.Authenticatable, _ bool) error {
+func (g *stubGuard) Login(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable, _ bool) error {
 	return nil
 }
-func (g *stubGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ authflows.Authenticatable) error {
+func (g *stubGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, _ cauth.Authenticatable) error {
 	return nil
 }
 func (g *stubGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {

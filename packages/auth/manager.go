@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // Manager creates and manages named guards and user providers.
 type Manager struct {
 	mu               sync.RWMutex
-	guards           map[string]Guard
+	guards           map[string]cauth.Guard
 	guardCreators    map[string]GuardCreator
-	providers        map[string]UserProvider
+	providers        map[string]cauth.UserProvider
 	providerCreators map[string]ProviderCreator
 	configs          map[string]map[string]any
 	defaultGuard     string
@@ -21,9 +23,9 @@ type Manager struct {
 // NewManager creates an AuthManager with no pre-registered drivers.
 func NewManager(defaultGuard string) *Manager {
 	return &Manager{
-		guards:           make(map[string]Guard),
+		guards:           make(map[string]cauth.Guard),
 		guardCreators:    make(map[string]GuardCreator),
-		providers:        make(map[string]UserProvider),
+		providers:        make(map[string]cauth.UserProvider),
 		providerCreators: make(map[string]ProviderCreator),
 		configs:          make(map[string]map[string]any),
 		defaultGuard:     defaultGuard,
@@ -75,7 +77,7 @@ func (m *Manager) SetConfig(name string, config map[string]any) *Manager {
 }
 
 // Guard returns the guard identified by name. Uses the default if name is "".
-func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
+func (m *Manager) Guard(ctx context.Context, name string) (cauth.Guard, error) {
 	if name == "" {
 		name = m.defaultGuard
 	}
@@ -97,7 +99,7 @@ func (m *Manager) Guard(ctx context.Context, name string) (Guard, error) {
 		return nil, fmt.Errorf("%w: %q (driver: %q)", ErrInvalidGuard, name, driver)
 	}
 
-	var provider UserProvider
+	var provider cauth.UserProvider
 
 	if providerName, ok := cfg["provider"].(string); ok {
 		p, err := m.resolveProvider(ctx, providerName)
@@ -135,7 +137,7 @@ func (m *Manager) SetRequest(r *http.Request) {
 	}
 }
 
-func (m *Manager) resolveProvider(ctx context.Context, name string) (UserProvider, error) {
+func (m *Manager) resolveProvider(ctx context.Context, name string) (cauth.UserProvider, error) {
 	if p, ok := m.providers[name]; ok {
 		return p, nil
 	}

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/bedrock/packages/contracts"
 )
 
 // RedisClient is the subset of Redis operations required by RedisStore.
@@ -26,7 +28,7 @@ type RedisClient interface {
 type RedisStore struct {
 	client RedisClient
 	prefix string
-	clock  Clock
+	clock  contracts.Clock
 }
 
 // NewRedisStore creates a RedisStore with the given client.

@@ -3,18 +3,26 @@ package listeners
 import (
 	"context"
 
-	contracts "github.com/bedrock/packages/auth/contract"
 	"github.com/bedrock/packages/auth/events"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
+// EmailVerificationSender is implemented by users that can send email
+// verification notifications. This extends the contracts MustVerifyEmail
+// interface with notification capability.
+type EmailVerificationSender interface {
+	cauth.MustVerifyEmail
+	SendEmailVerificationNotification()
+}
+
 // SendEmailVerificationNotification sends an email verification notification
-// when a new user registers, if the user implements MustVerifyEmail and has
+// when a new user registers, if the user implements EmailVerificationSender and has
 // not yet verified their email.
 type SendEmailVerificationNotification struct{}
 
 // Handle processes a Registered event.
 func (l *SendEmailVerificationNotification) Handle(_ context.Context, event events.Registered) {
-	mv, ok := event.User.(contracts.MustVerifyEmail)
+	mv, ok := event.User.(EmailVerificationSender)
 
 	if !ok {
 		return

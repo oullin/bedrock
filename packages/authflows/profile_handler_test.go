@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- test profile user ---
@@ -38,7 +40,7 @@ func (u *testProfileUser) MarkEmailAsVerified(_ time.Time) {}
 func (u *testProfileUser) MarkEmailAsUnverified()          { u.unverified = true }
 func (u *testProfileUser) GetEmailForVerification() string { return u.email }
 
-func (a *testUpdatesProfile) Update(_ context.Context, user Authenticatable, input map[string]string) error {
+func (a *testUpdatesProfile) Update(_ context.Context, user cauth.Authenticatable, input map[string]string) error {
 	a.called = true
 
 	if a.err != nil {

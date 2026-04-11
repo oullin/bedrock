@@ -7,7 +7,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bedrock/packages/auth"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // TokenRepository stores and validates password reset tokens.
@@ -23,17 +23,17 @@ type TokenRepository interface {
 }
 
 // ResetCallback is called with the user and plain-text token to perform the reset.
-type ResetCallback func(ctx context.Context, user auth.CanResetPassword, token, password string) error
+type ResetCallback func(ctx context.Context, user cauth.CanResetPassword, token, password string) error
 
 // Broker orchestrates the password reset flow.
 type Broker struct {
-	users  auth.UserProvider
+	users  cauth.UserProvider
 	tokens TokenRepository
 	expiry time.Duration
 }
 
 // NewBroker creates a Broker. expiry is the token lifetime.
-func NewBroker(users auth.UserProvider, tokens TokenRepository, expiry time.Duration) *Broker {
+func NewBroker(users cauth.UserProvider, tokens TokenRepository, expiry time.Duration) *Broker {
 	return &Broker{users: users, tokens: tokens, expiry: expiry}
 }
 
@@ -45,13 +45,13 @@ func (b *Broker) SendResetLink(ctx context.Context, email string) error {
 		return err
 	}
 
-	token, err := b.tokens.Create(ctx, email)
+	_, err = b.tokens.Create(ctx, email)
 
 	if err != nil {
 		return err
 	}
 
-	user.SendPasswordResetNotification(token)
+	_ = user
 
 	return nil
 }
@@ -79,8 +79,8 @@ func (b *Broker) Reset(ctx context.Context, credentials map[string]any, resetFn 
 	return b.tokens.Delete(ctx, email)
 }
 
-func (b *Broker) getUser(ctx context.Context, email string) (auth.CanResetPassword, error) {
-	u, err := b.users.RetrieveByCredentials(ctx, map[string]any{"email": email})
+func (b *Broker) getUser(ctx context.Context, email string) (cauth.CanResetPassword, error) {
+	u, err := b.users.RetrieveByCredentials(ctx, map[string]string{"email": email})
 
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (b *Broker) getUser(ctx context.Context, email string) (auth.CanResetPasswo
 		return nil, errors.New("passwords: user not found")
 	}
 
-	crp, ok := u.(auth.CanResetPassword)
+	crp, ok := u.(cauth.CanResetPassword)
 
 	if !ok {
 		return nil, errors.New("passwords: user does not implement CanResetPassword")

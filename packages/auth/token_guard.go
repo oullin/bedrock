@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // TokenGuard authenticates requests via a bearer token found in the query
@@ -12,16 +14,16 @@ import (
 type TokenGuard struct {
 	mu         sync.RWMutex
 	name       string
-	provider   UserProvider
+	provider   cauth.UserProvider
 	request    *http.Request
-	user       Authenticatable
+	user       cauth.Authenticatable
 	inputKey   string // query/form field name (default: "api_token")
 	storageKey string // user attribute key (default: "api_token")
 	hashable   bool   // whether tokens are hashed in storage
 }
 
 // NewTokenGuard creates a TokenGuard with default key names.
-func NewTokenGuard(name string, provider UserProvider) *TokenGuard {
+func NewTokenGuard(name string, provider cauth.UserProvider) *TokenGuard {
 	return &TokenGuard{
 		name:       name,
 		provider:   provider,
@@ -47,7 +49,7 @@ func (g *TokenGuard) SetRequest(r *http.Request) {
 }
 
 // SetUser sets the authenticated user on the guard.
-func (g *TokenGuard) SetUser(user Authenticatable) {
+func (g *TokenGuard) SetUser(user cauth.Authenticatable) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -74,7 +76,7 @@ func (g *TokenGuard) ForgetUser() {
 }
 
 // User returns the authenticated user, or nil if the token is absent/invalid.
-func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
+func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -89,7 +91,7 @@ func (g *TokenGuard) User(ctx context.Context) (Authenticatable, error) {
 		return nil, nil
 	}
 
-	user, err := g.provider.RetrieveByCredentials(ctx, map[string]any{
+	user, err := g.provider.RetrieveByCredentials(ctx, map[string]string{
 		g.storageKey: token,
 	})
 

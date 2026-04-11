@@ -8,12 +8,13 @@ import (
 
 	"github.com/bedrock/packages/auth"
 	"github.com/bedrock/packages/auth/events"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // --- SessionGuard: User resolution ---
 
 func TestSessionGuardUserReturnsNilWhenNoUserFound(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -29,8 +30,8 @@ func TestSessionGuardUserReturnsNilWhenNoUserFound(t *testing.T) {
 }
 
 func TestSessionGuardUserReturnsCachedUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -47,10 +48,10 @@ func TestSessionGuardUserReturnsCachedUser(t *testing.T) {
 }
 
 func TestSessionGuardUserIsSetToRetrievedUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
-	sess.Put("_auth_user", 1)
+	sess.Put("_auth_user", "1")
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	got, err := guard.User(context.Background())
@@ -67,7 +68,7 @@ func TestSessionGuardUserIsSetToRetrievedUser(t *testing.T) {
 func TestSessionGuardUserUsesRememberCookieIfItExists(t *testing.T) {
 	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	user.SetRememberToken("recaller")
-	provider := &stubProvider{users: map[any]auth.Authenticatable{"1": user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -91,10 +92,10 @@ func TestSessionGuardUserUsesRememberCookieIfItExists(t *testing.T) {
 }
 
 func TestSessionGuardUserDispatchesAuthenticatedEventFromSession(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
-	sess.Put("_auth_user", 1)
+	sess.Put("_auth_user", "1")
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
@@ -107,7 +108,7 @@ func TestSessionGuardUserDispatchesAuthenticatedEventFromSession(t *testing.T) {
 func TestSessionGuardUserDispatchesLoginEventFromRememberCookie(t *testing.T) {
 	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	user.SetRememberToken("tok")
-	provider := &stubProvider{users: map[any]auth.Authenticatable{"1": user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -125,8 +126,8 @@ func TestSessionGuardUserDispatchesLoginEventFromRememberCookie(t *testing.T) {
 // --- SessionGuard: Check / Guest / ID ---
 
 func TestSessionGuardCheckReturnsTrueWhenUserIsNotNull(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -143,7 +144,7 @@ func TestSessionGuardCheckReturnsTrueWhenUserIsNotNull(t *testing.T) {
 }
 
 func TestSessionGuardCheckReturnsFalseWhenUserIsNull(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -158,21 +159,21 @@ func TestSessionGuardCheckReturnsFalseWhenUserIsNull(t *testing.T) {
 }
 
 func TestSessionGuardIDReturnsIdentifier(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 42, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{42: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "42", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"42": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
 
 	_ = guard.Login(ctx, user, false)
 
-	if guard.ID(ctx) != 42 {
-		t.Errorf("ID() = %v, want 42", guard.ID(ctx))
+	if guard.ID(ctx) != "42" {
+		t.Errorf("ID() = %v, want \"42\"", guard.ID(ctx))
 	}
 }
 
 func TestSessionGuardIDReturnsNilWhenNoUser(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -184,13 +185,13 @@ func TestSessionGuardIDReturnsNilWhenNoUser(t *testing.T) {
 // --- SessionGuard: Attempt ---
 
 func TestSessionGuardAttemptCallsRetrieveByCredentials(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	ok := guard.Attempt(context.Background(), map[string]any{"email": "foo@bar.com", "password": "secret"}, false)
+	ok := guard.Attempt(context.Background(), map[string]string{"email": "foo@bar.com", "password": "secret"}, false)
 
 	if ok {
 		t.Error("Attempt should fail when user not found")
@@ -202,14 +203,14 @@ func TestSessionGuardAttemptCallsRetrieveByCredentials(t *testing.T) {
 }
 
 func TestSessionGuardAttemptReturnsTrue(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"}, false)
+	ok := guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"}, false)
 
 	if !ok {
 		t.Error("Attempt should return true with valid credentials")
@@ -222,14 +223,14 @@ func TestSessionGuardAttemptReturnsTrue(t *testing.T) {
 }
 
 func TestSessionGuardAttemptReturnsFalseWithInvalidPassword(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"}, false)
+	ok := guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"}, false)
 
 	if ok {
 		t.Error("Attempt should return false with invalid password")
@@ -242,13 +243,13 @@ func TestSessionGuardAttemptReturnsFalseWithInvalidPassword(t *testing.T) {
 }
 
 func TestSessionGuardAttemptReturnsFalseIfUserNotFound(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	ok := guard.Attempt(context.Background(), map[string]any{"email": "unknown@b.com", "password": "pw"}, false)
+	ok := guard.Attempt(context.Background(), map[string]string{"email": "unknown@b.com", "password": "pw"}, false)
 
 	if ok {
 		t.Error("Attempt should return false when user not found")
@@ -259,13 +260,13 @@ func TestSessionGuardAttemptReturnsFalseIfUserNotFound(t *testing.T) {
 }
 
 func TestSessionGuardAttemptWithRememberSetsRememberCookie(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
 
-	ok := guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"}, true)
+	ok := guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"}, true)
 
 	if !ok {
 		t.Fatal("Attempt with remember should succeed")
@@ -277,14 +278,14 @@ func TestSessionGuardAttemptWithRememberSetsRememberCookie(t *testing.T) {
 }
 
 func TestSessionGuardFailedEventContainsUserWhenPasswordInvalid(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	guard.Attempt(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"}, false)
+	guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"}, false)
 
 	dispatcher.mu.Lock()
 
@@ -308,13 +309,13 @@ func TestSessionGuardFailedEventContainsUserWhenPasswordInvalid(t *testing.T) {
 }
 
 func TestSessionGuardFailedEventHasNilUserWhenNotFound(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
 	guard.SetEventDispatcher(dispatcher)
 
-	guard.Attempt(context.Background(), map[string]any{"email": "missing@b.com", "password": "pw"}, false)
+	guard.Attempt(context.Background(), map[string]string{"email": "missing@b.com", "password": "pw"}, false)
 
 	dispatcher.mu.Lock()
 
@@ -336,21 +337,21 @@ func TestSessionGuardFailedEventHasNilUserWhenNotFound(t *testing.T) {
 // --- SessionGuard: Login ---
 
 func TestSessionGuardLoginStoresIdentifierInSession(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 42, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{42: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "42", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"42": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	_ = guard.Login(context.Background(), user, false)
 
-	if sess.Get("_auth_user", nil) != 42 {
-		t.Errorf("session _auth_user = %v, want 42", sess.Get("_auth_user", nil))
+	if sess.Get("_auth_user", nil) != "42" {
+		t.Errorf("session _auth_user = %v, want \"42\"", sess.Get("_auth_user", nil))
 	}
 }
 
 func TestSessionGuardLoginFiresLoginEvent(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -362,8 +363,8 @@ func TestSessionGuardLoginFiresLoginEvent(t *testing.T) {
 }
 
 func TestSessionGuardLoginFiresLoginEventWithRemember(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -390,8 +391,8 @@ func TestSessionGuardLoginFiresLoginEventWithRemember(t *testing.T) {
 }
 
 func TestSessionGuardLoginQueuesCookieWhenRemembering(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -408,8 +409,8 @@ func TestSessionGuardLoginQueuesCookieWhenRemembering(t *testing.T) {
 }
 
 func TestSessionGuardLoginCreatesRememberTokenIfOneDoesNotExist(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -428,12 +429,12 @@ func TestSessionGuardLoginCreatesRememberTokenIfOneDoesNotExist(t *testing.T) {
 // --- SessionGuard: LoginUsingID ---
 
 func TestSessionGuardLoginUsingIDLogsInWithUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 10, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{10: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "10", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"10": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	got, err := guard.LoginUsingID(context.Background(), 10, false)
+	got, err := guard.LoginUsingID(context.Background(), "10", false)
 
 	if err != nil {
 		t.Fatal(err)
@@ -449,11 +450,11 @@ func TestSessionGuardLoginUsingIDLogsInWithUser(t *testing.T) {
 }
 
 func TestSessionGuardLoginUsingIDFailure(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	_, err := guard.LoginUsingID(context.Background(), 11, false)
+	_, err := guard.LoginUsingID(context.Background(), "11", false)
 
 	if err == nil {
 		t.Error("expected error for missing user")
@@ -463,12 +464,12 @@ func TestSessionGuardLoginUsingIDFailure(t *testing.T) {
 // --- SessionGuard: OnceUsingID ---
 
 func TestSessionGuardOnceUsingIDSetsUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 10, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{10: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "10", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"10": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	got, err := guard.OnceUsingID(context.Background(), 10)
+	got, err := guard.OnceUsingID(context.Background(), "10")
 
 	if err != nil {
 		t.Fatal(err)
@@ -489,11 +490,11 @@ func TestSessionGuardOnceUsingIDSetsUser(t *testing.T) {
 }
 
 func TestSessionGuardOnceUsingIDFailure(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	_, err := guard.OnceUsingID(context.Background(), 11)
+	_, err := guard.OnceUsingID(context.Background(), "11")
 
 	if err == nil {
 		t.Error("expected error for missing user")
@@ -503,12 +504,12 @@ func TestSessionGuardOnceUsingIDFailure(t *testing.T) {
 // --- SessionGuard: Once ---
 
 func TestSessionGuardOnceSetsUserWithoutSession(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	ok := guard.Once(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"})
+	ok := guard.Once(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"})
 
 	if !ok {
 		t.Error("Once should return true for valid credentials")
@@ -525,12 +526,12 @@ func TestSessionGuardOnceSetsUserWithoutSession(t *testing.T) {
 }
 
 func TestSessionGuardOnceFailure(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	ok := guard.Once(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"})
+	ok := guard.Once(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"})
 
 	if ok {
 		t.Error("Once should return false for invalid credentials")
@@ -540,12 +541,12 @@ func TestSessionGuardOnceFailure(t *testing.T) {
 // --- SessionGuard: Validate ---
 
 func TestSessionGuardValidateReturnsTrue(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	ok := guard.Validate(context.Background(), map[string]any{"email": "a@b.com", "password": "pw"})
+	ok := guard.Validate(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"})
 
 	if !ok {
 		t.Error("Validate should return true for valid credentials")
@@ -558,12 +559,12 @@ func TestSessionGuardValidateReturnsTrue(t *testing.T) {
 }
 
 func TestSessionGuardValidateReturnsFalse(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
-	ok := guard.Validate(context.Background(), map[string]any{"email": "a@b.com", "password": "wrong"})
+	ok := guard.Validate(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"})
 
 	if ok {
 		t.Error("Validate should return false for invalid credentials")
@@ -573,8 +574,8 @@ func TestSessionGuardValidateReturnsFalse(t *testing.T) {
 // --- SessionGuard: Logout ---
 
 func TestSessionGuardLogoutRemovesSessionAndCookie(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -603,8 +604,8 @@ func TestSessionGuardLogoutRemovesSessionAndCookie(t *testing.T) {
 }
 
 func TestSessionGuardLogoutFiresLogoutEvent(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -619,7 +620,7 @@ func TestSessionGuardLogoutFiresLogoutEvent(t *testing.T) {
 }
 
 func TestSessionGuardLogoutDoesNotFireEventIfNoUser(t *testing.T) {
-	provider := &stubProvider{users: map[any]auth.Authenticatable{}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -631,9 +632,9 @@ func TestSessionGuardLogoutDoesNotFireEventIfNoUser(t *testing.T) {
 }
 
 func TestSessionGuardLogoutRefreshesRememberToken(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	user.SetRememberToken("old-token")
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -649,8 +650,8 @@ func TestSessionGuardLogoutRefreshesRememberToken(t *testing.T) {
 // --- SessionGuard: LogoutOtherDevices ---
 
 func TestSessionGuardLogoutOtherDevicesDispatchesEvent(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -672,8 +673,8 @@ func TestSessionGuardLogoutOtherDevicesDispatchesEvent(t *testing.T) {
 // --- SessionGuard: ViaRemember ---
 
 func TestSessionGuardViaRememberReturnsFalseByDefault(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -688,8 +689,8 @@ func TestSessionGuardViaRememberReturnsFalseByDefault(t *testing.T) {
 // --- SessionGuard: SetUser / HasUser / ForgetUser ---
 
 func TestSessionGuardSetUserFiresAuthenticatedEvent(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -701,8 +702,8 @@ func TestSessionGuardSetUserFiresAuthenticatedEvent(t *testing.T) {
 }
 
 func TestSessionGuardHasUserReturnsTrueWhenUserIsSet(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -718,8 +719,8 @@ func TestSessionGuardHasUserReturnsTrueWhenUserIsSet(t *testing.T) {
 }
 
 func TestSessionGuardForgetUserClearsUser(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
@@ -734,8 +735,8 @@ func TestSessionGuardForgetUserClearsUser(t *testing.T) {
 // --- SessionGuard: LogoutCurrentDevice ---
 
 func TestSessionGuardLogoutCurrentDeviceFiresEvent(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -757,8 +758,8 @@ func TestSessionGuardLogoutCurrentDeviceFiresEvent(t *testing.T) {
 }
 
 func TestSessionGuardLogoutCurrentDeviceRemovesSessionAndCookie(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	cookies := &stubCookieManager{}
 	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
@@ -781,9 +782,9 @@ func TestSessionGuardLogoutCurrentDeviceRemovesSessionAndCookie(t *testing.T) {
 }
 
 func TestSessionGuardLogoutCurrentDeviceDoesNotRefreshRememberToken(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
 	user.SetRememberToken("original-token")
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
@@ -803,8 +804,8 @@ func TestSessionGuardLogoutCurrentDeviceDoesNotRefreshRememberToken(t *testing.T
 // --- SessionGuard: Login fires both Login and Authenticated ---
 
 func TestSessionGuardLoginFiresBothLoginAndAuthenticatedEvents(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	dispatcher := &recordingDispatcher{}
@@ -819,14 +820,14 @@ func TestSessionGuardLoginFiresBothLoginAndAuthenticatedEvents(t *testing.T) {
 // --- SessionGuard: No dispatcher (backward compat) ---
 
 func TestSessionGuardWorksWithoutDispatcher(t *testing.T) {
-	user := auth.NewGenericUser(map[string]any{"id": 1, "email": "a@b.com", "password": "pw"})
-	provider := &stubProvider{users: map[any]auth.Authenticatable{1: user}}
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
 	sess := newStubSession()
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 	ctx := context.Background()
 
 	// All operations should work without panic.
-	ok := guard.Attempt(ctx, map[string]any{"email": "a@b.com", "password": "pw"}, false)
+	ok := guard.Attempt(ctx, map[string]string{"email": "a@b.com", "password": "pw"}, false)
 
 	if !ok {
 		t.Fatal("Attempt should succeed without dispatcher")

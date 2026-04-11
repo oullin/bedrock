@@ -3,6 +3,7 @@ package checkout
 import (
 	"context"
 
+	"github.com/bedrock/packages/contracts"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/subscription"
 )
@@ -13,7 +14,7 @@ type Recovery struct {
 	subscriptions billing.SubscriptionStore
 	fetcher       billing.ProviderSubscriptionFetcher
 	transitioner  *subscription.Transitioner
-	clock         billing.Clock
+	clock         contracts.Clock
 }
 
 // NewRecovery creates a Recovery.
@@ -21,7 +22,7 @@ func NewRecovery(
 	subscriptions billing.SubscriptionStore,
 	fetcher billing.ProviderSubscriptionFetcher,
 	transitioner *subscription.Transitioner,
-	clock billing.Clock,
+	clock contracts.Clock,
 ) *Recovery {
 	return &Recovery{
 		subscriptions: subscriptions,
