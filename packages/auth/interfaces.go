@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	contracts "github.com/bedrock/packages/contracts/auth"
+	contracts "github.com/bedrock/packages/auth/contract"
 )
 
 // Authenticatable is any entity that can be authenticated.
