@@ -1,5 +1,0 @@
-./doc.go
-./recovery.go
-./totp.go
-./recovery_test.go
-./totp_test.go

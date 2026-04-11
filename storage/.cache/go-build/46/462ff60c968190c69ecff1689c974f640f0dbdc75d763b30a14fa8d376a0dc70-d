@@ -1,6 +1,0 @@
-./context.go
-./doc.go
-./handler.go
-./registry.go
-./resource.go
-./router.go
