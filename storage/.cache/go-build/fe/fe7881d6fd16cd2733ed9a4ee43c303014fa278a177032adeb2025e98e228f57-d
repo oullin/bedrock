@@ -1,7 +1,0 @@
-./doc.go
-./encrypted_store.go
-./errors.go
-./handler.go
-./manager.go
-./middleware.go
-./store.go
