@@ -39,6 +39,10 @@ go.work.sum
 .claude/*
 !.claude/.gitkeep
 
+storage/.cache/**
+!storage/.cache/
+!storage/.cache/.gitkeep
+
 service/storage/.cache/**
 !service/storage/.cache/
 !service/storage/.cache/.gitkeep
