@@ -228,3 +228,115 @@ func TestFactoryBaseURL(t *testing.T) {
 		t.Fatalf("expected /hello, got %s", resp.Body())
 	}
 }
+
+func TestFactoryAssertSentInOrder(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory().Fake()
+
+	factory.PendingRequest().Get("http://example.com/first")
+	factory.PendingRequest().Post("http://example.com/second")
+
+	if !factory.AssertSentInOrder([]func(client.RecordedRequest) bool{
+		func(r client.RecordedRequest) bool {
+			return r.Request.Method() == "GET" && strings.Contains(r.Request.URL(), "/first")
+		},
+		func(r client.RecordedRequest) bool {
+			return r.Request.Method() == "POST" && strings.Contains(r.Request.URL(), "/second")
+		},
+	}) {
+		t.Fatal("expected requests in order")
+	}
+}
+
+func TestFactoryAssertSentInOrderFails(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory().Fake()
+
+	factory.PendingRequest().Get("http://example.com/first")
+
+	if factory.AssertSentInOrder([]func(client.RecordedRequest) bool{
+		func(r client.RecordedRequest) bool {
+			return r.Request.Method() == "POST"
+		},
+	}) {
+		t.Fatal("expected assertion to fail")
+	}
+}
+
+func TestFactoryAssertSentInOrderCountMismatch(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory().Fake()
+
+	factory.PendingRequest().Get("http://example.com/a")
+
+	if factory.AssertSentInOrder([]func(client.RecordedRequest) bool{
+		func(r client.RecordedRequest) bool { return true },
+		func(r client.RecordedRequest) bool { return true },
+	}) {
+		t.Fatal("expected assertion to fail with count mismatch")
+	}
+}
+
+func TestFactoryAllowStrayRequests(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory().Fake().PreventStrayRequests().AllowStrayRequests()
+
+	resp, err := factory.PendingRequest().Get("http://example.com/unknown")
+
+	if err != nil {
+		t.Fatalf("unexpected error after AllowStrayRequests: %v", err)
+	}
+
+	if resp.Status() != 200 {
+		t.Fatalf("expected 200, got %d", resp.Status())
+	}
+}
+
+func TestFactoryResponse(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory()
+
+	raw := factory.Response(`{"ok":true}`, 201, map[string]string{"X-Custom": "val"})
+
+	if raw.StatusCode != 201 {
+		t.Fatalf("expected 201, got %d", raw.StatusCode)
+	}
+
+	if raw.Header.Get("X-Custom") != "val" {
+		t.Fatal("expected X-Custom header")
+	}
+
+	body, _ := io.ReadAll(raw.Body)
+
+	if string(body) != `{"ok":true}` {
+		t.Fatalf("expected body, got %s", string(body))
+	}
+}
+
+func TestFactorySequence(t *testing.T) {
+	t.Parallel()
+
+	factory := client.NewFactory()
+
+	seq := factory.Sequence(
+		client.ResponseStub{Status: 200, Body: "a"},
+		client.ResponseStub{Status: 201, Body: "b"},
+	)
+
+	first := seq.Next()
+
+	if first.StatusCode != 200 {
+		t.Fatalf("expected 200, got %d", first.StatusCode)
+	}
+
+	second := seq.Next()
+
+	if second.StatusCode != 201 {
+		t.Fatalf("expected 201, got %d", second.StatusCode)
+	}
+}
