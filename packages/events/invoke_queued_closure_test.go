@@ -16,6 +16,7 @@ func TestInvokeQueuedClosure_Handle(t *testing.T) {
 
 	qc := events.Queueable(func(ctx context.Context, event any) (any, error) {
 		received = event
+
 		return "done", nil
 	})
 
@@ -54,6 +55,7 @@ func TestInvokeQueuedClosure_Failed(t *testing.T) {
 
 	ctx := context.Background()
 	testErr := fmt.Errorf("job failed")
+
 	var caught error
 
 	qc := events.Queueable(func(ctx context.Context, event any) (any, error) {

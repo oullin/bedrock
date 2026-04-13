@@ -23,11 +23,13 @@ func TestTypeToMap(t *testing.T) {
 	assertMapEqual(t, result["default"], map[string]any{"age": 20})
 
 	props, ok := result["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected properties to be map[string]any")
 	}
 
 	age, ok := props["age"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected age to be map[string]any")
 	}
@@ -36,6 +38,7 @@ func TestTypeToMap(t *testing.T) {
 	assertEqual(t, age["minimum"], 0)
 
 	required, ok := result["required"].([]string)
+
 	if !ok {
 		t.Fatal("expected required to be []string")
 	}
@@ -53,6 +56,7 @@ func TestTypeString(t *testing.T) {
 	str := schema.String()
 
 	var parsed map[string]any
+
 	if err := json.Unmarshal([]byte(str), &parsed); err != nil {
 		t.Fatalf("expected valid JSON, got error: %v", err)
 	}
@@ -71,6 +75,7 @@ func TestTypeStringableRepresentation(t *testing.T) {
 	str := schema.String()
 
 	var parsed map[string]any
+
 	if err := json.Unmarshal([]byte(str), &parsed); err != nil {
 		t.Fatalf("expected valid JSON, got error: %v", err)
 	}
@@ -94,11 +99,13 @@ func TestTypesInObjectSchemaViaClosure(t *testing.T) {
 	assertEqual(t, result["type"], "object")
 
 	props, ok := result["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected properties to be map[string]any")
 	}
 
 	name, ok := props["name"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected name to be map[string]any")
 	}
@@ -113,6 +120,7 @@ func TestNullableString(t *testing.T) {
 	result := schema.ToMap()
 
 	typeVal, ok := result["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected type to be []any for nullable")
 	}
@@ -129,6 +137,7 @@ func TestNullableInteger(t *testing.T) {
 	result := schema.ToMap()
 
 	typeVal, ok := result["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected type to be []any for nullable")
 	}
@@ -145,6 +154,7 @@ func TestNullableNumber(t *testing.T) {
 	result := schema.ToMap()
 
 	typeVal, ok := result["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected type to be []any for nullable")
 	}
@@ -161,6 +171,7 @@ func TestNullableBoolean(t *testing.T) {
 	result := schema.ToMap()
 
 	typeVal, ok := result["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected type to be []any for nullable")
 	}
@@ -177,6 +188,7 @@ func TestNullableArray(t *testing.T) {
 	result := schema.ToMap()
 
 	typeVal, ok := result["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected type to be []any for nullable")
 	}
@@ -205,16 +217,19 @@ func TestNestedObjectWithNullableProperty(t *testing.T) {
 	result := schema.ToMap()
 
 	props, ok := result["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected properties to be map[string]any")
 	}
 
 	age, ok := props["age"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected age to be map[string]any")
 	}
 
 	typeVal, ok := age["type"].([]any)
+
 	if !ok {
 		t.Fatal("expected age type to be []any for nullable")
 	}
@@ -238,6 +253,7 @@ func assertSliceEqual(t *testing.T, got any, want []any) {
 	t.Helper()
 
 	gotSlice, ok := got.([]any)
+
 	if !ok {
 		t.Fatalf("expected []any, got %T", got)
 	}
@@ -251,6 +267,7 @@ func assertMapEqual(t *testing.T, got any, want map[string]any) {
 	t.Helper()
 
 	gotMap, ok := got.(map[string]any)
+
 	if !ok {
 		t.Fatalf("expected map[string]any, got %T", got)
 	}
@@ -271,4 +288,3 @@ func assertContains(t *testing.T, slice []string, value string) {
 
 	t.Fatalf("expected slice %v to contain %q", slice, value)
 }
-

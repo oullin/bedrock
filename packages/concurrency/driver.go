@@ -17,8 +17,8 @@ type Deferrable = concurrency.Deferrable
 
 // Ensure compile-time interface satisfaction for concrete types.
 var (
-	_ Driver    = (*GoroutineDriver)(nil)
-	_ Driver    = (*SyncDriver)(nil)
+	_ Driver     = (*GoroutineDriver)(nil)
+	_ Driver     = (*SyncDriver)(nil)
 	_ Deferrable = (*DeferredCallback)(nil)
 )
 

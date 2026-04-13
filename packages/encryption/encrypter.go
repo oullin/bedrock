@@ -12,11 +12,6 @@ import (
 	contract "github.com/bedrock/packages/contracts/encryption"
 )
 
-var (
-	_ contract.Encrypter       = (*Encrypter)(nil)
-	_ contract.StringEncrypter = (*Encrypter)(nil)
-)
-
 // payload is the JSON structure of an encrypted value.
 type payload struct {
 	IV    string `json:"iv"`
@@ -31,6 +26,11 @@ type Encrypter struct {
 	cipher       Cipher
 	previousKeys [][]byte
 }
+
+var (
+	_ contract.Encrypter       = (*Encrypter)(nil)
+	_ contract.StringEncrypter = (*Encrypter)(nil)
+)
 
 // NewEncrypter creates an Encrypter after validating the key length matches the cipher.
 func NewEncrypter(key []byte, c Cipher) (*Encrypter, error) {
@@ -48,19 +48,24 @@ func (e *Encrypter) Encrypt(value any, serialize bool) (string, error) {
 
 	if serialize {
 		data, err := json.Marshal(value)
+
 		if err != nil {
 			return "", ErrEncryptFailed
 		}
+
 		plaintext = data
 	} else {
 		s, ok := value.(string)
+
 		if !ok {
 			return "", ErrEncryptFailed
 		}
+
 		plaintext = []byte(s)
 	}
 
 	iv := make([]byte, e.cipher.IVLength())
+
 	if _, err := rand.Read(iv); err != nil {
 		return "", ErrEncryptFailed
 	}
@@ -69,9 +74,11 @@ func (e *Encrypter) Encrypt(value any, serialize bool) (string, error) {
 
 	if e.cipher.IsAEAD() {
 		ciphertext, tag, err := e.encryptGCM(plaintext, iv)
+
 		if err != nil {
 			return "", ErrEncryptFailed
 		}
+
 		p = payload{
 			IV:    base64.StdEncoding.EncodeToString(iv),
 			Value: base64.StdEncoding.EncodeToString(ciphertext),
@@ -79,9 +86,11 @@ func (e *Encrypter) Encrypt(value any, serialize bool) (string, error) {
 		}
 	} else {
 		ciphertext, err := e.encryptCBC(plaintext, iv)
+
 		if err != nil {
 			return "", ErrEncryptFailed
 		}
+
 		ivB64 := base64.StdEncoding.EncodeToString(iv)
 		valB64 := base64.StdEncoding.EncodeToString(ciphertext)
 		mac := computeMAC(e.key, ivB64, valB64)
@@ -93,6 +102,7 @@ func (e *Encrypter) Encrypt(value any, serialize bool) (string, error) {
 	}
 
 	js, err := json.Marshal(p)
+
 	if err != nil {
 		return "", ErrEncryptFailed
 	}
@@ -104,20 +114,24 @@ func (e *Encrypter) Encrypt(value any, serialize bool) (string, error) {
 // decrypted bytes are JSON-decoded into an any value.
 func (e *Encrypter) Decrypt(raw string, unserialize bool) (any, error) {
 	p, err := e.parsePayload(raw)
+
 	if err != nil {
 		return nil, err
 	}
 
 	plaintext, err := e.decryptWithKeys(p)
+
 	if err != nil {
 		return nil, err
 	}
 
 	if unserialize {
 		var v any
+
 		if err := json.Unmarshal(plaintext, &v); err != nil {
 			return nil, ErrDecryptFailed
 		}
+
 		return v, nil
 	}
 
@@ -132,11 +146,13 @@ func (e *Encrypter) EncryptString(value string) (string, error) {
 // DecryptString decrypts a payload and returns the raw string.
 func (e *Encrypter) DecryptString(raw string) (string, error) {
 	result, err := e.Decrypt(raw, false)
+
 	if err != nil {
 		return "", err
 	}
 
 	s, ok := result.(string)
+
 	if !ok {
 		return "", ErrDecryptFailed
 	}
@@ -158,29 +174,35 @@ func (e *Encrypter) GetKey() string {
 func (e *Encrypter) GetAllKeys() []string {
 	keys := make([]string, 0, 1+len(e.previousKeys))
 	keys = append(keys, e.GetKey())
+
 	for _, k := range e.previousKeys {
 		keys = append(keys, base64.StdEncoding.EncodeToString(k))
 	}
+
 	return keys
 }
 
 // GetPreviousKeys returns the previous keys as base64-encoded strings.
 func (e *Encrypter) GetPreviousKeys() []string {
 	keys := make([]string, len(e.previousKeys))
+
 	for i, k := range e.previousKeys {
 		keys[i] = base64.StdEncoding.EncodeToString(k)
 	}
+
 	return keys
 }
 
 // AppearsEncrypted reports whether a string looks like an encrypted payload.
 func AppearsEncrypted(value string) bool {
 	decoded, err := base64.StdEncoding.DecodeString(value)
+
 	if err != nil {
 		return false
 	}
 
 	var p payload
+
 	if err := json.Unmarshal(decoded, &p); err != nil {
 		return false
 	}
@@ -192,6 +214,7 @@ func AppearsEncrypted(value string) bool {
 
 func (e *Encrypter) encryptCBC(plaintext, iv []byte) ([]byte, error) {
 	block, err := aes.NewCipher(e.key)
+
 	if err != nil {
 		return nil, err
 	}
@@ -205,11 +228,13 @@ func (e *Encrypter) encryptCBC(plaintext, iv []byte) ([]byte, error) {
 
 func (e *Encrypter) encryptGCM(plaintext, nonce []byte) (ciphertext []byte, tag []byte, err error) {
 	block, err := aes.NewCipher(e.key)
+
 	if err != nil {
 		return nil, nil, err
 	}
 
 	aead, err := cipher.NewGCM(block)
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -224,11 +249,13 @@ func (e *Encrypter) encryptGCM(plaintext, nonce []byte) (ciphertext []byte, tag 
 
 func (e *Encrypter) parsePayload(raw string) (payload, error) {
 	decoded, err := base64.StdEncoding.DecodeString(raw)
+
 	if err != nil {
 		return payload{}, ErrInvalidPayload
 	}
 
 	var p payload
+
 	if err := json.Unmarshal(decoded, &p); err != nil {
 		return payload{}, ErrInvalidPayload
 	}
@@ -245,12 +272,14 @@ func (e *Encrypter) parsePayload(raw string) (payload, error) {
 		if p.Tag != "" {
 			return payload{}, ErrInvalidPayload
 		}
+
 		if p.MAC == "" {
 			return payload{}, ErrInvalidPayload
 		}
 	}
 
 	iv, err := base64.StdEncoding.DecodeString(p.IV)
+
 	if err != nil || len(iv) != e.cipher.IVLength() {
 		return payload{}, ErrInvalidPayload
 	}
@@ -265,6 +294,7 @@ func (e *Encrypter) decryptWithKeys(p payload) ([]byte, error) {
 
 	for _, k := range allKeys {
 		plaintext, err := e.decryptPayload(p, k)
+
 		if err == nil {
 			return plaintext, nil
 		}
@@ -276,6 +306,7 @@ func (e *Encrypter) decryptWithKeys(p payload) ([]byte, error) {
 func (e *Encrypter) decryptPayload(p payload, key []byte) ([]byte, error) {
 	iv, _ := base64.StdEncoding.DecodeString(p.IV)
 	value, err := base64.StdEncoding.DecodeString(p.Value)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
@@ -290,14 +321,17 @@ func (e *Encrypter) decryptPayload(p payload, key []byte) ([]byte, error) {
 func (e *Encrypter) decryptCBC(ciphertext, iv []byte, p payload, key []byte) ([]byte, error) {
 	expected := computeMAC(key, p.IV, p.Value)
 	mac, err := base64.StdEncoding.DecodeString(p.MAC)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
+
 	if !hmac.Equal(expected, mac) {
 		return nil, ErrDecryptFailed
 	}
 
 	block, err := aes.NewCipher(key)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
@@ -314,16 +348,19 @@ func (e *Encrypter) decryptCBC(ciphertext, iv []byte, p payload, key []byte) ([]
 
 func (e *Encrypter) decryptGCM(ciphertext, nonce []byte, tagB64 string, key []byte) ([]byte, error) {
 	tag, err := base64.StdEncoding.DecodeString(tagB64)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
 
 	block, err := aes.NewCipher(key)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
 
 	aead, err := cipher.NewGCM(block)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
@@ -337,6 +374,7 @@ func (e *Encrypter) decryptGCM(ciphertext, nonce []byte, tagB64 string, key []by
 	copy(sealed[len(ciphertext):], tag)
 
 	plaintext, err := aead.Open(nil, nonce, sealed, nil)
+
 	if err != nil {
 		return nil, ErrDecryptFailed
 	}
@@ -348,15 +386,18 @@ func computeMAC(key []byte, ivB64, valueB64 string) []byte {
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(ivB64))
 	h.Write([]byte(valueB64))
+
 	return h.Sum(nil)
 }
 
 func pkcs7Pad(data []byte, blockSize int) []byte {
 	padding := blockSize - len(data)%blockSize
 	pad := make([]byte, padding)
+
 	for i := range pad {
 		pad[i] = byte(padding)
 	}
+
 	return append(data, pad...)
 }
 
@@ -366,6 +407,7 @@ func pkcs7Unpad(data []byte) ([]byte, error) {
 	}
 
 	padding := int(data[len(data)-1])
+
 	if padding == 0 || padding > aes.BlockSize || padding > len(data) {
 		return nil, ErrDecryptFailed
 	}

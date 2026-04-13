@@ -16,12 +16,20 @@ type spyHandler struct {
 	level   log.Level
 }
 
+// spyDispatcher captures dispatched events for assertions.
+type spyDispatcher struct {
+	mu        sync.Mutex
+	events    []any
+	listeners map[string][]cevents.Listener
+}
+
 func newSpyHandler(level log.Level) *spyHandler {
 	return &spyHandler{level: level}
 }
 
 func (h *spyHandler) Handle(record log.Record) error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	h.records = append(h.records, record)
@@ -39,6 +47,7 @@ func (h *spyHandler) Close() error {
 
 func (h *spyHandler) Records() []log.Record {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	cp := make([]log.Record, len(h.records))
@@ -49,16 +58,10 @@ func (h *spyHandler) Records() []log.Record {
 
 func (h *spyHandler) LastRecord() log.Record {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	return h.records[len(h.records)-1]
-}
-
-// spyDispatcher captures dispatched events for assertions.
-type spyDispatcher struct {
-	mu        sync.Mutex
-	events    []any
-	listeners map[string][]cevents.Listener
 }
 
 func newSpyDispatcher() *spyDispatcher {
@@ -69,9 +72,11 @@ func newSpyDispatcher() *spyDispatcher {
 
 func (d *spyDispatcher) Listen(events any, listeners ...cevents.Listener) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	name := "default"
+
 	if s, ok := events.(string); ok {
 		name = s
 	}
@@ -79,13 +84,14 @@ func (d *spyDispatcher) Listen(events any, listeners ...cevents.Listener) {
 	d.listeners[name] = append(d.listeners[name], listeners...)
 }
 
-func (d *spyDispatcher) HasListeners(_ any) bool  { return false }
-func (d *spyDispatcher) HasWildcardListeners(_ any) bool { return false }
-func (d *spyDispatcher) Subscribe(_ cevents.Subscriber) {}
+func (d *spyDispatcher) HasListeners(_ any) bool                     { return false }
+func (d *spyDispatcher) HasWildcardListeners(_ any) bool             { return false }
+func (d *spyDispatcher) Subscribe(_ cevents.Subscriber)              {}
 func (d *spyDispatcher) Until(_ context.Context, _ any) (any, error) { return nil, nil }
 
 func (d *spyDispatcher) Dispatch(_ context.Context, event any) ([]any, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.events = append(d.events, event)
@@ -93,14 +99,15 @@ func (d *spyDispatcher) Dispatch(_ context.Context, event any) ([]any, error) {
 	return nil, nil
 }
 
-func (d *spyDispatcher) Push(_ context.Context, _ any) {}
+func (d *spyDispatcher) Push(_ context.Context, _ any)           {}
 func (d *spyDispatcher) Flush(_ context.Context, _ string) error { return nil }
-func (d *spyDispatcher) Forget(_ any) {}
-func (d *spyDispatcher) ForgetPushed() {}
-func (d *spyDispatcher) GetListeners(_ any) []cevents.Listener { return nil }
+func (d *spyDispatcher) Forget(_ any)                            {}
+func (d *spyDispatcher) ForgetPushed()                           {}
+func (d *spyDispatcher) GetListeners(_ any) []cevents.Listener   { return nil }
 
 func (d *spyDispatcher) Events() []any {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	cp := make([]any, len(d.events))
@@ -118,6 +125,7 @@ func TestLoggerEmergency(t *testing.T) {
 	logger.Emergency("system down")
 
 	records := spy.Records()
+
 	if len(records) != 1 {
 		t.Fatalf("expected 1 record, got %d", len(records))
 	}
@@ -156,6 +164,7 @@ func TestLoggerAllLevels(t *testing.T) {
 		tt.method(logger, "test message")
 
 		records := spy.Records()
+
 		if len(records) != 1 {
 			t.Fatalf("%s: expected 1 record, got %d", tt.name, len(records))
 		}
@@ -175,6 +184,7 @@ func TestLoggerLog(t *testing.T) {
 	logger.Log(log.LevelWarning, "generic log")
 
 	record := spy.LastRecord()
+
 	if record.Level != log.LevelWarning {
 		t.Fatalf("expected LevelWarning, got %d", record.Level)
 	}
@@ -190,6 +200,7 @@ func TestLoggerContext(t *testing.T) {
 	withCtx.Info("with context")
 
 	record := spy.LastRecord()
+
 	if record.Context["user_id"] != 42 {
 		t.Fatalf("expected user_id = 42, got %v", record.Context["user_id"])
 	}
@@ -205,6 +216,7 @@ func TestLoggerWithoutContext(t *testing.T) {
 	cleared.Info("no context")
 
 	record := spy.LastRecord()
+
 	if len(record.Context) != 0 {
 		t.Fatalf("expected empty context, got %v", record.Context)
 	}
@@ -219,6 +231,7 @@ func TestLoggerContextMerge(t *testing.T) {
 	logger.Info("merged", map[string]any{"b": 2})
 
 	record := spy.LastRecord()
+
 	if record.Context["a"] != 1 {
 		t.Fatalf("expected a = 1, got %v", record.Context["a"])
 	}
@@ -237,6 +250,7 @@ func TestLoggerCallSiteContextOverrides(t *testing.T) {
 	logger.Info("override", map[string]any{"key": "callsite"})
 
 	record := spy.LastRecord()
+
 	if record.Context["key"] != "callsite" {
 		t.Fatalf("expected call-site context to override, got %v", record.Context["key"])
 	}
@@ -252,11 +266,13 @@ func TestLoggerEventDispatch(t *testing.T) {
 	logger.Error("event test", map[string]any{"req_id": "abc"})
 
 	events := dispatcher.Events()
+
 	if len(events) != 1 {
 		t.Fatalf("expected 1 event, got %d", len(events))
 	}
 
 	msg, ok := events[0].(log.MessageLogged)
+
 	if !ok {
 		t.Fatalf("expected MessageLogged event, got %T", events[0])
 	}
@@ -295,6 +311,7 @@ func TestLoggerListenNoDispatcher(t *testing.T) {
 	logger := log.NewLogger(spy, "test")
 
 	err := logger.Listen(func(_ log.MessageLogged) {})
+
 	if err == nil {
 		t.Fatal("expected error when calling Listen without dispatcher")
 	}
@@ -310,6 +327,7 @@ func TestLoggerWithoutContextSelectiveKeys(t *testing.T) {
 	filtered.Info("filtered")
 
 	record := spy.LastRecord()
+
 	if record.Context["a"] != 1 {
 		t.Fatalf("expected a = 1, got %v", record.Context["a"])
 	}

@@ -29,11 +29,13 @@ func TestStreamHandlerWrite(t *testing.T) {
 	handler := log.NewStreamHandler(&buf, log.LevelDebug)
 
 	err := handler.Handle(testRecord(log.LevelInfo, "hello"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
 
 	output := buf.String()
+
 	if !strings.Contains(output, "hello") {
 		t.Fatalf("expected output to contain 'hello', got %q", output)
 	}
@@ -50,6 +52,7 @@ func TestStreamHandlerLevel(t *testing.T) {
 	handler := log.NewStreamHandler(&buf, log.LevelError)
 
 	err := handler.Handle(testRecord(log.LevelDebug, "should not appear"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
@@ -88,6 +91,7 @@ func TestStreamHandlerClose(t *testing.T) {
 	}
 
 	err := handler.Handle(testRecord(log.LevelInfo, "after close"))
+
 	if err == nil {
 		t.Fatal("expected error after close")
 	}
@@ -100,15 +104,18 @@ func TestStreamHandlerWithProcessor(t *testing.T) {
 	handler := log.NewStreamHandler(&buf, log.LevelDebug)
 	handler.AddProcessor(log.ProcessorFunc(func(r log.Record) log.Record {
 		r.Extra["processed"] = true
+
 		return r
 	}))
 
 	err := handler.Handle(testRecord(log.LevelInfo, "processed"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
 
 	output := buf.String()
+
 	if !strings.Contains(output, "processed") {
 		t.Fatalf("expected processor to run, got %q", output)
 	}
@@ -125,11 +132,13 @@ func TestStreamHandlerWithFormatter(t *testing.T) {
 	handler.SetFormatter(formatter)
 
 	err := handler.Handle(testRecord(log.LevelInfo, "no context"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
 
 	output := buf.String()
+
 	if strings.Contains(output, `"key"`) {
 		t.Fatalf("expected no context in output, got %q", output)
 	}
@@ -142,11 +151,13 @@ func TestFileStreamHandler(t *testing.T) {
 	path := filepath.Join(dir, "test.log")
 
 	handler, err := log.NewFileStreamHandler(path, log.LevelDebug, 0644)
+
 	if err != nil {
 		t.Fatalf("NewFileStreamHandler: %v", err)
 	}
 
 	err = handler.Handle(testRecord(log.LevelInfo, "file test"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
@@ -154,6 +165,7 @@ func TestFileStreamHandler(t *testing.T) {
 	handler.Close()
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
@@ -172,6 +184,7 @@ func TestRotatingHandlerWrite(t *testing.T) {
 	handler := log.NewRotatingHandler(basePath, 7, log.LevelDebug)
 
 	err := handler.Handle(testRecord(log.LevelInfo, "rotating test"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
@@ -179,11 +192,13 @@ func TestRotatingHandlerWrite(t *testing.T) {
 	handler.Close()
 
 	matches, _ := filepath.Glob(filepath.Join(dir, "app-*.log"))
+
 	if len(matches) == 0 {
 		t.Fatal("expected rotated file to be created")
 	}
 
 	data, _ := os.ReadFile(matches[0])
+
 	if !strings.Contains(string(data), "rotating test") {
 		t.Fatalf("expected file to contain 'rotating test', got %q", string(data))
 	}
@@ -195,11 +210,13 @@ func TestRotatingHandlerLevel(t *testing.T) {
 	handler := log.NewRotatingHandler(filepath.Join(t.TempDir(), "app.log"), 7, log.LevelError)
 
 	err := handler.Handle(testRecord(log.LevelDebug, "should not appear"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
 
 	matches, _ := filepath.Glob(filepath.Join(t.TempDir(), "app-*.log"))
+
 	if len(matches) != 0 {
 		t.Fatal("expected no file for debug level on error handler")
 	}
@@ -229,6 +246,7 @@ func TestStackHandler(t *testing.T) {
 	stack := log.NewStackHandler([]log.Handler{h1, h2}, log.LevelDebug)
 
 	err := stack.Handle(testRecord(log.LevelInfo, "stack test"))
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
@@ -306,6 +324,7 @@ func TestLineFormatterDefault(t *testing.T) {
 	record := testRecord(log.LevelError, "format test")
 
 	output, err := f.Format(record)
+
 	if err != nil {
 		t.Fatalf("Format: %v", err)
 	}
@@ -332,6 +351,7 @@ func TestLineFormatterNoContext(t *testing.T) {
 	f.IncludeContext = false
 
 	output, err := f.Format(testRecord(log.LevelInfo, "no ctx"))
+
 	if err != nil {
 		t.Fatalf("Format: %v", err)
 	}
@@ -346,6 +366,7 @@ func TestProcessorFunc(t *testing.T) {
 
 	p := log.ProcessorFunc(func(r log.Record) log.Record {
 		r.Extra["uid"] = "abc123"
+
 		return r
 	})
 

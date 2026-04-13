@@ -131,6 +131,7 @@ func (r *Repository) String(key string, fallback ...string) (string, error) {
 	value := r.v.Get(key)
 
 	s, ok := value.(string)
+
 	if !ok {
 		return "", fmt.Errorf("%w: value for key [%s] must be a string, %T given", ErrInvalidType, key, value)
 	}
@@ -153,6 +154,7 @@ func (r *Repository) Integer(key string, fallback ...int) (int, error) {
 	value := r.v.Get(key)
 
 	i, ok := value.(int)
+
 	if !ok {
 		return 0, fmt.Errorf("%w: value for key [%s] must be an int, %T given", ErrInvalidType, key, value)
 	}
@@ -175,6 +177,7 @@ func (r *Repository) Float(key string, fallback ...float64) (float64, error) {
 	value := r.v.Get(key)
 
 	f, ok := value.(float64)
+
 	if !ok {
 		return 0, fmt.Errorf("%w: value for key [%s] must be a float64, %T given", ErrInvalidType, key, value)
 	}
@@ -197,6 +200,7 @@ func (r *Repository) Boolean(key string, fallback ...bool) (bool, error) {
 	value := r.v.Get(key)
 
 	b, ok := value.(bool)
+
 	if !ok {
 		return false, fmt.Errorf("%w: value for key [%s] must be a bool, %T given", ErrInvalidType, key, value)
 	}
@@ -219,6 +223,7 @@ func (r *Repository) Array(key string, fallback ...[]any) ([]any, error) {
 	value := r.v.Get(key)
 
 	a, ok := value.([]any)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: value for key [%s] must be a []any, %T given", ErrInvalidType, key, value)
 	}

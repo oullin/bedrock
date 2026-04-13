@@ -29,6 +29,7 @@ func NewDeferredCallback(driver Driver, tasks []Task) *DeferredCallback {
 // Subsequent calls are no-ops that return nil, nil.
 func (d *DeferredCallback) Flush(ctx context.Context) ([]any, error) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	if d.flushed || len(d.tasks) == 0 {
@@ -46,6 +47,7 @@ func (d *DeferredCallback) Flush(ctx context.Context) ([]any, error) {
 // Pending reports whether there are unflushed tasks.
 func (d *DeferredCallback) Pending() bool {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	return !d.flushed && len(d.tasks) > 0
@@ -54,6 +56,7 @@ func (d *DeferredCallback) Pending() bool {
 // Count returns the number of pending tasks.
 func (d *DeferredCallback) Count() int {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	if d.flushed {

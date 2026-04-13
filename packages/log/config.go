@@ -42,6 +42,7 @@ func ParseChannelConfig(cfg *config.Repository, channel string) (ChannelConfig, 
 	levelStr := stringOr(cfg, prefix+".level", "debug")
 
 	level, err := ParseLevel(levelStr)
+
 	if err != nil {
 		cc.Level = LevelDebug
 	} else {
@@ -59,6 +60,7 @@ func ParseChannelConfig(cfg *config.Repository, channel string) (ChannelConfig, 
 		case string:
 			for _, s := range strings.Split(v, ",") {
 				s = strings.TrimSpace(s)
+
 				if s != "" {
 					cc.Channels = append(cc.Channels, s)
 				}
@@ -71,6 +73,7 @@ func ParseChannelConfig(cfg *config.Repository, channel string) (ChannelConfig, 
 
 func stringOr(cfg *config.Repository, key string, fallback string) string {
 	v, err := cfg.String(key, fallback)
+
 	if err != nil {
 		return fallback
 	}
@@ -80,6 +83,7 @@ func stringOr(cfg *config.Repository, key string, fallback string) string {
 
 func intOr(cfg *config.Repository, key string, fallback int) int {
 	v, err := cfg.Integer(key, fallback)
+
 	if err != nil {
 		return fallback
 	}

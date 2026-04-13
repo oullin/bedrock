@@ -121,6 +121,7 @@ func TestGoroutineRunContextTimeout(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+
 	defer cancel()
 
 	driver := NewGoroutineDriver(0)
@@ -128,6 +129,7 @@ func TestGoroutineRunContextTimeout(t *testing.T) {
 	_, err := driver.Run(ctx, []Task{
 		func() (any, error) {
 			<-ctx.Done()
+
 			return nil, ctx.Err()
 		},
 	})
@@ -141,17 +143,20 @@ func TestGoroutineRunBoundedConcurrency(t *testing.T) {
 	t.Parallel()
 
 	var concurrent atomic.Int32
+
 	var maxSeen atomic.Int32
 
 	driver := NewGoroutineDriver(2)
 
 	tasks := make([]Task, 10)
+
 	for i := range tasks {
 		tasks[i] = func() (any, error) {
 			cur := concurrent.Add(1)
 
 			for {
 				prev := maxSeen.Load()
+
 				if cur <= prev || maxSeen.CompareAndSwap(prev, cur) {
 					break
 				}
@@ -165,6 +170,7 @@ func TestGoroutineRunBoundedConcurrency(t *testing.T) {
 	}
 
 	_, err := driver.Run(context.Background(), tasks)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -178,17 +184,20 @@ func TestGoroutineRunUnboundedConcurrency(t *testing.T) {
 	t.Parallel()
 
 	var concurrent atomic.Int32
+
 	var maxSeen atomic.Int32
 
 	driver := NewGoroutineDriver(0)
 
 	tasks := make([]Task, 10)
+
 	for i := range tasks {
 		tasks[i] = func() (any, error) {
 			cur := concurrent.Add(1)
 
 			for {
 				prev := maxSeen.Load()
+
 				if cur <= prev || maxSeen.CompareAndSwap(prev, cur) {
 					break
 				}
@@ -202,6 +211,7 @@ func TestGoroutineRunUnboundedConcurrency(t *testing.T) {
 	}
 
 	_, err := driver.Run(context.Background(), tasks)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -230,6 +240,7 @@ func TestGoroutineDeferReturnsCallbackWithoutExecuting(t *testing.T) {
 	}
 
 	results, err := cb.Flush(context.Background())
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

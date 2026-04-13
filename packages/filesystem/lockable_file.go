@@ -21,6 +21,7 @@ func NewLockableFile(path string, mode fs.FileMode) (*LockableFile, error) {
 	}
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, mode)
+
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +34,7 @@ func (lf *LockableFile) SharedLock() error {
 	if err := syscall.Flock(int(lf.file.Fd()), syscall.LOCK_SH); err != nil {
 		return ErrLockFailed
 	}
+
 	return nil
 }
 
@@ -41,6 +43,7 @@ func (lf *LockableFile) ExclusiveLock() error {
 	if err := syscall.Flock(int(lf.file.Fd()), syscall.LOCK_EX); err != nil {
 		return ErrLockFailed
 	}
+
 	return nil
 }
 
@@ -59,9 +62,11 @@ func (lf *LockableFile) Read(size ...int) ([]byte, error) {
 	if len(size) > 0 && size[0] > 0 {
 		buf := make([]byte, size[0])
 		n, err := lf.file.Read(buf)
+
 		if err != nil && err != io.EOF {
 			return nil, err
 		}
+
 		return buf[:n], nil
 	}
 
@@ -85,6 +90,7 @@ func (lf *LockableFile) Truncate() error {
 // Close releases any lock and closes the file.
 func (lf *LockableFile) Close() error {
 	_ = lf.Unlock()
+
 	return lf.file.Close()
 }
 
@@ -96,9 +102,11 @@ func (lf *LockableFile) Path() string {
 // Size returns the current file size.
 func (lf *LockableFile) Size() (int64, error) {
 	info, err := lf.file.Stat()
+
 	if err != nil {
 		return 0, err
 	}
+
 	return info.Size(), nil
 }
 

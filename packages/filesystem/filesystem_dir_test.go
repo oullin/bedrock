@@ -18,6 +18,7 @@ func TestFiles(t *testing.T) {
 	makeDir(t, filepath.Join(dir, "subdir"))
 
 	files, err := fs.Files(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,6 +38,7 @@ func TestFilesExcludesHidden(t *testing.T) {
 	writeFile(t, filepath.Join(dir, ".hidden"), "h")
 
 	files, err := fs.Files(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,6 +58,7 @@ func TestFilesIncludesHidden(t *testing.T) {
 	writeFile(t, filepath.Join(dir, ".hidden"), "h")
 
 	files, err := fs.Files(dir, true)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,6 +79,7 @@ func TestAllFiles(t *testing.T) {
 	writeFile(t, filepath.Join(dir, "sub", "deep", "c.txt"), "c")
 
 	files, err := fs.AllFiles(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,6 +100,7 @@ func TestAllFilesExcludesHidden(t *testing.T) {
 	writeFile(t, filepath.Join(dir, ".secret"), "s")
 
 	files, err := fs.AllFiles(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,6 +120,7 @@ func TestAllFilesIncludesHidden(t *testing.T) {
 	writeFile(t, filepath.Join(dir, ".hidden", "b.txt"), "b")
 
 	files, err := fs.AllFiles(dir, true)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,6 +141,7 @@ func TestDirectories(t *testing.T) {
 	writeFile(t, filepath.Join(dir, "file.txt"), "f")
 
 	dirs, err := fs.Directories(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,6 +162,7 @@ func TestAllDirectories(t *testing.T) {
 	makeDir(t, filepath.Join(dir, "sub2"))
 
 	dirs, err := fs.AllDirectories(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,6 +184,7 @@ func TestEnsureDirectoryExists(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,6 +217,7 @@ func TestMakeDirectory(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,6 +239,7 @@ func TestMakeDirectoryWithMode(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -269,6 +280,7 @@ func TestDeleteDirectoryReturnsFalseWhenNotADirectory(t *testing.T) {
 	writeFile(t, path, "content")
 
 	err := fs.DeleteDirectory(path)
+
 	if err == nil {
 		t.Fatal("expected error when path is a file")
 	}
@@ -291,18 +303,22 @@ func TestDeleteDirectoryPreserve(t *testing.T) {
 
 	// Directory should still exist.
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if !info.IsDir() {
 		t.Fatal("expected directory to still exist")
 	}
 
 	// But contents should be gone.
 	entries, err := os.ReadDir(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(entries) != 0 {
 		t.Fatalf("expected empty directory, got %d entries", len(entries))
 	}
@@ -323,6 +339,7 @@ func TestDeleteDirectories(t *testing.T) {
 	}
 
 	entries, err := os.ReadDir(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -352,18 +369,22 @@ func TestCleanDirectory(t *testing.T) {
 
 	// Directory should still exist.
 	info, err := os.Stat(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if !info.IsDir() {
 		t.Fatal("expected directory to still exist")
 	}
 
 	// But contents should be empty.
 	entries, err := os.ReadDir(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(entries) != 0 {
 		t.Fatalf("expected empty directory, got %d entries", len(entries))
 	}
@@ -386,17 +407,21 @@ func TestCopyDirectory(t *testing.T) {
 
 	// Verify copied files.
 	data, err := os.ReadFile(filepath.Join(dst, "a.txt"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "a" {
 		t.Fatalf("expected 'a', got %q", string(data))
 	}
 
 	data, err = os.ReadFile(filepath.Join(dst, "sub", "b.txt"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "b" {
 		t.Fatalf("expected 'b', got %q", string(data))
 	}
@@ -418,6 +443,7 @@ func TestCopyDirectoryNotADirectory(t *testing.T) {
 	writeFile(t, path, "content")
 
 	err := fs.CopyDirectory(path, dst)
+
 	if err == nil {
 		t.Fatal("expected error when source is not a directory")
 	}
@@ -445,9 +471,11 @@ func TestMoveDirectory(t *testing.T) {
 
 	// Destination should have the files.
 	data, err := os.ReadFile(filepath.Join(dst, "a.txt"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "a" {
 		t.Fatalf("expected 'a', got %q", string(data))
 	}
@@ -474,9 +502,11 @@ func TestMoveDirectoryOverwrite(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(filepath.Join(dst, "new.txt"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "new" {
 		t.Fatalf("expected 'new', got %q", string(data))
 	}
@@ -491,11 +521,13 @@ func TestFilesReturnsFullPaths(t *testing.T) {
 	writeFile(t, filepath.Join(dir, "a.txt"), "a")
 
 	files, err := fs.Files(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expected := filepath.Join(dir, "a.txt")
+
 	if len(files) != 1 || files[0] != expected {
 		t.Fatalf("expected [%s], got %v", expected, files)
 	}
@@ -510,11 +542,13 @@ func TestDirectoriesReturnsFullPaths(t *testing.T) {
 	makeDir(t, filepath.Join(dir, "sub"))
 
 	dirs, err := fs.Directories(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expected := filepath.Join(dir, "sub")
+
 	if len(dirs) != 1 || dirs[0] != expected {
 		t.Fatalf("expected [%s], got %v", expected, dirs)
 	}
@@ -531,12 +565,14 @@ func TestAllDirectoriesSorted(t *testing.T) {
 	makeDir(t, filepath.Join(dir, "b"))
 
 	dirs, err := fs.AllDirectories(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	sorted := make([]string, len(dirs))
 	copy(sorted, dirs)
+
 	sort.Strings(sorted)
 
 	for i := range dirs {

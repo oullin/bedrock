@@ -27,11 +27,13 @@ func (h *StderrHandler) Handle(record Record) error {
 	}
 
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	record = h.ProcessRecord(record)
 
 	formatted, err := h.GetFormatter().Format(record)
+
 	if err != nil {
 		return err
 	}

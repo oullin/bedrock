@@ -11,11 +11,27 @@ type CreateTeamHandler struct {
 }
 
 // NewCreateTeamHandler creates a new create team handler.
+
+// ServeHTTP handles the create team request.
+
+// UpdateTeamHandler handles PUT /teams/{team} requests.
+type UpdateTeamHandler struct {
+	app *Inception
+}
+
+// NewUpdateTeamHandler creates a new update team handler.
+
+// ServeHTTP handles the update team request.
+
+// DeleteTeamHandler handles DELETE /teams/{team} requests.
+type DeleteTeamHandler struct {
+	app *Inception
+}
+
 func NewCreateTeamHandler(app *Inception) *CreateTeamHandler {
 	return &CreateTeamHandler{app: app}
 }
 
-// ServeHTTP handles the create team request.
 func (h *CreateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -44,17 +60,10 @@ func (h *CreateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(team)
 }
 
-// UpdateTeamHandler handles PUT /teams/{team} requests.
-type UpdateTeamHandler struct {
-	app *Inception
-}
-
-// NewUpdateTeamHandler creates a new update team handler.
 func NewUpdateTeamHandler(app *Inception) *UpdateTeamHandler {
 	return &UpdateTeamHandler{app: app}
 }
 
-// ServeHTTP handles the update team request.
 func (h *UpdateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -93,11 +102,6 @@ func (h *UpdateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-// DeleteTeamHandler handles DELETE /teams/{team} requests.
-type DeleteTeamHandler struct {
-	app *Inception
 }
 
 // NewDeleteTeamHandler creates a new delete team handler.

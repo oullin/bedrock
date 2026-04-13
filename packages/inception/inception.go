@@ -40,6 +40,12 @@ type Inception struct {
 	inviteMember InvitesTeamMembers
 }
 
+// Builder constructs an Inception instance with required dependencies.
+type Builder struct {
+	app    *Inception
+	errors []error
+}
+
 func (i *Inception) Config() Config                               { return i.config }
 func (i *Inception) Guard() cauth.HTTPGuard                       { return i.guard }
 func (i *Inception) Provider() cauth.UserProvider                 { return i.provider }
@@ -65,12 +71,6 @@ func (i *Inception) AddMember() AddsTeamMembers                   { return i.add
 func (i *Inception) RemoveMember() RemovesTeamMembers             { return i.removeMember }
 func (i *Inception) InviteMember() InvitesTeamMembers             { return i.inviteMember }
 func (i *Inception) Features() Features                           { return i.config.Features }
-
-// Builder constructs an Inception instance with required dependencies.
-type Builder struct {
-	app    *Inception
-	errors []error
-}
 
 // NewBuilder creates a new Inception builder.
 func NewBuilder() *Builder {

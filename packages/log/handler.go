@@ -14,28 +14,31 @@ type ProcessableHandler struct {
 }
 
 // AddProcessor appends a processor to the chain.
+
+// GetProcessors returns the registered processors.
+
+// ProcessRecord applies all registered processors to the record.
+
+// FormattableHandler is an embeddable struct that provides formatter
+// management for concrete handlers.
+type FormattableHandler struct {
+	formatter Formatter
+}
+
 func (h *ProcessableHandler) AddProcessor(p Processor) {
 	h.processors = append(h.processors, p)
 }
 
-// GetProcessors returns the registered processors.
 func (h *ProcessableHandler) GetProcessors() []Processor {
 	return h.processors
 }
 
-// ProcessRecord applies all registered processors to the record.
 func (h *ProcessableHandler) ProcessRecord(record Record) Record {
 	for _, p := range h.processors {
 		record = p.Process(record)
 	}
 
 	return record
-}
-
-// FormattableHandler is an embeddable struct that provides formatter
-// management for concrete handlers.
-type FormattableHandler struct {
-	formatter Formatter
 }
 
 // SetFormatter sets the formatter used by this handler.

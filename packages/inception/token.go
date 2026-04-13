@@ -18,24 +18,8 @@ type PersonalAccessToken struct {
 }
 
 // HasPermission reports whether the token includes the given permission.
-func (t *PersonalAccessToken) HasPermission(permission string) bool {
-	for _, p := range t.Permissions {
-		if p == "*" || p == permission {
-			return true
-		}
-	}
-
-	return false
-}
 
 // IsExpired reports whether the token has expired.
-func (t *PersonalAccessToken) IsExpired() bool {
-	if t.ExpiresAt == nil {
-		return false
-	}
-
-	return time.Now().After(*t.ExpiresAt)
-}
 
 // TokenRepository persists personal access tokens.
 type TokenRepository interface {
@@ -59,4 +43,22 @@ type HasApiTokens interface {
 type NewTokenResult struct {
 	PlainText string
 	Token     PersonalAccessToken
+}
+
+func (t *PersonalAccessToken) HasPermission(permission string) bool {
+	for _, p := range t.Permissions {
+		if p == "*" || p == permission {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (t *PersonalAccessToken) IsExpired() bool {
+	if t.ExpiresAt == nil {
+		return false
+	}
+
+	return time.Now().After(*t.ExpiresAt)
 }

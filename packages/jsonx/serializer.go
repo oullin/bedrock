@@ -121,6 +121,7 @@ func serializeArrayFields(t *ArrayType, attrs map[string]any) {
 
 	if t.items != nil {
 		items, err := Serialize(t.items)
+
 		if err != nil {
 			panic(err)
 		}
@@ -143,10 +144,12 @@ func serializeObjectFields(t *ObjectType, attrs map[string]any) {
 	}
 
 	properties := make(map[string]any, len(t.properties))
+
 	var required []string
 
 	for key, prop := range t.properties {
 		serialized, err := Serialize(prop)
+
 		if err != nil {
 			panic(err)
 		}

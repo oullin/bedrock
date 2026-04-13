@@ -46,6 +46,7 @@ var levelValues = map[string]Level{
 // ErrInvalidLevel if the name is not recognized.
 func ParseLevel(s string) (Level, error) {
 	l, ok := levelValues[strings.ToLower(strings.TrimSpace(s))]
+
 	if !ok {
 		return 0, ErrInvalidLevel
 	}

@@ -7,17 +7,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	bcryptDefaultRounds = 12
-	bcryptMaxBytes      = 72
-)
-
 // BcryptHasher hashes values using the bcrypt algorithm.
 type BcryptHasher struct {
 	rounds int
 	verify bool
 	limit  int
 }
+
+const (
+	bcryptDefaultRounds = 12
+	bcryptMaxBytes      = 72
+)
 
 var _ contract.Hasher = (*BcryptHasher)(nil)
 
@@ -34,9 +34,11 @@ func NewBcryptHasher(opts ...map[string]any) *BcryptHasher {
 		if v, ok := opts[0]["rounds"].(int); ok {
 			h.rounds = v
 		}
+
 		if v, ok := opts[0]["verify"].(bool); ok {
 			h.verify = v
 		}
+
 		if v, ok := opts[0]["limit"].(int); ok {
 			h.limit = v
 		}
@@ -48,6 +50,7 @@ func NewBcryptHasher(opts ...map[string]any) *BcryptHasher {
 // Info returns metadata about a bcrypt hashed value.
 func (h *BcryptHasher) Info(hashedValue string) (contract.HashInfo, error) {
 	cost, err := bcrypt.Cost([]byte(hashedValue))
+
 	if err != nil {
 		return contract.HashInfo{}, ErrInvalidHash
 	}
@@ -65,6 +68,7 @@ func (h *BcryptHasher) Make(value string, options ...map[string]any) (string, er
 	b := []byte(value)
 
 	limit := h.limit
+
 	if len(options) > 0 {
 		if v, ok := options[0]["limit"].(int); ok {
 			limit = v
@@ -80,6 +84,7 @@ func (h *BcryptHasher) Make(value string, options ...map[string]any) (string, er
 	}
 
 	hash, err := bcrypt.GenerateFromPassword(b, h.cost(options...))
+
 	if err != nil {
 		return "", err
 	}
@@ -98,6 +103,7 @@ func (h *BcryptHasher) Check(value string, hashedValue string, options ...map[st
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(hashedValue), []byte(value))
+
 	if err != nil {
 		return false, nil
 	}
@@ -108,6 +114,7 @@ func (h *BcryptHasher) Check(value string, hashedValue string, options ...map[st
 // NeedsRehash reports whether the hashed value was created with different options.
 func (h *BcryptHasher) NeedsRehash(hashedValue string, options ...map[string]any) (bool, error) {
 	cost, err := bcrypt.Cost([]byte(hashedValue))
+
 	if err != nil {
 		return true, nil
 	}
@@ -118,6 +125,7 @@ func (h *BcryptHasher) NeedsRehash(hashedValue string, options ...map[string]any
 // VerifyConfiguration checks whether the hash was produced with acceptable settings.
 func (h *BcryptHasher) VerifyConfiguration(hashedValue string) bool {
 	cost, err := bcrypt.Cost([]byte(hashedValue))
+
 	if err != nil {
 		return false
 	}

@@ -29,6 +29,7 @@ func NewStreamHandler(w io.Writer, level Level) *StreamHandler {
 // NewFileStreamHandler creates a handler that writes to a file at the given path.
 func NewFileStreamHandler(path string, level Level, perm os.FileMode) (*StreamHandler, error) {
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, perm)
+
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +44,7 @@ func (h *StreamHandler) Handle(record Record) error {
 	}
 
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	if h.closed {
@@ -52,6 +54,7 @@ func (h *StreamHandler) Handle(record Record) error {
 	record = h.ProcessRecord(record)
 
 	formatted, err := h.GetFormatter().Format(record)
+
 	if err != nil {
 		return err
 	}
@@ -69,6 +72,7 @@ func (h *StreamHandler) IsHandling(level Level) bool {
 // Close closes the underlying writer if it implements io.Closer.
 func (h *StreamHandler) Close() error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	h.closed = true
