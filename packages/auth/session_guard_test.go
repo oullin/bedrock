@@ -73,7 +73,7 @@ func TestSessionGuardUserUsesRememberCookieIfItExists(t *testing.T) {
 	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.AddCookie(&http.Cookie{Name: "web_remember", Value: "1|recaller|hash"})
+	req.AddCookie(&http.Cookie{Name: "web_remember", Value: "1|recaller|" + auth.HashPasswordForCookie("pw")})
 	guard.SetRequest(req)
 
 	got, err := guard.User(context.Background())
@@ -115,7 +115,7 @@ func TestSessionGuardUserDispatchesLoginEventFromRememberCookie(t *testing.T) {
 	guard.SetEventDispatcher(dispatcher)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.AddCookie(&http.Cookie{Name: "web_remember", Value: "1|tok|hash"})
+	req.AddCookie(&http.Cookie{Name: "web_remember", Value: "1|tok|" + auth.HashPasswordForCookie("pw")})
 	guard.SetRequest(req)
 
 	_, _ = guard.User(context.Background())
@@ -834,4 +834,346 @@ func TestSessionGuardWorksWithoutDispatcher(t *testing.T) {
 	}
 
 	_ = guard.Logout(ctx)
+}
+
+// --- SessionGuard: GetLastAttempted ---
+
+func TestSessionGuardGetLastAttemptedReturnsNilInitially(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	if guard.GetLastAttempted() != nil {
+		t.Error("GetLastAttempted should be nil initially")
+	}
+}
+
+func TestSessionGuardGetLastAttemptedReturnsUserAfterFailedAttempt(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"}, false)
+
+	if guard.GetLastAttempted() != user {
+		t.Error("GetLastAttempted should return the user even after failed attempt")
+	}
+}
+
+func TestSessionGuardGetLastAttemptedReturnsUserAfterSuccessfulAttempt(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	guard.Attempt(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"}, false)
+
+	if guard.GetLastAttempted() != user {
+		t.Error("GetLastAttempted should return the user after successful attempt")
+	}
+}
+
+// --- SessionGuard: AttemptWhen ---
+
+func TestSessionGuardAttemptWhenSucceedsWhenAllCallbacksPass(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	callbacks := []func(cauth.Authenticatable) bool{
+		func(u cauth.Authenticatable) bool { return u != nil },
+		func(u cauth.Authenticatable) bool { return u.GetAuthIdentifier() == "1" },
+	}
+
+	ok := guard.AttemptWhen(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"}, callbacks, false)
+
+	if !ok {
+		t.Error("AttemptWhen should succeed when all callbacks pass")
+	}
+
+	if !guard.Check(context.Background()) {
+		t.Error("user should be logged in after AttemptWhen")
+	}
+}
+
+func TestSessionGuardAttemptWhenFailsWhenCallbackReturnsFalse(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+	dispatcher := &recordingDispatcher{}
+	guard.SetEventDispatcher(dispatcher)
+
+	callbacks := []func(cauth.Authenticatable) bool{
+		func(_ cauth.Authenticatable) bool { return false },
+	}
+
+	ok := guard.AttemptWhen(context.Background(), map[string]string{"email": "a@b.com", "password": "pw"}, callbacks, false)
+
+	if ok {
+		t.Error("AttemptWhen should fail when callback returns false")
+	}
+
+	if guard.Check(context.Background()) {
+		t.Error("user should not be logged in")
+	}
+
+	dispatcher.has(t, "events.Failed")
+}
+
+func TestSessionGuardAttemptWhenFailsWithInvalidCredentials(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	callbacks := []func(cauth.Authenticatable) bool{
+		func(_ cauth.Authenticatable) bool { return true },
+	}
+
+	ok := guard.AttemptWhen(context.Background(), map[string]string{"email": "a@b.com", "password": "wrong"}, callbacks, false)
+
+	if ok {
+		t.Error("AttemptWhen should fail with invalid credentials")
+	}
+}
+
+// --- SessionGuard: Basic / OnceBasic ---
+
+func TestSessionGuardBasicAuthenticatesFromRequest(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.SetBasicAuth("a@b.com", "pw")
+	guard.SetRequest(req)
+
+	ok := guard.Basic(context.Background(), "email", nil)
+
+	if !ok {
+		t.Error("Basic should succeed with valid credentials")
+	}
+
+	if !guard.Check(context.Background()) {
+		t.Error("user should be authenticated after Basic")
+	}
+}
+
+func TestSessionGuardBasicReturnsFalseWithInvalidCredentials(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.SetBasicAuth("a@b.com", "wrong")
+	guard.SetRequest(req)
+
+	ok := guard.Basic(context.Background(), "email", nil)
+
+	if ok {
+		t.Error("Basic should fail with invalid credentials")
+	}
+}
+
+func TestSessionGuardBasicReturnsTrueIfAlreadyAuthenticated(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	_ = guard.Login(context.Background(), user, false)
+
+	ok := guard.Basic(context.Background(), "email", nil)
+
+	if !ok {
+		t.Error("Basic should return true when already authenticated")
+	}
+}
+
+func TestSessionGuardOnceBasicAuthenticatesWithoutSession(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.SetBasicAuth("a@b.com", "pw")
+	guard.SetRequest(req)
+
+	ok := guard.OnceBasic(context.Background(), "email", nil)
+
+	if !ok {
+		t.Error("OnceBasic should succeed with valid credentials")
+	}
+
+	if sess.Get("_auth_user", nil) != nil {
+		t.Error("OnceBasic should not persist to session")
+	}
+}
+
+// --- SessionGuard: HashPasswordForCookie ---
+
+func TestHashPasswordForCookie(t *testing.T) {
+	hash := auth.HashPasswordForCookie("secret")
+
+	if len(hash) != 10 {
+		t.Errorf("HashPasswordForCookie should return 10 chars, got %d", len(hash))
+	}
+
+	// Same input should produce same hash.
+	if auth.HashPasswordForCookie("secret") != hash {
+		t.Error("HashPasswordForCookie should be deterministic")
+	}
+
+	// Different input should produce different hash.
+	if auth.HashPasswordForCookie("other") == hash {
+		t.Error("different passwords should produce different hashes")
+	}
+}
+
+func TestSessionGuardLoginCookieContainsPasswordHash(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	cookies := &stubCookieManager{}
+	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
+
+	_ = guard.Login(context.Background(), user, true)
+
+	if len(cookies.queued) == 0 {
+		t.Fatal("expected remember cookie")
+	}
+
+	recaller := auth.NewRecaller(cookies.queued[0].Value)
+
+	if recaller == nil {
+		t.Fatal("expected valid recaller from cookie")
+	}
+
+	if !recaller.Valid() {
+		t.Error("recaller should be valid (all three parts non-empty)")
+	}
+
+	if recaller.Hash() != auth.HashPasswordForCookie("pw") {
+		t.Error("cookie hash should match HashPasswordForCookie of user password")
+	}
+}
+
+// --- SessionGuard: Accessors ---
+
+func TestSessionGuardAccessors(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	cookies := &stubCookieManager{}
+	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
+
+	if guard.GetName() != "web" {
+		t.Errorf("GetName() = %q, want %q", guard.GetName(), "web")
+	}
+
+	if guard.GetRecallerName() != "web_remember" {
+		t.Errorf("GetRecallerName() = %q, want %q", guard.GetRecallerName(), "web_remember")
+	}
+
+	if guard.GetCookieJar() != cookies {
+		t.Error("GetCookieJar should return the cookies")
+	}
+
+	if guard.GetSession() != sess {
+		t.Error("GetSession should return the session")
+	}
+
+	if guard.GetUser() != nil {
+		t.Error("GetUser should be nil before login")
+	}
+
+	if guard.GetProvider() != provider {
+		t.Error("GetProvider should return the provider")
+	}
+
+	if guard.GetRequest() != nil {
+		t.Error("GetRequest should be nil before SetRequest")
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	guard.SetRequest(req)
+
+	if guard.GetRequest() != req {
+		t.Error("GetRequest should return the set request")
+	}
+
+	_ = guard.Login(context.Background(), user, false)
+
+	if guard.GetUser() != user {
+		t.Error("GetUser should return user after login")
+	}
+}
+
+func TestSessionGuardSetProvider(t *testing.T) {
+	provider1 := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	provider2 := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider1, sess, nil, nil)
+
+	guard.SetProvider(provider2)
+
+	if guard.GetProvider() != provider2 {
+		t.Error("SetProvider should update the provider")
+	}
+}
+
+func TestSessionGuardSetCookieJar(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+	cookies := &stubCookieManager{}
+
+	guard.SetCookieJar(cookies)
+
+	if guard.GetCookieJar() != cookies {
+		t.Error("SetCookieJar should update the cookie jar")
+	}
+}
+
+func TestSessionGuardGetDispatcher(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	if guard.GetDispatcher() != nil {
+		t.Error("GetDispatcher should be nil before SetEventDispatcher")
+	}
+
+	dispatcher := &recordingDispatcher{}
+	guard.SetEventDispatcher(dispatcher)
+
+	if guard.GetDispatcher() != dispatcher {
+		t.Error("GetDispatcher should return the set dispatcher")
+	}
+}
+
+func TestSessionGuardSetRememberDuration(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "password": "pw"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	cookies := &stubCookieManager{}
+	guard := auth.NewSessionGuard("web", provider, sess, cookies, nil)
+
+	guard.SetRememberDuration(60) // 60 minutes
+
+	_ = guard.Login(context.Background(), user, true)
+
+	if len(cookies.queued) == 0 {
+		t.Fatal("expected remember cookie")
+	}
+
+	if cookies.queued[0].MaxAge != 3600 {
+		t.Errorf("MaxAge = %d, want 3600", cookies.queued[0].MaxAge)
+	}
 }

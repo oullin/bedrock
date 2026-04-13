@@ -171,6 +171,97 @@ func TestQueueableAllOnQueue(t *testing.T) {
 	}
 }
 
+func TestQueueableChainConnection(t *testing.T) {
+	q := &bus.Queueable{}
+	q.ChainConnection = "redis"
+
+	if q.ChainConnection != "redis" {
+		t.Errorf("expected ChainConnection 'redis', got %q", q.ChainConnection)
+	}
+}
+
+func TestQueueableChainQueue(t *testing.T) {
+	q := &bus.Queueable{}
+	q.ChainQueue = "high"
+
+	if q.ChainQueue != "high" {
+		t.Errorf("expected ChainQueue 'high', got %q", q.ChainQueue)
+	}
+}
+
+func TestQueueableAfterCommit(t *testing.T) {
+	q := &bus.Queueable{}
+
+	if q.AfterCommit != nil {
+		t.Error("expected AfterCommit to be nil by default")
+	}
+
+	q.SetAfterCommit()
+
+	if q.AfterCommit == nil || !*q.AfterCommit {
+		t.Error("expected AfterCommit to be true after SetAfterCommit")
+	}
+
+	q.SetBeforeCommit()
+
+	if q.AfterCommit == nil || *q.AfterCommit {
+		t.Error("expected AfterCommit to be false after SetBeforeCommit")
+	}
+}
+
+func TestQueueableOnChainCatch(t *testing.T) {
+	q := &bus.Queueable{}
+	called := false
+
+	q.OnChainCatch(func(_ context.Context, _ error) { called = true })
+
+	if len(q.ChainCatchCallbacks) != 1 {
+		t.Fatalf("expected 1 chain catch callback, got %d", len(q.ChainCatchCallbacks))
+	}
+
+	q.InvokeChainCatchCallbacks(context.Background(), errTestFailure)
+
+	if !called {
+		t.Error("expected chain catch callback to be called")
+	}
+}
+
+func TestQueueableDispatchNextJobInChain(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	j1 := &chainableJob{Name: "first"}
+	j2 := &chainableJob{Name: "second"}
+	j3 := &chainableJob{Name: "third"}
+
+	d.Map(j2, func(_ context.Context, cmd any) (any, error) {
+		return cmd.(*chainableJob).Name, nil
+	})
+
+	j1.Chain(j2, j3)
+
+	err := j1.DispatchNextJobInChain(context.Background(), d)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(j2.ChainJobs) != 1 {
+		t.Errorf("expected 1 remaining chain job on j2, got %d", len(j2.ChainJobs))
+	}
+}
+
+func TestQueueableDispatchNextJobInChainEmpty(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	q := &bus.Queueable{}
+
+	err := q.DispatchNextJobInChain(context.Background(), d)
+
+	if err != nil {
+		t.Errorf("expected no error for empty chain, got %v", err)
+	}
+}
+
 func TestBatchableReturnsBatchInstance(t *testing.T) {
 	b := &bus.Batchable{}
 
@@ -183,5 +274,85 @@ func TestBatchableReturnsBatchInstance(t *testing.T) {
 
 	if b.Batch() != batch {
 		t.Error("expected SetBatch/Batch round-trip to work")
+	}
+}
+
+func TestBatchableWithFakeBatch(t *testing.T) {
+	b := &bus.Batchable{}
+
+	batch := b.WithFakeBatch("fake-1", "test-batch", 5)
+
+	if batch.ID != "fake-1" {
+		t.Errorf("expected ID 'fake-1', got %q", batch.ID)
+	}
+
+	if batch.Name != "test-batch" {
+		t.Errorf("expected Name 'test-batch', got %q", batch.Name)
+	}
+
+	if batch.TotalJobs != 5 {
+		t.Errorf("expected TotalJobs 5, got %d", batch.TotalJobs)
+	}
+
+	if b.BatchID != "fake-1" {
+		t.Errorf("expected BatchID 'fake-1', got %q", b.BatchID)
+	}
+
+	if b.Batch() != batch {
+		t.Error("expected Batch() to return the fake batch")
+	}
+
+	if !b.Batching() {
+		t.Error("expected Batching() to be true with fake batch")
+	}
+}
+
+func TestBatchableBatchFromRepo(t *testing.T) {
+	repo := newMockBatchRepo()
+	repo.batch = &bus.Batch{ID: "repo-1", Name: "from-repo"}
+
+	b := &bus.Batchable{}
+	b.WithBatchID("repo-1")
+
+	batch, err := b.BatchFromRepo(context.Background(), repo)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if batch.Name != "from-repo" {
+		t.Errorf("expected Name 'from-repo', got %q", batch.Name)
+	}
+
+	// Should cache locally.
+	if b.Batch() != batch {
+		t.Error("expected Batch() to return cached repo batch")
+	}
+}
+
+func TestBatchableBatchFromRepoNilWhenEmpty(t *testing.T) {
+	b := &bus.Batchable{}
+
+	batch, err := b.BatchFromRepo(context.Background(), nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if batch != nil {
+		t.Error("expected nil batch when no BatchID set")
+	}
+}
+
+func TestBatchableBatchingReturnsFalseWhenCancelled(t *testing.T) {
+	b := &bus.Batchable{}
+	now := time.Now()
+
+	batch := &bus.Batch{ID: "b-1", CancelledAt: &now}
+	b.WithBatchID("b-1")
+	b.SetBatch(batch)
+
+	if b.Batching() {
+		t.Error("expected Batching() to be false when batch is cancelled")
 	}
 }

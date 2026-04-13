@@ -7,6 +7,11 @@ import (
 	"github.com/bedrock/packages/bus"
 )
 
+type batchableTestJob struct {
+	bus.Batchable
+	Name string
+}
+
 func TestPendingBatchFluentAPI(t *testing.T) {
 	d := newMockQueueingDispatcher()
 	pb := bus.NewPendingBatch(d, []any{"job1"})
@@ -265,5 +270,80 @@ func TestPendingBatchDispatchAfterResponse(t *testing.T) {
 
 	if count != 2 {
 		t.Errorf("expected 2 deferred dispatches, got %d", count)
+	}
+}
+
+func TestPendingBatchWithOption(t *testing.T) {
+	d := newMockQueueingDispatcher()
+	pb := bus.NewPendingBatch(d, []any{"job1"}).
+		WithOption("retries", 3).
+		WithOption("timeout", 60)
+
+	batch, err := pb.Dispatch(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if batch.Options["retries"] != 3 {
+		t.Errorf("expected retries option 3, got %v", batch.Options["retries"])
+	}
+
+	if batch.Options["timeout"] != 60 {
+		t.Errorf("expected timeout option 60, got %v", batch.Options["timeout"])
+	}
+}
+
+func TestPendingBatchWithOptionAndAllowFailures(t *testing.T) {
+	d := newMockQueueingDispatcher()
+	pb := bus.NewPendingBatch(d, []any{"job1"}).
+		WithOption("custom", "value").
+		AllowFailures()
+
+	opts := pb.Options()
+
+	if opts["custom"] != "value" {
+		t.Errorf("expected custom option, got %v", opts["custom"])
+	}
+
+	if opts["allowFailures"] != true {
+		t.Error("expected allowFailures to be true")
+	}
+}
+
+func TestPendingBatchSetsBatchIDOnBatchableJobs(t *testing.T) {
+	d := newMockQueueingDispatcher()
+	job := &batchableTestJob{Name: "test"}
+
+	pb := bus.NewPendingBatch(d, []any{job})
+
+	batch, err := pb.Dispatch(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if job.BatchID != batch.ID {
+		t.Errorf("expected job BatchID %q, got %q", batch.ID, job.BatchID)
+	}
+}
+
+func TestPendingBatchDeletesBatchOnDispatchFailure(t *testing.T) {
+	repo := newMockBatchRepo()
+	q := newMockQueue()
+	q.pushErr = errTestFailure
+
+	d := bus.NewDispatcher(q, repo)
+
+	pb := d.Batch([]any{"job1"})
+
+	_, err := pb.Dispatch(context.Background())
+
+	if err == nil {
+		t.Error("expected error from dispatch failure")
+	}
+
+	if !repo.hasCalled("Delete:") {
+		t.Error("expected repo.Delete to be called when dispatch fails after store")
 	}
 }

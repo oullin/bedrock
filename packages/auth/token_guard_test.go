@@ -289,3 +289,91 @@ func TestTokenGuardIDReturnsNilWhenNoUser(t *testing.T) {
 		t.Error("ID should return nil when no user")
 	}
 }
+
+// --- TokenGuard: Validate ---
+
+func TestTokenGuardValidateReturnsTrueForValidToken(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": "valid-token"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	guard := auth.NewTokenGuard("api", provider)
+
+	ok := guard.Validate(context.Background(), map[string]string{"api_token": "valid-token"})
+
+	if !ok {
+		t.Error("Validate should return true for valid token")
+	}
+}
+
+func TestTokenGuardValidateReturnsFalseForInvalidToken(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	guard := auth.NewTokenGuard("api", provider)
+
+	ok := guard.Validate(context.Background(), map[string]string{"api_token": "invalid"})
+
+	if ok {
+		t.Error("Validate should return false for invalid token")
+	}
+}
+
+// --- TokenGuard: GetTokenForRequest ---
+
+func TestTokenGuardGetTokenForRequestFromQuery(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	guard := auth.NewTokenGuard("api", provider)
+
+	req := httptest.NewRequest(http.MethodGet, "/?api_token=my-token", nil)
+	guard.SetRequest(req)
+
+	if guard.GetTokenForRequest() != "my-token" {
+		t.Errorf("GetTokenForRequest() = %q, want %q", guard.GetTokenForRequest(), "my-token")
+	}
+}
+
+func TestTokenGuardGetTokenForRequestFromBearer(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	guard := auth.NewTokenGuard("api", provider)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Bearer bearer-token")
+	guard.SetRequest(req)
+
+	if guard.GetTokenForRequest() != "bearer-token" {
+		t.Errorf("GetTokenForRequest() = %q, want %q", guard.GetTokenForRequest(), "bearer-token")
+	}
+}
+
+func TestTokenGuardGetTokenForRequestReturnsEmptyWhenNoToken(t *testing.T) {
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	guard := auth.NewTokenGuard("api", provider)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	guard.SetRequest(req)
+
+	if guard.GetTokenForRequest() != "" {
+		t.Error("GetTokenForRequest should return empty when no token")
+	}
+}
+
+// --- TokenGuard: SHA256 hashing ---
+
+func TestTokenGuardHashesTokenWithSHA256(t *testing.T) {
+	// SHA256 of "plain-token"
+	hashedToken := "23fb79e20d37abf2418d78115eb0cc8c74b52f4ed8b91dda7fc03a1d41fc15e3"
+	user := auth.NewGenericUser(map[string]any{"id": "1", "api_token": hashedToken})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	guard := auth.NewTokenGuard("api", provider)
+	guard.SetHash(true)
+
+	req := httptest.NewRequest(http.MethodGet, "/?api_token=plain-token", nil)
+	guard.SetRequest(req)
+
+	u, err := guard.User(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if u == nil {
+		t.Error("expected user when token hashes match")
+	}
+}

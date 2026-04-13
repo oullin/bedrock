@@ -129,7 +129,7 @@ func TestBatchRecordSuccessfulJobWithRepo(t *testing.T) {
 
 func TestBatchRecordFailedJobWithoutRepo(t *testing.T) {
 	b := &bus.Batch{PendingJobs: 3, FailedJobs: 0}
-	counts, err := b.RecordFailedJob(context.Background(), "job-42")
+	counts, err := b.RecordFailedJob(context.Background(), "job-42", errTestFailure)
 
 	if err != nil {
 		t.Fatal(err)
@@ -153,7 +153,7 @@ func TestBatchRecordFailedJobWithRepo(t *testing.T) {
 	repo.incrementFailedResult = &bus.UpdatedBatchJobCounts{PendingJobs: 2, FailedJobs: 3}
 
 	b := bus.NewBatchWithRepo("batch-1", repo)
-	counts, err := b.RecordFailedJob(context.Background(), "job-7")
+	counts, err := b.RecordFailedJob(context.Background(), "job-7", errTestFailure)
 
 	if err != nil {
 		t.Fatal(err)
@@ -287,6 +287,259 @@ func TestBatchMarshalJSON(t *testing.T) {
 
 	if m["progress"] != 70.0 {
 		t.Errorf("expected progress 70, got %v", m["progress"])
+	}
+}
+
+func TestBatchCanceled(t *testing.T) {
+	b := &bus.Batch{}
+
+	if b.Canceled() {
+		t.Error("expected Canceled() to be false when CancelledAt is nil")
+	}
+
+	now := time.Now()
+	b.CancelledAt = &now
+
+	if !b.Canceled() {
+		t.Error("expected Canceled() to be true when CancelledAt is set")
+	}
+}
+
+func TestBatchHasCallbackCheckers(t *testing.T) {
+	b := &bus.Batch{}
+
+	if b.HasProgressCallbacks() {
+		t.Error("expected HasProgressCallbacks false with no callbacks")
+	}
+
+	if b.HasThenCallbacks() {
+		t.Error("expected HasThenCallbacks false with no callbacks")
+	}
+
+	if b.HasCatchCallbacks() {
+		t.Error("expected HasCatchCallbacks false with no callbacks")
+	}
+
+	if b.HasFinallyCallbacks() {
+		t.Error("expected HasFinallyCallbacks false with no callbacks")
+	}
+
+	b.ProgressCallbacks = append(b.ProgressCallbacks, func(_ context.Context, _ *bus.Batch) {})
+	b.ThenCallbacks = append(b.ThenCallbacks, func(_ context.Context, _ *bus.Batch) {})
+	b.CatchCallbacks = append(b.CatchCallbacks, func(_ context.Context, _ *bus.Batch, _ error) {})
+	b.FinallyCallbacks = append(b.FinallyCallbacks, func(_ context.Context, _ *bus.Batch) {})
+
+	if !b.HasProgressCallbacks() {
+		t.Error("expected HasProgressCallbacks true")
+	}
+
+	if !b.HasThenCallbacks() {
+		t.Error("expected HasThenCallbacks true")
+	}
+
+	if !b.HasCatchCallbacks() {
+		t.Error("expected HasCatchCallbacks true")
+	}
+
+	if !b.HasFinallyCallbacks() {
+		t.Error("expected HasFinallyCallbacks true")
+	}
+}
+
+func TestBatchInvokeProgressCallbacks(t *testing.T) {
+	called := 0
+	b := &bus.Batch{
+		ProgressCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { called++ },
+			func(_ context.Context, _ *bus.Batch) { called++ },
+		},
+	}
+
+	b.InvokeProgressCallbacks(context.Background())
+
+	if called != 2 {
+		t.Errorf("expected 2 progress callbacks, got %d", called)
+	}
+}
+
+func TestBatchInvokeThenCallbacks(t *testing.T) {
+	called := 0
+	b := &bus.Batch{
+		ThenCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { called++ },
+		},
+	}
+
+	b.InvokeThenCallbacks(context.Background())
+
+	if called != 1 {
+		t.Errorf("expected 1 then callback, got %d", called)
+	}
+}
+
+func TestBatchInvokeCatchCallbacks(t *testing.T) {
+	var receivedErr error
+	b := &bus.Batch{
+		CatchCallbacks: []func(context.Context, *bus.Batch, error){
+			func(_ context.Context, _ *bus.Batch, err error) { receivedErr = err },
+		},
+	}
+
+	b.InvokeCatchCallbacks(context.Background(), errTestFailure)
+
+	if receivedErr != errTestFailure {
+		t.Errorf("expected catch callback to receive error, got %v", receivedErr)
+	}
+}
+
+func TestBatchInvokeFinallyCallbacks(t *testing.T) {
+	called := 0
+	b := &bus.Batch{
+		FinallyCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { called++ },
+		},
+	}
+
+	b.InvokeFinallyCallbacks(context.Background())
+
+	if called != 1 {
+		t.Errorf("expected 1 finally callback, got %d", called)
+	}
+}
+
+func TestRecordSuccessfulJobInvokesCallbacks(t *testing.T) {
+	progressCalled := false
+	thenCalled := false
+	finallyCalled := false
+
+	b := &bus.Batch{
+		PendingJobs: 1,
+		FailedJobs:  0,
+		ProgressCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { progressCalled = true },
+		},
+		ThenCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { thenCalled = true },
+		},
+		FinallyCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { finallyCalled = true },
+		},
+	}
+
+	_, err := b.RecordSuccessfulJob(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !progressCalled {
+		t.Error("expected progress callback to be called")
+	}
+
+	if !thenCalled {
+		t.Error("expected then callback to be called when all jobs succeeded")
+	}
+
+	if !finallyCalled {
+		t.Error("expected finally callback to be called when all jobs done")
+	}
+}
+
+func TestRecordSuccessfulJobDoesNotInvokeThenWhenFailuresExist(t *testing.T) {
+	thenCalled := false
+	finallyCalled := false
+
+	b := &bus.Batch{
+		PendingJobs: 1,
+		FailedJobs:  1,
+		ThenCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { thenCalled = true },
+		},
+		FinallyCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { finallyCalled = true },
+		},
+	}
+
+	_, err := b.RecordSuccessfulJob(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if thenCalled {
+		t.Error("expected then callback NOT to be called when failures exist")
+	}
+
+	if !finallyCalled {
+		t.Error("expected finally callback to be called when pending reaches 0")
+	}
+}
+
+func TestRecordFailedJobInvokesCatchCallbacks(t *testing.T) {
+	catchCalled := false
+	finallyCalled := false
+
+	b := &bus.Batch{
+		PendingJobs: 1,
+		FailedJobs:  0,
+		CatchCallbacks: []func(context.Context, *bus.Batch, error){
+			func(_ context.Context, _ *bus.Batch, _ error) { catchCalled = true },
+		},
+		FinallyCallbacks: []func(context.Context, *bus.Batch){
+			func(_ context.Context, _ *bus.Batch) { finallyCalled = true },
+		},
+	}
+
+	_, err := b.RecordFailedJob(context.Background(), "job-1", errTestFailure)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !catchCalled {
+		t.Error("expected catch callback to be called")
+	}
+
+	if !finallyCalled {
+		t.Error("expected finally callback when pending reaches 0")
+	}
+}
+
+func TestBatchFinishedEventOnAllJobsSuccess(t *testing.T) {
+	var firedEvent any
+
+	b := &bus.Batch{
+		PendingJobs: 1,
+		FailedJobs:  0,
+	}
+
+	b.SetEventFunc(func(event any) { firedEvent = event })
+
+	_, _ = b.RecordSuccessfulJob(context.Background())
+
+	if firedEvent == nil {
+		t.Fatal("expected BatchFinished event to be fired")
+	}
+
+	if _, ok := firedEvent.(bus.BatchFinished); !ok {
+		t.Errorf("expected BatchFinished event, got %T", firedEvent)
+	}
+}
+
+func TestBatchCanceledEvent(t *testing.T) {
+	var firedEvent any
+
+	b := &bus.Batch{ID: "batch-1"}
+	b.SetEventFunc(func(event any) { firedEvent = event })
+
+	_ = b.Cancel(context.Background())
+
+	if firedEvent == nil {
+		t.Fatal("expected BatchCanceled event to be fired")
+	}
+
+	if _, ok := firedEvent.(bus.BatchCanceled); !ok {
+		t.Errorf("expected BatchCanceled event, got %T", firedEvent)
 	}
 }
 

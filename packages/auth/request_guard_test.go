@@ -220,3 +220,30 @@ func TestRequestGuardIDReturnsIdentifier(t *testing.T) {
 		t.Errorf("ID = %v, want \"42\"", guard.ID(context.Background()))
 	}
 }
+
+// --- RequestGuard: Validate ---
+
+func TestRequestGuardValidateReturnsFalse(t *testing.T) {
+	guard := auth.NewRequestGuard(nil)
+
+	if guard.Validate(context.Background(), map[string]string{"password": "test"}) {
+		t.Error("RequestGuard.Validate should always return false")
+	}
+}
+
+// --- RequestGuard: Provider ---
+
+func TestRequestGuardProviderGetterSetter(t *testing.T) {
+	guard := auth.NewRequestGuard(nil)
+
+	if guard.GetProvider() != nil {
+		t.Error("GetProvider should be nil initially")
+	}
+
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{}}
+	guard.SetProvider(provider)
+
+	if guard.GetProvider() != provider {
+		t.Error("GetProvider should return the set provider")
+	}
+}

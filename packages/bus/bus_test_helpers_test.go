@@ -126,6 +126,30 @@ func (r *mockBatchRepository) Get(_ context.Context, id string) (*bus.Batch, err
 	return r.batch, r.getErr
 }
 
+func (r *mockBatchRepository) GetList(_ context.Context, limit int, before string) ([]*bus.Batch, error) {
+	r.mu.Lock()
+
+	defer r.mu.Unlock()
+
+	r.calls = append(r.calls, fmt.Sprintf("GetList:%d:%s", limit, before))
+
+	if r.batch != nil {
+		return []*bus.Batch{r.batch}, nil
+	}
+
+	return nil, nil
+}
+
+func (r *mockBatchRepository) RollBack(_ context.Context) error {
+	r.mu.Lock()
+
+	defer r.mu.Unlock()
+
+	r.calls = append(r.calls, "RollBack")
+
+	return nil
+}
+
 func (r *mockBatchRepository) Store(_ context.Context, b *bus.Batch) error {
 	r.mu.Lock()
 

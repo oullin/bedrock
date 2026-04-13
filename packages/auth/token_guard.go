@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 	"strings"
 	"sync"
@@ -37,6 +39,9 @@ func (g *TokenGuard) SetInputKey(key string) { g.inputKey = key }
 
 // SetStorageKey sets the user attribute key for the stored token.
 func (g *TokenGuard) SetStorageKey(key string) { g.storageKey = key }
+
+// SetHash enables or disables SHA256 token hashing before lookup.
+func (g *TokenGuard) SetHash(hash bool) { g.hashable = hash }
 
 // SetRequest attaches the incoming HTTP request.
 func (g *TokenGuard) SetRequest(r *http.Request) {
@@ -91,8 +96,15 @@ func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 		return nil, nil
 	}
 
+	lookupToken := token
+
+	if g.hashable {
+		h := sha256.Sum256([]byte(token))
+		lookupToken = hex.EncodeToString(h[:])
+	}
+
 	user, err := g.provider.RetrieveByCredentials(ctx, map[string]string{
-		g.storageKey: token,
+		g.storageKey: lookupToken,
 	})
 
 	if err != nil || user == nil {
@@ -102,6 +114,22 @@ func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 	g.user = user
 
 	return user, nil
+}
+
+// Validate checks if the given credentials map to a valid user.
+func (g *TokenGuard) Validate(ctx context.Context, credentials map[string]string) bool {
+	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
+	return err == nil && user != nil
+}
+
+// GetTokenForRequest returns the bearer token from the current request.
+func (g *TokenGuard) GetTokenForRequest() string {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.getTokenFromRequest()
 }
 
 func (g *TokenGuard) Check(ctx context.Context) bool {

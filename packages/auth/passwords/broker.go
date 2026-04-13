@@ -79,6 +79,31 @@ func (b *Broker) Reset(ctx context.Context, credentials map[string]any, resetFn 
 	return b.tokens.Delete(ctx, email)
 }
 
+// GetUser retrieves the user by email for password reset.
+func (b *Broker) GetUser(ctx context.Context, email string) (cauth.CanResetPassword, error) {
+	return b.getUser(ctx, email)
+}
+
+// CreateToken creates a password reset token for the given user.
+func (b *Broker) CreateToken(ctx context.Context, user cauth.CanResetPassword) (string, error) {
+	return b.tokens.Create(ctx, user.GetEmailForPasswordReset())
+}
+
+// DeleteToken removes the password reset token for the given user.
+func (b *Broker) DeleteToken(ctx context.Context, user cauth.CanResetPassword) error {
+	return b.tokens.Delete(ctx, user.GetEmailForPasswordReset())
+}
+
+// TokenExists reports whether a valid token exists for the given user.
+func (b *Broker) TokenExists(ctx context.Context, user cauth.CanResetPassword, token string) bool {
+	return b.tokens.Exists(ctx, user.GetEmailForPasswordReset(), token)
+}
+
+// GetRepository returns the token repository.
+func (b *Broker) GetRepository() TokenRepository {
+	return b.tokens
+}
+
 func (b *Broker) getUser(ctx context.Context, email string) (cauth.CanResetPassword, error) {
 	u, err := b.users.RetrieveByCredentials(ctx, map[string]string{"email": email})
 
