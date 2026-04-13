@@ -12,18 +12,19 @@ import (
 // FileLock is a filesystem-based lock. It creates a lock file in the specified
 // directory. The owner string is written to the file for ownership verification.
 type FileLock struct {
-	dir   string
-	name  string
-	owner string
-	ttl   time.Duration
-	clock contracts.Clock
+	dir     string
+	name    string
+	owner   string
+	ttl     time.Duration
+	clock   contracts.Clock
+	sleepMs int
 }
 
 var _ Lock = (*FileLock)(nil)
 
 // NewFileLock creates a file-based lock.
 func NewFileLock(dir, name, owner string, ttl time.Duration, clock contracts.Clock) *FileLock {
-	return &FileLock{dir: dir, name: name, owner: owner, ttl: ttl, clock: clock}
+	return &FileLock{dir: dir, name: name, owner: owner, ttl: ttl, clock: clock, sleepMs: 50}
 }
 
 func (l *FileLock) now() time.Time {
@@ -141,9 +142,31 @@ func (l *FileLock) Block(ctx context.Context, timeout time.Duration) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(time.Duration(l.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (l *FileLock) Owner() string { return l.owner }
+
+func (l *FileLock) IsOwnedByCurrentProcess(_ context.Context) (bool, error) {
+	return l.IsOwnedBy(nil, l.owner)
+}
+
+func (l *FileLock) IsOwnedBy(_ context.Context, owner string) (bool, error) {
+	data, err := os.ReadFile(l.path())
+
+	if err != nil {
+		return false, nil
+	}
+
+	return string(data) == owner, nil
+}
+
+func (l *FileLock) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	l.sleepMs = ms
+
+	return l
 }
 
 func (l *FileLock) Blocked(_ context.Context) (bool, error) {

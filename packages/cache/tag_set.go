@@ -92,6 +92,27 @@ func (ts *TagSet) ResetTag(ctx context.Context, name string) (string, error) {
 	return id, nil
 }
 
+// Flush deletes the tag key entries from the store entirely.
+func (ts *TagSet) Flush(ctx context.Context) error {
+	for _, name := range ts.names {
+		if err := ts.FlushTag(ctx, name); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// FlushTag deletes a single tag key entry from the store.
+func (ts *TagSet) FlushTag(ctx context.Context, name string) error {
+	return ts.store.Forget(ctx, ts.tagKey(name))
+}
+
+// TagKey returns the cache key used to store the given tag's ID.
+func (ts *TagSet) TagKey(name string) string {
+	return ts.tagKey(name)
+}
+
 func (ts *TagSet) tagKey(name string) string {
 	return "tag:" + name + ":key"
 }

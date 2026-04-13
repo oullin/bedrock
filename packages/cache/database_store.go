@@ -55,6 +55,15 @@ func (s *DatabaseStore) now() time.Time {
 
 func (s *DatabaseStore) GetPrefix() string { return s.prefix }
 
+// SetPrefix sets the key prefix.
+func (s *DatabaseStore) SetPrefix(prefix string) { s.prefix = prefix }
+
+// GetConnection returns the underlying database connection.
+func (s *DatabaseStore) GetConnection() DBConnection { return s.conn }
+
+// SetConnection replaces the underlying database connection.
+func (s *DatabaseStore) SetConnection(conn DBConnection) { s.conn = conn }
+
 // Tags returns a tag-scoped view of the store.
 func (s *DatabaseStore) Tags(tags ...string) TaggedCache {
 	return NewTaggedCache(s, NewTagSet(s, tags))
@@ -193,6 +202,19 @@ func (s *DatabaseStore) Forget(ctx context.Context, key string) error {
 // Lock returns a database-backed lock for the named resource.
 func (s *DatabaseStore) Lock(name, owner string, ttl time.Duration) Lock {
 	return NewDatabaseLock(s.conn, s.table+"_locks", name, owner, ttl, s.clock)
+}
+
+// ForgetIfExpired removes a key only if it has expired.
+func (s *DatabaseStore) ForgetIfExpired(ctx context.Context, key string) error {
+	return s.conn.Exec(ctx,
+		fmt.Sprintf("DELETE FROM %s WHERE key = $1 AND expiration > 0 AND expiration < $2", s.table),
+		s.prefixed(key), s.now().Unix(),
+	)
+}
+
+// RestoreLock creates a lock handle from a serialized owner without acquiring.
+func (s *DatabaseStore) RestoreLock(name, owner string) Lock {
+	return s.Lock(name, owner, 0)
 }
 
 func (s *DatabaseStore) Flush(ctx context.Context) error {

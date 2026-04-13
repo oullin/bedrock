@@ -6,121 +6,56 @@ import (
 	"strings"
 )
 
-// Sentinel errors used across the package.
+// Sentinel errors.
 
-// ProviderError represents an error returned by the payment provider.
-type ProviderError struct {
+// PaddleError wraps an error from the Paddle API.
+type PaddleError struct {
 	Code    string
 	Message string
 	Err     error
 }
 
-// Error implements the error interface.
-
-// Unwrap returns the underlying error.
-
-// InvalidPlanPriceError indicates that a plan price is missing required fields.
-type InvalidPlanPriceError struct {
-	Identifier  string
-	PricingMode string
-	Missing     []string
-}
-
-// Error implements the error interface.
-
-// NewInvalidPlanPriceError builds an InvalidPlanPriceError for a price with
-// incomplete money fields.
-
-// ValidationError holds field-level validation errors.
+// ValidationError represents a single field validation failure.
 type ValidationError struct {
-	Field   string
-	Message string
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
-// Error implements the error interface.
-
-// ValidationErrors collects multiple field validation failures.
+// ValidationErrors is a collection of validation errors.
 type ValidationErrors []ValidationError
 
 var (
-	ErrNotFound               = errors.New("billing: resource not found")
-	ErrAlreadySubscribed      = errors.New("billing: billable is already subscribed")
-	ErrNotSubscribed          = errors.New("billing: billable is not subscribed")
-	ErrPlanNotEligible        = errors.New("billing: billable is not eligible for this plan")
-	ErrSubscriptionNotOnGrace = errors.New("billing: subscription is not on a grace period")
-	ErrSubscriptionTerminal   = errors.New("billing: subscription is in a terminal state")
-	ErrNoActivePrice          = errors.New("billing: no active price available for the plan period")
-	ErrPendingCheckoutExists  = errors.New("billing: a pending checkout already exists")
-	ErrRecoveryFailed         = errors.New("billing: explicit subscription recovery failed")
-	ErrUnauthorized           = errors.New("billing: not authorized to view billing portal")
-	ErrBillableRequired       = errors.New("billing: billable context is required")
+	ErrNotFound          = errors.New("billing: not found")
+	ErrBillableRequired  = errors.New("billing: billable is required")
+	ErrAlreadySubscribed = errors.New("billing: already subscribed")
+	ErrNotSubscribed     = errors.New("billing: not subscribed")
+	ErrInvalidProvider   = errors.New("billing: invalid payment provider")
 )
 
-func (e *ProviderError) Error() string {
-	if e.Code != "" {
-		return fmt.Sprintf("billing: provider error [%s]: %s", e.Code, e.Message)
+func (e *PaddleError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("paddle: %s (%s): %v", e.Message, e.Code, e.Err)
 	}
 
-	return fmt.Sprintf("billing: provider error: %s", e.Message)
+	return fmt.Sprintf("paddle: %s (%s)", e.Message, e.Code)
 }
 
-func (e *ProviderError) Unwrap() error {
+func (e *PaddleError) Unwrap() error {
 	return e.Err
 }
 
-func (e *InvalidPlanPriceError) Error() string {
-	return fmt.Sprintf(
-		"billing: plan price [%s] with pricing mode [%s] is missing required money fields [%s]",
-		e.Identifier,
-		e.PricingMode,
-		strings.Join(e.Missing, ", "),
-	)
-}
-
-func NewInvalidPlanPriceError(identifier, pricingMode string, amountMinor *int64, currency string) *InvalidPlanPriceError {
-	var missing []string
-
-	if amountMinor == nil {
-		missing = append(missing, "amount_minor")
-	}
-
-	if strings.TrimSpace(currency) == "" {
-		missing = append(missing, "currency")
-	}
-
-	return &InvalidPlanPriceError{
-		Identifier:  identifier,
-		PricingMode: pricingMode,
-		Missing:     missing,
-	}
-}
-
-func (e *ValidationError) Error() string {
-	return fmt.Sprintf("billing: validation error on %s: %s", e.Field, e.Message)
-}
-
 // Error implements the error interface.
-func (e ValidationErrors) Error() string {
-	if len(e) == 0 {
-		return "billing: validation failed"
-	}
+func (ve ValidationErrors) Error() string {
+	msgs := make([]string, len(ve))
 
-	msgs := make([]string, len(e))
-
-	for i, v := range e {
-		msgs[i] = v.Error()
+	for i, e := range ve {
+		msgs[i] = e.Field + ": " + e.Message
 	}
 
 	return strings.Join(msgs, "; ")
 }
 
-// HasField reports whether the collection contains an error for the given field.
-func (e ValidationErrors) HasField(field string) bool {
-	for _, v := range e {
-		if v.Field == field {
-			return true
-		}
-	}
-
-	return false
+// HasErrors reports whether there are any validation errors.
+func (ve ValidationErrors) HasErrors() bool {
+	return len(ve) > 0
 }

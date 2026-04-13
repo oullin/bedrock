@@ -131,3 +131,80 @@ func TestTagSetTagIDPersistence(t *testing.T) {
 		t.Fatal("expected same tag ID on repeated calls")
 	}
 }
+
+func TestTagSetFlush(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	ts := cache.NewTagSet(store, []string{"a", "b"})
+	ctx := context.Background()
+
+	// Generate tag IDs (stored in cache).
+	_, _ = ts.TagID(ctx, "a")
+	_, _ = ts.TagID(ctx, "b")
+
+	// Verify tag keys exist.
+	_, err := store.Get(ctx, ts.TagKey("a"))
+
+	if err != nil {
+		t.Fatal("expected tag key 'a' to exist")
+	}
+
+	// Flush deletes tag keys entirely.
+	if err := ts.Flush(ctx); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = store.Get(ctx, ts.TagKey("a"))
+
+	if err == nil {
+		t.Fatal("expected tag key 'a' to be deleted after flush")
+	}
+
+	_, err = store.Get(ctx, ts.TagKey("b"))
+
+	if err == nil {
+		t.Fatal("expected tag key 'b' to be deleted after flush")
+	}
+}
+
+func TestTagSetFlushTag(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	ts := cache.NewTagSet(store, []string{"a", "b"})
+	ctx := context.Background()
+
+	_, _ = ts.TagID(ctx, "a")
+	_, _ = ts.TagID(ctx, "b")
+
+	if err := ts.FlushTag(ctx, "a"); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := store.Get(ctx, ts.TagKey("a"))
+
+	if err == nil {
+		t.Fatal("expected tag 'a' to be deleted")
+	}
+
+	// Tag 'b' should still exist.
+	_, err = store.Get(ctx, ts.TagKey("b"))
+
+	if err != nil {
+		t.Fatal("expected tag 'b' to still exist")
+	}
+}
+
+func TestTagSetTagKey(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	ts := cache.NewTagSet(store, []string{"foo"})
+
+	key := ts.TagKey("foo")
+
+	if key != "tag:foo:key" {
+		t.Fatalf("expected 'tag:foo:key', got %q", key)
+	}
+}

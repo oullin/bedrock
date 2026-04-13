@@ -103,7 +103,7 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	tfa.SetTwoFactorRecoveryCodes(codes)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorEnabled)
+		_, _ = h.authflows.events.Dispatch(ctx, EventTwoFactorEnabled)
 	}
 
 	h.authflows.responder.TwoFactorEnabledResponse(w, r)
@@ -151,7 +151,7 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(&now)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorConfirmed)
+		_, _ = h.authflows.events.Dispatch(ctx, EventTwoFactorConfirmed)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -192,7 +192,7 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(nil)
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, EventTwoFactorDisabled)
+		_, _ = h.authflows.events.Dispatch(ctx, EventTwoFactorDisabled)
 	}
 
 	h.authflows.responder.TwoFactorDisabledResponse(w, r)

@@ -239,3 +239,47 @@ func TestTaggedCacheMultipleTags(t *testing.T) {
 		t.Fatalf("expected separate values, got %v and %v", v1, v2)
 	}
 }
+
+func TestTaggedCacheTaggedItemKey(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	ctx := context.Background()
+
+	tc := cache.NewTaggedCache(store, cache.NewTagSet(store, []string{"tag1"}))
+
+	key, err := tc.TaggedItemKey(ctx, "mykey")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if key == "" || key == "mykey" {
+		t.Fatalf("expected prefixed key, got %q", key)
+	}
+
+	// Key should contain "mykey" as suffix.
+	if len(key) <= len("mykey") {
+		t.Fatalf("expected key longer than 'mykey', got %q", key)
+	}
+}
+
+func TestTaggedCacheGetTags(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	tags := cache.NewTagSet(store, []string{"t1", "t2"})
+	tc := cache.NewTaggedCache(store, tags)
+
+	got := tc.GetTags()
+
+	if got != tags {
+		t.Fatal("expected same TagSet instance")
+	}
+
+	names := got.GetNames()
+
+	if len(names) != 2 || names[0] != "t1" || names[1] != "t2" {
+		t.Fatalf("expected [t1 t2], got %v", names)
+	}
+}

@@ -51,3 +51,6 @@ func (s *NullStore) Flush(_ context.Context) error { return nil }
 
 // Lock returns a no-op lock.
 func (s *NullStore) Lock(_, _ string, _ time.Duration) Lock { return &NoLock{} }
+
+// RestoreLock returns a no-op lock.
+func (s *NullStore) RestoreLock(_, _ string) Lock { return &NoLock{} }

@@ -195,6 +195,40 @@ func (rl *RateLimiter) AvailableIn(ctx context.Context, key string) (time.Durati
 	return remaining, nil
 }
 
+// Increment increments the rate limiter counter by the given amount.
+func (rl *RateLimiter) Increment(ctx context.Context, key string, decaySeconds int, amount int64) (int, error) {
+	timerKey := key + ":timer"
+	decay := time.Duration(decaySeconds) * time.Second
+
+	_, _ = rl.cache.Add(ctx, timerKey, rl.nowUnix(), decay)
+
+	added, _ := rl.cache.Add(ctx, key, int64(0), decay)
+
+	if added {
+		_, _ = rl.cache.Increment(ctx, key, amount)
+
+		return int(amount), nil
+	}
+
+	result, err := rl.cache.Increment(ctx, key, amount)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int(result), nil
+}
+
+// Decrement decrements the rate limiter counter by the given amount.
+func (rl *RateLimiter) Decrement(ctx context.Context, key string, decaySeconds int, amount int64) (int, error) {
+	return rl.Increment(ctx, key, decaySeconds, -amount)
+}
+
+// RetriesLeft is an alias for Remaining.
+func (rl *RateLimiter) RetriesLeft(ctx context.Context, key string, maxAttempts int) (int, error) {
+	return rl.Remaining(ctx, key, maxAttempts)
+}
+
 // Clear removes both the counter and timer keys.
 func (rl *RateLimiter) Clear(ctx context.Context, key string) error {
 	_ = rl.cache.Forget(ctx, key)
@@ -204,4 +238,18 @@ func (rl *RateLimiter) Clear(ctx context.Context, key string) error {
 
 func (rl *RateLimiter) nowUnix() int64 {
 	return time.Now().Unix()
+}
+
+// CleanRateLimiterKey sanitizes a rate limiter key by removing non-ASCII
+// characters.
+func CleanRateLimiterKey(key string) string {
+	var b []byte
+
+	for i := 0; i < len(key); i++ {
+		if key[i] <= 127 {
+			b = append(b, key[i])
+		}
+	}
+
+	return string(b)
 }

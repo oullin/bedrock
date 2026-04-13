@@ -2,11 +2,10 @@ package billing
 
 import "time"
 
-// SubscriptionItem represents a line item within a subscription, linking it
-// to a specific product and price on the payment provider.
+// SubscriptionItem represents a single line item within a subscription.
+// Mirrors Upstream\Paddle\SubscriptionItem.
 type SubscriptionItem struct {
 	ID             int64
-	UUID           string
 	SubscriptionID int64
 	ProductID      string
 	PriceID        string

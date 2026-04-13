@@ -18,6 +18,7 @@ type Payload struct {
 	Backoff       []int          `json:"backoff,omitempty"`
 	MaxExceptions int            `json:"maxExceptions,omitempty"`
 	RetryUntil    *time.Time     `json:"retryUntil,omitempty"`
+	CreatedAt     *time.Time     `json:"createdAt,omitempty"`
 }
 
 // Marshal serializes the payload to JSON.
