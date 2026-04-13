@@ -55,9 +55,20 @@ func (s *DynamoDbStore) now() time.Time {
 
 func (s *DynamoDbStore) GetPrefix() string { return s.prefix }
 
+// SetPrefix sets the key prefix.
+func (s *DynamoDbStore) SetPrefix(prefix string) { s.prefix = prefix }
+
+// GetClient returns the underlying DynamoDB client.
+func (s *DynamoDbStore) GetClient() DynamoClient { return s.client }
+
 // Lock returns a DynamoDB-backed lock for the named resource.
 func (s *DynamoDbStore) Lock(name, owner string, ttl time.Duration) Lock {
 	return NewDynamoDbLock(s.client, s.table, name, owner, ttl, s.clock)
+}
+
+// RestoreLock creates a lock handle from a serialized owner without acquiring.
+func (s *DynamoDbStore) RestoreLock(name, owner string) Lock {
+	return s.Lock(name, owner, 0)
 }
 
 func (s *DynamoDbStore) prefixed(key string) string {

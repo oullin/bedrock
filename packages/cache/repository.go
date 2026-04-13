@@ -8,9 +8,10 @@ import (
 
 // Repository wraps a Store and adds high-level helpers.
 type Repository struct {
-	store     Store
-	events    EventDispatcher
-	storeName string
+	store      Store
+	events     EventDispatcher
+	storeName  string
+	defaultTTL time.Duration
 }
 
 // NewRepository wraps a Store in a Repository.
@@ -25,6 +26,46 @@ func NewRepositoryWithEvents(store Store, storeName string, dispatcher EventDisp
 
 // Store returns the underlying Store.
 func (r *Repository) Store() Store { return r.store }
+
+// GetStore returns the underlying Store. Alias for Store(), matching
+// Upstream's getStore() naming.
+func (r *Repository) GetStore() Store { return r.store }
+
+// SetStore replaces the underlying Store.
+func (r *Repository) SetStore(store Store) { r.store = store }
+
+// GetName returns the store name.
+func (r *Repository) GetName() string { return r.storeName }
+
+// SetName sets the store name.
+func (r *Repository) SetName(name string) { r.storeName = name }
+
+// GetEventDispatcher returns the event dispatcher.
+func (r *Repository) GetEventDispatcher() EventDispatcher { return r.events }
+
+// SetEventDispatcher sets the event dispatcher.
+func (r *Repository) SetEventDispatcher(d EventDispatcher) { r.events = d }
+
+// GetDefaultCacheTime returns the default TTL for cache operations.
+func (r *Repository) GetDefaultCacheTime() time.Duration { return r.defaultTTL }
+
+// SetDefaultCacheTime sets the default TTL for cache operations.
+func (r *Repository) SetDefaultCacheTime(ttl time.Duration) { r.defaultTTL = ttl }
+
+// SupportsTags reports whether the underlying store supports tag operations.
+func (r *Repository) SupportsTags() bool {
+	_, ok := r.store.(TaggableStore)
+
+	return ok
+}
+
+// SupportsFlushingLocks reports whether the underlying store supports
+// flushing all locks via the LockFlusher interface.
+func (r *Repository) SupportsFlushingLocks() bool {
+	_, ok := r.store.(LockFlusher)
+
+	return ok
+}
 
 // Has reports whether a non-expired value exists for key.
 func (r *Repository) Has(ctx context.Context, key string) bool {
@@ -241,6 +282,16 @@ func (r *Repository) Lock(name, owner string, ttl time.Duration) Lock {
 	return nil
 }
 
+// RestoreLock restores a lock handle from a serialized owner string.
+// Returns nil if the underlying store does not implement Locker.
+func (r *Repository) RestoreLock(name, owner string) Lock {
+	if l, ok := r.store.(Locker); ok {
+		return l.RestoreLock(name, owner)
+	}
+
+	return nil
+}
+
 // Tags returns a tag-scoped view of the underlying store. Returns nil if
 // the store does not implement TaggableStore.
 func (r *Repository) Tags(tags ...string) TaggedCache {
@@ -264,6 +315,41 @@ func (r *Repository) FlushLocks(ctx context.Context) error {
 	}
 
 	return fmt.Errorf("cache: store does not support flushing locks")
+}
+
+// WithoutOverlapping runs callback while holding a distributed lock identified
+// by key, preventing concurrent execution. If another process holds the lock,
+// it waits up to waitFor before returning ErrLockTimeout. The lock is held for
+// lockFor duration (zero uses defaultTTL). If owner is empty, a random owner
+// is generated.
+func (r *Repository) WithoutOverlapping(ctx context.Context, key string, callback func() (any, error), lockFor, waitFor time.Duration, owner string) (any, error) {
+	locker, ok := r.store.(Locker)
+
+	if !ok {
+		return nil, fmt.Errorf("cache: store does not support locking")
+	}
+
+	if owner == "" {
+		owner = randomID()
+	}
+
+	if lockFor == 0 {
+		lockFor = r.defaultTTL
+	}
+
+	if lockFor == 0 {
+		lockFor = waitFor
+	}
+
+	lock := locker.Lock(key, owner, lockFor)
+
+	if err := lock.Block(ctx, waitFor); err != nil {
+		return nil, err
+	}
+
+	defer lock.Release(ctx)
+
+	return callback()
 }
 
 // String retrieves a value as a string. Returns ErrNotFound if the key is

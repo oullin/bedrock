@@ -18,11 +18,12 @@ import (
 // FileStore caches values on the filesystem. Each key is stored as a gob file
 // under a two-level directory tree derived from the SHA-256 hash of the key.
 type FileStore struct {
-	mu     sync.RWMutex
-	dir    string
-	prefix string
-	clock  contracts.Clock
-	perm   fs.FileMode
+	mu      sync.RWMutex
+	dir     string
+	lockDir string
+	prefix  string
+	clock   contracts.Clock
+	perm    fs.FileMode
 }
 
 // fileEntry is the on-disk format for a cached value.
@@ -60,6 +61,29 @@ func (s *FileStore) now() time.Time {
 }
 
 func (s *FileStore) GetPrefix() string { return s.prefix }
+
+// SetPrefix sets the key prefix.
+func (s *FileStore) SetPrefix(prefix string) { s.prefix = prefix }
+
+// Path returns the filesystem path for the given cache key.
+func (s *FileStore) Path(key string) string { return s.path(key) }
+
+// GetDirectory returns the cache directory.
+func (s *FileStore) GetDirectory() string { return s.dir }
+
+// SetDirectory sets the cache directory.
+func (s *FileStore) SetDirectory(dir string) { s.dir = dir }
+
+// SetLockDirectory sets the lock directory.
+func (s *FileStore) SetLockDirectory(dir string) { s.lockDir = dir }
+
+func (s *FileStore) lockDirectory() string {
+	if s.lockDir != "" {
+		return s.lockDir
+	}
+
+	return filepath.Join(s.dir, "locks")
+}
 
 // Tags returns a tag-scoped view of the store.
 func (s *FileStore) Tags(tags ...string) TaggedCache {
@@ -254,9 +278,7 @@ func (s *FileStore) Forget(_ context.Context, key string) error {
 
 // FlushLocks removes all lock files from the lock directory.
 func (s *FileStore) FlushLocks(_ context.Context) error {
-	lockDir := filepath.Join(s.dir, "locks")
-
-	err := os.RemoveAll(lockDir)
+	err := os.RemoveAll(s.lockDirectory())
 
 	if os.IsNotExist(err) {
 		return nil
@@ -267,9 +289,12 @@ func (s *FileStore) FlushLocks(_ context.Context) error {
 
 // Lock returns a file-based lock for the named resource.
 func (s *FileStore) Lock(name, owner string, ttl time.Duration) Lock {
-	lockDir := filepath.Join(s.dir, "locks")
+	return NewFileLock(s.lockDirectory(), name, owner, ttl, s.clock)
+}
 
-	return NewFileLock(lockDir, name, owner, ttl, s.clock)
+// RestoreLock creates a lock handle from a serialized owner without acquiring.
+func (s *FileStore) RestoreLock(name, owner string) Lock {
+	return s.Lock(name, owner, 0)
 }
 
 // Flush removes all files under the store's directory.

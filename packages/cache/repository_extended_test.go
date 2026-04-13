@@ -522,3 +522,329 @@ func TestRepositoryStringFromBool(t *testing.T) {
 		t.Fatalf("expected 'true', got %q", v)
 	}
 }
+
+func TestRepositorySupportsTags(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+
+	if !r.SupportsTags() {
+		t.Fatal("expected ArrayStore to support tags")
+	}
+
+	r2 := cache.NewRepository(cache.NewNullStore())
+
+	if r2.SupportsTags() {
+		t.Fatal("expected NullStore to not support tags")
+	}
+}
+
+func TestRepositoryDefaultCacheTime(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+
+	if r.GetDefaultCacheTime() != 0 {
+		t.Fatalf("expected zero default, got %v", r.GetDefaultCacheTime())
+	}
+
+	r.SetDefaultCacheTime(5 * time.Minute)
+
+	if r.GetDefaultCacheTime() != 5*time.Minute {
+		t.Fatalf("expected 5m, got %v", r.GetDefaultCacheTime())
+	}
+}
+
+func TestRepositorySetStore(t *testing.T) {
+	t.Parallel()
+
+	store1 := cache.NewArrayStore()
+	store2 := cache.NewArrayStore()
+	r := cache.NewRepository(store1)
+	ctx := context.Background()
+
+	_ = store2.Put(ctx, "k", "from-store2", time.Minute)
+
+	if r.Has(ctx, "k") {
+		t.Fatal("expected key missing in store1")
+	}
+
+	r.SetStore(store2)
+
+	if !r.Has(ctx, "k") {
+		t.Fatal("expected key present after SetStore")
+	}
+}
+
+func TestRepositoryGetSetName(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+
+	if r.GetName() != "" {
+		t.Fatalf("expected empty name, got %q", r.GetName())
+	}
+
+	r.SetName("redis")
+
+	if r.GetName() != "redis" {
+		t.Fatalf("expected 'redis', got %q", r.GetName())
+	}
+}
+
+func TestRepositoryGetSetEventDispatcher(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+
+	if r.GetEventDispatcher() != nil {
+		t.Fatal("expected nil dispatcher")
+	}
+
+	d := &mockEventDispatcher{}
+	r.SetEventDispatcher(d)
+
+	if r.GetEventDispatcher() != d {
+		t.Fatal("expected dispatcher to match")
+	}
+
+	ctx := context.Background()
+	_ = r.Put(ctx, "k", "v", time.Minute)
+
+	if len(d.Events()) == 0 {
+		t.Fatal("expected events after SetEventDispatcher")
+	}
+}
+
+func TestRepositoryRestoreLock(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	r := cache.NewRepository(store)
+	ctx := context.Background()
+
+	lock := r.Lock("test-lock", "owner-1", time.Minute)
+	ok, _ := lock.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected acquire to succeed")
+	}
+
+	restored := r.RestoreLock("test-lock", "owner-1")
+
+	if restored == nil {
+		t.Fatal("expected non-nil restored lock")
+	}
+
+	released, _ := restored.Release(ctx)
+
+	if !released {
+		t.Fatal("expected release via restored lock to succeed")
+	}
+}
+
+func TestRepositoryRestoreLockNilForNonLocker(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(newSpyStore())
+
+	if r.RestoreLock("test", "owner") != nil {
+		t.Fatal("expected nil for non-Locker store")
+	}
+}
+
+func TestRepositoryGetStore(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	r := cache.NewRepository(store)
+
+	if r.GetStore() != r.Store() {
+		t.Fatal("expected GetStore() to return same store as Store()")
+	}
+}
+
+func TestRepositorySupportsFlushingLocks(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+
+	if !r.SupportsFlushingLocks() {
+		t.Fatal("expected ArrayStore to support flushing locks")
+	}
+
+	r2 := cache.NewRepository(cache.NewNullStore())
+
+	if r2.SupportsFlushingLocks() {
+		t.Fatal("expected NullStore to not support flushing locks")
+	}
+
+	r3 := cache.NewRepository(newSpyStore())
+
+	if r3.SupportsFlushingLocks() {
+		t.Fatal("expected spyStore to not support flushing locks")
+	}
+}
+
+func TestRepositoryWithoutOverlappingSuccess(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+	ctx := context.Background()
+
+	result, err := r.WithoutOverlapping(ctx, "job", func() (any, error) {
+		return "done", nil
+	}, time.Minute, 5*time.Second, "")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "done" {
+		t.Fatalf("expected 'done', got %v", result)
+	}
+
+	// Lock should be released — acquiring the same key should succeed.
+	lock := r.Lock("job", "other", time.Minute)
+	ok, _ := lock.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected lock to be released after WithoutOverlapping")
+	}
+
+	lock.Release(ctx)
+}
+
+func TestRepositoryWithoutOverlappingCallbackError(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+	ctx := context.Background()
+	sentinel := errors.New("callback failed")
+
+	result, err := r.WithoutOverlapping(ctx, "job", func() (any, error) {
+		return nil, sentinel
+	}, time.Minute, 5*time.Second, "")
+
+	if !errors.Is(err, sentinel) {
+		t.Fatalf("expected sentinel error, got %v", err)
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	// Lock should still be released via defer.
+	lock := r.Lock("job", "checker", time.Minute)
+	ok, _ := lock.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected lock to be released after callback error")
+	}
+
+	lock.Release(ctx)
+}
+
+func TestRepositoryWithoutOverlappingLockTimeout(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	r := cache.NewRepository(store)
+	ctx := context.Background()
+
+	// Pre-acquire the lock with a different owner.
+	lock := store.Lock("busy", "holder", time.Minute)
+	ok, _ := lock.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected pre-acquire to succeed")
+	}
+
+	defer lock.ForceRelease(ctx)
+
+	called := false
+
+	_, err := r.WithoutOverlapping(ctx, "busy", func() (any, error) {
+		called = true
+
+		return nil, nil
+	}, time.Minute, 100*time.Millisecond, "")
+
+	if !errors.Is(err, cache.ErrLockTimeout) {
+		t.Fatalf("expected ErrLockTimeout, got %v", err)
+	}
+
+	if called {
+		t.Fatal("callback should not have been called")
+	}
+}
+
+func TestRepositoryWithoutOverlappingNonLockerStore(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(newSpyStore())
+	ctx := context.Background()
+
+	_, err := r.WithoutOverlapping(ctx, "job", func() (any, error) {
+		return nil, nil
+	}, time.Minute, 5*time.Second, "")
+
+	if err == nil {
+		t.Fatal("expected error for non-Locker store")
+	}
+}
+
+func TestRepositoryWithoutOverlappingCustomOwner(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	r := cache.NewRepository(store)
+	ctx := context.Background()
+
+	result, err := r.WithoutOverlapping(ctx, "owned-job", func() (any, error) {
+		return "ok", nil
+	}, time.Minute, 5*time.Second, "custom-owner")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "ok" {
+		t.Fatalf("expected 'ok', got %v", result)
+	}
+}
+
+func TestRepositoryWithoutOverlappingPreventsOverlap(t *testing.T) {
+	t.Parallel()
+
+	r := cache.NewRepository(cache.NewArrayStore())
+	ctx := context.Background()
+
+	concurrent := make(chan int, 10)
+	done := make(chan struct{}, 2)
+
+	run := func() {
+		_, _ = r.WithoutOverlapping(ctx, "exclusive", func() (any, error) {
+			concurrent <- 1
+			time.Sleep(50 * time.Millisecond)
+			<-concurrent
+
+			return nil, nil
+		}, time.Second, 5*time.Second, "")
+
+		done <- struct{}{}
+	}
+
+	go run()
+	go run()
+
+	<-done
+	<-done
+
+	// If overlap occurred, both goroutines would have pushed to the channel
+	// simultaneously and the channel length would have peaked above 1.
+	// Since the channel is buffered and both have completed, length should be 0.
+	if len(concurrent) != 0 {
+		t.Fatal("expected no lingering items in channel")
+	}
+}

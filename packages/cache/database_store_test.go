@@ -262,3 +262,57 @@ func TestDatabaseStoreLock(t *testing.T) {
 		t.Fatal("expected non-nil lock")
 	}
 }
+
+func TestDatabaseStoreSetPrefix(t *testing.T) {
+	t.Parallel()
+
+	conn := newMockDBConnection()
+	s := cache.NewDatabaseStore(conn, "cache", "old")
+
+	if s.GetPrefix() != "old" {
+		t.Fatalf("expected 'old', got %q", s.GetPrefix())
+	}
+
+	s.SetPrefix("new")
+
+	if s.GetPrefix() != "new" {
+		t.Fatalf("expected 'new', got %q", s.GetPrefix())
+	}
+}
+
+func TestDatabaseStoreGetSetConnection(t *testing.T) {
+	t.Parallel()
+
+	conn1 := newMockDBConnection()
+	conn2 := newMockDBConnection()
+	s := cache.NewDatabaseStore(conn1, "cache", "")
+
+	if s.GetConnection() != conn1 {
+		t.Fatal("expected conn1")
+	}
+
+	s.SetConnection(conn2)
+
+	if s.GetConnection() != conn2 {
+		t.Fatal("expected conn2 after SetConnection")
+	}
+}
+
+func TestDatabaseStoreForgetIfExpired(t *testing.T) {
+	t.Parallel()
+
+	conn := newMockDBConnection()
+	s := cache.NewDatabaseStore(conn, "cache", "")
+	ctx := context.Background()
+
+	_ = s.Put(ctx, "active", "value", time.Hour)
+
+	// ForgetIfExpired on a non-expired key should not remove it.
+	_ = s.ForgetIfExpired(ctx, "active")
+
+	_, err := s.Get(ctx, "active")
+
+	if err != nil {
+		t.Fatal("expected active key to still exist")
+	}
+}

@@ -168,3 +168,14 @@ func (tc *taggedCache) FlushTagged(ctx context.Context) error {
 func (tc *taggedCache) GetPrefix() string {
 	return tc.store.GetPrefix()
 }
+
+// TaggedItemKey returns the fully qualified cache key including the tag
+// namespace prefix.
+func (tc *taggedCache) TaggedItemKey(ctx context.Context, key string) (string, error) {
+	return tc.prefixed(ctx, key)
+}
+
+// GetTags returns the underlying TagSet.
+func (tc *taggedCache) GetTags() *TagSet {
+	return tc.tags
+}

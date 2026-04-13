@@ -152,5 +152,5 @@ func (h *LoginHandler) dispatchEvent(ctx context.Context, payload any) {
 		return
 	}
 
-	_ = h.authflows.events.Dispatch(ctx, payload)
+	_, _ = h.authflows.events.Dispatch(ctx, payload)
 }

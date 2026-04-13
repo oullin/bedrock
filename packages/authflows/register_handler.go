@@ -37,7 +37,7 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, RegisteredPayload{User: user})
+		_, _ = h.authflows.events.Dispatch(ctx, RegisteredPayload{User: user})
 	}
 
 	if config.Features.EmailVerification {

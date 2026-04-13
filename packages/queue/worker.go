@@ -109,10 +109,20 @@ func (w *Worker) processJob(ctx context.Context, job Job) {
 	w.emit(JobProcessing{ConnectionName: w.queue.ConnectionName(), Job: job})
 	w.emit(JobAttempted{ConnectionName: w.queue.ConnectionName(), Job: job})
 
-	if err := w.handler.Handle(ctx, job); err != nil {
+	jobCtx := ctx
+
+	if timeout := job.Timeout(); timeout > 0 {
+		var cancel context.CancelFunc
+
+		jobCtx, cancel = context.WithTimeout(ctx, timeout)
+
+		defer cancel()
+	}
+
+	if err := w.handler.Handle(jobCtx, job); err != nil {
 		w.emit(JobExceptionOccurred{ConnectionName: w.queue.ConnectionName(), Job: job, Err: err})
 
-		if job.Attempts() >= job.MaxTries() && job.MaxTries() > 0 {
+		if w.shouldFail(job) {
 			_ = job.Fail(err)
 			w.emit(JobFailed{ConnectionName: w.queue.ConnectionName(), Job: job, Err: err})
 		} else {
@@ -125,6 +135,23 @@ func (w *Worker) processJob(ctx context.Context, job Job) {
 
 	_ = job.Delete()
 	w.emit(JobProcessed{ConnectionName: w.queue.ConnectionName(), Job: job})
+}
+
+// shouldFail reports whether the job has exhausted its retry options.
+func (w *Worker) shouldFail(job Job) bool {
+	if job.MaxTries() > 0 && job.Attempts() >= job.MaxTries() {
+		return true
+	}
+
+	if retryUntil := job.RetryUntil(); retryUntil != nil && time.Now().After(*retryUntil) {
+		return true
+	}
+
+	if job.MaxExceptions() > 0 && job.Attempts() >= job.MaxExceptions() {
+		return true
+	}
+
+	return false
 }
 
 func (w *Worker) backoffFor(job Job) time.Duration {

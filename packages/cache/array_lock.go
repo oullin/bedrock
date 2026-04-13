@@ -17,9 +17,10 @@ type arrayLock struct {
 
 // arrayLockHandle is a per-caller view of an arrayLock.
 type arrayLockHandle struct {
-	lock  *arrayLock
-	owner string
-	ttl   time.Duration
+	lock    *arrayLock
+	owner   string
+	ttl     time.Duration
+	sleepMs int
 }
 
 func (l *arrayLock) isHeld() bool {
@@ -118,9 +119,33 @@ func (h *arrayLockHandle) Block(ctx context.Context, timeout time.Duration) erro
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(10 * time.Millisecond):
+		case <-time.After(time.Duration(h.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (h *arrayLockHandle) Owner() string { return h.owner }
+
+func (h *arrayLockHandle) IsOwnedByCurrentProcess(_ context.Context) (bool, error) {
+	h.lock.mu.Lock()
+
+	defer h.lock.mu.Unlock()
+
+	return h.lock.isHeld() && h.lock.owner == h.owner, nil
+}
+
+func (h *arrayLockHandle) IsOwnedBy(_ context.Context, owner string) (bool, error) {
+	h.lock.mu.Lock()
+
+	defer h.lock.mu.Unlock()
+
+	return h.lock.isHeld() && h.lock.owner == owner, nil
+}
+
+func (h *arrayLockHandle) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	h.sleepMs = ms
+
+	return h
 }
 
 func (h *arrayLockHandle) Blocked(_ context.Context) (bool, error) {

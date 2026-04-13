@@ -14,7 +14,7 @@ type Factory interface {
 // name on different paths can coexist in the queue.
 type QueueingFactory interface {
 	Factory
-	Queue(c *http.Cookie)
+	Queue(c *http.Cookie) error
 	Unqueue(name string, path ...string)
 	HasQueued(name string, path ...string) bool
 	Queued(name string, path ...string) *http.Cookie

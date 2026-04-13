@@ -225,6 +225,15 @@ func (s *MemoizedStore) Lock(name, owner string, ttl time.Duration) Lock {
 	return nil
 }
 
+// RestoreLock delegates to the inner store if it implements Locker.
+func (s *MemoizedStore) RestoreLock(name, owner string) Lock {
+	if l, ok := s.inner.(Locker); ok {
+		return l.RestoreLock(name, owner)
+	}
+
+	return nil
+}
+
 // Tags delegates to the inner store if it implements TaggableStore.
 func (s *MemoizedStore) Tags(tags ...string) TaggedCache {
 	if ts, ok := s.inner.(TaggableStore); ok {

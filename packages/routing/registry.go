@@ -9,8 +9,8 @@ import (
 	"sync"
 )
 
-// Route describes a single named route entry in the registry.
-type Route struct {
+// RouteEntry describes a single named route entry in the registry.
+type RouteEntry struct {
 	Name    string `json:"name"`
 	Method  string `json:"method"`
 	Pattern string `json:"pattern"`
@@ -22,7 +22,7 @@ type Route struct {
 // capabilities. It is safe for concurrent use.
 type Registry struct {
 	mu     sync.RWMutex
-	routes map[string]Route
+	routes map[string]RouteEntry
 	order  []string
 }
 
@@ -56,7 +56,7 @@ type RegistryGroup struct {
 
 var paramRegex = regexp.MustCompile(`\{(\w+)\}`)
 
-func (r Route) Params() []string {
+func (r RouteEntry) Params() []string {
 	matches := paramRegex.FindAllStringSubmatch(r.Pattern, -1)
 	params := make([]string, 0, len(matches))
 
@@ -68,7 +68,7 @@ func (r Route) Params() []string {
 }
 
 func NewRegistry() *Registry {
-	return &Registry{routes: make(map[string]Route)}
+	return &Registry{routes: make(map[string]RouteEntry)}
 }
 
 func (r *Registry) Add(name, method, pattern string) *Registry {
@@ -76,7 +76,7 @@ func (r *Registry) Add(name, method, pattern string) *Registry {
 
 	defer r.mu.Unlock()
 
-	route := Route{
+	route := RouteEntry{
 		Name:    name,
 		Method:  strings.ToUpper(method),
 		Pattern: pattern,
@@ -117,7 +117,7 @@ func (r *Registry) URL(name string, params map[string]string) string {
 	return result
 }
 
-func (r *Registry) Lookup(name string) (Route, bool) {
+func (r *Registry) Lookup(name string) (RouteEntry, bool) {
 	r.mu.RLock()
 
 	defer r.mu.RUnlock()
@@ -152,12 +152,12 @@ func (r *Registry) ManifestProps() map[string]any {
 	return props
 }
 
-func (r *Registry) Export() []Route {
+func (r *Registry) Export() []RouteEntry {
 	r.mu.RLock()
 
 	defer r.mu.RUnlock()
 
-	routes := make([]Route, 0, len(r.order))
+	routes := make([]RouteEntry, 0, len(r.order))
 
 	for _, name := range r.order {
 		routes = append(routes, r.routes[name])

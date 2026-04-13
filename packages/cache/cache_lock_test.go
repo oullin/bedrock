@@ -155,3 +155,92 @@ func TestCacheLockBlockTimeout(t *testing.T) {
 		t.Fatalf("expected ErrLockTimeout, got %v", err)
 	}
 }
+
+func TestCacheLockOwner(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	l := cache.NewCacheLock(store, "res", "owner-42", time.Minute)
+
+	if l.Owner() != "owner-42" {
+		t.Fatalf("expected 'owner-42', got %q", l.Owner())
+	}
+}
+
+func TestCacheLockIsOwnedByCurrentProcess(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	l := cache.NewCacheLock(store, "res", "owner-1", time.Minute)
+	ctx := context.Background()
+
+	owned, _ := l.IsOwnedByCurrentProcess(ctx)
+
+	if owned {
+		t.Fatal("expected false before acquire")
+	}
+
+	l.Acquire(ctx) //nolint:errcheck
+
+	owned, _ = l.IsOwnedByCurrentProcess(ctx)
+
+	if !owned {
+		t.Fatal("expected true after acquire")
+	}
+}
+
+func TestCacheLockIsOwnedBy(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	l := cache.NewCacheLock(store, "res", "owner-1", time.Minute)
+	ctx := context.Background()
+
+	l.Acquire(ctx) //nolint:errcheck
+
+	owned, _ := l.IsOwnedBy(ctx, "owner-1")
+
+	if !owned {
+		t.Fatal("expected owned by owner-1")
+	}
+
+	owned, _ = l.IsOwnedBy(ctx, "owner-2")
+
+	if owned {
+		t.Fatal("expected not owned by owner-2")
+	}
+}
+
+func TestCacheLockBetweenBlockedAttemptsSleepFor(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	l := cache.NewCacheLock(store, "res", "owner-1", time.Minute)
+
+	result := l.BetweenBlockedAttemptsSleepFor(100)
+
+	if result != l {
+		t.Fatal("expected same lock returned for chaining")
+	}
+}
+
+func TestCacheLockRestoreLockRelease(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	ctx := context.Background()
+
+	lock := store.Lock("res", "owner-1", time.Minute)
+	ok, _ := lock.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected acquire")
+	}
+
+	restored := store.RestoreLock("res", "owner-1")
+	released, _ := restored.Release(ctx)
+
+	if !released {
+		t.Fatal("expected restore+release to succeed")
+	}
+}

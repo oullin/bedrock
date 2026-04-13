@@ -336,3 +336,43 @@ func TestArrayStoreConcurrentLocks(t *testing.T) {
 		t.Fatalf("expected exactly 1 lock acquisition, got %d", successes)
 	}
 }
+
+func TestArrayStoreAll(t *testing.T) {
+	t.Parallel()
+
+	clock := &fakeClock{now: time.Now()}
+	s := cache.NewArrayStoreWithClock(clock)
+	ctx := context.Background()
+
+	_ = s.Put(ctx, "a", "val-a", time.Minute)
+	_ = s.Put(ctx, "b", "val-b", time.Minute)
+	_ = s.Put(ctx, "expired", "gone", 100*time.Millisecond)
+
+	clock.Advance(time.Second)
+
+	all := s.All()
+
+	if len(all) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(all))
+	}
+
+	if all["a"] != "val-a" || all["b"] != "val-b" {
+		t.Fatalf("unexpected values: %v", all)
+	}
+}
+
+func TestArrayStoreSetPrefix(t *testing.T) {
+	t.Parallel()
+
+	s := cache.NewArrayStore()
+
+	if s.GetPrefix() != "" {
+		t.Fatal("expected empty prefix")
+	}
+
+	s.SetPrefix("test")
+
+	if s.GetPrefix() != "test" {
+		t.Fatalf("expected 'test', got %q", s.GetPrefix())
+	}
+}

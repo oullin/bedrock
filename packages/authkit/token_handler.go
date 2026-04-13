@@ -86,7 +86,7 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenCreated, Payload: token})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenCreated, Payload: token})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -139,7 +139,7 @@ func (h *UpdateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenUpdated, Payload: token})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenUpdated, Payload: token})
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -183,7 +183,7 @@ func (h *DeleteTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenDeleted, Payload: token})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTokenDeleted, Payload: token})
 	}
 
 	w.WriteHeader(http.StatusOK)

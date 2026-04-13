@@ -1,30 +1,31 @@
 package billing
 
-// SubscriptionBuilder provides a fluent API for constructing new subscription
-// checkout sessions, mirroring Cashier's SubscriptionBuilder.
+// SubscriptionBuilder provides a fluent API for constructing subscription
+// checkout parameters. Mirrors Upstream\Paddle\SubscriptionBuilder.
 type SubscriptionBuilder struct {
-	billable Billable
-	priceID  string
-	name     string
-	subType  string
-	quantity int
-	interval SubscriptionInterval
+	billable         Billable
+	priceID          string
+	name             string
+	subscriptionType string
+	quantity         int
+	interval         SubscriptionInterval
 }
 
-// NewSubscriptionBuilder creates a builder for a new subscription.
+// NewSubscriptionBuilder creates a builder for the given billable.
 func NewSubscriptionBuilder(billable Billable, priceID string, name string) *SubscriptionBuilder {
 	return &SubscriptionBuilder{
-		billable: billable,
-		priceID:  priceID,
-		name:     name,
-		subType:  DefaultSubscriptionType,
-		quantity: 1,
+		billable:         billable,
+		priceID:          priceID,
+		name:             name,
+		subscriptionType: DefaultSubscriptionType,
+		quantity:         1,
+		interval:         IntervalMonth,
 	}
 }
 
-// Type sets the subscription type.
+// Type sets the subscription type (e.g. "default").
 func (b *SubscriptionBuilder) Type(t string) *SubscriptionBuilder {
-	b.subType = t
+	b.subscriptionType = t
 
 	return b
 }
@@ -64,9 +65,16 @@ func (b *SubscriptionBuilder) Yearly() *SubscriptionBuilder {
 	return b
 }
 
+// Checkout returns a Checkout configured with the builder's parameters.
+func (b *SubscriptionBuilder) Checkout() *Checkout {
+	items := []CheckoutItem{
+		{PriceID: b.priceID, Quantity: b.quantity},
+	}
+
+	return GuestCheckout(items)
+}
+
 // Build returns the configured checkout items and metadata.
 func (b *SubscriptionBuilder) Build() ([]CheckoutItem, string, int) {
-	return []CheckoutItem{
-		{PriceID: b.priceID, Quantity: b.quantity},
-	}, b.subType, b.quantity
+	return []CheckoutItem{{PriceID: b.priceID, Quantity: b.quantity}}, b.subscriptionType, b.quantity
 }

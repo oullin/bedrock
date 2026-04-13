@@ -60,7 +60,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, "authflows.profile.updated")
+		_, _ = h.authflows.events.Dispatch(ctx, "authflows.profile.updated")
 	}
 
 	h.authflows.responder.ProfileInformationUpdatedResponse(w, r)

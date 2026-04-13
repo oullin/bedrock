@@ -108,3 +108,112 @@ func TestManagerConcurrentAccess(t *testing.T) {
 		<-done
 	}
 }
+
+func TestManagerDefaultDriver(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+	m.Register("redis", cache.NewArrayStore())
+	m.SetDefaultDriver("redis")
+
+	if m.GetDefaultDriver() != "redis" {
+		t.Fatalf("expected 'redis', got %q", m.GetDefaultDriver())
+	}
+
+	s, err := m.Driver()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s == nil {
+		t.Fatal("expected non-nil store from Driver()")
+	}
+}
+
+func TestManagerPurge(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+	m.Register("test", cache.NewArrayStore())
+
+	_, err := m.Store("test")
+
+	if err != nil {
+		t.Fatal("expected store to exist before purge")
+	}
+
+	m.Purge("test")
+
+	_, err = m.Store("test")
+
+	if err == nil {
+		t.Fatal("expected error after purge")
+	}
+}
+
+func TestManagerForgetDriver(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+	m.Register("test", cache.NewArrayStore())
+	m.ForgetDriver("test")
+
+	_, err := m.Store("test")
+
+	if err == nil {
+		t.Fatal("expected error after ForgetDriver")
+	}
+}
+
+func TestManagerBuild(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+	m.Extend("array", func(config map[string]any) (cache.Store, error) {
+		return cache.NewArrayStore(), nil
+	})
+
+	s, err := m.Build("array", nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s == nil {
+		t.Fatal("expected non-nil store from Build")
+	}
+}
+
+func TestManagerBuildUnregisteredDriver(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+
+	_, err := m.Build("unknown", nil)
+
+	if err == nil {
+		t.Fatal("expected error for unregistered driver")
+	}
+}
+
+func TestManagerMemo(t *testing.T) {
+	t.Parallel()
+
+	m := cache.NewManager()
+	m.Register("test", cache.NewArrayStore())
+
+	memo, err := m.Memo("test")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if memo == nil {
+		t.Fatal("expected non-nil MemoizedStore")
+	}
+
+	if memo.Inner() == nil {
+		t.Fatal("expected non-nil inner store")
+	}
+}

@@ -1,41 +1,37 @@
 package billing
 
-import (
-	"time"
+import "time"
 
-	"github.com/bedrock/packages/contracts"
-)
-
-// Customer represents a billable entity's payment provider record.
+// Customer represents a payment-provider customer record linked to a
+// billable entity. Mirrors Upstream\Paddle\Customer.
 type Customer struct {
-	ID              int64
-	BillableType    string
-	BillableID      int64
-	ProviderID      string // Paddle customer ID.
-	Name            string
-	Email           string
-	TrialEndsAt     *time.Time
-	PendingCheckout *string // Provider checkout ID while awaiting webhook.
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID           int64
+	BillableType string
+	BillableID   int64
+	PaddleID     string
+	Name         string
+	Email        string
+	TrialEndsAt  *time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
-// OnGenericTrial reports whether the customer is on a generic (non-subscription)
-// trial that has not yet expired.
-func (c *Customer) OnGenericTrial(clock contracts.Clock) bool {
+// OnGenericTrial reports whether the customer is currently on a
+// generic (non-subscription) trial period.
+func (c *Customer) OnGenericTrial() bool {
 	if c.TrialEndsAt == nil {
 		return false
 	}
 
-	return clock.Now().Before(*c.TrialEndsAt)
+	return c.TrialEndsAt.After(time.Now())
 }
 
-// HasExpiredGenericTrial reports whether the customer had a generic trial that
-// has since elapsed.
-func (c *Customer) HasExpiredGenericTrial(clock contracts.Clock) bool {
+// HasExpiredGenericTrial reports whether the customer had a generic
+// trial that has now ended.
+func (c *Customer) HasExpiredGenericTrial() bool {
 	if c.TrialEndsAt == nil {
 		return false
 	}
 
-	return clock.Now().After(*c.TrialEndsAt) || clock.Now().Equal(*c.TrialEndsAt)
+	return !c.TrialEndsAt.After(time.Now())
 }

@@ -42,7 +42,7 @@ func (h *SwitchTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user.SetCurrentTeam(team)
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamSwitched, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamSwitched, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)

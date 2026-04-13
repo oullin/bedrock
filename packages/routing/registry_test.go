@@ -85,7 +85,7 @@ func TestRegistryToJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var routes []routing.Route
+	var routes []routing.RouteEntry
 
 	if err := json.Unmarshal(b, &routes); err != nil {
 		t.Fatal(err)
@@ -99,7 +99,7 @@ func TestRegistryToJSON(t *testing.T) {
 func TestRouteParams(t *testing.T) {
 	t.Parallel()
 
-	r := routing.Route{Name: "x", Method: "GET", Pattern: "/a/{id}/b/{slug}"}
+	r := routing.RouteEntry{Name: "x", Method: "GET", Pattern: "/a/{id}/b/{slug}"}
 	params := r.Params()
 
 	if len(params) != 2 || params[0] != "id" || params[1] != "slug" {

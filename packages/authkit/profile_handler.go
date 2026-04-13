@@ -130,7 +130,7 @@ func (h *DeleteAccountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	_ = h.js.guard.Logout(r.Context(), w, r)
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventUserDeleted})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventUserDeleted})
 	}
 
 	w.WriteHeader(http.StatusOK)
