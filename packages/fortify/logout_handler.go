@@ -25,7 +25,7 @@ func (h *LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.fortify.events != nil && user != nil {
-		_ = h.fortify.events.Dispatch(ctx, LoggedOutPayload{User: user})
+		_, _ = h.fortify.events.Dispatch(ctx, LoggedOutPayload{User: user})
 	}
 
 	h.fortify.responder.LogoutResponse(w, r)

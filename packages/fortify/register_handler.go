@@ -37,7 +37,7 @@ func (h *RegisterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, RegisteredPayload{User: user})
+		_, _ = h.fortify.events.Dispatch(ctx, RegisteredPayload{User: user})
 	}
 
 	if config.Features.EmailVerification {

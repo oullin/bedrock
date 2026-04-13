@@ -1,0 +1,98 @@
+package handler_test
+
+import (
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/bedrock/packages/spark"
+	"github.com/bedrock/packages/spark/handler"
+	"github.com/bedrock/packages/spark/service"
+)
+
+func newMiddleware(resolver spark.ResolverFunc, subs []*spark.Subscription) func(http.Handler) http.Handler {
+	mgr := spark.NewManager()
+	mgr.Billable("team").Resolve(resolver)
+	mgr.RegisterBillable(spark.BillableConfig{Model: "team"})
+
+	billing := service.NewBillingService(
+		&testSubStore{subs: subs},
+		&testOrderStore{},
+		&testProductStore{},
+	)
+
+	return handler.VerifyBillableIsSubscribed(mgr, billing)
+}
+
+// Mirrors EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_gateway
+func TestVerifyBillableIsSubscribed_Unsubscribed_Redirects(t *testing.T) {
+	billable := &stubBillable{id: 1, btype: "team"}
+	resolver := func(r *http.Request) (spark.Billable, error) {
+		return billable, nil
+	}
+
+	mw := newMiddleware(resolver, nil) // no subscriptions
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("GET", "/test-subscribed", nil)
+	rec := httptest.NewRecorder()
+	mw(inner).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusFound {
+		t.Errorf("status = %d, want %d (redirect)", rec.Code, http.StatusFound)
+	}
+
+	location := rec.Header().Get("Location")
+
+	if location != "/billing/choose-provider" {
+		t.Errorf("Location = %q, want /billing/choose-provider", location)
+	}
+}
+
+// Mirrors EnsureTeamSubscribedTest::test_unsubscribed_xhr_request_returns_402
+func TestVerifyBillableIsSubscribed_XHR_Returns402(t *testing.T) {
+	billable := &stubBillable{id: 1, btype: "team"}
+	resolver := func(r *http.Request) (spark.Billable, error) {
+		return billable, nil
+	}
+
+	mw := newMiddleware(resolver, nil)
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("GET", "/test-subscribed", nil)
+	req.Header.Set("Accept", "application/json")
+	rec := httptest.NewRecorder()
+	mw(inner).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusPaymentRequired {
+		t.Errorf("status = %d, want %d", rec.Code, http.StatusPaymentRequired)
+	}
+}
+
+// Mirrors EnsureTeamSubscribedTest::test_unauthenticated_user_is_redirected
+func TestVerifyBillableIsSubscribed_Unauthenticated_Redirects(t *testing.T) {
+	resolver := func(r *http.Request) (spark.Billable, error) {
+		return nil, errors.New("unauthenticated")
+	}
+
+	mw := newMiddleware(resolver, nil)
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("GET", "/test-subscribed", nil)
+	rec := httptest.NewRecorder()
+	mw(inner).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusFound {
+		t.Errorf("status = %d, want %d (redirect)", rec.Code, http.StatusFound)
+	}
+}

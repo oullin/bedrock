@@ -72,7 +72,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		tfa.SetTwoFactorRecoveryCodes(twofactor.ConsumeRecoveryCode(codes, idx))
 
 		if h.fortify.events != nil {
-			_ = h.fortify.events.Dispatch(ctx, EventRecoveryCodeUsed)
+			_, _ = h.fortify.events.Dispatch(ctx, EventRecoveryCodeUsed)
 		}
 	} else {
 		http.Error(w, "a code or recovery_code is required", http.StatusUnprocessableEntity)
@@ -89,7 +89,7 @@ func (h *TwoFactorChallengeHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, LoginSucceededPayload{User: user, Remember: remember})
+		_, _ = h.fortify.events.Dispatch(ctx, LoginSucceededPayload{User: user, Remember: remember})
 	}
 
 	h.fortify.responder.LoginResponse(w, r)

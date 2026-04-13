@@ -1,62 +1,96 @@
 package spark
 
-// Config holds the merged configuration for the billing system. It combines
-// settings from the Cashier layer (provider credentials, webhook) and the
-// Spark layer (portal path, branding, billables).
+// Config holds all Spark billing configuration.
+// Mirrors config/spark.php.
 type Config struct {
-	// Provider credentials.
-	SellerID        string
-	ClientSideToken string
-	APIKey          string
-	RetainKey       string
-	WebhookSecret   string
-
-	// Portal settings.
-	Path         string // URI prefix for the billing portal (default: "billing").
-	DashboardURL string // URL to redirect to after billing actions.
-	TermsURL     string // Terms of service URL shown in the portal.
-
-	// Branding.
-	BrandLogoPath string // Absolute path to SVG logo file.
-	BrandColor    string // CSS color class or hex color.
-
-	// Behaviour.
-	Prorates   bool   // Whether plan changes are prorated.
-	DateFormat string // Date format for the portal (Go reference time layout).
-	Sandbox    bool   // Whether the provider is in sandbox/test mode.
-
-	// Currency.
-	DefaultCurrency string // ISO 4217 code (default: "USD").
-	CurrencyLocale  string // Locale for formatting (default: "en").
-
-	// Webhook.
-	WebhookPath string // Route path for the provider webhook (default: "paddle/webhook").
-
-	// Contact (for custom plan inquiries).
-	ContactEmail         string
-	ContactFallbackEmail string
-
-	// Billables is the set of configured billable types.
-	Billables map[string]BillableConfig
+	Path              string                    // billing portal URI prefix (default: "billing")
+	Middleware        []string                  // auth middleware stack
+	Prorates          bool                      // enable subscription proration
+	ProrationBehavior string                    // explicit proration behavior override
+	DateFormat        string                    // Go reference time layout
+	DashboardURL      string                    // URL of the main dashboard
+	TermsURL          string                    // URL of terms of service
+	BrandLogo         string                    // path or inline SVG for brand logo
+	BrandColor        string                    // CSS class or hex colour for brand
+	Billables         map[string]BillableConfig // keyed by billable type name
+	FeatureFlags      map[string]FeatureConfig  // keyed by feature name
 }
 
-// BillableConfig holds configuration for a single billable type.
+// BillableConfig describes a single billable type.
 type BillableConfig struct {
-	ModelName       string // Identifier for the billable model (e.g. "team").
-	TrialDays       int    // Number of trial days granted on creation.
-	DefaultInterval string // Default billing interval ("monthly" or "yearly").
+	Model           string // identifier for the billable model (e.g. "team")
+	TrialDays       int
+	DefaultInterval string // "monthly" or "yearly"
 }
 
-// DefaultConfig returns a Config populated with sensible defaults.
-func DefaultConfig() *Config {
-	return &Config{
-		Path:            "billing",
-		DashboardURL:    "/subscription",
-		Prorates:        true,
-		DateFormat:      "2 January 2006",
-		DefaultCurrency: "USD",
-		CurrencyLocale:  "en",
-		WebhookPath:     "paddle/webhook",
-		Billables:       make(map[string]BillableConfig),
+// FeatureConfig stores a feature flag with optional key-value options.
+type FeatureConfig struct {
+	Enabled bool
+	Options map[string]any
+}
+
+// DefaultConfig returns a Config with sensible defaults matching Laravel's
+// spark.php defaults.
+
+// Features provides helpers to query feature flags from the config.
+type Features struct {
+	cfg Config
+}
+
+func DefaultConfig() Config {
+	return Config{
+		Path:       "billing",
+		Prorates:   true,
+		DateFormat: "January 2, 2006",
+		BrandColor: "bg-gray-800",
 	}
+}
+
+// NewFeatures wraps a config for feature flag queries.
+func NewFeatures(cfg Config) *Features {
+	return &Features{cfg: cfg}
+}
+
+// Enabled reports whether the named feature is turned on.
+func (f *Features) Enabled(feature string) bool {
+	fc, ok := f.cfg.FeatureFlags[feature]
+
+	return ok && fc.Enabled
+}
+
+// Option returns the value of a feature option, or nil.
+func (f *Features) Option(feature, option string) any {
+	fc, ok := f.cfg.FeatureFlags[feature]
+
+	if !ok {
+		return nil
+	}
+
+	return fc.Options[option]
+}
+
+// CollectsBillingAddress reports whether billing address collection is enabled.
+func (f *Features) CollectsBillingAddress() bool {
+	return f.Enabled("billing-address-collection")
+}
+
+// CollectsEuVat reports whether EU VAT collection is enabled.
+func (f *Features) CollectsEuVat() bool {
+	return f.Enabled("eu-vat-collection")
+}
+
+// EnforcesAcceptingTerms reports whether users must accept terms.
+func (f *Features) EnforcesAcceptingTerms() bool {
+	return f.Enabled("must-accept-terms")
+}
+
+// SendsInvoiceEmails reports whether invoice emails are enabled.
+func (f *Features) SendsInvoiceEmails() bool {
+	return f.Enabled("invoice-emails-sending")
+}
+
+// SendsPaymentNotificationEmails reports whether payment notification
+// emails are enabled.
+func (f *Features) SendsPaymentNotificationEmails() bool {
+	return f.Enabled("sends-payment-notification-emails")
 }

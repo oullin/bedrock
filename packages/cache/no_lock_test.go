@@ -97,3 +97,46 @@ func TestNoLockForceRelease(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestNoLockOwner(t *testing.T) {
+	t.Parallel()
+
+	l := &cache.NoLock{}
+
+	if l.Owner() != "" {
+		t.Fatalf("expected empty owner, got %q", l.Owner())
+	}
+}
+
+func TestNoLockIsOwnedByCurrentProcess(t *testing.T) {
+	t.Parallel()
+
+	l := &cache.NoLock{}
+	owned, _ := l.IsOwnedByCurrentProcess(context.Background())
+
+	if !owned {
+		t.Fatal("expected always true for NoLock")
+	}
+}
+
+func TestNoLockIsOwnedBy(t *testing.T) {
+	t.Parallel()
+
+	l := &cache.NoLock{}
+	owned, _ := l.IsOwnedBy(context.Background(), "anyone")
+
+	if !owned {
+		t.Fatal("expected always true for NoLock")
+	}
+}
+
+func TestNoLockBetweenBlockedAttemptsSleepFor(t *testing.T) {
+	t.Parallel()
+
+	l := &cache.NoLock{}
+	result := l.BetweenBlockedAttemptsSleepFor(100)
+
+	if result != l {
+		t.Fatal("expected same lock returned")
+	}
+}

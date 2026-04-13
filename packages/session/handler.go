@@ -1,6 +1,9 @@
 package session
 
-import "context"
+import (
+	"context"
+	"net/http"
+)
 
 // Handler abstracts the session storage backend. It mirrors PHP's
 // SessionHandlerInterface.
@@ -23,6 +26,12 @@ type ExistenceAware interface {
 type Encrypter interface {
 	Encrypt(plaintext string) (string, error)
 	Decrypt(ciphertext string) (string, error)
+}
+
+// RequestAware is implemented by handlers that need the current HTTP request
+// (e.g. CookieHandler).
+type RequestAware interface {
+	SetRequest(r *http.Request)
 }
 
 // Cache is the minimal cache interface required by CacheHandler.

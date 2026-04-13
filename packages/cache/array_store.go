@@ -67,6 +67,26 @@ func (s *ArrayStore) expiryFor(ttl time.Duration) time.Time {
 
 func (s *ArrayStore) GetPrefix() string { return s.prefix }
 
+// SetPrefix sets the key prefix.
+func (s *ArrayStore) SetPrefix(prefix string) { s.prefix = prefix }
+
+// All returns all non-expired items in the store.
+func (s *ArrayStore) All() map[string]any {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	out := make(map[string]any, len(s.items))
+
+	for k, itm := range s.items {
+		if !s.expired(itm) {
+			out[k] = itm.value
+		}
+	}
+
+	return out
+}
+
 func (s *ArrayStore) Get(_ context.Context, key string) (any, error) {
 	s.mu.RLock()
 	itm, ok := s.items[key]
@@ -231,7 +251,12 @@ func (s *ArrayStore) Lock(name, owner string, ttl time.Duration) Lock {
 		s.locks[name] = l
 	}
 
-	return &arrayLockHandle{lock: l, owner: owner, ttl: ttl}
+	return &arrayLockHandle{lock: l, owner: owner, ttl: ttl, sleepMs: 10}
+}
+
+// RestoreLock creates a lock handle from a serialized owner without acquiring.
+func (s *ArrayStore) RestoreLock(name, owner string) Lock {
+	return s.Lock(name, owner, 0)
 }
 
 // toInt64 converts numeric types to int64.

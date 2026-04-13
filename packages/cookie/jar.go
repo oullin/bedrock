@@ -59,7 +59,12 @@ func (j *Jar) Forget(name string, opts Options) *http.Cookie {
 
 // Queue adds a cookie to the outgoing queue, keyed by name and path.
 // Any previously queued cookie with the same name and path is replaced.
-func (j *Jar) Queue(c *http.Cookie) {
+// It returns ErrEmptyName if the cookie's name is empty.
+func (j *Jar) Queue(c *http.Cookie) error {
+	if c.Name == "" {
+		return ErrEmptyName
+	}
+
 	j.mu.Lock()
 
 	defer j.mu.Unlock()
@@ -69,21 +74,23 @@ func (j *Jar) Queue(c *http.Cookie) {
 	}
 
 	j.queued[c.Name][c.Path] = c
+
+	return nil
 }
 
 // QueueMake creates a cookie from name, value, and opts, then queues it.
-func (j *Jar) QueueMake(name, value string, opts Options) {
-	j.Queue(j.Make(name, value, opts))
+func (j *Jar) QueueMake(name, value string, opts Options) error {
+	return j.Queue(j.Make(name, value, opts))
 }
 
 // QueueForever creates a 400-day cookie and queues it.
-func (j *Jar) QueueForever(name, value string, opts Options) {
-	j.Queue(j.Forever(name, value, opts))
+func (j *Jar) QueueForever(name, value string, opts Options) error {
+	return j.Queue(j.Forever(name, value, opts))
 }
 
 // Expire queues a deletion cookie for the named cookie.
-func (j *Jar) Expire(name string, opts Options) {
-	j.Queue(j.Forget(name, opts))
+func (j *Jar) Expire(name string, opts Options) error {
+	return j.Queue(j.Forget(name, opts))
 }
 
 // Unqueue removes cookies from the queue. When called with only a name,
@@ -139,8 +146,12 @@ func (j *Jar) Queued(name string, path ...string) *http.Cookie {
 		return bucket[path[0]]
 	}
 
-	// Return the last entry (iteration order is non-deterministic in Go,
-	// but consistent with "return any/last" semantics).
+	// Prefer the root-path entry when no path is specified, matching
+	// Laravel's behaviour. Fall back to any entry if "/" is absent.
+	if c, ok := bucket["/"]; ok {
+		return c
+	}
+
 	var last *http.Cookie
 
 	for _, c := range bucket {
@@ -177,13 +188,9 @@ func (j *Jar) Flush() {
 }
 
 // merge applies non-zero fields from opts on top of the jar's defaults.
-// For boolean fields (Secure, HTTPOnly, Raw), an explicit value in opts
-// takes precedence over the default. Because Go's zero-value for bool is
-// false, passing Secure=false in opts cannot be distinguished from "not
-// set" without a pointer or sentinel. We follow the same approach as
-// Laravel: the caller-provided value wins when it differs from the
-// default, and the default wins otherwise. Practically this means the
-// default is used unless the caller explicitly sets the field to true.
+// Boolean fields use *bool: nil means "not set" (inherit from default),
+// while an explicit &true or &false overrides the default. This matches
+// Laravel's behaviour where callers can override secure=true to false.
 func (j *Jar) merge(opts Options) Options {
 	d := j.defaults
 
@@ -203,9 +210,17 @@ func (j *Jar) merge(opts Options) Options {
 		d.SameSite = opts.SameSite
 	}
 
-	d.Secure = d.Secure || opts.Secure
-	d.HTTPOnly = d.HTTPOnly || opts.HTTPOnly
-	d.Raw = d.Raw || opts.Raw
+	if opts.Secure != nil {
+		d.Secure = opts.Secure
+	}
+
+	if opts.HTTPOnly != nil {
+		d.HTTPOnly = opts.HTTPOnly
+	}
+
+	if opts.Raw != nil {
+		d.Raw = opts.Raw
+	}
 
 	return d
 }

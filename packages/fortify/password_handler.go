@@ -46,7 +46,7 @@ func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, EventPasswordUpdated)
+		_, _ = h.fortify.events.Dispatch(ctx, EventPasswordUpdated)
 	}
 
 	h.fortify.responder.PasswordUpdateResponse(w, r)

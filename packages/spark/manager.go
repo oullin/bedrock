@@ -6,60 +6,74 @@ import (
 	"sync"
 )
 
-// Manager is the central registry for billable types, plans, and callbacks.
-// It mirrors Spark's SparkManager.
+// Manager is the central registry for billable types, plans, and
+// callbacks. Thread-safe. Mirrors Spark\SparkManager.
 type Manager struct {
-	mu         sync.RWMutex
-	billables  map[string]*billableEntry
-	plans      map[string][]SparkPlan
-	prorations bool
+	mu sync.RWMutex
+
+	resolvers            map[string]ResolverFunc
+	authorizers          map[string]AuthorizerFunc
+	eligibilityChecks    map[string][]EligibilityFunc
+	seatNames            map[string]string
+	seatCountCallbacks   map[string]SeatCountFunc
+	plans                map[string][]*Plan
+	checkoutOptions      map[string]func(Billable) map[string]any
+	paymentMethodOptions map[string]func(Billable) map[string]any
+	billableConfigs      map[string]BillableConfig
+	prorates             bool
 }
 
-type billableEntry struct {
-	config      BillableConfig
-	resolver    ResolverFunc
-	authorizer  AuthorizerFunc
-	eligibility EligibilityFunc
-	seatName    string
-	seatCount   SeatCountFunc
-}
+// NewManager creates an empty Manager.
 
-// NewManager creates an empty Spark manager.
+// RegisterBillable registers a billable type with its configuration.
 
-// RegisterBillable adds a billable type configuration.
+// Billable returns a fluent builder for configuring a billable type.
 
-// Billable returns a configuration builder for the given billable type.
+// ResolveBillable resolves the billable from a request using the
+// registered resolver for the given type.
 
-// Plans returns the registered plans for a billable type.
+// IsAuthorized checks whether the billable may view the billing portal.
+
+// EnsurePlanEligibility runs all eligibility checks for the billable's
+// type. Returns the first error encountered, or nil.
 
 // AddPlan registers a plan for a billable type.
 
-// ResolveBillable resolves the current billable entity from the request.
+// Plan creates and registers a new plan for the given billable type.
 
-// IsAuthorized checks whether the billable is authorized to view the billing
-// portal.
-
-// EnsurePlanEligibility checks that the billable may subscribe to the plan.
+// Plans returns all plans registered for a billable type.
 
 // ChargesPerSeat reports whether the billable type uses per-seat billing.
 
-// SeatCount returns the current seat count for the billable.
+// SeatCount returns the number of seats for the billable.
 
-// SeatName returns the seat display name for the billable type.
+// SeatName returns the human-readable seat name for a billable type.
 
-// DefaultBillableType returns the default billable type. If only one is
-// registered it returns that; otherwise it returns "user".
+// SetProrates sets the global proration preference.
 
-// BillableConfig returns the configuration for a billable type.
+// Prorates reports whether subscription changes should be prorated.
 
-// SetProrates configures whether plan changes are prorated.
+// DefaultBillableType returns the first registered billable type, or
+// "user" if none are registered.
 
-// Prorates reports whether plan changes are prorated.
+// BillableConfig returns the config for a billable type.
 
-// ValidPlan checks whether the given plan name exists and is active in the
-// manager for the specified billable type.
+// SetCheckoutSessionOptions registers a callback that provides custom
+// checkout session options for a billable type.
 
-// BillableConfigBuilder provides a fluent API for configuring a billable type.
+// CheckoutSessionOptions returns the registered checkout options
+// callback, or nil.
+
+// SetPaymentMethodSessionOptions registers a callback for payment
+// method session options.
+
+// PaymentMethodSessionOptions returns the registered payment method
+// options callback, or nil.
+
+// ValidPlan reports whether the given plan ID exists for the billable type.
+
+// BillableConfigBuilder provides a fluent API for configuring a
+// billable type on the Manager. Mirrors Spark\BillableConfigurationBuilder.
 type BillableConfigBuilder struct {
 	manager      *Manager
 	billableType string
@@ -67,9 +81,16 @@ type BillableConfigBuilder struct {
 
 func NewManager() *Manager {
 	return &Manager{
-		billables:  make(map[string]*billableEntry),
-		plans:      make(map[string][]SparkPlan),
-		prorations: true,
+		resolvers:            make(map[string]ResolverFunc),
+		authorizers:          make(map[string]AuthorizerFunc),
+		eligibilityChecks:    make(map[string][]EligibilityFunc),
+		seatNames:            make(map[string]string),
+		seatCountCallbacks:   make(map[string]SeatCountFunc),
+		plans:                make(map[string][]*Plan),
+		checkoutOptions:      make(map[string]func(Billable) map[string]any),
+		paymentMethodOptions: make(map[string]func(Billable) map[string]any),
+		billableConfigs:      make(map[string]BillableConfig),
+		prorates:             true,
 	}
 }
 
@@ -78,22 +99,52 @@ func (m *Manager) RegisterBillable(cfg BillableConfig) {
 
 	defer m.mu.Unlock()
 
-	m.billables[cfg.ModelName] = &billableEntry{config: cfg}
+	m.billableConfigs[cfg.Model] = cfg
 }
 
 func (m *Manager) Billable(billableType string) *BillableConfigBuilder {
 	return &BillableConfigBuilder{manager: m, billableType: billableType}
 }
 
-func (m *Manager) Plans(billableType string) []SparkPlan {
+func (m *Manager) ResolveBillable(billableType string, r *http.Request) (Billable, error) {
 	m.mu.RLock()
+	resolver, ok := m.resolvers[billableType]
+	m.mu.RUnlock()
 
-	defer m.mu.RUnlock()
+	if !ok {
+		return nil, fmt.Errorf("no resolver registered for billable type %q", billableType)
+	}
 
-	return m.plans[billableType]
+	return resolver(r)
 }
 
-func (m *Manager) AddPlan(billableType string, plan SparkPlan) {
+func (m *Manager) IsAuthorized(billable Billable, r *http.Request) bool {
+	m.mu.RLock()
+	auth, ok := m.authorizers[billable.BillableType()]
+	m.mu.RUnlock()
+
+	if !ok {
+		return true
+	}
+
+	return auth(billable, r)
+}
+
+func (m *Manager) EnsurePlanEligibility(billable Billable, plan Plan) error {
+	m.mu.RLock()
+	checks := m.eligibilityChecks[billable.BillableType()]
+	m.mu.RUnlock()
+
+	for _, check := range checks {
+		if err := check(billable, plan); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Manager) AddPlan(billableType string, plan *Plan) {
 	m.mu.Lock()
 
 	defer m.mu.Unlock()
@@ -101,40 +152,19 @@ func (m *Manager) AddPlan(billableType string, plan SparkPlan) {
 	m.plans[billableType] = append(m.plans[billableType], plan)
 }
 
-func (m *Manager) ResolveBillable(billableType string, r *http.Request) (Billable, error) {
-	m.mu.RLock()
-	entry, ok := m.billables[billableType]
-	m.mu.RUnlock()
+func (m *Manager) Plan(billableType, name, id string) *Plan {
+	plan := NewPlan(name, id)
+	m.AddPlan(billableType, plan)
 
-	if !ok || entry.resolver == nil {
-		return nil, fmt.Errorf("spark: no resolver registered for billable type %q", billableType)
-	}
-
-	return entry.resolver(r)
+	return plan
 }
 
-func (m *Manager) IsAuthorized(billable Billable, r *http.Request) bool {
+func (m *Manager) Plans(billableType string) []*Plan {
 	m.mu.RLock()
-	entry, ok := m.billables[billable.BillableType()]
-	m.mu.RUnlock()
 
-	if !ok || entry.authorizer == nil {
-		return true
-	}
+	defer m.mu.RUnlock()
 
-	return entry.authorizer(billable, r)
-}
-
-func (m *Manager) EnsurePlanEligibility(billable Billable, plan SparkPlan) error {
-	m.mu.RLock()
-	entry, ok := m.billables[billable.BillableType()]
-	m.mu.RUnlock()
-
-	if !ok || entry.eligibility == nil {
-		return nil
-	}
-
-	return entry.eligibility(billable, plan)
+	return m.plans[billableType]
 }
 
 func (m *Manager) ChargesPerSeat(billableType string) bool {
@@ -142,21 +172,21 @@ func (m *Manager) ChargesPerSeat(billableType string) bool {
 
 	defer m.mu.RUnlock()
 
-	entry, ok := m.billables[billableType]
+	_, ok := m.seatCountCallbacks[billableType]
 
-	return ok && entry.seatCount != nil
+	return ok
 }
 
 func (m *Manager) SeatCount(billableType string, billable Billable) int {
 	m.mu.RLock()
-	entry, ok := m.billables[billableType]
+	cb, ok := m.seatCountCallbacks[billableType]
 	m.mu.RUnlock()
 
-	if !ok || entry.seatCount == nil {
-		return 1
+	if !ok {
+		return 0
 	}
 
-	return entry.seatCount(billable)
+	return cb(billable)
 }
 
 func (m *Manager) SeatName(billableType string) string {
@@ -164,13 +194,23 @@ func (m *Manager) SeatName(billableType string) string {
 
 	defer m.mu.RUnlock()
 
-	entry, ok := m.billables[billableType]
+	return m.seatNames[billableType]
+}
 
-	if !ok {
-		return ""
-	}
+func (m *Manager) SetProrates(v bool) {
+	m.mu.Lock()
 
-	return entry.seatName
+	defer m.mu.Unlock()
+
+	m.prorates = v
+}
+
+func (m *Manager) Prorates() bool {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return m.prorates
 }
 
 func (m *Manager) DefaultBillableType() string {
@@ -178,10 +218,8 @@ func (m *Manager) DefaultBillableType() string {
 
 	defer m.mu.RUnlock()
 
-	if len(m.billables) == 1 {
-		for k := range m.billables {
-			return k
-		}
+	for k := range m.billableConfigs {
+		return k
 	}
 
 	return "user"
@@ -192,21 +230,47 @@ func (m *Manager) BillableConfig(billableType string) (BillableConfig, bool) {
 
 	defer m.mu.RUnlock()
 
-	entry, ok := m.billables[billableType]
+	cfg, ok := m.billableConfigs[billableType]
 
-	if !ok {
-		return BillableConfig{}, false
-	}
-
-	return entry.config, true
+	return cfg, ok
 }
 
-func (m *Manager) SetProrates(v bool) { m.prorations = v }
+func (m *Manager) SetCheckoutSessionOptions(billableType string, fn func(Billable) map[string]any) {
+	m.mu.Lock()
 
-func (m *Manager) Prorates() bool { return m.prorations }
+	defer m.mu.Unlock()
 
-func ValidPlan(manager *Manager, billableType string, planID string) bool {
-	for _, p := range manager.Plans(billableType) {
+	m.checkoutOptions[billableType] = fn
+}
+
+func (m *Manager) CheckoutSessionOptions(billableType string) func(Billable) map[string]any {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return m.checkoutOptions[billableType]
+}
+
+func (m *Manager) SetPaymentMethodSessionOptions(billableType string, fn func(Billable) map[string]any) {
+	m.mu.Lock()
+
+	defer m.mu.Unlock()
+
+	m.paymentMethodOptions[billableType] = fn
+}
+
+func (m *Manager) PaymentMethodSessionOptions(billableType string) func(Billable) map[string]any {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return m.paymentMethodOptions[billableType]
+}
+
+func ValidPlan(manager *Manager, billableType, planID string) bool {
+	plans := manager.Plans(billableType)
+
+	for _, p := range plans {
 		if p.ID == planID && p.Active {
 			return true
 		}
@@ -215,64 +279,54 @@ func ValidPlan(manager *Manager, billableType string, planID string) bool {
 	return false
 }
 
-// Resolve registers a callback to resolve the billable from an HTTP request.
+// Resolve registers the resolver callback for this billable type.
 func (b *BillableConfigBuilder) Resolve(fn ResolverFunc) *BillableConfigBuilder {
 	b.manager.mu.Lock()
 
 	defer b.manager.mu.Unlock()
 
-	entry := b.ensureEntry()
-	entry.resolver = fn
+	b.manager.resolvers[b.billableType] = fn
 
 	return b
 }
 
-// Authorize registers a callback that checks portal access.
+// Authorize registers the authorization callback.
 func (b *BillableConfigBuilder) Authorize(fn AuthorizerFunc) *BillableConfigBuilder {
 	b.manager.mu.Lock()
 
 	defer b.manager.mu.Unlock()
 
-	entry := b.ensureEntry()
-	entry.authorizer = fn
+	b.manager.authorizers[b.billableType] = fn
 
 	return b
 }
 
-// CheckPlanEligibility registers a callback that validates plan eligibility.
+// CheckPlanEligibility registers a plan eligibility check.
 func (b *BillableConfigBuilder) CheckPlanEligibility(fn EligibilityFunc) *BillableConfigBuilder {
 	b.manager.mu.Lock()
 
 	defer b.manager.mu.Unlock()
 
-	entry := b.ensureEntry()
-	entry.eligibility = fn
+	b.manager.eligibilityChecks[b.billableType] = append(
+		b.manager.eligibilityChecks[b.billableType], fn,
+	)
 
 	return b
 }
 
 // ChargePerSeat configures per-seat billing for this billable type.
-func (b *BillableConfigBuilder) ChargePerSeat(name string, fn SeatCountFunc) *BillableConfigBuilder {
+func (b *BillableConfigBuilder) ChargePerSeat(seatName string, fn SeatCountFunc) *BillableConfigBuilder {
 	b.manager.mu.Lock()
 
 	defer b.manager.mu.Unlock()
 
-	entry := b.ensureEntry()
-	entry.seatName = name
-	entry.seatCount = fn
+	b.manager.seatNames[b.billableType] = seatName
+	b.manager.seatCountCallbacks[b.billableType] = fn
 
 	return b
 }
 
-// ensureEntry returns the existing entry or creates a new one. Caller must
-// hold manager.mu.
-func (b *BillableConfigBuilder) ensureEntry() *billableEntry {
-	entry, ok := b.manager.billables[b.billableType]
-
-	if !ok {
-		entry = &billableEntry{config: BillableConfig{ModelName: b.billableType}}
-		b.manager.billables[b.billableType] = entry
-	}
-
-	return entry
+// Plan creates and registers a new plan for this billable type.
+func (b *BillableConfigBuilder) Plan(name, id string) *Plan {
+	return b.manager.Plan(b.billableType, name, id)
 }

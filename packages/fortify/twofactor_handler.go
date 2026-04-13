@@ -103,7 +103,7 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	tfa.SetTwoFactorRecoveryCodes(codes)
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, EventTwoFactorEnabled)
+		_, _ = h.fortify.events.Dispatch(ctx, EventTwoFactorEnabled)
 	}
 
 	h.fortify.responder.TwoFactorEnabledResponse(w, r)
@@ -151,7 +151,7 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(&now)
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, EventTwoFactorConfirmed)
+		_, _ = h.fortify.events.Dispatch(ctx, EventTwoFactorConfirmed)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -192,7 +192,7 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tfa.SetTwoFactorConfirmedAt(nil)
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, EventTwoFactorDisabled)
+		_, _ = h.fortify.events.Dispatch(ctx, EventTwoFactorDisabled)
 	}
 
 	h.fortify.responder.TwoFactorDisabledResponse(w, r)

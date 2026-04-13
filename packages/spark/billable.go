@@ -2,31 +2,37 @@ package spark
 
 import "net/http"
 
-// Billable is implemented by any model that can hold subscriptions and be
-// billed through a payment provider (e.g. a Team).
+// Billable describes an entity that can be billed (e.g. a team or user).
 type Billable interface {
 	BillableID() int64
 	BillableType() string
-	BillableUUID() string
 	BillableName() string
 	BillableEmail() string
 }
 
-// BillableResolver resolves the current billable entity from an HTTP request.
-type BillableResolver interface {
-	Resolve(r *http.Request) (Billable, error)
+// ProviderConfigurable is implemented by billables that can switch between
+// payment providers (e.g. "stripe" or "paddle").
+type ProviderConfigurable interface {
+	PaymentProvider() string
+	SetPaymentProvider(provider string) error
 }
 
-// ResolverFunc is a function that resolves a Billable from an HTTP request.
+// ResolverFunc resolves the current billable from an HTTP request.
 type ResolverFunc func(r *http.Request) (Billable, error)
 
-// AuthorizerFunc is a function that checks whether a billable is authorized
-// to view the billing portal.
+// AuthorizerFunc determines whether a billable is authorised to view
+// the billing portal.
 type AuthorizerFunc func(billable Billable, r *http.Request) bool
 
-// EligibilityFunc is a function that checks whether a billable is eligible
-// for a specific plan.
-type EligibilityFunc func(billable Billable, plan SparkPlan) error
+// EligibilityFunc checks whether a billable is eligible for a plan.
+// Return a non-nil error to reject the plan.
+type EligibilityFunc func(billable Billable, plan Plan) error
 
-// SeatCountFunc returns the current seat count for a billable entity.
+// SeatCountFunc returns how many seats a billable currently occupies.
 type SeatCountFunc func(billable Billable) int
+
+// BillableResolver wraps a ResolverFunc so it can be used as a
+// dependency without bare function types.
+type BillableResolver struct {
+	Resolve ResolverFunc
+}

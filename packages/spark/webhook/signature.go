@@ -1,3 +1,4 @@
+// Package webhook provides webhook handling and signature verification.
 package webhook
 
 import (
@@ -5,107 +6,147 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io"
-	"math"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// VerifySignature returns an HTTP middleware that validates the
-// provider webhook signature header.
-//
-// The signature header format is: ts=<timestamp>;h1=<hash1>,<hash2>,...
-// The HMAC is computed as: HMAC-SHA256("{timestamp}:{raw_body}", secret).
+const (
+	signatureHeader = "Paddle-Signature"
+	hashAlgorithm   = "h1"
+)
+
+// VerifySignature returns middleware that validates Paddle webhook
+// signatures using HMAC-SHA256. Mirrors Laravel\Paddle\Http\Middleware\
+// VerifyWebhookSignature.
 func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sig := r.Header.Get("Paddle-Signature")
+			header := r.Header.Get(signatureHeader)
 
-			if sig == "" {
+			if header == "" {
 				http.Error(w, "missing signature", http.StatusForbidden)
 
 				return
 			}
 
-			body, err := io.ReadAll(r.Body)
+			ts, sig, err := parseSignature(header)
 
 			if err != nil {
-				http.Error(w, "bad request", http.StatusBadRequest)
+				http.Error(w, err.Error(), http.StatusForbidden)
 
 				return
 			}
 
-			ts, hashes := parseSignature(sig)
+			// Check timestamp drift.
+			sigTime := time.Unix(ts, 0)
 
-			if ts == "" || len(hashes) == 0 {
-				http.Error(w, "invalid signature format", http.StatusForbidden)
+			if time.Since(sigTime).Abs() > maxDrift {
+				http.Error(w, "timestamp outside variance window", http.StatusForbidden)
 
 				return
 			}
 
-			tsInt, err := strconv.ParseInt(ts, 10, 64)
+			// Read and verify body.
+			body, err := readBody(r)
 
 			if err != nil {
-				http.Error(w, "invalid timestamp", http.StatusForbidden)
-
-				return
-			}
-
-			drift := math.Abs(float64(time.Now().Unix() - tsInt))
-
-			if drift > maxDrift.Seconds() {
-				http.Error(w, "timestamp drift too large", http.StatusForbidden)
+				http.Error(w, "failed to read body", http.StatusBadRequest)
 
 				return
 			}
 
 			expected := computeHMAC(secret, ts, body)
 
-			verified := false
-
-			for _, h := range hashes {
-				if hmac.Equal([]byte(expected), []byte(h)) {
-					verified = true
-
-					break
-				}
-			}
-
-			if !verified {
+			if !hmac.Equal([]byte(sig), []byte(expected)) {
 				http.Error(w, "signature mismatch", http.StatusForbidden)
 
 				return
 			}
 
-			// Re-populate the body for downstream handlers.
-			r.Body = io.NopCloser(strings.NewReader(string(body)))
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
-func parseSignature(sig string) (string, []string) {
-	var ts string
+func parseSignature(header string) (int64, string, error) {
+	var ts int64
 
-	var hashes []string
+	var sig string
 
-	for _, part := range strings.Split(sig, ";") {
-		if strings.HasPrefix(part, "ts=") {
-			ts = strings.TrimPrefix(part, "ts=")
-		} else if strings.HasPrefix(part, "h1=") {
-			raw := strings.TrimPrefix(part, "h1=")
-			hashes = strings.Split(raw, ",")
+	parts := strings.Split(header, ";")
+
+	for _, part := range parts {
+		kv := strings.SplitN(part, "=", 2)
+
+		if len(kv) != 2 {
+			continue
+		}
+
+		switch kv[0] {
+		case "ts":
+			var err error
+
+			ts, err = strconv.ParseInt(kv[1], 10, 64)
+
+			if err != nil {
+				return 0, "", fmt.Errorf("malformed timestamp: %w", err)
+			}
+		case hashAlgorithm:
+			sig = kv[1]
 		}
 	}
 
-	return ts, hashes
+	if ts == 0 || sig == "" {
+		return 0, "", fmt.Errorf("malformed signature header")
+	}
+
+	return ts, sig, nil
 }
 
-func computeHMAC(secret, ts string, body []byte) string {
+func computeHMAC(secret string, ts int64, body []byte) string {
+	payload := fmt.Sprintf("%d:%s", ts, body)
 	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(fmt.Sprintf("%s:%s", ts, body)))
+	mac.Write([]byte(payload))
 
 	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func readBody(r *http.Request) ([]byte, error) {
+	if r.Body == nil {
+		return []byte{}, nil
+	}
+
+	var buf []byte
+	buf, err := readAll(r.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return buf, nil
+}
+
+func readAll(r interface{ Read([]byte) (int, error) }) ([]byte, error) {
+	var result []byte
+	buf := make([]byte, 4096)
+
+	for {
+		n, err := r.Read(buf)
+
+		if n > 0 {
+			result = append(result, buf[:n]...)
+		}
+
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+	}
+
+	return result, nil
 }

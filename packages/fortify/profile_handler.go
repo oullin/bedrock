@@ -60,7 +60,7 @@ func (h *UpdateProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, "fortify.profile.updated")
+		_, _ = h.fortify.events.Dispatch(ctx, "fortify.profile.updated")
 	}
 
 	h.fortify.responder.ProfileInformationUpdatedResponse(w, r)

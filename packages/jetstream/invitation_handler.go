@@ -68,7 +68,7 @@ func (h *InviteTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberInvited, Payload: invitation})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberInvited, Payload: invitation})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -168,7 +168,7 @@ func (h *AcceptInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberAdded, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberAdded, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)

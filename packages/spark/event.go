@@ -1,56 +1,54 @@
 package spark
 
-// ---------------------------------------------------------------------------
-// Cashier events
-// ---------------------------------------------------------------------------
+// Event types mirror the Laravel event classes dispatched during billing
+// lifecycle operations.
 
-// CustomerUpdatedEvent is dispatched when a customer record is updated via webhook.
-type CustomerUpdatedEvent struct {
-	BillableID int64
-	Customer   *Customer
-	Payload    map[string]any
-}
-
-// SubscriptionCreatedEvent is dispatched when a new subscription is created via webhook.
+// SubscriptionCreatedEvent is dispatched when a subscription is created.
 type SubscriptionCreatedEvent struct {
-	BillableID   int64
+	Billable     Billable
 	Subscription *Subscription
 	Payload      map[string]any
 }
 
-// SubscriptionUpdatedEvent is dispatched when a subscription is updated via webhook.
+// SubscriptionUpdatedEvent is dispatched when a subscription is updated.
 type SubscriptionUpdatedEvent struct {
 	Subscription *Subscription
 	Payload      map[string]any
 }
 
-// SubscriptionCanceledEvent is dispatched when a subscription is canceled via webhook.
+// SubscriptionCanceledEvent is dispatched when a subscription is canceled.
 type SubscriptionCanceledEvent struct {
 	Subscription *Subscription
 	Payload      map[string]any
 }
 
-// SubscriptionPausedEvent is dispatched when a subscription is paused via webhook.
+// SubscriptionPausedEvent is dispatched when a subscription is paused.
 type SubscriptionPausedEvent struct {
 	Subscription *Subscription
 	Payload      map[string]any
 }
 
-// TransactionCompletedEvent is dispatched when a transaction completes via webhook.
+// CustomerUpdatedEvent is dispatched when a customer record is updated.
+type CustomerUpdatedEvent struct {
+	Billable Billable
+	Customer *Customer
+	Payload  map[string]any
+}
+
+// TransactionCompletedEvent is dispatched when a transaction completes.
 type TransactionCompletedEvent struct {
-	BillableID  int64
+	Billable    Billable
 	Transaction *Transaction
 	Payload     map[string]any
 }
 
-// TransactionUpdatedEvent is dispatched when a transaction is updated via webhook.
+// TransactionUpdatedEvent is dispatched when a transaction is updated.
 type TransactionUpdatedEvent struct {
-	BillableID  int64
 	Transaction *Transaction
 	Payload     map[string]any
 }
 
-// WebhookReceivedEvent is dispatched for every incoming provider webhook.
+// WebhookReceivedEvent is dispatched when any webhook payload arrives.
 type WebhookReceivedEvent struct {
 	Payload map[string]any
 }
@@ -60,13 +58,7 @@ type WebhookHandledEvent struct {
 	Payload map[string]any
 }
 
-// ---------------------------------------------------------------------------
-// Madora domain events
-// ---------------------------------------------------------------------------
-
-// SubscriptionChangedEvent is dispatched after a subscription transition.
-type SubscriptionChangedEvent struct {
-	TeamID int64
-	Plan   string
-	Status string
+// EventDispatcher dispatches billing events to listeners.
+type EventDispatcher interface {
+	Dispatch(event any) error
 }

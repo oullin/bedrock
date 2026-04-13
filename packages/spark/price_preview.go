@@ -1,23 +1,31 @@
 package spark
 
-// PricePreview represents a price preview with tax calculations, typically
-// fetched from the payment provider based on the customer's location.
+// PricePreview represents a previewed price calculation including
+// subtotals and tax. Mirrors Laravel\Paddle\PricePreview.
 type PricePreview struct {
-	Price    Price
-	Total    int64  // Total amount in minor units (including tax).
-	Subtotal int64  // Subtotal before tax.
-	Tax      int64  // Tax amount in minor units.
-	Currency string // ISO 4217 code.
+	PriceInfo Price
+	Total     int64
+	Subtotal  int64
+	Tax       int64
+	Currency  string
 }
 
 // RawTotal returns the total in minor units.
-func (p PricePreview) RawTotal() int64 { return p.Total }
+func (pp *PricePreview) RawTotal() int64 {
+	return pp.Total
+}
 
 // RawSubtotal returns the subtotal in minor units.
-func (p PricePreview) RawSubtotal() int64 { return p.Subtotal }
+func (pp *PricePreview) RawSubtotal() int64 {
+	return pp.Subtotal
+}
 
 // RawTax returns the tax in minor units.
-func (p PricePreview) RawTax() int64 { return p.Tax }
+func (pp *PricePreview) RawTax() int64 {
+	return pp.Tax
+}
 
-// HasTax reports whether any tax is applied.
-func (p PricePreview) HasTax() bool { return p.Tax > 0 }
+// HasTax reports whether the preview includes a non-zero tax amount.
+func (pp *PricePreview) HasTax() bool {
+	return pp.Tax > 0
+}

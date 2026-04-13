@@ -65,7 +65,7 @@ func (g *SessionGuard) SetEventDispatcher(d events.Dispatcher) {
 
 func (g *SessionGuard) dispatch(ctx context.Context, event any) {
 	if g.events != nil {
-		_ = g.events.Dispatch(ctx, event)
+		_, _ = g.events.Dispatch(ctx, event)
 	}
 }
 

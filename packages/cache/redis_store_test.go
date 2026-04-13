@@ -234,3 +234,30 @@ func TestRedisStoreJSONSerialization(t *testing.T) {
 		t.Fatalf("expected float64(42), got %v (%T)", v, v)
 	}
 }
+
+func TestRedisStoreSetPrefix(t *testing.T) {
+	t.Parallel()
+
+	s := cache.NewRedisStore(newMockRedisClient(), "old")
+
+	if s.GetPrefix() != "old" {
+		t.Fatalf("expected 'old', got %q", s.GetPrefix())
+	}
+
+	s.SetPrefix("new")
+
+	if s.GetPrefix() != "new" {
+		t.Fatalf("expected 'new', got %q", s.GetPrefix())
+	}
+}
+
+func TestRedisStoreGetClient(t *testing.T) {
+	t.Parallel()
+
+	client := newMockRedisClient()
+	s := cache.NewRedisStore(client, "")
+
+	if s.GetClient() != client {
+		t.Fatal("expected same client")
+	}
+}

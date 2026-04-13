@@ -63,7 +63,7 @@ func (h *AddTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberAdded, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberAdded, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -115,7 +115,7 @@ func (h *UpdateTeamMemberRoleHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberUpdated, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberUpdated, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -160,7 +160,7 @@ func (h *RemoveTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberRemoved, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamMemberRemoved, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)

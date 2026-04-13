@@ -52,7 +52,7 @@ func (h *CreateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamCreated, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamCreated, Payload: team})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -98,7 +98,7 @@ func (h *UpdateTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamUpdated, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamUpdated, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -148,7 +148,7 @@ func (h *DeleteTeamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.js.events != nil {
-		_ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamDeleted, Payload: team})
+		_, _ = h.js.events.Dispatch(r.Context(), Event{Name: EventTeamDeleted, Payload: team})
 	}
 
 	w.WriteHeader(http.StatusOK)

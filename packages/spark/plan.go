@@ -1,126 +1,121 @@
 package spark
 
-import (
-	"fmt"
-	"time"
-)
-
-// Plan represents a subscription plan stored in the application database.
+// Plan represents a subscription plan with fluent configuration.
+// Mirrors Spark\Plan.
 type Plan struct {
-	ID                int64
-	UUID              string
-	Code              string // Unique plan code (e.g. "pro").
-	Name              string
-	Slug              string
-	ProviderProductID string // Product ID on the payment provider.
-	Description       string
-	MarketingFeatures []string
-	CTALabel          string
-	CTAStyle          string
-	Featured          bool
-	Badge             string
-	IsActive          bool
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-
-	// Loaded relations.
-	PlanPeriods  []PlanPeriod
-	PlanFeatures []PlanFeature
-}
-
-// PlanPeriod represents a billing period variant for a plan (e.g. monthly, yearly).
-type PlanPeriod struct {
-	ID         int64
-	UUID       string
-	PlanID     int64
-	PeriodCode BillingPeriod
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-
-	// Loaded relations.
-	Prices []PlanPeriodPrice
-}
-
-// PlanPeriodPrice represents the pricing for a specific plan period in a
-// specific currency.
-type PlanPeriodPrice struct {
-	ID                int64
-	UUID              string
-	PlanPeriodID      int64
-	AmountMinor       *int64 // Price in minor units (cents); nil for non-money pricing modes.
-	Currency          string // ISO 4217 code.
-	PricingMode       PlanPricingMode
-	Period            string // Denormalised period label.
-	ProviderPriceID   string // Price ID on the payment provider.
-	IsActive          bool
-	IsCheckoutEnabled bool
-	ActiveGuard       string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-}
-
-// DisplayAmount returns a human-readable price string based on the pricing mode.
-
-// Feature represents a billable feature definition.
-type Feature struct {
-	ID          int64
-	UUID        string
-	Code        string
-	Name        string
-	Description string
-	ValueType   string // Type of value (e.g. "integer", "boolean").
-	IsActive    bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
-// PlanFeature links a plan to a feature with an optional value.
-type PlanFeature struct {
-	ID        int64
-	PlanID    int64
-	FeatureID int64
-	Value     *string // The feature value for this plan (e.g. "10" for capacity).
-	CreatedAt time.Time
-	UpdatedAt time.Time
-
-	// Loaded relations.
-	Feature *Feature
-}
-
-// SparkPlan represents a plan as registered with the Spark manager. This is
-// the provider-facing plan definition used by the billing portal.
-type SparkPlan struct {
-	ID               string // Provider price ID.
+	ID               string
 	Name             string
-	Interval         string // "monthly" or "yearly".
+	Interval         string
+	TrialDays        int
+	Price            float64
+	Currency         string
+	RawPrice         int
+	MonthlyIncentive string
+	YearlyIncentive  string
 	ShortDescription string
 	Features         []string
 	Options          map[string]any
 	Active           bool
-	MonthlyIncentive string
-	YearlyIncentive  string
-	PriceIncludesVAT bool
-	Price            float64
-	Currency         string
 }
 
-func (p *PlanPeriodPrice) DisplayAmount(formatter CurrencyFormatter) string {
-	switch p.PricingMode {
-	case PricingModeFree:
-		return "Free"
-	case PricingModeCustom:
-		return "Custom"
-	case PricingModeMoney:
-		if p.AmountMinor == nil || p.Currency == "" {
-			return "N/A"
-		}
+// NewPlan creates a new plan with the given name and provider price ID.
+func NewPlan(name, id string) *Plan {
+	return &Plan{
+		ID:       id,
+		Name:     name,
+		Interval: "monthly",
+		Active:   true,
+	}
+}
 
-		if formatter != nil {
-			return formatter.FormatAmount(*p.AmountMinor, p.Currency, "")
-		}
+// SetInterval sets the plan's billing interval.
+func (p *Plan) SetInterval(interval string) *Plan {
+	p.Interval = interval
 
-		return fmt.Sprintf("%d %s", *p.AmountMinor, p.Currency)
-	default:
-		return string(p.PricingMode)
+	return p
+}
+
+// Monthly sets the plan interval to monthly.
+func (p *Plan) Monthly() *Plan {
+	p.Interval = "monthly"
+
+	return p
+}
+
+// Yearly sets the plan interval to yearly.
+func (p *Plan) Yearly() *Plan {
+	p.Interval = "yearly"
+
+	return p
+}
+
+// SetTrialDays sets the number of trial days for this plan.
+func (p *Plan) SetTrialDays(days int) *Plan {
+	p.TrialDays = days
+
+	return p
+}
+
+// SetIncentive sets the monthly and yearly incentive text.
+func (p *Plan) SetIncentive(monthly, yearly string) *Plan {
+	p.MonthlyIncentive = monthly
+	p.YearlyIncentive = yearly
+
+	return p
+}
+
+// SetShortDescription sets the plan's marketing description.
+func (p *Plan) SetShortDescription(desc string) *Plan {
+	p.ShortDescription = desc
+
+	return p
+}
+
+// SetFeatures sets the plan's feature list.
+func (p *Plan) SetFeatures(features []string) *Plan {
+	p.Features = features
+
+	return p
+}
+
+// SetOptions sets the plan's custom options.
+func (p *Plan) SetOptions(opts map[string]any) *Plan {
+	p.Options = opts
+
+	return p
+}
+
+// SetStatus sets whether the plan is active.
+func (p *Plan) SetStatus(active bool) *Plan {
+	p.Active = active
+
+	return p
+}
+
+// Archive marks the plan as inactive (archived).
+func (p *Plan) Archive() *Plan {
+	p.Active = false
+
+	return p
+}
+
+// ToMap serialises the plan for JSON responses.
+func (p *Plan) ToMap() map[string]any {
+	return map[string]any{
+		"id":        p.ID,
+		"name":      p.Name,
+		"interval":  p.Interval,
+		"price":     p.Price,
+		"currency":  p.Currency,
+		"raw_price": p.RawPrice,
+		"incentive": map[string]string{
+			"monthly": p.MonthlyIncentive,
+			"yearly":  p.YearlyIncentive,
+		},
+		"short_description": p.ShortDescription,
+		"trial_days":        p.TrialDays,
+		"features":          p.Features,
+		"options":           p.Options,
+		"active":            p.Active,
 	}
 }

@@ -3,105 +3,110 @@ package webhook
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 
-	"github.com/bedrock/packages/contracts/events"
 	"github.com/bedrock/packages/spark"
 )
 
-// Handler dispatches payment provider webhook events to domain actions.
+// Handler processes incoming webhook payloads from payment providers.
+// Mirrors Laravel\Paddle\Http\Controllers\WebhookController and
+// Spark\Http\Controllers\WebhookController.
 type Handler struct {
 	subscriptions spark.SubscriptionStore
 	customers     spark.CustomerStore
 	transactions  spark.TransactionStore
-	events        events.Dispatcher
+	events        spark.EventDispatcher
 }
 
-// NewHandler creates a Handler.
+// NewHandler creates a webhook Handler.
 func NewHandler(
-	subscriptions spark.SubscriptionStore,
+	subs spark.SubscriptionStore,
 	customers spark.CustomerStore,
-	transactions spark.TransactionStore,
-	events events.Dispatcher,
+	txns spark.TransactionStore,
+	events spark.EventDispatcher,
 ) *Handler {
 	return &Handler{
-		subscriptions: subscriptions,
+		subscriptions: subs,
 		customers:     customers,
-		transactions:  transactions,
+		transactions:  txns,
 		events:        events,
 	}
 }
 
-// Handle is the main entry point for webhook processing.
+// Handle dispatches webhook payloads by event type.
 func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	body, err := io.ReadAll(r.Body)
-
-	if err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-
-		return
-	}
-
 	var payload map[string]any
 
-	if err := json.Unmarshal(body, &payload); err != nil {
-		http.Error(w, "invalid json", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid payload", http.StatusBadRequest)
 
 		return
 	}
 
-	_ = h.events.Dispatch(ctx, spark.WebhookReceivedEvent{Payload: payload})
+	if h.events != nil {
+		h.events.Dispatch(spark.WebhookReceivedEvent{Payload: payload})
+	}
 
 	eventType, _ := payload["event_type"].(string)
 
 	switch eventType {
 	case "customer.updated":
-		h.handleCustomerUpdated(ctx, payload)
+		h.handleCustomerUpdated(r, payload)
 	case "subscription.created":
-		h.handleSubscriptionCreated(ctx, payload)
+		h.handleSubscriptionCreated(r, payload)
 	case "subscription.updated":
-		h.handleSubscriptionUpdated(ctx, payload)
+		h.handleSubscriptionUpdated(r, payload)
 	case "subscription.canceled":
-		h.handleSubscriptionCanceled(ctx, payload)
+		h.handleSubscriptionCanceled(r, payload)
 	case "subscription.paused":
-		h.handleSubscriptionPaused(ctx, payload)
+		h.handleSubscriptionPaused(r, payload)
 	case "transaction.completed":
-		h.handleTransactionCompleted(ctx, payload)
+		h.handleTransactionCompleted(r, payload)
 	case "transaction.updated":
-		h.handleTransactionUpdated(ctx, payload)
+		h.handleTransactionUpdated(r, payload)
 	}
 
-	_ = h.events.Dispatch(ctx, spark.WebhookHandledEvent{Payload: payload})
+	if h.events != nil {
+		h.events.Dispatch(spark.WebhookHandledEvent{Payload: payload})
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) handleCustomerUpdated(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.CustomerUpdatedEvent{Payload: payload})
+func (h *Handler) handleCustomerUpdated(_ *http.Request, payload map[string]any) {
+	data, _ := payload["data"].(map[string]any)
+
+	if data == nil {
+		return
+	}
+
+	paddleID, _ := data["id"].(string)
+
+	if paddleID == "" {
+		return
+	}
+
+	ctx := context.Background()
+	customer, err := h.customers.FindByProviderID(ctx, paddleID)
+
+	if err != nil || customer == nil {
+		return
+	}
+
+	if name, ok := data["name"].(string); ok {
+		customer.Name = name
+	}
+
+	if email, ok := data["email"].(string); ok {
+		customer.Email = email
+	}
+
+	h.customers.Save(ctx, customer)
 }
 
-func (h *Handler) handleSubscriptionCreated(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.SubscriptionCreatedEvent{Payload: payload})
-}
-
-func (h *Handler) handleSubscriptionUpdated(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.SubscriptionUpdatedEvent{Payload: payload})
-}
-
-func (h *Handler) handleSubscriptionCanceled(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.SubscriptionCanceledEvent{Payload: payload})
-}
-
-func (h *Handler) handleSubscriptionPaused(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.SubscriptionPausedEvent{Payload: payload})
-}
-
-func (h *Handler) handleTransactionCompleted(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.TransactionCompletedEvent{Payload: payload})
-}
-
-func (h *Handler) handleTransactionUpdated(ctx context.Context, payload map[string]any) {
-	_ = h.events.Dispatch(ctx, spark.TransactionUpdatedEvent{Payload: payload})
-}
+func (h *Handler) handleSubscriptionCreated(_ *http.Request, _ map[string]any)  {}
+func (h *Handler) handleSubscriptionUpdated(_ *http.Request, _ map[string]any)  {}
+func (h *Handler) handleSubscriptionCanceled(_ *http.Request, _ map[string]any) {}
+func (h *Handler) handleSubscriptionPaused(_ *http.Request, _ map[string]any)   {}
+func (h *Handler) handleTransactionCompleted(_ *http.Request, _ map[string]any) {}
+func (h *Handler) handleTransactionUpdated(_ *http.Request, _ map[string]any)   {}

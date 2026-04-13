@@ -21,14 +21,26 @@ type Job interface {
 	Delete() error
 	// Fail marks the job as failed.
 	Fail(err error) error
+	// MarkAsFailed is an alias for Fail.
+	MarkAsFailed(err error) error
 	// Attempts returns the number of times the job has been attempted.
 	Attempts() int
 	// MaxTries returns the maximum number of allowed attempts.
 	MaxTries() int
+	// MaxExceptions returns the maximum number of exceptions before failing.
+	MaxExceptions() int
 	// Timeout returns the job execution timeout.
 	Timeout() time.Duration
 	// Backoff returns per-attempt backoff durations.
 	Backoff() []time.Duration
+	// RetryUntil returns the time after which to stop retrying.
+	RetryUntil() *time.Time
+	// IsDeleted reports whether the job has been deleted.
+	IsDeleted() bool
+	// IsReleased reports whether the job has been released.
+	IsReleased() bool
+	// HasFailed reports whether the job has been marked as failed.
+	HasFailed() bool
 	// GetQueue returns the queue name.
 	GetQueue() string
 	// GetConnectionName returns the connection name.

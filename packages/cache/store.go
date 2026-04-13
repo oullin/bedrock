@@ -52,4 +52,9 @@ type TaggedCache interface {
 	Store
 	// FlushTagged removes only keys associated with this tag set.
 	FlushTagged(ctx context.Context) error
+	// TaggedItemKey returns the fully qualified cache key for the given key,
+	// including the tag namespace prefix.
+	TaggedItemKey(ctx context.Context, key string) (string, error)
+	// GetTags returns the underlying TagSet.
+	GetTags() *TagSet
 }

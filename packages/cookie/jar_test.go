@@ -9,7 +9,7 @@ import (
 )
 
 func defaultOpts() cookie.Options {
-	return cookie.Options{Path: "/", HTTPOnly: true, SameSite: cookie.SameSiteLax}
+	return cookie.Options{Path: "/", HTTPOnly: cookie.BoolPtr(true), SameSite: cookie.SameSiteLax}
 }
 
 // ---------------------------------------------------------------------------
@@ -45,8 +45,8 @@ func TestMakeWithAllOptions(t *testing.T) {
 		Path:     "/path",
 		Domain:   "example.com",
 		MaxAge:   600,
-		Secure:   true,
-		HTTPOnly: false,
+		Secure:   cookie.BoolPtr(true),
+		HTTPOnly: cookie.BoolPtr(false),
 		SameSite: cookie.SameSiteStrict,
 	}
 
@@ -111,7 +111,7 @@ func TestMakeRaw(t *testing.T) {
 	t.Parallel()
 
 	opts := defaultOpts()
-	opts.Raw = true
+	opts.Raw = cookie.BoolPtr(true)
 
 	c := cookie.Make("token", "abc=123", opts)
 
@@ -129,12 +129,12 @@ func TestJarSetDefaultsRoundTrip(t *testing.T) {
 
 	j := cookie.NewJar(defaultOpts())
 
-	newOpts := cookie.Options{Path: "/app", Domain: "test.com", Secure: true}
+	newOpts := cookie.Options{Path: "/app", Domain: "test.com", Secure: cookie.BoolPtr(true)}
 	j.SetDefaults(newOpts)
 
 	got := j.Defaults()
 
-	if got.Path != "/app" || got.Domain != "test.com" || !got.Secure {
+	if got.Path != "/app" || got.Domain != "test.com" || got.Secure == nil || !*got.Secure {
 		t.Fatalf("defaults not updated: %+v", got)
 	}
 }
@@ -143,7 +143,7 @@ func TestJarMakeInheritsDefaults(t *testing.T) {
 	t.Parallel()
 
 	opts := defaultOpts()
-	opts.Secure = true
+	opts.Secure = cookie.BoolPtr(true)
 	j := cookie.NewJar(opts)
 
 	c := j.Make("x", "y", cookie.Options{})
@@ -185,18 +185,34 @@ func TestJarMakeOverridesDomain(t *testing.T) {
 	}
 }
 
-func TestJarMakeSecureOrLogic(t *testing.T) {
+func TestJarMakeSecureNilInheritsDefault(t *testing.T) {
 	t.Parallel()
 
-	// When default is true, Secure stays true even if opts.Secure=false.
+	// When opts.Secure is nil, the default is inherited.
 	opts := defaultOpts()
-	opts.Secure = true
+	opts.Secure = cookie.BoolPtr(true)
 	j := cookie.NewJar(opts)
 
-	c := j.Make("x", "y", cookie.Options{Secure: false})
+	c := j.Make("x", "y", cookie.Options{})
 
 	if !c.Secure {
-		t.Fatal("expected Secure=true (OR with default)")
+		t.Fatal("expected Secure=true (inherited from default)")
+	}
+}
+
+func TestJarMakeSecureOverrideToFalse(t *testing.T) {
+	t.Parallel()
+
+	// When opts.Secure is explicitly false, it overrides the default.
+	// This matches Laravel's testCookiesCanSetSecureOptionUsingDefaultPathAndDomain.
+	opts := defaultOpts()
+	opts.Secure = cookie.BoolPtr(true)
+	j := cookie.NewJar(opts)
+
+	c := j.Make("x", "y", cookie.Options{Secure: cookie.BoolPtr(false)})
+
+	if c.Secure {
+		t.Fatal("expected Secure=false (explicit override)")
 	}
 }
 
@@ -245,6 +261,22 @@ func TestJarForget(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Jar — Queue, HasQueued, Queued
 // ---------------------------------------------------------------------------
+
+func TestJarQueueEmptyNameReturnsError(t *testing.T) {
+	t.Parallel()
+
+	j := cookie.NewJar(defaultOpts())
+
+	err := j.Queue(&http.Cookie{Name: "", Value: "bar"})
+
+	if err == nil {
+		t.Fatal("expected error for empty cookie name")
+	}
+
+	if err != cookie.ErrEmptyName {
+		t.Fatalf("expected ErrEmptyName, got %v", err)
+	}
+}
 
 func TestJarQueue(t *testing.T) {
 	t.Parallel()
@@ -327,18 +359,18 @@ func TestJarQueuedWithPath(t *testing.T) {
 	}
 }
 
-func TestJarQueuedWithoutPathReturnsLast(t *testing.T) {
+func TestJarQueuedWithoutPathReturnsRootPath(t *testing.T) {
 	t.Parallel()
 
 	j := cookie.NewJar(defaultOpts())
 	j.Queue(&http.Cookie{Name: "foo", Value: "bar", Path: "/path"})
 	j.Queue(&http.Cookie{Name: "foo", Value: "rab", Path: "/"})
 
-	// Without path, should return a cookie (any entry).
+	// Without path, should return the root-path cookie (matching Laravel).
 	c := j.Queued("foo")
 
-	if c == nil {
-		t.Fatal("expected a cookie when called without path")
+	if c == nil || c.Value != "rab" {
+		t.Fatalf("expected root path cookie with value 'rab', got %v", c)
 	}
 }
 
@@ -421,7 +453,9 @@ func TestJarExpire(t *testing.T) {
 		t.Fatal("expected empty queue")
 	}
 
-	j.Expire("foobar", cookie.Options{Path: "/path"})
+	if err := j.Expire("foobar", cookie.Options{Path: "/path", Domain: "/domain"}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	c := j.Queued("foobar")
 
@@ -443,6 +477,10 @@ func TestJarExpire(t *testing.T) {
 
 	if c.Path != "/path" {
 		t.Fatalf("expected path '/path', got %q", c.Path)
+	}
+
+	if c.Domain != "/domain" {
+		t.Fatalf("expected domain '/domain', got %q", c.Domain)
 	}
 
 	if len(j.GetQueued()) != 1 {

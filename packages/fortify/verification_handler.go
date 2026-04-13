@@ -99,7 +99,7 @@ func (h *VerifyEmailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.fortify.events != nil {
-		_ = h.fortify.events.Dispatch(ctx, EventVerified)
+		_, _ = h.fortify.events.Dispatch(ctx, EventVerified)
 	}
 
 	w.WriteHeader(http.StatusOK)
