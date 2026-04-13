@@ -18,6 +18,7 @@ type Factory struct {
 	stubCallbacks    []StubCallback
 	sequences        map[string]*ResponseSequence
 	preventStray     bool
+	dispatcher       *EventDispatcher
 }
 
 // RecordedRequest holds a recorded outbound request and its response.
@@ -40,6 +41,15 @@ func NewFactory() *Factory {
 // BaseURL sets a base URL for all requests created by this factory.
 func (f *Factory) BaseURL(url string) *Factory {
 	f.baseURL = strings.TrimRight(url, "/")
+
+	return f
+}
+
+// WithDispatcher sets the event dispatcher for the factory. Events like
+// RequestSending, ResponseReceived, and ConnectionFailed will be dispatched
+// through it.
+func (f *Factory) WithDispatcher(d *EventDispatcher) *Factory {
+	f.dispatcher = d
 
 	return f
 }
@@ -216,6 +226,56 @@ func (f *Factory) AssertNothingSent() bool {
 // AssertSentCount asserts that exactly n requests were recorded.
 func (f *Factory) AssertSentCount(n int) bool {
 	return len(f.Recorded()) == n
+}
+
+// AssertSentInOrder asserts that recorded requests match the given callbacks in
+// order. Returns true only when every callback matches its corresponding
+// recorded request.
+func (f *Factory) AssertSentInOrder(callbacks []func(RecordedRequest) bool) bool {
+	recorded := f.Recorded()
+
+	if len(callbacks) != len(recorded) {
+		return false
+	}
+
+	for i, cb := range callbacks {
+		if !cb(recorded[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// AllowStrayRequests disables the stray request prevention, allowing requests
+// that don't match any stub.
+func (f *Factory) AllowStrayRequests() *Factory {
+	f.mu.Lock()
+
+	defer f.mu.Unlock()
+
+	f.preventStray = false
+
+	return f
+}
+
+// Response creates a stubbed *http.Response for use in test fakes.
+func (f *Factory) Response(body string, status int, headers ...map[string]string) *http.Response {
+	stub := ResponseStub{
+		Status: status,
+		Body:   body,
+	}
+
+	if len(headers) > 0 {
+		stub.Headers = headers[0]
+	}
+
+	return stubToResponse(stub)
+}
+
+// Sequence creates a new ResponseSequence from the given stubs.
+func (f *Factory) Sequence(stubs ...ResponseStub) *ResponseSequence {
+	return NewResponseSequence(stubs...)
 }
 
 // matchesURLPattern checks if a URL matches a simple pattern. Supports "*" as
