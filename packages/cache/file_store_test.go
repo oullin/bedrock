@@ -377,3 +377,53 @@ func TestFileStoreComplexValues(t *testing.T) {
 		t.Fatalf("expected 'Alice', got %v", m["name"])
 	}
 }
+
+func TestFileStorePathPublic(t *testing.T) {
+	t.Parallel()
+
+	s := newFileStore(t)
+
+	p := s.Path("mykey")
+
+	if p == "" {
+		t.Fatal("expected non-empty path")
+	}
+
+	if p == "mykey" {
+		t.Fatal("expected hashed path, not raw key")
+	}
+}
+
+func TestFileStoreGetSetDirectory(t *testing.T) {
+	t.Parallel()
+
+	s := newFileStore(t)
+	original := s.GetDirectory()
+
+	if original == "" {
+		t.Fatal("expected non-empty directory")
+	}
+
+	s.SetDirectory("/tmp/new-cache")
+
+	if s.GetDirectory() != "/tmp/new-cache" {
+		t.Fatalf("expected '/tmp/new-cache', got %q", s.GetDirectory())
+	}
+}
+
+func TestFileStoreSetLockDirectory(t *testing.T) {
+	t.Parallel()
+
+	s := newFileStore(t)
+	s.SetLockDirectory("/tmp/locks")
+
+	ctx := context.Background()
+	l := s.Lock("test", "owner", time.Minute)
+	ok, _ := l.Acquire(ctx)
+
+	if !ok {
+		t.Fatal("expected lock acquire with custom lock directory")
+	}
+
+	l.Release(ctx) //nolint:errcheck
+}

@@ -162,3 +162,31 @@ func TestDynamoDbStoreLock(t *testing.T) {
 		t.Fatal("expected non-nil lock")
 	}
 }
+
+func TestDynamoDbStoreSetPrefix(t *testing.T) {
+	t.Parallel()
+
+	client := newMockDynamoClient()
+	s := cache.NewDynamoDbStore(client, "cache", "old")
+
+	if s.GetPrefix() != "old" {
+		t.Fatalf("expected 'old', got %q", s.GetPrefix())
+	}
+
+	s.SetPrefix("new")
+
+	if s.GetPrefix() != "new" {
+		t.Fatalf("expected 'new', got %q", s.GetPrefix())
+	}
+}
+
+func TestDynamoDbStoreGetClient(t *testing.T) {
+	t.Parallel()
+
+	client := newMockDynamoClient()
+	s := cache.NewDynamoDbStore(client, "cache", "")
+
+	if s.GetClient() != client {
+		t.Fatal("expected same client")
+	}
+}

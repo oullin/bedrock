@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -568,6 +569,91 @@ func (s *Store) PasswordConfirmedAt() int64 {
 	v := s.Get("auth.password_confirmed_at", int64(0))
 
 	return toSessionInt64(v)
+}
+
+// GetHandler returns the underlying session handler.
+func (s *Store) GetHandler() Handler {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	return s.handler
+}
+
+// SetHandler replaces the session handler and returns the previous one.
+func (s *Store) SetHandler(handler Handler) Handler {
+	s.mu.Lock()
+
+	defer s.mu.Unlock()
+
+	old := s.handler
+	s.handler = handler
+
+	return old
+}
+
+// HandlerNeedsRequest reports whether the handler implements RequestAware.
+func (s *Store) HandlerNeedsRequest() bool {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	_, ok := s.handler.(RequestAware)
+
+	return ok
+}
+
+// SetRequestOnHandler forwards the HTTP request to the handler if it
+// implements RequestAware.
+func (s *Store) SetRequestOnHandler(r *http.Request) {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	if ra, ok := s.handler.(RequestAware); ok {
+		ra.SetRequest(r)
+	}
+}
+
+// SetExists forwards the existence flag to the handler if it implements
+// ExistenceAware.
+func (s *Store) SetExists(exists bool) {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	if ea, ok := s.handler.(ExistenceAware); ok {
+		ea.SetExists(exists)
+	}
+}
+
+// IsValidID reports whether id is a valid session ID (40-char hex string).
+func IsValidID(id string) bool {
+	return isValidID(id)
+}
+
+// ID returns the session ID (alias for GetID).
+func (s *Store) ID() string {
+	return s.GetID()
+}
+
+// HasPreviousURL reports whether a previous URL has been stored.
+func (s *Store) HasPreviousURL() bool {
+	return s.PreviousURL() != ""
+}
+
+// PreviousRoute returns the previously matched route name.
+func (s *Store) PreviousRoute() string {
+	if route, ok := s.Get("_previous_route", "").(string); ok {
+		return route
+	}
+
+	return ""
+}
+
+// SetPreviousRoute stores the previously matched route name.
+func (s *Store) SetPreviousRoute(route string) {
+	s.Put("_previous_route", route)
 }
 
 // --- flash helpers (caller must hold lock) ---

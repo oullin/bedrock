@@ -1,99 +1,45 @@
 package billing
 
-import (
-	"time"
+import "time"
 
-	"github.com/bedrock/packages/contracts"
-)
-
-// Subscription represents a billing subscription linking a billable entity to
-// a plan through a payment provider.
+// Subscription represents a billable's subscription record.
+// Mirrors Upstream\Paddle\Subscription.
 type Subscription struct {
-	ID                int64
-	UUID              string
-	BillableType      string
-	BillableID        int64
-	Type              string // Subscription type (default: "default").
-	ProviderID        string // Payment provider subscription ID.
-	Status            SubscriptionStatus
-	Plan              string // Plan code (e.g. "pro").
-	BillingPeriod     BillingPeriod
-	PlanPeriodPriceID *int64
-	PendingExpiresAt  *time.Time
-	PaymentReadyAt    *time.Time
-	TrialEndsAt       *time.Time
-	PausedAt          *time.Time
-	EndsAt            *time.Time
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID           int64
+	BillableType string
+	BillableID   int64
+	Type         string
+	PaddleID     string
+	Status       SubscriptionStatus
+	TrialEndsAt  *time.Time
+	PausedAt     *time.Time
+	EndsAt       *time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Items        []SubscriptionItem
 
-	// Loaded relations.
-	Items    []SubscriptionItem
-	Features []SubscriptionFeature
-
-	// Transient state for proration control.
-	proration ProrationBehavior
+	prorationBehavior ProrationBehavior
 }
 
-// IsActive reports whether the subscription grants access to features.
-func (s *Subscription) IsActive() bool {
-	return s.Status.GrantsAccess()
-}
-
-// IsNew reports whether the subscription has not been persisted yet.
-func (s *Subscription) IsNew() bool {
-	return s.ID == 0
-}
-
-// Valid reports whether the subscription should be considered valid for access.
-// When keepPastDueActive is true, past-due subscriptions count as valid.
-func (s *Subscription) Valid(clock contracts.Clock, keepPastDueActive bool) bool {
-	if s.OnTrial(clock) {
-		return true
-	}
-
-	if s.Active() {
-		return true
-	}
-
-	if keepPastDueActive && s.PastDue() {
-		return true
-	}
-
-	return false
-}
-
-// OnTrial reports whether the subscription is currently within its trial period.
-func (s *Subscription) OnTrial(clock contracts.Clock) bool {
-	if s.TrialEndsAt == nil {
-		return false
-	}
-
-	return clock.Now().Before(*s.TrialEndsAt)
-}
-
-// HasExpiredTrial reports whether the subscription had a trial that has elapsed.
-func (s *Subscription) HasExpiredTrial(clock contracts.Clock) bool {
-	if s.TrialEndsAt == nil {
-		return false
-	}
-
-	now := clock.Now()
-
-	return now.After(*s.TrialEndsAt) || now.Equal(*s.TrialEndsAt)
-}
-
-// Active reports whether the status is active.
+// Active reports whether the subscription status is active.
 func (s *Subscription) Active() bool {
 	return s.Status == StatusActive
 }
 
-// Recurring reports whether the subscription is active and not on trial.
-func (s *Subscription) Recurring(clock contracts.Clock) bool {
-	return s.Active() && !s.OnTrial(clock)
+// OnTrial reports whether the subscription is currently trialing.
+func (s *Subscription) OnTrial() bool {
+	if s.Status != StatusTrialing {
+		return false
+	}
+
+	if s.TrialEndsAt == nil {
+		return false
+	}
+
+	return s.TrialEndsAt.After(time.Now())
 }
 
-// PastDue reports whether the subscription has a past-due payment.
+// PastDue reports whether the subscription is past due.
 func (s *Subscription) PastDue() bool {
 	return s.Status == StatusPastDue
 }
@@ -108,28 +54,32 @@ func (s *Subscription) Canceled() bool {
 	return s.Status == StatusCanceled
 }
 
-// OnGracePeriod reports whether the subscription is canceled but still within
-// its paid period.
-func (s *Subscription) OnGracePeriod(clock contracts.Clock) bool {
+// OnGracePeriod reports whether the subscription has been canceled
+// but is still within its paid period.
+func (s *Subscription) OnGracePeriod() bool {
+	if !s.Canceled() {
+		return false
+	}
+
 	if s.EndsAt == nil {
 		return false
 	}
 
-	return s.Canceled() && clock.Now().Before(*s.EndsAt)
+	return s.EndsAt.After(time.Now())
 }
 
-// OnPausedGracePeriod reports whether the subscription is paused but the pause
-// has not yet taken effect.
-func (s *Subscription) OnPausedGracePeriod(clock contracts.Clock) bool {
-	if s.PausedAt == nil {
-		return false
-	}
-
-	return s.Paused() && clock.Now().Before(*s.PausedAt)
+// Valid reports whether the subscription currently grants access.
+// This includes active, trialing, past-due, and grace-period states.
+func (s *Subscription) Valid() bool {
+	return s.Active() || s.OnTrial() || s.PastDue() || s.OnGracePeriod()
 }
 
-// HasProduct reports whether any item in the subscription matches the given
-// product ID.
+// Recurring reports whether the subscription is active and not on trial.
+func (s *Subscription) Recurring() bool {
+	return s.Active() && !s.OnTrial()
+}
+
+// HasProduct reports whether any subscription item matches the product ID.
 func (s *Subscription) HasProduct(productID string) bool {
 	for _, item := range s.Items {
 		if item.ProductID == productID {
@@ -140,8 +90,7 @@ func (s *Subscription) HasProduct(productID string) bool {
 	return false
 }
 
-// HasPrice reports whether any item in the subscription matches the given
-// price ID.
+// HasPrice reports whether any subscription item matches the price ID.
 func (s *Subscription) HasPrice(priceID string) bool {
 	for _, item := range s.Items {
 		if item.PriceID == priceID {
@@ -152,43 +101,58 @@ func (s *Subscription) HasPrice(priceID string) bool {
 	return false
 }
 
-// HasMultiplePrices reports whether the subscription contains more than one
-// price item.
-func (s *Subscription) HasMultiplePrices() bool {
-	return len(s.Items) > 1
-}
-
-// HasSinglePrice reports whether the subscription contains exactly one price
-// item.
-func (s *Subscription) HasSinglePrice() bool {
-	return len(s.Items) == 1
-}
-
-// ProrationBehavior returns the proration setting for this subscription.
-func (s *Subscription) ProrationBehavior() ProrationBehavior {
-	if s.proration == "" {
-		return ProratedNextBillingPeriod
+// FindItemByPrice returns the subscription item matching the given
+// price ID, or nil if not found.
+func (s *Subscription) FindItemByPrice(priceID string) *SubscriptionItem {
+	for i := range s.Items {
+		if s.Items[i].PriceID == priceID {
+			return &s.Items[i]
+		}
 	}
 
-	return s.proration
+	return nil
 }
 
-// SetProrationBehavior sets the proration behaviour for subsequent operations.
-func (s *Subscription) SetProrationBehavior(b ProrationBehavior) {
-	s.proration = b
+// Prorate sets the proration behavior to prorate on the next billing period.
+func (s *Subscription) Prorate() *Subscription {
+	s.prorationBehavior = ProrateNextBilling
+
+	return s
 }
 
-// Prorate sets the proration to prorated next billing period.
-func (s *Subscription) Prorate() { s.proration = ProratedNextBillingPeriod }
+// NoProrate sets the proration behavior to charge the full amount on the next billing period.
+func (s *Subscription) NoProrate() *Subscription {
+	s.prorationBehavior = FullNextBilling
 
-// NoProrate sets the proration to full next billing period.
-func (s *Subscription) NoProrate() { s.proration = FullNextBillingPeriod }
+	return s
+}
 
-// ProrateImmediately sets the proration to prorated immediately.
-func (s *Subscription) ProrateImmediately() { s.proration = ProratedImmediately }
+// ProrateImmediately sets the proration behavior to charge prorated immediately.
+func (s *Subscription) ProrateImmediately() *Subscription {
+	s.prorationBehavior = ProrateImmediately
 
-// ImmediatelyWithoutProrate sets the proration to full immediately.
-func (s *Subscription) ImmediatelyWithoutProrate() { s.proration = FullImmediately }
+	return s
+}
 
-// DoNotBill sets the proration to do not bill.
-func (s *Subscription) DoNotBill() { s.proration = DoNotBill }
+// ImmediatelyWithoutProrate sets the proration behavior to charge full amount immediately.
+func (s *Subscription) ImmediatelyWithoutProrate() *Subscription {
+	s.prorationBehavior = FullImmediately
+
+	return s
+}
+
+// DoNotBill sets the proration behavior to not bill the customer.
+func (s *Subscription) DoNotBill() *Subscription {
+	s.prorationBehavior = DoNotBill
+
+	return s
+}
+
+// ProrationBehavior returns the current proration behavior setting.
+func (s *Subscription) ProrationBehavior() ProrationBehavior {
+	if s.prorationBehavior == "" {
+		return ProrateNextBilling
+	}
+
+	return s.prorationBehavior
+}

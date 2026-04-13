@@ -9,17 +9,18 @@ import (
 // It uses the store's atomic Add operation for acquisition and verifies
 // ownership on release.
 type CacheLock struct {
-	store Store
-	name  string
-	owner string
-	ttl   time.Duration
+	store   Store
+	name    string
+	owner   string
+	ttl     time.Duration
+	sleepMs int
 }
 
 var _ Lock = (*CacheLock)(nil)
 
 // NewCacheLock creates a cache-backed lock.
 func NewCacheLock(store Store, name, owner string, ttl time.Duration) *CacheLock {
-	return &CacheLock{store: store, name: name, owner: owner, ttl: ttl}
+	return &CacheLock{store: store, name: name, owner: owner, ttl: ttl, sleepMs: 50}
 }
 
 func (l *CacheLock) Acquire(ctx context.Context) (bool, error) {
@@ -81,9 +82,31 @@ func (l *CacheLock) Block(ctx context.Context, timeout time.Duration) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(time.Duration(l.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (l *CacheLock) Owner() string { return l.owner }
+
+func (l *CacheLock) IsOwnedByCurrentProcess(ctx context.Context) (bool, error) {
+	return l.IsOwnedBy(ctx, l.owner)
+}
+
+func (l *CacheLock) IsOwnedBy(ctx context.Context, owner string) (bool, error) {
+	v, err := l.store.Get(ctx, l.name)
+
+	if err != nil {
+		return false, nil
+	}
+
+	return v == owner, nil
+}
+
+func (l *CacheLock) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	l.sleepMs = ms
+
+	return l
 }
 
 func (l *CacheLock) Blocked(ctx context.Context) (bool, error) {

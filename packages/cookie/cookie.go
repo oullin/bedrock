@@ -7,16 +7,21 @@ import (
 
 // SameSite matches the http.SameSite constants for convenient use.
 
-// Options configures cookie attributes.
+// Options configures cookie attributes. Boolean fields use *bool so that
+// callers can distinguish "not set" (nil) from an explicit false, allowing
+// defaults to be overridden in either direction.
 type Options struct {
 	Path     string
 	Domain   string
 	MaxAge   int // seconds; 0 = session cookie, negative = delete
-	Secure   bool
-	HTTPOnly bool
+	Secure   *bool
+	HTTPOnly *bool
 	SameSite http.SameSite
-	Raw      bool // do not URL-encode the value
+	Raw      *bool // do not URL-encode the value
 }
+
+// BoolPtr returns a pointer to v, useful for setting Options boolean fields.
+func BoolPtr(v bool) *bool { return &v }
 
 const (
 	SameSiteDefault = http.SameSiteDefaultMode
@@ -29,7 +34,7 @@ const (
 func DefaultOptions() Options {
 	return Options{
 		Path:     "/",
-		HTTPOnly: true,
+		HTTPOnly: BoolPtr(true),
 		SameSite: SameSiteLax,
 	}
 }
@@ -42,12 +47,18 @@ func Make(name, value string, opts Options) *http.Cookie {
 		Path:     opts.Path,
 		Domain:   opts.Domain,
 		MaxAge:   opts.MaxAge,
-		Secure:   opts.Secure,
-		HttpOnly: opts.HTTPOnly,
 		SameSite: opts.SameSite,
 	}
 
-	if opts.Raw {
+	if opts.Secure != nil {
+		c.Secure = *opts.Secure
+	}
+
+	if opts.HTTPOnly != nil {
+		c.HttpOnly = *opts.HTTPOnly
+	}
+
+	if opts.Raw != nil && *opts.Raw {
 		c.Raw = name + "=" + value
 	}
 

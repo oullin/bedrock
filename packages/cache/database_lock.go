@@ -11,12 +11,13 @@ import (
 // DatabaseLock is a distributed lock backed by a SQL database. It stores lock
 // state in the cache table using the same DBConnection as DatabaseStore.
 type DatabaseLock struct {
-	conn  DBConnection
-	table string
-	name  string
-	owner string
-	ttl   time.Duration
-	clock contracts.Clock
+	conn    DBConnection
+	table   string
+	name    string
+	owner   string
+	ttl     time.Duration
+	clock   contracts.Clock
+	sleepMs int
 }
 
 var _ Lock = (*DatabaseLock)(nil)
@@ -27,7 +28,7 @@ func NewDatabaseLock(conn DBConnection, table, name, owner string, ttl time.Dura
 		table = "cache_locks"
 	}
 
-	return &DatabaseLock{conn: conn, table: table, name: name, owner: owner, ttl: ttl, clock: clock}
+	return &DatabaseLock{conn: conn, table: table, name: name, owner: owner, ttl: ttl, clock: clock, sleepMs: 50}
 }
 
 func (l *DatabaseLock) now() time.Time {
@@ -137,9 +138,36 @@ func (l *DatabaseLock) Block(ctx context.Context, timeout time.Duration) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(time.Duration(l.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (l *DatabaseLock) Owner() string { return l.owner }
+
+func (l *DatabaseLock) IsOwnedByCurrentProcess(ctx context.Context) (bool, error) {
+	return l.IsOwnedBy(ctx, l.owner)
+}
+
+func (l *DatabaseLock) IsOwnedBy(ctx context.Context, owner string) (bool, error) {
+	var currentOwner string
+
+	row := l.conn.QueryRow(ctx,
+		fmt.Sprintf("SELECT owner FROM %s WHERE key = $1 AND expiration > $2", l.table),
+		l.name, l.now().Unix(),
+	)
+
+	if err := row.Scan(&currentOwner); err != nil {
+		return false, nil
+	}
+
+	return currentOwner == owner, nil
+}
+
+func (l *DatabaseLock) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	l.sleepMs = ms
+
+	return l
 }
 
 func (l *DatabaseLock) Blocked(ctx context.Context) (bool, error) {

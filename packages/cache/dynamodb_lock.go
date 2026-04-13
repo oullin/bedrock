@@ -10,19 +10,20 @@ import (
 // DynamoDbLock is a distributed lock backed by AWS DynamoDB. It uses
 // conditional writes to ensure atomic lock acquisition.
 type DynamoDbLock struct {
-	client DynamoClient
-	table  string
-	name   string
-	owner  string
-	ttl    time.Duration
-	clock  contracts.Clock
+	client  DynamoClient
+	table   string
+	name    string
+	owner   string
+	ttl     time.Duration
+	clock   contracts.Clock
+	sleepMs int
 }
 
 var _ Lock = (*DynamoDbLock)(nil)
 
 // NewDynamoDbLock creates a DynamoDB-backed lock.
 func NewDynamoDbLock(client DynamoClient, table, name, owner string, ttl time.Duration, clock contracts.Clock) *DynamoDbLock {
-	return &DynamoDbLock{client: client, table: table, name: name, owner: owner, ttl: ttl, clock: clock}
+	return &DynamoDbLock{client: client, table: table, name: name, owner: owner, ttl: ttl, clock: clock, sleepMs: 50}
 }
 
 func (l *DynamoDbLock) now() time.Time {
@@ -133,9 +134,53 @@ func (l *DynamoDbLock) Block(ctx context.Context, timeout time.Duration) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(time.Duration(l.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (l *DynamoDbLock) Owner() string { return l.owner }
+
+func (l *DynamoDbLock) IsOwnedByCurrentProcess(ctx context.Context) (bool, error) {
+	return l.IsOwnedBy(ctx, l.owner)
+}
+
+func (l *DynamoDbLock) IsOwnedBy(ctx context.Context, owner string) (bool, error) {
+	existing, err := l.client.GetItem(ctx, l.table, "key", l.name)
+
+	if err != nil || existing == nil {
+		return false, nil
+	}
+
+	ownerVal, ok := existing["owner"]
+
+	if !ok {
+		return false, nil
+	}
+
+	ownerStr, ok := ownerVal.(string)
+
+	if !ok {
+		return false, nil
+	}
+
+	if ownerStr != owner {
+		return false, nil
+	}
+
+	if expVal, ok := existing["expiration"]; ok {
+		if expNum, ok := toInt64Value(expVal); ok && l.now().Unix() >= expNum {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+func (l *DynamoDbLock) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	l.sleepMs = ms
+
+	return l
 }
 
 func (l *DynamoDbLock) Blocked(ctx context.Context) (bool, error) {

@@ -39,7 +39,7 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.authflows.events != nil {
-		_ = h.authflows.events.Dispatch(ctx, EventPasswordReset)
+		_, _ = h.authflows.events.Dispatch(ctx, EventPasswordReset)
 	}
 
 	h.authflows.responder.PasswordResetResponse(w, r)

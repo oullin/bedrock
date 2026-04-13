@@ -10,6 +10,7 @@ import (
 
 	"github.com/bedrock/packages/auth"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/contracts/events"
 )
 
 // --- Test helpers ---
@@ -137,15 +138,27 @@ func (m *stubCookieManager) Forget(name, path, domain string) *http.Cookie {
 	return &http.Cookie{Name: name, Path: path, Domain: domain, MaxAge: -1}
 }
 
-func (d *recordingDispatcher) Dispatch(_ context.Context, event any) error {
+func (d *recordingDispatcher) Listen(_ any, _ ...events.Listener)          {}
+func (d *recordingDispatcher) HasListeners(_ any) bool                     { return false }
+func (d *recordingDispatcher) HasWildcardListeners(_ any) bool             { return false }
+func (d *recordingDispatcher) Subscribe(_ events.Subscriber)               {}
+func (d *recordingDispatcher) Until(_ context.Context, _ any) (any, error) { return nil, nil }
+
+func (d *recordingDispatcher) Dispatch(_ context.Context, event any) ([]any, error) {
 	d.mu.Lock()
 
 	defer d.mu.Unlock()
 
 	d.events = append(d.events, event)
 
-	return nil
+	return nil, nil
 }
+
+func (d *recordingDispatcher) Push(_ context.Context, _ any)           {}
+func (d *recordingDispatcher) Flush(_ context.Context, _ string) error { return nil }
+func (d *recordingDispatcher) Forget(_ any)                            {}
+func (d *recordingDispatcher) ForgetPushed()                           {}
+func (d *recordingDispatcher) GetListeners(_ any) []events.Listener    { return nil }
 
 func (d *recordingDispatcher) has(t *testing.T, typeName string) {
 	t.Helper()

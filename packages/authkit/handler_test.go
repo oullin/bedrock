@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/contracts/events"
 )
 
 // --- test team user ---
@@ -171,10 +172,21 @@ func (r *testInvitationRepo) Delete(_ context.Context, id string) error {
 	return nil
 }
 
-func (e *testEvents) Dispatch(_ context.Context, event any) error {
+func (e *testEvents) Listen(_ any, _ ...events.Listener)          {}
+func (e *testEvents) HasListeners(_ any) bool                     { return false }
+func (e *testEvents) HasWildcardListeners(_ any) bool             { return false }
+func (e *testEvents) Subscribe(_ events.Subscriber)               {}
+func (e *testEvents) Until(_ context.Context, _ any) (any, error) { return nil, nil }
+func (e *testEvents) Push(_ context.Context, _ any)               {}
+func (e *testEvents) Flush(_ context.Context, _ string) error     { return nil }
+func (e *testEvents) Forget(_ any)                                {}
+func (e *testEvents) ForgetPushed()                               {}
+func (e *testEvents) GetListeners(_ any) []events.Listener        { return nil }
+
+func (e *testEvents) Dispatch(_ context.Context, event any) ([]any, error) {
 	e.dispatched = append(e.dispatched, event)
 
-	return nil
+	return nil, nil
 }
 
 func (a *testCreatesTeams) Create(_ context.Context, _ HasTeams, input map[string]string) (*Team, error) {

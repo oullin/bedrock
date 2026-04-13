@@ -228,6 +228,94 @@ func TestRateLimiterAvailableIn(t *testing.T) {
 	_, _ = rl.AvailableIn(ctx, "key")
 }
 
+func TestRateLimiterIncrementByAmount(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	rl := cache.NewRateLimiter(store)
+	ctx := context.Background()
+
+	count, err := rl.Increment(ctx, "key", 60, 5)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if count != 5 {
+		t.Fatalf("expected 5, got %d", count)
+	}
+
+	count, err = rl.Increment(ctx, "key", 60, 3)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if count != 8 {
+		t.Fatalf("expected 8, got %d", count)
+	}
+}
+
+func TestRateLimiterDecrement(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	rl := cache.NewRateLimiter(store)
+	ctx := context.Background()
+
+	rl.Increment(ctx, "key", 60, 10) //nolint:errcheck
+
+	count, err := rl.Decrement(ctx, "key", 60, 3)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if count != 7 {
+		t.Fatalf("expected 7, got %d", count)
+	}
+}
+
+func TestRateLimiterRetriesLeft(t *testing.T) {
+	t.Parallel()
+
+	store := cache.NewArrayStore()
+	rl := cache.NewRateLimiter(store)
+	ctx := context.Background()
+
+	rl.Hit(ctx, "key", 60) //nolint:errcheck
+	rl.Hit(ctx, "key", 60) //nolint:errcheck
+
+	remaining, _ := rl.Remaining(ctx, "key", 5)
+	retriesLeft, _ := rl.RetriesLeft(ctx, "key", 5)
+
+	if remaining != retriesLeft {
+		t.Fatalf("expected RetriesLeft (%d) to equal Remaining (%d)", retriesLeft, remaining)
+	}
+}
+
+func TestCleanRateLimiterKey(t *testing.T) {
+	t.Parallel()
+
+	result := cache.CleanRateLimiterKey("hello-world")
+
+	if result != "hello-world" {
+		t.Fatalf("expected 'hello-world', got %q", result)
+	}
+
+	result = cache.CleanRateLimiterKey("héllo-wörld")
+
+	if result != "hllo-wrld" {
+		t.Fatalf("expected 'hllo-wrld', got %q", result)
+	}
+
+	result = cache.CleanRateLimiterKey("key:123:日本語")
+
+	if result != "key:123:" {
+		t.Fatalf("expected 'key:123:', got %q", result)
+	}
+}
+
 func TestLimitFactories(t *testing.T) {
 	t.Parallel()
 

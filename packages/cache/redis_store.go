@@ -37,10 +37,11 @@ type RedisStore struct {
 
 // redisLock implements Lock using Redis SET NX.
 type redisLock struct {
-	client RedisClient
-	key    string
-	owner  string
-	ttl    time.Duration
+	client  RedisClient
+	key     string
+	owner   string
+	ttl     time.Duration
+	sleepMs int
 }
 
 var _ Store = (*RedisStore)(nil)
@@ -52,6 +53,12 @@ func NewRedisStore(client RedisClient, prefix string) *RedisStore {
 }
 
 func (s *RedisStore) GetPrefix() string { return s.prefix }
+
+// SetPrefix sets the key prefix.
+func (s *RedisStore) SetPrefix(prefix string) { s.prefix = prefix }
+
+// GetClient returns the underlying Redis client.
+func (s *RedisStore) GetClient() RedisClient { return s.client }
 
 // Tags returns a tag-scoped view of the store.
 func (s *RedisStore) Tags(tags ...string) TaggedCache {
@@ -178,11 +185,17 @@ func (s *RedisStore) Flush(ctx context.Context) error {
 
 func (s *RedisStore) Lock(name, owner string, ttl time.Duration) Lock {
 	return &redisLock{
-		client: s.client,
-		key:    s.prefixed("lock:" + name),
-		owner:  owner,
-		ttl:    ttl,
+		client:  s.client,
+		key:     s.prefixed("lock:" + name),
+		owner:   owner,
+		ttl:     ttl,
+		sleepMs: 50,
 	}
+}
+
+// RestoreLock creates a lock handle from a serialized owner without acquiring.
+func (s *RedisStore) RestoreLock(name, owner string) Lock {
+	return s.Lock(name, owner, 0)
 }
 
 // acquireScript acquires the lock only if it's not held or has expired.
@@ -269,9 +282,31 @@ func (l *redisLock) Block(ctx context.Context, timeout time.Duration) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(time.Duration(l.sleepMs) * time.Millisecond):
 		}
 	}
+}
+
+func (l *redisLock) Owner() string { return l.owner }
+
+func (l *redisLock) IsOwnedByCurrentProcess(ctx context.Context) (bool, error) {
+	return l.IsOwnedBy(ctx, l.owner)
+}
+
+func (l *redisLock) IsOwnedBy(ctx context.Context, owner string) (bool, error) {
+	val, err := l.client.Get(ctx, l.key)
+
+	if err != nil {
+		return false, nil
+	}
+
+	return val == owner, nil
+}
+
+func (l *redisLock) BetweenBlockedAttemptsSleepFor(ms int) Lock {
+	l.sleepMs = ms
+
+	return l
 }
 
 func (l *redisLock) Blocked(ctx context.Context) (bool, error) {
