@@ -48,3 +48,27 @@ func (u *GenericUser) SetRememberToken(token string) {
 }
 
 func (u *GenericUser) GetRememberTokenName() string { return "remember_token" }
+
+// Get returns the value for a given attribute key.
+func (u *GenericUser) Get(key string) (any, bool) {
+	v, ok := u.Attributes[key]
+
+	return v, ok
+}
+
+// Set sets a value for a given attribute key.
+func (u *GenericUser) Set(key string, value any) {
+	u.Attributes[key] = value
+}
+
+// Has reports whether the attribute key exists.
+func (u *GenericUser) Has(key string) bool {
+	_, ok := u.Attributes[key]
+
+	return ok
+}
+
+// Delete removes an attribute by key.
+func (u *GenericUser) Delete(key string) {
+	delete(u.Attributes, key)
+}
