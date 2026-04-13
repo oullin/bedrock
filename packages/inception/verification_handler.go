@@ -12,11 +12,18 @@ type SendVerificationHandler struct {
 }
 
 // NewSendVerificationHandler creates a new send verification handler.
+
+// ServeHTTP handles the send verification notification request.
+
+// VerifyEmailHandler handles GET /verify-email/{id}/{hash} requests.
+type VerifyEmailHandler struct {
+	app *Inception
+}
+
 func NewSendVerificationHandler(app *Inception) *SendVerificationHandler {
 	return &SendVerificationHandler{app: app}
 }
 
-// ServeHTTP handles the send verification notification request.
 func (h *SendVerificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.EmailVerification {
 		http.Error(w, "email verification is disabled", http.StatusNotFound)
@@ -59,11 +66,6 @@ func (h *SendVerificationHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	h.app.responder.EmailVerificationSentResponse(w, r)
-}
-
-// VerifyEmailHandler handles GET /verify-email/{id}/{hash} requests.
-type VerifyEmailHandler struct {
-	app *Inception
 }
 
 // NewVerifyEmailHandler creates a new verify email handler.

@@ -8,11 +8,18 @@ type UpdatePasswordHandler struct {
 }
 
 // NewUpdatePasswordHandler creates a new update password handler.
+
+// ServeHTTP handles the password update request.
+
+// ConfirmPasswordHandler handles POST /user/confirm-password requests.
+type ConfirmPasswordHandler struct {
+	app *Inception
+}
+
 func NewUpdatePasswordHandler(app *Inception) *UpdatePasswordHandler {
 	return &UpdatePasswordHandler{app: app}
 }
 
-// ServeHTTP handles the password update request.
 func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.UpdatePasswords {
 		http.Error(w, "password updates are disabled", http.StatusNotFound)
@@ -43,11 +50,6 @@ func (h *UpdatePasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	h.app.responder.PasswordUpdateResponse(w, r)
-}
-
-// ConfirmPasswordHandler handles POST /user/confirm-password requests.
-type ConfirmPasswordHandler struct {
-	app *Inception
 }
 
 // NewConfirmPasswordHandler creates a new confirm password handler.

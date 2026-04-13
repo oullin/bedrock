@@ -6,6 +6,21 @@ import (
 	"github.com/bedrock/packages/container"
 )
 
+// Direct resolution (not through service-a) should get the default.
+
+// Register a mock config.
+
+// GiveConfig needs a Get method.
+// Since mockConfig doesn't implement configGetter, it should use the fallback.
+
+// Create a config that implements Get.
+
+// unused but shows intent
+
+type configStub struct {
+	data map[string]any
+}
+
 func TestContextualBindingResolvesCorrectImplementation(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +124,6 @@ func TestContextualBindingDoesNotOverrideNonContextualResolution(t *testing.T) {
 		return "special-logger", nil
 	}))
 
-	// Direct resolution (not through service-a) should get the default.
 	v, _ := c.Make("logger")
 
 	if v != "default-logger" {
@@ -164,12 +178,10 @@ func TestContextualBindingGiveConfig(t *testing.T) {
 
 	c := newContainer()
 
-	// Register a mock config.
 	type mockConfig struct{}
+
 	c.Instance("config", &mockConfig{})
 
-	// GiveConfig needs a Get method.
-	// Since mockConfig doesn't implement configGetter, it should use the fallback.
 	c.When("service").Needs("$timeout").GiveConfig("app.timeout", 30)
 
 	c.Bind("service", func(cc *container.Container) (any, error) {
@@ -189,17 +201,17 @@ func TestContextualBindingGiveConfigWithGetter(t *testing.T) {
 	c := newContainer()
 
 	type mockConfig struct{}
+
 	mc := &struct {
 		mockConfig
 	}{}
 
-	// Create a config that implements Get.
 	cfg := &configStub{data: map[string]any{
 		"app.timeout": 60,
 	}}
 	c.Instance("config", cfg)
 
-	_ = mc // unused but shows intent
+	_ = mc
 
 	c.When("service").Needs("$timeout").GiveConfig("app.timeout", 30)
 
@@ -212,10 +224,6 @@ func TestContextualBindingGiveConfigWithGetter(t *testing.T) {
 	if v != 60 {
 		t.Fatalf("expected 60, got %v", v)
 	}
-}
-
-type configStub struct {
-	data map[string]any
 }
 
 func (cs *configStub) Get(key string, fallback ...any) any {

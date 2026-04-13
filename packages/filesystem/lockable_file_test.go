@@ -14,6 +14,7 @@ func TestLockableFileCreateAndClose(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,23 +35,29 @@ func TestLockableFileWriteAndRead(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	n, err := lf.Write([]byte("hello world"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if n != 11 {
 		t.Fatalf("expected 11 bytes written, got %d", n)
 	}
 
 	data, err := lf.Read()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "hello world" {
 		t.Fatalf("expected 'hello world', got %q", string(data))
 	}
@@ -63,17 +70,21 @@ func TestLockableFileReadPartial(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	lf.Write([]byte("hello world"))
 
 	data, err := lf.Read(5)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "hello" {
 		t.Fatalf("expected 'hello', got %q", string(data))
 	}
@@ -86,9 +97,11 @@ func TestLockableFileTruncate(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	lf.Write([]byte("hello world"))
@@ -98,9 +111,11 @@ func TestLockableFileTruncate(t *testing.T) {
 	}
 
 	size, err := lf.Size()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if size != 0 {
 		t.Fatalf("expected size 0 after truncate, got %d", size)
 	}
@@ -113,9 +128,11 @@ func TestLockableFileSharedLock(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	if err := lf.SharedLock(); err != nil {
@@ -134,9 +151,11 @@ func TestLockableFileExclusiveLock(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	if err := lf.ExclusiveLock(); err != nil {
@@ -145,6 +164,7 @@ func TestLockableFileExclusiveLock(t *testing.T) {
 
 	// Write while locked.
 	_, err = lf.Write([]byte("exclusive"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,9 +174,11 @@ func TestLockableFileExclusiveLock(t *testing.T) {
 	}
 
 	data, err := lf.Read()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "exclusive" {
 		t.Fatalf("expected 'exclusive', got %q", string(data))
 	}
@@ -171,15 +193,19 @@ func TestLockableFileMultipleSharedLocks(t *testing.T) {
 	writeFile(t, path, "shared content")
 
 	lf1, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf1.Close()
 
 	lf2, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf2.Close()
 
 	// Both should be able to acquire shared locks.
@@ -207,9 +233,11 @@ func TestLockableFileChmod(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	if err := lf.Chmod(0o755); err != nil {
@@ -217,6 +245,7 @@ func TestLockableFileChmod(t *testing.T) {
 	}
 
 	size, err := lf.Size()
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,9 +262,11 @@ func TestLockableFileCreatesParentDirectories(t *testing.T) {
 	path := filepath.Join(dir, "sub", "deep", "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	if lf.Path() != path {
@@ -250,9 +281,11 @@ func TestLockableFileWriteOverwrite(t *testing.T) {
 	path := filepath.Join(dir, "lockable.txt")
 
 	lf, err := filesystem.NewLockableFile(path, 0o644)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer lf.Close()
 
 	lf.Write([]byte("first"))
@@ -260,9 +293,11 @@ func TestLockableFileWriteOverwrite(t *testing.T) {
 	lf.Write([]byte("second"))
 
 	data, err := lf.Read()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(data) != "second" {
 		t.Fatalf("expected 'second', got %q", string(data))
 	}

@@ -22,6 +22,7 @@ var _ Handler = (*SyslogHandler)(nil)
 // facility and tag.
 func NewSyslogHandler(facility syslog.Priority, tag string, level Level) (*SyslogHandler, error) {
 	w, err := syslog.New(facility, tag)
+
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +40,13 @@ func (h *SyslogHandler) Handle(record Record) error {
 	}
 
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	record = h.ProcessRecord(record)
 
 	formatted, err := h.GetFormatter().Format(record)
+
 	if err != nil {
 		return err
 	}
@@ -78,6 +81,7 @@ func (h *SyslogHandler) IsHandling(level Level) bool {
 // Close closes the syslog writer.
 func (h *SyslogHandler) Close() error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	return h.writer.Close()

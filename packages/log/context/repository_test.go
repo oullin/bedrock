@@ -151,6 +151,7 @@ func TestRepositoryPull(t *testing.T) {
 	r.Add("key", "value")
 
 	v := r.Pull("key")
+
 	if v != "value" {
 		t.Fatalf("expected 'value', got %v", v)
 	}
@@ -166,6 +167,7 @@ func TestRepositoryPullWithFallback(t *testing.T) {
 	r := logctx.New()
 
 	v := r.Pull("missing", "default")
+
 	if v != "default" {
 		t.Fatalf("expected 'default', got %v", v)
 	}
@@ -221,11 +223,13 @@ func TestRepositoryRemember(t *testing.T) {
 
 	v1 := r.Remember("key", func() any {
 		calls++
+
 		return "computed"
 	})
 
 	v2 := r.Remember("key", func() any {
 		calls++
+
 		return "recomputed"
 	})
 
@@ -262,6 +266,7 @@ func TestRepositoryAll(t *testing.T) {
 	r.Add("a", 1).Add("b", 2)
 
 	all := r.All()
+
 	if len(all) != 2 {
 		t.Fatalf("expected 2 entries, got %d", len(all))
 	}
@@ -332,6 +337,7 @@ func TestRepositoryAddHidden(t *testing.T) {
 	}
 
 	all := r.All()
+
 	if _, ok := all["token"]; ok {
 		t.Fatal("expected hidden data to not appear in All()")
 	}
@@ -372,6 +378,7 @@ func TestRepositoryPullHidden(t *testing.T) {
 	r.AddHidden("key", "value")
 
 	v := r.PullHidden("key")
+
 	if v != "value" {
 		t.Fatalf("expected 'value', got %v", v)
 	}
@@ -388,6 +395,7 @@ func TestRepositoryOnlyHidden(t *testing.T) {
 	r.AddHidden("a", 1).AddHidden("b", 2).AddHidden("c", 3)
 
 	result := r.OnlyHidden("a", "c")
+
 	if result["a"] != 1 || result["c"] != 3 {
 		t.Fatalf("expected {a:1, c:3}, got %v", result)
 	}
@@ -404,6 +412,7 @@ func TestRepositoryExceptHidden(t *testing.T) {
 	r.AddHidden("a", 1).AddHidden("b", 2).AddHidden("c", 3)
 
 	result := r.ExceptHidden("b")
+
 	if _, ok := result["b"]; ok {
 		t.Fatal("expected 'b' to be excluded")
 	}
@@ -421,6 +430,7 @@ func TestRepositoryRememberHidden(t *testing.T) {
 
 	v := r.RememberHidden("key", func() any {
 		calls++
+
 		return "secret"
 	})
 
@@ -430,6 +440,7 @@ func TestRepositoryRememberHidden(t *testing.T) {
 
 	v2 := r.RememberHidden("key", func() any {
 		calls++
+
 		return "new"
 	})
 
@@ -449,6 +460,7 @@ func TestRepositoryAllHidden(t *testing.T) {
 	r.AddHidden("a", 1).AddHidden("b", 2)
 
 	all := r.AllHidden()
+
 	if len(all) != 2 {
 		t.Fatalf("expected 2 entries, got %d", len(all))
 	}
@@ -460,6 +472,7 @@ func TestRepositoryAllHiddenEmpty(t *testing.T) {
 	r := logctx.New()
 
 	all := r.AllHidden()
+
 	if len(all) != 0 {
 		t.Fatalf("expected 0 entries, got %d", len(all))
 	}
@@ -475,6 +488,7 @@ func TestRepositoryPush(t *testing.T) {
 	r.Push("items", "c")
 
 	items := r.Get("items").([]any)
+
 	if len(items) != 3 {
 		t.Fatalf("expected 3 items, got %d", len(items))
 	}
@@ -491,11 +505,13 @@ func TestRepositoryPop(t *testing.T) {
 	r.Push("items", "a", "b", "c")
 
 	v := r.Pop("items")
+
 	if v != "c" {
 		t.Fatalf("expected 'c', got %v", v)
 	}
 
 	items := r.Get("items").([]any)
+
 	if len(items) != 2 {
 		t.Fatalf("expected 2 items after pop, got %d", len(items))
 	}
@@ -508,6 +524,7 @@ func TestRepositoryPopEmpty(t *testing.T) {
 
 	defer func() {
 		rec := recover()
+
 		if rec == nil {
 			t.Fatal("expected panic on empty pop")
 		}
@@ -524,6 +541,7 @@ func TestRepositoryPushToNonSlice(t *testing.T) {
 
 	defer func() {
 		rec := recover()
+
 		if rec == nil {
 			t.Fatal("expected panic when pushing to non-slice")
 		}
@@ -555,6 +573,7 @@ func TestRepositoryStackContainsFunc(t *testing.T) {
 
 	found := r.StackContainsFunc("nums", func(v any) bool {
 		n, ok := v.(int)
+
 		return ok && n > 2
 	})
 
@@ -586,6 +605,7 @@ func TestRepositoryHiddenStackContainsFunc(t *testing.T) {
 
 	found := r.HiddenStackContainsFunc("nums", func(v any) bool {
 		n, ok := v.(int)
+
 		return ok && n == 20
 	})
 
@@ -601,6 +621,7 @@ func TestRepositoryPopHidden(t *testing.T) {
 	r.PushHidden("items", "x", "y")
 
 	v := r.PopHidden("items")
+
 	if v != "y" {
 		t.Fatalf("expected 'y', got %v", v)
 	}
@@ -613,6 +634,7 @@ func TestRepositoryPopHiddenEmpty(t *testing.T) {
 
 	defer func() {
 		rec := recover()
+
 		if rec == nil {
 			t.Fatal("expected panic on empty hidden pop")
 		}
@@ -743,6 +765,7 @@ func TestRepositoryDehydrate(t *testing.T) {
 	r.Add("a", 1).Add("b", "two")
 
 	data := r.Dehydrate()
+
 	if data["a"] != 1 || data["b"] != "two" {
 		t.Fatalf("expected {a:1, b:two}, got %v", data)
 	}
@@ -754,6 +777,7 @@ func TestRepositoryDehydrateEmpty(t *testing.T) {
 	r := logctx.New()
 
 	data := r.Dehydrate()
+
 	if data != nil {
 		t.Fatalf("expected nil for empty dehydrate, got %v", data)
 	}

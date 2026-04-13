@@ -23,6 +23,7 @@ type TypeBuilder[T any] struct {
 // Required indicates that this property is required within its parent object.
 func (b *TypeBuilder[T]) Required(required ...bool) *T {
 	v := true
+
 	if len(required) > 0 {
 		v = required[0]
 	}
@@ -37,6 +38,7 @@ func (b *TypeBuilder[T]) Required(required ...bool) *T {
 // Nullable indicates that the type accepts null values.
 func (b *TypeBuilder[T]) Nullable(nullable ...bool) *T {
 	v := true
+
 	if len(nullable) > 0 {
 		v = nullable[0]
 	}
@@ -51,24 +53,28 @@ func (b *TypeBuilder[T]) Nullable(nullable ...bool) *T {
 // Title sets the schema title.
 func (b *TypeBuilder[T]) Title(value string) *T {
 	b.title = &value
+
 	return b.self
 }
 
 // Description sets the schema description.
 func (b *TypeBuilder[T]) Description(value string) *T {
 	b.description = &value
+
 	return b.self
 }
 
 // Enum restricts the value to one of the provided values.
 func (b *TypeBuilder[T]) Enum(values []any) *T {
 	b.enum = values
+
 	return b.self
 }
 
 // ToMap converts the type to its map representation by delegating to Serialize.
 func (b *TypeBuilder[T]) ToMap() map[string]any {
 	result, err := Serialize(b.self)
+
 	if err != nil {
 		panic(err)
 	}
@@ -79,6 +85,7 @@ func (b *TypeBuilder[T]) ToMap() map[string]any {
 // String converts the type to its JSON string representation.
 func (b *TypeBuilder[T]) String() string {
 	data, err := json.MarshalIndent(b.ToMap(), "", "    ")
+
 	if err != nil {
 		return ""
 	}

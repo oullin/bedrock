@@ -51,11 +51,13 @@ func TestObjectWithProperties(t *testing.T) {
 	assertEqual(t, result["description"], "Root object")
 
 	props, ok := result["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected properties to be map[string]any")
 	}
 
 	ageA, ok := props["age-a"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected age-a to be map[string]any")
 	}
@@ -64,6 +66,7 @@ func TestObjectWithProperties(t *testing.T) {
 	assertEqual(t, ageA["minimum"], 0)
 
 	ageB, ok := props["age-b"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected age-b to be map[string]any")
 	}
@@ -73,6 +76,7 @@ func TestObjectWithProperties(t *testing.T) {
 	assertEqual(t, ageB["maximum"], 45)
 
 	required, ok := result["required"].([]string)
+
 	if !ok {
 		t.Fatal("expected required to be []string")
 	}
@@ -96,11 +100,13 @@ func TestObjectWithClosureAndProperties(t *testing.T) {
 	assertEqual(t, result["description"], "Root object")
 
 	props, ok := result["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected properties to be map[string]any")
 	}
 
 	ageA, ok := props["age-a"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected age-a to be map[string]any")
 	}
@@ -109,6 +115,7 @@ func TestObjectWithClosureAndProperties(t *testing.T) {
 	assertEqual(t, ageA["minimum"], 0)
 
 	required, ok := result["required"].([]string)
+
 	if !ok {
 		t.Fatal("expected required to be []string")
 	}
@@ -140,6 +147,7 @@ func TestObjectEnum(t *testing.T) {
 	assertEqual(t, result["type"], "object")
 
 	enum, ok := result["enum"].([]any)
+
 	if !ok {
 		t.Fatal("expected enum to be []any")
 	}

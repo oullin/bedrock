@@ -8,16 +8,25 @@ import (
 	"github.com/bedrock/packages/events"
 )
 
+// Push via null should not store anything.
+
+// Flush on inner should have nothing to dispatch.
+
+// nullTestSubscriber is a test subscriber for NullDispatcher tests.
+type nullTestSubscriber struct{}
+
 func TestNullDispatcher_DispatchIsNoOp(t *testing.T) {
 	t.Parallel()
 
 	inner := events.NewDispatcher()
 	null := events.NewNullDispatcher(inner)
 	ctx := context.Background()
+
 	var called bool
 
 	inner.Listen("e", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -65,14 +74,13 @@ func TestNullDispatcher_PushIsNoOp(t *testing.T) {
 	null := events.NewNullDispatcher(inner)
 	ctx := context.Background()
 
-	// Push via null should not store anything.
 	null.Push(ctx, "e")
 
-	// Flush on inner should have nothing to dispatch.
 	var called bool
 
 	inner.Listen("e", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -177,6 +185,7 @@ func TestNullDispatcher_ForgetPushedDelegates(t *testing.T) {
 
 	inner.Listen("e", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -217,9 +226,6 @@ func TestNullDispatcher_SubscribeDelegates(t *testing.T) {
 		t.Fatal("expected subscriber to register listeners on inner dispatcher")
 	}
 }
-
-// nullTestSubscriber is a test subscriber for NullDispatcher tests.
-type nullTestSubscriber struct{}
 
 func (s *nullTestSubscriber) Subscribe(d cevents.Dispatcher) {
 	d.Listen("sub.event", func(ctx context.Context, event any) (any, error) {

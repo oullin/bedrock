@@ -42,6 +42,7 @@ func TestDeleteMultiple(t *testing.T) {
 	if _, err := os.Stat(path1); !os.IsNotExist(err) {
 		t.Fatal("expected file1 to be deleted")
 	}
+
 	if _, err := os.Stat(path2); !os.IsNotExist(err) {
 		t.Fatal("expected file2 to be deleted")
 	}
@@ -77,6 +78,7 @@ func TestMove(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(dst)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,17 +104,21 @@ func TestCopy(t *testing.T) {
 
 	// Source should still exist.
 	srcData, err := os.ReadFile(src)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(srcData) != "content" {
 		t.Fatalf("expected source to be unchanged, got %q", string(srcData))
 	}
 
 	dstData, err := os.ReadFile(dst)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if string(dstData) != "content" {
 		t.Fatalf("expected 'content', got %q", string(dstData))
 	}
@@ -134,6 +140,7 @@ func TestCopyPreservesPermissions(t *testing.T) {
 	}
 
 	info, err := os.Stat(dst)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,6 +165,7 @@ func TestLink(t *testing.T) {
 	}
 
 	resolved, err := os.Readlink(link)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,6 +175,7 @@ func TestLink(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(link)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,6 +200,7 @@ func TestRelativeLink(t *testing.T) {
 	}
 
 	resolved, err := os.Readlink(link)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,6 +211,7 @@ func TestRelativeLink(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(link)
+
 	if err != nil {
 		t.Fatal(err)
 	}

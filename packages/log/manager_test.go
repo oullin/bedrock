@@ -12,6 +12,11 @@ import (
 	"github.com/bedrock/packages/log"
 )
 
+type closableSpyHandler struct {
+	*spyHandler
+	onClose func()
+}
+
 func newTestConfig(channels map[string]any) *config.Repository {
 	return config.New(map[string]any{
 		"logging": map[string]any{
@@ -55,11 +60,13 @@ func TestManagerChannelCaching(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch1, err := m.Channel("single")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
 
 	ch2, err := m.Channel("single")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -85,6 +92,7 @@ func TestManagerSingleDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Channel("file")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -93,6 +101,7 @@ func TestManagerSingleDriver(t *testing.T) {
 	m.ForgetChannel("file")
 
 	data, _ := os.ReadFile(path)
+
 	if !strings.Contains(string(data), "single driver test") {
 		t.Fatalf("expected file to contain log message, got %q", string(data))
 	}
@@ -114,6 +123,7 @@ func TestManagerDailyDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Channel("daily")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -122,6 +132,7 @@ func TestManagerDailyDriver(t *testing.T) {
 	m.ForgetChannel("daily")
 
 	matches, _ := filepath.Glob(filepath.Join(dir, "daily-*.log"))
+
 	if len(matches) == 0 {
 		t.Fatal("expected rotated file to exist")
 	}
@@ -140,6 +151,7 @@ func TestManagerErrorlogDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Channel("stderr")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -161,6 +173,7 @@ func TestManagerNullDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Channel("null")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -196,6 +209,7 @@ func TestManagerStackDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Channel("stack")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -234,6 +248,7 @@ func TestManagerCustomDriver(t *testing.T) {
 	})
 
 	ch, err := m.Channel("custom")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -263,6 +278,7 @@ func TestManagerCustomDriverOverride(t *testing.T) {
 	})
 
 	ch, err := m.Channel("override")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -288,6 +304,7 @@ func TestManagerBuild(t *testing.T) {
 			return log.NewStreamHandler(&buf, log.LevelDebug), nil
 		},
 	})
+
 	if err != nil {
 		t.Fatalf("Build: %v", err)
 	}
@@ -308,11 +325,13 @@ func TestManagerBuildDoesNotCache(t *testing.T) {
 	_, err := m.Build(log.ChannelConfig{
 		Driver: log.DriverNull,
 	})
+
 	if err != nil {
 		t.Fatalf("Build: %v", err)
 	}
 
 	channels := m.GetChannels()
+
 	if len(channels) != 0 {
 		t.Fatalf("expected no cached channels after Build, got %d", len(channels))
 	}
@@ -340,6 +359,7 @@ func TestManagerShareContext(t *testing.T) {
 	ch.Info("shared context test")
 
 	record := spy.LastRecord()
+
 	if record.Context["req_id"] != "xyz" {
 		t.Fatalf("expected req_id = xyz, got %v", record.Context["req_id"])
 	}
@@ -355,6 +375,7 @@ func TestManagerSharedContextMerge(t *testing.T) {
 	m.ShareContext(map[string]any{"b": 2})
 
 	ctx := m.SharedContext()
+
 	if ctx["a"] != 1 {
 		t.Fatalf("expected a = 1, got %v", ctx["a"])
 	}
@@ -374,6 +395,7 @@ func TestManagerFlushSharedContext(t *testing.T) {
 	m.FlushSharedContext()
 
 	ctx := m.SharedContext()
+
 	if len(ctx) != 0 {
 		t.Fatalf("expected empty shared context after flush, got %v", ctx)
 	}
@@ -389,6 +411,7 @@ func TestManagerWithoutContext(t *testing.T) {
 	m.WithoutContext("a")
 
 	ctx := m.SharedContext()
+
 	if _, ok := ctx["a"]; ok {
 		t.Fatal("expected key 'a' to be removed")
 	}
@@ -410,6 +433,7 @@ func TestManagerForgetChannel(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	_, err := m.Channel("null")
+
 	if err != nil {
 		t.Fatalf("Channel: %v", err)
 	}
@@ -454,13 +478,9 @@ func TestManagerForgetChannelClosesHandler(t *testing.T) {
 	}
 }
 
-type closableSpyHandler struct {
-	*spyHandler
-	onClose func()
-}
-
 func (h *closableSpyHandler) Close() error {
 	h.onClose()
+
 	return nil
 }
 
@@ -509,6 +529,7 @@ func TestManagerTapMultipleCallbacks(t *testing.T) {
 	})
 
 	var order []int
+
 	m.Tap(func(_ *log.Logger) { order = append(order, 1) })
 	m.Tap(func(_ *log.Logger) { order = append(order, 2) })
 
@@ -551,6 +572,7 @@ func TestManagerUnsupportedDriver(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	_, err := m.Channel("bad")
+
 	if err == nil {
 		t.Fatal("expected error for unsupported driver")
 	}
@@ -567,6 +589,7 @@ func TestManagerChannelNotConfigured(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	_, err := m.Channel("nonexistent")
+
 	if err == nil {
 		t.Fatal("expected error for non-configured channel")
 	}
@@ -615,6 +638,7 @@ func TestManagerDelegatesLevelMethods(t *testing.T) {
 	m.Log(log.LevelInfo, "l")
 
 	records := spy.Records()
+
 	if len(records) != 9 {
 		t.Fatalf("expected 9 records, got %d", len(records))
 	}
@@ -649,6 +673,7 @@ func TestManagerDriverAlias(t *testing.T) {
 	m := log.NewManager(cfg)
 
 	ch, err := m.Driver("null")
+
 	if err != nil {
 		t.Fatalf("Driver: %v", err)
 	}
@@ -679,6 +704,7 @@ func TestManagerWithEventDispatcher(t *testing.T) {
 	m.Info("event test")
 
 	events := dispatcher.Events()
+
 	if len(events) != 1 {
 		t.Fatalf("expected 1 event, got %d", len(events))
 	}
@@ -706,6 +732,7 @@ func TestManagerStackMethod(t *testing.T) {
 	m.Extend("spy-b", func(_ log.ChannelConfig) (log.Handler, error) { return spy2, nil })
 
 	logger, err := m.Stack([]string{"a", "b"})
+
 	if err != nil {
 		t.Fatalf("Stack: %v", err)
 	}
@@ -742,6 +769,7 @@ func TestManagerShareContextWithExistingChannels(t *testing.T) {
 	ch.Info("after share")
 
 	record := spy.LastRecord()
+
 	if record.Context["late_ctx"] != "added" {
 		t.Fatalf("expected shared context on existing channel, got %v", record.Context)
 	}
@@ -765,6 +793,7 @@ func TestManagerFormatterConfiguration(t *testing.T) {
 	m.Extend("custom-fmt", func(_ log.ChannelConfig) (log.Handler, error) {
 		h := log.NewStreamHandler(&buf, log.LevelDebug)
 		h.SetFormatter(formatter)
+
 		return h, nil
 	})
 
@@ -793,8 +822,10 @@ func TestManagerProcessorConfiguration(t *testing.T) {
 		h := log.NewStreamHandler(&buf, log.LevelDebug)
 		h.AddProcessor(log.ProcessorFunc(func(r log.Record) log.Record {
 			r.Extra["memory"] = "128MB"
+
 			return r
 		}))
+
 		return h, nil
 	})
 

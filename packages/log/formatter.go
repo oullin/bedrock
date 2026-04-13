@@ -13,9 +13,9 @@ type Formatter interface {
 
 // LineFormatter produces human-readable single-line log output.
 type LineFormatter struct {
-	DateFormat    string
+	DateFormat     string
 	IncludeContext bool
-	LineSeparator string
+	LineSeparator  string
 }
 
 var _ Formatter = (*LineFormatter)(nil)
@@ -23,9 +23,9 @@ var _ Formatter = (*LineFormatter)(nil)
 // NewLineFormatter creates a LineFormatter with sensible defaults.
 func NewLineFormatter() *LineFormatter {
 	return &LineFormatter{
-		DateFormat:    time.RFC3339,
+		DateFormat:     time.RFC3339,
 		IncludeContext: true,
-		LineSeparator: "\n",
+		LineSeparator:  "\n",
 	}
 }
 
@@ -39,6 +39,7 @@ func (f *LineFormatter) Format(record Record) ([]byte, error) {
 
 	if f.IncludeContext && len(record.Context) > 0 {
 		ctx, err := json.Marshal(record.Context)
+
 		if err != nil {
 			return nil, fmt.Errorf("log: failed to marshal context: %w", err)
 		}
@@ -48,6 +49,7 @@ func (f *LineFormatter) Format(record Record) ([]byte, error) {
 
 	if len(record.Extra) > 0 {
 		extra, err := json.Marshal(record.Extra)
+
 		if err != nil {
 			return nil, fmt.Errorf("log: failed to marshal extra: %w", err)
 		}

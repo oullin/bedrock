@@ -33,13 +33,14 @@ func (d *GoroutineDriver) Run(ctx context.Context, tasks []Task) ([]any, error) 
 	results := make([]any, len(tasks))
 
 	ctx, cancel := context.WithCancel(ctx)
+
 	defer cancel()
 
 	var (
-		wg      sync.WaitGroup
-		once    sync.Once
+		wg       sync.WaitGroup
+		once     sync.Once
 		firstErr error
-		sem     chan struct{}
+		sem      chan struct{}
 	)
 
 	if d.maxConcurrency > 0 {
@@ -58,6 +59,7 @@ func (d *GoroutineDriver) Run(ctx context.Context, tasks []Task) ([]any, error) 
 					defer func() { <-sem }()
 				case <-ctx.Done():
 					once.Do(func() { firstErr = ctx.Err() })
+
 					return
 				}
 			}
@@ -67,6 +69,7 @@ func (d *GoroutineDriver) Run(ctx context.Context, tasks []Task) ([]any, error) 
 			}
 
 			val, err := d.safeCall(fn)
+
 			if err != nil {
 				once.Do(func() {
 					firstErr = err

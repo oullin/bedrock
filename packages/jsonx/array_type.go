@@ -20,24 +20,28 @@ func newArrayType() *ArrayType {
 // Min sets the minimum number of items (inclusive).
 func (t *ArrayType) Min(value int) *ArrayType {
 	t.minItems = &value
+
 	return t
 }
 
 // Max sets the maximum number of items (inclusive).
 func (t *ArrayType) Max(value int) *ArrayType {
 	t.maxItems = &value
+
 	return t
 }
 
 // Items sets the schema for array items.
 func (t *ArrayType) Items(schema SchemaType) *ArrayType {
 	t.items = schema
+
 	return t
 }
 
 // Unique indicates that the array items must be unique.
 func (t *ArrayType) Unique(unique ...bool) *ArrayType {
 	v := true
+
 	if len(unique) > 0 {
 		v = unique[0]
 	}
@@ -52,5 +56,6 @@ func (t *ArrayType) Unique(unique ...bool) *ArrayType {
 // Default sets the default value for the array type.
 func (t *ArrayType) Default(value []any) *ArrayType {
 	t.defaultVal = value
+
 	return t
 }

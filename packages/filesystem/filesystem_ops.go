@@ -26,12 +26,15 @@ func (f *Filesystem) Move(path, target string) error {
 // Copy copies a file from path to target.
 func (f *Filesystem) Copy(path, target string) error {
 	src, err := os.Open(path)
+
 	if err != nil {
 		return err
 	}
+
 	defer src.Close()
 
 	info, err := src.Stat()
+
 	if err != nil {
 		return err
 	}
@@ -41,12 +44,15 @@ func (f *Filesystem) Copy(path, target string) error {
 	}
 
 	dst, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, info.Mode())
+
 	if err != nil {
 		return err
 	}
+
 	defer dst.Close()
 
 	_, err = io.Copy(dst, src)
+
 	return err
 }
 
@@ -60,6 +66,7 @@ func (f *Filesystem) RelativeLink(target, link string) error {
 	linkDir := filepath.Dir(link)
 
 	rel, err := filepath.Rel(linkDir, target)
+
 	if err != nil {
 		return err
 	}

@@ -42,6 +42,7 @@ func Truthy(value any) bool {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	switch rv.Kind() {
 	case reflect.Ptr, reflect.Interface, reflect.Slice, reflect.Map, reflect.Chan, reflect.Func:
 		return !rv.IsNil()
