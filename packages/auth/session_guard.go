@@ -3,10 +3,12 @@ package auth
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	cauth "github.com/bedrock/packages/contracts/auth"
 	"github.com/bedrock/packages/contracts/events"
@@ -16,17 +18,19 @@ import (
 
 // SessionGuard is the stateful, cookie+session backed authentication guard.
 type SessionGuard struct {
-	mu            sync.RWMutex
-	name          string
-	provider      cauth.UserProvider
-	session       SessionStore
-	cookies       CookieManager
-	hasher        cauth.PasswordHasher
-	request       *http.Request
-	user          cauth.Authenticatable
-	viaRemember   bool
-	remCookieName string
-	events        events.Dispatcher
+	mu               sync.RWMutex
+	name             string
+	provider         cauth.UserProvider
+	session          SessionStore
+	cookies          CookieManager
+	hasher           cauth.PasswordHasher
+	request          *http.Request
+	user             cauth.Authenticatable
+	lastAttempted    cauth.Authenticatable
+	viaRemember      bool
+	remCookieName    string
+	rememberDuration time.Duration
+	events           events.Dispatcher
 }
 
 const sessionKey = "_auth_user"
@@ -40,12 +44,13 @@ func NewSessionGuard(
 	hasher cauth.PasswordHasher,
 ) *SessionGuard {
 	return &SessionGuard{
-		name:          name,
-		provider:      provider,
-		session:       session,
-		cookies:       cookies,
-		hasher:        hasher,
-		remCookieName: name + "_remember",
+		name:             name,
+		provider:         provider,
+		session:          session,
+		cookies:          cookies,
+		hasher:           hasher,
+		remCookieName:    name + "_remember",
+		rememberDuration: 5 * 365 * 24 * time.Hour,
 	}
 }
 
@@ -133,6 +138,11 @@ func (g *SessionGuard) User(ctx context.Context) (cauth.Authenticatable, error) 
 				user, err := g.provider.RetrieveByToken(ctx, rec.ID(), rec.Token())
 
 				if err == nil && user != nil {
+					// Validate the password hash segment if present.
+					if rec.Hash() != "" && rec.Hash() != HashPasswordForCookie(user.GetAuthPassword()) {
+						return nil, nil
+					}
+
 					g.user = user
 					g.viaRemember = true
 					g.session.Put(sessionKey, user.GetAuthIdentifier())
@@ -200,6 +210,10 @@ func (g *SessionGuard) Attempt(ctx context.Context, credentials map[string]strin
 		return false
 	}
 
+	g.mu.Lock()
+	g.lastAttempted = user
+	g.mu.Unlock()
+
 	valid, err := g.provider.ValidateCredentials(ctx, user, credentials)
 
 	if err != nil || !valid {
@@ -212,6 +226,54 @@ func (g *SessionGuard) Attempt(ctx context.Context, credentials map[string]strin
 	_ = g.Login(ctx, user, remember)
 
 	return true
+}
+
+// AttemptWhen attempts to authenticate with credentials and runs callbacks
+// before logging in. If any callback returns false, login is aborted.
+func (g *SessionGuard) AttemptWhen(ctx context.Context, credentials map[string]string, callbacks []func(cauth.Authenticatable) bool, remember bool) bool {
+	g.dispatch(ctx, authevents.Attempting{Guard: g.name, Credentials: credentials, Remember: remember})
+
+	user, err := g.provider.RetrieveByCredentials(ctx, credentials)
+
+	if err != nil || user == nil {
+		g.dispatch(ctx, authevents.Failed{Guard: g.name, User: nil, Credentials: credentials})
+
+		return false
+	}
+
+	g.mu.Lock()
+	g.lastAttempted = user
+	g.mu.Unlock()
+
+	valid, err := g.provider.ValidateCredentials(ctx, user, credentials)
+
+	if err != nil || !valid {
+		g.dispatch(ctx, authevents.Failed{Guard: g.name, User: user, Credentials: credentials})
+
+		return false
+	}
+
+	for _, cb := range callbacks {
+		if !cb(user) {
+			g.dispatch(ctx, authevents.Failed{Guard: g.name, User: user, Credentials: credentials})
+
+			return false
+		}
+	}
+
+	g.dispatch(ctx, authevents.Validated{Guard: g.name, User: user})
+	_ = g.Login(ctx, user, remember)
+
+	return true
+}
+
+// GetLastAttempted returns the last user that was attempted to be authenticated.
+func (g *SessionGuard) GetLastAttempted() cauth.Authenticatable {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.lastAttempted
 }
 
 // Once authenticates for a single request without persisting state.
@@ -247,9 +309,9 @@ func (g *SessionGuard) Login(ctx context.Context, user cauth.Authenticatable, re
 		if g.cookies != nil {
 			g.cookies.Queue(&http.Cookie{
 				Name:     g.remCookieName,
-				Value:    fmt.Sprintf("%v|%s|%s", user.GetAuthIdentifier(), user.GetRememberToken(), ""),
+				Value:    fmt.Sprintf("%s|%s|%s", user.GetAuthIdentifier(), user.GetRememberToken(), HashPasswordForCookie(user.GetAuthPassword())),
 				Path:     "/",
-				MaxAge:   int((24 * 365 * 60 * 60)), // ~1 year
+				MaxAge:   int(g.rememberDuration.Seconds()),
 				HttpOnly: true,
 			})
 		}
@@ -263,6 +325,19 @@ func (g *SessionGuard) Login(ctx context.Context, user cauth.Authenticatable, re
 	g.dispatch(ctx, authevents.Authenticated{Guard: g.name, User: user})
 
 	return nil
+}
+
+// HashPasswordForCookie returns the first 10 characters of the SHA1 hash of the
+// password, used to validate remember-me cookies (matches Laravel's format).
+func HashPasswordForCookie(passwordHash string) string {
+	h := sha1.Sum([]byte(passwordHash))
+	full := hex.EncodeToString(h[:])
+
+	if len(full) > 10 {
+		return full[:10]
+	}
+
+	return full
 }
 
 // LoginUsingID logs in the user identified by id.
@@ -371,6 +446,160 @@ func (g *SessionGuard) LogoutOtherDevices(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// Basic performs HTTP Basic authentication using the guard's request. The field
+// parameter is the credential key for the username (default "email").
+func (g *SessionGuard) Basic(ctx context.Context, field string, extraConditions map[string]string) bool {
+	if g.Check(ctx) {
+		return true
+	}
+
+	if field == "" {
+		field = "email"
+	}
+
+	g.mu.RLock()
+	req := g.request
+	g.mu.RUnlock()
+
+	if req == nil {
+		return false
+	}
+
+	username, password, ok := req.BasicAuth()
+
+	if !ok || username == "" {
+		return false
+	}
+
+	credentials := map[string]string{field: username, "password": password}
+
+	for k, v := range extraConditions {
+		credentials[k] = v
+	}
+
+	return g.Attempt(ctx, credentials, false)
+}
+
+// OnceBasic performs stateless HTTP Basic authentication (single request).
+func (g *SessionGuard) OnceBasic(ctx context.Context, field string, extraConditions map[string]string) bool {
+	if g.Check(ctx) {
+		return true
+	}
+
+	if field == "" {
+		field = "email"
+	}
+
+	g.mu.RLock()
+	req := g.request
+	g.mu.RUnlock()
+
+	if req == nil {
+		return false
+	}
+
+	username, password, ok := req.BasicAuth()
+
+	if !ok || username == "" {
+		return false
+	}
+
+	credentials := map[string]string{field: username, "password": password}
+
+	for k, v := range extraConditions {
+		credentials[k] = v
+	}
+
+	return g.Once(ctx, credentials)
+}
+
+// GetName returns the unique name for this guard instance.
+func (g *SessionGuard) GetName() string { return g.name }
+
+// GetRecallerName returns the cookie name used for the remember-me cookie.
+func (g *SessionGuard) GetRecallerName() string { return g.remCookieName }
+
+// GetCookieJar returns the cookie manager.
+func (g *SessionGuard) GetCookieJar() CookieManager {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.cookies
+}
+
+// SetCookieJar sets the cookie manager.
+func (g *SessionGuard) SetCookieJar(c CookieManager) {
+	g.mu.Lock()
+
+	defer g.mu.Unlock()
+
+	g.cookies = c
+}
+
+// GetDispatcher returns the event dispatcher.
+func (g *SessionGuard) GetDispatcher() events.Dispatcher {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.events
+}
+
+// GetSession returns the session store.
+func (g *SessionGuard) GetSession() SessionStore {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.session
+}
+
+// GetUser returns the currently authenticated user without triggering resolution.
+func (g *SessionGuard) GetUser() cauth.Authenticatable {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.user
+}
+
+// GetRequest returns the current HTTP request.
+func (g *SessionGuard) GetRequest() *http.Request {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.request
+}
+
+// GetProvider returns the user provider.
+func (g *SessionGuard) GetProvider() cauth.UserProvider {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.provider
+}
+
+// SetProvider sets the user provider.
+func (g *SessionGuard) SetProvider(p cauth.UserProvider) {
+	g.mu.Lock()
+
+	defer g.mu.Unlock()
+
+	g.provider = p
+}
+
+// SetRememberDuration sets the remember-me cookie duration in minutes.
+func (g *SessionGuard) SetRememberDuration(minutes int) {
+	g.mu.Lock()
+
+	defer g.mu.Unlock()
+
+	g.rememberDuration = time.Duration(minutes) * time.Minute
 }
 
 func (g *SessionGuard) refreshRememberToken(ctx context.Context, user cauth.Authenticatable) error {

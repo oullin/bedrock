@@ -380,6 +380,17 @@ func TestDatabaseBatchRepositoryDefaultTable(t *testing.T) {
 func (r *mockDynamicResult) LastInsertId() (int64, error) { return 0, nil }
 func (r *mockDynamicResult) RowsAffected() (int64, error) { return r.fn(), nil }
 
+func TestDatabaseBatchRepositoryRollBack(t *testing.T) {
+	db := newMockDBExecutor()
+	repo := bus.NewDatabaseBatchRepository(db, "job_batches")
+
+	err := repo.RollBack(context.Background())
+
+	if err != nil {
+		t.Errorf("expected no error from RollBack, got %v", err)
+	}
+}
+
 // Ensure DatabaseBatchRepository satisfies the interfaces.
 var _ bus.BatchRepository = (*bus.DatabaseBatchRepository)(nil)
 

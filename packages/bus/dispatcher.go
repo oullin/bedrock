@@ -12,12 +12,14 @@ import (
 
 // BusDispatcher is the concrete implementation of QueueingDispatcher.
 type BusDispatcher struct {
-	mu           sync.RWMutex
-	handlers     map[reflect.Type]Handler
-	pipes        []Pipe
-	deferred     []any
-	queueBackend queue.Queue
-	batchRepo    BatchRepository
+	mu                     sync.RWMutex
+	handlers               map[reflect.Type]Handler
+	pipes                  []Pipe
+	deferred               []any
+	queueBackend           queue.Queue
+	batchRepo              BatchRepository
+	eventFunc              EventFunc
+	dispatchAfterResponses bool
 }
 
 // NewDispatcher creates a BusDispatcher.
@@ -54,8 +56,56 @@ func (d *BusDispatcher) PipeThrough(pipes ...Pipe) Dispatcher {
 	return d
 }
 
-// Dispatch sends the command through the pipeline and executes it synchronously.
+// CommandShouldBeQueued reports whether the command implements ShouldQueue.
+func (d *BusDispatcher) CommandShouldBeQueued(command any) bool {
+	_, ok := command.(ShouldQueue)
+
+	return ok
+}
+
+// WithDispatchingAfterResponses enables after-response dispatch mode.
+func (d *BusDispatcher) WithDispatchingAfterResponses() *BusDispatcher {
+	d.mu.Lock()
+
+	defer d.mu.Unlock()
+
+	d.dispatchAfterResponses = true
+
+	return d
+}
+
+// WithoutDispatchingAfterResponses disables after-response dispatch mode.
+func (d *BusDispatcher) WithoutDispatchingAfterResponses() *BusDispatcher {
+	d.mu.Lock()
+
+	defer d.mu.Unlock()
+
+	d.dispatchAfterResponses = false
+
+	return d
+}
+
+// SetEventFunc sets the event callback for batch lifecycle events.
+func (d *BusDispatcher) SetEventFunc(fn EventFunc) {
+	d.eventFunc = fn
+}
+
+// Dispatch sends the command through the pipeline and executes it.
+// If the command implements ShouldQueue, it is dispatched to the queue.
+// If dispatchAfterResponses is enabled, the command is deferred.
 func (d *BusDispatcher) Dispatch(ctx context.Context, command any) (any, error) {
+	d.mu.RLock()
+	afterResponses := d.dispatchAfterResponses
+	d.mu.RUnlock()
+
+	if afterResponses {
+		return nil, d.DispatchAfterResponse(ctx, command)
+	}
+
+	if d.CommandShouldBeQueued(command) {
+		return nil, d.DispatchToQueue(ctx, command)
+	}
+
 	return d.runThroughPipeline(ctx, command)
 }
 
@@ -160,6 +210,7 @@ func (d *BusDispatcher) Chain(jobs []any) *PendingChain {
 func (d *BusDispatcher) Batch(jobs []any) *PendingBatch {
 	pb := NewPendingBatch(d, jobs)
 	pb.batchRepo = d.batchRepo
+	pb.eventFunc = d.eventFunc
 
 	return pb
 }

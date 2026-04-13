@@ -26,6 +26,14 @@ type customQueueCommand struct {
 
 type anotherCommand struct{ Name string }
 
+// Second flush should be a no-op.
+
+// queueableCommand implements ShouldQueue.
+type queueableCommand struct {
+	bus.Queueable
+	Value string
+}
+
 func TestDispatcherSyncDispatch(t *testing.T) {
 	d := bus.NewDispatcher(nil, nil)
 	d.Map(testCommand{}, func(ctx context.Context, cmd any) (any, error) {
@@ -372,7 +380,6 @@ func TestFlushDeferredClearsBuffer(t *testing.T) {
 		t.Fatalf("expected 1, got %d", count)
 	}
 
-	// Second flush should be a no-op.
 	if err := d.FlushDeferred(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -494,5 +501,135 @@ func TestChainReturnsNonNil(t *testing.T) {
 
 	if chain == nil {
 		t.Fatal("expected non-nil PendingChain")
+	}
+}
+
+func (queueableCommand) ShouldQueue() {}
+
+func TestCommandShouldBeQueued(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	if d.CommandShouldBeQueued(testCommand{}) {
+		t.Error("expected testCommand to NOT be queued")
+	}
+
+	if !d.CommandShouldBeQueued(queueableCommand{Value: "test"}) {
+		t.Error("expected queueableCommand to be queued")
+	}
+}
+
+func TestDispatchRoutesToQueueWhenShouldQueue(t *testing.T) {
+	q := newMockQueue()
+	d := bus.NewDispatcher(q, nil)
+
+	_, err := d.Dispatch(context.Background(), queueableCommand{Value: "queued"})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	q.mu.Lock()
+	count := len(q.pushes)
+	q.mu.Unlock()
+
+	if count != 1 {
+		t.Errorf("expected 1 queue push for ShouldQueue command, got %d", count)
+	}
+}
+
+func TestDispatchExecutesSyncWhenNotShouldQueue(t *testing.T) {
+	q := newMockQueue()
+	d := bus.NewDispatcher(q, nil)
+
+	d.Map(testCommand{}, func(_ context.Context, cmd any) (any, error) {
+		return cmd.(testCommand).Value, nil
+	})
+
+	result, err := d.Dispatch(context.Background(), testCommand{Value: "sync"})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "sync" {
+		t.Errorf("expected 'sync', got %v", result)
+	}
+
+	q.mu.Lock()
+	count := len(q.pushes)
+	q.mu.Unlock()
+
+	if count != 0 {
+		t.Errorf("expected 0 queue pushes for non-ShouldQueue command, got %d", count)
+	}
+}
+
+func TestWithDispatchingAfterResponses(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	count := 0
+	d.Map(testCommand{}, func(_ context.Context, _ any) (any, error) {
+		count++
+
+		return nil, nil
+	})
+
+	d.WithDispatchingAfterResponses()
+
+	_, _ = d.Dispatch(context.Background(), testCommand{Value: "deferred"})
+
+	if count != 0 {
+		t.Error("expected command to be deferred, not executed immediately")
+	}
+
+	_ = d.FlushDeferred(context.Background())
+
+	if count != 1 {
+		t.Errorf("expected deferred command to run after flush, got %d", count)
+	}
+}
+
+func TestWithoutDispatchingAfterResponses(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+	d.Map(testCommand{}, func(_ context.Context, _ any) (any, error) {
+		return "executed", nil
+	})
+
+	d.WithDispatchingAfterResponses()
+	d.WithoutDispatchingAfterResponses()
+
+	result, err := d.Dispatch(context.Background(), testCommand{Value: "sync"})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "executed" {
+		t.Errorf("expected 'executed', got %v", result)
+	}
+}
+
+func TestBatchDispatchedEvent(t *testing.T) {
+	q := newMockQueue()
+
+	var firedEvent any
+
+	d := bus.NewDispatcher(q, nil)
+	d.SetEventFunc(func(event any) { firedEvent = event })
+
+	pb := d.Batch([]any{"job1"})
+
+	_, err := pb.Dispatch(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if firedEvent == nil {
+		t.Fatal("expected BatchDispatched event")
+	}
+
+	if _, ok := firedEvent.(bus.BatchDispatched); !ok {
+		t.Errorf("expected BatchDispatched, got %T", firedEvent)
 	}
 }

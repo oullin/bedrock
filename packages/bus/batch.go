@@ -30,6 +30,7 @@ type Batch struct {
 
 	repo       BatchRepository
 	dispatcher QueueingDispatcher
+	eventFunc  EventFunc
 }
 
 // NewBatchWithRepo creates a Batch with the given ID and repository.
@@ -74,6 +75,11 @@ func NewBatchWithRepo(id string, repo BatchRepository) *Batch {
 	}
 }
 
+// SetEventFunc sets the event callback for batch lifecycle events.
+func (b *Batch) SetEventFunc(fn EventFunc) {
+	b.eventFunc = fn
+}
+
 func (b *Batch) Finished() bool {
 	b.mu.RLock()
 
@@ -100,52 +106,98 @@ func (b *Batch) HasFailures() bool {
 
 func (b *Batch) Cancel(ctx context.Context) error {
 	if b.repo != nil {
-		return b.repo.Cancel(ctx, b.ID)
+		if err := b.repo.Cancel(ctx, b.ID); err != nil {
+			return err
+		}
+	} else {
+		b.mu.Lock()
+		now := time.Now()
+		b.CancelledAt = &now
+		b.mu.Unlock()
 	}
 
-	b.mu.Lock()
-
-	defer b.mu.Unlock()
-
-	now := time.Now()
-	b.CancelledAt = &now
+	if b.eventFunc != nil {
+		b.eventFunc(BatchCanceled{Batch: b})
+	}
 
 	return nil
 }
 
 func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts, error) {
+	var counts *UpdatedBatchJobCounts
+
 	if b.repo != nil {
-		return b.repo.DecrementPendingJobs(ctx, b.ID)
+		var err error
+
+		counts, err = b.repo.DecrementPendingJobs(ctx, b.ID)
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		b.mu.Lock()
+
+		if b.PendingJobs > 0 {
+			b.PendingJobs--
+		}
+
+		counts = &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}
+		b.mu.Unlock()
 	}
 
-	b.mu.Lock()
+	b.InvokeProgressCallbacks(ctx)
 
-	defer b.mu.Unlock()
+	if counts.AllJobsRanExactlyOnce() {
+		b.InvokeThenCallbacks(ctx)
 
-	if b.PendingJobs > 0 {
-		b.PendingJobs--
+		if b.repo != nil {
+			_ = b.repo.MarkAsFinished(ctx, b.ID)
+		}
+
+		if b.eventFunc != nil {
+			b.eventFunc(BatchFinished{Batch: b})
+		}
 	}
 
-	return &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}, nil
+	if counts.PendingJobs == 0 {
+		b.InvokeFinallyCallbacks(ctx)
+	}
+
+	return counts, nil
 }
 
-func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string) (*UpdatedBatchJobCounts, error) {
+func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string, err error) (*UpdatedBatchJobCounts, error) {
+	var counts *UpdatedBatchJobCounts
+
 	if b.repo != nil {
-		return b.repo.IncrementFailedJobs(ctx, b.ID, failedJobID)
+		var repoErr error
+
+		counts, repoErr = b.repo.IncrementFailedJobs(ctx, b.ID, failedJobID)
+
+		if repoErr != nil {
+			return nil, repoErr
+		}
+	} else {
+		b.mu.Lock()
+
+		b.FailedJobs++
+		b.FailedJobIDs = append(b.FailedJobIDs, failedJobID)
+
+		if b.PendingJobs > 0 {
+			b.PendingJobs--
+		}
+
+		counts = &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}
+		b.mu.Unlock()
 	}
 
-	b.mu.Lock()
+	b.InvokeCatchCallbacks(ctx, err)
 
-	defer b.mu.Unlock()
-
-	b.FailedJobs++
-	b.FailedJobIDs = append(b.FailedJobIDs, failedJobID)
-
-	if b.PendingJobs > 0 {
-		b.PendingJobs--
+	if counts.PendingJobs == 0 {
+		b.InvokeFinallyCallbacks(ctx)
 	}
 
-	return &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}, nil
+	return counts, nil
 }
 
 func (b *Batch) Fresh(ctx context.Context) (*Batch, error) {
@@ -198,6 +250,91 @@ func (b *Batch) AllowsFailures() bool {
 	allowed, _ := v.(bool)
 
 	return allowed
+}
+
+// Canceled is an alias for Cancelled (American spelling).
+func (b *Batch) Canceled() bool {
+	return b.Cancelled()
+}
+
+// HasProgressCallbacks reports whether the batch has progress callbacks registered.
+func (b *Batch) HasProgressCallbacks() bool {
+	b.mu.RLock()
+
+	defer b.mu.RUnlock()
+
+	return len(b.ProgressCallbacks) > 0
+}
+
+// HasThenCallbacks reports whether the batch has then callbacks registered.
+func (b *Batch) HasThenCallbacks() bool {
+	b.mu.RLock()
+
+	defer b.mu.RUnlock()
+
+	return len(b.ThenCallbacks) > 0
+}
+
+// HasCatchCallbacks reports whether the batch has catch callbacks registered.
+func (b *Batch) HasCatchCallbacks() bool {
+	b.mu.RLock()
+
+	defer b.mu.RUnlock()
+
+	return len(b.CatchCallbacks) > 0
+}
+
+// HasFinallyCallbacks reports whether the batch has finally callbacks registered.
+func (b *Batch) HasFinallyCallbacks() bool {
+	b.mu.RLock()
+
+	defer b.mu.RUnlock()
+
+	return len(b.FinallyCallbacks) > 0
+}
+
+// InvokeProgressCallbacks calls all progress callbacks.
+func (b *Batch) InvokeProgressCallbacks(ctx context.Context) {
+	b.mu.RLock()
+	callbacks := b.ProgressCallbacks
+	b.mu.RUnlock()
+
+	for _, fn := range callbacks {
+		fn(ctx, b)
+	}
+}
+
+// InvokeThenCallbacks calls all then callbacks.
+func (b *Batch) InvokeThenCallbacks(ctx context.Context) {
+	b.mu.RLock()
+	callbacks := b.ThenCallbacks
+	b.mu.RUnlock()
+
+	for _, fn := range callbacks {
+		fn(ctx, b)
+	}
+}
+
+// InvokeCatchCallbacks calls all catch callbacks.
+func (b *Batch) InvokeCatchCallbacks(ctx context.Context, err error) {
+	b.mu.RLock()
+	callbacks := b.CatchCallbacks
+	b.mu.RUnlock()
+
+	for _, fn := range callbacks {
+		fn(ctx, b, err)
+	}
+}
+
+// InvokeFinallyCallbacks calls all finally callbacks.
+func (b *Batch) InvokeFinallyCallbacks(ctx context.Context) {
+	b.mu.RLock()
+	callbacks := b.FinallyCallbacks
+	b.mu.RUnlock()
+
+	for _, fn := range callbacks {
+		fn(ctx, b)
+	}
 }
 
 func (b *Batch) Add(ctx context.Context, jobs []any) error {

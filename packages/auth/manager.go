@@ -18,6 +18,7 @@ type Manager struct {
 	providerCreators map[string]ProviderCreator
 	configs          map[string]map[string]any
 	defaultGuard     string
+	userResolver     func(context.Context) cauth.Authenticatable
 }
 
 // NewManager creates an AuthManager with no pre-registered drivers.
@@ -135,6 +136,69 @@ func (m *Manager) SetRequest(r *http.Request) {
 			rs.SetRequest(r)
 		}
 	}
+}
+
+// ShouldUse sets the guard that should be used by default.
+func (m *Manager) ShouldUse(name string) {
+	m.mu.Lock()
+
+	defer m.mu.Unlock()
+
+	m.defaultGuard = name
+}
+
+// GetDefaultDriver returns the name of the default guard.
+func (m *Manager) GetDefaultDriver() string {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return m.defaultGuard
+}
+
+// SetDefaultDriver sets the name of the default guard.
+func (m *Manager) SetDefaultDriver(name string) {
+	m.mu.Lock()
+
+	defer m.mu.Unlock()
+
+	m.defaultGuard = name
+}
+
+// HasResolvedGuards reports whether any guards have been resolved.
+func (m *Manager) HasResolvedGuards() bool {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return len(m.guards) > 0
+}
+
+// ForgetGuards clears all resolved guard instances.
+func (m *Manager) ForgetGuards() {
+	m.mu.Lock()
+
+	defer m.mu.Unlock()
+
+	m.guards = make(map[string]cauth.Guard)
+}
+
+// UserResolver returns the user resolver function.
+func (m *Manager) UserResolver() func(context.Context) cauth.Authenticatable {
+	m.mu.RLock()
+
+	defer m.mu.RUnlock()
+
+	return m.userResolver
+}
+
+// ResolveUsersUsing sets the user resolver function.
+func (m *Manager) ResolveUsersUsing(fn func(context.Context) cauth.Authenticatable) {
+	m.mu.Lock()
+
+	defer m.mu.Unlock()
+
+	m.userResolver = fn
 }
 
 func (m *Manager) resolveProvider(ctx context.Context, name string) (cauth.UserProvider, error) {

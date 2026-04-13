@@ -94,8 +94,28 @@ func (c *mockDynamoClient) DeleteItem(_ context.Context, _ string, key map[strin
 	return nil
 }
 
-func (c *mockDynamoClient) Query(_ context.Context, _ string, _ string, _ map[string]any, _ int) ([]map[string]any, error) {
-	return nil, nil
+func (c *mockDynamoClient) Query(_ context.Context, _ string, _ string, values map[string]any, limit int) ([]map[string]any, error) {
+	c.mu.Lock()
+
+	defer c.mu.Unlock()
+
+	var results []map[string]any
+
+	app, _ := values[":app"].(string)
+
+	for key, item := range c.items {
+		if len(results) >= limit {
+			break
+		}
+
+		itemApp, _ := item["application"].(string)
+
+		if itemApp == app || key != "" {
+			results = append(results, item)
+		}
+	}
+
+	return results, nil
 }
 
 func TestDynamoRepoStore(t *testing.T) {
@@ -318,6 +338,44 @@ func TestDynamoRepoIncrementTotalJobs(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDynamoRepoGetList(t *testing.T) {
+	client := newMockDynamoClient()
+	client.items["myapp:batch-1"] = map[string]any{
+		"application":    "myapp",
+		"id":             "batch-1",
+		"name":           "test-1",
+		"total_jobs":     float64(5),
+		"pending_jobs":   float64(3),
+		"failed_jobs":    float64(0),
+		"failed_job_ids": "[]",
+		"options":        "{}",
+		"created_at":     float64(time.Now().Unix()),
+	}
+
+	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
+
+	batches, err := repo.GetList(context.Background(), 10, "")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(batches) != 1 {
+		t.Errorf("expected 1 batch, got %d", len(batches))
+	}
+}
+
+func TestDynamoRepoRollBack(t *testing.T) {
+	client := newMockDynamoClient()
+	repo := bus.NewDynamoBatchRepository(client, "myapp", "batches", nil, "")
+
+	err := repo.RollBack(context.Background())
+
+	if err != nil {
+		t.Errorf("expected no error from RollBack, got %v", err)
 	}
 }
 
