@@ -23,6 +23,10 @@ GO_PACKAGES := \
 	packages/inception \
 	packages/jsonx \
 	packages/log \
+	packages/mailx \
+	packages/notifications \
+	packages/pagination \
+	packages/pipeline \
 	packages/queue \
 	packages/routing \
 	packages/session \
