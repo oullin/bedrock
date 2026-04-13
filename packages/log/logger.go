@@ -18,10 +18,10 @@ type Logger struct {
 	context    map[string]any
 }
 
-var _ clog.Logger = (*Logger)(nil)
-
 // LoggerOption configures a Logger.
 type LoggerOption func(*Logger)
+
+var _ clog.Logger = (*Logger)(nil)
 
 // WithDispatcher sets the event dispatcher on the logger.
 func WithDispatcher(d cevents.Dispatcher) LoggerOption {

@@ -11,6 +11,7 @@ import (
 // An optional file mode can be provided; defaults to 0644.
 func (f *Filesystem) Put(path string, contents []byte, mode ...fs.FileMode) error {
 	perm := fs.FileMode(0o644)
+
 	if len(mode) > 0 {
 		perm = mode[0]
 	}
@@ -26,6 +27,7 @@ func (f *Filesystem) Put(path string, contents []byte, mode ...fs.FileMode) erro
 // and rename. An optional file mode can be provided.
 func (f *Filesystem) Replace(path string, content []byte, mode ...fs.FileMode) error {
 	perm := fs.FileMode(0o644)
+
 	if len(mode) > 0 {
 		perm = mode[0]
 	}
@@ -37,24 +39,29 @@ func (f *Filesystem) Replace(path string, content []byte, mode ...fs.FileMode) e
 	}
 
 	tmp, err := os.CreateTemp(dir, ".tmp_*")
+
 	if err != nil {
 		return err
 	}
+
 	tmpName := tmp.Name()
 
 	if _, err := tmp.Write(content); err != nil {
 		tmp.Close()
 		os.Remove(tmpName)
+
 		return err
 	}
 
 	if err := tmp.Close(); err != nil {
 		os.Remove(tmpName)
+
 		return err
 	}
 
 	if err := os.Chmod(tmpName, perm); err != nil {
 		os.Remove(tmpName)
+
 		return err
 	}
 
@@ -64,6 +71,7 @@ func (f *Filesystem) Replace(path string, content []byte, mode ...fs.FileMode) e
 // ReplaceInFile replaces all occurrences of search with replace in the file.
 func (f *Filesystem) ReplaceInFile(search, replace, path string) error {
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		return err
 	}
@@ -77,10 +85,12 @@ func (f *Filesystem) ReplaceInFile(search, replace, path string) error {
 // exist, it is created with only the given data.
 func (f *Filesystem) Prepend(path string, data []byte) error {
 	existing, err := os.ReadFile(path)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return f.Put(path, data)
 		}
+
 		return err
 	}
 
@@ -98,11 +108,14 @@ func (f *Filesystem) Append(path string, data []byte) error {
 	}
 
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+
 	if err != nil {
 		return err
 	}
+
 	defer file.Close()
 
 	_, err = file.Write(data)
+
 	return err
 }

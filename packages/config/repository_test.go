@@ -266,6 +266,7 @@ func TestPrepend(t *testing.T) {
 	repo.Prepend("array", "xxx")
 
 	got, err := repo.Array("array")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -294,6 +295,7 @@ func TestPrependWithNewKey(t *testing.T) {
 	repo.Prepend("new_key", "xxx")
 
 	got, err := repo.Array("new_key")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,6 +320,7 @@ func TestPush(t *testing.T) {
 	repo.Push("array", "xxx")
 
 	got, err := repo.Array("array")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -346,6 +349,7 @@ func TestPushWithNewKey(t *testing.T) {
 	repo.Push("new_key", "xxx")
 
 	got, err := repo.Array("new_key")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -388,6 +392,7 @@ func TestString(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.String("foo")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -403,6 +408,7 @@ func TestStringError(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.String("integer")
+
 	if err == nil {
 		t.Fatal("expected error for non-string value")
 	}
@@ -418,6 +424,7 @@ func TestStringDefault(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.String("missing", "fallback")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -437,6 +444,7 @@ func TestInteger(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Integer("integer")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -452,6 +460,7 @@ func TestIntegerError(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.Integer("foo")
+
 	if err == nil {
 		t.Fatal("expected error for non-int value")
 	}
@@ -467,6 +476,7 @@ func TestIntegerDefault(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Integer("missing", 42)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -486,6 +496,7 @@ func TestFloat(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Float("float")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -501,6 +512,7 @@ func TestFloatError(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.Float("foo")
+
 	if err == nil {
 		t.Fatal("expected error for non-float value")
 	}
@@ -516,6 +528,7 @@ func TestFloatDefault(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Float("missing", 3.14)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -535,6 +548,7 @@ func TestBoolean(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Boolean("boolean")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -550,6 +564,7 @@ func TestBooleanError(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.Boolean("foo")
+
 	if err == nil {
 		t.Fatal("expected error for non-bool value")
 	}
@@ -565,6 +580,7 @@ func TestBooleanDefault(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Boolean("missing", true)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -584,6 +600,7 @@ func TestArray(t *testing.T) {
 	repo := newRepository()
 
 	got, err := repo.Array("array")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -607,6 +624,7 @@ func TestArrayError(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.Array("foo")
+
 	if err == nil {
 		t.Fatal("expected error for non-array value")
 	}
@@ -623,6 +641,7 @@ func TestArrayDefault(t *testing.T) {
 	fb := []any{"x"}
 
 	got, err := repo.Array("missing", fb)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -642,6 +661,7 @@ func TestTypeGetterErrorFormat(t *testing.T) {
 	repo := newRepository()
 
 	_, err := repo.Integer("foo")
+
 	if err == nil {
 		t.Fatal("expected error")
 	}

@@ -44,9 +44,11 @@ func (h *RotatingHandler) Handle(record Record) error {
 	}
 
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	date := record.Time.Format("2006-01-02")
+
 	if date != h.currentDate || h.writer == nil {
 		if err := h.rotate(date); err != nil {
 			return err
@@ -56,6 +58,7 @@ func (h *RotatingHandler) Handle(record Record) error {
 	record = h.ProcessRecord(record)
 
 	formatted, err := h.GetFormatter().Format(record)
+
 	if err != nil {
 		return err
 	}
@@ -73,6 +76,7 @@ func (h *RotatingHandler) IsHandling(level Level) bool {
 // Close closes the current file writer.
 func (h *RotatingHandler) Close() error {
 	h.mu.Lock()
+
 	defer h.mu.Unlock()
 
 	if h.writer != nil {
@@ -94,11 +98,13 @@ func (h *RotatingHandler) rotate(date string) error {
 	path := h.filePath(date)
 
 	dir := filepath.Dir(path)
+
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, h.perm)
+
 	if err != nil {
 		return err
 	}
@@ -135,6 +141,7 @@ func (h *RotatingHandler) pruneOld() {
 	pattern := fmt.Sprintf("%s-*%s", base, ext)
 
 	matches, err := filepath.Glob(pattern)
+
 	if err != nil || len(matches) <= h.maxFiles {
 		return
 	}
@@ -142,6 +149,7 @@ func (h *RotatingHandler) pruneOld() {
 	sort.Strings(matches)
 
 	toRemove := matches[:len(matches)-h.maxFiles]
+
 	for _, path := range toRemove {
 		now := time.Now()
 		_ = os.Chtimes(path, now, now)

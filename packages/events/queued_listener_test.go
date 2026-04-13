@@ -32,6 +32,7 @@ func TestCallQueuedListener_ShouldQueue(t *testing.T) {
 
 	// Verify it satisfies the ShouldQueue marker.
 	var _ events.ShouldQueue = q
+
 	q.ShouldQueue() // should not panic.
 }
 

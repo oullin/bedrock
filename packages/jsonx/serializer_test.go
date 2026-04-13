@@ -17,6 +17,7 @@ func TestSerializeUnknownType(t *testing.T) {
 	t.Parallel()
 
 	_, err := jsonx.Serialize(&unknownType{})
+
 	if err == nil {
 		t.Fatal("expected error for unknown type, got nil")
 	}

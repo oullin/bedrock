@@ -25,6 +25,7 @@ func NewManager(defaultDriver Driver, drivers map[Driver]contract.Hasher) *HashM
 // Info returns metadata about a hashed value using the default driver.
 func (m *HashManager) Info(hashedValue string) (contract.HashInfo, error) {
 	d, err := m.Driver()
+
 	if err != nil {
 		return contract.HashInfo{}, err
 	}
@@ -35,6 +36,7 @@ func (m *HashManager) Info(hashedValue string) (contract.HashInfo, error) {
 // Make hashes a plaintext value using the default driver.
 func (m *HashManager) Make(value string, options ...map[string]any) (string, error) {
 	d, err := m.Driver()
+
 	if err != nil {
 		return "", err
 	}
@@ -45,6 +47,7 @@ func (m *HashManager) Make(value string, options ...map[string]any) (string, err
 // Check verifies a plaintext value against a hash using the default driver.
 func (m *HashManager) Check(value string, hashedValue string, options ...map[string]any) (bool, error) {
 	d, err := m.Driver()
+
 	if err != nil {
 		return false, err
 	}
@@ -55,6 +58,7 @@ func (m *HashManager) Check(value string, hashedValue string, options ...map[str
 // NeedsRehash reports whether the hashed value needs rehashing using the default driver.
 func (m *HashManager) NeedsRehash(hashedValue string, options ...map[string]any) (bool, error) {
 	d, err := m.Driver()
+
 	if err != nil {
 		return false, err
 	}
@@ -74,6 +78,7 @@ func (m *HashManager) IsHashed(value string) bool {
 // VerifyConfiguration checks whether the hash was produced with acceptable settings.
 func (m *HashManager) VerifyConfiguration(hashedValue string) bool {
 	d, err := m.Driver()
+
 	if err != nil {
 		return false
 	}
@@ -92,11 +97,13 @@ func (m *HashManager) VerifyConfiguration(hashedValue string) bool {
 // Driver returns the hasher for the given driver name, or the default if no name is given.
 func (m *HashManager) Driver(name ...Driver) (contract.Hasher, error) {
 	n := m.defaultDriver
+
 	if len(name) > 0 {
 		n = name[0]
 	}
 
 	d, ok := m.drivers[n]
+
 	if !ok {
 		return nil, ErrUnsupportedDriver
 	}

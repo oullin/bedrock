@@ -14,11 +14,29 @@ type CreateTokenHandler struct {
 }
 
 // NewCreateTokenHandler creates a new create token handler.
+
+// ServeHTTP handles the create token request.
+
+// UpdateTokenHandler handles PUT /user/api-tokens/{token} requests.
+type UpdateTokenHandler struct {
+	app    *Inception
+	tokens TokenRepository
+}
+
+// NewUpdateTokenHandler creates a new update token handler.
+
+// ServeHTTP handles the update token request.
+
+// DeleteTokenHandler handles DELETE /user/api-tokens/{token} requests.
+type DeleteTokenHandler struct {
+	app    *Inception
+	tokens TokenRepository
+}
+
 func NewCreateTokenHandler(app *Inception, tokens TokenRepository) *CreateTokenHandler {
 	return &CreateTokenHandler{app: app, tokens: tokens}
 }
 
-// ServeHTTP handles the create token request.
 func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -79,18 +97,10 @@ func (h *CreateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateTokenHandler handles PUT /user/api-tokens/{token} requests.
-type UpdateTokenHandler struct {
-	app    *Inception
-	tokens TokenRepository
-}
-
-// NewUpdateTokenHandler creates a new update token handler.
 func NewUpdateTokenHandler(app *Inception, tokens TokenRepository) *UpdateTokenHandler {
 	return &UpdateTokenHandler{app: app, tokens: tokens}
 }
 
-// ServeHTTP handles the update token request.
 func (h *UpdateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -133,12 +143,6 @@ func (h *UpdateTokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-// DeleteTokenHandler handles DELETE /user/api-tokens/{token} requests.
-type DeleteTokenHandler struct {
-	app    *Inception
-	tokens TokenRepository
 }
 
 // NewDeleteTokenHandler creates a new delete token handler.

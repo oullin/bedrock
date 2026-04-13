@@ -9,7 +9,6 @@ import (
 )
 
 // ErrInvalidTwoFactorCode is returned when a TOTP or recovery code is invalid.
-var ErrInvalidTwoFactorCode = errors.New("inception: invalid two-factor authentication code")
 
 // TwoFactorChallengeHandler handles POST /two-factor-challenge requests.
 // It completes the login flow for users with 2FA enabled by validating
@@ -17,6 +16,8 @@ var ErrInvalidTwoFactorCode = errors.New("inception: invalid two-factor authenti
 type TwoFactorChallengeHandler struct {
 	app *Inception
 }
+
+var ErrInvalidTwoFactorCode = errors.New("inception: invalid two-factor authentication code")
 
 // NewTwoFactorChallengeHandler creates a new two-factor challenge handler.
 func NewTwoFactorChallengeHandler(app *Inception) *TwoFactorChallengeHandler {

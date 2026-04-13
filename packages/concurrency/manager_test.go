@@ -16,6 +16,7 @@ func TestManagerRegisterAndDriver(t *testing.T) {
 	m.SetConfig("default", map[string]any{"driver": "goroutine"})
 
 	d, err := m.Driver("default")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -33,6 +34,7 @@ func TestManagerDriverCachesInstance(t *testing.T) {
 
 	m.Register("goroutine", func(config map[string]any) (Driver, error) {
 		calls++
+
 		return NewGoroutineDriver(0), nil
 	})
 	m.SetConfig("default", map[string]any{"driver": "goroutine"})
@@ -84,6 +86,7 @@ func TestManagerExtendIsAlias(t *testing.T) {
 	m.SetConfig("test", map[string]any{"driver": "sync"})
 
 	d, err := m.Driver("test")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -111,6 +114,7 @@ func TestManagerConcurrentAccess(t *testing.T) {
 			defer wg.Done()
 
 			_, err := m.Driver("default")
+
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -144,6 +148,7 @@ func TestManagerPurge(t *testing.T) {
 
 	m.Register("sync", func(config map[string]any) (Driver, error) {
 		calls++
+
 		return NewSyncDriver(), nil
 	})
 	m.SetConfig("conn", map[string]any{"driver": "sync"})

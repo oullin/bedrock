@@ -28,5 +28,6 @@ func (t *ObjectType) WithoutAdditionalProperties() *ObjectType {
 // Default sets the default value for the object type.
 func (t *ObjectType) Default(value map[string]any) *ObjectType {
 	t.defaultVal = value
+
 	return t
 }

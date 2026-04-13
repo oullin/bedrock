@@ -15,11 +15,46 @@ type EnableTwoFactorHandler struct {
 }
 
 // NewEnableTwoFactorHandler creates a new enable two-factor handler.
+
+// ServeHTTP enables two-factor authentication for the authenticated user.
+
+// ConfirmTwoFactorHandler handles POST /user/confirmed-two-factor-authentication.
+type ConfirmTwoFactorHandler struct {
+	app *Inception
+}
+
+// NewConfirmTwoFactorHandler creates a new confirm two-factor handler.
+
+// ServeHTTP confirms two-factor authentication by validating a TOTP code.
+
+// DisableTwoFactorHandler handles DELETE /user/two-factor-authentication.
+type DisableTwoFactorHandler struct {
+	app *Inception
+}
+
+// NewDisableTwoFactorHandler creates a new disable two-factor handler.
+
+// ServeHTTP disables two-factor authentication for the authenticated user.
+
+// TwoFactorQRCodeHandler handles GET /user/two-factor-qr-code.
+type TwoFactorQRCodeHandler struct {
+	app    *Inception
+	issuer string
+}
+
+// NewTwoFactorQRCodeHandler creates a new QR code handler.
+
+// ServeHTTP returns the TOTP provisioning URI for QR code rendering.
+
+// TwoFactorRecoveryCodesHandler handles GET/POST /user/two-factor-recovery-codes.
+type TwoFactorRecoveryCodesHandler struct {
+	app *Inception
+}
+
 func NewEnableTwoFactorHandler(app *Inception) *EnableTwoFactorHandler {
 	return &EnableTwoFactorHandler{app: app}
 }
 
-// ServeHTTP enables two-factor authentication for the authenticated user.
 func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
@@ -74,17 +109,10 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	h.app.responder.TwoFactorEnabledResponse(w, r)
 }
 
-// ConfirmTwoFactorHandler handles POST /user/confirmed-two-factor-authentication.
-type ConfirmTwoFactorHandler struct {
-	app *Inception
-}
-
-// NewConfirmTwoFactorHandler creates a new confirm two-factor handler.
 func NewConfirmTwoFactorHandler(app *Inception) *ConfirmTwoFactorHandler {
 	return &ConfirmTwoFactorHandler{app: app}
 }
 
-// ServeHTTP confirms two-factor authentication by validating a TOTP code.
 func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
@@ -129,17 +157,10 @@ func (h *ConfirmTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 }
 
-// DisableTwoFactorHandler handles DELETE /user/two-factor-authentication.
-type DisableTwoFactorHandler struct {
-	app *Inception
-}
-
-// NewDisableTwoFactorHandler creates a new disable two-factor handler.
 func NewDisableTwoFactorHandler(app *Inception) *DisableTwoFactorHandler {
 	return &DisableTwoFactorHandler{app: app}
 }
 
-// ServeHTTP disables two-factor authentication for the authenticated user.
 func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
@@ -177,18 +198,10 @@ func (h *DisableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	h.app.responder.TwoFactorDisabledResponse(w, r)
 }
 
-// TwoFactorQRCodeHandler handles GET /user/two-factor-qr-code.
-type TwoFactorQRCodeHandler struct {
-	app    *Inception
-	issuer string
-}
-
-// NewTwoFactorQRCodeHandler creates a new QR code handler.
 func NewTwoFactorQRCodeHandler(app *Inception, issuer string) *TwoFactorQRCodeHandler {
 	return &TwoFactorQRCodeHandler{app: app, issuer: issuer}
 }
 
-// ServeHTTP returns the TOTP provisioning URI for QR code rendering.
 func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.TwoFactorAuthentication {
 		http.Error(w, "two-factor authentication is disabled", http.StatusNotFound)
@@ -235,11 +248,6 @@ func (h *TwoFactorQRCodeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		"svg": uri,
 		"url": uri,
 	})
-}
-
-// TwoFactorRecoveryCodesHandler handles GET/POST /user/two-factor-recovery-codes.
-type TwoFactorRecoveryCodesHandler struct {
-	app *Inception
 }
 
 // NewTwoFactorRecoveryCodesHandler creates a new recovery codes handler.

@@ -11,6 +11,14 @@ type Role struct {
 }
 
 // HasPermission reports whether the role includes the given permission.
+
+// RoleRegistry holds defined roles and the default role for new members.
+type RoleRegistry struct {
+	mu          sync.RWMutex
+	roles       map[string]*Role
+	defaultRole string
+}
+
 func (r *Role) HasPermission(permission string) bool {
 	for _, p := range r.Permissions {
 		if p == permission {
@@ -19,13 +27,6 @@ func (r *Role) HasPermission(permission string) bool {
 	}
 
 	return false
-}
-
-// RoleRegistry holds defined roles and the default role for new members.
-type RoleRegistry struct {
-	mu          sync.RWMutex
-	roles       map[string]*Role
-	defaultRole string
 }
 
 // NewRoleRegistry creates an empty role registry.

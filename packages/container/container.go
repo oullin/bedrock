@@ -328,6 +328,7 @@ func (c *Container) resolve(abstract string, parameters map[string]any) (any, er
 // with stack. Factories can call this to access parameters passed via MakeWith.
 func (c *Container) Parameters() map[string]any {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	if len(c.with) == 0 {
@@ -346,6 +347,7 @@ func (c *Container) Alias(abstract, alias string) {
 	}
 
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.aliases[alias] = abstract
@@ -355,6 +357,7 @@ func (c *Container) Alias(abstract, alias string) {
 // GetAlias resolves an alias chain to the actual abstract name.
 func (c *Container) GetAlias(abstract string) string {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	return c.getAlias(abstract)
@@ -363,6 +366,7 @@ func (c *Container) GetAlias(abstract string) string {
 // IsAlias reports whether the given name is a registered alias.
 func (c *Container) IsAlias(name string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	_, ok := c.aliases[name]
@@ -389,6 +393,7 @@ func (c *Container) getAlias(abstract string) string {
 // Bound reports whether an abstract has a binding, instance, or alias.
 func (c *Container) Bound(abstract string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	return c.isBound(abstract)
@@ -411,6 +416,7 @@ func (c *Container) Has(abstract string) bool {
 // Resolved reports whether the given abstract has been resolved at least once.
 func (c *Container) Resolved(abstract string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	abs := c.getAlias(abstract)
@@ -425,6 +431,7 @@ func (c *Container) Resolved(abstract string) bool {
 // IsShared reports whether the given abstract is a singleton or scoped binding.
 func (c *Container) IsShared(abstract string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	abs := c.getAlias(abstract)
@@ -444,6 +451,7 @@ func (c *Container) IsShared(abstract string) bool {
 // empty string if nothing is being resolved.
 func (c *Container) CurrentlyResolving() string {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	if len(c.buildStack) == 0 {
@@ -458,6 +466,7 @@ func (c *Container) CurrentlyResolving() string {
 // Tag assigns one or more tags to the given abstracts.
 func (c *Container) Tag(abstracts []string, tags ...string) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	for _, tag := range tags {
@@ -521,6 +530,7 @@ func (c *Container) Extend(abstract string, extender ExtenderFunc) {
 // ForgetExtenders removes all extension callbacks for the given abstract.
 func (c *Container) ForgetExtenders(abstract string) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	delete(c.extenders, c.getAlias(abstract))
@@ -532,6 +542,7 @@ func (c *Container) ForgetExtenders(abstract string) {
 // resolved.
 func (c *Container) BeforeResolving(abstract string, callback BeforeResolvingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.beforeCbs[abstract] = append(c.beforeCbs[abstract], callback)
@@ -540,6 +551,7 @@ func (c *Container) BeforeResolving(abstract string, callback BeforeResolvingCal
 // BeforeResolvingAny registers a global before-resolving callback.
 func (c *Container) BeforeResolvingAny(callback BeforeResolvingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.globalBeforeCbs = append(c.globalBeforeCbs, callback)
@@ -549,6 +561,7 @@ func (c *Container) BeforeResolvingAny(callback BeforeResolvingCallback) {
 // resolved.
 func (c *Container) Resolving(abstract string, callback BindingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.resolvCbs[abstract] = append(c.resolvCbs[abstract], callback)
@@ -557,6 +570,7 @@ func (c *Container) Resolving(abstract string, callback BindingCallback) {
 // ResolvingAny registers a global resolving callback.
 func (c *Container) ResolvingAny(callback BindingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.globalResolvCbs = append(c.globalResolvCbs, callback)
@@ -566,6 +580,7 @@ func (c *Container) ResolvingAny(callback BindingCallback) {
 // resolved.
 func (c *Container) AfterResolving(abstract string, callback BindingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.afterCbs[abstract] = append(c.afterCbs[abstract], callback)
@@ -574,6 +589,7 @@ func (c *Container) AfterResolving(abstract string, callback BindingCallback) {
 // AfterResolvingAny registers a global after-resolving callback.
 func (c *Container) AfterResolvingAny(callback BindingCallback) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.globalAfterCbs = append(c.globalAfterCbs, callback)
@@ -656,6 +672,7 @@ func (c *Container) When(concrete ...string) *ContextualBindingBuilder {
 // instead.
 func (c *Container) AddContextualBinding(concrete, abstract string, implementation any) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	if c.contextual[concrete] == nil {
@@ -701,6 +718,7 @@ func (c *Container) Wrap(callable MethodCallable, parameters map[string]any) fun
 // BindMethod registers a callable for a named method binding.
 func (c *Container) BindMethod(method string, callback MethodCallable) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.methodBindings[method] = callback
@@ -709,6 +727,7 @@ func (c *Container) BindMethod(method string, callback MethodCallable) {
 // HasMethodBinding reports whether a method binding is registered.
 func (c *Container) HasMethodBinding(method string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	_, ok := c.methodBindings[method]
@@ -735,6 +754,7 @@ func (c *Container) CallMethodBinding(method string, instance any) (any, error) 
 // ForgetInstance removes the cached instance for the given abstract.
 func (c *Container) ForgetInstance(abstract string) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	delete(c.instances, abstract)
@@ -743,6 +763,7 @@ func (c *Container) ForgetInstance(abstract string) {
 // ForgetInstances removes all cached instances.
 func (c *Container) ForgetInstances() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.instances = make(map[string]any)
@@ -751,6 +772,7 @@ func (c *Container) ForgetInstances() {
 // ForgetScopedInstances removes only the cached instances for scoped bindings.
 func (c *Container) ForgetScopedInstances() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	for abstract, b := range c.bindings {
@@ -764,6 +786,7 @@ func (c *Container) ForgetScopedInstances() {
 // instances, aliases, resolved flags, callbacks, and method bindings.
 func (c *Container) Flush() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.bindings = make(map[string]Binding)
@@ -789,6 +812,7 @@ func (c *Container) Flush() {
 // GetBindings returns a copy of all registered bindings.
 func (c *Container) GetBindings() map[string]Binding {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	out := make(map[string]Binding, len(c.bindings))
@@ -810,6 +834,7 @@ var (
 // GetInstance returns the global container instance, creating one if needed.
 func GetInstance() *Container {
 	globalInstanceMu.Lock()
+
 	defer globalInstanceMu.Unlock()
 
 	if globalInstance == nil {
@@ -822,6 +847,7 @@ func GetInstance() *Container {
 // SetInstance sets or clears the global container instance.
 func SetInstance(c *Container) {
 	globalInstanceMu.Lock()
+
 	defer globalInstanceMu.Unlock()
 
 	globalInstance = c
