@@ -7,10 +7,11 @@ import (
 
 // PendingChain is a fluent builder for dispatching a chain of sequential jobs.
 type PendingChain struct {
-	jobs       []any
-	connection string
-	queue      string
-	dispatcher Dispatcher
+	jobs           []any
+	connection     string
+	queue          string
+	catchCallbacks []func(ctx context.Context, err error)
+	dispatcher     Dispatcher
 }
 
 // NewPendingChain creates a PendingChain.
@@ -32,6 +33,13 @@ func (c *PendingChain) OnQueue(queue string) *PendingChain {
 	return c
 }
 
+// Catch registers a callback invoked when a chained job fails.
+func (c *PendingChain) Catch(fn func(ctx context.Context, err error)) *PendingChain {
+	c.catchCallbacks = append(c.catchCallbacks, fn)
+
+	return c
+}
+
 // Dispatch dispatches the first job in the chain, attaching the remaining
 // jobs as the chain on the first job's Queueable.
 func (c *PendingChain) Dispatch(ctx context.Context) (any, error) {
@@ -39,6 +47,23 @@ func (c *PendingChain) Dispatch(ctx context.Context) (any, error) {
 		return nil, fmt.Errorf("bus: cannot dispatch an empty chain")
 	}
 
+	first := c.prepareFirstJob()
+
+	return c.dispatcher.Dispatch(ctx, first)
+}
+
+// DispatchAfterResponse dispatches the chain after the response is sent.
+func (c *PendingChain) DispatchAfterResponse(ctx context.Context) error {
+	if len(c.jobs) == 0 {
+		return fmt.Errorf("bus: cannot dispatch an empty chain")
+	}
+
+	first := c.prepareFirstJob()
+
+	return c.dispatcher.DispatchAfterResponse(ctx, first)
+}
+
+func (c *PendingChain) prepareFirstJob() any {
 	first := c.jobs[0]
 	remaining := c.jobs[1:]
 
@@ -59,5 +84,14 @@ func (c *PendingChain) Dispatch(ctx context.Context) (any, error) {
 		}
 	}
 
-	return c.dispatcher.Dispatch(ctx, first)
+	// Wire catch callbacks onto the first job.
+	for _, fn := range c.catchCallbacks {
+		if q, ok := first.(interface {
+			OnChainCatch(func(context.Context, error)) *Queueable
+		}); ok {
+			q.OnChainCatch(fn)
+		}
+	}
+
+	return first
 }

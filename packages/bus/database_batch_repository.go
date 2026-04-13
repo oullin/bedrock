@@ -286,6 +286,12 @@ func (r *DatabaseBatchRepository) Transaction(ctx context.Context, fn func(Batch
 	return tx.Commit()
 }
 
+// RollBack is a no-op for DatabaseBatchRepository as rollback
+// is handled internally by the Transaction method.
+func (r *DatabaseBatchRepository) RollBack(_ context.Context) error {
+	return nil
+}
+
 func (r *DatabaseBatchRepository) fetchCounts(ctx context.Context, id string) (*UpdatedBatchJobCounts, error) {
 	query := fmt.Sprintf("SELECT pending_jobs, failed_jobs FROM %s WHERE id = ?", r.table)
 

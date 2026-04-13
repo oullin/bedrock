@@ -44,6 +44,37 @@ func NewDynamoBatchRepository(client DynamoClient, applicationName, table string
 	}
 }
 
+// GetList retrieves batches using a query, limited by count and optionally before a given ID.
+func (r *DynamoBatchRepository) GetList(ctx context.Context, limit int, before string) ([]*Batch, error) {
+	keyCondition := "application = :app"
+	values := map[string]any{":app": r.applicationName}
+
+	if before != "" {
+		keyCondition += " AND id < :before"
+		values[":before"] = before
+	}
+
+	items, err := r.client.Query(ctx, r.table, keyCondition, values, limit)
+
+	if err != nil {
+		return nil, fmt.Errorf("bus: dynamo get list: %w", err)
+	}
+
+	batches := make([]*Batch, 0, len(items))
+
+	for _, item := range items {
+		batch, err := r.itemToBatch(item)
+
+		if err != nil {
+			return nil, err
+		}
+
+		batches = append(batches, batch)
+	}
+
+	return batches, nil
+}
+
 // Get retrieves a batch by ID.
 func (r *DynamoBatchRepository) Get(ctx context.Context, id string) (*Batch, error) {
 	key := map[string]any{
@@ -240,6 +271,11 @@ func (r *DynamoBatchRepository) Delete(ctx context.Context, id string) error {
 // way as SQL, so this simply invokes fn directly.
 func (r *DynamoBatchRepository) Transaction(_ context.Context, fn func(BatchRepository) error) error {
 	return fn(r)
+}
+
+// RollBack is a no-op for DynamoDB as it does not support transactions.
+func (r *DynamoBatchRepository) RollBack(_ context.Context) error {
+	return nil
 }
 
 func (r *DynamoBatchRepository) fetchCounts(ctx context.Context, id string) (*UpdatedBatchJobCounts, error) {

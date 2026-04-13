@@ -562,3 +562,127 @@ func TestAuthorizationExceptionEmptyMessage(t *testing.T) {
 		t.Error("expected non-empty default message")
 	}
 }
+
+// --- Manager: ShouldUse / GetDefaultDriver / SetDefaultDriver ---
+
+func TestManagerShouldUse(t *testing.T) {
+	m := auth.NewManager("web")
+
+	if m.GetDefaultDriver() != "web" {
+		t.Errorf("GetDefaultDriver() = %q, want %q", m.GetDefaultDriver(), "web")
+	}
+
+	m.ShouldUse("api")
+
+	if m.GetDefaultDriver() != "api" {
+		t.Errorf("GetDefaultDriver() = %q, want %q after ShouldUse", m.GetDefaultDriver(), "api")
+	}
+}
+
+func TestManagerSetDefaultDriver(t *testing.T) {
+	m := auth.NewManager("web")
+
+	m.SetDefaultDriver("api")
+
+	if m.GetDefaultDriver() != "api" {
+		t.Errorf("GetDefaultDriver() = %q, want %q", m.GetDefaultDriver(), "api")
+	}
+}
+
+// --- Manager: HasResolvedGuards / ForgetGuards ---
+
+func TestManagerHasResolvedGuards(t *testing.T) {
+	m := auth.NewManager("custom")
+
+	if m.HasResolvedGuards() {
+		t.Error("HasResolvedGuards should be false initially")
+	}
+
+	m.ViaRequest("custom", func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
+		return nil, nil
+	})
+
+	if !m.HasResolvedGuards() {
+		t.Error("HasResolvedGuards should be true after ViaRequest")
+	}
+}
+
+func TestManagerForgetGuards(t *testing.T) {
+	m := auth.NewManager("custom")
+
+	m.ViaRequest("custom", func(_ context.Context, _ *http.Request) (cauth.Authenticatable, error) {
+		return nil, nil
+	})
+
+	m.ForgetGuards()
+
+	if m.HasResolvedGuards() {
+		t.Error("HasResolvedGuards should be false after ForgetGuards")
+	}
+}
+
+// --- Manager: UserResolver ---
+
+func TestManagerUserResolver(t *testing.T) {
+	m := auth.NewManager("web")
+
+	if m.UserResolver() != nil {
+		t.Error("UserResolver should be nil initially")
+	}
+
+	user := auth.NewGenericUser(map[string]any{"id": "1"})
+
+	m.ResolveUsersUsing(func(_ context.Context) cauth.Authenticatable {
+		return user
+	})
+
+	resolver := m.UserResolver()
+
+	if resolver == nil {
+		t.Fatal("UserResolver should not be nil after ResolveUsersUsing")
+	}
+
+	if resolver(context.Background()) != user {
+		t.Error("UserResolver should return the configured user")
+	}
+}
+
+// --- GenericUser: Dynamic Access ---
+
+func TestGenericUserDynamicAccess(t *testing.T) {
+	u := auth.NewGenericUser(map[string]any{"id": "1", "name": "John"})
+
+	v, ok := u.Get("name")
+
+	if !ok || v != "John" {
+		t.Errorf("Get(name) = %v, %v, want John, true", v, ok)
+	}
+
+	_, ok = u.Get("missing")
+
+	if ok {
+		t.Error("Get(missing) should return false")
+	}
+
+	if !u.Has("name") {
+		t.Error("Has(name) should be true")
+	}
+
+	if u.Has("missing") {
+		t.Error("Has(missing) should be false")
+	}
+
+	u.Set("role", "admin")
+
+	v, ok = u.Get("role")
+
+	if !ok || v != "admin" {
+		t.Error("Set/Get should work for new attributes")
+	}
+
+	u.Delete("role")
+
+	if u.Has("role") {
+		t.Error("Delete should remove the attribute")
+	}
+}

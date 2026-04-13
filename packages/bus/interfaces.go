@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+// ShouldQueue is a marker interface for commands that should be dispatched to the queue.
+type ShouldQueue interface {
+	ShouldQueue()
+}
+
 // Handler handles a command/job.
 type Handler func(ctx context.Context, command any) (any, error)
 
@@ -48,6 +53,7 @@ type QueueingDispatcher interface {
 // BatchRepository persists batch state.
 type BatchRepository interface {
 	Get(ctx context.Context, id string) (*Batch, error)
+	GetList(ctx context.Context, limit int, before string) ([]*Batch, error)
 	Store(ctx context.Context, batch *Batch) error
 	IncrementTotalJobs(ctx context.Context, id string, amount int) error
 	DecrementPendingJobs(ctx context.Context, id string) (*UpdatedBatchJobCounts, error)
@@ -56,6 +62,7 @@ type BatchRepository interface {
 	Cancel(ctx context.Context, id string) error
 	Delete(ctx context.Context, id string) error
 	Transaction(ctx context.Context, fn func(BatchRepository) error) error
+	RollBack(ctx context.Context) error
 }
 
 // PrunableBatchRepository extends BatchRepository with cleanup operations.

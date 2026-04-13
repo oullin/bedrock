@@ -78,3 +78,65 @@ func TestPendingChainEmptyError(t *testing.T) {
 		t.Error("expected error for empty chain")
 	}
 }
+
+func TestPendingChainCatchCallbacks(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	j1 := &chainJob{Value: "first"}
+	d.Map(j1, func(_ context.Context, cmd any) (any, error) {
+		return nil, nil
+	})
+
+	catchCalled := false
+	chain := bus.NewPendingChain(d, []any{j1}).
+		Catch(func(_ context.Context, _ error) { catchCalled = true })
+
+	_, err := chain.Dispatch(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(j1.ChainCatchCallbacks) != 1 {
+		t.Errorf("expected 1 chain catch callback on first job, got %d", len(j1.ChainCatchCallbacks))
+	}
+
+	// Invoke to verify it works.
+	j1.InvokeChainCatchCallbacks(context.Background(), errTestFailure)
+
+	if !catchCalled {
+		t.Error("expected catch callback to be called")
+	}
+}
+
+func TestPendingChainDispatchAfterResponse(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+
+	j1 := &chainJob{Value: "first"}
+	d.Map(j1, func(_ context.Context, cmd any) (any, error) {
+		return nil, nil
+	})
+
+	chain := bus.NewPendingChain(d, []any{j1, &chainJob{Value: "second"}})
+
+	err := chain.DispatchAfterResponse(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(j1.ChainJobs) != 1 {
+		t.Errorf("expected 1 chain job on first job, got %d", len(j1.ChainJobs))
+	}
+}
+
+func TestPendingChainDispatchAfterResponseEmptyError(t *testing.T) {
+	d := bus.NewDispatcher(nil, nil)
+	chain := bus.NewPendingChain(d, []any{})
+
+	err := chain.DispatchAfterResponse(context.Background())
+
+	if err == nil {
+		t.Error("expected error for empty chain")
+	}
+}

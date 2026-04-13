@@ -14,6 +14,7 @@ type PendingBatch struct {
 	connection        string
 	queue             string
 	allowFailures     bool
+	options           map[string]any
 	progressCallbacks []func(ctx context.Context, batch *Batch)
 	thenCallbacks     []func(ctx context.Context, batch *Batch)
 	catchCallbacks    []func(ctx context.Context, batch *Batch, err error)
@@ -21,6 +22,7 @@ type PendingBatch struct {
 	beforeCallbacks   []func(ctx context.Context, batch *Batch)
 	dispatcher        QueueingDispatcher
 	batchRepo         BatchRepository
+	eventFunc         EventFunc
 }
 
 // NewPendingBatch creates a PendingBatch.
@@ -98,6 +100,17 @@ func (p *PendingBatch) AllowFailures() *PendingBatch {
 	return p
 }
 
+// WithOption sets a custom option on the batch.
+func (p *PendingBatch) WithOption(key string, value any) *PendingBatch {
+	if p.options == nil {
+		p.options = make(map[string]any)
+	}
+
+	p.options[key] = value
+
+	return p
+}
+
 // Connection returns the configured connection.
 func (p *PendingBatch) Connection() string { return p.connection }
 
@@ -122,6 +135,10 @@ func (p *PendingBatch) CatchCallbacks() []func(ctx context.Context, batch *Batch
 func (p *PendingBatch) Options() map[string]any {
 	opts := make(map[string]any)
 
+	for k, v := range p.options {
+		opts[k] = v
+	}
+
 	if p.allowFailures {
 		opts["allowFailures"] = true
 	}
@@ -137,24 +154,7 @@ func (p *PendingBatch) Dispatch(ctx context.Context) (*Batch, error) {
 		return nil, err
 	}
 
-	batch := &Batch{
-		ID:                id,
-		Name:              p.name,
-		TotalJobs:         len(p.jobs),
-		PendingJobs:       len(p.jobs),
-		Options:           make(map[string]any),
-		CreatedAt:         time.Now(),
-		ProgressCallbacks: p.progressCallbacks,
-		ThenCallbacks:     p.thenCallbacks,
-		CatchCallbacks:    p.catchCallbacks,
-		FinallyCallbacks:  p.finallyCallbacks,
-		repo:              p.batchRepo,
-		dispatcher:        p.dispatcher,
-	}
-
-	if p.allowFailures {
-		batch.Options["allowFailures"] = true
-	}
+	batch := p.newBatch(id)
 
 	// Persist the batch if a repository is available.
 	if p.batchRepo != nil {
@@ -162,6 +162,9 @@ func (p *PendingBatch) Dispatch(ctx context.Context) (*Batch, error) {
 			return nil, err
 		}
 	}
+
+	// Set batch ID on batchable jobs.
+	p.prepareBatchedJobs(batch.ID)
 
 	// Invoke before callbacks.
 	for _, fn := range p.beforeCallbacks {
@@ -171,11 +174,28 @@ func (p *PendingBatch) Dispatch(ctx context.Context) (*Batch, error) {
 	// Dispatch each job.
 	for _, job := range p.jobs {
 		if err = p.dispatcher.DispatchToQueue(ctx, job); err != nil {
-			return batch, err
+			if p.batchRepo != nil {
+				_ = p.batchRepo.Delete(ctx, batch.ID)
+			}
+
+			return nil, err
 		}
 	}
 
+	if p.eventFunc != nil {
+		p.eventFunc(BatchDispatched{Batch: batch})
+	}
+
 	return batch, nil
+}
+
+// prepareBatchedJobs sets the batch ID on all jobs that implement WithBatchID.
+func (p *PendingBatch) prepareBatchedJobs(batchID string) {
+	for _, job := range p.jobs {
+		if b, ok := job.(interface{ WithBatchID(string) }); ok {
+			b.WithBatchID(batchID)
+		}
+	}
 }
 
 // DispatchIf dispatches the batch only if the condition is true.
@@ -200,24 +220,7 @@ func (p *PendingBatch) DispatchAfterResponse(ctx context.Context) (*Batch, error
 		return nil, err
 	}
 
-	batch := &Batch{
-		ID:                id,
-		Name:              p.name,
-		TotalJobs:         len(p.jobs),
-		PendingJobs:       len(p.jobs),
-		Options:           make(map[string]any),
-		CreatedAt:         time.Now(),
-		ProgressCallbacks: p.progressCallbacks,
-		ThenCallbacks:     p.thenCallbacks,
-		CatchCallbacks:    p.catchCallbacks,
-		FinallyCallbacks:  p.finallyCallbacks,
-		repo:              p.batchRepo,
-		dispatcher:        p.dispatcher,
-	}
-
-	if p.allowFailures {
-		batch.Options["allowFailures"] = true
-	}
+	batch := p.newBatch(id)
 
 	if p.batchRepo != nil {
 		if err = p.batchRepo.Store(ctx, batch); err != nil {
@@ -225,17 +228,55 @@ func (p *PendingBatch) DispatchAfterResponse(ctx context.Context) (*Batch, error
 		}
 	}
 
+	p.prepareBatchedJobs(batch.ID)
+
 	for _, fn := range p.beforeCallbacks {
 		fn(ctx, batch)
 	}
 
 	for _, job := range p.jobs {
 		if err = p.dispatcher.DispatchAfterResponse(ctx, job); err != nil {
-			return batch, err
+			if p.batchRepo != nil {
+				_ = p.batchRepo.Delete(ctx, batch.ID)
+			}
+
+			return nil, err
 		}
 	}
 
+	if p.eventFunc != nil {
+		p.eventFunc(BatchDispatched{Batch: batch})
+	}
+
 	return batch, nil
+}
+
+func (p *PendingBatch) newBatch(id string) *Batch {
+	opts := make(map[string]any)
+
+	for k, v := range p.options {
+		opts[k] = v
+	}
+
+	if p.allowFailures {
+		opts["allowFailures"] = true
+	}
+
+	return &Batch{
+		ID:                id,
+		Name:              p.name,
+		TotalJobs:         len(p.jobs),
+		PendingJobs:       len(p.jobs),
+		Options:           opts,
+		CreatedAt:         time.Now(),
+		ProgressCallbacks: p.progressCallbacks,
+		ThenCallbacks:     p.thenCallbacks,
+		CatchCallbacks:    p.catchCallbacks,
+		FinallyCallbacks:  p.finallyCallbacks,
+		repo:              p.batchRepo,
+		dispatcher:        p.dispatcher,
+		eventFunc:         p.eventFunc,
+	}
 }
 
 func generateBatchID() (string, error) {

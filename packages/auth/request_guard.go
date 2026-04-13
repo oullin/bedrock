@@ -14,6 +14,7 @@ type RequestGuard struct {
 	callback RequestCallback
 	request  *http.Request
 	user     cauth.Authenticatable
+	provider cauth.UserProvider
 }
 
 // NewRequestGuard creates a RequestGuard using the given callback.
@@ -99,4 +100,27 @@ func (g *RequestGuard) ID(ctx context.Context) any {
 	}
 
 	return u.GetAuthIdentifier()
+}
+
+// Validate always returns false for request guards (no credential-based auth).
+func (g *RequestGuard) Validate(_ context.Context, _ map[string]string) bool {
+	return false
+}
+
+// GetProvider returns the user provider.
+func (g *RequestGuard) GetProvider() cauth.UserProvider {
+	g.mu.RLock()
+
+	defer g.mu.RUnlock()
+
+	return g.provider
+}
+
+// SetProvider sets the user provider.
+func (g *RequestGuard) SetProvider(p cauth.UserProvider) {
+	g.mu.Lock()
+
+	defer g.mu.Unlock()
+
+	g.provider = p
 }
