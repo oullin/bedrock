@@ -18,6 +18,7 @@ func TestGet(t *testing.T) {
 	writeFile(t, path, "hello world")
 
 	data, err := fs.Get(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,6 +35,7 @@ func TestGetNonexistentFile(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := fs.Get(filepath.Join(dir, "nonexistent.txt"))
+
 	if !errors.Is(err, filesystem.ErrNotFound) {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -49,6 +51,7 @@ func TestJSON(t *testing.T) {
 	writeFile(t, path, `{"name":"john","age":30}`)
 
 	var result map[string]any
+
 	if err := fs.JSON(path, &result); err != nil {
 		t.Fatal(err)
 	}
@@ -72,6 +75,7 @@ func TestJSONInvalid(t *testing.T) {
 	writeFile(t, path, "not valid json{{{")
 
 	var result map[string]any
+
 	if err := fs.JSON(path, &result); err == nil {
 		t.Fatal("expected error for invalid JSON")
 	}
@@ -85,6 +89,7 @@ func TestJSONNonexistentFile(t *testing.T) {
 
 	var result map[string]any
 	err := fs.JSON(filepath.Join(dir, "missing.json"), &result)
+
 	if !errors.Is(err, filesystem.ErrNotFound) {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -100,6 +105,7 @@ func TestSharedGet(t *testing.T) {
 	writeFile(t, path, "shared content")
 
 	data, err := fs.SharedGet(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,6 +122,7 @@ func TestSharedGetNonexistentFile(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := fs.SharedGet(filepath.Join(dir, "missing.txt"))
+
 	if err == nil {
 		t.Fatal("expected error for nonexistent file")
 	}
@@ -131,11 +138,13 @@ func TestLines(t *testing.T) {
 	writeFile(t, path, "line1\nline2\nline3")
 
 	seq, err := fs.Lines(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var lines []string
+
 	for line := range seq {
 		lines = append(lines, line)
 	}
@@ -156,6 +165,7 @@ func TestLinesNonexistentFile(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := fs.Lines(filepath.Join(dir, "missing.txt"))
+
 	if !errors.Is(err, filesystem.ErrNotFound) {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -171,11 +181,13 @@ func TestLinesEmptyFile(t *testing.T) {
 	writeFile(t, path, "")
 
 	seq, err := fs.Lines(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var lines []string
+
 	for line := range seq {
 		lines = append(lines, line)
 	}
@@ -195,13 +207,16 @@ func TestLinesBreakEarly(t *testing.T) {
 	writeFile(t, path, "line1\nline2\nline3\nline4\nline5")
 
 	seq, err := fs.Lines(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var lines []string
+
 	for line := range seq {
 		lines = append(lines, line)
+
 		if len(lines) == 2 {
 			break
 		}

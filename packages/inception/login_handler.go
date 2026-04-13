@@ -9,15 +9,17 @@ import (
 )
 
 // ErrTooManyAttempts is returned when login attempts are rate limited.
-var ErrTooManyAttempts = errors.New("inception: too many login attempts")
 
 // ErrInvalidCredentials is returned when login credentials are invalid.
-var ErrInvalidCredentials = errors.New("inception: invalid credentials")
 
 // LoginHandler handles POST /login requests.
 type LoginHandler struct {
 	app *Inception
 }
+
+var ErrTooManyAttempts = errors.New("inception: too many login attempts")
+
+var ErrInvalidCredentials = errors.New("inception: invalid credentials")
 
 // NewLoginHandler creates a new login handler.
 func NewLoginHandler(app *Inception) *LoginHandler {

@@ -91,9 +91,11 @@ func TestIsEmptyDirectory(t *testing.T) {
 	dir := t.TempDir()
 
 	empty, err := fs.IsEmptyDirectory(dir, false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if !empty {
 		t.Fatal("expected directory to be empty")
 	}
@@ -101,9 +103,11 @@ func TestIsEmptyDirectory(t *testing.T) {
 	writeFile(t, filepath.Join(dir, "file.txt"), "hello")
 
 	empty, err = fs.IsEmptyDirectory(dir, false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if empty {
 		t.Fatal("expected directory to not be empty")
 	}
@@ -118,17 +122,21 @@ func TestIsEmptyDirectoryIgnoreDotFiles(t *testing.T) {
 	writeFile(t, filepath.Join(dir, ".hidden"), "hidden")
 
 	empty, err := fs.IsEmptyDirectory(dir, true)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if !empty {
 		t.Fatal("expected directory to be empty when ignoring dot files")
 	}
 
 	empty, err = fs.IsEmptyDirectory(dir, false)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if empty {
 		t.Fatal("expected directory to not be empty when not ignoring dot files")
 	}
@@ -184,9 +192,11 @@ func TestHash(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	h, err := fs.Hash(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if h == "" {
 		t.Fatal("expected non-empty hash")
 	}
@@ -207,6 +217,7 @@ func TestHashSHA1(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	h, err := fs.Hash(path, "sha1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,9 +237,11 @@ func TestHashSHA256(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	h, err := fs.Hash(path, "sha256")
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if h != "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824" {
 		t.Fatalf("unexpected sha256 hash: %s", h)
 	}
@@ -244,6 +257,7 @@ func TestHashUnsupportedAlgorithm(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	_, err := fs.Hash(path, "blake2b")
+
 	if err != filesystem.ErrHashAlgorithm {
 		t.Fatalf("expected ErrHashAlgorithm, got %v", err)
 	}
@@ -263,17 +277,21 @@ func TestHasSameHash(t *testing.T) {
 	writeFile(t, path3, "world")
 
 	same, err := fs.HasSameHash(path1, path2)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if !same {
 		t.Fatal("expected files with same content to have same hash")
 	}
 
 	same, err = fs.HasSameHash(path1, path3)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if same {
 		t.Fatal("expected files with different content to have different hash")
 	}
@@ -289,17 +307,21 @@ func TestType(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	typ, err := fs.Type(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if typ != "file" {
 		t.Fatalf("expected 'file', got %q", typ)
 	}
 
 	typ, err = fs.Type(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if typ != "dir" {
 		t.Fatalf("expected 'dir', got %q", typ)
 	}
@@ -315,9 +337,11 @@ func TestMimeType(t *testing.T) {
 	writeFile(t, htmlPath, "<html><body>Hello</body></html>")
 
 	mtype, err := fs.MimeType(htmlPath)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if mtype != "text/html; charset=utf-8" {
 		t.Fatalf("unexpected MIME type: %s", mtype)
 	}
@@ -333,9 +357,11 @@ func TestSize(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	size, err := fs.Size(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if size != 5 {
 		t.Fatalf("expected size 5, got %d", size)
 	}
@@ -351,9 +377,11 @@ func TestLastModified(t *testing.T) {
 	writeFile(t, path, "hello")
 
 	ts, err := fs.LastModified(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if ts <= 0 {
 		t.Fatal("expected positive timestamp")
 	}
@@ -373,6 +401,7 @@ func TestChmod(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -441,9 +470,11 @@ func TestGlob(t *testing.T) {
 	writeFile(t, filepath.Join(dir, "c.go"), "c")
 
 	matches, err := fs.Glob(filepath.Join(dir, "*.txt"))
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(matches) != 2 {
 		t.Fatalf("expected 2 matches, got %d", len(matches))
 	}
@@ -459,9 +490,11 @@ func TestGuessExtension(t *testing.T) {
 	writeFile(t, txtPath, "plain text content")
 
 	ext, err := fs.GuessExtension(txtPath)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if ext == "" {
 		t.Fatal("expected non-empty extension")
 	}

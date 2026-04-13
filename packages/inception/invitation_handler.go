@@ -11,11 +11,27 @@ type InviteTeamMemberHandler struct {
 }
 
 // NewInviteTeamMemberHandler creates a new invite team member handler.
+
+// ServeHTTP handles the invite team member request.
+
+// CancelInvitationHandler handles DELETE /team-invitations/{invitation} requests.
+type CancelInvitationHandler struct {
+	app *Inception
+}
+
+// NewCancelInvitationHandler creates a new cancel invitation handler.
+
+// ServeHTTP handles the cancel invitation request.
+
+// AcceptInvitationHandler handles GET /team-invitations/{invitation}/accept requests.
+type AcceptInvitationHandler struct {
+	app *Inception
+}
+
 func NewInviteTeamMemberHandler(app *Inception) *InviteTeamMemberHandler {
 	return &InviteTeamMemberHandler{app: app}
 }
 
-// ServeHTTP handles the invite team member request.
 func (h *InviteTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -60,17 +76,10 @@ func (h *InviteTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(invitation)
 }
 
-// CancelInvitationHandler handles DELETE /team-invitations/{invitation} requests.
-type CancelInvitationHandler struct {
-	app *Inception
-}
-
-// NewCancelInvitationHandler creates a new cancel invitation handler.
 func NewCancelInvitationHandler(app *Inception) *CancelInvitationHandler {
 	return &CancelInvitationHandler{app: app}
 }
 
-// ServeHTTP handles the cancel invitation request.
 func (h *CancelInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -111,11 +120,6 @@ func (h *CancelInvitationHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-// AcceptInvitationHandler handles GET /team-invitations/{invitation}/accept requests.
-type AcceptInvitationHandler struct {
-	app *Inception
 }
 
 // NewAcceptInvitationHandler creates a new accept invitation handler.

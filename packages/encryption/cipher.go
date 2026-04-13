@@ -75,9 +75,11 @@ func ParseKey(raw string) ([]byte, error) {
 
 	if strings.HasPrefix(raw, "base64:") {
 		decoded, err := base64.StdEncoding.DecodeString(raw[7:])
+
 		if err != nil {
 			return nil, ErrUnsupportedCipher
 		}
+
 		return decoded, nil
 	}
 
@@ -87,11 +89,13 @@ func ParseKey(raw string) ([]byte, error) {
 // GenerateKey creates a cryptographically random key for the given cipher.
 func GenerateKey(cipher Cipher) ([]byte, error) {
 	length := cipher.KeyLength()
+
 	if length == 0 {
 		return nil, ErrUnsupportedCipher
 	}
 
 	key := make([]byte, length)
+
 	if _, err := rand.Read(key); err != nil {
 		return nil, err
 	}

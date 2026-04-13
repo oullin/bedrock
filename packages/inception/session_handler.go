@@ -11,16 +11,8 @@ import (
 type currentSessionKey struct{}
 
 // WithCurrentSessionID returns a context with the current session ID.
-func WithCurrentSessionID(ctx context.Context, id string) context.Context {
-	return context.WithValue(ctx, currentSessionKey{}, id)
-}
 
 // CurrentSessionID retrieves the current session ID from context.
-func CurrentSessionID(ctx context.Context) string {
-	id, _ := ctx.Value(currentSessionKey{}).(string)
-
-	return id
-}
 
 // ListSessionsHandler handles GET /user/sessions requests.
 type ListSessionsHandler struct {
@@ -29,11 +21,29 @@ type ListSessionsHandler struct {
 }
 
 // NewListSessionsHandler creates a new list sessions handler.
+
+// ServeHTTP handles the list sessions request.
+
+// DeleteOtherSessionsHandler handles DELETE /user/other-sessions requests.
+type DeleteOtherSessionsHandler struct {
+	app      *Inception
+	sessions SessionRepository
+}
+
+func WithCurrentSessionID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, currentSessionKey{}, id)
+}
+
+func CurrentSessionID(ctx context.Context) string {
+	id, _ := ctx.Value(currentSessionKey{}).(string)
+
+	return id
+}
+
 func NewListSessionsHandler(app *Inception, sessions SessionRepository) *ListSessionsHandler {
 	return &ListSessionsHandler{app: app, sessions: sessions}
 }
 
-// ServeHTTP handles the list sessions request.
 func (h *ListSessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.app.config.Features.BrowserSessions {
 		http.Error(w, "browser sessions are disabled", http.StatusNotFound)
@@ -59,12 +69,6 @@ func (h *ListSessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(sessions)
-}
-
-// DeleteOtherSessionsHandler handles DELETE /user/other-sessions requests.
-type DeleteOtherSessionsHandler struct {
-	app      *Inception
-	sessions SessionRepository
 }
 
 // NewDeleteOtherSessionsHandler creates a new delete other sessions handler.

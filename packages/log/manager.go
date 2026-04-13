@@ -25,10 +25,10 @@ type LogManager struct {
 	defaultChannel string
 }
 
-var _ clog.Logger = (*LogManager)(nil)
-
 // ManagerOption configures a LogManager.
 type ManagerOption func(*LogManager)
+
+var _ clog.Logger = (*LogManager)(nil)
 
 // WithEventDispatcher sets the event dispatcher on the manager.
 func WithEventDispatcher(d cevents.Dispatcher) ManagerOption {
@@ -68,6 +68,7 @@ func NewManager(cfg *config.Repository, opts ...ManagerOption) *LogManager {
 // access. If no name is given, the default channel is used.
 func (m *LogManager) Channel(name ...string) (*Logger, error) {
 	n := m.defaultChannel
+
 	if len(name) > 0 && name[0] != "" {
 		n = name[0]
 	}
@@ -83,6 +84,7 @@ func (m *LogManager) Driver(name ...string) (*Logger, error) {
 // Stack creates a Logger that writes to all given channels simultaneously.
 func (m *LogManager) Stack(channels []string, channel ...string) (*Logger, error) {
 	name := "stack"
+
 	if len(channel) > 0 && channel[0] != "" {
 		name = channel[0]
 	}
@@ -91,6 +93,7 @@ func (m *LogManager) Stack(channels []string, channel ...string) (*Logger, error
 
 	for _, ch := range channels {
 		logger, err := m.Channel(ch)
+
 		if err != nil {
 			return nil, fmt.Errorf("log: failed to resolve stack channel %q: %w", ch, err)
 		}
@@ -113,6 +116,7 @@ func (m *LogManager) Stack(channels []string, channel ...string) (*Logger, error
 // Build creates a Logger from the given config without caching it.
 func (m *LogManager) Build(cc ChannelConfig) (*Logger, error) {
 	handler, err := m.createDriver(cc)
+
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +135,7 @@ func (m *LogManager) Build(cc ChannelConfig) (*Logger, error) {
 // Extend registers a custom driver factory.
 func (m *LogManager) Extend(driver string, factory DriverFactory) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.customDrivers[driver] = factory
@@ -144,6 +149,7 @@ func (m *LogManager) GetDefaultDriver() string {
 // SetDefaultDriver sets the default channel name.
 func (m *LogManager) SetDefaultDriver(name string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.defaultChannel = name
@@ -153,6 +159,7 @@ func (m *LogManager) SetDefaultDriver(name string) {
 // to all channels.
 func (m *LogManager) ShareContext(ctx map[string]any) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	for k, v := range ctx {
@@ -167,6 +174,7 @@ func (m *LogManager) ShareContext(ctx map[string]any) {
 // SharedContext returns a copy of the current shared context.
 func (m *LogManager) SharedContext() map[string]any {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	cp := make(map[string]any, len(m.sharedContext))
@@ -182,6 +190,7 @@ func (m *LogManager) SharedContext() map[string]any {
 // given, all shared context is cleared.
 func (m *LogManager) WithoutContext(keys ...string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if len(keys) == 0 {
@@ -201,6 +210,7 @@ func (m *LogManager) FlushSharedContext() {
 // ForgetChannel removes a cached channel and closes its handler.
 func (m *LogManager) ForgetChannel(names ...string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if len(names) == 0 {
@@ -218,6 +228,7 @@ func (m *LogManager) ForgetChannel(names ...string) {
 // GetChannels returns a copy of the cached channel map.
 func (m *LogManager) GetChannels() map[string]*Logger {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	cp := make(map[string]*Logger, len(m.channels))
@@ -232,6 +243,7 @@ func (m *LogManager) GetChannels() map[string]*Logger {
 // Tap registers callbacks that are applied to loggers after creation.
 func (m *LogManager) Tap(callbacks ...func(*Logger)) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.tapCallbacks = append(m.tapCallbacks, callbacks...)
@@ -284,6 +296,7 @@ func (m *LogManager) Log(level Level, message string, context ...map[string]any)
 
 func (m *LogManager) log(level Level, message string, context []map[string]any) {
 	logger, err := m.Channel()
+
 	if err != nil {
 		logger = m.emergencyLogger()
 	}
@@ -293,10 +306,13 @@ func (m *LogManager) log(level Level, message string, context []map[string]any) 
 
 func (m *LogManager) get(name string) (*Logger, error) {
 	m.mu.RLock()
+
 	if logger, ok := m.channels[name]; ok {
 		m.mu.RUnlock()
+
 		return logger, nil
 	}
+
 	m.mu.RUnlock()
 
 	return m.resolve(name)
@@ -304,11 +320,13 @@ func (m *LogManager) get(name string) (*Logger, error) {
 
 func (m *LogManager) resolve(name string) (*Logger, error) {
 	cc, err := ParseChannelConfig(m.cfg, name)
+
 	if err != nil {
 		return nil, err
 	}
 
 	handler, err := m.createDriver(cc)
+
 	if err != nil {
 		return nil, fmt.Errorf("log: failed to create driver for channel %q: %w", name, err)
 	}
@@ -365,6 +383,7 @@ func (m *LogManager) createSingleDriver(cc ChannelConfig) (Handler, error) {
 	}
 
 	handler, err := NewFileStreamHandler(cc.Path, cc.Level, 0644)
+
 	if err != nil {
 		return nil, err
 	}
@@ -417,6 +436,7 @@ func (m *LogManager) createStackDriver(cc ChannelConfig) (Handler, error) {
 
 	for _, ch := range cc.Channels {
 		logger, err := m.get(ch)
+
 		if err != nil {
 			return nil, fmt.Errorf("log: failed to resolve stack channel %q: %w", ch, err)
 		}
@@ -447,6 +467,7 @@ func (m *LogManager) emergencyLogger() *Logger {
 
 func (m *LogManager) applySharedContext(logger *Logger) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	m.applySharedContextLocked(logger)

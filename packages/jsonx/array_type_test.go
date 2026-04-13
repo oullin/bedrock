@@ -37,6 +37,7 @@ func TestArrayItemsType(t *testing.T) {
 	assertEqual(t, result["type"], "array")
 
 	items, ok := result["items"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected items to be map[string]any")
 	}
@@ -65,6 +66,7 @@ func TestArrayUniqueItems(t *testing.T) {
 	assertEqual(t, result["uniqueItems"], true)
 
 	items, ok := result["items"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected items to be map[string]any")
 	}
@@ -96,6 +98,7 @@ func TestArrayEnum(t *testing.T) {
 	assertEqual(t, result["type"], "array")
 
 	enum, ok := result["enum"].([]any)
+
 	if !ok {
 		t.Fatal("expected enum to be []any")
 	}

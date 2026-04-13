@@ -18,6 +18,7 @@ func TestPut(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,6 +40,7 @@ func TestPutCreatesDirectories(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,6 +62,7 @@ func TestPutWithMode(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,6 +86,7 @@ func TestReplace(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,6 +108,7 @@ func TestReplaceCreatesNewFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,6 +130,7 @@ func TestReplaceWithMode(t *testing.T) {
 	}
 
 	info, err := os.Stat(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,6 +160,7 @@ func TestReplaceSymlink(t *testing.T) {
 
 	// The symlink now points to a new file with the replaced content.
 	data, err := os.ReadFile(link)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,6 +184,7 @@ func TestReplaceInFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,6 +208,7 @@ func TestPrepend(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,6 +230,7 @@ func TestPrependNewFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,6 +254,7 @@ func TestAppend(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,6 +276,7 @@ func TestAppendNewFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,6 +304,7 @@ func TestAppendMultiple(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,11 +9,20 @@ GO_PACKAGES := \
 	packages/auth \
 	packages/bus \
 	packages/cache \
+	packages/concurrency \
+	packages/conditionable \
+	packages/config \
+	packages/container \
 	packages/contracts \
 	packages/cookie \
-	packages/fortify \
+	packages/encryption \
+	packages/events \
+	packages/filesystem \
+	packages/hashing \
 	packages/httpx \
-	packages/jetstream \
+	packages/inception \
+	packages/jsonx \
+	packages/log \
 	packages/queue \
 	packages/routing \
 	packages/session \

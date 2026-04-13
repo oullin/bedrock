@@ -8,11 +8,27 @@ type AddTeamMemberHandler struct {
 }
 
 // NewAddTeamMemberHandler creates a new add team member handler.
+
+// ServeHTTP handles the add team member request.
+
+// UpdateTeamMemberRoleHandler handles PUT /teams/{team}/members/{user} requests.
+type UpdateTeamMemberRoleHandler struct {
+	app *Inception
+}
+
+// NewUpdateTeamMemberRoleHandler creates a new update member role handler.
+
+// ServeHTTP handles the update team member role request.
+
+// RemoveTeamMemberHandler handles DELETE /teams/{team}/members/{user} requests.
+type RemoveTeamMemberHandler struct {
+	app *Inception
+}
+
 func NewAddTeamMemberHandler(app *Inception) *AddTeamMemberHandler {
 	return &AddTeamMemberHandler{app: app}
 }
 
-// ServeHTTP handles the add team member request.
 func (h *AddTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -53,17 +69,10 @@ func (h *AddTeamMemberHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-// UpdateTeamMemberRoleHandler handles PUT /teams/{team}/members/{user} requests.
-type UpdateTeamMemberRoleHandler struct {
-	app *Inception
-}
-
-// NewUpdateTeamMemberRoleHandler creates a new update member role handler.
 func NewUpdateTeamMemberRoleHandler(app *Inception) *UpdateTeamMemberRoleHandler {
 	return &UpdateTeamMemberRoleHandler{app: app}
 }
 
-// ServeHTTP handles the update team member role request.
 func (h *UpdateTeamMemberRoleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := authenticateTeamUser(h.app, w, r)
 
@@ -110,11 +119,6 @@ func (h *UpdateTeamMemberRoleHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-// RemoveTeamMemberHandler handles DELETE /teams/{team}/members/{user} requests.
-type RemoveTeamMemberHandler struct {
-	app *Inception
 }
 
 // NewRemoveTeamMemberHandler creates a new remove team member handler.

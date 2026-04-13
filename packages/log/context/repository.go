@@ -27,6 +27,7 @@ func New() *Repository {
 // Has reports whether all of the given keys are set in the public context.
 func (r *Repository) Has(keys ...string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, key := range keys {
@@ -46,6 +47,7 @@ func (r *Repository) Missing(key string) bool {
 // HasHidden reports whether all of the given keys are set in the hidden context.
 func (r *Repository) HasHidden(keys ...string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, key := range keys {
@@ -65,6 +67,7 @@ func (r *Repository) MissingHidden(key string) bool {
 // Get returns the value for the given key, or the fallback if not set.
 func (r *Repository) Get(key string, fallback ...any) any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	if v, ok := r.data[key]; ok {
@@ -81,6 +84,7 @@ func (r *Repository) Get(key string, fallback ...any) any {
 // GetHidden returns the value for the given key from the hidden context.
 func (r *Repository) GetHidden(key string, fallback ...any) any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	if v, ok := r.hidden[key]; ok {
@@ -97,6 +101,7 @@ func (r *Repository) GetHidden(key string, fallback ...any) any {
 // All returns a copy of all public context data.
 func (r *Repository) All() map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return r.copyMap(r.data)
@@ -105,6 +110,7 @@ func (r *Repository) All() map[string]any {
 // AllHidden returns a copy of all hidden context data.
 func (r *Repository) AllHidden() map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return r.copyMap(r.hidden)
@@ -113,6 +119,7 @@ func (r *Repository) AllHidden() map[string]any {
 // Only returns a map containing only the specified keys.
 func (r *Repository) Only(keys ...string) map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	result := make(map[string]any, len(keys))
@@ -129,6 +136,7 @@ func (r *Repository) Only(keys ...string) map[string]any {
 // OnlyHidden returns a map of only the specified hidden keys.
 func (r *Repository) OnlyHidden(keys ...string) map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	result := make(map[string]any, len(keys))
@@ -145,6 +153,7 @@ func (r *Repository) OnlyHidden(keys ...string) map[string]any {
 // Except returns all public data except the specified keys.
 func (r *Repository) Except(keys ...string) map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	exclude := make(map[string]struct{}, len(keys))
@@ -167,6 +176,7 @@ func (r *Repository) Except(keys ...string) map[string]any {
 // ExceptHidden returns all hidden data except the specified keys.
 func (r *Repository) ExceptHidden(keys ...string) map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	exclude := make(map[string]struct{}, len(keys))
@@ -189,6 +199,7 @@ func (r *Repository) ExceptHidden(keys ...string) map[string]any {
 // Add sets a key-value pair in the public context.
 func (r *Repository) Add(key string, value any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.data[key] = value
@@ -199,6 +210,7 @@ func (r *Repository) Add(key string, value any) *Repository {
 // AddHidden sets a key-value pair in the hidden context.
 func (r *Repository) AddHidden(key string, value any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.hidden[key] = value
@@ -209,6 +221,7 @@ func (r *Repository) AddHidden(key string, value any) *Repository {
 // AddIf sets a key-value pair only if the key is not already present.
 func (r *Repository) AddIf(key string, value any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if _, ok := r.data[key]; !ok {
@@ -221,6 +234,7 @@ func (r *Repository) AddIf(key string, value any) *Repository {
 // AddHiddenIf sets a hidden key-value pair only if the key is not already present.
 func (r *Repository) AddHiddenIf(key string, value any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if _, ok := r.hidden[key]; !ok {
@@ -233,6 +247,7 @@ func (r *Repository) AddHiddenIf(key string, value any) *Repository {
 // Forget removes the given keys from the public context.
 func (r *Repository) Forget(keys ...string) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, key := range keys {
@@ -245,6 +260,7 @@ func (r *Repository) Forget(keys ...string) *Repository {
 // ForgetHidden removes the given keys from the hidden context.
 func (r *Repository) ForgetHidden(keys ...string) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, key := range keys {
@@ -257,10 +273,12 @@ func (r *Repository) ForgetHidden(keys ...string) *Repository {
 // Pull retrieves a value and removes it from the public context.
 func (r *Repository) Pull(key string, fallback ...any) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if v, ok := r.data[key]; ok {
 		delete(r.data, key)
+
 		return v
 	}
 
@@ -274,10 +292,12 @@ func (r *Repository) Pull(key string, fallback ...any) any {
 // PullHidden retrieves a value and removes it from the hidden context.
 func (r *Repository) PullHidden(key string, fallback ...any) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if v, ok := r.hidden[key]; ok {
 		delete(r.hidden, key)
+
 		return v
 	}
 
@@ -292,6 +312,7 @@ func (r *Repository) PullHidden(key string, fallback ...any) any {
 // called, the result is stored, and then returned.
 func (r *Repository) Remember(key string, fn func() any) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if v, ok := r.data[key]; ok {
@@ -307,6 +328,7 @@ func (r *Repository) Remember(key string, fn func() any) any {
 // RememberHidden is like Remember but for the hidden context.
 func (r *Repository) RememberHidden(key string, fn func() any) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if v, ok := r.hidden[key]; ok {
@@ -322,15 +344,19 @@ func (r *Repository) RememberHidden(key string, fn func() any) any {
 // Push appends values to a slice stored at the given key.
 func (r *Repository) Push(key string, values ...any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	existing, ok := r.data[key]
+
 	if !ok {
 		r.data[key] = values
+
 		return r
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot push to non-slice value at key %q", key))
 	}
@@ -347,15 +373,19 @@ func (r *Repository) Push(key string, values ...any) *Repository {
 // PushHidden appends values to a slice stored at the given hidden key.
 func (r *Repository) PushHidden(key string, values ...any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	existing, ok := r.hidden[key]
+
 	if !ok {
 		r.hidden[key] = values
+
 		return r
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot push to non-slice hidden value at key %q", key))
 	}
@@ -372,14 +402,17 @@ func (r *Repository) PushHidden(key string, values ...any) *Repository {
 // Pop removes and returns the last element from the slice at the given key.
 func (r *Repository) Pop(key string) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	existing, ok := r.data[key]
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot pop from empty stack at key %q", key))
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot pop from non-slice value at key %q", key))
 	}
@@ -402,14 +435,17 @@ func (r *Repository) Pop(key string) any {
 // given key.
 func (r *Repository) PopHidden(key string) any {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	existing, ok := r.hidden[key]
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot pop from empty hidden stack at key %q", key))
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		panic(fmt.Sprintf("context: cannot pop from non-slice hidden value at key %q", key))
 	}
@@ -431,14 +467,17 @@ func (r *Repository) PopHidden(key string) any {
 // StackContains reports whether the slice at the given key contains the value.
 func (r *Repository) StackContains(key string, value any) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	existing, ok := r.data[key]
+
 	if !ok {
 		return false
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		return false
 	}
@@ -456,14 +495,17 @@ func (r *Repository) StackContains(key string, value any) bool {
 // element satisfying fn.
 func (r *Repository) StackContainsFunc(key string, fn func(any) bool) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	existing, ok := r.data[key]
+
 	if !ok {
 		return false
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		return false
 	}
@@ -481,14 +523,17 @@ func (r *Repository) StackContainsFunc(key string, fn func(any) bool) bool {
 // contains the value.
 func (r *Repository) HiddenStackContains(key string, value any) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	existing, ok := r.hidden[key]
+
 	if !ok {
 		return false
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		return false
 	}
@@ -506,14 +551,17 @@ func (r *Repository) HiddenStackContains(key string, value any) bool {
 // contains an element satisfying fn.
 func (r *Repository) HiddenStackContainsFunc(key string, fn func(any) bool) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	existing, ok := r.hidden[key]
+
 	if !ok {
 		return false
 	}
 
 	slice, ok := existing.([]any)
+
 	if !ok {
 		return false
 	}
@@ -530,16 +578,20 @@ func (r *Repository) HiddenStackContainsFunc(key string, fn func(any) bool) bool
 // Increment increments an integer counter at the given key.
 func (r *Repository) Increment(key string, by ...int) *Repository {
 	amount := 1
+
 	if len(by) > 0 {
 		amount = by[0]
 	}
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	current, ok := r.data[key]
+
 	if !ok {
 		r.data[key] = amount
+
 		return r
 	}
 
@@ -553,16 +605,20 @@ func (r *Repository) Increment(key string, by ...int) *Repository {
 // Decrement decrements an integer counter at the given key.
 func (r *Repository) Decrement(key string, by ...int) *Repository {
 	amount := 1
+
 	if len(by) > 0 {
 		amount = by[0]
 	}
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	current, ok := r.data[key]
+
 	if !ok {
 		r.data[key] = -amount
+
 		return r
 	}
 
@@ -601,6 +657,7 @@ func (r *Repository) Scope(fn func(*Repository), data ...map[string]any) *Reposi
 // if the repository is empty.
 func (r *Repository) Dehydrate() map[string]any {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, cb := range r.dehydrating {
@@ -617,6 +674,7 @@ func (r *Repository) Dehydrate() map[string]any {
 // Hydrate restores repository data from a previously dehydrated state.
 func (r *Repository) Hydrate(data map[string]any) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if data != nil {
@@ -635,6 +693,7 @@ func (r *Repository) Hydrate(data map[string]any) *Repository {
 // Dehydrating registers a callback to run before dehydration.
 func (r *Repository) Dehydrating(fn func(*Repository)) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.dehydrating = append(r.dehydrating, fn)
@@ -645,6 +704,7 @@ func (r *Repository) Dehydrating(fn func(*Repository)) *Repository {
 // Hydrated registers a callback to run after hydration.
 func (r *Repository) Hydrated(fn func(*Repository)) *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.hydrated = append(r.hydrated, fn)
@@ -655,6 +715,7 @@ func (r *Repository) Hydrated(fn func(*Repository)) *Repository {
 // Flush clears all data, hidden data, and callbacks.
 func (r *Repository) Flush() *Repository {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.data = make(map[string]any)
@@ -666,6 +727,7 @@ func (r *Repository) Flush() *Repository {
 // IsEmpty reports whether the repository has no public or hidden data.
 func (r *Repository) IsEmpty() bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return len(r.data) == 0 && len(r.hidden) == 0

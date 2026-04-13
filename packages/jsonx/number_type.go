@@ -19,23 +19,27 @@ func newNumberType() *NumberType {
 // Min sets the minimum value (inclusive).
 func (t *NumberType) Min(value float64) *NumberType {
 	t.minimum = &value
+
 	return t
 }
 
 // Max sets the maximum value (inclusive).
 func (t *NumberType) Max(value float64) *NumberType {
 	t.maximum = &value
+
 	return t
 }
 
 // MultipleOf sets the number the value must be a multiple of.
 func (t *NumberType) MultipleOf(value float64) *NumberType {
 	t.multipleOf = &value
+
 	return t
 }
 
 // Default sets the default value for the number type.
 func (t *NumberType) Default(value float64) *NumberType {
 	t.defaultVal = value
+
 	return t
 }

@@ -19,6 +19,7 @@ func newLogger() *logger {
 
 func (l *logger) Log(values ...any) *logger {
 	l.Values = append(l.Values, values...)
+
 	return l
 }
 
@@ -28,6 +29,7 @@ func (l *logger) Has(value any) bool {
 
 func (l *logger) DoToggle() *logger {
 	l.Toggle = !l.Toggle
+
 	return l
 }
 

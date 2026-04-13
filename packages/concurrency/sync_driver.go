@@ -28,6 +28,7 @@ func (d *SyncDriver) Run(ctx context.Context, tasks []Task) ([]any, error) {
 		}
 
 		val, err := d.safeCall(task)
+
 		if err != nil {
 			return results, err
 		}

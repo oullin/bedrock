@@ -11,15 +11,33 @@ import (
 	"github.com/bedrock/packages/events"
 )
 
+// Register listener.
+
+// Dispatch concurrently.
+
+// Concurrently register and dispatch.
+
+// Deferred events are dispatched after the callback.
+
+// Just verify it can be set without panic.
+
+// testSubscriber implements Subscriber for testing.
+type testSubscriber struct {
+	orderFn events.Listener
+	userFn  events.Listener
+}
+
 func TestListenAndDispatchStringEvent(t *testing.T) {
 	t.Parallel()
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var called bool
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -39,10 +57,12 @@ func TestListenAndDispatchStructEvent(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var received string
 
 	d.Listen(testOrderCreated{}, func(ctx context.Context, event any) (any, error) {
 		received = event.(testOrderCreated).OrderID
+
 		return nil, nil
 	})
 
@@ -116,6 +136,7 @@ func TestUntilStopsOnFirstNonNilResponse(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var secondCalled bool
 
 	d.Listen("e", func(ctx context.Context, event any) (any, error) {
@@ -124,6 +145,7 @@ func TestUntilStopsOnFirstNonNilResponse(t *testing.T) {
 
 	d.Listen("e", func(ctx context.Context, event any) (any, error) {
 		secondCalled = true
+
 		return "never", nil
 	})
 
@@ -186,10 +208,12 @@ func TestWildcardListeners(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var calls []string
 
 	d.Listen("order.*", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "wildcard")
+
 		return nil, nil
 	})
 
@@ -207,15 +231,18 @@ func TestWildcardAndDirectListeners(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var calls []string
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "direct")
+
 		return nil, nil
 	})
 
 	d.Listen("order.*", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "wildcard")
+
 		return nil, nil
 	})
 
@@ -321,10 +348,12 @@ func TestPushAndFlush(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var called bool
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -350,10 +379,12 @@ func TestForgetPushed(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var called bool
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		called = true
+
 		return nil, nil
 	})
 
@@ -376,15 +407,18 @@ func TestSubscriber(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var orderCalled, userCalled bool
 
 	sub := &testSubscriber{
 		orderFn: func(ctx context.Context, event any) (any, error) {
 			orderCalled = true
+
 			return nil, nil
 		},
 		userFn: func(ctx context.Context, event any) (any, error) {
 			userCalled = true
+
 			return nil, nil
 		},
 	}
@@ -452,10 +486,12 @@ func TestListenMultipleEvents(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var count int
 
 	d.Listen([]string{"order.created", "order.shipped"}, func(ctx context.Context, event any) (any, error) {
 		count++
+
 		return nil, nil
 	})
 
@@ -533,21 +569,23 @@ func TestConcurrentListenAndDispatch(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var count atomic.Int64
+
 	var wg sync.WaitGroup
 
-	// Register listener.
 	d.Listen("e", func(ctx context.Context, event any) (any, error) {
 		count.Add(1)
+
 		return nil, nil
 	})
 
-	// Dispatch concurrently.
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
+
 			d.Dispatch(ctx, "e")
 		}()
 	}
@@ -564,9 +602,9 @@ func TestConcurrentListenAndDispatchMultipleEvents(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var wg sync.WaitGroup
 
-	// Concurrently register and dispatch.
 	for i := 0; i < 50; i++ {
 		wg.Add(2)
 		event := fmt.Sprintf("event.%d", i)
@@ -581,6 +619,7 @@ func TestConcurrentListenAndDispatchMultipleEvents(t *testing.T) {
 
 		go func() {
 			defer wg.Done()
+
 			d.Dispatch(ctx, event)
 		}()
 	}
@@ -593,16 +632,19 @@ func TestDefer(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var calls []string
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "order.created")
+
 		return nil, nil
 	})
 
 	err := d.Defer(ctx, func(ctx context.Context) error {
 		d.Dispatch(ctx, "order.created")
 		d.Dispatch(ctx, "order.created")
+
 		return nil
 	}, "order.created")
 
@@ -610,7 +652,6 @@ func TestDefer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Deferred events are dispatched after the callback.
 	if len(calls) != 2 {
 		t.Fatalf("expected 2 calls after defer, got %d", len(calls))
 	}
@@ -621,21 +662,25 @@ func TestDeferAllEvents(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var calls []string
 
 	d.Listen("a", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "a")
+
 		return nil, nil
 	})
 
 	d.Listen("b", func(ctx context.Context, event any) (any, error) {
 		calls = append(calls, "b")
+
 		return nil, nil
 	})
 
 	err := d.Defer(ctx, func(ctx context.Context) error {
 		d.Dispatch(ctx, "a")
 		d.Dispatch(ctx, "b")
+
 		return nil
 	})
 
@@ -673,10 +718,12 @@ func TestDispatchPointerEvent(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var received string
 
 	d.Listen(testOrderCreated{}, func(ctx context.Context, event any) (any, error) {
 		received = event.(*testOrderCreated).OrderID
+
 		return nil, nil
 	})
 
@@ -696,15 +743,18 @@ func TestFlushOnlyNamedEvents(t *testing.T) {
 
 	d := events.NewDispatcher()
 	ctx := context.Background()
+
 	var orderCalled, userCalled bool
 
 	d.Listen("order.created", func(ctx context.Context, event any) (any, error) {
 		orderCalled = true
+
 		return nil, nil
 	})
 
 	d.Listen("user.registered", func(ctx context.Context, event any) (any, error) {
 		userCalled = true
+
 		return nil, nil
 	})
 
@@ -734,10 +784,10 @@ func TestSetQueueResolver(t *testing.T) {
 
 	d.SetQueueResolver(func() events.QueueBackend {
 		called = true
+
 		return nil
 	})
 
-	// Just verify it can be set without panic.
 	if called {
 		t.Fatal("resolver should not be called during set")
 	}
@@ -751,18 +801,13 @@ func TestSetTransactionManagerResolver(t *testing.T) {
 
 	d.SetTransactionManagerResolver(func() events.TransactionManager {
 		called = true
+
 		return nil
 	})
 
 	if called {
 		t.Fatal("resolver should not be called during set")
 	}
-}
-
-// testSubscriber implements Subscriber for testing.
-type testSubscriber struct {
-	orderFn events.Listener
-	userFn  events.Listener
 }
 
 func (s *testSubscriber) Subscribe(d cevents.Dispatcher) {

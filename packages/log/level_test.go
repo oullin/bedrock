@@ -26,6 +26,7 @@ func TestParseLevelValid(t *testing.T) {
 
 	for input, expected := range cases {
 		level, err := log.ParseLevel(input)
+
 		if err != nil {
 			t.Errorf("ParseLevel(%q): unexpected error: %v", input, err)
 		}
@@ -40,6 +41,7 @@ func TestParseLevelInvalid(t *testing.T) {
 	t.Parallel()
 
 	_, err := log.ParseLevel("invalid")
+
 	if !errors.Is(err, log.ErrInvalidLevel) {
 		t.Fatalf("expected ErrInvalidLevel, got %v", err)
 	}
@@ -61,6 +63,7 @@ func TestLevelName(t *testing.T) {
 
 	for level, expected := range cases {
 		name := log.LevelName(level)
+
 		if name != expected {
 			t.Errorf("LevelName(%d) = %q, want %q", level, name, expected)
 		}
@@ -71,6 +74,7 @@ func TestLevelNameUnknown(t *testing.T) {
 	t.Parallel()
 
 	name := log.LevelName(log.Level(999))
+
 	if name != "unknown" {
 		t.Fatalf("LevelName(999) = %q, want %q", name, "unknown")
 	}

@@ -133,6 +133,7 @@ func TestSyncDeferReturnsCallback(t *testing.T) {
 	}
 
 	results, err := cb.Flush(context.Background())
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -16,5 +16,6 @@ func newBooleanType() *BooleanType {
 // Default sets the default value for the boolean type.
 func (t *BooleanType) Default(value bool) *BooleanType {
 	t.defaultVal = value
+
 	return t
 }

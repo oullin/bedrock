@@ -12,23 +12,28 @@ import (
 // When hidden is explicitly set to false, hidden files are excluded.
 func (f *Filesystem) Files(directory string, hidden ...bool) ([]string, error) {
 	includeHidden := false
+
 	if len(hidden) > 0 {
 		includeHidden = hidden[0]
 	}
 
 	entries, err := os.ReadDir(directory)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var files []string
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
 		}
+
 		if !includeHidden && strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
+
 		files = append(files, filepath.Join(directory, entry.Name()))
 	}
 
@@ -38,6 +43,7 @@ func (f *Filesystem) Files(directory string, hidden ...bool) ([]string, error) {
 // AllFiles returns all files in the directory tree recursively.
 func (f *Filesystem) AllFiles(directory string, hidden ...bool) ([]string, error) {
 	includeHidden := false
+
 	if len(hidden) > 0 {
 		includeHidden = hidden[0]
 	}
@@ -53,6 +59,7 @@ func (f *Filesystem) AllFiles(directory string, hidden ...bool) ([]string, error
 			if !includeHidden && path != directory && strings.HasPrefix(d.Name(), ".") {
 				return filepath.SkipDir
 			}
+
 			return nil
 		}
 
@@ -61,6 +68,7 @@ func (f *Filesystem) AllFiles(directory string, hidden ...bool) ([]string, error
 		}
 
 		files = append(files, path)
+
 		return nil
 	})
 
@@ -70,11 +78,13 @@ func (f *Filesystem) AllFiles(directory string, hidden ...bool) ([]string, error
 // Directories returns the directories in the given directory (non-recursive).
 func (f *Filesystem) Directories(directory string) ([]string, error) {
 	entries, err := os.ReadDir(directory)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var dirs []string
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			dirs = append(dirs, filepath.Join(directory, entry.Name()))
@@ -107,6 +117,7 @@ func (f *Filesystem) AllDirectories(directory string) ([]string, error) {
 // The default mode is 0755.
 func (f *Filesystem) EnsureDirectoryExists(path string, mode ...fs.FileMode) error {
 	perm := fs.FileMode(0o755)
+
 	if len(mode) > 0 {
 		perm = mode[0]
 	}
@@ -118,6 +129,7 @@ func (f *Filesystem) EnsureDirectoryExists(path string, mode ...fs.FileMode) err
 // By default it creates parent directories recursively.
 func (f *Filesystem) MakeDirectory(path string, mode ...fs.FileMode) error {
 	perm := fs.FileMode(0o755)
+
 	if len(mode) > 0 {
 		perm = mode[0]
 	}
@@ -129,6 +141,7 @@ func (f *Filesystem) MakeDirectory(path string, mode ...fs.FileMode) error {
 // When overwrite is true, any existing destination directory is removed first.
 func (f *Filesystem) MoveDirectory(from, to string, overwrite ...bool) error {
 	shouldOverwrite := false
+
 	if len(overwrite) > 0 {
 		shouldOverwrite = overwrite[0]
 	}
@@ -155,9 +168,11 @@ func (f *Filesystem) MoveDirectory(from, to string, overwrite ...bool) error {
 // CopyDirectory recursively copies a directory and its contents.
 func (f *Filesystem) CopyDirectory(directory, destination string) error {
 	info, err := os.Stat(directory)
+
 	if err != nil {
 		return err
 	}
+
 	if !info.IsDir() {
 		return ErrNotDirectory
 	}
@@ -168,6 +183,7 @@ func (f *Filesystem) CopyDirectory(directory, destination string) error {
 		}
 
 		rel, err := filepath.Rel(directory, path)
+
 		if err != nil {
 			return err
 		}
@@ -186,10 +202,12 @@ func (f *Filesystem) CopyDirectory(directory, destination string) error {
 // When preserve is true, the directory itself is kept but its contents are removed.
 func (f *Filesystem) DeleteDirectory(directory string, preserve ...bool) error {
 	info, err := os.Stat(directory)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
 		}
+
 		return err
 	}
 
@@ -198,6 +216,7 @@ func (f *Filesystem) DeleteDirectory(directory string, preserve ...bool) error {
 	}
 
 	shouldPreserve := false
+
 	if len(preserve) > 0 {
 		shouldPreserve = preserve[0]
 	}
@@ -213,6 +232,7 @@ func (f *Filesystem) DeleteDirectory(directory string, preserve ...bool) error {
 // leaving files intact.
 func (f *Filesystem) DeleteDirectories(directory string) error {
 	entries, err := os.ReadDir(directory)
+
 	if err != nil {
 		return err
 	}
@@ -235,12 +255,14 @@ func (f *Filesystem) CleanDirectory(directory string) error {
 
 func (f *Filesystem) cleanDir(directory string) error {
 	entries, err := os.ReadDir(directory)
+
 	if err != nil {
 		return err
 	}
 
 	for _, entry := range entries {
 		path := filepath.Join(directory, entry.Name())
+
 		if err := os.RemoveAll(path); err != nil {
 			return err
 		}

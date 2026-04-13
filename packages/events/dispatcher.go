@@ -56,6 +56,7 @@ func (d *EventDispatcher) HasListeners(event any) bool {
 	name := eventName(event)
 
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	if len(d.listeners[name]) > 0 {
@@ -70,6 +71,7 @@ func (d *EventDispatcher) HasWildcardListeners(event any) bool {
 	name := eventName(event)
 
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	return d.hasWildcardMatch(name)
@@ -108,6 +110,7 @@ func (d *EventDispatcher) Push(ctx context.Context, event any) {
 	name := eventName(event)
 
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.pushed[name] = append(d.pushed[name], event)
@@ -136,6 +139,7 @@ func (d *EventDispatcher) Forget(event any) {
 	name := eventName(event)
 
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	delete(d.listeners, name)
@@ -146,6 +150,7 @@ func (d *EventDispatcher) Forget(event any) {
 // ForgetPushed clears all pushed/deferred events.
 func (d *EventDispatcher) ForgetPushed() {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.pushed = make(map[string][]any)
@@ -156,6 +161,7 @@ func (d *EventDispatcher) GetListeners(event any) []Listener {
 	name := eventName(event)
 
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	direct := d.listeners[name]
@@ -175,6 +181,7 @@ func (d *EventDispatcher) GetListeners(event any) []Listener {
 // GetRawListeners returns a copy of the raw listener registry for inspection.
 func (d *EventDispatcher) GetRawListeners() map[string][]Listener {
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
 
 	raw := make(map[string][]Listener, len(d.listeners))
@@ -201,6 +208,7 @@ func (d *EventDispatcher) MakeListener(listener Listener, wildcard bool) Listene
 // SetQueueResolver sets the resolver for the queue backend.
 func (d *EventDispatcher) SetQueueResolver(resolver QueueResolver) *EventDispatcher {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.queueResolver = resolver
@@ -211,6 +219,7 @@ func (d *EventDispatcher) SetQueueResolver(resolver QueueResolver) *EventDispatc
 // SetTransactionManagerResolver sets the resolver for the transaction manager.
 func (d *EventDispatcher) SetTransactionManagerResolver(resolver TransactionManagerResolver) *EventDispatcher {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.transactionManagerResolver = resolver
@@ -223,6 +232,7 @@ func (d *EventDispatcher) SetTransactionManagerResolver(resolver TransactionMana
 // events are flushed.
 func (d *EventDispatcher) Defer(ctx context.Context, callback func(ctx context.Context) error, events ...string) error {
 	deferSet := make(map[string]struct{}, len(events))
+
 	for _, e := range events {
 		deferSet[e] = struct{}{}
 	}
@@ -236,6 +246,7 @@ func (d *EventDispatcher) Defer(ctx context.Context, callback func(ctx context.C
 	d.mu.Lock()
 
 	original := make(map[string][]Listener, len(d.listeners))
+
 	for k, v := range d.listeners {
 		original[k] = v
 	}
