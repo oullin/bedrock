@@ -9,9 +9,10 @@ import (
 // Response wraps an *http.Response with convenience status-checking and body
 // access methods matching Laravel's Http client response API.
 type Response struct {
-	raw  *http.Response
-	body []byte
-	read bool
+	raw   *http.Response
+	body  []byte
+	read  bool
+	stats map[string]any
 }
 
 // NewResponse creates a Response from a raw *http.Response. The body is read
@@ -187,6 +188,136 @@ func (r *Response) ThrowIf(condition bool) error {
 // Cookies returns all cookies set on the response.
 func (r *Response) Cookies() []*http.Cookie {
 	return r.raw.Cookies()
+}
+
+// Reason returns the textual reason phrase for the status code (e.g. "OK",
+// "Not Found").
+func (r *Response) Reason() string {
+	return http.StatusText(r.raw.StatusCode)
+}
+
+// Collect decodes the JSON response body into a map. When a key is provided
+// only the nested value for that key is returned.
+func (r *Response) Collect(key ...string) map[string]any {
+	var data map[string]any
+
+	if err := json.Unmarshal(r.Bytes(), &data); err != nil {
+		return nil
+	}
+
+	if len(key) > 0 && key[0] != "" {
+		if nested, ok := data[key[0]]; ok {
+			if m, ok := nested.(map[string]any); ok {
+				return m
+			}
+		}
+
+		return nil
+	}
+
+	return data
+}
+
+// EffectiveUri returns the final URL after following any redirects.
+func (r *Response) EffectiveUri() string {
+	if r.raw.Request != nil && r.raw.Request.URL != nil {
+		return r.raw.Request.URL.String()
+	}
+
+	return ""
+}
+
+// ThrowUnless returns a RequestError when the condition is false and the
+// response indicates failure.
+func (r *Response) ThrowUnless(condition bool) error {
+	if !condition {
+		return r.Throw()
+	}
+
+	return nil
+}
+
+// ThrowIfStatus returns a RequestError when the response status matches the
+// given code, regardless of whether the status is normally considered a failure.
+func (r *Response) ThrowIfStatus(code int) error {
+	if r.raw.StatusCode == code {
+		return &RequestError{Response: r}
+	}
+
+	return nil
+}
+
+// ThrowUnlessStatus returns a RequestError when the response status does not
+// match the given code.
+func (r *Response) ThrowUnlessStatus(code int) error {
+	if r.raw.StatusCode != code {
+		return &RequestError{Response: r}
+	}
+
+	return nil
+}
+
+// ThrowIfClientError returns a RequestError when the response has a 4xx status.
+func (r *Response) ThrowIfClientError() error {
+	if r.ClientError() {
+		return &RequestError{Response: r}
+	}
+
+	return nil
+}
+
+// ThrowIfServerError returns a RequestError when the response has a 5xx status.
+func (r *Response) ThrowIfServerError() error {
+	if r.ServerError() {
+		return &RequestError{Response: r}
+	}
+
+	return nil
+}
+
+// OnError calls the given callback when the response indicates failure and
+// returns the response for chaining.
+func (r *Response) OnError(fn func(*Response)) *Response {
+	if r.Failed() {
+		fn(r)
+	}
+
+	return r
+}
+
+// Close closes the response body if it has not already been read.
+func (r *Response) Close() error {
+	if !r.read && r.raw.Body != nil {
+		return r.raw.Body.Close()
+	}
+
+	return nil
+}
+
+// ToException returns a RequestError when the response indicates failure.
+// Returns nil for successful responses.
+func (r *Response) ToException() *RequestError {
+	if r.Failed() {
+		return &RequestError{Response: r}
+	}
+
+	return nil
+}
+
+// HandlerStats returns transfer statistics collected during the request.
+// Keys may include "dns_ms", "connect_ms", "tls_ms", and "total_ms".
+func (r *Response) HandlerStats() map[string]any {
+	if r.stats == nil {
+		return map[string]any{}
+	}
+
+	return r.stats
+}
+
+// SetStats sets the transfer statistics for this response. This is intended
+// for internal use by the client.
+func (r *Response) SetStats(stats map[string]any) {
+	r.stats = stats
 }
 
 // Raw returns the underlying *http.Response.
