@@ -1,28 +1,50 @@
 package routing
 
-import nethttp "net/http"
-
-// Pipeline chains middleware functions and a final handler into a single
-// http.Handler. Middleware are executed in the order they were added.
+// Pipeline is a thin local pipeline used by [Router] to chain middleware
+// around a route handler.
+//
+// In Laravel this class is a subclass of Illuminate\Pipeline\Pipeline that
+// adds exception handling. The full pipeline lives in bedrock/packages/pipeline,
+// and M11 will rewire this Pipeline to delegate to it. For now (so the
+// routing module stays buildable in isolation) it implements the minimal
+// Send/Through/Then surface itself.
+//
+// Mirrors Illuminate\Routing\Pipeline.
 type Pipeline struct {
-	middleware []MiddlewareFunc
+	passable any
+	pipes    []func(passable any, next func(any) any) any
 }
 
-// NewPipeline creates a pipeline with the given middleware.
-func NewPipeline(middleware ...MiddlewareFunc) *Pipeline {
-	return &Pipeline{middleware: middleware}
+// NewPipeline returns an empty pipeline.
+func NewPipeline() *Pipeline { return &Pipeline{} }
+
+// Send sets the value that flows through the pipeline (the request).
+func (p *Pipeline) Send(passable any) *Pipeline {
+	p.passable = passable
+
+	return p
 }
 
-// Then wraps handler with the pipeline's middleware and returns the result.
-func (p *Pipeline) Then(handler nethttp.Handler) nethttp.Handler {
-	for i := len(p.middleware) - 1; i >= 0; i-- {
-		handler = p.middleware[i](handler)
+// Through registers the middleware functions to run, in order.
+func (p *Pipeline) Through(pipes []func(passable any, next func(any) any) any) *Pipeline {
+	p.pipes = pipes
+
+	return p
+}
+
+// Then runs the pipeline, terminating with destination(passable).
+//
+// Each pipe receives the current passable and a `next` callback. To pass
+// control on, the pipe calls next(passable). To short-circuit, the pipe
+// returns its own value without invoking next.
+func (p *Pipeline) Then(destination func(any) any) any {
+	next := destination
+
+	for i := len(p.pipes) - 1; i >= 0; i-- {
+		pipe := p.pipes[i]
+		current := next
+		next = func(passable any) any { return pipe(passable, current) }
 	}
 
-	return handler
-}
-
-// ThenFunc wraps a handler function with the pipeline's middleware.
-func (p *Pipeline) ThenFunc(fn nethttp.HandlerFunc) nethttp.Handler {
-	return p.Then(fn)
+	return next(p.passable)
 }

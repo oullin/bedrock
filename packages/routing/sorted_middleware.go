@@ -1,69 +1,115 @@
 package routing
 
-import (
-	"reflect"
-	"sort"
-)
+import "strings"
 
-// MiddlewarePriority manages priority-based sorting of middleware functions.
-// Lower priority values execute first.
-type MiddlewarePriority struct {
-	priority map[uintptr]int
+// SortedMiddleware is the deduplicated, priority-ordered middleware list.
+//
+// In Laravel this is a Collection subclass; in Go it is a plain slice with
+// a constructor that performs the sort. Slice elements are typed as any
+// because middleware may be either a string class name (with optional ":args"
+// suffix) or a closure.
+//
+// Mirrors Illuminate\Routing\SortedMiddleware.
+type SortedMiddleware []any
+
+// NewSortedMiddleware returns the middleware list reordered so that any
+// middleware appearing in priorityMap respects its relative position there,
+// then deduplicated with the same logic as Router::uniqueMiddleware.
+func NewSortedMiddleware(priorityMap []string, middleware []any) SortedMiddleware {
+	return uniqueMiddleware(sortMiddleware(priorityMap, middleware))
 }
 
-// NewMiddlewarePriority creates a new middleware priority manager.
-func NewMiddlewarePriority() *MiddlewarePriority {
-	return &MiddlewarePriority{
-		priority: make(map[uintptr]int),
+func sortMiddleware(priorityMap []string, middleware []any) []any {
+	work := make([]any, len(middleware))
+	copy(work, middleware)
+
+	for {
+		lastIndex := -1
+		lastPriorityIndex := -1
+		moved := false
+
+		for i, m := range work {
+			s, ok := m.(string)
+
+			if !ok {
+				continue
+			}
+
+			pi := priorityMapIndex(priorityMap, s)
+
+			if pi < 0 {
+				continue
+			}
+
+			if lastPriorityIndex >= 0 && pi < lastPriorityIndex {
+				work = moveMiddleware(work, i, lastIndex)
+				moved = true
+
+				break
+			}
+
+			lastIndex = i
+			lastPriorityIndex = pi
+		}
+
+		if !moved {
+			return work
+		}
 	}
 }
 
-// Set assigns a priority to a middleware function. Lower values run first.
-func (mp *MiddlewarePriority) Set(mw MiddlewareFunc, priority int) {
-	ptr := reflect.ValueOf(mw).Pointer()
-	mp.priority[ptr] = priority
+func priorityMapIndex(priorityMap []string, middleware string) int {
+	stripped := middleware
+
+	if idx := strings.Index(middleware, ":"); idx >= 0 {
+		stripped = middleware[:idx]
+	}
+
+	for i, name := range priorityMap {
+		if name == stripped {
+			return i
+		}
+	}
+
+	return -1
 }
 
-// Sort returns a new slice of middleware sorted by priority. Middleware without
-// an assigned priority retains its relative position after all prioritized
-// middleware.
-func (mp *MiddlewarePriority) Sort(middleware []MiddlewareFunc) []MiddlewareFunc {
-	type entry struct {
-		mw       MiddlewareFunc
-		priority int
-		index    int
-		hasPrio  bool
+func moveMiddleware(in []any, from, to int) []any {
+	if from == to {
+		return in
 	}
 
-	entries := make([]entry, len(middleware))
-
-	for i, mw := range middleware {
-		ptr := reflect.ValueOf(mw).Pointer()
-		prio, ok := mp.priority[ptr]
-		entries[i] = entry{mw: mw, priority: prio, index: i, hasPrio: ok}
+	if to < 0 {
+		to = 0
 	}
 
-	sort.SliceStable(entries, func(i, j int) bool {
-		if entries[i].hasPrio && entries[j].hasPrio {
-			return entries[i].priority < entries[j].priority
+	out := make([]any, 0, len(in))
+	out = append(out, in[:to]...)
+	out = append(out, in[from])
+	out = append(out, in[to:from]...)
+	out = append(out, in[from+1:]...)
+
+	return out
+}
+
+// uniqueMiddleware mirrors Router::uniqueMiddleware: it preserves first
+// occurrence and discards later duplicates. Only string entries are eligible
+// for dedup; closures are kept verbatim.
+func uniqueMiddleware(middleware []any) SortedMiddleware {
+	seen := map[string]struct{}{}
+	out := make(SortedMiddleware, 0, len(middleware))
+
+	for _, m := range middleware {
+		if s, ok := m.(string); ok {
+			if _, dup := seen[s]; dup {
+				continue
+			}
+
+			seen[s] = struct{}{}
 		}
 
-		if entries[i].hasPrio && !entries[j].hasPrio {
-			return true
-		}
-
-		if !entries[i].hasPrio && entries[j].hasPrio {
-			return false
-		}
-
-		return entries[i].index < entries[j].index
-	})
-
-	result := make([]MiddlewareFunc, len(entries))
-
-	for i, e := range entries {
-		result[i] = e.mw
+		out = append(out, m)
 	}
 
-	return result
+	return out
 }

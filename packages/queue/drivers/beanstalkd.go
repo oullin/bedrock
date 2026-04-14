@@ -23,11 +23,22 @@ type BeanstalkdClient interface {
 	StatsTube(ctx context.Context, tube string) (map[string]string, error)
 }
 
-// BeanstalkdDriver enqueues jobs via a Beanstalkd client.
+// BeanstalkdDriver enqueues jobs via a Beanstalkd client. It is the
+// Go port of Laravel's Illuminate\Queue\BeanstalkdQueue.
+//
+// Two knobs are tunable after construction:
+//
+//   - SetDefaultTube configures the fallback tube used when a caller
+//     passes an empty queue name (Laravel's $default constructor arg).
+//   - SetBlockFor configures the reserve-with-timeout value passed to
+//     the client on Pop (Laravel's $blockFor constructor arg). Default
+//     is zero for non-blocking reserve.
 type BeanstalkdDriver struct {
-	client     BeanstalkdClient
-	connection string
-	ttr        time.Duration // time-to-run per job
+	client      BeanstalkdClient
+	connection  string
+	ttr         time.Duration // time-to-run per job
+	blockFor    time.Duration // reserve-with-timeout on Pop
+	defaultTube string
 }
 
 // NewBeanstalkdDriver creates a BeanstalkdDriver. ttr is the job TTR.
@@ -42,14 +53,41 @@ func NewBeanstalkdDriver(client BeanstalkdClient, connection string, ttr time.Du
 	return &BeanstalkdDriver{client: client, connection: connection, ttr: ttr}
 }
 
+// SetBlockFor sets the reserve-with-timeout value used on Pop. A zero
+// value means non-blocking reserve.
+func (d *BeanstalkdDriver) SetBlockFor(blockFor time.Duration) *BeanstalkdDriver {
+	d.blockFor = blockFor
+
+	return d
+}
+
+// SetDefaultTube configures the tube used when a caller passes an empty
+// queue name to Push, PushDelayed, or Pop. Mirrors Laravel's $default
+// BeanstalkdQueue constructor argument.
+func (d *BeanstalkdDriver) SetDefaultTube(tube string) *BeanstalkdDriver {
+	d.defaultTube = tube
+
+	return d
+}
+
+// resolveTube falls back to defaultTube when queueName is empty,
+// matching Laravel's getQueue($queue ?: $this->default) behaviour.
+func (d *BeanstalkdDriver) resolveTube(queueName string) string {
+	if queueName == "" {
+		return d.defaultTube
+	}
+
+	return queueName
+}
+
 func (d *BeanstalkdDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
-	id, err := d.client.Put(ctx, queueName, payload, 1024, 0, d.ttr)
+	id, err := d.client.Put(ctx, d.resolveTube(queueName), payload, 1024, 0, d.ttr)
 
 	return toString(id), err
 }
 
 func (d *BeanstalkdDriver) PushDelayed(ctx context.Context, queueName string, payload []byte, delay time.Duration) (string, error) {
-	id, err := d.client.Put(ctx, queueName, payload, 1024, delay, d.ttr)
+	id, err := d.client.Put(ctx, d.resolveTube(queueName), payload, 1024, delay, d.ttr)
 
 	return toString(id), err
 }
@@ -71,7 +109,9 @@ func (d *BeanstalkdDriver) PushMultiple(ctx context.Context, queueName string, p
 }
 
 func (d *BeanstalkdDriver) Pop(ctx context.Context, queueName string) (queue.Job, error) {
-	id, body, err := d.client.ReserveWithTimeout(ctx, queueName, 5*time.Second)
+	tube := d.resolveTube(queueName)
+
+	id, body, err := d.client.ReserveWithTimeout(ctx, tube, d.blockFor)
 
 	if err != nil {
 		return nil, queue.ErrNoJob
@@ -81,7 +121,7 @@ func (d *BeanstalkdDriver) Pop(ctx context.Context, queueName string) (queue.Job
 		BaseJob: BaseJob{
 			id:         toString(id),
 			payload:    body,
-			queue:      queueName,
+			queue:      tube,
 			connection: d.connection,
 		},
 	}

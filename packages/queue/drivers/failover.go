@@ -5,13 +5,17 @@ import (
 	"time"
 
 	"github.com/bedrock/packages/queue"
+	"github.com/bedrock/packages/queue/events"
 )
 
 // FailoverDriver tries each driver in order; reads from the first that succeeds,
-// writes to all drivers.
+// writes to the first that accepts the push. On a fallthrough the driver emits
+// a QueueFailedOver event through the configured EventEmitter (if any) so
+// operators can alert on backend degradation.
 type FailoverDriver struct {
 	drivers    []queue.Queue
 	connection string
+	emitter    queue.EventEmitter
 }
 
 // NewFailoverDriver creates a FailoverDriver. drivers are tried in order.
@@ -19,10 +23,40 @@ func NewFailoverDriver(connection string, drivers ...queue.Queue) *FailoverDrive
 	return &FailoverDriver{drivers: drivers, connection: connection}
 }
 
+// SetEmitter installs an EventEmitter the driver will use to dispatch
+// QueueFailedOver events. Passing nil disables emission. Mirrors the
+// constructor-injected Events\Dispatcher that Laravel's FailoverQueue
+// receives.
+func (d *FailoverDriver) SetEmitter(e queue.EventEmitter) *FailoverDriver {
+	d.emitter = e
+
+	return d
+}
+
+// emitFailover dispatches a QueueFailedOver event for a fallthrough
+// from one driver to the next. It is a no-op when the emitter is nil.
+func (d *FailoverDriver) emitFailover(from, to queue.Queue, err error) {
+	if d.emitter == nil {
+		return
+	}
+
+	var fromName, toName string
+
+	if from != nil {
+		fromName = from.ConnectionName()
+	}
+
+	if to != nil {
+		toName = to.ConnectionName()
+	}
+
+	d.emitter.Emit(events.QueueFailedOver{From: fromName, To: toName, Err: err})
+}
+
 func (d *FailoverDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
 	var lastErr error
 
-	for _, drv := range d.drivers {
+	for i, drv := range d.drivers {
 		id, err := drv.Push(ctx, queueName, payload)
 
 		if err == nil {
@@ -30,6 +64,10 @@ func (d *FailoverDriver) Push(ctx context.Context, queueName string, payload []b
 		}
 
 		lastErr = err
+
+		if i+1 < len(d.drivers) {
+			d.emitFailover(drv, d.drivers[i+1], err)
+		}
 	}
 
 	return "", lastErr
@@ -38,7 +76,7 @@ func (d *FailoverDriver) Push(ctx context.Context, queueName string, payload []b
 func (d *FailoverDriver) PushDelayed(ctx context.Context, queueName string, payload []byte, delay time.Duration) (string, error) {
 	var lastErr error
 
-	for _, drv := range d.drivers {
+	for i, drv := range d.drivers {
 		id, err := drv.PushDelayed(ctx, queueName, payload, delay)
 
 		if err == nil {
@@ -46,6 +84,10 @@ func (d *FailoverDriver) PushDelayed(ctx context.Context, queueName string, payl
 		}
 
 		lastErr = err
+
+		if i+1 < len(d.drivers) {
+			d.emitFailover(drv, d.drivers[i+1], err)
+		}
 	}
 
 	return "", lastErr
@@ -54,7 +96,7 @@ func (d *FailoverDriver) PushDelayed(ctx context.Context, queueName string, payl
 func (d *FailoverDriver) PushMultiple(ctx context.Context, queueName string, payloads [][]byte) ([]string, error) {
 	var lastErr error
 
-	for _, drv := range d.drivers {
+	for i, drv := range d.drivers {
 		ids, err := drv.PushMultiple(ctx, queueName, payloads)
 
 		if err == nil {
@@ -62,6 +104,10 @@ func (d *FailoverDriver) PushMultiple(ctx context.Context, queueName string, pay
 		}
 
 		lastErr = err
+
+		if i+1 < len(d.drivers) {
+			d.emitFailover(drv, d.drivers[i+1], err)
+		}
 	}
 
 	return nil, lastErr

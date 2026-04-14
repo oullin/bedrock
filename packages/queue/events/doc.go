@@ -1,0 +1,10 @@
+// Package events contains the Go port of every Illuminate\Queue\Events\*
+// class from laravel/framework 13.x. Each Laravel event is a plain Go
+// struct; the worker, manager, and drivers emit them via the queue
+// package's EventEmitter interface.
+//
+// The package deliberately uses `any` for job-shaped fields and `error`
+// for exception-shaped fields. Using the queue.Job interface directly
+// would create an import cycle, and consumers type-assert to the concrete
+// job they care about anyway (the same pattern Laravel listeners use).
+package events

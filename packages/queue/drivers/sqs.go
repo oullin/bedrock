@@ -2,6 +2,7 @@ package drivers
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/bedrock/packages/queue"
@@ -23,6 +24,15 @@ type SQSClient interface {
 	GetQueueAttributes(ctx context.Context, queueURL string, attributes []string) (map[string]string, error)
 }
 
+// SQSFIFOSender is an optional interface implemented by SQSClient
+// implementations that support FIFO queue extras (MessageGroupId and
+// MessageDeduplicationId). The SQSDriver probes for this interface via
+// a type assertion before calling it from PushFIFO, so regular
+// SQSClient implementations continue to work unchanged.
+type SQSFIFOSender interface {
+	SendMessageFIFO(ctx context.Context, queueURL, body, messageGroupID, messageDeduplicationID string, delay time.Duration) (string, error)
+}
+
 // SQSMessage is a received SQS message.
 type SQSMessage struct {
 	MessageID     string
@@ -32,9 +42,12 @@ type SQSMessage struct {
 
 // SQSDriver enqueues jobs via AWS SQS.
 type SQSDriver struct {
-	client     SQSClient
-	queueURLs  map[string]string // queueName → SQS URL
-	connection string
+	client       SQSClient
+	queueURLs    map[string]string // queueName → SQS URL (legacy explicit mapping)
+	connection   string
+	prefix       string // Laravel-style URL prefix, e.g. "https://sqs.us-east-1.amazonaws.com/1234/"
+	defaultQueue string // default logical queue name when "" is supplied
+	suffix       string // optional name suffix (e.g. "-staging") applied before ".fifo"
 }
 
 // NewSQSDriver creates an SQSDriver. queueURLs maps logical queue names to SQS queue URLs.
@@ -43,6 +56,104 @@ type sqsJob struct{ BaseJob }
 
 func NewSQSDriver(client SQSClient, queueURLs map[string]string, connection string) *SQSDriver {
 	return &SQSDriver{client: client, queueURLs: queueURLs, connection: connection}
+}
+
+// SetPrefix sets the Laravel-style SQS queue URL prefix. Returns the
+// driver for chaining. When set, GetQueue composes the full URL from
+// prefix + queue name (with optional suffix and FIFO-awareness),
+// mirroring Illuminate\Queue\SqsQueue::getQueue().
+func (d *SQSDriver) SetPrefix(prefix string) *SQSDriver {
+	d.prefix = prefix
+
+	return d
+}
+
+// SetDefault sets the default logical queue name used when the caller
+// passes an empty queue string. Mirrors Laravel's $default constructor
+// argument.
+func (d *SQSDriver) SetDefault(name string) *SQSDriver {
+	d.defaultQueue = name
+
+	return d
+}
+
+// SetSuffix sets the name suffix applied by GetQueue before any
+// trailing ".fifo", mirroring Laravel's $suffix.
+func (d *SQSDriver) SetSuffix(suffix string) *SQSDriver {
+	d.suffix = suffix
+
+	return d
+}
+
+// GetQueue resolves a logical queue name to its SQS URL, replicating
+// Illuminate\Queue\SqsQueue::getQueue() semantics:
+//
+//   - Empty input falls back to the configured default queue.
+//   - Already-qualified URLs (starts with http:// or https://) are
+//     returned unchanged.
+//   - A plain name is prefixed with the prefix and has the configured
+//     suffix appended, preserving any trailing ".fifo" marker.
+//   - The suffix is only applied once even if it's already present in
+//     the name.
+func (d *SQSDriver) GetQueue(name string) string {
+	if name == "" {
+		name = d.defaultQueue
+	}
+
+	if strings.HasPrefix(name, "http://") || strings.HasPrefix(name, "https://") {
+		return name
+	}
+
+	if url, ok := d.queueURLs[name]; ok {
+		return url
+	}
+
+	return d.suffixQueue(name)
+}
+
+func (d *SQSDriver) suffixQueue(name string) string {
+	prefix := strings.TrimRight(d.prefix, "/")
+
+	if strings.HasSuffix(name, ".fifo") {
+		base := strings.TrimSuffix(name, ".fifo")
+
+		return prefix + "/" + ensureSuffix(base, d.suffix) + ".fifo"
+	}
+
+	return prefix + "/" + ensureSuffix(name, d.suffix)
+}
+
+func ensureSuffix(name, suffix string) string {
+	if suffix == "" {
+		return name
+	}
+
+	if strings.HasSuffix(name, suffix) {
+		return name
+	}
+
+	return name + suffix
+}
+
+// IsFIFO reports whether the resolved SQS URL for a logical queue name
+// targets a FIFO queue (i.e. ends in ".fifo").
+func (d *SQSDriver) IsFIFO(name string) bool {
+	return strings.HasSuffix(d.GetQueue(name), ".fifo")
+}
+
+// PushFIFO sends a payload with FIFO-queue-specific options. If the
+// underlying client implements SQSFIFOSender, its SendMessageFIFO is
+// used; otherwise the call degrades to plain SendMessage (in which case
+// group/dedup are silently dropped — callers that need FIFO support
+// must pair the driver with a FIFO-aware client).
+func (d *SQSDriver) PushFIFO(ctx context.Context, queueName string, payload []byte, messageGroupID, messageDeduplicationID string) (string, error) {
+	url := d.GetQueue(queueName)
+
+	if sender, ok := d.client.(SQSFIFOSender); ok {
+		return sender.SendMessageFIFO(ctx, url, string(payload), messageGroupID, messageDeduplicationID, 0)
+	}
+
+	return d.client.SendMessage(ctx, url, string(payload), 0)
 }
 
 func (d *SQSDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
@@ -97,13 +208,19 @@ func (d *SQSDriver) Pop(ctx context.Context, queueName string) (queue.Job, error
 }
 
 func (d *SQSDriver) Size(ctx context.Context, queueName string) (int64, error) {
-	attrs, err := d.client.GetQueueAttributes(ctx, d.url(queueName), []string{"ApproximateNumberOfMessages"})
+	attrs, err := d.client.GetQueueAttributes(ctx, d.url(queueName), []string{
+		"ApproximateNumberOfMessages",
+		"ApproximateNumberOfMessagesDelayed",
+		"ApproximateNumberOfMessagesNotVisible",
+	})
 
 	if err != nil {
 		return 0, err
 	}
 
-	return parseStatInt(attrs, "ApproximateNumberOfMessages"), nil
+	return parseStatInt(attrs, "ApproximateNumberOfMessages") +
+		parseStatInt(attrs, "ApproximateNumberOfMessagesDelayed") +
+		parseStatInt(attrs, "ApproximateNumberOfMessagesNotVisible"), nil
 }
 
 func (d *SQSDriver) PendingSize(ctx context.Context, queueName string) (int64, error) {
@@ -125,6 +242,10 @@ func (d *SQSDriver) ReservedSize(ctx context.Context, queueName string) (int64, 
 func (d *SQSDriver) ConnectionName() string { return d.connection }
 
 func (d *SQSDriver) url(queueName string) string {
+	if d.prefix != "" || d.defaultQueue != "" || d.suffix != "" {
+		return d.GetQueue(queueName)
+	}
+
 	if url, ok := d.queueURLs[queueName]; ok {
 		return url
 	}

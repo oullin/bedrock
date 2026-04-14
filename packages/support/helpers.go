@@ -1,0 +1,157 @@
+package support
+
+import (
+	"html"
+	"os"
+	"reflect"
+	"strings"
+)
+
+// Blank determines whether the given value is "blank".
+// A value is blank if it is nil, an empty string, an empty slice,
+// an empty map, or whitespace-only string.
+// Mirrors Laravel's blank() helper.
+func Blank(value any) bool {
+	if value == nil {
+		return true
+	}
+
+	if s, ok := value.(string); ok {
+		return strings.TrimSpace(s) == ""
+	}
+
+	rv := reflect.ValueOf(value)
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Map, reflect.Array:
+		return rv.Len() == 0
+	case reflect.Ptr, reflect.Interface:
+		return rv.IsNil()
+	}
+
+	return false
+}
+
+// Filled determines whether the given value is not "blank".
+// Mirrors Laravel's filled() helper.
+func Filled(value any) bool {
+	return !Blank(value)
+}
+
+// Tap calls the given closure with the value, then returns the value.
+// Mirrors Laravel's tap() helper.
+func Tap[T any](value T, callbacks ...func(T)) T {
+	for _, cb := range callbacks {
+		cb(value)
+	}
+
+	return value
+}
+
+// Value returns the value of the given value. If the value is a
+// function it will be called and its return value used.
+// Mirrors Laravel's value() helper.
+func Value[T any](value any, args ...any) T {
+	switch fn := value.(type) {
+	case func() T:
+		return fn()
+	case func(any) T:
+		if len(args) > 0 {
+			return fn(args[0])
+		}
+		return fn(nil)
+	case func(...any) T:
+		return fn(args...)
+	case T:
+		return fn
+	}
+
+	// Try a plain any→T cast via reflection
+	if v, ok := value.(T); ok {
+		return v
+	}
+
+	var zero T
+	return zero
+}
+
+// With returns the value, or calls the callback with the value if provided.
+// Mirrors Laravel's with() helper.
+func With[T any](value T, fn ...func(T) T) T {
+	if len(fn) > 0 && fn[0] != nil {
+		return fn[0](value)
+	}
+	return value
+}
+
+// Transform transforms the given value if it is not blank.
+// If the value is blank and a default is provided, the default is returned.
+// Mirrors Laravel's transform() helper.
+func Transform[T, U any](value T, fn func(T) U, def ...U) (U, bool) {
+	if Blank(value) {
+		if len(def) > 0 {
+			return def[0], false
+		}
+		var zero U
+		return zero, false
+	}
+
+	return fn(value), true
+}
+
+// E HTML-encodes the given string, converting special characters to HTML entities.
+// Mirrors Laravel's e() helper.
+func E(value string) string {
+	return html.EscapeString(value)
+}
+
+// Env returns the value of the environment variable named by key.
+// If the variable is not set or is empty, the optional default value is returned.
+// The strings "true", "false", "null", and "empty" are converted to their
+// Go equivalents: "true"→"true", "false"→"false", "null"→"", "empty"→"".
+// Mirrors Laravel's env() helper.
+func Env(key string, def ...string) string {
+	val, ok := os.LookupEnv(key)
+	if !ok || val == "" {
+		if len(def) > 0 {
+			return def[0]
+		}
+		return ""
+	}
+
+	// Unquote escaped quoted strings (e.g. "\"hello\"" → "hello")
+	if len(val) >= 2 && val[0] == '"' && val[len(val)-1] == '"' {
+		val = val[1 : len(val)-1]
+	}
+
+	switch strings.ToLower(val) {
+	case "true", "(true)":
+		return "true"
+	case "false", "(false)":
+		return "false"
+	case "null", "(null)":
+		return ""
+	case "empty", "(empty)":
+		return ""
+	}
+
+	return val
+}
+
+// EnvBool returns the environment variable as a boolean.
+// "true", "1", "yes", "on" → true; everything else → false.
+func EnvBool(key string, def ...bool) bool {
+	val, ok := os.LookupEnv(key)
+	if !ok {
+		if len(def) > 0 {
+			return def[0]
+		}
+		return false
+	}
+
+	switch strings.ToLower(val) {
+	case "true", "1", "yes", "on", "(true)":
+		return true
+	}
+
+	return false
+}

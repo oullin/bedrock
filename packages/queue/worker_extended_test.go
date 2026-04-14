@@ -65,6 +65,21 @@ type workerRedisClient struct {
 	lists map[string][]string
 }
 
+// As of Step 8b, the worker no longer auto-deletes on success —
+// Laravel's CallQueuedHandler owns that responsibility, and the
+// Laravel test suite explicitly asserts deleted==false after a
+// successful handler run. The handler in this test calls Delete
+// explicitly to preserve the original "successful handler leads
+// to a deleted job" guarantee for bedrock callers that rely on it.
+
+// recorderForPopError is a tiny ExceptionReporter that records every
+// error it was asked to report. Kept local so it doesn't collide with
+// fixtures in worker_laravel_test.go.
+type recorderForPopError struct {
+	mu     sync.Mutex
+	errors []error
+}
+
 func (q *mockQueue) Push(_ context.Context, queueName string, payload []byte) (string, error) {
 	q.mu.Lock()
 
@@ -384,7 +399,9 @@ func TestWorkerDeletesSuccessfulJob(t *testing.T) {
 	job := &mockJob{payload: []byte("p"), queue: "q", connection: "test"}
 	q := &mockQueue{connection: "test", jobs: []queue.Job{job}}
 
-	handler := queue.HandlerFunc(func(_ context.Context, _ queue.Job) error { return nil })
+	handler := queue.HandlerFunc(func(_ context.Context, j queue.Job) error {
+		return j.Delete()
+	})
 
 	w := queue.NewWorker(q, handler, nil, queue.WorkerOptions{StopOnEmpty: true})
 	_ = w.Run(context.Background(), "q")
@@ -462,23 +479,46 @@ func TestWorkerMaxExceptionsExceeded(t *testing.T) {
 	}
 }
 
+func (r *recorderForPopError) ReportException(err error) {
+	r.mu.Lock()
+
+	defer r.mu.Unlock()
+
+	r.errors = append(r.errors, err)
+}
+
 func TestWorkerPopError(t *testing.T) {
 	t.Parallel()
 
+	// As of Step 8c, the worker no longer returns pop errors — it
+	// reports them via ExceptionReporter and continues (matching
+	// Laravel's testExceptionIsReportedIfConnectionThrowsExceptionOnJobPop).
+	// The test asserts the new contract: the reporter saw the error
+	// at least once before the context deadline elapsed.
 	q := &errorQueue{err: errors.New("connection lost")}
 
 	handler := queue.HandlerFunc(func(_ context.Context, _ queue.Job) error { return nil })
 
-	w := queue.NewWorker(q, handler, nil, queue.WorkerOptions{})
+	rep := &recorderForPopError{}
+	w := queue.NewWorker(q, handler, nil, queue.WorkerOptions{Sleep: 10 * time.Millisecond})
+	w.ExceptionReporter = rep
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 
 	defer cancel()
 
-	err := w.Run(ctx, "q")
+	_ = w.Run(ctx, "q")
 
-	if err == nil || err.Error() != "connection lost" {
-		t.Errorf("expected 'connection lost', got %v", err)
+	rep.mu.Lock()
+
+	defer rep.mu.Unlock()
+
+	if len(rep.errors) == 0 {
+		t.Fatal("expected at least one reported pop error")
+	}
+
+	if rep.errors[0].Error() != "connection lost" {
+		t.Errorf("reported error: got %q, want 'connection lost'", rep.errors[0].Error())
 	}
 }
 

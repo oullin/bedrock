@@ -1,0 +1,23 @@
+package {{ namespace }}
+
+import "github.com/bedrock/packages/routing"
+
+// {{ name }} is a routing controller scaffolded by the console make command.
+type {{ name }} struct {
+	routing.Controller
+}
+
+// Index handles GET requests to the resource index.
+func (c *{{ name }}) Index() any { return nil }
+
+// Show handles GET requests for a single resource.
+func (c *{{ name }}) Show(id string) any { return nil }
+
+// Store handles POST requests to create a new resource.
+func (c *{{ name }}) Store() any { return nil }
+
+// Update handles PUT/PATCH requests for a single resource.
+func (c *{{ name }}) Update(id string) any { return nil }
+
+// Destroy handles DELETE requests for a single resource.
+func (c *{{ name }}) Destroy(id string) any { return nil }
