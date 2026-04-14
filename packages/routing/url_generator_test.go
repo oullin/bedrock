@@ -1,402 +1,220 @@
-package routing_test
+package routing
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"net/url"
+	"strings"
 	"testing"
-	"time"
-
-	"github.com/bedrock/packages/routing"
 )
 
-func newGenerator() (*routing.UrlGenerator, *routing.Registry) {
-	reg := routing.NewRegistry()
-	gen := routing.NewUrlGenerator(reg, "https://example.com", []byte("secret-key"))
+// Translation of upstream/framework tests/Routing/RoutingUrlGeneratorTest.php.
+//
+// Byte-level signed URL parity with Upstream cannot be asserted here without a
+// PHP runtime to dump fixtures. The tests below verify the round-trip
+// invariants (Sign → HasValidSignature) and the canonical encoding rules.
 
-	return gen, reg
+// fakeURLRequest implements [URLRequest] for tests.
+type fakeURLRequest struct {
+	scheme string
+	host   string
+	url    string
+	path   string
+	query  map[string]string
+	qs     string
 }
 
-func TestUrlGeneratorTo(t *testing.T) {
-	t.Parallel()
+func (r fakeURLRequest) Scheme() string           { return r.scheme }
+func (r fakeURLRequest) Host() string             { return r.host }
+func (r fakeURLRequest) URL() string              { return r.url }
+func (r fakeURLRequest) Path() string             { return r.path }
+func (r fakeURLRequest) Query(name string) string { return r.query[name] }
+func (r fakeURLRequest) QueryString() string      { return r.qs }
 
-	gen, _ := newGenerator()
+func newGen(t *testing.T) (*UrlGenerator, *Router) {
+	t.Helper()
+	router := NewRouter(nil, nil)
+	req := fakeURLRequest{scheme: "http", host: "example.com"}
+	gen := NewUrlGenerator(router.GetRoutes(), req, "")
 
-	if u := gen.To("/users"); u != "https://example.com/users" {
-		t.Fatalf("expected 'https://example.com/users', got %q", u)
-	}
+	return gen, router
 }
 
-func TestUrlGeneratorToWithQuery(t *testing.T) {
-	t.Parallel()
+func TestUrlGenerator_To(t *testing.T) {
+	t.Run("test_to_returns_absolute", func(t *testing.T) {
+		gen, _ := newGen(t)
+		got := gen.To("/foo", nil, nil)
 
-	gen, _ := newGenerator()
-	q := url.Values{"page": {"2"}, "sort": {"name"}}
-	u := gen.To("/users", q)
+		if got != "http://example.com/foo" {
+			t.Errorf("got %q", got)
+		}
+	})
 
-	if u != "https://example.com/users?page=2&sort=name" {
-		t.Fatalf("unexpected URL: %q", u)
-	}
+	t.Run("test_to_secure_forces_https", func(t *testing.T) {
+		gen, _ := newGen(t)
+		got := gen.Secure("/foo", nil)
+
+		if !strings.HasPrefix(got, "https://") {
+			t.Errorf("got %q, want https prefix", got)
+		}
+	})
+
+	t.Run("test_to_passthrough_absolute", func(t *testing.T) {
+		gen, _ := newGen(t)
+		got := gen.To("https://other.example/foo", nil, nil)
+
+		if got != "https://other.example/foo" {
+			t.Errorf("got %q", got)
+		}
+	})
 }
 
-func TestUrlGeneratorToFullURL(t *testing.T) {
-	t.Parallel()
+func TestUrlGenerator_Route(t *testing.T) {
+	t.Run("test_named_route_url", func(t *testing.T) {
+		gen, router := newGen(t)
+		router.Get("/users/{user}", func() {}).Name("users.show")
+		got, err := gen.Route("users.show", map[string]any{"user": "alice"}, true)
 
-	gen, _ := newGenerator()
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if u := gen.To("https://other.com/path"); u != "https://other.com/path" {
-		t.Fatalf("expected full URL passthrough, got %q", u)
-	}
+		if got != "http://example.com/users/alice" {
+			t.Errorf("got %q", got)
+		}
+	})
+
+	t.Run("test_named_route_relative", func(t *testing.T) {
+		gen, router := newGen(t)
+		router.Get("/users/{user}", func() {}).Name("users.show")
+		got, err := gen.Route("users.show", map[string]any{"user": "alice"}, false)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if got != "/users/alice" {
+			t.Errorf("got %q", got)
+		}
+	})
+
+	t.Run("test_named_route_extra_params_become_query", func(t *testing.T) {
+		gen, router := newGen(t)
+		router.Get("/search", func() {}).Name("search")
+		got, err := gen.Route("search", map[string]any{"q": "go", "page": 2}, true)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+		// Sorted: page=2&q=go
+		if !strings.HasSuffix(got, "/search?page=2&q=go") {
+			t.Errorf("got %q", got)
+		}
+	})
+
+	t.Run("test_missing_parameter_errors", func(t *testing.T) {
+		gen, router := newGen(t)
+		router.Get("/users/{user}", func() {}).Name("users.show")
+		_, err := gen.Route("users.show", nil, true)
+
+		if err == nil {
+			t.Fatal("expected error")
+		}
+	})
+
+	t.Run("test_unknown_route_errors", func(t *testing.T) {
+		gen, _ := newGen(t)
+		_, err := gen.Route("missing", nil, true)
+
+		if err == nil {
+			t.Fatal("expected error")
+		}
+	})
 }
 
-func TestUrlGeneratorSecure(t *testing.T) {
-	t.Parallel()
+func TestUrlGenerator_Signed(t *testing.T) {
+	t.Run("test_signed_route_round_trip", func(t *testing.T) {
+		gen, router := newGen(t)
+		gen.SetKeyResolver("test-key-12345")
+		router.Get("/download/{file}", func() {}).Name("download")
+		got, err := gen.SignedRoute("download", map[string]any{"file": "a.zip"}, 0, true)
 
-	gen := routing.NewUrlGenerator(routing.NewRegistry(), "http://example.com", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// Should contain a signature query string.
+		if !strings.Contains(got, "signature=") {
+			t.Errorf("missing signature: %q", got)
+		}
+		// Round-trip: a request carrying that URL should validate.
+		idx := strings.Index(got, "?")
+		req := fakeURLRequest{
+			scheme: "http",
+			host:   "example.com",
+			url:    got[:idx],
+			path:   "/download/a.zip",
+			query:  parseQuery(got[idx+1:]),
+			qs:     got[idx+1:],
+		}
 
-	if u := gen.Secure("/users"); u != "https://example.com/users" {
-		t.Fatalf("expected HTTPS URL, got %q", u)
-	}
+		if !gen.HasValidSignature(req, true) {
+			t.Errorf("signature should validate, got url %q", got)
+		}
+	})
+
+	t.Run("test_temporary_signed_route_has_expires", func(t *testing.T) {
+		gen, router := newGen(t)
+		gen.SetKeyResolver("k")
+		router.Get("/dl/{f}", func() {}).Name("dl")
+		got, err := gen.TemporarySignedRoute("dl", 60, map[string]any{"f": "x"}, true)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !strings.Contains(got, "expires=") {
+			t.Errorf("missing expires: %q", got)
+		}
+	})
+
+	t.Run("test_signed_route_rejects_reserved_params", func(t *testing.T) {
+		gen, router := newGen(t)
+		gen.SetKeyResolver("k")
+		router.Get("/x", func() {}).Name("x")
+
+		if _, err := gen.SignedRoute("x", map[string]any{"signature": "x"}, 0, true); err == nil {
+			t.Error("expected reserved-param error")
+		}
+
+		if _, err := gen.SignedRoute("x", map[string]any{"expires": "1"}, 0, true); err == nil {
+			t.Error("expected reserved-param error")
+		}
+	})
+
+	t.Run("test_invalid_signature_fails", func(t *testing.T) {
+		gen, router := newGen(t)
+		gen.SetKeyResolver("k")
+		router.Get("/dl/{f}", func() {}).Name("dl")
+		req := fakeURLRequest{
+			scheme: "http",
+			host:   "example.com",
+			url:    "http://example.com/dl/a",
+			path:   "/dl/a",
+			query:  map[string]string{"signature": "deadbeef"},
+			qs:     "signature=deadbeef",
+		}
+
+		if gen.HasValidSignature(req, true) {
+			t.Error("bogus signature should not validate")
+		}
+	})
 }
 
-func TestUrlGeneratorRoute(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("users.show", "GET", "/users/{id}")
-
-	u := gen.Route("users.show", map[string]string{"id": "42"})
-
-	if u != "https://example.com/users/42" {
-		t.Fatalf("expected 'https://example.com/users/42', got %q", u)
-	}
-}
-
-func TestUrlGeneratorRouteWithQuery(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("users.index", "GET", "/users")
-
-	q := url.Values{"page": {"3"}}
-	u := gen.Route("users.index", nil, q)
-
-	if u != "https://example.com/users?page=3" {
-		t.Fatalf("unexpected URL: %q", u)
-	}
-}
-
-func TestUrlGeneratorRouteWithDefaults(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("users.show", "GET", "/users/{id}")
-	gen.SetDefaults(map[string]string{"id": "1"})
-
-	u := gen.Route("users.show", nil)
-
-	if u != "https://example.com/users/1" {
-		t.Fatalf("expected default param, got %q", u)
-	}
-}
-
-func TestUrlGeneratorRouteParamsOverrideDefaults(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("users.show", "GET", "/users/{id}")
-	gen.SetDefaults(map[string]string{"id": "1"})
-
-	u := gen.Route("users.show", map[string]string{"id": "42"})
-
-	if u != "https://example.com/users/42" {
-		t.Fatalf("expected param to override default, got %q", u)
-	}
-}
-
-func TestUrlGeneratorRouteUnknown(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	u := gen.Route("nonexistent", nil)
-
-	if u == "" || !contains_(u, "unknown") {
-		t.Fatalf("expected fallback for unknown route, got %q", u)
-	}
-}
-
-func TestUrlGeneratorCurrent(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	req := httptest.NewRequest(http.MethodGet, "/users/42", nil)
-	gen.SetRequest(req)
-
-	if u := gen.Current(); u != "https://example.com/users/42" {
-		t.Fatalf("expected current URL, got %q", u)
-	}
-}
-
-func TestUrlGeneratorCurrentNoRequest(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-
-	if u := gen.Current(); u != "https://example.com/" {
-		t.Fatalf("expected root URL, got %q", u)
-	}
-}
-
-func TestUrlGeneratorPrevious(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	req := httptest.NewRequest(http.MethodGet, "/current", nil)
-	req.Header.Set("Referer", "https://example.com/previous")
-	gen.SetRequest(req)
-
-	if u := gen.Previous(); u != "https://example.com/previous" {
-		t.Fatalf("expected referer URL, got %q", u)
-	}
-}
-
-func TestUrlGeneratorPreviousFallback(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	req := httptest.NewRequest(http.MethodGet, "/current", nil)
-	gen.SetRequest(req)
-
-	if u := gen.Previous("/fallback"); u != "/fallback" {
-		t.Fatalf("expected fallback URL, got %q", u)
-	}
-}
-
-func TestUrlGeneratorPreviousNoRequest(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-
-	if u := gen.Previous(); u != "https://example.com/" {
-		t.Fatalf("expected root URL as fallback, got %q", u)
-	}
-}
-
-func TestUrlGeneratorPreviousPath(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	req := httptest.NewRequest(http.MethodGet, "/current", nil)
-	req.Header.Set("Referer", "https://example.com/previous/page?q=1")
-	gen.SetRequest(req)
-
-	if p := gen.PreviousPath(); p != "/previous/page" {
-		t.Fatalf("expected '/previous/page', got %q", p)
-	}
-}
-
-func TestUrlGeneratorAsset(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-
-	if u := gen.Asset("css/app.css"); u != "https://example.com/css/app.css" {
-		t.Fatalf("expected asset URL, got %q", u)
-	}
-}
-
-func TestUrlGeneratorSetRootURL(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	gen.SetRootURL("https://new.example.com")
-
-	if u := gen.To("/test"); u != "https://new.example.com/test" {
-		t.Fatalf("expected new root URL, got %q", u)
-	}
-}
-
-func TestSignedRoute(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("download", "GET", "/files/{id}")
-
-	signed, err := gen.SignedRoute("download", map[string]string{"id": "42"})
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, _ := url.Parse(signed)
-
-	if parsed.Query().Get("signature") == "" {
-		t.Fatal("expected signature in URL")
-	}
-
-	req := httptest.NewRequest(http.MethodGet, signed, nil)
-	req.URL = parsed
-
-	if !gen.HasValidSignature(req) {
-		t.Fatal("expected valid signature")
-	}
-}
-
-func TestSignedRouteWithExpiration(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("download", "GET", "/files/{id}")
-
-	signed, err := gen.SignedRoute("download", map[string]string{"id": "42"}, 1*time.Hour)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, _ := url.Parse(signed)
-
-	if parsed.Query().Get("expires") == "" {
-		t.Fatal("expected expires in URL")
-	}
-
-	req := httptest.NewRequest(http.MethodGet, signed, nil)
-	req.URL = parsed
-
-	if !gen.HasValidSignature(req) {
-		t.Fatal("expected valid signature with expiration")
-	}
-}
-
-func TestTemporarySignedRoute(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("invite", "GET", "/invite/{token}")
-
-	signed, err := gen.TemporarySignedRoute("invite", 30*time.Minute, map[string]string{"token": "abc"})
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, _ := url.Parse(signed)
-	req := httptest.NewRequest(http.MethodGet, signed, nil)
-	req.URL = parsed
-
-	if !gen.HasValidSignature(req) {
-		t.Fatal("expected valid temporary signature")
-	}
-}
-
-func TestSignedRouteExpired(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("link", "GET", "/link/{id}")
-
-	signed, _ := gen.SignedRoute("link", map[string]string{"id": "1"}, -1*time.Hour)
-	parsed, _ := url.Parse(signed)
-	req := httptest.NewRequest(http.MethodGet, signed, nil)
-	req.URL = parsed
-
-	if gen.HasValidSignature(req) {
-		t.Fatal("expected expired signature to be invalid")
-	}
-
-	if !gen.HasCorrectSignature(req) {
-		t.Fatal("expected correct signature despite expiration")
-	}
-
-	if gen.SignatureHasNotExpired(req) {
-		t.Fatal("expected signature to be expired")
-	}
-}
-
-func TestInvalidSignature(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("link", "GET", "/link/{id}")
-
-	signed, _ := gen.SignedRoute("link", map[string]string{"id": "1"})
-	parsed, _ := url.Parse(signed)
-
-	q := parsed.Query()
-	q.Set("signature", "tampered")
-	parsed.RawQuery = q.Encode()
-
-	req := httptest.NewRequest(http.MethodGet, parsed.String(), nil)
-	req.URL = parsed
-
-	if gen.HasCorrectSignature(req) {
-		t.Fatal("expected tampered signature to be invalid")
-	}
-}
-
-func TestNoSignature(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-	req := httptest.NewRequest(http.MethodGet, "/test", nil)
-
-	if gen.HasCorrectSignature(req) {
-		t.Fatal("expected no signature to be invalid")
-	}
-}
-
-func TestSignatureWithNoExpires(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("link", "GET", "/link/{id}")
-
-	signed, _ := gen.SignedRoute("link", map[string]string{"id": "1"})
-	parsed, _ := url.Parse(signed)
-	req := httptest.NewRequest(http.MethodGet, signed, nil)
-	req.URL = parsed
-
-	if !gen.SignatureHasNotExpired(req) {
-		t.Fatal("expected no-expiry signature to be valid")
-	}
-}
-
-func TestUrlGeneratorMultipleParams(t *testing.T) {
-	t.Parallel()
-
-	gen, reg := newGenerator()
-	reg.Add("posts.comments.show", "GET", "/posts/{postId}/comments/{commentId}")
-
-	u := gen.Route("posts.comments.show", map[string]string{"postId": "5", "commentId": "3"})
-
-	if u != "https://example.com/posts/5/comments/3" {
-		t.Fatalf("unexpected URL: %q", u)
-	}
-}
-
-func TestUrlGeneratorToStripsLeadingSlash(t *testing.T) {
-	t.Parallel()
-
-	gen, _ := newGenerator()
-
-	u1 := gen.To("/path")
-	u2 := gen.To("path")
-
-	if u1 != u2 {
-		t.Fatalf("expected same URL, got %q vs %q", u1, u2)
-	}
-}
-
-func contains_(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStr(s, substr))
-}
-
-func containsStr(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
+func parseQuery(s string) map[string]string {
+	out := map[string]string{}
+
+	for _, pair := range strings.Split(s, "&") {
+		if i := strings.Index(pair, "="); i >= 0 {
+			out[pair[:i]] = pair[i+1:]
 		}
 	}
 
-	return false
+	return out
 }

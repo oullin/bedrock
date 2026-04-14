@@ -1,206 +1,169 @@
-package routing_test
+package routing
 
-import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
+import "testing"
 
-	"github.com/bedrock/packages/routing"
-)
+// Translation of upstream/framework tests/Routing/RoutingRedirectorTest.php.
 
-func newRedirector() (*routing.Redirector, *routing.Registry) {
-	reg := routing.NewRegistry()
-	gen := routing.NewUrlGenerator(reg, "https://example.com", nil)
-
-	return routing.NewRedirector(gen), reg
+// fakeSession implements [SessionStore] for redirector tests.
+type fakeSession struct {
+	flashes  map[string]any
+	previous string
+	old      map[string]string
 }
 
-func TestRedirectorTo(t *testing.T) {
-	t.Parallel()
+func newFakeSession() *fakeSession {
+	return &fakeSession{flashes: map[string]any{}, old: map[string]string{}}
+}
 
-	rd, _ := newRedirector()
+func (s *fakeSession) Flash(key string, value any) { s.flashes[key] = value }
+func (s *fakeSession) GetOldInput(key, fallback string) string {
+	if v, ok := s.old[key]; ok {
+		return v
+	}
 
-	r := routing.New(nil)
-	r.Get("/old", func(ctx *routing.Context) error {
-		return rd.To(ctx, "/new")
+	return fallback
+}
+func (s *fakeSession) HasOldInput(key string) bool     { _, ok := s.old[key]; return ok }
+func (s *fakeSession) FlashInput(input map[string]any) {}
+func (s *fakeSession) Get(key string, fallback any) any {
+	if key == "_previous.url" && s.previous != "" {
+		return s.previous
+	}
+
+	return fallback
+}
+func (s *fakeSession) Put(key string, value any) {}
+
+func TestRedirector(t *testing.T) {
+	t.Run("test_to_redirect", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		resp := red.To("/dashboard", 0, nil, nil)
+
+		if resp.Status != 302 {
+			t.Errorf("status = %d", resp.Status)
+		}
+
+		if resp.URL != "http://example.com/dashboard" {
+			t.Errorf("url = %q", resp.URL)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/old", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_away_passthrough", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		resp := red.Away("https://other.example/foo", 301, nil)
 
-	if rec.Code != http.StatusFound {
-		t.Fatalf("expected 302, got %d", rec.Code)
-	}
-
-	if loc := rec.Header().Get("Location"); loc != "https://example.com/new" {
-		t.Fatalf("expected redirect to https://example.com/new, got %q", loc)
-	}
-}
-
-func TestRedirectorToCustomStatus(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	r := routing.New(nil)
-	r.Get("/old", func(ctx *routing.Context) error {
-		return rd.To(ctx, "/new", http.StatusMovedPermanently)
+		if resp.URL != "https://other.example/foo" || resp.Status != 301 {
+			t.Errorf("got %+v", resp)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/old", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_secure_forces_https", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		resp := red.Secure("/foo", 0, nil)
 
-	if rec.Code != http.StatusMovedPermanently {
-		t.Fatalf("expected 301, got %d", rec.Code)
-	}
-}
-
-func TestRedirectorAway(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	r := routing.New(nil)
-	r.Get("/external", func(ctx *routing.Context) error {
-		return rd.Away(ctx, "https://google.com")
+		if resp.URL[:8] != "https://" {
+			t.Errorf("url = %q", resp.URL)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/external", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_back_uses_session_previous", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		s := newFakeSession()
+		s.previous = "/orig"
+		red.SetSession(s)
+		resp := red.Back(0, nil, "")
 
-	if loc := rec.Header().Get("Location"); loc != "https://google.com" {
-		t.Fatalf("expected redirect to https://google.com, got %q", loc)
-	}
-}
-
-func TestRedirectorSecure(t *testing.T) {
-	t.Parallel()
-
-	reg := routing.NewRegistry()
-	gen := routing.NewUrlGenerator(reg, "http://example.com", nil)
-	rd := routing.NewRedirector(gen)
-
-	r := routing.New(nil)
-	r.Get("/insecure", func(ctx *routing.Context) error {
-		return rd.Secure(ctx, "/secure-page")
+		if resp.URL != "/orig" {
+			t.Errorf("url = %q", resp.URL)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/insecure", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_back_falls_back", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		resp := red.Back(0, nil, "/login")
 
-	if loc := rec.Header().Get("Location"); loc != "https://example.com/secure-page" {
-		t.Fatalf("expected HTTPS redirect, got %q", loc)
-	}
-}
-
-func TestRedirectorBack(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	r := routing.New(nil)
-	r.Get("/back", func(ctx *routing.Context) error {
-		return rd.Back(ctx)
+		if resp.URL != "/login" {
+			t.Errorf("url = %q", resp.URL)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/back", nil)
-	req.Header.Set("Referer", "https://example.com/previous")
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_route_redirect", func(t *testing.T) {
+		gen, router := newGen(t)
+		router.Get("/users/{user}", func() {}).Name("users.show")
+		red := NewRedirector(gen)
+		resp, err := red.Route("users.show", map[string]any{"user": "alice"}, 302, nil)
 
-	if loc := rec.Header().Get("Location"); loc != "https://example.com/previous" {
-		t.Fatalf("expected redirect to referer, got %q", loc)
-	}
-}
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestRedirectorBackFallback(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	r := routing.New(nil)
-	r.Get("/back", func(ctx *routing.Context) error {
-		return rd.Back(ctx, "/fallback")
+		if resp.URL != "http://example.com/users/alice" {
+			t.Errorf("url = %q", resp.URL)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/back", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_with_flashes_to_session_on_send", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		s := newFakeSession()
+		red.SetSession(s)
+		resp := red.To("/x", 0, nil, nil).With("status", "saved")
 
-	if loc := rec.Header().Get("Location"); loc != "/fallback" {
-		t.Fatalf("expected redirect to fallback, got %q", loc)
-	}
-}
+		if err := resp.Send(); err != nil {
+			t.Fatal(err)
+		}
 
-func TestRedirectorRefresh(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	r := routing.New(nil)
-	r.Get("/refresh", func(ctx *routing.Context) error {
-		return rd.Refresh(ctx)
+		if s.flashes["status"] != "saved" {
+			t.Errorf("flashes = %v", s.flashes)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/refresh", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_intended_uses_stored_url", func(t *testing.T) {
+		gen, _ := newGen(t)
+		red := NewRedirector(gen)
+		red.SetIntendedUrl("/profile")
+		resp := red.Intended("/", 0, nil, nil)
 
-	if loc := rec.Header().Get("Location"); loc != "https://example.com/refresh" {
-		t.Fatalf("expected redirect to current URL, got %q", loc)
-	}
+		if resp.URL != "http://example.com/profile" {
+			t.Errorf("url = %q", resp.URL)
+		}
+		// Intended URL should be cleared after consumption.
+		if red.GetIntendedUrl() != "" {
+			t.Error("intended URL not cleared")
+		}
+	})
 }
 
-func TestRedirectorRoute(t *testing.T) {
-	t.Parallel()
+func TestResponseFactory(t *testing.T) {
+	t.Run("test_make_returns_response", func(t *testing.T) {
+		f := NewResponseFactory(nil, nil)
+		r := f.Make("body", 200, nil)
 
-	rd, reg := newRedirector()
-	reg.Add("users.show", "GET", "/users/{id}")
-
-	r := routing.New(nil)
-	r.Get("/go-to-user", func(ctx *routing.Context) error {
-		return rd.Route(ctx, "users.show", map[string]string{"id": "42"})
+		if r.Status != 200 || r.Body != "body" {
+			t.Errorf("got %+v", r)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/go-to-user", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_no_content_default_204", func(t *testing.T) {
+		f := NewResponseFactory(nil, nil)
+		r := f.NoContent(0, nil)
 
-	if loc := rec.Header().Get("Location"); loc != "https://example.com/users/42" {
-		t.Fatalf("expected redirect to named route, got %q", loc)
-	}
-}
-
-func TestRedirectorRouteCustomStatus(t *testing.T) {
-	t.Parallel()
-
-	rd, reg := newRedirector()
-	reg.Add("home", "GET", "/")
-
-	r := routing.New(nil)
-	r.Get("/redirect-home", func(ctx *routing.Context) error {
-		return rd.Route(ctx, "home", nil, http.StatusMovedPermanently)
+		if r.Status != 204 {
+			t.Errorf("status = %d", r.Status)
+		}
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/redirect-home", nil)
-	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	t.Run("test_json_sets_content_type", func(t *testing.T) {
+		f := NewResponseFactory(nil, nil)
+		r := f.JSON(map[string]any{"ok": true}, 0, nil)
 
-	if rec.Code != http.StatusMovedPermanently {
-		t.Fatalf("expected 301, got %d", rec.Code)
-	}
-}
-
-func TestRedirectorGetUrlGenerator(t *testing.T) {
-	t.Parallel()
-
-	rd, _ := newRedirector()
-
-	if rd.GetUrlGenerator() == nil {
-		t.Fatal("expected URL generator")
-	}
+		if r.Headers["Content-Type"][0] != "application/json" {
+			t.Errorf("headers = %v", r.Headers)
+		}
+	})
 }

@@ -4,255 +4,331 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	nethttp "net/http"
+	"fmt"
 	"net/url"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bedrock/packages/routing/exceptions"
 )
 
-// UrlGenerator generates URLs from named routes and handles signed URLs.
+// UrlGenerator is the Go translation of Framework\Routing\UrlGenerator.
+//
+// It owns the request, the route collection (for name lookups), and the
+// signing key. The four big jobs:
+//
+//  1. Build absolute or relative URLs for arbitrary paths ([UrlGenerator.To]).
+//  2. Build URLs for named routes ([UrlGenerator.Route]).
+//  3. Sign and verify route URLs ([UrlGenerator.SignedRoute],
+//     [UrlGenerator.HasValidSignature]).
+//  4. Generate asset paths ([UrlGenerator.Asset]).
 type UrlGenerator struct {
-	registry *Registry
-	rootURL  string
-	signKey  []byte
-	defaults map[string]string
-	request  *nethttp.Request
+	routes        RouteCollectionInterface
+	request       URLRequest
+	assetRoot     string
+	forcedScheme  string
+	forcedRootUrl string
+	key           string
 }
 
-// NewUrlGenerator creates a URL generator.
-func NewUrlGenerator(registry *Registry, rootURL string, signKey []byte) *UrlGenerator {
-	return &UrlGenerator{
-		registry: registry,
-		rootURL:  strings.TrimRight(rootURL, "/"),
-		signKey:  signKey,
-		defaults: make(map[string]string),
+// NewUrlGenerator constructs a generator bound to a request and the route
+// collection used for name lookups.
+func NewUrlGenerator(routes RouteCollectionInterface, request URLRequest, assetRoot string) *UrlGenerator {
+	return &UrlGenerator{routes: routes, request: request, assetRoot: assetRoot}
+}
+
+// SetKeyResolver sets the signing key (used for signed URLs).
+func (u *UrlGenerator) SetKeyResolver(key string) *UrlGenerator { u.key = key; return u }
+
+// ForceScheme pins the generated URL scheme. Mirrors UrlGenerator::forceScheme.
+func (u *UrlGenerator) ForceScheme(scheme string) { u.forcedScheme = scheme }
+
+// ForceHttps is the boolean shorthand for [UrlGenerator.ForceScheme]("https").
+func (u *UrlGenerator) ForceHttps(force bool) {
+	if force {
+		u.forcedScheme = "https"
+	} else {
+		u.forcedScheme = ""
 	}
 }
 
-// To generates an absolute URL from a path.
-func (g *UrlGenerator) To(path string, query ...url.Values) string {
-	if isValidURL(path) {
+// ForceRootUrl pins the URL root used for absolute generation. Mirrors
+// UrlGenerator::forceRootUrl.
+func (u *UrlGenerator) ForceRootUrl(root string) { u.forcedRootUrl = root }
+
+// =====================================================================
+// Path helpers
+// =====================================================================
+
+// Full returns the full URL of the current request.
+func (u *UrlGenerator) Full() string {
+	if u.request == nil {
+		return ""
+	}
+
+	return u.request.URL()
+}
+
+// Current returns the current request URL without the query string.
+func (u *UrlGenerator) Current() string {
+	if u.request == nil {
+		return ""
+	}
+
+	full := u.request.URL()
+
+	if idx := strings.Index(full, "?"); idx >= 0 {
+		return full[:idx]
+	}
+
+	return full
+}
+
+// To produces an absolute URL for the supplied path. extra is appended as
+// path segments (URL-encoded). When secure is true the URL forces HTTPS.
+//
+// Mirrors UrlGenerator::to.
+func (u *UrlGenerator) To(path string, extra []string, secure *bool) string {
+	if isAbsoluteURL(path) {
 		return path
 	}
 
-	base := g.rootURL + "/" + strings.TrimLeft(path, "/")
+	root := u.formatRoot(u.formatScheme(secure), "")
+	tail := strings.TrimLeft(path, "/")
 
-	if len(query) > 0 && len(query[0]) > 0 {
-		base += "?" + query[0].Encode()
+	for _, e := range extra {
+		tail = strings.TrimRight(tail, "/") + "/" + url.PathEscape(e)
 	}
 
-	return base
+	return root + "/" + tail
 }
 
-// Secure generates an HTTPS URL.
-func (g *UrlGenerator) Secure(path string) string {
-	u := g.To(path)
+// Secure is a shortcut for [UrlGenerator.To] with secure=true.
+func (u *UrlGenerator) Secure(path string, extra []string) string {
+	t := true
 
-	return strings.Replace(u, "http://", "https://", 1)
+	return u.To(path, extra, &t)
 }
 
-// Route generates a URL for a named route, substituting parameters.
-func (g *UrlGenerator) Route(name string, params map[string]string, query ...url.Values) string {
-	merged := make(map[string]string, len(g.defaults)+len(params))
-
-	for k, v := range g.defaults {
-		merged[k] = v
+// Asset returns the URL of an asset relative to the asset root.
+func (u *UrlGenerator) Asset(path string, secure *bool) string {
+	if isAbsoluteURL(path) {
+		return path
 	}
 
-	for k, v := range params {
-		merged[k] = v
+	root := u.assetRoot
+
+	if root == "" {
+		root = u.formatRoot(u.formatScheme(secure), "")
 	}
 
-	pattern := g.registry.URL(name, merged)
-
-	if strings.HasPrefix(pattern, "#!") {
-		return pattern
-	}
-
-	result := g.rootURL + pattern
-
-	if len(query) > 0 && len(query[0]) > 0 {
-		result += "?" + query[0].Encode()
-	}
-
-	return result
+	return strings.TrimRight(root, "/") + "/" + strings.TrimLeft(path, "/")
 }
 
-// Current returns the URL of the current request.
-func (g *UrlGenerator) Current() string {
-	if g.request == nil {
-		return g.rootURL + "/"
-	}
+// SecureAsset is a shortcut for [UrlGenerator.Asset] with secure=true.
+func (u *UrlGenerator) SecureAsset(path string) string {
+	t := true
 
-	return g.rootURL + g.request.URL.Path
+	return u.Asset(path, &t)
 }
 
-// Previous returns the Referer URL or the fallback.
-func (g *UrlGenerator) Previous(fallback ...string) string {
-	if g.request != nil {
-		ref := g.request.Header.Get("Referer")
+func (u *UrlGenerator) formatScheme(secure *bool) string {
+	if u.forcedScheme != "" {
+		return u.forcedScheme
+	}
 
-		if ref != "" {
-			return ref
+	if secure != nil {
+		if *secure {
+			return "https"
+		}
+
+		return "http"
+	}
+
+	if u.request != nil {
+		return u.request.Scheme()
+	}
+
+	return "http"
+}
+
+func (u *UrlGenerator) formatRoot(scheme, root string) string {
+	if u.forcedRootUrl != "" {
+		root = u.forcedRootUrl
+	}
+
+	if root == "" && u.request != nil {
+		root = scheme + "://" + u.request.Host()
+	}
+
+	if root == "" {
+		root = scheme + "://"
+	}
+	// Replace existing scheme.
+	if idx := strings.Index(root, "://"); idx >= 0 {
+		root = scheme + root[idx:]
+	} else {
+		root = scheme + "://" + root
+	}
+
+	return strings.TrimRight(root, "/")
+}
+
+// =====================================================================
+// Named route URL
+// =====================================================================
+
+// Route generates a URL for the named route.
+//
+// Mirrors UrlGenerator::route.
+func (u *UrlGenerator) Route(name string, parameters map[string]any, absolute bool) (string, error) {
+	route := u.routes.GetByName(name)
+
+	if route == nil {
+		return "", fmt.Errorf("route [%s] not defined", name)
+	}
+
+	return u.ToRoute(route, parameters, absolute)
+}
+
+// ToRoute produces the URL for the supplied route. Mirrors UrlGenerator::toRoute.
+func (u *UrlGenerator) ToRoute(route *Route, parameters map[string]any, absolute bool) (string, error) {
+	for _, name := range route.ParameterNames() {
+		if _, hasParam := parameters[name]; !hasParam {
+			if !route.HasDefault(name) && !isOptionalParam(route.Uri, name) {
+				return "", exceptions.ForMissingParameters(route.GetName(), []string{name})
+			}
 		}
 	}
 
-	if len(fallback) > 0 {
-		return fallback[0]
+	gen := NewRouteUrlGenerator(u, u.request)
+
+	return gen.To(route, parameters, absolute), nil
+}
+
+func isOptionalParam(uri, name string) bool {
+	return strings.Contains(uri, "{"+name+"?}")
+}
+
+// =====================================================================
+// Signed URLs
+// =====================================================================
+
+// SignedRoute produces a signed URL for the named route.
+//
+// expiration may be 0 (no expiration) or a positive number of seconds from
+// now until the signature must be considered expired. Mirrors
+// UrlGenerator::signedRoute.
+func (u *UrlGenerator) SignedRoute(name string, parameters map[string]any, expiration int64, absolute bool) (string, error) {
+	if parameters == nil {
+		parameters = map[string]any{}
 	}
 
-	return g.rootURL + "/"
-}
-
-// PreviousPath returns the path component of the Referer URL.
-func (g *UrlGenerator) PreviousPath(fallback ...string) string {
-	prev := g.Previous(fallback...)
-
-	parsed, err := url.Parse(prev)
-
-	if err != nil {
-		if len(fallback) > 0 {
-			return fallback[0]
-		}
-
-		return "/"
+	if _, ok := parameters["signature"]; ok {
+		return "", fmt.Errorf("\"signature\" is a reserved parameter for signed routes")
 	}
 
-	return parsed.Path
-}
+	if _, ok := parameters["expires"]; ok {
+		return "", fmt.Errorf("\"expires\" is a reserved parameter for signed routes")
+	}
 
-// Asset generates an asset URL.
-func (g *UrlGenerator) Asset(path string) string {
-	return g.rootURL + "/" + strings.TrimLeft(path, "/")
-}
-
-// SignedRoute generates a signed URL for a named route.
-func (g *UrlGenerator) SignedRoute(name string, params map[string]string, expiration ...time.Duration) (string, error) {
-	routeURL := g.Route(name, params)
-
-	parsed, err := url.Parse(routeURL)
+	if expiration > 0 {
+		parameters["expires"] = strconv.FormatInt(time.Now().Unix()+expiration, 10)
+	}
+	// Build the canonical URL (without the signature) for HMAC input.
+	base, err := u.Route(name, parameters, absolute)
 
 	if err != nil {
 		return "", err
 	}
 
-	q := parsed.Query()
+	mac := hmac.New(sha256.New, []byte(u.key))
+	mac.Write([]byte(base))
+	signature := hex.EncodeToString(mac.Sum(nil))
+	parameters["signature"] = signature
 
-	if len(expiration) > 0 && expiration[0] != 0 {
-		expires := time.Now().Add(expiration[0]).Unix()
-		q.Set("expires", strconv.FormatInt(expires, 10))
+	return u.Route(name, parameters, absolute)
+}
+
+// TemporarySignedRoute is the parity-named alias matching Upstream's two-arg
+// shortcut.
+func (u *UrlGenerator) TemporarySignedRoute(name string, expiration int64, parameters map[string]any, absolute bool) (string, error) {
+	return u.SignedRoute(name, parameters, expiration, absolute)
+}
+
+// HasValidSignature reports whether request carries a signature that matches
+// its URL and has not expired.
+func (u *UrlGenerator) HasValidSignature(request URLRequest, absolute bool) bool {
+	return u.HasCorrectSignature(request, absolute) && u.SignatureHasNotExpired(request)
+}
+
+// HasCorrectSignature performs the HMAC comparison without the expiry check.
+func (u *UrlGenerator) HasCorrectSignature(request URLRequest, absolute bool) bool {
+	urlStr := request.URL()
+
+	if !absolute {
+		urlStr = "/" + strings.TrimLeft(request.Path(), "/")
 	}
 
-	parsed.RawQuery = q.Encode()
-
-	sig := g.createSignature(parsed.Path, parsed.RawQuery)
-	q.Set("signature", sig)
-	parsed.RawQuery = q.Encode()
-
-	return parsed.String(), nil
-}
-
-// TemporarySignedRoute generates a signed URL with an expiration.
-func (g *UrlGenerator) TemporarySignedRoute(name string, expiration time.Duration, params map[string]string) (string, error) {
-	return g.SignedRoute(name, params, expiration)
-}
-
-// HasValidSignature checks if a request's URL has a valid signature
-// and has not expired.
-func (g *UrlGenerator) HasValidSignature(req *nethttp.Request) bool {
-	return g.HasCorrectSignature(req) && g.SignatureHasNotExpired(req)
-}
-
-// HasCorrectSignature checks if a request's URL signature is valid,
-// ignoring expiration.
-func (g *UrlGenerator) HasCorrectSignature(req *nethttp.Request) bool {
-	signature := req.URL.Query().Get("signature")
-
-	if signature == "" {
-		return false
+	if idx := strings.Index(urlStr, "?"); idx >= 0 {
+		urlStr = urlStr[:idx]
 	}
 
-	q := req.URL.Query()
-	q.Del("signature")
+	queryString := stripSignatureFromQuery(request.QueryString())
+	original := urlStr
 
-	expected := g.createSignature(req.URL.Path, q.Encode())
+	if queryString != "" {
+		original += "?" + queryString
+	}
 
-	return hmac.Equal([]byte(signature), []byte(expected))
+	expected := request.Query("signature")
+	mac := hmac.New(sha256.New, []byte(u.key))
+	mac.Write([]byte(original))
+	got := hex.EncodeToString(mac.Sum(nil))
+
+	return hmac.Equal([]byte(got), []byte(expected))
 }
 
-// SignatureHasNotExpired checks if a signed URL has not expired.
-func (g *UrlGenerator) SignatureHasNotExpired(req *nethttp.Request) bool {
-	expires := req.URL.Query().Get("expires")
+// SignatureHasNotExpired reports whether the request's "expires" query
+// parameter has not yet passed.
+func (u *UrlGenerator) SignatureHasNotExpired(request URLRequest) bool {
+	expires := request.Query("expires")
 
 	if expires == "" {
 		return true
 	}
 
-	ts, err := strconv.ParseInt(expires, 10, 64)
+	exp, err := strconv.ParseInt(expires, 10, 64)
 
 	if err != nil {
 		return false
 	}
 
-	return time.Now().Unix() <= ts
+	return time.Now().Unix() <= exp
 }
 
-// SetRootURL updates the root URL.
-func (g *UrlGenerator) SetRootURL(rootURL string) {
-	g.rootURL = strings.TrimRight(rootURL, "/")
-}
-
-// SetRequest sets the current request for URL generation context.
-func (g *UrlGenerator) SetRequest(req *nethttp.Request) {
-	g.request = req
-}
-
-// SetDefaults sets default parameter values used in URL generation.
-func (g *UrlGenerator) SetDefaults(defaults map[string]string) {
-	g.defaults = defaults
-}
-
-func (g *UrlGenerator) createSignature(path, rawQuery string) string {
-	data := path
-
-	if rawQuery != "" {
-		data += "?" + sortedQuery(rawQuery)
+func stripSignatureFromQuery(qs string) string {
+	if qs == "" {
+		return ""
 	}
 
-	mac := hmac.New(sha256.New, g.signKey)
-	mac.Write([]byte(data))
+	parts := strings.Split(qs, "&")
+	out := make([]string, 0, len(parts))
 
-	return hex.EncodeToString(mac.Sum(nil))
-}
-
-func sortedQuery(raw string) string {
-	values, err := url.ParseQuery(raw)
-
-	if err != nil {
-		return raw
-	}
-
-	keys := make([]string, 0, len(values))
-
-	for k := range values {
-		keys = append(keys, k)
-	}
-
-	sort.Strings(keys)
-
-	var parts []string
-
-	for _, k := range keys {
-		for _, v := range values[k] {
-			parts = append(parts, url.QueryEscape(k)+"="+url.QueryEscape(v))
+	for _, p := range parts {
+		if strings.HasPrefix(p, "signature=") {
+			continue
 		}
+
+		out = append(out, p)
 	}
 
-	return strings.Join(parts, "&")
+	return strings.Join(out, "&")
 }
 
-func isValidURL(s string) bool {
-	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
+func isAbsoluteURL(path string) bool {
+	return strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") ||
+		strings.HasPrefix(path, "//") || strings.HasPrefix(path, "mailto:") ||
+		strings.HasPrefix(path, "tel:")
 }

@@ -13,7 +13,8 @@
       ],
       "outputs": [
         "../storage/.bin/**",
-        "../storage/.turbo/dist/**"
+        "../storage/.turbo/dist/**",
+        ".vuepress/dist/**"
       ]
     },
     "dev": {

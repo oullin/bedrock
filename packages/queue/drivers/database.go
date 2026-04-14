@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bedrock/packages/queue"
@@ -34,12 +35,38 @@ import (
 //	);
 type DBExecer interface {
 	QueryRow(ctx context.Context, query string, args ...any) DBRow
+	Query(ctx context.Context, query string, args ...any) (DBRows, error)
 	Exec(ctx context.Context, query string, args ...any) error
 }
 
 // DBRow is a single query result row.
 type DBRow interface {
 	Scan(dest ...any) error
+}
+
+// DBRows iterates the result of a multi-row query. It mirrors the
+// shape of database/sql.Rows at the interface level: call Next to
+// advance, Scan to read into destinations, Close when done. Err
+// reports any error that terminated iteration. Callers must call
+// Close on the returned DBRows.
+type DBRows interface {
+	Next() bool
+	Scan(dest ...any) error
+	Close() error
+	Err() error
+}
+
+// InspectedJob is the decoded, queue-centric view of a row in the jobs
+// table. It is the Go port of Upstream's Framework\Queue\Jobs\InspectedJob
+// and is returned by PendingJobs, DelayedJobs, and ReservedJobs.
+type InspectedJob struct {
+	ID         int64
+	Queue      string
+	Name       string
+	UUID       string
+	Attempts   int
+	CreatedAt  time.Time
+	ReservedAt *time.Time
 }
 
 // DatabaseDriver stores jobs in a SQL table.
@@ -180,6 +207,18 @@ func (d *DatabaseDriver) ReservedSize(ctx context.Context, queueName string) (in
 
 func (d *DatabaseDriver) ConnectionName() string { return d.connection }
 
+// ClearQueue deletes every row for queueName from the jobs table. Go
+// port of Upstream's DatabaseQueue::clear — a bulk DELETE WHERE queue=?
+// matching the observable side effect of calling $queue->clear($name).
+// Upstream returns the deleted row count; the Go driver surfaces only
+// the error (row count would require a wider DBExecer interface).
+func (d *DatabaseDriver) ClearQueue(ctx context.Context, queueName string) error {
+	return d.db.Exec(ctx,
+		fmt.Sprintf("DELETE FROM %s WHERE queue=$1", d.table),
+		queueName,
+	)
+}
+
 func (d *DatabaseDriver) count(ctx context.Context, query string, args ...any) (int64, error) {
 	row := d.db.QueryRow(ctx, query, args...)
 
@@ -190,4 +229,134 @@ func (d *DatabaseDriver) count(ctx context.Context, query string, args ...any) (
 	}
 
 	return n, nil
+}
+
+// Bulk inserts every payload in a single multi-row INSERT statement.
+// It is the Go port of Upstream's DatabaseQueue::bulk and matches the
+// observable side effects of a $db->insert([$record1, $record2, ...])
+// call: one Exec, one INSERT, one round-trip. Returns the number of
+// rows attempted.
+//
+// Prefer Bulk over PushMultiple when enqueuing a large batch: Bulk
+// executes a single statement, whereas PushMultiple loops Push and
+// incurs one round-trip per payload.
+func (d *DatabaseDriver) Bulk(ctx context.Context, queueName string, payloads [][]byte) error {
+	if len(payloads) == 0 {
+		return nil
+	}
+
+	now := time.Now().Unix()
+
+	var sb strings.Builder
+
+	fmt.Fprintf(&sb, "INSERT INTO %s (queue, payload, attempts, reserved_at, available_at, created_at) VALUES ", d.table)
+
+	args := make([]any, 0, 4*len(payloads))
+
+	for i, p := range payloads {
+		if i > 0 {
+			sb.WriteString(",")
+		}
+
+		base := i * 4
+
+		fmt.Fprintf(&sb, "($%d,$%d,0,NULL,$%d,$%d)", base+1, base+2, base+3, base+4)
+
+		args = append(args, queueName, string(p), now, now)
+	}
+
+	return d.db.Exec(ctx, sb.String(), args...)
+}
+
+// PendingJobs returns the pending (unreserved, ready-to-run) rows for
+// queueName. Go port of Upstream's DatabaseQueue::pendingJobs — selects
+// rows where reserved_at IS NULL AND available_at <= now.
+func (d *DatabaseDriver) PendingJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
+	return d.fetchInspected(ctx,
+		fmt.Sprintf("SELECT id, queue, payload, attempts, reserved_at FROM %s WHERE queue=$1 AND reserved_at IS NULL AND available_at<=$2", d.table),
+		queueName, time.Now().Unix(),
+	)
+}
+
+// DelayedJobs returns the delayed (unreserved, not-yet-available) rows
+// for queueName. Go port of DatabaseQueue::delayedJobs.
+func (d *DatabaseDriver) DelayedJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
+	return d.fetchInspected(ctx,
+		fmt.Sprintf("SELECT id, queue, payload, attempts, reserved_at FROM %s WHERE queue=$1 AND reserved_at IS NULL AND available_at>$2", d.table),
+		queueName, time.Now().Unix(),
+	)
+}
+
+// ReservedJobs returns the currently-reserved (in-flight) rows for
+// queueName. Go port of DatabaseQueue::reservedJobs.
+func (d *DatabaseDriver) ReservedJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
+	return d.fetchInspected(ctx,
+		fmt.Sprintf("SELECT id, queue, payload, attempts, reserved_at FROM %s WHERE queue=$1 AND reserved_at IS NOT NULL", d.table),
+		queueName,
+	)
+}
+
+// fetchInspected runs the given query and decodes each row into an
+// InspectedJob. The payload JSON is parsed to extract displayName,
+// uuid, and createdAt; any decoding error is recorded on the job's
+// Name/UUID with empty strings so the caller can still page through.
+func (d *DatabaseDriver) fetchInspected(ctx context.Context, query string, args ...any) ([]InspectedJob, error) {
+	rows, err := d.db.Query(ctx, query, args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var out []InspectedJob
+
+	for rows.Next() {
+		var (
+			id         int64
+			queueName  string
+			payload    string
+			attempts   int
+			reservedAt *int64
+		)
+
+		if err := rows.Scan(&id, &queueName, &payload, &attempts, &reservedAt); err != nil {
+			return nil, err
+		}
+
+		job := InspectedJob{
+			ID:       id,
+			Queue:    queueName,
+			Attempts: attempts,
+		}
+
+		if reservedAt != nil {
+			t := time.Unix(*reservedAt, 0)
+			job.ReservedAt = &t
+		}
+
+		var decoded map[string]any
+
+		if err := json.Unmarshal([]byte(payload), &decoded); err == nil {
+			if v, ok := decoded["displayName"].(string); ok {
+				job.Name = v
+			}
+
+			if v, ok := decoded["uuid"].(string); ok {
+				job.UUID = v
+			}
+
+			if v, ok := decoded["createdAt"].(float64); ok {
+				job.CreatedAt = time.Unix(int64(v), 0)
+			}
+		}
+
+		out = append(out, job)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }

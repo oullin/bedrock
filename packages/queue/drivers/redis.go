@@ -3,7 +3,7 @@ package drivers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bedrock/packages/queue"
@@ -27,11 +27,49 @@ type RedisClient interface {
 	ZCard(ctx context.Context, key string) (int64, error)
 }
 
+// RedisClusterAware is implemented by RedisClient fakes/drivers that know
+// whether their underlying connection is a Redis Cluster. The Redis driver
+// uses this to decide whether to wrap queue names in cluster hash tags so
+// that every operation for a queue lands on the same slot.
+//
+// The result is cached after the first call on a given RedisDriver instance,
+// mirroring Upstream's `RedisQueue::isClusterConnection()` behaviour.
+type RedisClusterAware interface {
+	IsCluster() bool
+}
+
 // RedisDriver stores jobs in Redis lists and sorted sets.
 type RedisDriver struct {
 	client     RedisClient
 	connection string
+
+	// isCluster caches the cluster-connection check result. It is nil
+	// until the first call to isClusterConnection, which mirrors
+	// Upstream's null-coalescing assignment ($this->isCluster ??= ...).
+	isCluster *bool
 }
+
+// SetClusterClient forces the driver's cluster-awareness flag. Tests use
+// this to assert hash-tag wrapping behaviour without needing a real Redis
+// cluster connection.
+
+// isClusterConnection returns whether the underlying Redis connection is a
+// cluster. The result is cached after the first call.
+
+// getQueue returns the plain `queues:<name>` key, unchanged regardless of
+// cluster mode. Mirrors `RedisQueue::getQueue()`.
+
+// getRedisKey returns the cluster-safe Redis key for a queue. On a cluster
+// connection the queue name is wrapped in `{...}` so all keys for the same
+// queue hash to the same slot. If the queue name already contains a hash
+// tag (per Redis cluster semantics — `{` followed later by a `}` with at
+// least one character between), the name is left unchanged.
+//
+// Mirrors `RedisQueue::getQueueRedisKey()` and `Connection::hasHashTag()`.
+
+// hasHashTag reports whether key contains a valid Redis cluster hash tag
+// (an opening `{` followed by a `}` with at least one character in between).
+// Mirrors Upstream's `Framework\Redis\Connections\Connection::hasHashTag()`.
 
 // NewRedisDriver creates a RedisDriver.
 
@@ -42,6 +80,59 @@ type RedisDriver struct {
 // Redis queue does not keep a reserved set by default.
 
 type redisJob struct{ BaseJob }
+
+func (d *RedisDriver) SetClusterClient(cluster bool) {
+	v := cluster
+	d.isCluster = &v
+}
+
+func (d *RedisDriver) isClusterConnection() bool {
+	if d.isCluster != nil {
+		return *d.isCluster
+	}
+
+	var v bool
+
+	if c, ok := d.client.(RedisClusterAware); ok {
+		v = c.IsCluster()
+	}
+
+	d.isCluster = &v
+
+	return v
+}
+
+func (d *RedisDriver) getQueue(q string) string {
+	if q == "" {
+		q = "default"
+	}
+
+	return "queues:" + q
+}
+
+func (d *RedisDriver) getRedisKey(q string) string {
+	if q == "" {
+		q = "default"
+	}
+
+	if d.isClusterConnection() && !hasHashTag(q) {
+		return "queues:{" + q + "}"
+	}
+
+	return "queues:" + q
+}
+
+func hasHashTag(key string) bool {
+	open := strings.IndexByte(key, '{')
+
+	if open < 0 {
+		return false
+	}
+
+	close := strings.IndexByte(key[open+1:], '}')
+
+	return close > 0
+}
 
 func NewRedisDriver(client RedisClient, connection string) *RedisDriver {
 	return &RedisDriver{client: client, connection: connection}
@@ -156,6 +247,6 @@ func (d *RedisDriver) migrateDue(ctx context.Context, queueName string) {
 	_ = d.client.ZRem(ctx, d.delayedKey(queueName), members...)
 }
 
-func (d *RedisDriver) queueKey(q string) string   { return fmt.Sprintf("queues:%s", q) }
-func (d *RedisDriver) delayedKey(q string) string { return fmt.Sprintf("queues:%s:delayed", q) }
-func (d *RedisDriver) failedKey(q string) string  { return fmt.Sprintf("queues:%s:failed", q) }
+func (d *RedisDriver) queueKey(q string) string   { return d.getRedisKey(q) }
+func (d *RedisDriver) delayedKey(q string) string { return d.getRedisKey(q) + ":delayed" }
+func (d *RedisDriver) failedKey(q string) string  { return d.getRedisKey(q) + ":failed" }
