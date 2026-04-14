@@ -1,0 +1,134 @@
+package support
+
+import (
+	"testing"
+	"time"
+)
+
+// Port of Framework\Tests\Support\SleepTest::it_can_fake_sleep
+func TestFakeSleepRecordsCalls(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	Sleep(10 * time.Millisecond)
+	Sleep(20 * time.Millisecond)
+
+	fake.AssertSleptTimes(t, 2)
+	fake.AssertSlept(t, 10*time.Millisecond, 1)
+	fake.AssertSlept(t, 20*time.Millisecond, 1)
+}
+
+// Port of Framework\Tests\Support\SleepTest::it_records_total_sleep_duration
+func TestFakeSleepTotalDuration(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	Sleep(100 * time.Millisecond)
+	Sleep(200 * time.Millisecond)
+
+	if total := fake.TotalSlept(); total != 300*time.Millisecond {
+		t.Errorf("TotalSlept() = %v, expected 300ms", total)
+	}
+}
+
+// Port of Framework\Tests\Support\SleepTest::it_asserts_never_slept
+func TestFakeSleepAssertNeverSlept(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	fake.AssertNeverSlept(t)
+}
+
+// Port of Framework\Tests\Support\SleepTest::it_asserts_slept_at_least
+func TestFakeSleepAssertAtLeast(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	Sleep(500 * time.Millisecond)
+
+	fake.AssertSleptAtLeast(t, 100*time.Millisecond)
+	fake.AssertSleptAtLeast(t, 500*time.Millisecond)
+}
+
+// Port of Framework\Tests\Support\SleepTest::it_asserts_sleep_sequence
+func TestFakeSleepAssertSequence(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	Sleep(1 * time.Second)
+	Sleep(2 * time.Second)
+	Sleep(3 * time.Second)
+
+	fake.AssertSequence(t, []time.Duration{
+		1 * time.Second,
+		2 * time.Second,
+		3 * time.Second,
+	})
+}
+
+// Port of Framework\Tests\Support\SleepTest::it_returns_slept_times
+func TestFakeSleepSleptTimes(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	Sleep(5 * time.Millisecond)
+	Sleep(10 * time.Millisecond)
+
+	calls := fake.SleptTimes()
+	if len(calls) != 2 || calls[0] != 5*time.Millisecond || calls[1] != 10*time.Millisecond {
+		t.Errorf("SleptTimes() = %v", calls)
+	}
+}
+
+// Port of Framework\Tests\Support\SleepTest::cleanup_restores_real_sleep
+func TestFakeSleepCleanupRestores(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	cleanup() // restore immediately
+
+	// After cleanup, calls should NOT be recorded
+	Sleep(0) // real sleep with zero duration
+
+	if len(fake.SleptTimes()) != 0 {
+		t.Error("after cleanup, Sleep should not be recorded by fake")
+	}
+}
+
+// Port of Framework\Tests\Support\SleepTest::sleep_until
+func TestSleepUntil(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	future := time.Now().Add(50 * time.Millisecond)
+	SleepUntil(future)
+
+	fake.AssertSleptTimes(t, 1)
+}
+
+// Port of Framework\Tests\Support\SleepTest::sleep_until_past_time_does_nothing
+func TestSleepUntilPast(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+	defer cleanup()
+
+	past := time.Now().Add(-1 * time.Second)
+	SleepUntil(past)
+
+	fake.AssertNeverSlept(t)
+}

@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+/* Class-based dark mode — toggled by DarkModeToggle.vue on <html> */
+@variant dark (&:where(.dark, .dark *));
+
+/* ─── Global ─────────────────────────────────────────────────────────────── */
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* ─── Prose: scoped to VuePress's [vp-content] wrapper ──────────────────────
+   Tokens mirror Protocol's design language:
+   • borders  → zinc-900/10  dark:white/10  (or /5 for subtle dividers)
+   • accents  → emerald-500  dark:emerald-400
+   • text     → zinc-700     dark:zinc-300
+   • headings → zinc-900     dark:white
+   ─────────────────────────────────────────────────────────────────────────── */
+
+[vp-content] {
+  @apply text-zinc-700 dark:text-zinc-300 leading-[1.75] text-[15px];
+}
+
+/* ── Headings ─────────────────────────────────────────────────────────────── */
+
+[vp-content] h1 {
+  @apply text-[28px] font-bold tracking-tight text-zinc-900 dark:text-white mt-0 mb-4 leading-tight;
+}
+
+[vp-content] h2 {
+  @apply text-[20px] font-semibold tracking-tight text-zinc-900 dark:text-white mt-12 mb-3;
+}
+
+[vp-content] h3 {
+  @apply text-[17px] font-semibold tracking-tight text-zinc-900 dark:text-white mt-8 mb-2;
+}
+
+[vp-content] h4 {
+  @apply text-[15px] font-semibold text-zinc-900 dark:text-white mt-6 mb-2;
+}
+
+/* Heading anchor links injected by VuePress */
+[vp-content] h1 .header-anchor,
+[vp-content] h2 .header-anchor,
+[vp-content] h3 .header-anchor,
+[vp-content] h4 .header-anchor {
+  @apply no-underline text-zinc-400 dark:text-zinc-600 opacity-0 ml-2 transition-opacity;
+}
+
+[vp-content] h1:hover .header-anchor,
+[vp-content] h2:hover .header-anchor,
+[vp-content] h3:hover .header-anchor,
+[vp-content] h4:hover .header-anchor {
+  @apply opacity-100;
+}
+
+/* ── Body copy ────────────────────────────────────────────────────────────── */
+
+[vp-content] p {
+  @apply mb-4 last:mb-0;
+}
+
+/* ── Links ────────────────────────────────────────────────────────────────── */
+
+[vp-content] a {
+  @apply text-emerald-500 dark:text-emerald-400
+         underline decoration-emerald-500/30 dark:decoration-emerald-400/30
+         underline-offset-2 transition-colors
+         hover:text-emerald-600 dark:hover:text-emerald-300
+         hover:decoration-emerald-500/60 dark:hover:decoration-emerald-400/60;
+}
+
+[vp-content] strong {
+  @apply font-semibold text-zinc-900 dark:text-white;
+}
+
+[vp-content] em {
+  @apply italic;
+}
+
+/* ── Inline code ──────────────────────────────────────────────────────────── */
+
+[vp-content] code {
+  @apply bg-zinc-900/5 dark:bg-white/5
+         text-zinc-900 dark:text-zinc-200
+         ring-1 ring-inset ring-zinc-900/10 dark:ring-white/10
+         px-1.5 py-0.5 rounded text-[13.5px] font-mono;
+}
+
+/* ── Code blocks (Prism) ─────────────────────────────────────────────────── */
+
+[vp-content] pre {
+  /* Protocol uses dark code blocks in both light and dark mode */
+  @apply bg-zinc-900 dark:bg-zinc-800/60
+         ring-1 ring-inset ring-white/10
+         rounded-2xl overflow-x-auto px-5 py-4 my-5 text-[13.5px] leading-[1.7];
+}
+
+[vp-content] pre code {
+  @apply bg-transparent p-0 rounded-none ring-0 text-zinc-300;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+
+[vp-content] table {
+  @apply w-full text-[14px] my-6 block overflow-x-auto;
+}
+
+[vp-content] thead th {
+  @apply text-left font-semibold text-zinc-900 dark:text-white
+         border-b border-zinc-900/10 dark:border-white/10
+         pb-3 pr-6 text-[13px] whitespace-nowrap;
+}
+
+[vp-content] tbody tr {
+  @apply border-b border-zinc-900/5 dark:border-white/5 last:border-0;
+}
+
+[vp-content] tbody td {
+  @apply py-3 pr-6 text-zinc-600 dark:text-zinc-400 align-top;
+}
+
+/* ── Lists ────────────────────────────────────────────────────────────────── */
+
+[vp-content] ul {
+  @apply list-disc pl-5 mb-4 space-y-1.5;
+}
+
+[vp-content] ol {
+  @apply list-decimal pl-5 mb-4 space-y-1.5;
+}
+
+[vp-content] li {
+  @apply text-zinc-700 dark:text-zinc-300;
+}
+
+[vp-content] li > p {
+  @apply mb-1;
+}
+
+/* ── Blockquote ───────────────────────────────────────────────────────────── */
+
+[vp-content] blockquote {
+  @apply border-l-2 border-zinc-900/20 dark:border-white/20
+         pl-4 py-1 my-5 text-zinc-500 dark:text-zinc-400 italic;
+}
+
+[vp-content] blockquote p {
+  @apply mb-0;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+
+[vp-content] hr {
+  @apply border-zinc-900/10 dark:border-white/10 my-10;
+}
+
+/* ── Custom containers (tip / warning / danger / details) ────────────────── */
+
+[vp-content] .custom-container {
+  @apply rounded-2xl ring-1 ring-inset px-5 py-4 my-5 text-[14px];
+}
+
+[vp-content] .custom-container.tip {
+  @apply bg-emerald-50/50 dark:bg-emerald-500/10 ring-emerald-500/20 dark:ring-emerald-500/20;
+}
+
+[vp-content] .custom-container.warning {
+  @apply bg-amber-50/50 dark:bg-amber-500/10 ring-amber-500/20 dark:ring-amber-500/20;
+}
+
+[vp-content] .custom-container.danger {
+  @apply bg-red-50/50 dark:bg-red-500/10 ring-red-500/20 dark:ring-red-500/20;
+}
+
+[vp-content] .custom-container-title {
+  @apply font-semibold mb-2 text-zinc-900 dark:text-white;
+}

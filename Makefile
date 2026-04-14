@@ -30,9 +30,10 @@ GO_PACKAGES := \
 	packages/queue \
 	packages/routing \
 	packages/session \
-	packages/billing
+	packages/billing \
+	packages/translation
 
-.PHONY: format vet tidy typecheck test coverage build clean
+.PHONY: format vet tidy typecheck test coverage build clean docs
 
 format:
 	$(PACKAGE_FMT)
@@ -71,6 +72,10 @@ coverage:
 
 build:
 	pnpm build
+
+docs:
+	pnpm install
+	pnpm --filter=@bedrock/docs run dev
 
 clean:
 	rm -rf $(ROOT_PATH)/service/storage/.cache
