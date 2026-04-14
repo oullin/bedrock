@@ -55,6 +55,17 @@ type Handler interface {
 // HandlerFunc is a function that implements Handler.
 type HandlerFunc func(ctx context.Context, job Job) error
 
+// FailureHandler is the optional contract a Handler can implement to
+// receive a callback when a job it was processing has been marked as
+// failed. The driver or worker invokes Failed after Job.Fail has been
+// called and before the JobFailed event is emitted.
+//
+// Mirrors Upstream's handler->failed($data, $exception, $uuid, $job)
+// callback invoked by CallQueuedHandler::failed.
+type FailureHandler interface {
+	Failed(ctx context.Context, job Job, err error)
+}
+
 // Handle implements Handler.
 
 // JobOptions configures job dispatch options.

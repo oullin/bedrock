@@ -1,0 +1,17 @@
+{
+  "name": "@bedrock/docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "vuepress build .",
+    "dev": "portless proxy start 2>/dev/null || true && portless alias --remove docs 2>/dev/null || true && portless run --force vuepress dev . --clean-cache"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@vuepress/bundler-vite": "next",
+    "@vuepress/plugin-prismjs": "next",
+    "portless": "latest",
+    "tailwindcss": "^4.0.0",
+    "vuepress": "next"
+  }
+}

@@ -1,33 +1,64 @@
 package queue
 
-// JobProcessing is emitted before a job is processed.
-type JobProcessing struct {
-	ConnectionName string
-	Job            Job
-}
+import "github.com/bedrock/packages/queue/events"
 
-// JobProcessed is emitted after a job is successfully processed.
-type JobProcessed struct {
-	ConnectionName string
-	Job            Job
-}
+// This file re-exports the event types defined in the events subpackage at
+// the root of the queue package. The aliases exist for two reasons:
+//
+//  1. Callers (bus, worker, tests) can keep writing queue.JobProcessing
+//     rather than events.JobProcessing — a shorter, more familiar name.
+//  2. Worker emission sites stay compact.
+//
+// The subpackage is the source of truth; changing a field there changes
+// it here. New Upstream events should be added to events/ first, then
+// re-exported here only if callers need the unqualified name.
+//
+// The full set of Upstream 13.x Framework\Queue\Events\* types is
+// re-exported below so a migration to qualified names is a pure find &
+// replace.
 
-// JobFailed is emitted when a job fails all its attempts.
-type JobFailed struct {
-	ConnectionName string
-	Job            Job
-	Err            error
-}
+// --- Job queueing (push side) -----------------------------------------
 
-// JobAttempted is emitted each time a job is attempted.
-type JobAttempted struct {
-	ConnectionName string
-	Job            Job
-}
+type JobQueueing = events.JobQueueing
 
-// JobExceptionOccurred is emitted when a job throws an exception during processing.
-type JobExceptionOccurred struct {
-	ConnectionName string
-	Job            Job
-	Err            error
-}
+type JobQueued = events.JobQueued
+
+// --- Job processing (worker side) -------------------------------------
+
+type JobPopping = events.JobPopping
+
+type JobPopped = events.JobPopped
+
+type JobProcessing = events.JobProcessing
+
+type JobAttempted = events.JobAttempted
+
+type JobProcessed = events.JobProcessed
+
+type JobFailed = events.JobFailed
+
+type JobExceptionOccurred = events.JobExceptionOccurred
+
+type JobReleasedAfterException = events.JobReleasedAfterException
+
+type JobTimedOut = events.JobTimedOut
+
+type JobRetryRequested = events.JobRetryRequested
+
+// --- Queue state ------------------------------------------------------
+
+type Looping = events.Looping
+
+type QueueBusy = events.QueueBusy
+
+type QueuePaused = events.QueuePaused
+
+type QueueResumed = events.QueueResumed
+
+type QueueFailedOver = events.QueueFailedOver
+
+// --- Worker lifecycle -------------------------------------------------
+
+type WorkerStarting = events.WorkerStarting
+
+type WorkerStopping = events.WorkerStopping

@@ -32,11 +32,14 @@ type mockDBRow struct {
 }
 
 type mockDBExecer struct {
-	mu        sync.Mutex
-	rows      []*mockDBRow
-	rowIndex  int
-	execCalls []mockExecCall
-	execErr   error
+	mu         sync.Mutex
+	rows       []*mockDBRow
+	rowIndex   int
+	execCalls  []mockExecCall
+	execErr    error
+	queryRows  []*mockDBRow // rows returned by the next Query call
+	queryCalls []mockExecCall
+	queryErr   error
 }
 
 type mockExecCall struct {
@@ -87,6 +90,19 @@ type mockBeanstalkdClient struct {
 type mockBeanstalkdJob struct {
 	id   uint64
 	body []byte
+}
+
+// addQueryRow stages a single row to be returned by the next Query call.
+// Call multiple times to stage a multi-row result set.
+
+// Hand the staged rows to a fresh iterator and clear the slot.
+
+// mockDBRows iterates a pre-staged slice of rows. It is the minimal
+// drivers.DBRows implementation tests need.
+type mockDBRows struct {
+	rows  []*mockDBRow
+	index int
+	err   error
 }
 
 func newMockRedisClient() *mockRedisClient {
@@ -272,6 +288,88 @@ func (db *mockDBExecer) Exec(_ context.Context, query string, args ...any) error
 
 	return db.execErr
 }
+
+func (db *mockDBExecer) addQueryRow(values ...any) {
+	db.mu.Lock()
+
+	defer db.mu.Unlock()
+
+	db.queryRows = append(db.queryRows, &mockDBRow{values: values})
+}
+
+func (db *mockDBExecer) Query(_ context.Context, query string, args ...any) (drivers.DBRows, error) {
+	db.mu.Lock()
+
+	defer db.mu.Unlock()
+
+	db.queryCalls = append(db.queryCalls, mockExecCall{Query: query, Args: args})
+
+	if db.queryErr != nil {
+		return nil, db.queryErr
+	}
+
+	iter := &mockDBRows{rows: db.queryRows}
+	db.queryRows = nil
+
+	return iter, nil
+}
+
+func (r *mockDBRows) Next() bool {
+	if r.err != nil || r.index >= len(r.rows) {
+		return false
+	}
+
+	return true
+}
+
+func (r *mockDBRows) Scan(dest ...any) error {
+	if r.index >= len(r.rows) {
+		return errors.New("no more rows")
+	}
+
+	row := r.rows[r.index]
+	r.index++
+
+	if row.err != nil {
+		r.err = row.err
+
+		return row.err
+	}
+
+	if len(dest) != len(row.values) {
+		return fmt.Errorf("mockDBRows.Scan: dest len %d, values len %d", len(dest), len(row.values))
+	}
+
+	for i, v := range row.values {
+		switch d := dest[i].(type) {
+		case *int64:
+			*d = v.(int64)
+		case *int:
+			*d = v.(int)
+		case *string:
+			*d = v.(string)
+		case **int64:
+			// Accept either an untyped nil or a typed *int64 value.
+			if v == nil {
+				*d = nil
+			} else if p, ok := v.(*int64); ok {
+				*d = p
+			} else if x, ok := v.(int64); ok {
+				*d = &x
+			} else {
+				return fmt.Errorf("mockDBRows.Scan: dest **int64 got unsupported value type %T", v)
+			}
+		default:
+			return fmt.Errorf("mockDBRows.Scan: unsupported dest type %T for value %v", dest[i], v)
+		}
+	}
+
+	return nil
+}
+
+func (r *mockDBRows) Close() error { return nil }
+
+func (r *mockDBRows) Err() error { return r.err }
 
 func newMockSQSClient() *mockSQSClient {
 	return &mockSQSClient{
