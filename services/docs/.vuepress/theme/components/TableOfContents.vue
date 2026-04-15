@@ -14,7 +14,6 @@ interface FlatHeader {
   slug: string
 }
 
-// Flatten to h2 + h3 only, depth-first
 const headers = computed<FlatHeader[]>(() => {
   const result: FlatHeader[] = []
   const walk = (items: typeof page.value.headers) => {
@@ -66,12 +65,13 @@ watch(
   <nav v-if="headers.length" class="text-sm" aria-label="On this page">
     <p
       class="mb-4 text-[11px] font-semibold uppercase tracking-widest
-             text-zinc-900 dark:text-white"
+             text-slate-900 dark:text-white"
+      style="font-family: var(--font-display);"
     >
       On this page
     </p>
     <ScrollArea class="max-h-[calc(100vh-12rem)]">
-      <ul class="space-y-2 border-l border-zinc-900/10 dark:border-white/10 pr-2">
+      <ul class="space-y-2 border-l border-slate-200 dark:border-slate-800 pr-2">
         <li v-for="h in headers" :key="h.slug">
           <a
             :href="`#${h.slug}`"
@@ -79,8 +79,8 @@ watch(
               'block -ml-px border-l pl-3 text-[13px] leading-snug transition-colors duration-150',
               h.level === 3 ? 'pl-5' : '',
               activeSlug === h.slug
-                ? 'border-emerald-500 dark:border-emerald-400 text-emerald-500 dark:text-emerald-400 font-medium'
-                : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-900/20 dark:hover:border-white/20',
+                ? 'border-sky-500 dark:border-sky-400 text-sky-500 dark:text-sky-400 font-semibold'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500',
             ]"
           >
             {{ h.title }}

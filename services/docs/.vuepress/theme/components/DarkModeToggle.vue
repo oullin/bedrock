@@ -25,7 +25,7 @@ function toggle() {
     variant="ghost"
     size="icon"
     :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-    class="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+    class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
     @click="toggle"
   >
     <Sun v-if="isDark" class="h-4 w-4" />
