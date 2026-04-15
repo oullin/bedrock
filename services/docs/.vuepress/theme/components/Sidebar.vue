@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { RouteLink } from 'vuepress/client'
+import { ChevronRight } from 'lucide-vue-next'
+import { Button } from './ui/button'
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
+import { ScrollArea } from './ui/scroll-area'
+import { Separator } from './ui/separator'
+import { cn } from '../lib/utils'
 
 interface SidebarItem {
   text: string
@@ -36,89 +42,88 @@ function toggle(section: SidebarItem) {
 
 function isActive(link?: string): boolean {
   if (!link) return false
-  const norm = link.replace(/\.html$/, '')
-  return route.path === link || route.path === norm
+  const norm = (p: string) => p.replace(/\.html$/, '').replace(/\/$/, '')
+  return norm(route.path) === norm(link)
 }
 </script>
 
 <template>
-  <!--
-    Protocol sidebar: text-only active states (no pill, no bg, no border accent).
-    Active links use text-emerald-500 dark:text-emerald-400.
-    Dividers between groups: divide-zinc-900/5 dark:divide-white/5.
-  -->
-  <nav
-    class="text-sm divide-y divide-zinc-900/5 dark:divide-white/5"
-    aria-label="Sidebar navigation"
-  >
-    <div v-for="section in config" :key="section.text" class="py-4 first:pt-0 last:pb-0">
+  <ScrollArea class="h-full">
+    <nav class="text-sm px-3 py-2" aria-label="Sidebar navigation">
+      <template v-for="(section, idx) in config" :key="section.text">
+        <Separator v-if="idx > 0" class="my-3" />
 
-      <!-- ── Section header (collapsible) ──────────────────────────────── -->
-      <button
-        v-if="section.children"
-        type="button"
-        class="flex w-full items-center justify-between px-3 py-1 mb-1 gap-2
-               text-xs font-semibold text-zinc-900 dark:text-white
-               hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-        @click="toggle(section)"
-      >
-        <span>{{ section.text }}</span>
-        <svg
-          :class="['h-2.5 w-2.5 shrink-0 transition-transform duration-200', isOpen(section) ? 'rotate-90' : '']"
-          fill="none" viewBox="0 0 6 10" aria-hidden="true"
+        <!-- Section with children (collapsible) -->
+        <Collapsible
+          v-if="section.children"
+          :open="isOpen(section)"
+          @update:open="() => toggle(section)"
         >
-          <path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-
-      <!-- ── Top-level link (no children) ──────────────────────────────── -->
-      <RouteLink
-        v-else-if="section.link"
-        :to="section.link"
-        :class="[
-          'block px-3 py-1 transition-colors',
-          isActive(section.link)
-            ? 'text-emerald-500 dark:text-emerald-400 font-medium'
-            : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
-        ]"
-        @click="emit('navigate')"
-      >
-        {{ section.text }}
-      </RouteLink>
-
-      <!-- ── Children list ──────────────────────────────────────────────── -->
-      <Transition
-        enter-active-class="transition-all duration-200 ease-out overflow-hidden"
-        enter-from-class="opacity-0 max-h-0"
-        enter-to-class="opacity-100 max-h-[800px]"
-        leave-active-class="transition-all duration-150 ease-in overflow-hidden"
-        leave-from-class="opacity-100 max-h-[800px]"
-        leave-to-class="opacity-0 max-h-0"
-      >
-        <ul v-if="section.children && isOpen(section)">
-          <li v-for="item in section.children" :key="item.link ?? item.text">
-            <RouteLink
-              v-if="item.link"
-              :to="item.link"
-              :class="[
-                'flex py-1 pr-3 pl-4 transition-colors',
-                isActive(item.link)
-                  ? 'text-emerald-500 dark:text-emerald-400 font-medium'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
-              ]"
-              @click="emit('navigate')"
+          <CollapsibleTrigger as-child>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="w-full justify-between px-3 text-xs font-semibold uppercase tracking-wide
+                     text-zinc-900 dark:text-white hover:bg-zinc-900/5 dark:hover:bg-white/5"
             >
-              {{ item.text }}
-            </RouteLink>
-            <span
-              v-else
-              class="block py-1 pl-4 pr-3 text-zinc-400 dark:text-zinc-600 select-none"
-            >
-              {{ item.text }}
-            </span>
-          </li>
-        </ul>
-      </Transition>
-    </div>
-  </nav>
+              {{ section.text }}
+              <ChevronRight
+                :class="cn(
+                  'h-3 w-3 shrink-0 transition-transform duration-200',
+                  isOpen(section) ? 'rotate-90' : '',
+                )"
+              />
+            </Button>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <ul class="mt-1 space-y-0.5">
+              <li v-for="item in section.children" :key="item.link ?? item.text">
+                <Button
+                  v-if="item.link"
+                  variant="ghost"
+                  size="sm"
+                  as-child
+                  :class="cn(
+                    'w-full justify-start pl-4 font-normal',
+                    isActive(item.link)
+                      ? 'text-emerald-500 dark:text-emerald-400 font-medium hover:text-emerald-500 dark:hover:text-emerald-400'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
+                  )"
+                >
+                  <RouteLink :to="item.link" @click="emit('navigate')">
+                    {{ item.text }}
+                  </RouteLink>
+                </Button>
+                <span
+                  v-else
+                  class="block px-4 py-1.5 text-sm text-zinc-400 dark:text-zinc-600 select-none"
+                >
+                  {{ item.text }}
+                </span>
+              </li>
+            </ul>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <!-- Top-level link (no children) -->
+        <Button
+          v-else-if="section.link"
+          variant="ghost"
+          size="sm"
+          as-child
+          :class="cn(
+            'w-full justify-start font-normal',
+            isActive(section.link)
+              ? 'text-emerald-500 dark:text-emerald-400 font-medium hover:text-emerald-500 dark:hover:text-emerald-400'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
+          )"
+        >
+          <RouteLink :to="section.link" @click="emit('navigate')">
+            {{ section.text }}
+          </RouteLink>
+        </Button>
+      </template>
+    </nav>
+  </ScrollArea>
 </template>

@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { usePageData } from 'vuepress/client'
 import { useRoute } from 'vue-router'
+import { ScrollArea } from './ui/scroll-area'
 
 const page = usePageData()
 const route = useRoute()
@@ -62,11 +63,6 @@ watch(
 </script>
 
 <template>
-  <!--
-    Protocol TOC: "On this page" sticky panel.
-    Uses the same zinc/emerald token set as the rest of the design.
-    Shown at xl+ only (controlled by parent Layout).
-  -->
   <nav v-if="headers.length" class="text-sm" aria-label="On this page">
     <p
       class="mb-4 text-[11px] font-semibold uppercase tracking-widest
@@ -74,21 +70,23 @@ watch(
     >
       On this page
     </p>
-    <ul class="space-y-2 border-l border-zinc-900/10 dark:border-white/10">
-      <li v-for="h in headers" :key="h.slug">
-        <a
-          :href="`#${h.slug}`"
-          :class="[
-            'block -ml-px border-l pl-3 text-[13px] leading-snug transition-colors duration-150',
-            h.level === 3 ? 'pl-5' : '',
-            activeSlug === h.slug
-              ? 'border-emerald-500 dark:border-emerald-400 text-emerald-500 dark:text-emerald-400 font-medium'
-              : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-900/20 dark:hover:border-white/20',
-          ]"
-        >
-          {{ h.title }}
-        </a>
-      </li>
-    </ul>
+    <ScrollArea class="max-h-[calc(100vh-12rem)]">
+      <ul class="space-y-2 border-l border-zinc-900/10 dark:border-white/10 pr-2">
+        <li v-for="h in headers" :key="h.slug">
+          <a
+            :href="`#${h.slug}`"
+            :class="[
+              'block -ml-px border-l pl-3 text-[13px] leading-snug transition-colors duration-150',
+              h.level === 3 ? 'pl-5' : '',
+              activeSlug === h.slug
+                ? 'border-emerald-500 dark:border-emerald-400 text-emerald-500 dark:text-emerald-400 font-medium'
+                : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-900/20 dark:hover:border-white/20',
+            ]"
+          >
+            {{ h.title }}
+          </a>
+        </li>
+      </ul>
+    </ScrollArea>
   </nav>
 </template>

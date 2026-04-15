@@ -27,14 +27,41 @@ go get github.com/gocanto/bedrock/packages/routing@latest
 
 ## Sub-packages
 
-| Sub-package            | Purpose                                          |
-|------------------------|--------------------------------------------------|
-| `routing/compiler`     | Translates Upstream route patterns to Go regexp   |
-| `routing/controllers`  | Base controller type and `HasMiddleware` interface|
-| `routing/middleware`   | Built-in middleware (throttle, redirects)        |
-| `routing/matching`     | Route matching strategies                        |
-| `routing/events`       | Routing lifecycle events                         |
-| `routing/exceptions`   | Route not found and method not allowed errors    |
+| Sub-package           | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| `routing/compiler`    | Translates Upstream route patterns to Go regexp     |
+| `routing/controllers` | Base controller type and `HasMiddleware` interface |
+| `routing/middleware`  | Built-in middleware (throttle, redirects)          |
+| `routing/matching`    | Route matching strategies                          |
+| `routing/events`      | Routing lifecycle events                           |
+| `routing/exceptions`  | Route not found and method not allowed errors      |
+
+## Usage
+
+```go
+router := routing.NewRouter()
+
+// Basic routes
+router.Get("/users", listUsersHandler)
+router.Post("/users", createUserHandler)
+router.Put("/users/{id}", updateUserHandler)
+router.Delete("/users/{id}", deleteUserHandler)
+
+// Named route
+router.Get("/profile", profileHandler).Name("profile")
+
+// URL generation
+url := router.URL("profile") // "/profile"
+
+// Route group with shared prefix and middleware
+router.Group(func(r *routing.Router) {
+    r.Get("/orders", listOrdersHandler)
+    r.Get("/orders/{id}", showOrderHandler)
+}).Prefix("/api/v1").Middleware(authMiddleware)
+
+// Resource routes (index, show, store, update, destroy)
+router.Resource("/posts", &PostController{})
+```
 
 ## Cross-referencing Tests
 
