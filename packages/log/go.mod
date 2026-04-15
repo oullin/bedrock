@@ -4,12 +4,14 @@ go 1.26.0
 
 replace (
 	github.com/bedrock/packages/config => ../config
+	github.com/bedrock/packages/container => ../container
 	github.com/bedrock/packages/contracts => ../contracts
 	github.com/bedrock/packages/events => ../events
 )
 
 require (
 	github.com/bedrock/packages/config v0.0.0-00010101000000-000000000000
+	github.com/bedrock/packages/container v0.0.0
 	github.com/bedrock/packages/contracts v0.0.0
 )
 
