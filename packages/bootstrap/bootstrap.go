@@ -11,6 +11,7 @@
 package bootstrap
 
 import (
+	"github.com/bedrock/packages/ai"
 	"github.com/bedrock/packages/auth"
 	"github.com/bedrock/packages/bus"
 	"github.com/bedrock/packages/cache"
@@ -73,6 +74,14 @@ type Options struct {
 
 	// TranslationLocale is the default locale. Default: "en".
 	TranslationLocale string
+
+	// AIDefaultProvider is the lab name of the default AI provider (e.g. "openai").
+	// When empty, the AI service provider is not registered.
+	AIDefaultProvider string
+
+	// AIConfigs maps AI provider lab names to their configuration (api_key, etc.).
+	// Only meaningful when AIDefaultProvider is non-empty.
+	AIConfigs map[string]map[string]any
 }
 
 func (o Options) withDefaults() Options {
@@ -158,6 +167,10 @@ func Default(opts ...Options) *container.Application {
 
 	if o.TranslationLoader != nil {
 		providers = append(providers, translation.NewTranslationServiceProvider(app.Container, o.TranslationLoader, o.TranslationLocale))
+	}
+
+	if o.AIDefaultProvider != "" {
+		providers = append(providers, ai.NewAiServiceProvider(app.Container, o.AIDefaultProvider, o.AIConfigs))
 	}
 
 	app.RegisterMany(providers)
