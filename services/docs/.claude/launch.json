@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vuepress", "dev", ".", "--clean-cache"],
+      "port": 8080
+    }
+  ]
+}

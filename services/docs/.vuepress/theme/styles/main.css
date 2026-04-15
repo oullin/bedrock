@@ -8,47 +8,47 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  --foreground: 222.2 47.4% 11.2%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 222.2 47.4% 11.2%;
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 47.4% 11.2%;
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
   --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
 }
 
 /* Map tokens into Tailwind v4's @theme so utility classes work */
@@ -76,6 +76,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --font-display: 'Lexend', system-ui, sans-serif;
 }
 
 /* ─── Global ─────────────────────────────────────────────────────────────── */
@@ -86,53 +87,64 @@ body,
   height: 100%;
 }
 
-/* ─── Typography: @tailwindcss/typography overrides ─────────────────────────
-   Applied via `prose prose-zinc dark:prose-invert` on the <article> element.
-   These rules tune the defaults to match the Protocol design language.
-──────────────────────────────────────────────────────────────────────────── */
+/* ─── Display font for headings ──────────────────────────────────────────── */
 
-/* Links → emerald accent */
-[vp-content] a,
-.prose a {
-  @apply text-emerald-500 dark:text-emerald-400
-         decoration-emerald-500/30 dark:decoration-emerald-400/30
-         underline-offset-2
-         hover:text-emerald-600 dark:hover:text-emerald-300
-         hover:decoration-emerald-500/60 dark:hover:decoration-emerald-400/60;
+[vp-content] h1,
+[vp-content] h2,
+[vp-content] h3,
+[vp-content] h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
 }
 
-/* Code blocks → always dark bg (even in light mode, Protocol-style) */
+/* ─── Typography: @tailwindcss/typography overrides ─────────────────────────
+   Applied via `prose prose-slate dark:prose-invert` on the <article> element.
+   These rules match the Syntax template design language.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Links → sky accent (Syntax style) */
+[vp-content] a,
+.prose a {
+  @apply text-sky-500 dark:text-sky-400
+         no-underline font-semibold
+         shadow-[inset_0_-2px_0_0_rgba(14,165,233,0.3)]
+         dark:shadow-[inset_0_-2px_0_0_rgba(56,189,248,0.2)]
+         hover:shadow-[inset_0_-2px_0_0_rgba(14,165,233,0.7)]
+         dark:hover:shadow-[inset_0_-2px_0_0_rgba(56,189,248,0.5)];
+}
+
+/* Code blocks — rounded-xl with shadow (Syntax style) */
 [vp-content] pre,
 .prose pre {
-  @apply bg-zinc-900! dark:bg-zinc-800/60! ring-1 ring-inset ring-white/10;
+  @apply rounded-xl! bg-slate-900! shadow-lg! dark:bg-slate-800/60! dark:ring-1 dark:ring-slate-300/10!;
 }
 
 [vp-content] pre code,
 .prose pre code {
-  @apply bg-transparent! text-zinc-300!;
+  @apply bg-transparent! text-slate-300!;
 }
 
 /* Inline code */
 [vp-content] code:not(pre code),
 .prose code:not(pre code) {
-  @apply bg-zinc-900/5 dark:bg-white/5
-         text-zinc-900 dark:text-zinc-200
-         ring-1 ring-inset ring-zinc-900/10 dark:ring-white/10
+  @apply bg-slate-900/5 dark:bg-white/5
+         text-sky-900 dark:text-slate-300
+         ring-1 ring-inset ring-slate-900/10 dark:ring-white/10
          px-1.5 py-0.5 rounded text-[13.5px] font-mono;
 }
 
-/* Suppress typography plugin's backtick pseudo-element */
+/* Suppress backtick pseudo-elements */
 .prose code::before,
 .prose code::after {
   content: none !important;
 }
 
-/* Heading anchor links injected by VuePress */
+/* Heading anchor links */
 [vp-content] h1 .header-anchor,
 [vp-content] h2 .header-anchor,
 [vp-content] h3 .header-anchor,
 [vp-content] h4 .header-anchor {
-  @apply no-underline text-zinc-400 dark:text-zinc-600 opacity-0 ml-2 transition-opacity;
+  @apply no-underline text-slate-400 dark:text-slate-600 opacity-0 ml-2 transition-opacity;
 }
 
 [vp-content] h1:hover .header-anchor,
@@ -142,24 +154,24 @@ body,
   @apply opacity-100;
 }
 
-/* ── Custom containers (tip / warning / danger) ──────────────────────────── */
+/* ── Custom containers (tip / warning / danger) — Syntax rounded-3xl style ── */
 
 [vp-content] .custom-container {
-  @apply rounded-2xl ring-1 ring-inset px-5 py-4 my-5 text-[14px];
+  @apply rounded-3xl ring-1 ring-inset p-6 my-6 text-[14px];
 }
 
 [vp-content] .custom-container.tip {
-  @apply bg-emerald-50/50 dark:bg-emerald-500/10 ring-emerald-500/20 dark:ring-emerald-500/20;
+  @apply bg-sky-50/80 dark:bg-sky-500/10 ring-sky-500/20;
 }
 
 [vp-content] .custom-container.warning {
-  @apply bg-amber-50/50 dark:bg-amber-500/10 ring-amber-500/20 dark:ring-amber-500/20;
+  @apply bg-amber-50 dark:bg-amber-500/10 ring-amber-500/20;
 }
 
 [vp-content] .custom-container.danger {
-  @apply bg-red-50/50 dark:bg-red-500/10 ring-red-500/20 dark:ring-red-500/20;
+  @apply bg-red-50 dark:bg-red-500/10 ring-red-500/20;
 }
 
 [vp-content] .custom-container-title {
-  @apply font-semibold mb-2 text-zinc-900 dark:text-white;
+  @apply font-semibold mb-2 text-slate-900 dark:text-white;
 }
