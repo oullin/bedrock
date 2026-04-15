@@ -49,9 +49,9 @@ function isActive(link?: string): boolean {
 
 <template>
   <ScrollArea class="h-full">
-    <nav class="text-sm px-3 py-2" aria-label="Sidebar navigation">
+    <nav class="text-sm px-3 py-4" aria-label="Sidebar navigation">
       <template v-for="(section, idx) in config" :key="section.text">
-        <Separator v-if="idx > 0" class="my-3" />
+        <Separator v-if="idx > 0" class="my-3 bg-slate-100 dark:bg-slate-800" />
 
         <!-- Section with children (collapsible) -->
         <Collapsible
@@ -63,8 +63,10 @@ function isActive(link?: string): boolean {
             <Button
               variant="ghost"
               size="sm"
-              class="w-full justify-between px-3 text-xs font-semibold uppercase tracking-wide
-                     text-zinc-900 dark:text-white hover:bg-zinc-900/5 dark:hover:bg-white/5"
+              class="w-full justify-between px-3 text-[11px] font-semibold uppercase tracking-widest
+                     text-slate-500 dark:text-slate-400
+                     hover:text-slate-700 dark:hover:text-slate-300
+                     hover:bg-slate-900/5 dark:hover:bg-white/5"
             >
               {{ section.text }}
               <ChevronRight
@@ -87,8 +89,8 @@ function isActive(link?: string): boolean {
                   :class="cn(
                     'w-full justify-start pl-4 font-normal',
                     isActive(item.link)
-                      ? 'text-emerald-500 dark:text-emerald-400 font-medium hover:text-emerald-500 dark:hover:text-emerald-400'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
+                      ? 'text-sky-500 dark:text-sky-400 font-medium hover:text-sky-500 dark:hover:text-sky-400'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white',
                   )"
                 >
                   <RouteLink :to="item.link" @click="emit('navigate')">
@@ -97,7 +99,7 @@ function isActive(link?: string): boolean {
                 </Button>
                 <span
                   v-else
-                  class="block px-4 py-1.5 text-sm text-zinc-400 dark:text-zinc-600 select-none"
+                  class="block px-4 py-1.5 text-sm text-slate-400 dark:text-slate-600 select-none"
                 >
                   {{ item.text }}
                 </span>
@@ -115,8 +117,8 @@ function isActive(link?: string): boolean {
           :class="cn(
             'w-full justify-start font-normal',
             isActive(section.link)
-              ? 'text-emerald-500 dark:text-emerald-400 font-medium hover:text-emerald-500 dark:hover:text-emerald-400'
-              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white',
+              ? 'text-sky-500 dark:text-sky-400 font-medium hover:text-sky-500 dark:hover:text-sky-400'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white',
           )"
         >
           <RouteLink :to="section.link" @click="emit('navigate')">
