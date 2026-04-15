@@ -14,9 +14,9 @@ test method. Every entry must have a Go counterpart.
 
 Upstream's PHPUnit tests use two naming styles. Both map deterministically to Go:
 
-| PHP style                                                    | Go style                                  |
-| ------------------------------------------------------------ | ----------------------------------------- |
-| `public function testJobCanBeFired()`                       | `func TestJobCanBeFired(t *testing.T)`   |
+| PHP style                                                        | Go style                                                   |
+| ---------------------------------------------------------------- | ---------------------------------------------------------- |
+| `public function testJobCanBeFired()`                            | `func TestJobCanBeFired(t *testing.T)`                     |
 | `public function test_it_can_create_timeout_exception_for_job()` | `func TestItCanCreateTimeoutExceptionForJob(t *testing.T)` |
 
 Rules:
@@ -32,20 +32,20 @@ Rules:
 Upstream's queue tests rely on features Go has no direct equivalent for. These
 are the adaptation rules:
 
-| Upstream feature                                             | Go adaptation                                                                      |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| IoC container / `App::make`                                | `HandlerRegistry` keyed by name (see `registry.go`).                               |
-| Orm model serialisation (`SerializesModels`)          | Out of scope. Jobs carry plain structs / maps.                                     |
-| Closures via `SerializableClosure`                          | Replaced by registered handler names.                                              |
-| `#[Tries]`, `#[Backoff]`, `#[Timeout]`, `#[Queue]` attributes | Go struct tags: `queue:"tries=3,backoff=1s|5s|10s,timeout=60s"` parsed via `options.go`. |
-| `config('queue.*')` helpers                                 | Explicit config maps passed to `Manager.SetConfig`.                                |
-| `Event::fake()` / `Bus::fake()`                            | Test helpers in `internal/testutil` (created as needed).                           |
-| Database tests hitting real MySQL/SQLite                   | Ported to table-driven unit tests with mock executors. Tests that MUST hit a real DB get a `_integration_test.go` suffix and a `//go:build integration` tag. |
-| Redis tests hitting real Redis                             | Mock Redis client (`drivers/drivers_test.go`) grown to support `EVAL`/`EVALSHA`.  |
-| SQS tests hitting real AWS                                 | Mock SQS client — same pattern as existing `drivers/sqs_test.go`.                 |
-| PHPUnit `$this->expectException(...)` on specific type     | `errors.As(err, &target)` with matching error struct.                             |
-| PHP exceptions extending other exceptions                  | Go error structs that embed the parent error via pointer (see `timeout_exceeded_error.go`). |
-| `resolveName()` on the PHP `Job` class                     | `ResolveName() string` method on the Go `Job` interface — introduced in Step 8.  Until then, a local `ResolveNamer` interface is used internally. |
+| Upstream feature                                               | Go adaptation                                                                                                                                                |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- | ---------------------------------------- |
+| IoC container / `App::make`                                   | `HandlerRegistry` keyed by name (see `registry.go`).                                                                                                         |
+| Orm model serialisation (`SerializesModels`)             | Out of scope. Jobs carry plain structs / maps.                                                                                                               |
+| Closures via `SerializableClosure`                            | Replaced by registered handler names.                                                                                                                        |
+| `#[Tries]`, `#[Backoff]`, `#[Timeout]`, `#[Queue]` attributes | Go struct tags: `queue:"tries=3,backoff=1s                                                                                                                   | 5s  | 10s,timeout=60s"`parsed via`options.go`. |
+| `config('queue.*')` helpers                                   | Explicit config maps passed to `Manager.SetConfig`.                                                                                                          |
+| `Event::fake()` / `Bus::fake()`                               | Test helpers in `internal/testutil` (created as needed).                                                                                                     |
+| Database tests hitting real MySQL/SQLite                      | Ported to table-driven unit tests with mock executors. Tests that MUST hit a real DB get a `_integration_test.go` suffix and a `//go:build integration` tag. |
+| Redis tests hitting real Redis                                | Mock Redis client (`drivers/drivers_test.go`) grown to support `EVAL`/`EVALSHA`.                                                                             |
+| SQS tests hitting real AWS                                    | Mock SQS client — same pattern as existing `drivers/sqs_test.go`.                                                                                            |
+| PHPUnit `$this->expectException(...)` on specific type        | `errors.As(err, &target)` with matching error struct.                                                                                                        |
+| PHP exceptions extending other exceptions                     | Go error structs that embed the parent error via pointer (see `timeout_exceeded_error.go`).                                                                  |
+| `resolveName()` on the PHP `Job` class                        | `ResolveName() string` method on the Go `Job` interface — introduced in Step 8. Until then, a local `ResolveNamer` interface is used internally.             |
 
 ## 3. Where each PHP test file lives in Go
 
@@ -57,7 +57,7 @@ live at the top level of `packages/queue`.
 ## 4. Coverage rule
 
 A test is ported **only** when its Go counterpart asserts the same
-*observable behaviour* as the PHP test. It is **not enough** to have a test
+_observable behaviour_ as the PHP test. It is **not enough** to have a test
 with a matching name that trivially passes. CI enforces this two ways:
 
 1. **Inventory check** (`scripts/queue-parity.sh`): the set of Go `Test*`
@@ -89,11 +89,11 @@ When Upstream releases a new patch of 13.x:
 
 ## 6. Known semantic divergences
 
-| Divergence                                                                                           | Rationale                                                                       |
-| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Go errors are values, not thrown exceptions.                                                         | Language difference. Behaviour preserved via `errors.As` / `errors.Is`.          |
-| No transaction-aware dispatch by default — consumer must inject a `TxCallback` (Step 14).           | Go has no global DB facade analogous to Upstream's `DB::transaction`.            |
+| Divergence                                                                                         | Rationale                                                                         |
+| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Go errors are values, not thrown exceptions.                                                       | Language difference. Behaviour preserved via `errors.As` / `errors.Is`.           |
+| No transaction-aware dispatch by default — consumer must inject a `TxCallback` (Step 14).          | Go has no global DB facade analogous to Upstream's `DB::transaction`.              |
 | No runtime memory cap in core Worker — `MaxMemoryMiB` is advisory, checked via `runtime.MemStats`. | Go's GC makes PHP-style hard memory caps meaningless; Upstream behaviour imitated. |
-| `#[UniqueFor]` requires a `CacheLock` interface; default implementation is in-memory.              | Upstream uses the cache store directly; we avoid a hard dep.                     |
+| `#[UniqueFor]` requires a `CacheLock` interface; default implementation is in-memory.              | Upstream uses the cache store directly; we avoid a hard dep.                       |
 
 _Update this section every time a deliberate skew is introduced._

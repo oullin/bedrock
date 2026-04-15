@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouteLink } from 'vuepress/client'
+import { Button } from '../ui/button'
 </script>
 
 <template>
@@ -19,14 +20,14 @@ import { RouteLink } from 'vuepress/client'
       The page you're looking for doesn't exist or has been moved.
     </p>
 
-    <RouteLink
-      to="/"
-      class="mt-8 inline-flex items-center rounded-full bg-zinc-900 px-5 py-2.5
-             text-sm font-semibold text-white transition
-             hover:bg-zinc-700
-             dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+    <Button
+      variant="default"
+      as-child
+      class="mt-8 rounded-full bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
     >
-      Back to home
-    </RouteLink>
+      <RouteLink to="/">
+        Back to home
+      </RouteLink>
+    </Button>
   </div>
 </template>
