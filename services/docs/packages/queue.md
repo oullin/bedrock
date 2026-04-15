@@ -21,18 +21,49 @@ go get github.com/gocanto/bedrock/packages/queue@latest
 
 ## Drivers
 
-| Driver       | Use case                                            |
-|--------------|-----------------------------------------------------|
-| `sync`       | Executes jobs inline (default in testing)           |
-| `database`   | Persists jobs to a SQL table                        |
-| `redis`      | Uses Redis lists or streams                         |
-| `beanstalkd` | Uses a Beanstalkd tube                              |
-| `sqs`        | Uses AWS SQS                                        |
-| `null`       | Discards all jobs (useful in tests)                 |
-| `background` | Dispatches to a goroutine pool                      |
-| `failover`   | Chains multiple drivers with automatic fallback     |
+| Driver       | Use case                                        |
+| ------------ | ----------------------------------------------- |
+| `sync`       | Executes jobs inline (default in testing)       |
+| `database`   | Persists jobs to a SQL table                    |
+| `redis`      | Uses Redis lists or streams                     |
+| `beanstalkd` | Uses a Beanstalkd tube                          |
+| `sqs`        | Uses AWS SQS                                    |
+| `null`       | Discards all jobs (useful in tests)             |
+| `background` | Dispatches to a goroutine pool                  |
+| `failover`   | Chains multiple drivers with automatic fallback |
+
+## Usage
+
+```go
+manager := queue.NewManager()
+manager.AddConnector("redis", queue.NewRedisConnector(redisClient))
+
+q, err := manager.Connection("redis")
+
+// Push a job now
+err = q.Push(ctx, &SendEmailJob{UserID: 42}, "emails")
+
+// Push with delay
+err = q.Later(ctx, 30*time.Second, &GenerateReport{}, "reports")
+
+// Pop the next available job
+job, err := q.Pop(ctx, "emails")
+if job != nil {
+    err = job.Fire(ctx)
+}
+```
 
 ## Worker
 
 The `Worker` polls a queue, calls `Job.Fire()`, and handles retries, delays,
 max-attempts enforcement, and failed-job recording.
+
+```go
+worker := queue.NewWorker(manager, failer)
+worker.Daemon(ctx, "redis", "emails", queue.WorkerOptions{
+    MaxTries:    3,
+    Memory:      128, // MB
+    Timeout:     60,  // seconds
+    Sleep:       3,
+})
+```

@@ -34,3 +34,29 @@ application config.
 
 1. Decrypts incoming encrypted cookies before they reach handlers.
 2. Encrypts queued cookies and attaches them to the outgoing response.
+
+## Usage
+
+```go
+factory := cookie.NewFactory(cookie.Config{
+    Path:     "/",
+    Domain:   "example.com",
+    Secure:   true,
+    HttpOnly: true,
+    SameSite: http.SameSiteLaxMode,
+})
+
+jar := cookie.NewJar()
+
+// Queue a cookie to be sent with the next response
+jar.Queue(factory.Make("remember_token", token, 60*24*time.Minute))
+
+// Queue a permanent cookie
+jar.QueueForever(factory.Make("locale", "en", 0))
+
+// Queue a deletion
+jar.QueueExpire("old_cookie")
+
+// Wire up middleware (drains the queue on each response)
+mux.Use(cookie.NewMiddleware(jar, encrypter).Handle)
+```

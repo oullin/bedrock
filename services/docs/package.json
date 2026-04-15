@@ -9,10 +9,17 @@
   "devDependencies": {
     "vue": "^3.5.0",
     "vue-router": "^4.5.0",
+    "@tailwindcss/typography": "^0.5.13",
     "@tailwindcss/vite": "^4.0.0",
     "@vuepress/bundler-vite": "next",
     "@vuepress/plugin-prismjs": "next",
+    "@vueuse/core": "^14.2.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.378.0",
     "portless": "latest",
+    "radix-vue": "^1.9.9",
+    "tailwind-merge": "^2.3.0",
     "tailwindcss": "^4.0.0",
     "vuepress": "next"
   }
