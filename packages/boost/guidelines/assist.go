@@ -29,7 +29,17 @@ func (g *GuidelineAssist) Models() map[string]string {
 	base := g.config.BasePath()
 
 	_ = filepath.WalkDir(base, func(path string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() || filepath.Ext(path) != ".go" {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			switch d.Name() {
+			case "vendor", "node_modules", ".git":
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if filepath.Ext(path) != ".go" {
 			return nil
 		}
 

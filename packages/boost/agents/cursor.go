@@ -1,6 +1,11 @@
 package agents
 
-import "github.com/bedrock/packages/boost/internal/platform"
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/bedrock/packages/boost/internal/platform"
+)
 
 // Cursor implements boost.CodingAgent for the Cursor IDE.
 // Mirrors Laravel\Boost\Install\Agents\Cursor.
@@ -51,8 +56,8 @@ func (a *Cursor) DetectOnSystem(p platform.Platform) bool {
 	case platform.Darwin:
 		return existsOnDisk("/Applications/Cursor.app")
 	case platform.Windows:
-		return existsOnDisk(`%ProgramFiles%\Cursor`) ||
-			existsOnDisk(`%LOCALAPPDATA%\Programs\Cursor`)
+		return existsOnDisk(filepath.Join(os.Getenv("ProgramFiles"), "Cursor")) ||
+			existsOnDisk(filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "Cursor"))
 	default:
 		return existsOnDisk("/opt/cursor") ||
 			commandInPath("cursor") ||

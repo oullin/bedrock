@@ -138,7 +138,10 @@ func (a *AnonymousAgent) Prompt(ctx context.Context, text string, opts ...contra
 	}
 
 	destination := func(passable any) (any, error) {
-		p := passable.(*prompts.AgentPrompt)
+		p, ok := passable.(*prompts.AgentPrompt)
+		if !ok {
+			return nil, ErrProviderCapability
+		}
 		req := a.buildTextRequest(p)
 		return provider.Prompt(ctx, req)
 	}
@@ -174,7 +177,10 @@ func (a *AnonymousAgent) Stream(ctx context.Context, text string, opts ...contra
 	}
 
 	destination := func(passable any) (any, error) {
-		p := passable.(*prompts.AgentPrompt)
+		p, ok := passable.(*prompts.AgentPrompt)
+		if !ok {
+			return nil, ErrProviderCapability
+		}
 		req := a.buildTextRequest(p)
 		return provider.Stream(ctx, req)
 	}
