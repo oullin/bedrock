@@ -3,7 +3,6 @@
 package agents
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/bedrock/packages/boost/internal/jsonconfig"
 	"github.com/bedrock/packages/boost/internal/platform"
 )
 
@@ -174,7 +174,7 @@ func normalizeCommand(command string, extraArgs []string) (string, []string) {
 }
 
 // writeJSONConfigEntry reads the config file, merges in the new server entry
-// under configKey/serverKey, and writes it back atomically.
+// under configKey/serverKey, and writes it back atomically with file locking.
 func writeJSONConfigEntry(
 	configPath string,
 	configKey string,
@@ -182,46 +182,12 @@ func writeJSONConfigEntry(
 	serverConfig map[string]any,
 	skeleton map[string]any,
 ) (bool, error) {
-	existing := make(map[string]any)
-
-	if data, err := os.ReadFile(configPath); err == nil {
-		if jsonErr := json.Unmarshal(data, &existing); jsonErr != nil {
-			return false, fmt.Errorf("boost: parse %s: %w", configPath, jsonErr)
-		}
-	} else if !os.IsNotExist(err) {
-		return false, fmt.Errorf("boost: read %s: %w", configPath, err)
-	} else {
-		for k, v := range skeleton {
-			existing[k] = v
-		}
-	}
-
-	servers, _ := existing[configKey].(map[string]any)
-	if servers == nil {
-		servers = make(map[string]any)
-	}
-
-	// Idempotent — treat existing entry as success.
-	if _, alreadyExists := servers[serverKey]; alreadyExists {
-		return true, nil
-	}
-
-	servers[serverKey] = serverConfig
-	existing[configKey] = servers
-
-	out, err := json.MarshalIndent(existing, "", "    ")
+	_, err := jsonconfig.WriteEntry(configPath, configKey, serverKey, serverConfig, skeleton)
 	if err != nil {
-		return false, fmt.Errorf("boost: marshal %s: %w", configPath, err)
+		return false, err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(configPath), 0o755); err != nil {
-		return false, fmt.Errorf("boost: mkdir %s: %w", filepath.Dir(configPath), err)
-	}
-
-	if err := os.WriteFile(configPath, append(out, '\n'), 0o644); err != nil {
-		return false, fmt.Errorf("boost: write %s: %w", configPath, err)
-	}
-
+	// This caller treats an already-existing entry as success.
 	return true, nil
 }
 

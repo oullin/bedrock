@@ -3,6 +3,7 @@ package featureflags
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -221,6 +222,9 @@ func (a *ArrayDriver) Delete(_ context.Context, feature string, scope any) error
 		delete(scopes, key)
 	}
 
+	// Clear the inflight entry so the next Get re-invokes the resolver.
+	a.inflight.Delete(feature + "\x00" + key)
+
 	return nil
 }
 
@@ -232,11 +236,25 @@ func (a *ArrayDriver) Purge(_ context.Context, features []string) error {
 
 	if features == nil {
 		a.resolvedStates = make(map[string]map[string]any)
+		a.inflight.Range(func(k, _ any) bool {
+			a.inflight.Delete(k)
+			return true
+		})
+
 		return nil
 	}
 
 	for _, name := range features {
 		delete(a.resolvedStates, name)
+
+		prefix := name + "\x00"
+		a.inflight.Range(func(k, _ any) bool {
+			if strings.HasPrefix(k.(string), prefix) {
+				a.inflight.Delete(k)
+			}
+
+			return true
+		})
 	}
 
 	return nil
