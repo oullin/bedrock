@@ -46,7 +46,10 @@ func (a *StructuredAnonymousAgent) Prompt(ctx context.Context, text string, opts
 	}
 
 	destination := func(passable any) (any, error) {
-		p := passable.(*prompts.AgentPrompt)
+		p, ok := passable.(*prompts.AgentPrompt)
+		if !ok {
+			return nil, ErrProviderCapability
+		}
 		req := a.buildStructuredTextRequest(p)
 		return provider.Prompt(ctx, req)
 	}
