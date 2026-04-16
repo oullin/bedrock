@@ -36,7 +36,6 @@ func TestIsAttemptingPrecognition(t *testing.T) {
 
 	raw := httptest.NewRequest(http.MethodPost, "/", nil)
 	raw.Header.Set("Precognition", "true")
-	raw.Header.Set("Precognition-Validate-Only", "name,email")
 	req := httpx.NewRequest(raw)
 
 	if !req.IsAttemptingPrecognition() {
@@ -44,15 +43,48 @@ func TestIsAttemptingPrecognition(t *testing.T) {
 	}
 }
 
-func TestIsAttemptingPrecognitionWithoutValidateOnly(t *testing.T) {
+func TestIsAttemptingPrecognitionWithValidateOnly(t *testing.T) {
 	t.Parallel()
 
 	raw := httptest.NewRequest(http.MethodPost, "/", nil)
 	raw.Header.Set("Precognition", "true")
+	raw.Header.Set("Precognition-Validate-Only", "name,email")
 	req := httpx.NewRequest(raw)
 
-	if req.IsAttemptingPrecognition() {
-		t.Fatal("expected IsAttemptingPrecognition to return false without Validate-Only")
+	if !req.IsAttemptingPrecognition() {
+		t.Fatal("expected IsAttemptingPrecognition to return true with both headers")
+	}
+}
+
+func TestIsAttemptingPrecognitionRequiresExactTrue(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		value string
+		want  bool
+	}{
+		{"true", true},
+		{"1", false},
+		{"yes", false},
+		{"on", false},
+		{"True", false},
+		{"false", false},
+		{"", false},
+	}
+
+	for _, tt := range tests {
+		raw := httptest.NewRequest(http.MethodPost, "/", nil)
+
+		if tt.value != "" {
+			raw.Header.Set("Precognition", tt.value)
+		}
+
+		req := httpx.NewRequest(raw)
+		got := req.IsAttemptingPrecognition()
+
+		if got != tt.want {
+			t.Errorf("IsAttemptingPrecognition(%q) = %v, want %v", tt.value, got, tt.want)
+		}
 	}
 }
 
@@ -90,8 +122,7 @@ func TestFilterPrecognitiveRules(t *testing.T) {
 	t.Parallel()
 
 	raw := httptest.NewRequest(http.MethodPost, "/", nil)
-	raw.Header.Set("Precognition", "true")
-	raw.Header.Set("Precognition-Validate-Only", "name,address")
+	raw.Header.Set("Precognition-Validate-Only", "name,address.*")
 	req := httpx.NewRequest(raw)
 
 	rules := map[string]any{
@@ -125,6 +156,67 @@ func TestFilterPrecognitiveRules(t *testing.T) {
 	}
 }
 
+func TestFilterPrecognitiveRulesExactMatch(t *testing.T) {
+	t.Parallel()
+
+	raw := httptest.NewRequest(http.MethodPost, "/", nil)
+	raw.Header.Set("Precognition-Validate-Only", "name")
+	req := httpx.NewRequest(raw)
+
+	rules := map[string]any{
+		"name":       "required",
+		"name.first": "required",
+		"email":      "required",
+	}
+
+	filtered := req.FilterPrecognitiveRules(rules)
+
+	if _, ok := filtered["name"]; !ok {
+		t.Fatal("expected name rule to be kept")
+	}
+
+	if _, ok := filtered["name.first"]; ok {
+		t.Fatal("expected name.first to be filtered out (exact match only)")
+	}
+
+	if _, ok := filtered["email"]; ok {
+		t.Fatal("expected email to be filtered out")
+	}
+}
+
+func TestFilterPrecognitiveRulesWildcard(t *testing.T) {
+	t.Parallel()
+
+	raw := httptest.NewRequest(http.MethodPost, "/", nil)
+	raw.Header.Set("Precognition-Validate-Only", "user.profile.*")
+	req := httpx.NewRequest(raw)
+
+	rules := map[string]any{
+		"user.profile.name":       "required",
+		"user.profile.bio":        "required",
+		"user.profile.avatar.url": "required",
+		"user.email":              "required",
+	}
+
+	filtered := req.FilterPrecognitiveRules(rules)
+
+	if _, ok := filtered["user.profile.name"]; !ok {
+		t.Fatal("expected user.profile.name to match user.profile.*")
+	}
+
+	if _, ok := filtered["user.profile.bio"]; !ok {
+		t.Fatal("expected user.profile.bio to match user.profile.*")
+	}
+
+	if _, ok := filtered["user.profile.avatar.url"]; ok {
+		t.Fatal("expected user.profile.avatar.url NOT to match user.profile.* (extra dot segment)")
+	}
+
+	if _, ok := filtered["user.email"]; ok {
+		t.Fatal("expected user.email NOT to match user.profile.*")
+	}
+}
+
 func TestFilterPrecognitiveRulesNotPrecognitive(t *testing.T) {
 	t.Parallel()
 
@@ -139,6 +231,6 @@ func TestFilterPrecognitiveRulesNotPrecognitive(t *testing.T) {
 	filtered := req.FilterPrecognitiveRules(rules)
 
 	if len(filtered) != 2 {
-		t.Fatalf("expected all rules when not precognitive, got %d", len(filtered))
+		t.Fatalf("expected all rules when no Precognition-Validate-Only header, got %d", len(filtered))
 	}
 }
