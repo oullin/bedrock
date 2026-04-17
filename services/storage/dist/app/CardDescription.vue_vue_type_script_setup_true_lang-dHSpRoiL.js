@@ -1,1 +1,0 @@
-import{b as t}from"./routes-S6IyX_wi.js";import{d as o,c as a,r as n,p as c,u as l,o as p}from"./app.js";const u=o({__name:"CardDescription",props:{class:{type:[Boolean,null,String,Object,Array]}},setup(e){const s=e;return(r,m)=>(p(),a("p",{"data-slot":"card-description",class:c(l(t)("text-muted-foreground text-sm",s.class))},[n(r.$slots,"default")],2))}});export{u as _};
