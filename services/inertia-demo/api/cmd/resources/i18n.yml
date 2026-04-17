@@ -1,0 +1,25 @@
+default_locale: "en"
+url_prefix: true
+
+locales:
+  en:
+    name: "English"
+    direction: "ltr"
+    head:
+      title: "Progressive Oullin"
+      meta:
+        - name: "description"
+          content: "A progressive dashboard application"
+        - property: "og:locale"
+          content: "en_US"
+
+  es:
+    name: "Español"
+    direction: "ltr"
+    head:
+      title: "Progressive Oullin"
+      meta:
+        - name: "description"
+          content: "Una aplicación de panel progresiva"
+        - property: "og:locale"
+          content: "es_ES"
