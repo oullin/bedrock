@@ -51,6 +51,10 @@ const VariableMaximumLength = 32
 
 var variableRe = regexp.MustCompile(`\{(!)?([\w\x80-\xff]+)\}`)
 
+// validGroupName matches variable names that are safe for RE2 named capture
+// groups (?P<name>...). RE2 requires [A-Za-z_][A-Za-z0-9_]*.
+var validGroupName = regexp.MustCompile(`^[A-Za-z_]\w*$`)
+
 func Compile(route SourceRoute) (*CompiledRoute, error) {
 	var (
 		hostVariables []string
@@ -134,6 +138,10 @@ func compilePattern(route SourceRoute, pattern string, isHost bool) (*compileRes
 
 		if len(varName) > 0 && varName[0] >= '0' && varName[0] <= '9' {
 			return nil, fmt.Errorf("variable name %q cannot start with a digit in route pattern %q", varName, pattern)
+		}
+
+		if !validGroupName.MatchString(varName) {
+			return nil, fmt.Errorf("variable name %q contains characters not supported by RE2 named groups in route pattern %q", varName, pattern)
 		}
 
 		for _, existing := range variables {

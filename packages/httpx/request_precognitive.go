@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"regexp"
 	"strings"
 )
 
@@ -10,10 +11,13 @@ func (r *Request) IsPrecognitive() bool {
 	return isTruthy(r.raw.Header.Get("Precognition"))
 }
 
-// IsAttemptingPrecognition returns true when the request is precognitive and
-// also carries a Precognition-Validate-Only header listing fields to validate.
+// IsAttemptingPrecognition returns true when the request carries a
+// Precognition header with the exact value "true". This checks the client's
+// intent to make a precognitive request.
+//
+// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::isAttemptingPrecognition.
 func (r *Request) IsAttemptingPrecognition() bool {
-	return r.IsPrecognitive() && r.raw.Header.Get("Precognition-Validate-Only") != ""
+	return r.raw.Header.Get("Precognition") == "true"
 }
 
 // PrecognitiveValidateOnly returns the comma-separated list of fields that the
@@ -38,36 +42,52 @@ func (r *Request) PrecognitiveValidateOnly() []string {
 }
 
 // FilterPrecognitiveRules filters a set of validation rules down to only those
-// fields listed in the Precognition-Validate-Only header. If the request is not
-// precognitive the full rule set is returned unchanged.
+// fields listed in the Precognition-Validate-Only header. If the header is not
+// present the full rule set is returned unchanged.
+//
+// Patterns support wildcards: "address.*" matches "address.street" and
+// "address.city" but not "address.street.line".
+//
+// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::filterPrecognitiveRules.
 func (r *Request) FilterPrecognitiveRules(rules map[string]any) map[string]any {
-	if !r.IsAttemptingPrecognition() {
+	if r.raw.Header.Get("Precognition-Validate-Only") == "" {
 		return rules
 	}
 
-	fields := r.PrecognitiveValidateOnly()
-	allowed := make(map[string]struct{}, len(fields))
+	validateOnly := r.PrecognitiveValidateOnly()
+	filtered := make(map[string]any)
 
-	for _, f := range fields {
-		allowed[f] = struct{}{}
-	}
-
-	filtered := make(map[string]any, len(fields))
-
-	for k, v := range rules {
-		// Match the field name or any nested field (e.g., "address" matches "address.street").
-		base := k
-
-		if idx := strings.Index(k, "."); idx != -1 {
-			base = k[:idx]
-		}
-
-		if _, ok := allowed[base]; ok {
-			filtered[k] = v
+	for attr, v := range rules {
+		if shouldValidatePrecognitiveAttribute(attr, validateOnly) {
+			filtered[attr] = v
 		}
 	}
 
 	return filtered
+}
+
+// shouldValidatePrecognitiveAttribute reports whether the given attribute
+// should be validated based on the Precognition-Validate-Only patterns.
+// Each pattern is converted to a regex where * is replaced with [^.]+ to
+// match a single dot-separated segment.
+//
+// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::shouldValidatePrecognitiveAttribute.
+func shouldValidatePrecognitiveAttribute(attribute string, validateOnly []string) bool {
+	for _, pattern := range validateOnly {
+		escaped := regexp.QuoteMeta(pattern)
+		escaped = strings.ReplaceAll(escaped, `\*`, `[^.]+`)
+		re, err := regexp.Compile(`^` + escaped + `$`)
+
+		if err != nil {
+			continue
+		}
+
+		if re.MatchString(attribute) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isTruthy(v string) bool {

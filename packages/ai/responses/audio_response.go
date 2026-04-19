@@ -1,0 +1,16 @@
+package responses
+
+import "github.com/bedrock/packages/ai/data"
+
+// AudioResponse holds the result of a text-to-speech request.
+// Mirrors Laravel\Ai\Responses\AudioResponse.
+type AudioResponse struct {
+	Content string // base64-encoded audio
+	Usage   data.Usage
+	Meta    data.Meta
+}
+
+// NewAudioResponse constructs an AudioResponse.
+func NewAudioResponse(content string, usage data.Usage, meta data.Meta) *AudioResponse {
+	return &AudioResponse{Content: content, Usage: usage, Meta: meta}
+}
