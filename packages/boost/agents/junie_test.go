@@ -1,6 +1,8 @@
 package agents_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bedrock/packages/boost/agents"
@@ -46,5 +48,50 @@ func TestJunieMcpStrategy(t *testing.T) {
 
 	if got := a.McpInstallationStrategy(); got != platform.McpStrategyFile {
 		t.Errorf("McpInstallationStrategy() = %v, want McpStrategyFile", got)
+	}
+}
+
+func TestJunieDetectOnSystemDarwinExpandsHome(t *testing.T) {
+	tmp := t.TempDir()
+
+	t.Setenv("HOME", tmp)
+
+	a := agents.NewJunie()
+
+	if a.DetectOnSystem(platform.Darwin) {
+		t.Error("DetectOnSystem(platform.Darwin) should be false when JetBrains dir is absent")
+	}
+
+	jetbrainsDir := filepath.Join(tmp, "Library", "Application Support", "JetBrains")
+
+	if err := os.MkdirAll(jetbrainsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll(JetBrains): %v", err)
+	}
+
+	if !a.DetectOnSystem(platform.Darwin) {
+		t.Error("DetectOnSystem(platform.Darwin) should be true when JetBrains dir exists under HOME")
+	}
+}
+
+func TestJunieDetectOnSystemLinuxExpandsHome(t *testing.T) {
+	tmp := t.TempDir()
+
+	t.Setenv("HOME", tmp)
+	t.Setenv("PATH", "")
+
+	a := agents.NewJunie()
+
+	if a.DetectOnSystem(platform.Linux) {
+		t.Error("DetectOnSystem(platform.Linux) should be false when ~/.config/junie is absent and junie is not in PATH")
+	}
+
+	junieDir := filepath.Join(tmp, ".config", "junie")
+
+	if err := os.MkdirAll(junieDir, 0755); err != nil {
+		t.Fatalf("MkdirAll(junie): %v", err)
+	}
+
+	if !a.DetectOnSystem(platform.Linux) {
+		t.Error("DetectOnSystem(platform.Linux) should be true when ~/.config/junie exists under HOME")
 	}
 }

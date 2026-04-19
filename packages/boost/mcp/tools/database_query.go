@@ -3,7 +3,6 @@ package tools
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 )
 
 // DatabaseQuery executes a read-only SQL query and returns the results.
@@ -12,14 +11,16 @@ import (
 type DatabaseQuery struct {
 	// DB is the database connection to execute queries against.
 	DB *sql.DB
+	// Driver is the database dialect used to validate read-only SQL.
+	Driver string
 }
 
 func (t *DatabaseQuery) Name() string     { return "database_query" }
 func (t *DatabaseQuery) IsReadOnly() bool { return true }
 
 func (t *DatabaseQuery) Description() string {
-	return "Execute a read-only SQL query and return the results as JSON. " +
-		"Only SELECT statements and CTEs are permitted."
+	return "Execute a parser-verified read-only SQL query and return the results as JSON. " +
+		"Only read-only SELECT, WITH, and EXPLAIN statements are permitted."
 }
 
 func (t *DatabaseQuery) Schema() map[string]any {
@@ -28,7 +29,7 @@ func (t *DatabaseQuery) Schema() map[string]any {
 		"properties": map[string]any{
 			"query": map[string]any{
 				"type":        "string",
-				"description": "The SQL SELECT query to execute.",
+				"description": "The read-only SQL query to execute.",
 			},
 		},
 		"required": []string{"query"},
@@ -47,8 +48,8 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 		return ErrorResponse("database_query: query argument is required"), nil
 	}
 
-	if !isSelectQuery(query) {
-		return ErrorResponse("database_query: only SELECT queries are permitted"), nil
+	if err := validateReadOnlySQL(t.Driver, query); err != nil {
+		return ErrorResponse(fmt.Sprintf("database_query: %v", err)), nil
 	}
 
 	rows, err := t.DB.Query(query) //nolint:gosec
@@ -93,13 +94,4 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	return OkResponse(map[string]any{"rows": results, "count": len(results)}), nil
-}
-
-// isSelectQuery performs a simple check that the query is read-only.
-func isSelectQuery(query string) bool {
-	upper := strings.TrimSpace(strings.ToUpper(query))
-
-	return strings.HasPrefix(upper, "SELECT") ||
-		strings.HasPrefix(upper, "WITH") ||
-		strings.HasPrefix(upper, "EXPLAIN")
 }
