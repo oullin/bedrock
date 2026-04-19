@@ -41,7 +41,7 @@ func TestContactFormValidate(t *testing.T) {
 				Email:     "mina@example.test",
 			},
 			want: map[string]string{
-				"first_name": "The first name field must not exceed 255 characters.",
+				"first_name": "The first name field must not be greater than 255 characters.",
 			},
 		},
 		{
@@ -53,7 +53,7 @@ func TestContactFormValidate(t *testing.T) {
 				Phone:     strings.Repeat("5", 256),
 			},
 			want: map[string]string{
-				"phone": "The phone field must not exceed 255 characters.",
+				"phone": "The phone field must not be greater than 255 characters.",
 			},
 		},
 		{
@@ -141,7 +141,7 @@ func TestOrganizationFormValidate(t *testing.T) {
 			name: "name exceeds max length",
 			form: organizationForm{Name: strings.Repeat("a", 256)},
 			want: map[string]string{
-				"name": "The name field must not exceed 255 characters.",
+				"name": "The name field must not be greater than 255 characters.",
 			},
 		},
 		{

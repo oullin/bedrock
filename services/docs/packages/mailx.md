@@ -16,11 +16,11 @@ go get github.com/gocanto/bedrock/packages/mailx@latest
 
 ## Transports
 
-| Transport      | Description                                    |
-|----------------|------------------------------------------------|
-| `SmtpTransport` | Production SMTP delivery                      |
-| `LogTransport`  | Writes message to a logger (development)      |
-| `ArrayTransport`| Stores messages in memory (testing / preview) |
+| Transport        | Description                                   |
+| ---------------- | --------------------------------------------- |
+| `SmtpTransport`  | Production SMTP delivery                      |
+| `LogTransport`   | Writes message to a logger (development)      |
+| `ArrayTransport` | Stores messages in memory (testing / preview) |
 
 ## Creating a Mailer
 

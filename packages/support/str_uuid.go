@@ -11,9 +11,9 @@ import (
 
 var (
 	uuidMu       sync.Mutex
-	uuidFactory  func() string   // nil = use google/uuid
-	uuidSequence []string        // consumed in order when set
-	uuidFallback func() string   // used when sequence is exhausted
+	uuidFactory  func() string // nil = use google/uuid
+	uuidSequence []string      // consumed in order when set
+	uuidFallback func() string // used when sequence is exhausted
 
 	ulidMu       sync.Mutex
 	ulidFactory  func() string
@@ -27,6 +27,7 @@ var (
 // Mirrors Str::uuid().
 func StrUuid() string {
 	uuidMu.Lock()
+
 	defer uuidMu.Unlock()
 
 	if uuidFactory != nil {
@@ -36,6 +37,7 @@ func StrUuid() string {
 	if len(uuidSequence) > 0 {
 		val := uuidSequence[0]
 		uuidSequence = uuidSequence[1:]
+
 		return val
 	}
 
@@ -50,6 +52,7 @@ func StrUuid() string {
 // Mirrors Str::orderedUuid() and Str::uuid7().
 func StrOrderedUuid() string {
 	uuidMu.Lock()
+
 	defer uuidMu.Unlock()
 
 	if uuidFactory != nil {
@@ -59,13 +62,16 @@ func StrOrderedUuid() string {
 	if len(uuidSequence) > 0 {
 		val := uuidSequence[0]
 		uuidSequence = uuidSequence[1:]
+
 		return val
 	}
 
 	v7, err := uuid.NewV7()
+
 	if err != nil {
 		return uuid.New().String()
 	}
+
 	return v7.String()
 }
 
@@ -115,9 +121,11 @@ func CreateUuidsUsingSequence(sequence []string, whenMissing ...func() string) f
 	uuidSequence = make([]string, len(sequence))
 	copy(uuidSequence, sequence)
 	uuidFactory = nil
+
 	if len(whenMissing) > 0 {
 		uuidFallback = whenMissing[0]
 	}
+
 	uuidMu.Unlock()
 
 	return func() {
@@ -143,6 +151,7 @@ func CreateUuidsNormally() {
 // Mirrors Str::ulid().
 func StrUlid() string {
 	ulidMu.Lock()
+
 	defer ulidMu.Unlock()
 
 	if ulidFactory != nil {
@@ -152,6 +161,7 @@ func StrUlid() string {
 	if len(ulidSequence) > 0 {
 		val := ulidSequence[0]
 		ulidSequence = ulidSequence[1:]
+
 		return val
 	}
 
@@ -162,9 +172,11 @@ func StrUlid() string {
 	entropy := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	ms := ulid.Timestamp(time.Now())
 	id, err := ulid.New(ms, entropy)
+
 	if err != nil {
 		panic("support: failed to generate ULID: " + err.Error())
 	}
+
 	return id.String()
 }
 
@@ -206,9 +218,11 @@ func CreateUlidsUsingSequence(sequence []string, whenMissing ...func() string) f
 	ulidSequence = make([]string, len(sequence))
 	copy(ulidSequence, sequence)
 	ulidFactory = nil
+
 	if len(whenMissing) > 0 {
 		ulidFallback = whenMissing[0]
 	}
+
 	ulidMu.Unlock()
 
 	return func() {

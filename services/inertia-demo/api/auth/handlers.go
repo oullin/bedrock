@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia"
 )
 
 func (a App) loginHandler(w http.ResponseWriter, r *http.Request) {

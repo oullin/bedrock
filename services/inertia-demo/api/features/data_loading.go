@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/props"
+	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 	"github.com/bedrock/services/inertia-demo/api/internal/httputil"
 )

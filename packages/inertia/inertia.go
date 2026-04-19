@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/middleware"
 	"github.com/bedrock/packages/inertia/props"
+	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/response"
 )
 
@@ -146,8 +146,8 @@ func (i *Inertia) Render(w http.ResponseWriter, r *http.Request, component strin
 		MergeProps:     result.MergeProps,
 		DeepMergeProps: result.DeepMergeProps,
 		DeferredProps:  result.DeferredProps,
-		ScrollProps:    toResponseScrollProps(result.ScrollProps),
-		OnceProps:      toResponseOnceProps(result.OnceProps),
+		ScrollProps:    result.ScrollProps,
+		OnceProps:      result.OnceProps,
 	}
 
 	if protocol.IsInertiaRequest(r) {

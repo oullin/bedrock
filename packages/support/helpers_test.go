@@ -28,6 +28,7 @@ func TestBlank(t *testing.T) {
 
 	for _, tc := range cases {
 		got := Blank(tc.value)
+
 		if got != tc.expect {
 			t.Errorf("Blank(%v) = %v, want %v", tc.value, got, tc.expect)
 		}
@@ -41,15 +42,19 @@ func TestFilled(t *testing.T) {
 	if Filled(nil) {
 		t.Error("Filled(nil) should be false")
 	}
+
 	if Filled("") {
 		t.Error("Filled(\"\") should be false")
 	}
+
 	if !Filled("hello") {
 		t.Error("Filled(\"hello\") should be true")
 	}
+
 	if !Filled([]int{1}) {
 		t.Error("Filled([]int{1}) should be true")
 	}
+
 	if Filled([]int{}) {
 		t.Error("Filled([]int{}) should be false")
 	}
@@ -62,6 +67,7 @@ func TestTap(t *testing.T) {
 	called := false
 	result := Tap("hello", func(v string) {
 		called = true
+
 		if v != "hello" {
 			t.Errorf("expected 'hello', got %q", v)
 		}
@@ -70,6 +76,7 @@ func TestTap(t *testing.T) {
 	if !called {
 		t.Error("callback was not called")
 	}
+
 	if result != "hello" {
 		t.Errorf("Tap should return original value, got %q", result)
 	}
@@ -81,6 +88,7 @@ func TestWith(t *testing.T) {
 
 	// With without callback returns value
 	r1 := With("hello")
+
 	if r1 != "hello" {
 		t.Errorf("expected 'hello', got %q", r1)
 	}
@@ -89,6 +97,7 @@ func TestWith(t *testing.T) {
 	r2 := With("hello", func(s string) string {
 		return s + " world"
 	})
+
 	if r2 != "hello world" {
 		t.Errorf("expected 'hello world', got %q", r2)
 	}
@@ -102,6 +111,7 @@ func TestTransform(t *testing.T) {
 	result, ok := Transform("hello", func(s string) string {
 		return s + " world"
 	})
+
 	if !ok || result != "hello world" {
 		t.Errorf("expected 'hello world', ok=true; got %q, ok=%v", result, ok)
 	}
@@ -110,6 +120,7 @@ func TestTransform(t *testing.T) {
 	result2, ok2 := Transform("", func(s string) string {
 		return "should not run"
 	})
+
 	if ok2 || result2 != "" {
 		t.Errorf("expected blank result, got %q, ok=%v", result2, ok2)
 	}
@@ -118,6 +129,7 @@ func TestTransform(t *testing.T) {
 	result3, _ := Transform("", func(s string) string {
 		return "nope"
 	}, "default")
+
 	if result3 != "default" {
 		t.Errorf("expected 'default', got %q", result3)
 	}
@@ -139,6 +151,7 @@ func TestE(t *testing.T) {
 
 	for _, tc := range cases {
 		got := E(tc.input)
+
 		if got != tc.expect {
 			t.Errorf("E(%q) = %q, want %q", tc.input, got, tc.expect)
 		}
@@ -149,6 +162,7 @@ func TestE(t *testing.T) {
 func TestEnv(t *testing.T) {
 	// NOT parallel — uses t.Setenv
 	t.Setenv("TEST_SUPPORT_FOO", "bar")
+
 	if got := Env("TEST_SUPPORT_FOO"); got != "bar" {
 		t.Errorf("Env(set) = %q, want %q", got, "bar")
 	}
@@ -163,6 +177,7 @@ func TestEnvTrue(t *testing.T) {
 	t.Parallel()
 
 	os.Setenv("TEST_SUPPORT_BOOL_TRUE", "true")
+
 	defer os.Unsetenv("TEST_SUPPORT_BOOL_TRUE")
 
 	if got := Env("TEST_SUPPORT_BOOL_TRUE"); got != "true" {
@@ -175,6 +190,7 @@ func TestEnvFalse(t *testing.T) {
 	t.Parallel()
 
 	os.Setenv("TEST_SUPPORT_BOOL_FALSE", "false")
+
 	defer os.Unsetenv("TEST_SUPPORT_BOOL_FALSE")
 
 	if got := Env("TEST_SUPPORT_BOOL_FALSE"); got != "false" {
@@ -187,6 +203,7 @@ func TestEnvNull(t *testing.T) {
 	t.Parallel()
 
 	os.Setenv("TEST_SUPPORT_NULL", "null")
+
 	defer os.Unsetenv("TEST_SUPPORT_NULL")
 
 	if got := Env("TEST_SUPPORT_NULL"); got != "" {
@@ -199,6 +216,7 @@ func TestEnvEmpty(t *testing.T) {
 	t.Parallel()
 
 	os.Setenv("TEST_SUPPORT_EMPTY", "empty")
+
 	defer os.Unsetenv("TEST_SUPPORT_EMPTY")
 
 	if got := Env("TEST_SUPPORT_EMPTY"); got != "" {
@@ -211,6 +229,7 @@ func TestEnvEscapedString(t *testing.T) {
 	t.Parallel()
 
 	os.Setenv("TEST_SUPPORT_QUOTED", "\"hello world\"")
+
 	defer os.Unsetenv("TEST_SUPPORT_QUOTED")
 
 	if got := Env("TEST_SUPPORT_QUOTED"); got != "hello world" {

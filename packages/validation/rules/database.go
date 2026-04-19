@@ -10,6 +10,7 @@ func init_database() {
 // Requires a PresenceVerifier to be set on the validator; passes trivially if none.
 func validateExists(_ string, value any, params []string, ctx RuleContext) bool {
 	pv := ctx.GetPresenceVerifier()
+
 	if pv == nil {
 		return true // no verifier configured — skip
 	}
@@ -31,6 +32,7 @@ func validateExists(_ string, value any, params []string, ctx RuleContext) bool 
 // Requires a PresenceVerifier; passes trivially if none.
 func validateUnique(_ string, value any, params []string, ctx RuleContext) bool {
 	pv := ctx.GetPresenceVerifier()
+
 	if pv == nil {
 		return true
 	}
@@ -43,6 +45,7 @@ func validateUnique(_ string, value any, params []string, ctx RuleContext) bool 
 	column := params[1]
 
 	var excludeID *string
+
 	var idColumn *string
 
 	if len(params) >= 3 && params[2] != "" && params[2] != "NULL" {
@@ -56,6 +59,7 @@ func validateUnique(_ string, value any, params []string, ctx RuleContext) bool 
 	}
 
 	start := 4
+
 	if excludeID == nil {
 		start = 2
 	}

@@ -25,7 +25,7 @@ func WithPropKey(key string) MiddlewareOption {
 // Middleware returns an HTTP middleware that automatically consumes
 // flash messages from the store and places them into the Inertia
 // request context as a shared prop.
-func Middleware(store Store, opts ...MiddlewareOption) func(http.Handler) http.Handler {
+func Middleware(store *CookieStore, opts ...MiddlewareOption) func(http.Handler) http.Handler {
 	if store == nil {
 		log.Printf("flash: Middleware called with nil store; flash messages will not be consumed")
 

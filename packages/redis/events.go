@@ -16,9 +16,6 @@ type CommandExecuted struct {
 
 // TimeMs returns the command duration in milliseconds (float64), matching
 // Upstream's $time property.
-func (e CommandExecuted) TimeMs() float64 {
-	return float64(e.Time.Microseconds()) / 1000.0
-}
 
 // EventDispatcher fans out CommandExecuted events to registered listeners.
 // A zero value is ready to use.
@@ -26,6 +23,10 @@ type EventDispatcher struct {
 	mu        sync.RWMutex
 	enabled   bool
 	listeners []func(CommandExecuted)
+}
+
+func (e CommandExecuted) TimeMs() float64 {
+	return float64(e.Time.Microseconds()) / 1000.0
 }
 
 // NewEventDispatcher returns a dispatcher with events disabled.
@@ -48,7 +49,9 @@ func (d *EventDispatcher) Disable() {
 // Enabled reports whether events are currently dispatched.
 func (d *EventDispatcher) Enabled() bool {
 	d.mu.RLock()
+
 	defer d.mu.RUnlock()
+
 	return d.enabled
 }
 
@@ -63,13 +66,17 @@ func (d *EventDispatcher) Listen(fn func(CommandExecuted)) {
 // dispatcher is a no-op.
 func (d *EventDispatcher) Dispatch(e CommandExecuted) {
 	d.mu.RLock()
+
 	if !d.enabled || len(d.listeners) == 0 {
 		d.mu.RUnlock()
+
 		return
 	}
+
 	ls := make([]func(CommandExecuted), len(d.listeners))
 	copy(ls, d.listeners)
 	d.mu.RUnlock()
+
 	for _, l := range ls {
 		l(e)
 	}

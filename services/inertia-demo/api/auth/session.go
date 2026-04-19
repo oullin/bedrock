@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/bedrock/packages/inertia/cryptox"
+	"github.com/bedrock/packages/encryption"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 )
 
@@ -71,7 +71,13 @@ func (a App) loadCurrentUser(r *http.Request) *database.User {
 		return nil
 	}
 
-	plaintext, err := cryptox.Decrypt(cookie.Value, a.container.CryptoKey)
+	enc, err := encryption.NewEncrypter(a.container.CryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		return nil
+	}
+
+	plaintext, err := enc.DecryptString(cookie.Value)
 
 	if err != nil {
 		return nil
@@ -93,7 +99,13 @@ func (a App) loadCurrentUser(r *http.Request) *database.User {
 }
 
 func (a App) setSession(w http.ResponseWriter, userID int64, remember bool) error {
-	encrypted, err := cryptox.Encrypt(strconv.FormatInt(userID, 10), a.container.CryptoKey)
+	enc, err := encryption.NewEncrypter(a.container.CryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		return fmt.Errorf("auth: encrypter: %w", err)
+	}
+
+	encrypted, err := enc.EncryptString(strconv.FormatInt(userID, 10))
 
 	if err != nil {
 		return fmt.Errorf("auth: encrypt session: %w", err)

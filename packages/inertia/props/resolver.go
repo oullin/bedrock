@@ -14,23 +14,8 @@ type Result struct {
 	MergeProps     []string
 	DeepMergeProps []string
 	DeferredProps  map[string][]string
-	ScrollProps    map[string]ScrollMeta
-	OnceProps      map[string]OnceMeta
-}
-
-// ScrollMeta is the response metadata for a scrollable prop.
-type ScrollMeta struct {
-	PageName     string
-	PreviousPage any
-	NextPage     any
-	CurrentPage  any
-	Reset        bool
-}
-
-// OnceMeta identifies a prop as a once prop on the client.
-type OnceMeta struct {
-	Prop      string
-	ExpiresAt *int64
+	ScrollProps    map[string]protocol.Scroll
+	OnceProps      map[string]protocol.Once
 }
 
 // Resolve filters and evaluates the merged props map according to the
@@ -61,7 +46,7 @@ type propTraits struct {
 	deferGroup string
 	deferMerge bool
 
-	scrollMeta  ScrollMeta
+	scrollMeta  protocol.Scroll
 	scrollMerge bool
 
 	mergeDeep bool
@@ -73,8 +58,8 @@ func Resolve(r *http.Request, component string, merged protocol.Props) (*Result,
 	res := &Result{
 		Props:         make(map[string]any, len(merged)),
 		DeferredProps: make(map[string][]string),
-		ScrollProps:   make(map[string]ScrollMeta),
-		OnceProps:     make(map[string]OnceMeta),
+		ScrollProps:   make(map[string]protocol.Scroll),
+		OnceProps:     make(map[string]protocol.Once),
 	}
 
 	partialComponent := r.Header.Get(protocol.HeaderPartialComponent)
@@ -164,7 +149,7 @@ func walkPropChain(val any) propTraits {
 		case ScrollProp:
 			if !t.hasScroll {
 				t.hasScroll = true
-				t.scrollMeta = ScrollMeta{
+				t.scrollMeta = protocol.Scroll{
 					PageName:     v.PageName,
 					PreviousPage: v.PreviousPage,
 					NextPage:     v.NextPage,
@@ -248,7 +233,7 @@ func (res *Result) shouldInclude(key string, val any, fc filterContext) (bool, e
 
 	// OnceProp: record metadata, skip if in except-once set.
 	if traits.hasOnce {
-		res.OnceProps[key] = OnceMeta{Prop: key, ExpiresAt: traits.onceExpiresAt}
+		res.OnceProps[key] = protocol.Once{Prop: key, ExpiresAt: traits.onceExpiresAt}
 
 		if _, skip := fc.exceptOnceSet[key]; skip {
 			return false, nil

@@ -113,6 +113,7 @@ func toFloat64(v any) (float64, bool) {
 		return val, true
 	case string:
 		f, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+
 		if err == nil {
 			return f, true
 		}
@@ -124,12 +125,14 @@ func toFloat64(v any) (float64, bool) {
 // isNumericValue reports whether v can be interpreted as a number.
 func isNumericValue(v any) bool {
 	_, ok := toFloat64(v)
+
 	return ok
 }
 
 // isIntegerValue reports whether v is (or represents) an integer.
 func isIntegerValue(v any) bool {
 	f, ok := toFloat64(v)
+
 	if !ok {
 		return false
 	}
@@ -179,6 +182,7 @@ func parseFloat64Param(params []string, idx int) (float64, bool) {
 	}
 
 	f, err := strconv.ParseFloat(strings.TrimSpace(params[idx]), 64)
+
 	if err != nil {
 		return 0, false
 	}

@@ -1,4 +1,4 @@
-package config_test
+package inertia_test
 
 import (
 	"os"
@@ -6,11 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/config"
+	"github.com/bedrock/packages/inertia"
 )
 
 func TestDefaultHead(t *testing.T) {
-	head := config.DefaultHead()
+	head := inertia.DefaultHead()
 
 	if head.Lang != "en" {
 		t.Errorf("Lang = %q, want %q", head.Lang, "en")
@@ -50,7 +50,7 @@ func TestDefaultHead(t *testing.T) {
 func TestDefaultHead_EnvOverride(t *testing.T) {
 	t.Setenv("INERTIA_SEO_TITLE", "Env Title")
 
-	head := config.DefaultHead()
+	head := inertia.DefaultHead()
 
 	if head.Title != "Env Title" {
 		t.Errorf("Title = %q, want %q", head.Title, "Env Title")
@@ -72,7 +72,7 @@ meta:
 		t.Fatal(err)
 	}
 
-	head, err := config.LoadHead(path)
+	head, err := inertia.LoadHead(path)
 
 	if err != nil {
 		t.Fatal(err)
@@ -103,7 +103,7 @@ meta:
 func TestLoadHead_FileNotFound(t *testing.T) {
 	t.Parallel()
 
-	_, err := config.LoadHead("/nonexistent/seo.yml")
+	_, err := inertia.LoadHead("/nonexistent/seo.yml")
 
 	if err == nil {
 		t.Error("expected error for missing file")

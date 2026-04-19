@@ -5,20 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/assert"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia"
 )
 
 // --- Failure paths ---
 
 // mockTB captures assertion failures without failing the real test.
-
-const testTemplate = `<!DOCTYPE html>
-<html>
-<head>{{ .inertiaHead }}</head>
-<body>{{ .inertia }}</body>
-</html>`
 
 type mockTB struct {
 	testing.TB
@@ -28,6 +22,12 @@ type mockTB struct {
 type failReader struct{}
 
 type readError struct{}
+
+const testTemplate = `<!DOCTYPE html>
+<html>
+<head>{{ .inertiaHead }}</head>
+<body>{{ .inertia }}</body>
+</html>`
 
 func TestAssertFromBytes(t *testing.T) {
 	t.Parallel()
