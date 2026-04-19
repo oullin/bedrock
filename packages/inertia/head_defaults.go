@@ -3,8 +3,8 @@ package inertia
 import (
 	"fmt"
 
+	"github.com/bedrock/packages/config"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/spf13/viper"
 )
 
 // DefaultHead returns a Head with sensible defaults: lang "en", robots
@@ -45,9 +45,9 @@ func DefaultHead() protocol.Head {
 // then the file values are merged on top, and finally environment variable
 // overrides (INERTIA_SEO_*) are applied.
 func LoadHead(path string) (protocol.Head, error) {
-	v := viper.New()
+	repo := config.NewWithDefaults(map[string]any{"lang": "en"})
 
-	v.SetDefault("lang", "en")
+	v := repo.Viper()
 
 	v.SetEnvPrefix("INERTIA_SEO")
 
