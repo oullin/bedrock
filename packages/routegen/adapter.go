@@ -29,6 +29,7 @@ func FromRouteCollection(collection routing.RouteCollectionInterface, opts Adapt
 	out := make([]*RouteInfo, 0, len(routes))
 
 	basePath, forcedScheme := parseAppURL(opts.AppURL)
+
 	if opts.ForcedScheme != "" {
 		forcedScheme = opts.ForcedScheme
 	}
@@ -45,6 +46,7 @@ func FromRouteCollection(collection routing.RouteCollectionInterface, opts Adapt
 func adaptRoute(r *routing.Route, basePath, forcedScheme string) *RouteInfo {
 	// Lower-case HTTP methods.
 	methods := make([]string, len(r.HTTPMethods))
+
 	for i, m := range r.HTTPMethods {
 		methods[i] = strings.ToLower(m)
 	}
@@ -82,9 +84,11 @@ func adaptRoute(r *routing.Route, basePath, forcedScheme string) *RouteInfo {
 	// Domain handling.
 	domain := r.GetDomain()
 	scheme := ""
+
 	if domain != "" {
 		scheme = "//"
 	}
+
 	if forcedScheme != "" && domain == "" {
 		// Only apply forced scheme when route has no own domain.
 		scheme = forcedScheme
@@ -114,7 +118,9 @@ func hasDefault(defaults map[string]any, name string) bool {
 	if defaults == nil {
 		return false
 	}
+
 	_, ok := defaults[name]
+
 	return ok
 }
 
@@ -124,10 +130,13 @@ func defaultString(defaults map[string]any, name string) string {
 	if defaults == nil {
 		return ""
 	}
+
 	v, ok := defaults[name]
+
 	if !ok {
 		return ""
 	}
+
 	switch s := v.(type) {
 	case string:
 		return s
@@ -152,11 +161,13 @@ func parseAppURL(appURL string) (basePath, scheme string) {
 	}
 
 	u, err := url.Parse(appURL)
+
 	if err != nil {
 		return "", ""
 	}
 
 	path := strings.TrimRight(u.Path, "/")
+
 	if path == "/" || path == "" {
 		return "", ""
 	}

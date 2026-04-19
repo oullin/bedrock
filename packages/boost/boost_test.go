@@ -8,6 +8,25 @@ import (
 )
 
 // TestManagerDefaultAgents mirrors BoostManagerTest::test_has_default_agents.
+
+// TestManagerRegisterAgent mirrors BoostManagerTest::test_can_register_agent.
+
+// TestManagerRegisterAgentDuplicate mirrors BoostManagerTest::test_duplicate_key_returns_error.
+
+// "claude_code" is a default key; attempting to register it again must fail.
+
+// TestManagerGetAgentsSnapshot mirrors BoostManagerTest::test_get_agents_returns_snapshot.
+
+// snap1 must not include "extra" (it's a snapshot taken before registration).
+
+// ---------------------------------------------------------------------------
+// stubAgent satisfies boost.CodingAgent for test purposes only.
+// ---------------------------------------------------------------------------
+
+type stubAgent struct {
+	name string
+}
+
 func TestManagerDefaultAgents(t *testing.T) {
 	t.Parallel()
 
@@ -30,31 +49,31 @@ func TestManagerDefaultAgents(t *testing.T) {
 	}
 }
 
-// TestManagerRegisterAgent mirrors BoostManagerTest::test_can_register_agent.
 func TestManagerRegisterAgent(t *testing.T) {
 	t.Parallel()
 
 	m := boost.New()
 
 	stub := &stubAgent{name: "my_agent"}
+
 	if err := m.RegisterAgent("my_agent", stub); err != nil {
 		t.Fatalf("RegisterAgent: unexpected error: %v", err)
 	}
 
 	agents := m.GetAgents()
+
 	if _, ok := agents["my_agent"]; !ok {
 		t.Error("registered agent not found via GetAgents")
 	}
 }
 
-// TestManagerRegisterAgentDuplicate mirrors BoostManagerTest::test_duplicate_key_returns_error.
 func TestManagerRegisterAgentDuplicate(t *testing.T) {
 	t.Parallel()
 
 	m := boost.New()
 
-	// "claude_code" is a default key; attempting to register it again must fail.
 	err := m.RegisterAgent("claude_code", &stubAgent{name: "claude_code"})
+
 	if err == nil {
 		t.Fatal("expected error for duplicate key, got nil")
 	}
@@ -64,7 +83,6 @@ func TestManagerRegisterAgentDuplicate(t *testing.T) {
 	}
 }
 
-// TestManagerGetAgentsSnapshot mirrors BoostManagerTest::test_get_agents_returns_snapshot.
 func TestManagerGetAgentsSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -77,7 +95,6 @@ func TestManagerGetAgentsSnapshot(t *testing.T) {
 
 	snap2 := m.GetAgents()
 
-	// snap1 must not include "extra" (it's a snapshot taken before registration).
 	if _, ok := snap1["extra"]; ok {
 		t.Error("snapshot 1 should not contain 'extra'")
 	}
@@ -87,26 +104,18 @@ func TestManagerGetAgentsSnapshot(t *testing.T) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// stubAgent satisfies boost.CodingAgent for test purposes only.
-// ---------------------------------------------------------------------------
-
-type stubAgent struct {
-	name string
-}
-
-func (s *stubAgent) Name() string                         { return s.name }
-func (s *stubAgent) DisplayName() string                  { return s.name }
-func (s *stubAgent) McpConfigPath() string                { return "" }
-func (s *stubAgent) McpConfigKey() string                 { return "mcpServers" }
-func (s *stubAgent) ShellMcpCommand() string              { return "" }
-func (s *stubAgent) DefaultMcpConfig() map[string]any    { return nil }
-func (s *stubAgent) Frontmatter() bool                    { return false }
+func (s *stubAgent) Name() string                     { return s.name }
+func (s *stubAgent) DisplayName() string              { return s.name }
+func (s *stubAgent) McpConfigPath() string            { return "" }
+func (s *stubAgent) McpConfigKey() string             { return "mcpServers" }
+func (s *stubAgent) ShellMcpCommand() string          { return "" }
+func (s *stubAgent) DefaultMcpConfig() map[string]any { return nil }
+func (s *stubAgent) Frontmatter() bool                { return false }
 func (s *stubAgent) McpInstallationStrategy() boost.McpInstallationStrategy {
 	return boost.McpStrategyNone
 }
-func (s *stubAgent) DetectOnSystem(_ boost.Platform) bool    { return false }
-func (s *stubAgent) DetectInProject(_ string) bool           { return false }
+func (s *stubAgent) DetectOnSystem(_ boost.Platform) bool { return false }
+func (s *stubAgent) DetectInProject(_ string) bool        { return false }
 func (s *stubAgent) InstallMcp(_, _ string, _ []string, _ map[string]string) (bool, error) {
 	return false, nil
 }
@@ -117,7 +126,7 @@ func (s *stubAgent) HttpMcpServerConfig(_ string) map[string]any {
 func (s *stubAgent) McpServerConfig(_ string, _ []string, _ map[string]string) map[string]any {
 	return nil
 }
-func (s *stubAgent) UseAbsolutePathForMcp() bool              { return false }
-func (s *stubAgent) GoBinaryPath(_ bool) string               { return "go" }
-func (s *stubAgent) EntryPointPath(_ bool) string             { return "main.go" }
-func (s *stubAgent) TransformGuidelines(md string) string     { return md }
+func (s *stubAgent) UseAbsolutePathForMcp() bool          { return false }
+func (s *stubAgent) GoBinaryPath(_ bool) string           { return "go" }
+func (s *stubAgent) EntryPointPath(_ bool) string         { return "main.go" }
+func (s *stubAgent) TransformGuidelines(md string) string { return md }

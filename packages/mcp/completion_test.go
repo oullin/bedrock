@@ -14,6 +14,11 @@ type completablePrompt struct {
 	mcp.Prompt
 }
 
+// completableResource is a Resource that also implements Completable.
+type completableResource struct {
+	mcp.Resource
+}
+
 func (p *completablePrompt) Complete(_ context.Context, argument, value string) *mcp.CompletionResult {
 	switch argument {
 	case "language":
@@ -21,18 +26,15 @@ func (p *completablePrompt) Complete(_ context.Context, argument, value string) 
 	case "style":
 		return mcp.EnumCompletion([]string{"formal", "casual", "technical"})
 	}
-	return mcp.EmptyCompletion()
-}
 
-// completableResource is a Resource that also implements Completable.
-type completableResource struct {
-	mcp.Resource
+	return mcp.EmptyCompletion()
 }
 
 func (r *completableResource) Complete(_ context.Context, argument, value string) *mcp.CompletionResult {
 	if argument == "lang" {
 		return mcp.MatchCompletion([]string{"Go", "Goat", "Gorilla"}, value)
 	}
+
 	return mcp.EmptyCompletion()
 }
 
@@ -110,6 +112,7 @@ func TestMatchCompletionCaseInsensitive(t *testing.T) {
 	t.Parallel()
 
 	result := mcp.MatchCompletion([]string{"Go", "Goat", "Python"}, "go")
+
 	if len(result.Values) != 2 {
 		t.Fatalf("expected 2 matches for 'go' (case-insensitive), got %d: %v", len(result.Values), result.Values)
 	}
@@ -120,9 +123,11 @@ func TestEnumCompletionReturnsAll(t *testing.T) {
 
 	values := []string{"a", "b", "c"}
 	result := mcp.EnumCompletion(values)
+
 	if len(result.Values) != 3 {
 		t.Fatalf("expected 3 values, got %d", len(result.Values))
 	}
+
 	if result.HasMore {
 		t.Fatal("expected HasMore=false for small enum")
 	}
@@ -132,16 +137,21 @@ func TestEnumCompletionTruncatesAt100(t *testing.T) {
 	t.Parallel()
 
 	values := make([]string, 150)
+
 	for i := range values {
 		values[i] = "item"
 	}
+
 	result := mcp.EnumCompletion(values)
+
 	if len(result.Values) != 100 {
 		t.Fatalf("expected 100 values (truncated), got %d", len(result.Values))
 	}
+
 	if !result.HasMore {
 		t.Fatal("expected HasMore=true when list exceeds 100")
 	}
+
 	if result.Total != 150 {
 		t.Fatalf("expected Total=150, got %d", result.Total)
 	}
@@ -151,9 +161,11 @@ func TestEmptyCompletionReturnsZeroValues(t *testing.T) {
 	t.Parallel()
 
 	result := mcp.EmptyCompletion()
+
 	if len(result.Values) != 0 {
 		t.Fatalf("expected 0 values, got %d", len(result.Values))
 	}
+
 	if result.HasMore {
 		t.Fatal("expected HasMore=false")
 	}

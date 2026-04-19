@@ -9,11 +9,6 @@ import (
 
 // ignoredEventPrefixes contains event name prefixes from the framework that
 // should not be recorded, mirroring Upstream's EventWatcher ignore list.
-var ignoredEventPrefixes = []string{
-	"github.com/bedrock/packages/debugbar",
-	"Framework\\",
-	"Upstream\\Octane\\",
-}
 
 // EventWatcher monitors application events and records them as DebugBar
 // entries. It mirrors Upstream's EventWatcher class.
@@ -22,6 +17,12 @@ var ignoredEventPrefixes = []string{
 //   - "ignore" ([]string): additional event names or prefixes to ignore.
 type EventWatcher struct {
 	debugbar.BaseWatcher
+}
+
+var ignoredEventPrefixes = []string{
+	"github.com/bedrock/packages/debugbar",
+	"Framework\\",
+	"Upstream\\Octane\\",
 }
 
 // NewEventWatcher creates an EventWatcher with the given options.

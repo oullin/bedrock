@@ -25,13 +25,16 @@ func NewFileGateway(recorder *Recorder) *FileGateway {
 // PreventStray enables stray-call prevention.
 func (g *FileGateway) PreventStray() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.prevent = true
 }
 
 // GetFile satisfies gateway.FileGateway.
 func (g *FileGateway) GetFile(ctx context.Context, id string) (*contractsgw.FileGetResult, error) {
 	g.recorder.recordFile("get", id, "")
+
 	return &contractsgw.FileGetResult{ID: id, Filename: "fake_file.txt"}, nil
 }
 
@@ -39,6 +42,7 @@ func (g *FileGateway) GetFile(ctx context.Context, id string) (*contractsgw.File
 func (g *FileGateway) PutFile(ctx context.Context, file contractsgw.StorableFile) (*contractsgw.FilePutResult, error) {
 	id := FakeFileID()
 	g.recorder.recordFile("put", id, file.Filename)
+
 	return &contractsgw.FilePutResult{ID: id, Filename: file.Filename}, nil
 }
 
@@ -51,6 +55,8 @@ func (g *FileGateway) DeleteFile(ctx context.Context, id string) error {
 	if prevent && id == "" {
 		return fmt.Errorf("ai: unexpected call to faked file gateway")
 	}
+
 	g.recorder.recordFile("delete", id, "")
+
 	return nil
 }

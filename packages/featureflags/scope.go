@@ -42,6 +42,7 @@ func SerializeScope(scope any) (string, error) {
 		if v {
 			return "true", nil
 		}
+
 		return "false", nil
 	case int:
 		return fmt.Sprintf("%d", v), nil
@@ -82,6 +83,7 @@ func serializeReflect(scope any) (string, error) {
 		if rv.IsNil() {
 			return NullScope, nil
 		}
+
 		rv = rv.Elem()
 	}
 
@@ -94,12 +96,14 @@ func serializeReflect(scope any) (string, error) {
 	// Look for exported field named "ID" or "Id".
 	for _, name := range []string{"ID", "Id"} {
 		field := rv.FieldByName(name)
+
 		if !field.IsValid() {
 			continue
 		}
 
 		// Ensure the field is exported.
 		sf, ok := rt.FieldByName(name)
+
 		if !ok || !sf.IsExported() {
 			continue
 		}

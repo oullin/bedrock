@@ -24,10 +24,8 @@ type McpResponse struct {
 }
 
 // TextContent constructs a text Content item.
-func TextContent(text string) Content { return Content{Type: "text", Text: text} }
 
 // JSONContent constructs a JSON Content item.
-func JSONContent(data any) Content { return Content{Type: "json", Data: data} }
 
 // McpTool is the interface every MCP server tool must satisfy.
 // Named McpTool to avoid collision with contracts/ai.Tool (LLM function-calling tools).
@@ -44,6 +42,10 @@ type McpTool interface {
 	// IsReadOnly reports whether this tool has side effects.
 	IsReadOnly() bool
 }
+
+func TextContent(text string) Content { return Content{Type: "text", Text: text} }
+
+func JSONContent(data any) Content { return Content{Type: "json", Data: data} }
 
 // OkResponse constructs a successful McpResponse with a single JSON content item.
 func OkResponse(data any) McpResponse {

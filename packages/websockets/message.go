@@ -51,16 +51,20 @@ type ErrorData struct {
 func Parse(raw []byte) (PusherMessage, error) {
 	// Use a raw map to validate field types before unmarshalling into the struct.
 	var m map[string]json.RawMessage
+
 	if err := json.Unmarshal(raw, &m); err != nil {
 		return PusherMessage{}, fmt.Errorf("%w: %s", ErrInvalidMessage, err)
 	}
 
 	// event must be a string.
 	rawEvent, ok := m["event"]
+
 	if !ok {
 		return PusherMessage{}, fmt.Errorf("%w: missing event field", ErrInvalidMessage)
 	}
+
 	var eventStr string
+
 	if err := json.Unmarshal(rawEvent, &eventStr); err != nil {
 		return PusherMessage{}, fmt.Errorf("%w: event must be a string", ErrInvalidMessage)
 	}
@@ -68,6 +72,7 @@ func Parse(raw []byte) (PusherMessage, error) {
 	// data, if present, must be a JSON object.
 	if rawData, exists := m["data"]; exists {
 		trimmed := trimSpace(rawData)
+
 		if len(trimmed) > 0 && trimmed[0] != '{' && trimmed[0] != '"' {
 			// Allow string-encoded objects (Pusher encodes data as a JSON string).
 			// Reject arrays and bare scalars (numbers, booleans).
@@ -79,9 +84,11 @@ func Parse(raw []byte) (PusherMessage, error) {
 	}
 
 	var msg PusherMessage
+
 	if err := json.Unmarshal(raw, &msg); err != nil {
 		return PusherMessage{}, fmt.Errorf("%w: %s", ErrInvalidMessage, err)
 	}
+
 	return msg, nil
 }
 
@@ -90,9 +97,11 @@ func Parse(raw []byte) (PusherMessage, error) {
 // (double-encoded) to match the Pusher wire format.
 func MarshalEvent(event, channel string, data any) ([]byte, error) {
 	encoded, err := json.Marshal(data)
+
 	if err != nil {
 		return nil, err
 	}
+
 	msg := struct {
 		Event   string `json:"event"`
 		Data    string `json:"data"`
@@ -102,6 +111,7 @@ func MarshalEvent(event, channel string, data any) ([]byte, error) {
 		Data:    string(encoded),
 		Channel: channel,
 	}
+
 	return json.Marshal(msg)
 }
 
@@ -113,21 +123,26 @@ func MarshalError(code int, message string) ([]byte, error) {
 // ParseSubscribeData decodes the data field of a "pusher:subscribe" message.
 func ParseSubscribeData(raw json.RawMessage) (SubscribeData, error) {
 	var sd SubscribeData
+
 	if len(raw) == 0 {
 		return sd, nil
 	}
 	// data may be a JSON-encoded string (double-encoded) or a direct object.
 	var s string
+
 	if err := json.Unmarshal(raw, &s); err == nil {
 		// Double-encoded: decode the string as JSON.
 		if err := json.Unmarshal([]byte(s), &sd); err != nil {
 			return sd, fmt.Errorf("%w: subscribe data: %s", ErrInvalidMessage, err)
 		}
+
 		return sd, nil
 	}
+
 	if err := json.Unmarshal(raw, &sd); err != nil {
 		return sd, fmt.Errorf("%w: subscribe data: %s", ErrInvalidMessage, err)
 	}
+
 	return sd, nil
 }
 
@@ -138,5 +153,6 @@ func trimSpace(b json.RawMessage) []byte {
 			return b[i:]
 		}
 	}
+
 	return nil
 }

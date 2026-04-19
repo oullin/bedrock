@@ -32,6 +32,7 @@ func NewSyncDispatcher(channels *ChannelManager) *SyncDispatcher {
 // both of which broadcast to all subscribers.
 func (d *SyncDispatcher) Dispatch(ctx context.Context, appID string, event contractsWebSockets.Event) error {
 	ch, ok := d.channels.Get(appID, event.Channel)
+
 	if !ok {
 		return nil
 	}

@@ -24,6 +24,7 @@ func (r *TextResponse) WithMessages(msgs []any) *TextResponse {
 	r.Messages = msgs
 
 	var calls []data.ToolCall
+
 	var results []data.ToolResult
 
 	for _, m := range msgs {
@@ -42,19 +43,23 @@ func (r *TextResponse) WithMessages(msgs []any) *TextResponse {
 // Anthropic-style structured output pseudo-calls.
 func (r *TextResponse) WithToolCallsAndResults(calls []data.ToolCall, results []data.ToolResult) *TextResponse {
 	filtered := calls[:0]
+
 	for _, c := range calls {
 		if c.Name != "output_structured_data" {
 			filtered = append(filtered, c)
 		}
 	}
+
 	r.ToolCalls = filtered
 	r.ToolResults = results
+
 	return r
 }
 
 // WithSteps attaches the reasoning steps.
 func (r *TextResponse) WithSteps(steps []data.Step) *TextResponse {
 	r.Steps = steps
+
 	return r
 }
 

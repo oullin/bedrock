@@ -40,24 +40,29 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := strings.TrimPrefix(r.URL.Path, "/app/")
 
 	app, err := s.apps.FindByKey(key)
+
 	if err != nil {
 		http.Error(w, "app not found", http.StatusNotFound)
+
 		return
 	}
 
 	if !ValidateOrigin(r.Header.Get("Origin"), app.AllowedOrigins()) {
 		http.Error(w, "invalid origin", http.StatusForbidden)
+
 		return
 	}
 
 	if app.MaxConnections() > 0 && s.conns.Count(app.ID()) >= app.MaxConnections() {
 		http.Error(w, "connection limit reached", http.StatusServiceUnavailable)
+
 		return
 	}
 
 	ws, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		InsecureSkipVerify: true, // origin already validated above
 	})
+
 	if err != nil {
 		return
 	}
@@ -68,6 +73,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	conn := NewConn(ws, app.ID())
 	s.conns.Add(conn)
+
 	defer s.conns.Remove(app.ID(), conn.SocketID())
 
 	ctx := r.Context()
@@ -87,6 +93,7 @@ func (s *Server) sendConnectionEstablished(ctx context.Context, conn *Conn, app 
 	}
 
 	bytes, err := MarshalEvent("pusher:connection_established", "", data)
+
 	if err != nil {
 		return err
 	}
@@ -98,6 +105,7 @@ func (s *Server) sendConnectionEstablished(ctx context.Context, conn *Conn, app 
 func (s *Server) readLoop(ctx context.Context, conn *Conn, app *App) {
 	for {
 		_, raw, err := conn.ws.Read(ctx)
+
 		if err != nil {
 			break
 		}
@@ -107,12 +115,15 @@ func (s *Server) readLoop(ctx context.Context, conn *Conn, app *App) {
 
 		if !Allow(conn, 100, time.Second) {
 			s.disconnect(ctx, conn, CodeRateLimitExceeded, "rate limit exceeded")
+
 			break
 		}
 
 		msg, err := Parse(raw)
+
 		if err != nil {
 			s.sendError(ctx, conn, CodeInvalidMessage, "invalid message")
+
 			continue
 		}
 
@@ -154,12 +165,15 @@ func (s *Server) handleMessage(ctx context.Context, conn *Conn, app *App, msg Pu
 // handleSubscribe processes a pusher:subscribe message.
 func (s *Server) handleSubscribe(ctx context.Context, conn *Conn, app *App, msg PusherMessage) error {
 	sd, err := ParseSubscribeData(msg.Data)
+
 	if err != nil {
 		s.sendError(ctx, conn, CodeInvalidMessage, "invalid subscribe data")
+
 		return nil
 	}
 
 	ch, err := s.channels.GetOrCreate(app.ID(), sd.Channel)
+
 	if err != nil {
 		return err
 	}
@@ -167,6 +181,7 @@ func (s *Server) handleSubscribe(ctx context.Context, conn *Conn, app *App, msg 
 	if err := ch.Subscribe(ctx, conn, sd.Auth, sd.ChannelData); err != nil {
 		if err == ErrUnauthorized {
 			s.sendError(ctx, conn, CodeUnauthorized, "unauthorized")
+
 			return nil
 		}
 
@@ -185,6 +200,7 @@ func (s *Server) handleUnsubscribe(ctx context.Context, conn *Conn, app *App, ms
 	if len(msg.Data) > 0 {
 		// data field may be a JSON-encoded string (double-encoded) or direct object.
 		var str string
+
 		if err := json.Unmarshal(msg.Data, &str); err == nil {
 			_ = json.Unmarshal([]byte(str), &data)
 		} else {
@@ -197,6 +213,7 @@ func (s *Server) handleUnsubscribe(ctx context.Context, conn *Conn, app *App, ms
 	}
 
 	ch, ok := s.channels.Get(app.ID(), data.Channel)
+
 	if !ok {
 		return nil
 	}
@@ -210,12 +227,14 @@ func (s *Server) handleUnsubscribe(ctx context.Context, conn *Conn, app *App, ms
 // handlePing responds to a pusher:ping with a pusher:pong.
 func (s *Server) handlePing(ctx context.Context, conn *Conn) error {
 	pong := []byte(`{"event":"pusher:pong","data":"{}"}`)
+
 	return conn.Send(ctx, pong)
 }
 
 // handlePong records that a pong was received from the client.
 func (s *Server) handlePong(conn *Conn) error {
 	conn.TouchPong()
+
 	return nil
 }
 
@@ -223,38 +242,47 @@ func (s *Server) handlePong(conn *Conn) error {
 func (s *Server) handleClientEvent(ctx context.Context, conn *Conn, app *App, msg PusherMessage) error {
 	if msg.Channel == "" {
 		s.sendError(ctx, conn, CodeInvalidMessage, "client event missing channel")
+
 		return nil
 	}
 
 	ch, ok := s.channels.Get(app.ID(), msg.Channel)
+
 	if !ok || !ch.HasConnection(conn.SocketID()) {
 		s.sendError(ctx, conn, CodeUnauthorized, "not subscribed to channel")
+
 		return nil
 	}
 
 	switch app.ClientEventsMode() {
 	case "none":
 		s.sendError(ctx, conn, CodeClientEventsDisabled, "client events disabled")
+
 		return nil
 
 	case "members":
 		pc, ok := ch.(contractsWebSockets.PresenceChanneler)
+
 		if !ok {
 			s.sendError(ctx, conn, CodeUnauthorized, "client events require presence channel")
+
 			return nil
 		}
 
 		socketID := conn.SocketID()
 		isMember := false
+
 		for _, c := range pc.Connections() {
 			if c.SocketID() == socketID {
 				isMember = true
+
 				break
 			}
 		}
 
 		if !isMember {
 			s.sendError(ctx, conn, CodeUnauthorized, "not a channel member")
+
 			return nil
 		}
 

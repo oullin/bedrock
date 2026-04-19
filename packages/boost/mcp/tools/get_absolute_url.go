@@ -43,6 +43,7 @@ func (t *GetAbsoluteUrl) Schema() map[string]any {
 // Handle resolves the path or route to an absolute URL.
 func (t *GetAbsoluteUrl) Handle(req McpRequest) (McpResponse, error) {
 	base := strings.TrimRight(t.BaseURL, "/")
+
 	if base == "" {
 		base = "http://localhost"
 	}
@@ -64,6 +65,7 @@ func (t *GetAbsoluteUrl) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	absolute, err := url.JoinPath(base, relativePath)
+
 	if err != nil {
 		return ErrorResponse("get_absolute_url: " + err.Error()), nil
 	}

@@ -12,11 +12,13 @@ import (
 // Mirrors Arr::collapse().
 func ArrCollapse[T any](items [][]T) []T {
 	total := 0
+
 	for _, s := range items {
 		total += len(s)
 	}
 
 	result := make([]T, 0, total)
+
 	for _, s := range items {
 		result = append(result, s...)
 	}
@@ -31,6 +33,7 @@ func ArrCollapse[T any](items [][]T) []T {
 func ArrFirst[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	if len(items) == 0 {
 		var zero T
+
 		return zero, false
 	}
 
@@ -39,6 +42,7 @@ func ArrFirst[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	}
 
 	fn := predicate[0]
+
 	for i, item := range items {
 		if fn(item, i) {
 			return item, true
@@ -46,6 +50,7 @@ func ArrFirst[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	}
 
 	var zero T
+
 	return zero, false
 }
 
@@ -56,6 +61,7 @@ func ArrFirst[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 func ArrLast[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	if len(items) == 0 {
 		var zero T
+
 		return zero, false
 	}
 
@@ -64,6 +70,7 @@ func ArrLast[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	}
 
 	fn := predicate[0]
+
 	for i := len(items) - 1; i >= 0; i-- {
 		if fn(items[i], i) {
 			return items[i], true
@@ -71,6 +78,7 @@ func ArrLast[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 	}
 
 	var zero T
+
 	return zero, false
 }
 
@@ -79,6 +87,7 @@ func ArrLast[T any](items []T, predicate ...func(T, int) bool) (T, bool) {
 // Mirrors Arr::flatten().
 func ArrFlatten(items []any, depth ...int) []any {
 	d := math.MaxInt
+
 	if len(depth) > 0 {
 		d = depth[0]
 	}
@@ -116,6 +125,7 @@ func ArrRandom[T any](items []T, count ...int) ([]T, error) {
 	}
 
 	n := 1
+
 	if len(count) > 0 {
 		n = count[0]
 	}
@@ -130,6 +140,7 @@ func ArrRandom[T any](items []T, count ...int) ([]T, error) {
 
 	indices := rand.Perm(len(items))
 	result := make([]T, n)
+
 	for i := 0; i < n; i++ {
 		result[i] = items[indices[i]]
 	}
@@ -165,6 +176,7 @@ func ArrSortFunc[T any, K cmp.Ordered](items []T, fn func(T) K) []T {
 // Mirrors Arr::where().
 func ArrWhere[T any](items []T, fn func(T, int) bool) []T {
 	var result []T
+
 	for i, item := range items {
 		if fn(item, i) {
 			result = append(result, item)

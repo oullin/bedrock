@@ -2,35 +2,39 @@ package schema
 
 // ForeignKeyDefinition is a fluent builder for foreign key constraints.
 type ForeignKeyDefinition struct {
-	Columns    []string
-	RefTable   string
-	RefColumns []string
+	Columns        []string
+	RefTable       string
+	RefColumns     []string
 	OnDeleteAction string
 	OnUpdateAction string
-	IndexName  string
+	IndexName      string
 }
 
 // References sets the referenced columns.
 func (f *ForeignKeyDefinition) References(columns ...string) *ForeignKeyDefinition {
 	f.RefColumns = columns
+
 	return f
 }
 
 // On sets the referenced table.
 func (f *ForeignKeyDefinition) On(table string) *ForeignKeyDefinition {
 	f.RefTable = table
+
 	return f
 }
 
 // OnDelete sets the ON DELETE action.
 func (f *ForeignKeyDefinition) OnDelete(action string) *ForeignKeyDefinition {
 	f.OnDeleteAction = action
+
 	return f
 }
 
 // OnUpdate sets the ON UPDATE action.
 func (f *ForeignKeyDefinition) OnUpdate(action string) *ForeignKeyDefinition {
 	f.OnUpdateAction = action
+
 	return f
 }
 

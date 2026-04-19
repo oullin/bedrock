@@ -12,6 +12,7 @@ func dotGet(m map[string]any, key string) (any, bool) {
 
 	parts := strings.SplitN(key, ".", 2)
 	val, ok := m[parts[0]]
+
 	if !ok {
 		return nil, false
 	}
@@ -21,6 +22,7 @@ func dotGet(m map[string]any, key string) (any, bool) {
 	}
 
 	sub, ok := val.(map[string]any)
+
 	if !ok {
 		return nil, false
 	}
@@ -35,10 +37,12 @@ func dotSet(m map[string]any, key string, value any) {
 
 	if len(parts) == 1 {
 		m[key] = value
+
 		return
 	}
 
 	sub, ok := m[parts[0]].(map[string]any)
+
 	if !ok {
 		sub = make(map[string]any)
 		m[parts[0]] = sub
@@ -55,6 +59,7 @@ func dotHas(m map[string]any, key string) bool {
 
 	parts := strings.SplitN(key, ".", 2)
 	val, ok := m[parts[0]]
+
 	if !ok {
 		return false
 	}
@@ -64,6 +69,7 @@ func dotHas(m map[string]any, key string) bool {
 	}
 
 	sub, ok := val.(map[string]any)
+
 	if !ok {
 		return false
 	}
@@ -77,10 +83,12 @@ func dotForget(m map[string]any, key string) {
 
 	if len(parts) == 1 {
 		delete(m, key)
+
 		return
 	}
 
 	sub, ok := m[parts[0]].(map[string]any)
+
 	if !ok {
 		return
 	}
@@ -92,11 +100,13 @@ func dotForget(m map[string]any, key string) {
 func dotFlatten(m map[string]any, prepend string, result map[string]any) {
 	for k, v := range m {
 		key := k
+
 		if prepend != "" {
 			key = prepend + "." + k
 		}
 
 		sub, ok := v.(map[string]any)
+
 		if ok {
 			dotFlatten(sub, key, result)
 		} else {

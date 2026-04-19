@@ -11,12 +11,8 @@ import (
 // scopeableUser implements Scopeable.
 type scopeableUser struct{ id string }
 
-func (u scopeableUser) FeatureScopeIdentifier() string { return "user:" + u.id }
-
 // stringerUser implements fmt.Stringer.
 type stringerUser struct{ name string }
-
-func (u stringerUser) String() string { return "stringer:" + u.name }
 
 // structWithID has an exported ID field.
 type structWithID struct {
@@ -34,6 +30,10 @@ type structWithNoID struct{ Name string }
 
 // ptrStructWithID is tested via pointer.
 type ptrStructWithID struct{ ID int64 }
+
+func (u scopeableUser) FeatureScopeIdentifier() string { return "user:" + u.id }
+
+func (u stringerUser) String() string { return "stringer:" + u.name }
 
 func TestSerializeScope_Nil(t *testing.T) {
 	t.Parallel()
@@ -190,6 +190,7 @@ func TestSerializeScope_StructWithID(t *testing.T) {
 
 	// Must contain the type name and the ID value.
 	expected := fmt.Sprintf("github.com/bedrock/packages/pennant_test.structWithID|99")
+
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
 	}
@@ -206,6 +207,7 @@ func TestSerializeScope_StructWithLowercaseId(t *testing.T) {
 	}
 
 	expected := fmt.Sprintf("github.com/bedrock/packages/pennant_test.structWithLowercaseId|xyz")
+
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
 	}
@@ -222,6 +224,7 @@ func TestSerializeScope_PointerToStruct(t *testing.T) {
 	}
 
 	expected := "github.com/bedrock/packages/pennant_test.ptrStructWithID|7"
+
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
 	}

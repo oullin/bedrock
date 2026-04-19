@@ -41,12 +41,9 @@ type ProviderHooks interface {
 	MapUserToObject(raw map[string]any) *User
 }
 
-const (
-	// EncodingRFC1738 is the default query-string encoding (url.QueryEscape).
-	EncodingRFC1738 = iota
-	// EncodingRFC3986 uses url.PathEscape-compatible percent encoding.
-	EncodingRFC3986
-)
+// EncodingRFC1738 is the default query-string encoding (url.QueryEscape).
+
+// EncodingRFC3986 uses url.PathEscape-compatible percent encoding.
 
 // AbstractProvider is the base OAuth2 provider. Concrete providers embed it
 // and set the impl field to themselves so that abstract-method calls are
@@ -77,6 +74,56 @@ type AbstractProvider struct {
 
 // NewAbstractProvider creates an AbstractProvider and wires impl to the
 // concrete provider (self-reference pattern for Go's "abstract class").
+
+// ── Public fluent API ────────────────────────────────────────────────────────
+
+// Stateless disables CSRF state validation. Useful for APIs that cannot
+// maintain sessions. It mirrors AbstractProvider::stateless().
+
+// Scopes merges additional scopes into the existing set.
+// It mirrors AbstractProvider::scopes().
+
+// SetScopes replaces the current scope list entirely.
+// It mirrors AbstractProvider::setScopes().
+
+// GetScopes returns the current scope list.
+
+// RedirectURL overrides the redirect URI sent to the provider.
+// It mirrors AbstractProvider::redirectUrl().
+
+// With merges extra query-string parameters into the authorization request.
+// It mirrors AbstractProvider::with().
+
+// EnablePKCE activates Proof Key for Code Exchange (RFC 7636) on the next
+// redirect/user cycle. It mirrors AbstractProvider::enablePKCE().
+
+// UsesPKCE reports whether PKCE is active.
+
+// IsStateless reports whether state validation is disabled.
+
+// SetScopeSeparator sets the character used to join multiple scopes.
+
+// SetRequest replaces the underlying HTTP request (e.g. for stateless use).
+
+// ── Core OAuth2 flow ─────────────────────────────────────────────────────────
+
+// Redirect returns the authorization URL the user should be redirected to.
+// When stateful, it stores the state (and PKCE code verifier) in the session.
+// It mirrors AbstractProvider::redirect().
+
+// TokenFetcher is an optional interface that concrete providers implement to
+// override the default OAuth2 token exchange (e.g. to use HTTP Basic Auth
+// instead of sending credentials in the POST body as Twitter requires).
+type TokenFetcher interface {
+	FetchAccessToken(ctx context.Context, code string) (map[string]any, error)
+}
+
+const (
+	EncodingRFC1738 = iota
+
+	EncodingRFC3986
+)
+
 func NewAbstractProvider(
 	impl ProviderHooks,
 	req *http.Request,
@@ -96,78 +143,62 @@ func NewAbstractProvider(
 	}
 }
 
-// ── Public fluent API ────────────────────────────────────────────────────────
-
-// Stateless disables CSRF state validation. Useful for APIs that cannot
-// maintain sessions. It mirrors AbstractProvider::stateless().
 func (p *AbstractProvider) Stateless() *AbstractProvider {
 	p.stateless = true
+
 	return p
 }
 
-// Scopes merges additional scopes into the existing set.
-// It mirrors AbstractProvider::scopes().
 func (p *AbstractProvider) Scopes(scopes []string) *AbstractProvider {
 	p.scopes = append(p.scopes, scopes...)
+
 	return p
 }
 
-// SetScopes replaces the current scope list entirely.
-// It mirrors AbstractProvider::setScopes().
 func (p *AbstractProvider) SetScopes(scopes []string) *AbstractProvider {
 	p.scopes = scopes
+
 	return p
 }
 
-// GetScopes returns the current scope list.
 func (p *AbstractProvider) GetScopes() []string { return p.scopes }
 
-// RedirectURL overrides the redirect URI sent to the provider.
-// It mirrors AbstractProvider::redirectUrl().
 func (p *AbstractProvider) RedirectURL(u string) *AbstractProvider {
 	p.redirectURL = u
+
 	return p
 }
 
-// With merges extra query-string parameters into the authorization request.
-// It mirrors AbstractProvider::with().
 func (p *AbstractProvider) With(params map[string]string) *AbstractProvider {
 	for k, v := range params {
 		p.parameters[k] = v
 	}
+
 	return p
 }
 
-// EnablePKCE activates Proof Key for Code Exchange (RFC 7636) on the next
-// redirect/user cycle. It mirrors AbstractProvider::enablePKCE().
 func (p *AbstractProvider) EnablePKCE() *AbstractProvider {
 	p.usesPKCE = true
+
 	return p
 }
 
-// UsesPKCE reports whether PKCE is active.
 func (p *AbstractProvider) UsesPKCE() bool { return p.usesPKCE }
 
-// IsStateless reports whether state validation is disabled.
 func (p *AbstractProvider) IsStateless() bool { return p.stateless }
 
-// SetScopeSeparator sets the character used to join multiple scopes.
 func (p *AbstractProvider) SetScopeSeparator(sep string) *AbstractProvider {
 	p.scopeSep = sep
+
 	return p
 }
 
-// SetRequest replaces the underlying HTTP request (e.g. for stateless use).
 func (p *AbstractProvider) SetRequest(r *http.Request) *AbstractProvider {
 	p.request = r
+
 	return p
 }
 
-// ── Core OAuth2 flow ─────────────────────────────────────────────────────────
-
-// Redirect returns the authorization URL the user should be redirected to.
-// When stateful, it stores the state (and PKCE code verifier) in the session.
-// It mirrors AbstractProvider::redirect().
 func (p *AbstractProvider) Redirect(_ context.Context) (string, error) {
 	var statePtr *string
 
@@ -185,13 +216,6 @@ func (p *AbstractProvider) Redirect(_ context.Context) (string, error) {
 	return p.impl.GetAuthURL(statePtr), nil
 }
 
-// TokenFetcher is an optional interface that concrete providers implement to
-// override the default OAuth2 token exchange (e.g. to use HTTP Basic Auth
-// instead of sending credentials in the POST body as Twitter requires).
-type TokenFetcher interface {
-	FetchAccessToken(ctx context.Context, code string) (map[string]any, error)
-}
-
 // User completes the OAuth2 callback: validates state, exchanges the code for
 // a token, fetches user info, and returns a populated *User.
 // It mirrors AbstractProvider::user().
@@ -207,18 +231,22 @@ func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 	code := p.request.URL.Query().Get("code")
 
 	var tokenResp map[string]any
+
 	var err error
+
 	if tf, ok := p.impl.(TokenFetcher); ok {
 		tokenResp, err = tf.FetchAccessToken(ctx, code)
 	} else {
 		tokenResp, err = p.getAccessTokenResponse(ctx, code)
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("socialauth: token exchange failed: %w", err)
 	}
 
 	token := mapStr(tokenResp, "access_token")
 	raw, err := p.impl.GetUserByToken(ctx, token)
+
 	if err != nil {
 		return nil, fmt.Errorf("socialauth: user fetch failed: %w", err)
 	}
@@ -228,16 +256,19 @@ func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 	if rt := mapStr(tokenResp, "refresh_token"); rt != "" {
 		user.SetRefreshToken(rt)
 	}
+
 	if ei := mapInt(tokenResp, "expires_in"); ei > 0 {
 		user.SetExpiresIn(ei)
 	} else if e := mapInt(tokenResp, "expires"); e > 0 {
 		user.SetExpiresIn(e)
 	}
+
 	if scopes := mapStrSlice(tokenResp, "scope"); len(scopes) > 0 {
 		user.SetApprovedScopes(scopes)
 	}
 
 	p.cachedUser = user
+
 	return user, nil
 }
 
@@ -245,9 +276,11 @@ func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 // full OAuth2 code-exchange flow. It mirrors AbstractProvider::userFromToken().
 func (p *AbstractProvider) UserFromToken(ctx context.Context, token string) (*User, error) {
 	raw, err := p.impl.GetUserByToken(ctx, token)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return p.impl.MapUserToObject(raw).SetRaw(raw).SetToken(token), nil
 }
 
@@ -261,16 +294,20 @@ func (p *AbstractProvider) BuildAuthURLFromBase(base string, state *string) stri
 
 	if p.encodingType == EncodingRFC3986 {
 		vals := url.Values{}
+
 		for k, v := range fields {
 			vals.Set(k, v)
 		}
+
 		return base + "?" + strings.ReplaceAll(vals.Encode(), "+", "%20")
 	}
 
 	vals := url.Values{}
+
 	for k, v := range fields {
 		vals.Set(k, v)
 	}
+
 	return base + "?" + vals.Encode()
 }
 
@@ -308,6 +345,7 @@ func (p *AbstractProvider) getCodeFields(state *string) map[string]string {
 // AbstractProvider::getAccessTokenResponse().
 func (p *AbstractProvider) getAccessTokenResponse(ctx context.Context, code string) (map[string]any, error) {
 	fields := p.getTokenFields(code)
+
 	return p.postForm(ctx, p.impl.GetTokenURL(), map[string]string{"Accept": "application/json"}, fields)
 }
 
@@ -343,8 +381,10 @@ func (p *AbstractProvider) hasInvalidState() bool {
 	if p.stateless {
 		return false
 	}
+
 	stored, _ := p.session.Pull("state").(string)
 	incoming := p.request.URL.Query().Get("state")
+
 	return stored == "" || stored != incoming
 }
 
@@ -353,10 +393,12 @@ func (p *AbstractProvider) hasInvalidState() bool {
 func generateState() string {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 40)
+
 	for i := range b {
 		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
 		b[i] = chars[n.Int64()]
 	}
+
 	return string(b)
 }
 
@@ -364,9 +406,11 @@ func generateState() string {
 // for use as a PKCE code verifier. It mirrors AbstractProvider::getCodeVerifier().
 func generateCodeVerifier() string {
 	b := make([]byte, 72)
+
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		panic("socialauth: cannot generate PKCE code verifier: " + err.Error())
 	}
+
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
@@ -374,6 +418,7 @@ func generateCodeVerifier() string {
 // It mirrors AbstractProvider::getCodeChallenge().
 func generateCodeChallenge(verifier string) string {
 	h := sha256.Sum256([]byte(verifier))
+
 	return base64.RawURLEncoding.EncodeToString(h[:])
 }
 
@@ -383,39 +428,49 @@ func generateCodeChallenge(verifier string) string {
 // and returns the decoded JSON response body.
 func (p *AbstractProvider) postForm(ctx context.Context, targetURL string, headers, formParams map[string]string) (map[string]any, error) {
 	vals := url.Values{}
+
 	for k, v := range formParams {
 		vals.Set(k, v)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, strings.NewReader(vals.Encode()))
+
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 
 	resp, err := p.getHTTPClient().Do(req)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(resp.Body)
+
 		return nil, fmt.Errorf("socialauth: provider returned HTTP %d: %s", resp.StatusCode, bytes.TrimSpace(body))
 	}
 
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var result map[string]any
+
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("socialauth: cannot decode token response: %w", err)
 	}
+
 	return result, nil
 }
 
@@ -427,33 +482,41 @@ func (p *AbstractProvider) getWithBearer(ctx context.Context, targetURL, token s
 // getJSON performs a GET request and returns the decoded JSON response.
 func (p *AbstractProvider) getJSON(ctx context.Context, targetURL string, headers map[string]string) (map[string]any, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+
 	if err != nil {
 		return nil, err
 	}
+
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 
 	resp, err := p.getHTTPClient().Do(req)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(resp.Body)
+
 		return nil, fmt.Errorf("socialauth: provider returned HTTP %d: %s", resp.StatusCode, bytes.TrimSpace(body))
 	}
 
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var result map[string]any
+
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("socialauth: cannot decode API response: %w", err)
 	}
+
 	return result, nil
 }
 
@@ -461,6 +524,7 @@ func (p *AbstractProvider) getHTTPClient() HTTPDoer {
 	if p.HTTP != nil {
 		return p.HTTP
 	}
+
 	return http.DefaultClient
 }
 
@@ -472,6 +536,7 @@ func mapStr(m map[string]any, key string) string {
 			return s
 		}
 	}
+
 	return ""
 }
 
@@ -484,28 +549,35 @@ func mapInt(m map[string]any, key string) int {
 			return n
 		}
 	}
+
 	return 0
 }
 
 func mapStrSlice(m map[string]any, key string) []string {
 	v, ok := m[key]
+
 	if !ok {
 		return nil
 	}
+
 	switch s := v.(type) {
 	case string:
 		if s == "" {
 			return nil
 		}
+
 		return strings.Fields(s)
 	case []any:
 		out := make([]string, 0, len(s))
+
 		for _, item := range s {
 			if str, ok := item.(string); ok {
 				out = append(out, str)
 			}
 		}
+
 		return out
 	}
+
 	return nil
 }

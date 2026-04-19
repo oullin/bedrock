@@ -36,6 +36,7 @@ func CheckToken(guard *TokenGuard, scopes ...string) func(http.Handler) http.Han
 
 			if err != nil || user == nil {
 				writeJSON(w, http.StatusUnauthorized, "Unauthenticated.")
+
 				return
 			}
 
@@ -44,6 +45,7 @@ func CheckToken(guard *TokenGuard, scopes ...string) func(http.Handler) http.Han
 			// No scope requirements — pass straight through.
 			if len(scopes) == 0 {
 				next.ServeHTTP(w, r)
+
 				return
 			}
 
@@ -51,12 +53,14 @@ func CheckToken(guard *TokenGuard, scopes ...string) func(http.Handler) http.Han
 
 			if !ok {
 				writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
+
 				return
 			}
 
 			for _, scope := range scopes {
 				if uwt.TokenCant(scope) {
 					writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
+
 					return
 				}
 			}
@@ -77,6 +81,7 @@ func CheckTokenForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handle
 
 			if err != nil || user == nil {
 				writeJSON(w, http.StatusUnauthorized, "Unauthenticated.")
+
 				return
 			}
 
@@ -84,6 +89,7 @@ func CheckTokenForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handle
 
 			if len(scopes) == 0 {
 				next.ServeHTTP(w, r)
+
 				return
 			}
 
@@ -91,12 +97,14 @@ func CheckTokenForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handle
 
 			if !ok {
 				writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
+
 				return
 			}
 
 			for _, scope := range scopes {
 				if uwt.TokenCan(scope) {
 					next.ServeHTTP(w, r)
+
 					return
 				}
 			}
@@ -117,12 +125,14 @@ func CheckClientCredentials(guard *TokenGuard, scopes ...string) func(http.Handl
 
 			if err != nil || client == nil {
 				writeJSON(w, http.StatusUnauthorized, "Unauthenticated.")
+
 				return
 			}
 
 			for _, scope := range scopes {
 				if !client.HasScope(scope) {
 					writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
+
 					return
 				}
 			}

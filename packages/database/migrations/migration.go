@@ -31,6 +31,7 @@ func (m *FuncMigration) Up(ctx context.Context, conn dbcontract.Connection) erro
 	if m.UpFunc == nil {
 		return nil
 	}
+
 	return m.UpFunc(ctx, conn)
 }
 
@@ -39,5 +40,6 @@ func (m *FuncMigration) Down(ctx context.Context, conn dbcontract.Connection) er
 	if m.DownFunc == nil {
 		return nil
 	}
+
 	return m.DownFunc(ctx, conn)
 }

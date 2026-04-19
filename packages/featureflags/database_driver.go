@@ -44,9 +44,9 @@ type DatabaseDriver struct {
 	maxRetries int
 }
 
-var _ Driver               = (*DatabaseDriver)(nil)
+var _ Driver = (*DatabaseDriver)(nil)
 var _ StoredFeaturesLister = (*DatabaseDriver)(nil)
-var _ BulkFeatureSetter    = (*DatabaseDriver)(nil)
+var _ BulkFeatureSetter = (*DatabaseDriver)(nil)
 
 // NewDatabaseDriver creates a DatabaseDriver backed by db, storing rows in
 // table. Event dispatch is disabled.
@@ -72,6 +72,7 @@ func NewDatabaseDriverWithDispatcher(db DBExecutor, table string, d EventDispatc
 // name replaces the previous resolver.
 func (d *DatabaseDriver) Define(name string, resolver func(ctx context.Context, scope any) (any, error)) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.resolvers[name] = resolver
@@ -80,6 +81,7 @@ func (d *DatabaseDriver) Define(name string, resolver func(ctx context.Context, 
 // Defined returns the names of all features with registered resolvers.
 func (d *DatabaseDriver) Defined() []string {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	names := make([]string, 0, len(d.resolvers))
@@ -102,6 +104,7 @@ func (d *DatabaseDriver) Defined() []string {
 //     ErrFeatureNotDefined is returned.
 func (d *DatabaseDriver) Get(ctx context.Context, feature string, scope any) (any, error) {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +119,10 @@ func (d *DatabaseDriver) Get(ctx context.Context, feature string, scope any) (an
 	var raw string
 
 	err = row.Scan(&raw)
+
 	if err == nil {
 		var value any
+
 		if unmarshalErr := json.Unmarshal([]byte(raw), &value); unmarshalErr != nil {
 			return nil, unmarshalErr
 		}
@@ -141,6 +146,7 @@ func (d *DatabaseDriver) Get(ctx context.Context, feature string, scope any) (an
 	}
 
 	value, err := resolver(ctx, scope)
+
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +168,7 @@ func (d *DatabaseDriver) GetAll(ctx context.Context, features map[string][]any) 
 
 		for i, scope := range scopes {
 			val, err := d.Get(ctx, feature, scope)
+
 			if err != nil {
 				return nil, err
 			}
@@ -180,11 +187,13 @@ func (d *DatabaseDriver) GetAll(ctx context.Context, features map[string][]any) 
 // unique-constraint violations.
 func (d *DatabaseDriver) Set(ctx context.Context, feature string, scope any, value any) error {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return err
 	}
 
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
@@ -201,6 +210,7 @@ func (d *DatabaseDriver) Set(ctx context.Context, feature string, scope any, val
 
 	for attempt := 0; attempt <= d.maxRetries; attempt++ {
 		_, lastErr = d.db.ExecContext(ctx, query, feature, key, string(encoded), now)
+
 		if lastErr == nil {
 			return nil
 		}
@@ -234,6 +244,7 @@ func (d *DatabaseDriver) SetAll(ctx context.Context, entries []FeatureEntry) err
 // stored state for the feature.
 func (d *DatabaseDriver) SetForAllScopes(ctx context.Context, feature string, value any) error {
 	encoded, err := json.Marshal(value)
+
 	if err != nil {
 		return err
 	}
@@ -254,6 +265,7 @@ func (d *DatabaseDriver) SetForAllScopes(ctx context.Context, feature string, va
 // The next Get call will re-invoke the resolver.
 func (d *DatabaseDriver) Delete(ctx context.Context, feature string, scope any) error {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return err
 	}
@@ -311,6 +323,7 @@ func (d *DatabaseDriver) Stored(ctx context.Context) ([]string, error) {
 	query := fmt.Sprintf("SELECT DISTINCT name FROM %s", d.table)
 
 	rows, err := d.db.QueryContext(ctx, query)
+
 	if err != nil {
 		return nil, err
 	}
@@ -321,6 +334,7 @@ func (d *DatabaseDriver) Stored(ctx context.Context) ([]string, error) {
 
 	for rows.Next() {
 		var name string
+
 		if err := rows.Scan(&name); err != nil {
 			return nil, err
 		}

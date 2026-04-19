@@ -21,6 +21,7 @@ func ArrAdd(m map[string]any, key string, value any) map[string]any {
 // Mirrors Arr::get().
 func ArrGet(m map[string]any, key string, def ...any) any {
 	val, ok := dotGet(m, key)
+
 	if ok {
 		return val
 	}
@@ -37,6 +38,7 @@ func ArrGet(m map[string]any, key string, def ...any) any {
 // Mirrors Arr::set().
 func ArrSet(m map[string]any, key string, value any) map[string]any {
 	dotSet(m, key, value)
+
 	return m
 }
 
@@ -79,6 +81,7 @@ func ArrPull(m map[string]any, key string, def ...any) any {
 // Mirrors Arr::dot().
 func ArrDot(m map[string]any, prepend ...string) map[string]any {
 	p := ""
+
 	if len(prepend) > 0 {
 		p = prepend[0]
 	}
@@ -93,11 +96,13 @@ func ArrDot(m map[string]any, prepend ...string) map[string]any {
 // Mirrors Arr::except().
 func ArrExcept(m map[string]any, keys ...string) map[string]any {
 	exclude := make(map[string]struct{}, len(keys))
+
 	for _, k := range keys {
 		exclude[k] = struct{}{}
 	}
 
 	result := make(map[string]any, len(m))
+
 	for k, v := range m {
 		if _, skip := exclude[k]; !skip {
 			result[k] = v
@@ -111,6 +116,7 @@ func ArrExcept(m map[string]any, keys ...string) map[string]any {
 // Mirrors Arr::only().
 func ArrOnly(m map[string]any, keys ...string) map[string]any {
 	result := make(map[string]any, len(keys))
+
 	for _, k := range keys {
 		if v, ok := m[k]; ok {
 			result[k] = v
@@ -125,6 +131,7 @@ func ArrOnly(m map[string]any, keys ...string) map[string]any {
 // Mirrors Arr::divide().
 func ArrDivide(m map[string]any) ([]string, []any) {
 	keys := make([]string, 0, len(m))
+
 	for k := range m {
 		keys = append(keys, k)
 	}
@@ -132,6 +139,7 @@ func ArrDivide(m map[string]any) ([]string, []any) {
 	sort.Strings(keys)
 
 	values := make([]any, len(keys))
+
 	for i, k := range keys {
 		values[i] = m[k]
 	}
@@ -157,6 +165,7 @@ func ArrPluck(items []map[string]any, valueKey string, indexKey ...string) any {
 	}
 
 	result := make([]any, 0, len(items))
+
 	for _, item := range items {
 		result = append(result, item[valueKey])
 	}
@@ -170,6 +179,7 @@ func ArrSortRecursive(m map[string]any, descending ...bool) map[string]any {
 	desc := len(descending) > 0 && descending[0]
 
 	result := make(map[string]any, len(m))
+
 	for k, v := range m {
 		switch child := v.(type) {
 		case map[string]any:

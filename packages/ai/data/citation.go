@@ -9,17 +9,18 @@ type Citation struct {
 }
 
 // ToMap returns a map representation.
-func (c Citation) ToMap() map[string]any {
-	return map[string]any{"title": c.Title, "url": c.URL, "source": c.Source}
-}
 
 // UrlCitation is a URL-based citation variant.
 // Mirrors Upstream\Ai\Responses\Data\UrlCitation.
 type UrlCitation struct {
-	Title       string `json:"title"`
-	URL         string `json:"url"`
-	StartIndex  int    `json:"start_index"`
-	EndIndex    int    `json:"end_index"`
+	Title      string `json:"title"`
+	URL        string `json:"url"`
+	StartIndex int    `json:"start_index"`
+	EndIndex   int    `json:"end_index"`
+}
+
+func (c Citation) ToMap() map[string]any {
+	return map[string]any{"title": c.Title, "url": c.URL, "source": c.Source}
 }
 
 // ToMap returns a map representation.

@@ -2,9 +2,9 @@ package orm
 
 // GuardsAttributes provides mass assignment protection.
 type GuardsAttributes struct {
-	fillable   []string
-	guarded    []string
-	unguarded  bool
+	fillable  []string
+	guarded   []string
+	unguarded bool
 }
 
 // SetFillable sets the mass-assignable attributes.
@@ -32,6 +32,7 @@ func (g *GuardsAttributes) GetGuarded() []string {
 	if g.guarded == nil {
 		return []string{"*"}
 	}
+
 	return g.guarded
 }
 
@@ -47,6 +48,7 @@ func (g *GuardsAttributes) IsFillable(key string) bool {
 				return true
 			}
 		}
+
 		return false
 	}
 
@@ -58,11 +60,13 @@ func (g *GuardsAttributes) IsGuarded(key string) bool {
 	if g.unguarded {
 		return false
 	}
+
 	for _, grd := range g.GetGuarded() {
 		if grd == "*" || grd == key {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -71,6 +75,7 @@ func (g *GuardsAttributes) TotallyGuarded() bool {
 	if g.unguarded {
 		return false
 	}
+
 	return len(g.fillable) == 0 && len(g.guarded) == 1 && g.guarded[0] == "*"
 }
 
@@ -98,6 +103,7 @@ func (g *GuardsAttributes) Fill(attrs *HasAttributes, values map[string]any) err
 			return ErrMassAssignment
 		}
 	}
+
 	return nil
 }
 

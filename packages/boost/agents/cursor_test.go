@@ -61,6 +61,7 @@ func TestCursorHttpMcpServerConfig(t *testing.T) {
 	}
 
 	args, ok := cfg["args"].([]string)
+
 	if !ok {
 		t.Fatalf("args type = %T, want []string", cfg["args"])
 	}

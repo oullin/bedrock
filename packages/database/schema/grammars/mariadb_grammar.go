@@ -22,41 +22,53 @@ func NewMariaDBGrammar() *MariaDBGrammar { return &MariaDBGrammar{} }
 func (g *MariaDBGrammar) CompileCreate(bp *schema.Blueprint) []string {
 	columns := g.getColumns(bp)
 	temporary := ""
+
 	if bp.Temporary {
 		temporary = "temporary "
 	}
+
 	sql := fmt.Sprintf("create %stable %s (%s)", temporary, g.wrapTable(bp.Table), strings.Join(columns, ", "))
+
 	if bp.Engine != "" {
 		sql += " engine = " + bp.Engine
 	}
+
 	if bp.Charset != "" {
 		sql += " default character set " + bp.Charset
 	}
+
 	if bp.Collation != "" {
 		sql += " collate " + bp.Collation
 	}
+
 	return []string{sql}
 }
 
 func (g *MariaDBGrammar) CompileAdd(bp *schema.Blueprint) []string {
 	var parts []string
+
 	for _, col := range bp.GetAddedColumns() {
 		parts = append(parts, "add "+g.compileColumn(col))
 	}
+
 	if len(parts) == 0 {
 		return nil
 	}
+
 	return []string{fmt.Sprintf("alter table %s %s", g.wrapTable(bp.Table), strings.Join(parts, ", "))}
 }
 
 func (g *MariaDBGrammar) CompileChange(bp *schema.Blueprint) []string {
 	var parts []string
+
 	for _, col := range bp.GetChangedColumns() {
 		parts = append(parts, fmt.Sprintf("modify %s", g.compileColumn(col)))
 	}
+
 	if len(parts) == 0 {
 		return nil
 	}
+
 	return []string{fmt.Sprintf("alter table %s %s", g.wrapTable(bp.Table), strings.Join(parts, ", "))}
 }
 
@@ -74,9 +86,11 @@ func (g *MariaDBGrammar) CompileRename(from, to string) string {
 
 func (g *MariaDBGrammar) CompileDropColumn(bp *schema.Blueprint, columns []string) string {
 	cols := make([]string, len(columns))
+
 	for i, c := range columns {
 		cols[i] = "drop " + g.wrap(c)
 	}
+
 	return "alter table " + g.wrapTable(bp.Table) + " " + strings.Join(cols, ", ")
 }
 
@@ -86,9 +100,11 @@ func (g *MariaDBGrammar) CompileRenameColumn(bp *schema.Blueprint, from, to stri
 
 func (g *MariaDBGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.BlueprintCommand) string {
 	cols := make([]string, len(cmd.Columns))
+
 	for i, c := range cmd.Columns {
 		cols[i] = g.wrap(c)
 	}
+
 	switch cmd.Name {
 	case "primary":
 		return fmt.Sprintf("alter table %s add primary key (%s)", g.wrapTable(bp.Table), strings.Join(cols, ", "))
@@ -99,6 +115,7 @@ func (g *MariaDBGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.Blu
 	case "fulltext":
 		return fmt.Sprintf("alter table %s add fulltext %s(%s)", g.wrapTable(bp.Table), g.wrap(cmd.Index), strings.Join(cols, ", "))
 	}
+
 	return ""
 }
 
@@ -108,22 +125,29 @@ func (g *MariaDBGrammar) CompileDropIndex(bp *schema.Blueprint, name string) str
 
 func (g *MariaDBGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
 	cols := make([]string, len(fk.Columns))
+
 	for i, c := range fk.Columns {
 		cols[i] = g.wrap(c)
 	}
+
 	refCols := make([]string, len(fk.RefColumns))
+
 	for i, c := range fk.RefColumns {
 		refCols[i] = g.wrap(c)
 	}
+
 	sql := fmt.Sprintf("alter table %s add constraint %s foreign key (%s) references %s (%s)",
 		g.wrapTable(bp.Table), g.wrap(fk.IndexName),
 		strings.Join(cols, ", "), g.wrapTable(fk.RefTable), strings.Join(refCols, ", "))
+
 	if fk.OnDeleteAction != "" {
 		sql += " on delete " + fk.OnDeleteAction
 	}
+
 	if fk.OnUpdateAction != "" {
 		sql += " on update " + fk.OnUpdateAction
 	}
+
 	return sql
 }
 
@@ -149,50 +173,65 @@ func (g *MariaDBGrammar) CompileDisableForeignKeyConstraints() string {
 
 func (g *MariaDBGrammar) getColumns(bp *schema.Blueprint) []string {
 	var cols []string
+
 	for _, col := range bp.GetAddedColumns() {
 		cols = append(cols, g.compileColumn(col))
 	}
+
 	return cols
 }
 
 func (g *MariaDBGrammar) compileColumn(col *schema.ColumnDefinition) string {
 	sql := g.wrap(col.Name) + " " + g.getType(col)
+
 	if col.Unsigned {
 		sql += " unsigned"
 	}
+
 	if col.AutoIncrement {
 		sql += " auto_increment primary key"
 	}
+
 	if col.CharsetName != "" {
 		sql += " character set " + col.CharsetName
 	}
+
 	if col.Collation != "" {
 		sql += " collate " + col.Collation
 	}
+
 	if !col.IsNullable && !col.AutoIncrement {
 		sql += " not null"
 	}
+
 	if col.IsNullable {
 		sql += " null"
 	}
+
 	if col.HasDefault {
 		sql += " default " + g.getDefaultValue(col.DefaultValue)
 	}
+
 	if col.CommentText != "" {
 		sql += " comment '" + strings.ReplaceAll(col.CommentText, "'", "\\'") + "'"
 	}
+
 	if col.AfterColumn != "" {
 		sql += " after " + g.wrap(col.AfterColumn)
 	}
+
 	if col.IsFirst {
 		sql += " first"
 	}
+
 	if col.VirtualAs != "" {
 		sql += " as (" + col.VirtualAs + ")"
 	}
+
 	if col.StoredAs != "" {
 		sql += " as (" + col.StoredAs + ") stored"
 	}
+
 	return sql
 }
 
@@ -234,16 +273,19 @@ func (g *MariaDBGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Precision > 0 {
 			return fmt.Sprintf("datetime(%d)", col.Precision)
 		}
+
 		return "datetime"
 	case "time", "timeTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("time(%d)", col.Precision)
 		}
+
 		return "time"
 	case "timestamp", "timestampTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d)", col.Precision)
 		}
+
 		return "timestamp"
 	case "year":
 		return "year"
@@ -251,6 +293,7 @@ func (g *MariaDBGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Length > 0 {
 			return fmt.Sprintf("binary(%d)", col.Length)
 		}
+
 		return "blob"
 	case "json":
 		return "longtext"
@@ -284,6 +327,7 @@ func (g *MariaDBGrammar) getDefaultValue(value any) string {
 		if v {
 			return "'1'"
 		}
+
 		return "'0'"
 	case nil:
 		return "null"

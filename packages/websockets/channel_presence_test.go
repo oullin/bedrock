@@ -16,6 +16,7 @@ func TestPresenceChannel_Subscribe_InvalidAuth(t *testing.T) {
 	ctx := context.Background()
 
 	err := ch.Subscribe(ctx, conn, "key-1:invalidsignature", `{"user_id":"user1"}`)
+
 	if err != websockets.ErrUnauthorized {
 		t.Errorf("expected ErrUnauthorized, got %v", err)
 	}
@@ -50,6 +51,7 @@ func TestPresenceChannel_Subscribe_ValidAuth(t *testing.T) {
 	}
 
 	members := ch.Members()
+
 	if _, ok := members["user1"]; !ok {
 		t.Errorf("expected member 'user1' in Members(), got %v", members)
 	}
@@ -80,6 +82,7 @@ func TestPresenceChannel_SubscriptionSucceeded_IncludesPresence(t *testing.T) {
 	}
 
 	msgs := conn.SentMessages()
+
 	if len(msgs) == 0 {
 		t.Fatal("expected at least one sent message")
 	}
@@ -88,11 +91,13 @@ func TestPresenceChannel_SubscriptionSucceeded_IncludesPresence(t *testing.T) {
 	// The count field is inside a JSON-encoded string in the data field, so the
 	// raw bytes contain the escaped form: \"count\":1
 	found := false
+
 	for _, msg := range msgs {
 		if containsBytes([][]byte{msg}, []byte("subscription_succeeded")) &&
 			(containsBytes([][]byte{msg}, []byte(`"count":1`)) ||
 				containsBytes([][]byte{msg}, []byte(`\"count\":1`))) {
 			found = true
+
 			break
 		}
 	}
@@ -143,16 +148,19 @@ func TestPresenceChannel_MemberAdded_Broadcast(t *testing.T) {
 
 	// conn1 should have received a member_added event about user2
 	msgs := conn1.SentMessages()
+
 	if len(msgs) <= msgsBefore {
 		t.Error("expected conn1 to receive a member_added message")
 	}
 
 	// Check that member_added is present for user2
 	found := false
+
 	for _, msg := range msgs[msgsBefore:] {
 		if containsBytes([][]byte{msg}, []byte("member_added")) &&
 			containsBytes([][]byte{msg}, []byte("user2")) {
 			found = true
+
 			break
 		}
 	}
@@ -203,15 +211,18 @@ func TestPresenceChannel_MemberRemoved_Broadcast(t *testing.T) {
 
 	// conn1 should have received a member_removed event about user2
 	msgs := conn1.SentMessages()
+
 	if len(msgs) <= msgsBefore {
 		t.Error("expected conn1 to receive a member_removed message")
 	}
 
 	found := false
+
 	for _, msg := range msgs[msgsBefore:] {
 		if containsBytes([][]byte{msg}, []byte("member_removed")) &&
 			containsBytes([][]byte{msg}, []byte("user2")) {
 			found = true
+
 			break
 		}
 	}
@@ -254,6 +265,7 @@ func TestPresenceChannel_Deduplication_SameUser(t *testing.T) {
 	}
 
 	members := ch.Members()
+
 	if len(members) != 1 {
 		t.Errorf("expected 1 unique member, got %d: %v", len(members), members)
 	}
@@ -306,12 +318,15 @@ func TestPresenceChannel_MemberRemoved_OnlyLastConn(t *testing.T) {
 	ch.Unsubscribe(ctx, conn1)
 
 	msgsAfterConn1Unsub := len(conn1.SentMessages())
+
 	if msgsAfterConn1Unsub != msgsAfterBothSubscribed {
 		// Check that no member_removed was sent
 		newMsgs := conn1.SentMessages()[msgsAfterBothSubscribed:]
+
 		for _, msg := range newMsgs {
 			if containsBytes([][]byte{msg}, []byte("member_removed")) {
 				t.Error("should NOT have sent member_removed when another connection for same user remains")
+
 				break
 			}
 		}

@@ -44,9 +44,11 @@ func Error(message string, errs ...map[string]any) *Response {
 		contents: []Content{newTextContent(message, nil)},
 		isError:  true,
 	}
+
 	if len(errs) > 0 {
 		r.structured = errs[0]
 	}
+
 	return r
 }
 
@@ -54,9 +56,11 @@ func Error(message string, errs ...map[string]any) *Response {
 // is the JSON-RPC notification method name and params is optional.
 func Notification(method string, params ...map[string]any) *Response {
 	r := &Response{isNotification: true, notifMethod: method}
+
 	if len(params) > 0 {
 		r.notifParams = params[0]
 	}
+
 	return r
 }
 
@@ -65,19 +69,23 @@ func (r *Response) WithMeta(key string, value any) *Response {
 	if r.meta == nil {
 		r.meta = make(map[string]any)
 	}
+
 	r.meta[key] = value
+
 	return r
 }
 
 // Structured attaches structured output data to the response (tools only).
 func (r *Response) Structured(data map[string]any) *Response {
 	r.structured = data
+
 	return r
 }
 
 // AsAssistant marks the response role as "assistant" (prompts only).
 func (r *Response) AsAssistant() *Response {
 	r.role = "assistant"
+
 	return r
 }
 
@@ -96,42 +104,52 @@ func (r *Response) Role() string {
 	if r.role != "" {
 		return r.role
 	}
+
 	return "user"
 }
 
 // toToolResult serialises the response for a tools/call result.
 func (r *Response) toToolResult() map[string]any {
 	content := make([]map[string]any, 0, len(r.contents))
+
 	for _, c := range r.contents {
 		content = append(content, c.ToTool())
 	}
+
 	result := map[string]any{"content": content, "isError": r.isError}
+
 	if r.structured != nil {
 		result["structuredContent"] = r.structured
 	}
+
 	if r.meta != nil {
 		result["_meta"] = r.meta
 	}
+
 	return result
 }
 
 // toResourceResult serialises the response for a resources/read result.
 func (r *Response) toResourceResult(uri string) []map[string]any {
 	out := make([]map[string]any, 0, len(r.contents))
+
 	for _, c := range r.contents {
 		out = append(out, c.ToResource(uri))
 	}
+
 	return out
 }
 
 // toPromptMessages serialises the response as a prompt message.
 func (r *Response) toPromptMessages() []map[string]any {
 	msgs := make([]map[string]any, 0, len(r.contents))
+
 	for _, c := range r.contents {
 		msgs = append(msgs, map[string]any{
 			"role":    r.Role(),
 			"content": c.ToPrompt(),
 		})
 	}
+
 	return msgs
 }

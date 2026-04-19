@@ -11,6 +11,7 @@ type Kiro struct {
 // NewKiro constructs a Kiro agent.
 func NewKiro(opts ...AgentOptions) *Kiro {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

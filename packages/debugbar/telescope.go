@@ -31,33 +31,15 @@ type AfterStoringFunc func(batchID string, entries []*IncomingEntry)
 type Option func(*DebugBar)
 
 // WithRepository sets the persistence backend.
-func WithRepository(r Repository) Option {
-	return func(t *DebugBar) { t.repository = r }
-}
 
 // WithHiddenRequestHeaders registers header names whose values will be masked
 // with "********" in recorded request entries.
-func WithHiddenRequestHeaders(headers ...string) Option {
-	return func(t *DebugBar) {
-		t.hiddenRequestHeaders = append(t.hiddenRequestHeaders, headers...)
-	}
-}
 
 // WithHiddenRequestParameters registers parameter names whose values will be
 // masked in recorded request payload.
-func WithHiddenRequestParameters(params ...string) Option {
-	return func(t *DebugBar) {
-		t.hiddenRequestParameters = append(t.hiddenRequestParameters, params...)
-	}
-}
 
 // WithHiddenResponseParameters registers parameter names whose values will be
 // masked in recorded response bodies.
-func WithHiddenResponseParameters(params ...string) Option {
-	return func(t *DebugBar) {
-		t.hiddenResponseParameters = append(t.hiddenResponseParameters, params...)
-	}
-}
 
 // DebugBar is the central hub that collects, filters, tags, and stores
 // telemetry entries. It mirrors the behaviour of Upstream's DebugBar class.
@@ -88,6 +70,28 @@ type DebugBar struct {
 	batchID string
 }
 
+func WithRepository(r Repository) Option {
+	return func(t *DebugBar) { t.repository = r }
+}
+
+func WithHiddenRequestHeaders(headers ...string) Option {
+	return func(t *DebugBar) {
+		t.hiddenRequestHeaders = append(t.hiddenRequestHeaders, headers...)
+	}
+}
+
+func WithHiddenRequestParameters(params ...string) Option {
+	return func(t *DebugBar) {
+		t.hiddenRequestParameters = append(t.hiddenRequestParameters, params...)
+	}
+}
+
+func WithHiddenResponseParameters(params ...string) Option {
+	return func(t *DebugBar) {
+		t.hiddenResponseParameters = append(t.hiddenResponseParameters, params...)
+	}
+}
+
 // New creates a DebugBar instance with the given options. Recording is
 // disabled by default; call StartRecording to begin capturing entries.
 func New(opts ...Option) *DebugBar {
@@ -114,6 +118,7 @@ func New(opts ...Option) *DebugBar {
 // StartRecording enables entry recording and assigns a new batch UUID.
 func (t *DebugBar) StartRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.recording = true
@@ -124,6 +129,7 @@ func (t *DebugBar) StartRecording() {
 // StopRecording disables entry recording.
 func (t *DebugBar) StopRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.recording = false
@@ -132,6 +138,7 @@ func (t *DebugBar) StopRecording() {
 // PauseRecording temporarily halts recording without resetting the batch.
 func (t *DebugBar) PauseRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.paused = true
@@ -140,6 +147,7 @@ func (t *DebugBar) PauseRecording() {
 // ResumeRecording re-enables recording after a pause.
 func (t *DebugBar) ResumeRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.paused = false
@@ -148,6 +156,7 @@ func (t *DebugBar) ResumeRecording() {
 // IsRecording reports whether entries are currently being captured.
 func (t *DebugBar) IsRecording() bool {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.recording && !t.paused
@@ -156,6 +165,7 @@ func (t *DebugBar) IsRecording() bool {
 // WithoutRecording executes fn while recording is paused, then resumes.
 func (t *DebugBar) WithoutRecording(fn func()) {
 	t.PauseRecording()
+
 	defer t.ResumeRecording()
 
 	fn()
@@ -165,6 +175,7 @@ func (t *DebugBar) WithoutRecording(fn func()) {
 // it. Call this at the start of each logical request/command.
 func (t *DebugBar) NewBatch() string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.batchID = uuid.New().String()
@@ -175,6 +186,7 @@ func (t *DebugBar) NewBatch() string {
 // CurrentBatchID returns the active batch UUID.
 func (t *DebugBar) CurrentBatchID() string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.batchID
@@ -186,6 +198,7 @@ func (t *DebugBar) CurrentBatchID() string {
 // recorded. If any registered filter returns false the entry is dropped.
 func (t *DebugBar) Filter(fn FilterFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.filterCallbacks = append(t.filterCallbacks, fn)
@@ -195,6 +208,7 @@ func (t *DebugBar) Filter(fn FilterFunc) {
 // queued entries is stored. Receives the full slice; return false to drop all.
 func (t *DebugBar) FilterBatch(fn FilterBatchFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.filterBatchCallbacks = append(t.filterBatchCallbacks, fn)
@@ -204,6 +218,7 @@ func (t *DebugBar) FilterBatch(fn FilterBatchFunc) {
 // passes all filters.
 func (t *DebugBar) Tag(fn TagFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.tagCallbacks = append(t.tagCallbacks, fn)
@@ -213,6 +228,7 @@ func (t *DebugBar) Tag(fn TagFunc) {
 // appended to the queue.
 func (t *DebugBar) AfterRecording(fn AfterRecordingFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.afterRecordingCallbacks = append(t.afterRecordingCallbacks, fn)
@@ -222,6 +238,7 @@ func (t *DebugBar) AfterRecording(fn AfterRecordingFunc) {
 // persisted. Receives the batch UUID and the stored entries.
 func (t *DebugBar) AfterStoring(fn AfterStoringFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.afterStoringCallbacks = append(t.afterStoringCallbacks, fn)
@@ -231,6 +248,7 @@ func (t *DebugBar) AfterStoring(fn AfterStoringFunc) {
 // masked in recorded entries.
 func (t *DebugBar) HiddenRequestHeaders() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenRequestHeaders))
@@ -243,6 +261,7 @@ func (t *DebugBar) HiddenRequestHeaders() []string {
 // will be masked in recorded entries.
 func (t *DebugBar) HiddenRequestParameters() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenRequestParameters))
@@ -255,6 +274,7 @@ func (t *DebugBar) HiddenRequestParameters() []string {
 // will be masked in recorded entries.
 func (t *DebugBar) HiddenResponseParameters() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenResponseParameters))
@@ -274,6 +294,7 @@ func (t *DebugBar) Record(entry *IncomingEntry) {
 
 	if !t.recording || t.paused {
 		t.mu.Unlock()
+
 		return
 	}
 
@@ -283,6 +304,7 @@ func (t *DebugBar) Record(entry *IncomingEntry) {
 	for _, fn := range t.filterCallbacks {
 		if !fn(entry) {
 			t.mu.Unlock()
+
 			return
 		}
 	}
@@ -408,6 +430,7 @@ func (t *DebugBar) Store(ctx context.Context) error {
 	for _, fn := range t.filterBatchCallbacks {
 		if !fn(entries) {
 			t.mu.Unlock()
+
 			return nil
 		}
 	}
@@ -443,6 +466,7 @@ func (t *DebugBar) Store(ctx context.Context) error {
 // Update queues a set of entry mutations to be flushed on the next Store call.
 func (t *DebugBar) Update(updates []*EntryUpdate) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.updatesQueue = append(t.updatesQueue, updates...)
@@ -451,6 +475,7 @@ func (t *DebugBar) Update(updates []*EntryUpdate) {
 // Flush discards all queued entries and updates without persisting them.
 func (t *DebugBar) Flush() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.entriesQueue = nil
@@ -461,6 +486,7 @@ func (t *DebugBar) Flush() {
 // tests to inspect state before Store is called).
 func (t *DebugBar) QueuedEntries() []*IncomingEntry {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]*IncomingEntry, len(t.entriesQueue))
@@ -472,6 +498,7 @@ func (t *DebugBar) QueuedEntries() []*IncomingEntry {
 // Repository returns the configured persistence backend.
 func (t *DebugBar) Repository() Repository {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.repository

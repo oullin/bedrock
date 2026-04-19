@@ -50,6 +50,7 @@ func NewManager(req *http.Request, session Session, configs map[string]ProviderC
 		configs:   configs,
 	}
 	m.registerBuiltins()
+
 	return m
 }
 
@@ -59,19 +60,26 @@ func (m *Manager) Driver(name string) (Provider, error) {
 	if fp, ok := m.fakes[name]; ok {
 		return fp, nil
 	}
+
 	if p, ok := m.resolved[name]; ok {
 		return p, nil
 	}
+
 	factory, ok := m.factories[name]
+
 	if !ok {
 		return nil, fmt.Errorf("socialauth: unknown driver %q", name)
 	}
+
 	cfg := m.configs[name]
 	p, err := factory(m.request, m.session, cfg)
+
 	if err != nil {
 		return nil, err
 	}
+
 	m.resolved[name] = p
+
 	return p, nil
 }
 
@@ -79,6 +87,7 @@ func (m *Manager) Driver(name string) (Provider, error) {
 // It mirrors SocialAuthManager::extend() / Manager::extend().
 func (m *Manager) Extend(name string, factory DriverFactory) *Manager {
 	m.factories[name] = factory
+
 	return m
 }
 
@@ -89,6 +98,7 @@ func (m *Manager) Fake(name string, user *User) *FakeProvider {
 	real, _ := m.buildReal(name)
 	fp := newFakeProvider(name, real, user, nil)
 	m.fakes[name] = fp
+
 	return fp
 }
 
@@ -97,6 +107,7 @@ func (m *Manager) FakeWith(name string, fn func() *User) *FakeProvider {
 	real, _ := m.buildReal(name)
 	fp := newFakeProvider(name, real, nil, fn)
 	m.fakes[name] = fp
+
 	return fp
 }
 
@@ -105,27 +116,32 @@ func (m *Manager) FakeWith(name string, fn func() *User) *FakeProvider {
 func (m *Manager) ForgetDrivers() *Manager {
 	m.resolved = make(map[string]Provider)
 	m.fakes = make(map[string]*FakeProvider)
+
 	return m
 }
 
 // SetRequest replaces the underlying HTTP request (useful for stateless use).
 func (m *Manager) SetRequest(req *http.Request) *Manager {
 	m.request = req
+
 	return m
 }
 
 // SetSession replaces the session store.
 func (m *Manager) SetSession(s Session) *Manager {
 	m.session = s
+
 	return m
 }
 
 // buildReal constructs the real (non-faked) provider for a driver name.
 func (m *Manager) buildReal(name string) (Provider, error) {
 	factory, ok := m.factories[name]
+
 	if !ok {
 		return nil, fmt.Errorf("socialauth: unknown driver %q", name)
 	}
+
 	return factory(m.request, m.session, m.configs[name])
 }
 
@@ -134,28 +150,37 @@ func (m *Manager) registerBuiltins() {
 	m.factories["github"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewGithubProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["google"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewGoogleProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["facebook"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewFacebookProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["linkedin"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewLinkedInProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["gitlab"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		p := NewGitlabProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
 		if cfg.Host != "" {
 			p.SetHost(cfg.Host)
 		}
+
 		return p, nil
 	}
+
 	m.factories["bitbucket"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewBitbucketProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["slack"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewSlackProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}
+
 	m.factories["twitter"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
 		return NewTwitterProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
 	}

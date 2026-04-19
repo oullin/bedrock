@@ -6,13 +6,6 @@ import (
 
 // ModelAction constants mirror the Orm lifecycle events recorded by
 // Upstream's ModelWatcher.
-const (
-	ModelActionCreated  = "created"
-	ModelActionUpdated  = "updated"
-	ModelActionDeleted  = "deleted"
-	ModelActionRestored = "restored"
-	ModelActionRetrieved = "retrieved"
-)
 
 // ModelWatcher monitors model lifecycle events and records them as DebugBar
 // entries. It mirrors Upstream's ModelWatcher class.
@@ -24,6 +17,14 @@ const (
 type ModelWatcher struct {
 	debugbar.BaseWatcher
 }
+
+const (
+	ModelActionCreated   = "created"
+	ModelActionUpdated   = "updated"
+	ModelActionDeleted   = "deleted"
+	ModelActionRestored  = "restored"
+	ModelActionRetrieved = "retrieved"
+)
 
 // NewModelWatcher creates a ModelWatcher with the given options.
 func NewModelWatcher(t *debugbar.DebugBar, options map[string]any) *ModelWatcher {

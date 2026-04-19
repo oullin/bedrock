@@ -11,6 +11,7 @@ type Argument struct {
 // parameter to mark the argument as mandatory.
 func NewArgument(name, description string, required ...bool) *Argument {
 	req := len(required) > 0 && required[0]
+
 	return &Argument{Name: name, Description: description, Required: req}
 }
 

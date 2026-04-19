@@ -33,16 +33,19 @@ func NewMigrator(repository Repository, resolver dbcontract.ConnectionResolver, 
 // Run executes all pending migrations.
 func (m *Migrator) Run(ctx context.Context, migrations []Migration) ([]MigrationResult, error) {
 	ran, err := m.repository.GetRan(ctx)
+
 	if err != nil {
 		return nil, err
 	}
 
 	ranSet := make(map[string]bool, len(ran))
+
 	for _, name := range ran {
 		ranSet[name] = true
 	}
 
 	var pending []Migration
+
 	for _, migration := range migrations {
 		if !ranSet[migration.Name()] {
 			pending = append(pending, migration)
@@ -54,16 +57,19 @@ func (m *Migrator) Run(ctx context.Context, migrations []Migration) ([]Migration
 	}
 
 	batch, err := m.repository.GetNextBatchNumber(ctx)
+
 	if err != nil {
 		return nil, err
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var results []MigrationResult
+
 	for _, migration := range pending {
 		err := migration.Up(ctx, conn)
 		result := MigrationResult{Migration: migration.Name(), Direction: "up", Error: err}
@@ -84,32 +90,39 @@ func (m *Migrator) Run(ctx context.Context, migrations []Migration) ([]Migration
 // Rollback rolls back the last batch of migrations.
 func (m *Migrator) Rollback(ctx context.Context, migrations []Migration) ([]MigrationResult, error) {
 	last, err := m.repository.GetLast(ctx)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if len(last) == 0 {
 		return nil, nil
 	}
 
 	migrationMap := make(map[string]Migration, len(migrations))
+
 	for _, migration := range migrations {
 		migrationMap[migration.Name()] = migration
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var results []MigrationResult
+
 	for i := len(last) - 1; i >= 0; i-- {
 		record := last[i]
 		migration, ok := migrationMap[record.Migration]
+
 		if !ok {
 			results = append(results, MigrationResult{
 				Migration: record.Migration, Direction: "down",
 				Error: fmt.Errorf("%w: %s", ErrMigrationNotFound, record.Migration),
 			})
+
 			continue
 		}
 
@@ -132,27 +145,33 @@ func (m *Migrator) Rollback(ctx context.Context, migrations []Migration) ([]Migr
 // Reset rolls back ALL migrations.
 func (m *Migrator) Reset(ctx context.Context, migrations []Migration) ([]MigrationResult, error) {
 	ran, err := m.repository.GetRan(ctx)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if len(ran) == 0 {
 		return nil, nil
 	}
 
 	migrationMap := make(map[string]Migration, len(migrations))
+
 	for _, migration := range migrations {
 		migrationMap[migration.Name()] = migration
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var results []MigrationResult
+
 	for i := len(ran) - 1; i >= 0; i-- {
 		name := ran[i]
 		migration, ok := migrationMap[name]
+
 		if !ok {
 			continue
 		}
@@ -172,26 +191,32 @@ func (m *Migrator) Reset(ctx context.Context, migrations []Migration) ([]Migrati
 // Status returns the migration status (ran or pending).
 func (m *Migrator) Status(ctx context.Context, migrations []Migration) ([]map[string]string, error) {
 	ran, err := m.repository.GetRan(ctx)
+
 	if err != nil {
 		return nil, err
 	}
 
 	ranSet := make(map[string]bool, len(ran))
+
 	for _, name := range ran {
 		ranSet[name] = true
 	}
 
 	var status []map[string]string
+
 	for _, migration := range migrations {
 		s := "Pending"
+
 		if ranSet[migration.Name()] {
 			s = "Ran"
 		}
+
 		status = append(status, map[string]string{
 			"migration": migration.Name(),
 			"status":    s,
 		})
 	}
+
 	return status, nil
 }
 

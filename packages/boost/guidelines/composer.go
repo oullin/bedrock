@@ -29,6 +29,7 @@ func NewGuidelineComposer(cfg *GuidelineConfig) *GuidelineComposer {
 // string. Populates the internal used-keys list.
 func (c *GuidelineComposer) Compose() string {
 	guidelines := c.Guidelines()
+
 	return ComposeGuidelines(guidelines)
 }
 
@@ -37,11 +38,13 @@ func (c *GuidelineComposer) Compose() string {
 //  2. Package-specific guideline files listed in config.Packages()
 func (c *GuidelineComposer) Guidelines() []Guideline {
 	c.used = nil
+
 	var all []Guideline
 
 	// 1. Package-specific guidelines
 	for _, pkg := range c.config.Packages() {
 		content := c.loadPackageGuideline(pkg)
+
 		if content != "" {
 			all = append(all, Guideline{Key: pkg, Content: content})
 			c.used = append(c.used, pkg)
@@ -78,6 +81,7 @@ func ComposeGuidelines(guidelines []Guideline) string {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
+
 		sb.WriteString(strings.TrimSpace(g.Content))
 	}
 
@@ -94,6 +98,7 @@ func (c *GuidelineComposer) loadPackageGuideline(pkg string) string {
 
 	for _, path := range candidates {
 		data, err := os.ReadFile(path)
+
 		if err == nil {
 			return string(data)
 		}

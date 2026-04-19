@@ -7,13 +7,6 @@ import (
 	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
-const (
-	defaultTokensTTL               = 365 * 24 * time.Hour
-	defaultRefreshTokensTTL        = 30 * 24 * time.Hour
-	defaultPersonalAccessTokensTTL = 365 * 24 * time.Hour
-	defaultClientCredentialsTTL    = 365 * 24 * time.Hour
-)
-
 // OAuthServer is the central configuration and registrar for the oauthserver package.
 // It mirrors the static API of Upstream OAuthServer's OAuthServer facade.
 //
@@ -46,6 +39,13 @@ type OAuthServer struct {
 	actingAsScopes []string
 }
 
+const (
+	defaultTokensTTL               = 365 * 24 * time.Hour
+	defaultRefreshTokensTTL        = 30 * 24 * time.Hour
+	defaultPersonalAccessTokensTTL = 365 * 24 * time.Hour
+	defaultClientCredentialsTTL    = 365 * 24 * time.Hour
+)
+
 // NewOAuthServer creates a OAuthServer with the given config and sensible defaults.
 // When cfg is nil, an empty OAuthServerConfig is used (useful for tests).
 func NewOAuthServer(cfg *OAuthServerConfig) *OAuthServer {
@@ -70,6 +70,7 @@ func NewOAuthServer(cfg *OAuthServerConfig) *OAuthServer {
 // Mirrors OAuthServer::tokensCan().
 func (p *OAuthServer) TokensCan(scopes map[string]string) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	for id, desc := range scopes {
@@ -82,6 +83,7 @@ func (p *OAuthServer) TokensCan(scopes map[string]string) *OAuthServer {
 // Scopes returns all registered scopes as a slice.
 func (p *OAuthServer) Scopes() []Scope {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	out := make([]Scope, 0, len(p.scopes))
@@ -96,6 +98,7 @@ func (p *OAuthServer) Scopes() []Scope {
 // ScopeIDs returns the IDs of all registered scopes.
 func (p *OAuthServer) ScopeIDs() []string {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	ids := make([]string, 0, len(p.scopes))
@@ -111,6 +114,7 @@ func (p *OAuthServer) ScopeIDs() []string {
 // Mirrors OAuthServer::scopes() in Upstream (which returns a Collection keyed by ID).
 func (p *OAuthServer) FindScope(id string) *Scope {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	if s, ok := p.scopes[id]; ok {
@@ -123,6 +127,7 @@ func (p *OAuthServer) FindScope(id string) *Scope {
 // HasScope reports whether the given scope ID is registered.
 func (p *OAuthServer) HasScope(id string) bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	_, ok := p.scopes[id]
@@ -134,6 +139,7 @@ func (p *OAuthServer) HasScope(id string) bool {
 // When enabled, Can("user:read") returns true for a token that carries "user".
 func (p *OAuthServer) UseInheritedScopes(enabled bool) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.inheritedScopes = enabled
@@ -144,6 +150,7 @@ func (p *OAuthServer) UseInheritedScopes(enabled bool) *OAuthServer {
 // InheritedScopesEnabled reports whether hierarchical scope resolution is active.
 func (p *OAuthServer) InheritedScopesEnabled() bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.inheritedScopes
@@ -154,6 +161,7 @@ func (p *OAuthServer) InheritedScopesEnabled() bool {
 // TokensExpireIn sets the TTL for access tokens.
 func (p *OAuthServer) TokensExpireIn(d time.Duration) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.tokensTTL = d
@@ -164,6 +172,7 @@ func (p *OAuthServer) TokensExpireIn(d time.Duration) *OAuthServer {
 // TokensTTL returns the current access token TTL.
 func (p *OAuthServer) TokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.tokensTTL
@@ -172,6 +181,7 @@ func (p *OAuthServer) TokensTTL() time.Duration {
 // RefreshTokensExpireIn sets the TTL for refresh tokens.
 func (p *OAuthServer) RefreshTokensExpireIn(d time.Duration) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokensTTL = d
@@ -182,6 +192,7 @@ func (p *OAuthServer) RefreshTokensExpireIn(d time.Duration) *OAuthServer {
 // RefreshTokensTTL returns the current refresh token TTL.
 func (p *OAuthServer) RefreshTokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.refreshTokensTTL
@@ -190,6 +201,7 @@ func (p *OAuthServer) RefreshTokensTTL() time.Duration {
 // PersonalAccessTokensExpireIn sets the TTL for personal access tokens.
 func (p *OAuthServer) PersonalAccessTokensExpireIn(d time.Duration) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.personalAccessTokensTTL = d
@@ -200,6 +212,7 @@ func (p *OAuthServer) PersonalAccessTokensExpireIn(d time.Duration) *OAuthServer
 // PersonalAccessTokensTTL returns the current personal access token TTL.
 func (p *OAuthServer) PersonalAccessTokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.personalAccessTokensTTL
@@ -208,6 +221,7 @@ func (p *OAuthServer) PersonalAccessTokensTTL() time.Duration {
 // ClientCredentialsTokensExpireIn sets the TTL for client credentials tokens.
 func (p *OAuthServer) ClientCredentialsTokensExpireIn(d time.Duration) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsTTL = d
@@ -218,6 +232,7 @@ func (p *OAuthServer) ClientCredentialsTokensExpireIn(d time.Duration) *OAuthSer
 // ClientCredentialsTTL returns the current client credentials token TTL.
 func (p *OAuthServer) ClientCredentialsTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.clientCredentialsTTL
@@ -228,6 +243,7 @@ func (p *OAuthServer) ClientCredentialsTTL() time.Duration {
 // EnableAuthorizationCodeGrant activates the Authorization Code grant.
 func (p *OAuthServer) EnableAuthorizationCodeGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.authCodeGrantEnabled = true
@@ -238,6 +254,7 @@ func (p *OAuthServer) EnableAuthorizationCodeGrant() *OAuthServer {
 // DisableAuthorizationCodeGrant deactivates the Authorization Code grant.
 func (p *OAuthServer) DisableAuthorizationCodeGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.authCodeGrantEnabled = false
@@ -248,6 +265,7 @@ func (p *OAuthServer) DisableAuthorizationCodeGrant() *OAuthServer {
 // EnablePasswordGrant activates the Resource Owner Password Credentials grant.
 func (p *OAuthServer) EnablePasswordGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.passwordGrantEnabled = true
@@ -258,6 +276,7 @@ func (p *OAuthServer) EnablePasswordGrant() *OAuthServer {
 // DisablePasswordGrant deactivates the Password grant.
 func (p *OAuthServer) DisablePasswordGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.passwordGrantEnabled = false
@@ -268,6 +287,7 @@ func (p *OAuthServer) DisablePasswordGrant() *OAuthServer {
 // EnableClientCredentialsGrant activates the Client Credentials grant.
 func (p *OAuthServer) EnableClientCredentialsGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsGrantEnabled = true
@@ -278,6 +298,7 @@ func (p *OAuthServer) EnableClientCredentialsGrant() *OAuthServer {
 // DisableClientCredentialsGrant deactivates the Client Credentials grant.
 func (p *OAuthServer) DisableClientCredentialsGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsGrantEnabled = false
@@ -288,6 +309,7 @@ func (p *OAuthServer) DisableClientCredentialsGrant() *OAuthServer {
 // EnableImplicitGrant activates the (deprecated) Implicit grant.
 func (p *OAuthServer) EnableImplicitGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.implicitGrantEnabled = true
@@ -298,6 +320,7 @@ func (p *OAuthServer) EnableImplicitGrant() *OAuthServer {
 // DisableImplicitGrant deactivates the Implicit grant.
 func (p *OAuthServer) DisableImplicitGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.implicitGrantEnabled = false
@@ -308,6 +331,7 @@ func (p *OAuthServer) DisableImplicitGrant() *OAuthServer {
 // EnableDeviceCodeGrant activates the Device Authorization grant (RFC 8628).
 func (p *OAuthServer) EnableDeviceCodeGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.deviceCodeGrantEnabled = true
@@ -318,6 +342,7 @@ func (p *OAuthServer) EnableDeviceCodeGrant() *OAuthServer {
 // DisableDeviceCodeGrant deactivates the Device Authorization grant.
 func (p *OAuthServer) DisableDeviceCodeGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.deviceCodeGrantEnabled = false
@@ -328,6 +353,7 @@ func (p *OAuthServer) DisableDeviceCodeGrant() *OAuthServer {
 // EnableRefreshTokenGrant activates the Refresh Token grant.
 func (p *OAuthServer) EnableRefreshTokenGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokenGrantEnabled = true
@@ -338,6 +364,7 @@ func (p *OAuthServer) EnableRefreshTokenGrant() *OAuthServer {
 // DisableRefreshTokenGrant deactivates the Refresh Token grant.
 func (p *OAuthServer) DisableRefreshTokenGrant() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokenGrantEnabled = false
@@ -349,6 +376,7 @@ func (p *OAuthServer) DisableRefreshTokenGrant() *OAuthServer {
 // grantType should be one of the Grant* constants defined in grants.go.
 func (p *OAuthServer) IsGrantEnabled(grantType string) bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	switch grantType {
@@ -372,6 +400,7 @@ func (p *OAuthServer) IsGrantEnabled(grantType string) bool {
 // Config returns the OAuthServerConfig used to create this OAuthServer.
 func (p *OAuthServer) Config() *OAuthServerConfig {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.config
@@ -384,6 +413,7 @@ func (p *OAuthServer) Config() *OAuthServerConfig {
 // Mirrors OAuthServer::actingAs().
 func (p *OAuthServer) ActingAs(user cauth.Authenticatable, token *AccessToken, scopes []string) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsUser = user
@@ -398,6 +428,7 @@ func (p *OAuthServer) ActingAs(user cauth.Authenticatable, token *AccessToken, s
 // Mirrors OAuthServer::actingAsClient().
 func (p *OAuthServer) ActingAsClient(client *Client, scopes []string) *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsClient = client
@@ -409,6 +440,7 @@ func (p *OAuthServer) ActingAsClient(client *Client, scopes []string) *OAuthServ
 // ClearActing removes all test overrides.
 func (p *OAuthServer) ClearActing() *OAuthServer {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsUser = nil
@@ -423,6 +455,7 @@ func (p *OAuthServer) ClearActing() *OAuthServer {
 // Returns (user, token, client, scopes, isSet).
 func (p *OAuthServer) actingAsState() (cauth.Authenticatable, *AccessToken, *Client, []string, bool) {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	if p.actingAsUser != nil || p.actingAsClient != nil {

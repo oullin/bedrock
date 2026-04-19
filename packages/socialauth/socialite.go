@@ -8,12 +8,13 @@ import (
 // SocialAuth is the package-level manager instance. It is populated by
 // SetManager() — typically called from the service provider — and provides a
 // convenient static API that mirrors the Upstream SocialAuth facade.
-var SocialAuth *staticFacade
 
 // staticFacade wraps a *Manager and exposes a static-style API.
 type staticFacade struct {
 	manager *Manager
 }
+
+var SocialAuth *staticFacade
 
 // SetManager wires the package-level SocialAuth variable to a fully configured
 // Manager. Call this from your bootstrap or service provider.
@@ -36,10 +37,13 @@ func Driver(name string) Provider {
 	if SocialAuth == nil {
 		panic("socialauth: no manager configured — call socialauth.SetManager first")
 	}
+
 	p, err := SocialAuth.manager.Driver(name)
+
 	if err != nil {
 		panic(fmt.Sprintf("socialauth: %v", err))
 	}
+
 	return p
 }
 
@@ -49,6 +53,7 @@ func Fake(name string, user *User) *FakeProvider {
 	if SocialAuth == nil {
 		panic("socialauth: no manager configured — call socialauth.SetManager first")
 	}
+
 	return SocialAuth.manager.Fake(name, user)
 }
 
@@ -57,6 +62,7 @@ func FakeWith(name string, fn func() *User) *FakeProvider {
 	if SocialAuth == nil {
 		panic("socialauth: no manager configured — call socialauth.SetManager first")
 	}
+
 	return SocialAuth.manager.FakeWith(name, fn)
 }
 
@@ -66,10 +72,13 @@ func Redirect(ctx context.Context, driver string) (string, error) {
 	if SocialAuth == nil {
 		panic("socialauth: no manager configured — call socialauth.SetManager first")
 	}
+
 	p, err := SocialAuth.manager.Driver(driver)
+
 	if err != nil {
 		return "", err
 	}
+
 	return p.Redirect(ctx)
 }
 
@@ -78,9 +87,12 @@ func GetUser(ctx context.Context, driver string) (*User, error) {
 	if SocialAuth == nil {
 		panic("socialauth: no manager configured — call socialauth.SetManager first")
 	}
+
 	p, err := SocialAuth.manager.Driver(driver)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return p.User(ctx)
 }

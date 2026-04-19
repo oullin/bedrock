@@ -24,6 +24,7 @@ func (r *ImageResponse) FirstImage() data.GeneratedImage {
 	if len(r.Images) == 0 {
 		return data.GeneratedImage{}
 	}
+
 	return r.Images[0]
 }
 
@@ -33,6 +34,7 @@ func (r *ImageResponse) Count() int { return len(r.Images) }
 // ToHTML returns an HTML string of <img> tags for all images.
 func (r *ImageResponse) ToHTML() string {
 	var sb strings.Builder
+
 	for _, img := range r.Images {
 		sb.WriteString(`<img src="data:`)
 		sb.WriteString(img.MimeType)
@@ -40,6 +42,7 @@ func (r *ImageResponse) ToHTML() string {
 		sb.WriteString(img.Image)
 		sb.WriteString(`" />`)
 	}
+
 	return sb.String()
 }
 

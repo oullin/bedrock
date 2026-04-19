@@ -24,7 +24,7 @@ func NewMorphTo(parent, related *orm.Model, morphType, foreignKey, ownerKey stri
 	}
 }
 
-func (r *MorphTo) GetMorphType() string    { return r.morphType }
+func (r *MorphTo) GetMorphType() string      { return r.morphType }
 func (r *MorphTo) GetForeignKeyName() string { return r.foreignKey }
 
 func (r *MorphTo) AddConstraints() {
@@ -35,9 +35,11 @@ func (r *MorphTo) AddConstraints() {
 
 func (r *MorphTo) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
+
 	for _, m := range models {
 		keys = append(keys, m.GetAttribute(r.foreignKey))
 	}
+
 	if r.query != nil {
 		r.query.WhereIn(r.ownerKey, keys)
 	}
@@ -49,16 +51,20 @@ func (r *MorphTo) InitRelation(models []*orm.Model, relation string) []*orm.Mode
 
 func (r *MorphTo) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
 	dictionary := make(map[any]*orm.Model)
+
 	for _, result := range results {
 		key := result.GetAttribute(r.ownerKey)
 		dictionary[key] = result
 	}
+
 	for _, model := range models {
 		key := model.GetAttribute(r.foreignKey)
+
 		if match, ok := dictionary[key]; ok {
 			model.SetAttribute(relation, match)
 		}
 	}
+
 	return models
 }
 
@@ -66,11 +72,15 @@ func (r *MorphTo) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
+
 	rows, err := r.query.Get(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
+
 	var models []*orm.Model
+
 	for _, row := range rows {
 		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
@@ -78,6 +88,7 @@ func (r *MorphTo) GetResults() ([]*orm.Model, error) {
 		m.SetExists(true)
 		models = append(models, m)
 	}
+
 	return models, nil
 }
 

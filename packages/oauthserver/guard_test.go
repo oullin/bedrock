@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/oauthserver"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/oauthserver"
 )
 
 func newGuard(p *oauthserver.OAuthServer, tokens oauthserver.TokenStore, clients oauthserver.ClientStore, users map[string]cauth.Authenticatable) *oauthserver.TokenGuard {

@@ -68,16 +68,19 @@ func (m *Manager) registerBuiltins() {
 		}
 
 		dbVal, ok := config["db"]
+
 		if !ok {
 			return nil, fmt.Errorf("featureflags: database driver config missing required key \"db\"")
 		}
 
 		db, ok := dbVal.(DBExecutor)
+
 		if !ok {
 			return nil, fmt.Errorf("featureflags: database driver config key \"db\" must implement DBExecutor")
 		}
 
 		table := "features"
+
 		if t, ok := config["table"].(string); ok && t != "" {
 			table = t
 		}
@@ -95,21 +98,25 @@ func (m *Manager) registerBuiltins() {
 // default driver.
 func (m *Manager) Store(name ...string) (*Decorator, error) {
 	driverName := m.defaultDriver
+
 	if len(name) > 0 && name[0] != "" {
 		driverName = name[0]
 	}
 
 	// Fast path: cache hit.
 	m.mu.RLock()
+
 	if dec, ok := m.stores[driverName]; ok {
 		m.mu.RUnlock()
 
 		return dec, nil
 	}
+
 	m.mu.RUnlock()
 
 	// Slow path: create the driver and wrap it in a Decorator.
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	// Double-check after acquiring the write lock.
@@ -118,16 +125,19 @@ func (m *Manager) Store(name ...string) (*Decorator, error) {
 	}
 
 	factory, ok := m.factories[driverName]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrDriverNotFound, driverName)
 	}
 
 	raw, err := factory(nil)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var dec *Decorator
+
 	if m.dispatcher != nil {
 		dec = NewDecoratorWithDispatcher(raw, m.dispatcher)
 	} else {
@@ -148,6 +158,7 @@ func (m *Manager) Driver(name ...string) (*Decorator, error) {
 // Calling Extend for a name that already exists overwrites the previous factory.
 func (m *Manager) Extend(driver string, factory DriverFactory) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.factories[driver] = factory
@@ -157,6 +168,7 @@ func (m *Manager) Extend(driver string, factory DriverFactory) {
 // operations.
 func (m *Manager) ResolveScopeUsing(resolver func(ctx context.Context) (any, error)) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.scopeResolver = resolver
@@ -174,9 +186,11 @@ func (m *Manager) FlushCache() {
 	// Snapshot the slice of decorators while holding the read lock so we can
 	// call FlushCache (which acquires its own lock) outside ours.
 	decs := make([]*Decorator, 0, len(m.stores))
+
 	for _, dec := range m.stores {
 		decs = append(decs, dec)
 	}
+
 	m.mu.RUnlock()
 
 	for _, dec := range decs {
@@ -187,6 +201,7 @@ func (m *Manager) FlushCache() {
 // SetDefaultDriver changes the default driver name.
 func (m *Manager) SetDefaultDriver(name string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	m.defaultDriver = name
@@ -195,6 +210,7 @@ func (m *Manager) SetDefaultDriver(name string) {
 // GetDefaultDriver returns the current default driver name.
 func (m *Manager) GetDefaultDriver() string {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	return m.defaultDriver

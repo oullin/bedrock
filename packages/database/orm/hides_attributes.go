@@ -40,21 +40,25 @@ func (h *HidesAttributes) MakeHidden(attributes ...string) {
 func (h *HidesAttributes) FilterAttributes(attrs map[string]any) map[string]any {
 	if len(h.visible) > 0 {
 		filtered := make(map[string]any, len(h.visible))
+
 		for _, key := range h.visible {
 			if v, ok := attrs[key]; ok {
 				filtered[key] = v
 			}
 		}
+
 		return filtered
 	}
 
 	if len(h.hidden) > 0 {
 		filtered := make(map[string]any, len(attrs))
+
 		for k, v := range attrs {
 			if !containsString(h.hidden, k) {
 				filtered[k] = v
 			}
 		}
+
 		return filtered
 	}
 
@@ -67,15 +71,18 @@ func containsString(slice []string, s string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func filterStrings(slice []string, exclude []string) []string {
 	var result []string
+
 	for _, s := range slice {
 		if !containsString(exclude, s) {
 			result = append(result, s)
 		}
 	}
+
 	return result
 }

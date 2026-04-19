@@ -11,6 +11,16 @@ import (
 
 // LogLevel maps PSR-3 log level names to their numeric priority, mirroring
 // the Monolog level constants used by Upstream's LogWatcher.
+
+// LogWatcher monitors application log messages and records them as DebugBar
+// entries. It mirrors Upstream's LogWatcher class.
+//
+// Options:
+//   - "level" (string): minimum log level to record (default "debug").
+type LogWatcher struct {
+	debugbar.BaseWatcher
+}
+
 var LogLevel = map[string]int{
 	"debug":     100,
 	"info":      200,
@@ -20,15 +30,6 @@ var LogLevel = map[string]int{
 	"critical":  500,
 	"alert":     550,
 	"emergency": 600,
-}
-
-// LogWatcher monitors application log messages and records them as DebugBar
-// entries. It mirrors Upstream's LogWatcher class.
-//
-// Options:
-//   - "level" (string): minimum log level to record (default "debug").
-type LogWatcher struct {
-	debugbar.BaseWatcher
 }
 
 // NewLogWatcher creates a LogWatcher with the given options.
@@ -49,16 +50,19 @@ func (w *LogWatcher) Register(_ any) error { return nil }
 // minimum, mirroring LogWatcher::shouldIgnore().
 func (w *LogWatcher) ShouldRecord(level string) bool {
 	minLevel := strings.ToLower(w.StringOption("level"))
+
 	if minLevel == "" {
 		minLevel = "debug"
 	}
 
 	minPriority, ok := LogLevel[minLevel]
+
 	if !ok {
 		minPriority = 100
 	}
 
 	priority, ok := LogLevel[strings.ToLower(level)]
+
 	if !ok {
 		return false
 	}
@@ -83,6 +87,7 @@ func (w *LogWatcher) Record(level, message string, context map[string]any) {
 
 	// Extract debugbar-specific tags.
 	var tags []string
+
 	if rawTags, ok := context["debugbar"]; ok {
 		switch v := rawTags.(type) {
 		case []string:

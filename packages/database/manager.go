@@ -39,7 +39,9 @@ func NewManager() *Manager {
 // AddConnection registers a connection configuration.
 func (m *Manager) AddConnection(name string, config ConnectionConfig) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.configs[name] = config
 }
 
@@ -47,6 +49,7 @@ func (m *Manager) AddConnection(name string, config ConnectionConfig) {
 // If no name is given, the default connection is used.
 func (m *Manager) Connection(_ context.Context, name ...string) (dbcontract.Connection, error) {
 	n := m.defaultConnection
+
 	if len(name) > 0 && name[0] != "" {
 		n = name[0]
 	}
@@ -54,6 +57,7 @@ func (m *Manager) Connection(_ context.Context, name ...string) (dbcontract.Conn
 	m.mu.RLock()
 	conn, ok := m.connections[n]
 	m.mu.RUnlock()
+
 	if ok {
 		return conn, nil
 	}
@@ -65,9 +69,11 @@ func (m *Manager) Connection(_ context.Context, name ...string) (dbcontract.Conn
 func (m *Manager) Reconnect(name string) (*Connection, error) {
 	m.Purge(name)
 	conn, err := m.Connection(context.Background(), name)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return conn.(*Connection), nil
 }
 
@@ -75,17 +81,21 @@ func (m *Manager) Reconnect(name string) (*Connection, error) {
 func (m *Manager) Purge(name string) {
 	m.mu.Lock()
 	conn, ok := m.connections[name]
+
 	if ok {
 		_ = conn.Disconnect()
 		delete(m.connections, name)
 	}
+
 	m.mu.Unlock()
 }
 
 // Disconnect closes all connections.
 func (m *Manager) Disconnect() {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	for name, conn := range m.connections {
 		_ = conn.Disconnect()
 		delete(m.connections, name)
@@ -95,7 +105,9 @@ func (m *Manager) Disconnect() {
 // Extend registers a custom connector factory for the given driver.
 func (m *Manager) Extend(driver string, factory ConnectorFactory) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.connectorFactory[driver] = factory
 }
 
@@ -122,11 +134,15 @@ func (m *Manager) SetReconnector(fn func(*Connection) (*Connection, error)) {
 // GetConnections returns all active connections.
 func (m *Manager) GetConnections() map[string]*Connection {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
+
 	conns := make(map[string]*Connection, len(m.connections))
+
 	for k, v := range m.connections {
 		conns[k] = v
 	}
+
 	return conns
 }
 
@@ -137,6 +153,7 @@ func (m *Manager) SupportedDrivers() []string {
 
 func (m *Manager) makeConnection(name string) (*Connection, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	// Double-check after acquiring write lock.
@@ -145,22 +162,26 @@ func (m *Manager) makeConnection(name string) (*Connection, error) {
 	}
 
 	config, ok := m.configs[name]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrConnectionNotConfigured, name)
 	}
 
 	factory, ok := m.connectorFactory[config.Driver]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrDriverNotSupported, config.Driver)
 	}
 
 	conn, err := factory(config)
+
 	if err != nil {
 		return nil, err
 	}
 
 	conn.name = name
 	conn.SetDriverName(config.Driver)
+
 	if m.events != nil {
 		conn.SetEventDispatcher(m.events)
 		m.events.Dispatch(context.Background(), dbevents.ConnectionEstablished{

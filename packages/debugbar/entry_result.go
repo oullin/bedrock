@@ -26,21 +26,25 @@ type EntryResult struct {
 // Avatar::url() helper. A custom avatar resolver can override this.
 func (r *EntryResult) GenerateAvatar(resolver func(user map[string]any) string) {
 	userRaw, ok := r.Content["user"]
+
 	if !ok {
 		return
 	}
 
 	user, ok := userRaw.(map[string]any)
+
 	if !ok {
 		return
 	}
 
 	if resolver != nil {
 		r.Avatar = resolver(user)
+
 		return
 	}
 
 	email, _ := user["email"].(string)
+
 	if email == "" {
 		return
 	}

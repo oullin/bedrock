@@ -27,14 +27,18 @@ func NewAudioGateway(recorder *Recorder) *AudioGateway {
 // SetResponses configures queued fake responses.
 func (g *AudioGateway) SetResponses(resps []any) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.responses = resps
 }
 
 // PreventStray enables stray-call prevention.
 func (g *AudioGateway) PreventStray() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.prevent = true
 }
 
@@ -46,10 +50,12 @@ func (g *AudioGateway) GenerateAudio(ctx context.Context, req contractsgw.AudioG
 		Instructions: req.Instructions,
 		Timeout:      req.Timeout,
 	}
+
 	if req.Model != "" {
 		m := req.Model
 		prompt.Model = &m
 	}
+
 	g.recorder.recordAudio(prompt, false)
 
 	return g.nextResponse(prompt)
@@ -57,16 +63,19 @@ func (g *AudioGateway) GenerateAudio(ctx context.Context, req contractsgw.AudioG
 
 func (g *AudioGateway) nextResponse(prompt *prompts.AudioPrompt) (*contractsgw.AudioGenerateResult, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	if len(g.responses) == 0 {
 		if g.prevent {
 			return nil, fmt.Errorf("ai: unexpected call to faked audio gateway")
 		}
+
 		return &contractsgw.AudioGenerateResult{Content: "ZmFrZQ=="}, nil // base64("fake")
 	}
 
 	raw := g.responses[0]
+
 	if len(g.responses) > 1 {
 		g.responses = g.responses[1:]
 	}

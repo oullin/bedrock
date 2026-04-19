@@ -13,8 +13,6 @@ import (
 	"github.com/bedrock/packages/debugbar"
 )
 
-const defaultChunkSize = 1000
-
 // DatabaseRepository persists DebugBar entries to a relational database. It
 // mirrors Upstream's DatabaseEntriesRepository, supporting the same three-table
 // schema: telescope_entries, telescope_entries_tags, and telescope_monitoring.
@@ -31,6 +29,66 @@ type DatabaseRepository struct {
 // NewDatabaseRepository creates a DatabaseRepository backed by db.
 // chunkSize controls how many entries are inserted per transaction (0 uses
 // the default of 1000).
+
+// compile-time interface satisfaction check.
+
+// Migrate creates the DebugBar database tables if they do not already exist.
+// Suitable for SQLite and most SQL databases. For production use, prefer
+// applying migrations through your migration tool.
+
+// Find retrieves a single entry by UUID.
+
+// Get retrieves entries of the given type filtered by EntryQueryOptions.
+
+// Load tags for all entries.
+
+// Store persists a batch of incoming entries in chunks.
+
+// storeChunk persists a slice of entries in a single transaction.
+
+//nolint:errcheck
+
+// Ignore duplicate tag constraint violations.
+
+// Update applies field mutations to stored entries.
+
+//nolint:errcheck
+
+// Load current content.
+
+// Merge changes.
+
+// Add tags.
+
+// Remove tags.
+
+// LoadMonitoredTags loads monitored tags from the database into memory.
+
+// IsMonitoring reports whether any of the given tags are monitored.
+
+// Monitoring returns the list of currently monitored tags.
+
+// Monitor activates monitoring for the given tags.
+
+//nolint:errcheck
+
+// StopMonitoring deactivates monitoring for the given tags.
+
+//nolint:errcheck
+
+// Clear removes all stored entries, tags, and monitored tags.
+
+// Prune removes entries older than before. When keepExceptions is true,
+// exception entries are retained regardless of age.
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+type scanner interface {
+	Scan(dest ...any) error
+}
+
+const defaultChunkSize = 1000
+
 func NewDatabaseRepository(db *sql.DB, chunkSize int) *DatabaseRepository {
 	if chunkSize <= 0 {
 		chunkSize = defaultChunkSize
@@ -43,12 +101,8 @@ func NewDatabaseRepository(db *sql.DB, chunkSize int) *DatabaseRepository {
 	}
 }
 
-// compile-time interface satisfaction check.
 var _ debugbar.Repository = (*DatabaseRepository)(nil)
 
-// Migrate creates the DebugBar database tables if they do not already exist.
-// Suitable for SQLite and most SQL databases. For production use, prefer
-// applying migrations through your migration tool.
 func (r *DatabaseRepository) Migrate() error {
 	_, err := r.db.Exec(`
 		CREATE TABLE IF NOT EXISTS telescope_entries (
@@ -78,7 +132,6 @@ func (r *DatabaseRepository) Migrate() error {
 	return err
 }
 
-// Find retrieves a single entry by UUID.
 func (r *DatabaseRepository) Find(id string) (*debugbar.EntryResult, error) {
 	row := r.db.QueryRow(
 		`SELECT sequence, uuid, batch_id, family_hash, type, content, created_at
@@ -86,6 +139,7 @@ func (r *DatabaseRepository) Find(id string) (*debugbar.EntryResult, error) {
 	)
 
 	entry, err := r.scanEntry(row)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNotFound
@@ -95,6 +149,7 @@ func (r *DatabaseRepository) Find(id string) (*debugbar.EntryResult, error) {
 	}
 
 	tags, err := r.loadTags(id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +159,9 @@ func (r *DatabaseRepository) Find(id string) (*debugbar.EntryResult, error) {
 	return entry, nil
 }
 
-// Get retrieves entries of the given type filtered by EntryQueryOptions.
 func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptions) ([]*debugbar.EntryResult, error) {
 	limit := opts.Limit
+
 	if limit <= 0 {
 		limit = 50
 	}
@@ -142,6 +197,7 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 	}
 
 	where := ""
+
 	if len(conditions) > 0 {
 		where = "WHERE " + strings.Join(conditions, " AND ")
 	}
@@ -153,6 +209,7 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 			FROM telescope_entries e %s ORDER BY e.sequence DESC LIMIT ?`, where),
 		args...,
 	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -163,6 +220,7 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 
 	for rows.Next() {
 		entry, err := r.scanEntry(rows)
+
 		if err != nil {
 			return nil, err
 		}
@@ -174,9 +232,9 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 		return nil, err
 	}
 
-	// Load tags for all entries.
 	for _, e := range results {
 		tags, err := r.loadTags(e.ID)
+
 		if err != nil {
 			return nil, err
 		}
@@ -187,7 +245,6 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 	return results, nil
 }
 
-// Store persists a batch of incoming entries in chunks.
 func (r *DatabaseRepository) Store(entries []*debugbar.IncomingEntry) error {
 	for i := 0; i < len(entries); i += r.chunkSize {
 		end := i + r.chunkSize
@@ -204,16 +261,16 @@ func (r *DatabaseRepository) Store(entries []*debugbar.IncomingEntry) error {
 	return nil
 }
 
-// storeChunk persists a slice of entries in a single transaction.
 func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error {
 	tx, err := r.db.Begin()
+
 	if err != nil {
 		return err
 	}
 
 	defer func() {
 		if err != nil {
-			tx.Rollback() //nolint:errcheck
+			tx.Rollback()
 		}
 	}()
 
@@ -221,6 +278,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 		`INSERT OR IGNORE INTO telescope_entries (uuid, batch_id, family_hash, type, content, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?)`,
 	)
+
 	if err != nil {
 		return err
 	}
@@ -230,6 +288,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 	tagStmt, err := tx.Prepare(
 		`INSERT OR IGNORE INTO telescope_entries_tags (entry_uuid, tag) VALUES (?, ?)`,
 	)
+
 	if err != nil {
 		return err
 	}
@@ -238,6 +297,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 
 	for _, e := range entries {
 		content, err := json.Marshal(e.Content)
+
 		if err != nil {
 			return fmt.Errorf("debugbar: marshal content for %s: %w", e.UUID, err)
 		}
@@ -255,7 +315,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 
 		for _, tag := range e.Tags {
 			if _, err = tagStmt.Exec(e.UUID, tag); err != nil {
-				// Ignore duplicate tag constraint violations.
+
 				continue
 			}
 		}
@@ -264,21 +324,21 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 	return tx.Commit()
 }
 
-// Update applies field mutations to stored entries.
 func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 	tx, err := r.db.Begin()
+
 	if err != nil {
 		return err
 	}
 
 	defer func() {
 		if err != nil {
-			tx.Rollback() //nolint:errcheck
+			tx.Rollback()
 		}
 	}()
 
 	for _, u := range updates {
-		// Load current content.
+
 		var rawContent string
 		row := tx.QueryRow(`SELECT content FROM telescope_entries WHERE uuid = ?`, u.UUID)
 
@@ -296,12 +356,12 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 			return err
 		}
 
-		// Merge changes.
 		for k, v := range u.Changes {
 			content[k] = v
 		}
 
 		merged, err := json.Marshal(content)
+
 		if err != nil {
 			return err
 		}
@@ -310,14 +370,12 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 			return err
 		}
 
-		// Add tags.
 		for _, tag := range u.Tags.Add {
 			if _, err = tx.Exec(`INSERT OR IGNORE INTO telescope_entries_tags (entry_uuid, tag) VALUES (?, ?)`, u.UUID, tag); err != nil {
 				continue
 			}
 		}
 
-		// Remove tags.
 		for _, tag := range u.Tags.Remove {
 			if _, err = tx.Exec(`DELETE FROM telescope_entries_tags WHERE entry_uuid = ? AND tag = ?`, u.UUID, tag); err != nil {
 				return err
@@ -328,9 +386,9 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 	return tx.Commit()
 }
 
-// LoadMonitoredTags loads monitored tags from the database into memory.
 func (r *DatabaseRepository) LoadMonitoredTags() error {
 	rows, err := r.db.Query(`SELECT tag FROM telescope_monitoring`)
+
 	if err != nil {
 		return err
 	}
@@ -338,6 +396,7 @@ func (r *DatabaseRepository) LoadMonitoredTags() error {
 	defer rows.Close()
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.monitoredTags = make(map[string]struct{})
@@ -355,9 +414,9 @@ func (r *DatabaseRepository) LoadMonitoredTags() error {
 	return rows.Err()
 }
 
-// IsMonitoring reports whether any of the given tags are monitored.
 func (r *DatabaseRepository) IsMonitoring(tags []string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, t := range tags {
@@ -369,9 +428,9 @@ func (r *DatabaseRepository) IsMonitoring(tags []string) bool {
 	return false
 }
 
-// Monitoring returns the list of currently monitored tags.
 func (r *DatabaseRepository) Monitoring() []string {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	out := make([]string, 0, len(r.monitoredTags))
@@ -385,16 +444,16 @@ func (r *DatabaseRepository) Monitoring() []string {
 	return out
 }
 
-// Monitor activates monitoring for the given tags.
 func (r *DatabaseRepository) Monitor(tags []string) error {
 	tx, err := r.db.Begin()
+
 	if err != nil {
 		return err
 	}
 
 	defer func() {
 		if err != nil {
-			tx.Rollback() //nolint:errcheck
+			tx.Rollback()
 		}
 	}()
 
@@ -409,6 +468,7 @@ func (r *DatabaseRepository) Monitor(tags []string) error {
 	}
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, t := range tags {
@@ -418,16 +478,16 @@ func (r *DatabaseRepository) Monitor(tags []string) error {
 	return nil
 }
 
-// StopMonitoring deactivates monitoring for the given tags.
 func (r *DatabaseRepository) StopMonitoring(tags []string) error {
 	tx, err := r.db.Begin()
+
 	if err != nil {
 		return err
 	}
 
 	defer func() {
 		if err != nil {
-			tx.Rollback() //nolint:errcheck
+			tx.Rollback()
 		}
 	}()
 
@@ -442,6 +502,7 @@ func (r *DatabaseRepository) StopMonitoring(tags []string) error {
 	}
 
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, t := range tags {
@@ -451,15 +512,12 @@ func (r *DatabaseRepository) StopMonitoring(tags []string) error {
 	return nil
 }
 
-// Clear removes all stored entries, tags, and monitored tags.
 func (r *DatabaseRepository) Clear() error {
 	_, err := r.db.Exec(`DELETE FROM telescope_entries`)
 
 	return err
 }
 
-// Prune removes entries older than before. When keepExceptions is true,
-// exception entries are retained regardless of age.
 func (r *DatabaseRepository) Prune(before time.Time, keepExceptions bool) (int64, error) {
 	var (
 		query string
@@ -477,17 +535,12 @@ func (r *DatabaseRepository) Prune(before time.Time, keepExceptions bool) (int64
 	}
 
 	result, err := r.db.Exec(query, args...)
+
 	if err != nil {
 		return 0, err
 	}
 
 	return result.RowsAffected()
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-type scanner interface {
-	Scan(dest ...any) error
 }
 
 func (r *DatabaseRepository) scanEntry(s scanner) (*debugbar.EntryResult, error) {
@@ -528,6 +581,7 @@ func (r *DatabaseRepository) loadTags(uuid string) ([]string, error) {
 	rows, err := r.db.Query(
 		`SELECT tag FROM telescope_entries_tags WHERE entry_uuid = ?`, uuid,
 	)
+
 	if err != nil {
 		return nil, err
 	}

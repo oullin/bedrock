@@ -9,17 +9,6 @@ import (
 
 // defaultAgentFactories maps the canonical keys for the nine built-in agents to
 // their factory functions. This mirrors the $agents array in BoostManager.php.
-var defaultAgentFactories = map[string]func() CodingAgent{
-	"amp":        func() CodingAgent { return agents.NewAmp() },
-	"junie":      func() CodingAgent { return agents.NewJunie() },
-	"cursor":     func() CodingAgent { return agents.NewCursor() },
-	"claude_code": func() CodingAgent { return agents.NewClaudeCode() },
-	"codex":      func() CodingAgent { return agents.NewCodex() },
-	"copilot":    func() CodingAgent { return agents.NewCopilot() },
-	"kiro":       func() CodingAgent { return agents.NewKiro() },
-	"opencode":   func() CodingAgent { return agents.NewOpenCode() },
-	"gemini":     func() CodingAgent { return agents.NewGemini() },
-}
 
 // Manager is the central boost registry that tracks registered coding agents.
 // It is registered in the container under the key "boost".
@@ -27,6 +16,18 @@ var defaultAgentFactories = map[string]func() CodingAgent{
 type Manager struct {
 	mu     sync.RWMutex
 	agents map[string]CodingAgent
+}
+
+var defaultAgentFactories = map[string]func() CodingAgent{
+	"amp":         func() CodingAgent { return agents.NewAmp() },
+	"junie":       func() CodingAgent { return agents.NewJunie() },
+	"cursor":      func() CodingAgent { return agents.NewCursor() },
+	"claude_code": func() CodingAgent { return agents.NewClaudeCode() },
+	"codex":       func() CodingAgent { return agents.NewCodex() },
+	"copilot":     func() CodingAgent { return agents.NewCopilot() },
+	"kiro":        func() CodingAgent { return agents.NewKiro() },
+	"opencode":    func() CodingAgent { return agents.NewOpenCode() },
+	"gemini":      func() CodingAgent { return agents.NewGemini() },
 }
 
 // New returns a Manager pre-loaded with all nine default agents.
@@ -46,6 +47,7 @@ func New() *Manager {
 // Returns a wrapped ErrAgentAlreadyRegistered if the key is already taken.
 func (m *Manager) RegisterAgent(key string, agent CodingAgent) error {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if _, exists := m.agents[key]; exists {
@@ -61,9 +63,11 @@ func (m *Manager) RegisterAgent(key string, agent CodingAgent) error {
 // Callers receive a snapshot; subsequent registrations are not reflected.
 func (m *Manager) GetAgents() map[string]CodingAgent {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	snapshot := make(map[string]CodingAgent, len(m.agents))
+
 	for k, v := range m.agents {
 		snapshot[k] = v
 	}

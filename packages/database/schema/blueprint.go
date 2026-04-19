@@ -2,24 +2,24 @@ package schema
 
 // BlueprintCommand represents a DDL command (create index, add foreign key, etc.)
 type BlueprintCommand struct {
-	Name    string
-	Index   string
-	Columns []string
+	Name      string
+	Index     string
+	Columns   []string
 	Algorithm string
-	On      string // for rename
+	On        string // for rename
 }
 
 // Blueprint is a fluent table definition builder. It collects columns,
 // indexes, and commands and is compiled by a SchemaGrammar into DDL.
 type Blueprint struct {
-	Table      string
-	Columns    []*ColumnDefinition
-	Commands   []BlueprintCommand
+	Table       string
+	Columns     []*ColumnDefinition
+	Commands    []BlueprintCommand
 	ForeignKeys []*ForeignKeyDefinition
-	Temporary  bool
-	Charset    string
-	Collation  string
-	Engine     string
+	Temporary   bool
+	Charset     string
+	Collation   string
+	Engine      string
 }
 
 // NewBlueprint creates a new Blueprint for the given table.
@@ -32,9 +32,11 @@ func NewBlueprint(table string) *Blueprint {
 // ID adds a big auto-incrementing ID column (alias for BigIncrements("id")).
 func (bp *Blueprint) ID(column ...string) *ColumnDefinition {
 	col := "id"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.BigIncrements(col)
 }
 
@@ -125,18 +127,22 @@ func (bp *Blueprint) UnsignedBigInteger(column string) *ColumnDefinition {
 // Char adds a char column.
 func (bp *Blueprint) Char(column string, length ...int) *ColumnDefinition {
 	l := 255
+
 	if len(length) > 0 {
 		l = length[0]
 	}
+
 	return bp.addColumn(column, "char", l, 0, 0, false, false)
 }
 
 // String adds a varchar column.
 func (bp *Blueprint) String(column string, length ...int) *ColumnDefinition {
 	l := 255
+
 	if len(length) > 0 {
 		l = length[0]
 	}
+
 	return bp.addColumn(column, "string", l, 0, 0, false, false)
 }
 
@@ -165,9 +171,11 @@ func (bp *Blueprint) LongText(column string) *ColumnDefinition {
 // Float adds a float column.
 func (bp *Blueprint) Float(column string, precision ...int) *ColumnDefinition {
 	p := 53
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "float", 0, p, 0, false, false)
 }
 
@@ -180,12 +188,15 @@ func (bp *Blueprint) Double(column string) *ColumnDefinition {
 func (bp *Blueprint) Decimal(column string, args ...int) *ColumnDefinition {
 	precision := 8
 	scale := 2
+
 	if len(args) > 0 {
 		precision = args[0]
 	}
+
 	if len(args) > 1 {
 		scale = args[1]
 	}
+
 	return bp.addColumn(column, "decimal", 0, precision, scale, false, false)
 }
 
@@ -206,54 +217,66 @@ func (bp *Blueprint) Date(column string) *ColumnDefinition {
 // DateTime adds a datetime column.
 func (bp *Blueprint) DateTime(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "dateTime", 0, p, 0, false, false)
 }
 
 // DateTimeTz adds a datetime with timezone column.
 func (bp *Blueprint) DateTimeTz(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "dateTimeTz", 0, p, 0, false, false)
 }
 
 // Time adds a time column.
 func (bp *Blueprint) Time(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "time", 0, p, 0, false, false)
 }
 
 // TimeTz adds a time with timezone column.
 func (bp *Blueprint) TimeTz(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "timeTz", 0, p, 0, false, false)
 }
 
 // Timestamp adds a timestamp column.
 func (bp *Blueprint) Timestamp(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "timestamp", 0, p, 0, false, false)
 }
 
 // TimestampTz adds a timestamp with timezone column.
 func (bp *Blueprint) TimestampTz(column string, precision ...int) *ColumnDefinition {
 	p := 0
+
 	if len(precision) > 0 {
 		p = precision[0]
 	}
+
 	return bp.addColumn(column, "timestampTz", 0, p, 0, false, false)
 }
 
@@ -278,27 +301,33 @@ func (bp *Blueprint) Datetimes(precision ...int) {
 // SoftDeletes adds a nullable deleted_at timestamp column.
 func (bp *Blueprint) SoftDeletes(column ...string) *ColumnDefinition {
 	col := "deleted_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.Timestamp(col).Nullable()
 }
 
 // SoftDeletesTz adds a nullable deleted_at timestampTz column.
 func (bp *Blueprint) SoftDeletesTz(column ...string) *ColumnDefinition {
 	col := "deleted_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.TimestampTz(col).Nullable()
 }
 
 // SoftDeletesDatetime adds a nullable deleted_at datetime column.
 func (bp *Blueprint) SoftDeletesDatetime(column ...string) *ColumnDefinition {
 	col := "deleted_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.DateTime(col).Nullable()
 }
 
@@ -312,9 +341,11 @@ func (bp *Blueprint) Year(column string) *ColumnDefinition {
 // Binary adds a binary column.
 func (bp *Blueprint) Binary(column string, length ...int) *ColumnDefinition {
 	l := 0
+
 	if len(length) > 0 {
 		l = length[0]
 	}
+
 	return bp.addColumn(column, "binary", l, 0, 0, false, false)
 }
 
@@ -332,6 +363,7 @@ func (bp *Blueprint) JSONB(column string) *ColumnDefinition {
 func (bp *Blueprint) Enum(column string, allowed []string) *ColumnDefinition {
 	c := bp.addColumn(column, "enum", 0, 0, 0, false, false)
 	c.Allowed = allowed
+
 	return c
 }
 
@@ -339,42 +371,51 @@ func (bp *Blueprint) Enum(column string, allowed []string) *ColumnDefinition {
 func (bp *Blueprint) Set(column string, allowed []string) *ColumnDefinition {
 	c := bp.addColumn(column, "set", 0, 0, 0, false, false)
 	c.Allowed = allowed
+
 	return c
 }
 
 // UUID adds a uuid column.
 func (bp *Blueprint) UUID(column ...string) *ColumnDefinition {
 	col := "uuid"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.addColumn(col, "uuid", 0, 0, 0, false, false)
 }
 
 // ULID adds a ulid column (char(26)).
 func (bp *Blueprint) ULID(column ...string) *ColumnDefinition {
 	col := "ulid"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.Char(col, 26)
 }
 
 // IPAddress adds an IP address column.
 func (bp *Blueprint) IPAddress(column ...string) *ColumnDefinition {
 	col := "ip_address"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.addColumn(col, "ipAddress", 0, 0, 0, false, false)
 }
 
 // MacAddress adds a MAC address column.
 func (bp *Blueprint) MacAddress(column ...string) *ColumnDefinition {
 	col := "mac_address"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return bp.addColumn(col, "macAddress", 0, 0, 0, false, false)
 }
 
@@ -391,11 +432,14 @@ func (bp *Blueprint) Geography(column string, subtype ...string) *ColumnDefiniti
 // Vector adds a vector column.
 func (bp *Blueprint) Vector(column string, dimensions ...int) *ColumnDefinition {
 	d := 0
+
 	if len(dimensions) > 0 {
 		d = dimensions[0]
 	}
+
 	c := bp.addColumn(column, "vector", 0, 0, 0, false, false)
 	c.Total = d
+
 	return c
 }
 
@@ -435,12 +479,14 @@ func (bp *Blueprint) ForeignULID(column string) *ColumnDefinition {
 
 // Morphs adds the columns for a polymorphic relationship.
 func (bp *Blueprint) Morphs(name string, indexName ...string) {
-	bp.String(name+"_type")
+	bp.String(name + "_type")
 	bp.UnsignedBigInteger(name + "_id")
 	idx := name + "_type_" + name + "_id_index"
+
 	if len(indexName) > 0 {
 		idx = indexName[0]
 	}
+
 	bp.AddIndex([]string{name + "_type", name + "_id"}, idx)
 }
 
@@ -449,9 +495,11 @@ func (bp *Blueprint) NullableMorphs(name string, indexName ...string) {
 	bp.String(name + "_type").Nullable()
 	bp.UnsignedBigInteger(name + "_id").Nullable()
 	idx := name + "_type_" + name + "_id_index"
+
 	if len(indexName) > 0 {
 		idx = indexName[0]
 	}
+
 	bp.AddIndex([]string{name + "_type", name + "_id"}, idx)
 }
 
@@ -465,9 +513,11 @@ func (bp *Blueprint) UUIDMorphs(name string, indexName ...string) {
 	bp.String(name + "_type")
 	bp.UUID(name + "_id")
 	idx := name + "_type_" + name + "_id_index"
+
 	if len(indexName) > 0 {
 		idx = indexName[0]
 	}
+
 	bp.AddIndex([]string{name + "_type", name + "_id"}, idx)
 }
 
@@ -476,9 +526,11 @@ func (bp *Blueprint) ULIDMorphs(name string, indexName ...string) {
 	bp.String(name + "_type")
 	bp.ULID(name + "_id")
 	idx := name + "_type_" + name + "_id_index"
+
 	if len(indexName) > 0 {
 		idx = indexName[0]
 	}
+
 	bp.AddIndex([]string{name + "_type", name + "_id"}, idx)
 }
 
@@ -488,6 +540,7 @@ func (bp *Blueprint) ULIDMorphs(name string, indexName ...string) {
 func (bp *Blueprint) Computed(column, expression string) *ColumnDefinition {
 	c := bp.addColumn(column, "computed", 0, 0, 0, false, false)
 	c.VirtualAs = expression
+
 	return c
 }
 
@@ -501,36 +554,44 @@ func (bp *Blueprint) RawColumn(column, definition string) *ColumnDefinition {
 // AddPrimary adds a primary key.
 func (bp *Blueprint) AddPrimary(columns []string, name ...string) {
 	n := bp.Table + "_" + columns[0] + "_primary"
+
 	if len(name) > 0 {
 		n = name[0]
 	}
+
 	bp.Commands = append(bp.Commands, BlueprintCommand{Name: "primary", Columns: columns, Index: n})
 }
 
 // AddUnique adds a unique index.
 func (bp *Blueprint) AddUnique(columns []string, name ...string) {
 	n := bp.Table + "_" + columns[0] + "_unique"
+
 	if len(name) > 0 {
 		n = name[0]
 	}
+
 	bp.Commands = append(bp.Commands, BlueprintCommand{Name: "unique", Columns: columns, Index: n})
 }
 
 // AddIndex adds an index.
 func (bp *Blueprint) AddIndex(columns []string, name ...string) {
 	n := bp.Table + "_" + columns[0] + "_index"
+
 	if len(name) > 0 {
 		n = name[0]
 	}
+
 	bp.Commands = append(bp.Commands, BlueprintCommand{Name: "index", Columns: columns, Index: n})
 }
 
 // AddFulltext adds a fulltext index.
 func (bp *Blueprint) AddFulltext(columns []string, name ...string) {
 	n := bp.Table + "_" + columns[0] + "_fulltext"
+
 	if len(name) > 0 {
 		n = name[0]
 	}
+
 	bp.Commands = append(bp.Commands, BlueprintCommand{Name: "fulltext", Columns: columns, Index: n})
 }
 
@@ -538,6 +599,7 @@ func (bp *Blueprint) AddFulltext(columns []string, name ...string) {
 func (bp *Blueprint) Foreign(columns ...string) *ForeignKeyDefinition {
 	fk := &ForeignKeyDefinition{Columns: columns}
 	bp.ForeignKeys = append(bp.ForeignKeys, fk)
+
 	return fk
 }
 
@@ -554,9 +616,11 @@ func (bp *Blueprint) RenameColumn(from, to string) {
 // DropPrimary drops a primary key.
 func (bp *Blueprint) DropPrimary(name ...string) {
 	n := bp.Table + "_primary"
+
 	if len(name) > 0 {
 		n = name[0]
 	}
+
 	bp.Commands = append(bp.Commands, BlueprintCommand{Name: "dropPrimary", Index: n})
 }
 
@@ -588,9 +652,11 @@ func (bp *Blueprint) DropTimestamps() {
 // DropSoftDeletes drops the deleted_at column.
 func (bp *Blueprint) DropSoftDeletes(column ...string) {
 	col := "deleted_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	bp.DropColumn(col)
 }
 
@@ -631,27 +697,32 @@ func (bp *Blueprint) addColumn(name, colType string, length, precision, scale in
 		AutoIncrement: autoIncrement,
 	}
 	bp.Columns = append(bp.Columns, col)
+
 	return col
 }
 
 // GetAddedColumns returns columns that are not being changed.
 func (bp *Blueprint) GetAddedColumns() []*ColumnDefinition {
 	var added []*ColumnDefinition
+
 	for _, col := range bp.Columns {
 		if !col.IsChange {
 			added = append(added, col)
 		}
 	}
+
 	return added
 }
 
 // GetChangedColumns returns columns that are being modified.
 func (bp *Blueprint) GetChangedColumns() []*ColumnDefinition {
 	var changed []*ColumnDefinition
+
 	for _, col := range bp.Columns {
 		if col.IsChange {
 			changed = append(changed, col)
 		}
 	}
+
 	return changed
 }

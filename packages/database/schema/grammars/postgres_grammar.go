@@ -20,35 +20,44 @@ func NewPostgresGrammar() *PostgresGrammar { return &PostgresGrammar{} }
 func (g *PostgresGrammar) CompileCreate(bp *schema.Blueprint) []string {
 	columns := g.getColumns(bp)
 	temporary := ""
+
 	if bp.Temporary {
 		temporary = "temporary "
 	}
+
 	sql := fmt.Sprintf("create %stable %s (%s)", temporary, g.wrapTable(bp.Table), strings.Join(columns, ", "))
+
 	return []string{sql}
 }
 
 func (g *PostgresGrammar) CompileAdd(bp *schema.Blueprint) []string {
 	var statements []string
+
 	for _, col := range bp.GetAddedColumns() {
 		statements = append(statements, fmt.Sprintf("alter table %s add column %s", g.wrapTable(bp.Table), g.compileColumn(col)))
 	}
+
 	return statements
 }
 
 func (g *PostgresGrammar) CompileChange(bp *schema.Blueprint) []string {
 	var statements []string
+
 	for _, col := range bp.GetChangedColumns() {
 		base := "alter table " + g.wrapTable(bp.Table)
 		statements = append(statements, fmt.Sprintf("%s alter column %s type %s", base, g.wrap(col.Name), g.getType(col)))
+
 		if col.IsNullable {
 			statements = append(statements, fmt.Sprintf("%s alter column %s drop not null", base, g.wrap(col.Name)))
 		} else {
 			statements = append(statements, fmt.Sprintf("%s alter column %s set not null", base, g.wrap(col.Name)))
 		}
+
 		if col.HasDefault {
 			statements = append(statements, fmt.Sprintf("%s alter column %s set default %s", base, g.wrap(col.Name), g.getDefaultValue(col.DefaultValue)))
 		}
 	}
+
 	return statements
 }
 
@@ -66,9 +75,11 @@ func (g *PostgresGrammar) CompileRename(from, to string) string {
 
 func (g *PostgresGrammar) CompileDropColumn(bp *schema.Blueprint, columns []string) string {
 	cols := make([]string, len(columns))
+
 	for i, c := range columns {
 		cols[i] = "drop column " + g.wrap(c)
 	}
+
 	return "alter table " + g.wrapTable(bp.Table) + " " + strings.Join(cols, ", ")
 }
 
@@ -78,6 +89,7 @@ func (g *PostgresGrammar) CompileRenameColumn(bp *schema.Blueprint, from, to str
 
 func (g *PostgresGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.BlueprintCommand) string {
 	cols := make([]string, len(cmd.Columns))
+
 	for i, c := range cmd.Columns {
 		cols[i] = g.wrap(c)
 	}
@@ -92,6 +104,7 @@ func (g *PostgresGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.Bl
 	case "fulltext":
 		return fmt.Sprintf("create index %s on %s using gin(to_tsvector('english', %s))", g.wrap(cmd.Index), g.wrapTable(bp.Table), strings.Join(cols, " || ' ' || "))
 	}
+
 	return ""
 }
 
@@ -101,10 +114,13 @@ func (g *PostgresGrammar) CompileDropIndex(_ *schema.Blueprint, name string) str
 
 func (g *PostgresGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
 	cols := make([]string, len(fk.Columns))
+
 	for i, c := range fk.Columns {
 		cols[i] = g.wrap(c)
 	}
+
 	refCols := make([]string, len(fk.RefColumns))
+
 	for i, c := range fk.RefColumns {
 		refCols[i] = g.wrap(c)
 	}
@@ -116,6 +132,7 @@ func (g *PostgresGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *sche
 	if fk.OnDeleteAction != "" {
 		sql += " on delete " + fk.OnDeleteAction
 	}
+
 	if fk.OnUpdateAction != "" {
 		sql += " on update " + fk.OnUpdateAction
 	}
@@ -145,9 +162,11 @@ func (g *PostgresGrammar) CompileDisableForeignKeyConstraints() string {
 
 func (g *PostgresGrammar) getColumns(bp *schema.Blueprint) []string {
 	var cols []string
+
 	for _, col := range bp.GetAddedColumns() {
 		cols = append(cols, g.compileColumn(col))
 	}
+
 	return cols
 }
 
@@ -166,6 +185,7 @@ func (g *PostgresGrammar) compileColumn(col *schema.ColumnDefinition) string {
 		default:
 			sql = g.wrap(col.Name) + " bigserial primary key"
 		}
+
 		return sql
 	}
 
@@ -210,31 +230,37 @@ func (g *PostgresGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d) without time zone", col.Precision)
 		}
+
 		return "timestamp without time zone"
 	case "dateTimeTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d) with time zone", col.Precision)
 		}
+
 		return "timestamp with time zone"
 	case "time":
 		if col.Precision > 0 {
 			return fmt.Sprintf("time(%d) without time zone", col.Precision)
 		}
+
 		return "time without time zone"
 	case "timeTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("time(%d) with time zone", col.Precision)
 		}
+
 		return "time with time zone"
 	case "timestamp":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d) without time zone", col.Precision)
 		}
+
 		return "timestamp without time zone"
 	case "timestampTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d) with time zone", col.Precision)
 		}
+
 		return "timestamp with time zone"
 	case "year":
 		return "integer"
@@ -262,6 +288,7 @@ func (g *PostgresGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Total > 0 {
 			return fmt.Sprintf("vector(%d)", col.Total)
 		}
+
 		return "vector"
 	default:
 		return col.Type
@@ -276,6 +303,7 @@ func (g *PostgresGrammar) getDefaultValue(value any) string {
 		if v {
 			return "'true'"
 		}
+
 		return "'false'"
 	case nil:
 		return "null"

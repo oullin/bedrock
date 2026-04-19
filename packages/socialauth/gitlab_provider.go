@@ -19,12 +19,14 @@ func NewGitlabProvider(req *http.Request, session Session, clientID, clientSecre
 	g.AbstractProvider = NewAbstractProvider(g, req, session, clientID, clientSecret, redirectURL)
 	g.scopes = []string{"read_user"}
 	g.scopeSep = " "
+
 	return g
 }
 
 // SetHost overrides the GitLab instance URL (e.g. for self-hosted instances).
 func (g *GitlabProvider) SetHost(host string) *GitlabProvider {
 	g.host = host
+
 	return g
 }
 
@@ -47,6 +49,7 @@ func (g *GitlabProvider) MapUserToObject(raw map[string]any) *User {
 	u.Name = stringify(raw["name"])
 	u.Email = stringify(raw["email"])
 	u.Avatar = stringify(raw["avatar_url"])
+
 	return u
 }
 

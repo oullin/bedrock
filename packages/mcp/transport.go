@@ -46,6 +46,7 @@ func (t *fakeTransport) OnReceive(h func(ctx context.Context, message, sessionID
 
 func (t *fakeTransport) Send(_ context.Context, msg, _ string) error {
 	t.response = msg
+
 	return nil
 }
 
@@ -53,9 +54,11 @@ func (t *fakeTransport) Run(ctx context.Context) error {
 	if t.handler == nil {
 		return nil
 	}
+
 	resp, err := t.handler(ctx, t.message, t.sessionID)
 	t.response = resp
 	t.err = err
+
 	return err
 }
 

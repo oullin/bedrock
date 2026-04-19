@@ -43,30 +43,38 @@ func (u *User) Map(attrs map[string]any) *User {
 	if v, ok := attrs["id"]; ok {
 		u.ID = stringify(v)
 	}
+
 	if v, ok := attrs["nickname"]; ok {
 		u.Nickname = stringify(v)
 	}
+
 	if v, ok := attrs["name"]; ok {
 		u.Name = stringify(v)
 	}
+
 	if v, ok := attrs["email"]; ok {
 		u.Email = stringify(v)
 	}
+
 	if v, ok := attrs["avatar"]; ok {
 		u.Avatar = stringify(v)
 	}
+
 	if v, ok := attrs["avatar_original"]; ok {
 		if u.Attributes == nil {
 			u.Attributes = make(map[string]any)
 		}
+
 		u.Attributes["avatar_original"] = v
 	}
+
 	return u
 }
 
 // SetRaw stores the raw provider response. It mirrors AbstractUser::setRaw().
 func (u *User) SetRaw(raw map[string]any) *User {
 	u.Raw = raw
+
 	return u
 }
 
@@ -98,14 +106,17 @@ func (u *User) Get(key string) any {
 	case "tokenSecret":
 		return u.TokenSecret
 	}
+
 	if u.Attributes != nil {
 		if v, ok := u.Attributes[key]; ok {
 			return v
 		}
 	}
+
 	if u.Raw != nil {
 		return u.Raw[key]
 	}
+
 	return nil
 }
 
@@ -133,6 +144,7 @@ func (u *User) SetApprovedScopes(scopes []string) *User { u.ApprovedScopes = sco
 func (u *User) SetOAuthToken(token, secret string) *User {
 	u.Token = token
 	u.TokenSecret = secret
+
 	return u
 }
 
@@ -141,6 +153,7 @@ func stringify(v any) string {
 	if v == nil {
 		return ""
 	}
+
 	switch s := v.(type) {
 	case string:
 		return s

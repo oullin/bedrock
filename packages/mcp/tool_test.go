@@ -19,6 +19,7 @@ func TestToolsListReturnsAllRegisteredTools(t *testing.T) {
 	resp := sendRaw(t, srv, "tools/list", nil)
 	result := mustResult(t, resp)
 	tools, _ := result["tools"].([]any)
+
 	if len(tools) != 2 {
 		t.Fatalf("expected 2 tools, got %d", len(tools))
 	}
@@ -38,9 +39,11 @@ func TestToolsListIncludesNameDescriptionSchema(t *testing.T) {
 	if tool["name"] != "broadcastclient" {
 		t.Fatalf("expected name=broadcastclient, got %v", tool["name"])
 	}
+
 	if tool["description"] == nil || tool["description"] == "" {
 		t.Fatal("expected non-empty description")
 	}
+
 	if tool["inputSchema"] == nil {
 		t.Fatal("expected inputSchema field")
 	}
@@ -50,6 +53,7 @@ func TestToolsListPaginationFirstPage(t *testing.T) {
 	t.Parallel()
 
 	srv := mcp.NewServer("srv", "1.0.0", mcp.WithPagination(2, 10))
+
 	for i := 0; i < 5; i++ {
 		srv.AddTool(indexedTool(i))
 	}
@@ -57,9 +61,11 @@ func TestToolsListPaginationFirstPage(t *testing.T) {
 	resp := sendRaw(t, srv, "tools/list", nil)
 	result := mustResult(t, resp)
 	tools, _ := result["tools"].([]any)
+
 	if len(tools) != 2 {
 		t.Fatalf("expected 2 tools on first page, got %d", len(tools))
 	}
+
 	if result["nextCursor"] == nil {
 		t.Fatal("expected nextCursor on first page")
 	}
@@ -69,6 +75,7 @@ func TestToolsListPaginationLastPage(t *testing.T) {
 	t.Parallel()
 
 	srv := mcp.NewServer("srv", "1.0.0", mcp.WithPagination(2, 10))
+
 	for i := 0; i < 3; i++ {
 		srv.AddTool(indexedTool(i))
 	}
@@ -81,9 +88,11 @@ func TestToolsListPaginationLastPage(t *testing.T) {
 	r2 := sendRaw(t, srv, "tools/list", map[string]any{"cursor": cursor})
 	res2 := mustResult(t, r2)
 	tools, _ := res2["tools"].([]any)
+
 	if len(tools) != 1 {
 		t.Fatalf("expected 1 tool on last page, got %d", len(tools))
 	}
+
 	if res2["nextCursor"] != nil {
 		t.Fatal("expected no nextCursor on last page")
 	}
@@ -176,6 +185,7 @@ func echoTool() mcp.Tool {
 		},
 		func(_ context.Context, req *mcp.Request) (*mcp.Response, error) {
 			text, _ := req.Get("text").(string)
+
 			return mcp.Text(text), nil
 		})
 }
@@ -184,12 +194,14 @@ func greetTool() mcp.Tool {
 	return mcp.NewTool("greet", "Greet a user", nil,
 		func(_ context.Context, req *mcp.Request) (*mcp.Response, error) {
 			name, _ := req.Get("name").(string)
+
 			return mcp.Text("Hello, " + name + "!"), nil
 		})
 }
 
 func indexedTool(i int) mcp.Tool {
 	name := "tool-" + string(rune('a'+i))
+
 	return mcp.NewTool(name, "Tool "+name, nil,
 		func(_ context.Context, _ *mcp.Request) (*mcp.Response, error) {
 			return mcp.Text(name), nil

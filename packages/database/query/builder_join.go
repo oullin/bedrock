@@ -27,30 +27,37 @@ func NewJoinClause(parentBuilder *Builder, joinType JoinType, table string) *Joi
 		Table:      table,
 		ParentFrom: parentBuilder.from,
 	}
+
 	return j
 }
 
 // On adds an ON condition to the join.
 func (j *JoinClause) On(first, operator string, second ...any) *JoinClause {
 	var secondVal any
+
 	if len(second) > 0 {
 		secondVal = second[0]
 	}
+
 	j.Clauses = append(j.Clauses, JoinCondition{
 		First: first, Operator: operator, Second: secondVal, Boolean: "and",
 	})
+
 	return j
 }
 
 // OrOn adds an OR ON condition.
 func (j *JoinClause) OrOn(first, operator string, second ...any) *JoinClause {
 	var secondVal any
+
 	if len(second) > 0 {
 		secondVal = second[0]
 	}
+
 	j.Clauses = append(j.Clauses, JoinCondition{
 		First: first, Operator: operator, Second: secondVal, Boolean: "or",
 	})
+
 	return j
 }
 
@@ -60,6 +67,7 @@ func (j *JoinClause) JoinWhere(first, operator string, value any) *JoinClause {
 		First: first, Operator: operator, Second: value, Boolean: "and", Where: true,
 	})
 	j.AddBinding(BindingJoin, value)
+
 	return j
 }
 
@@ -69,6 +77,7 @@ func (j *JoinClause) OrJoinWhere(first, operator string, value any) *JoinClause 
 		First: first, Operator: operator, Second: value, Boolean: "or", Where: true,
 	})
 	j.AddBinding(BindingJoin, value)
+
 	return j
 }
 
@@ -92,8 +101,10 @@ func (b *Builder) CrossJoin(table string, args ...any) *Builder {
 	if len(args) == 0 {
 		j := NewJoinClause(b, JoinCross, table)
 		b.joins = append(b.joins, j)
+
 		return b
 	}
+
 	return b.join(JoinCross, table, args...)
 }
 
@@ -123,13 +134,16 @@ func (b *Builder) CrossJoinSub(query any, as string) *Builder {
 	case string:
 		j.Table = "(" + q + ") as " + b.grammar.Wrap(as)
 	}
+
 	b.joins = append(b.joins, j)
+
 	return b
 }
 
 // JoinLateral adds a LATERAL JOIN.
 func (b *Builder) JoinLateral(query any, as string) *Builder {
 	j := NewJoinClause(b, JoinLateral, as)
+
 	switch q := query.(type) {
 	case *Builder:
 		j.Table = "lateral (" + b.grammar.CompileSelect(q) + ") as " + b.grammar.Wrap(as)
@@ -137,13 +151,16 @@ func (b *Builder) JoinLateral(query any, as string) *Builder {
 	case string:
 		j.Table = "lateral (" + q + ") as " + b.grammar.Wrap(as)
 	}
+
 	b.joins = append(b.joins, j)
+
 	return b
 }
 
 // LeftJoinLateral adds a LEFT LATERAL JOIN.
 func (b *Builder) LeftJoinLateral(query any, as string) *Builder {
 	j := NewJoinClause(b, JoinLeft, as)
+
 	switch q := query.(type) {
 	case *Builder:
 		j.Table = "lateral (" + b.grammar.CompileSelect(q) + ") as " + b.grammar.Wrap(as)
@@ -151,7 +168,9 @@ func (b *Builder) LeftJoinLateral(query any, as string) *Builder {
 	case string:
 		j.Table = "lateral (" + q + ") as " + b.grammar.Wrap(as)
 	}
+
 	b.joins = append(b.joins, j)
+
 	return b
 }
 
@@ -161,6 +180,7 @@ func (b *Builder) JoinWhere(table, first, operator string, value any) *Builder {
 	j.JoinWhere(first, operator, value)
 	b.joins = append(b.joins, j)
 	b.AddBinding(BindingJoin, j.GetRawBindings()[BindingJoin]...)
+
 	return b
 }
 
@@ -170,6 +190,7 @@ func (b *Builder) LeftJoinWhere(table, first, operator string, value any) *Build
 	j.JoinWhere(first, operator, value)
 	b.joins = append(b.joins, j)
 	b.AddBinding(BindingJoin, j.GetRawBindings()[BindingJoin]...)
+
 	return b
 }
 
@@ -179,6 +200,7 @@ func (b *Builder) RightJoinWhere(table, first, operator string, value any) *Buil
 	j.JoinWhere(first, operator, value)
 	b.joins = append(b.joins, j)
 	b.AddBinding(BindingJoin, j.GetRawBindings()[BindingJoin]...)
+
 	return b
 }
 
@@ -191,6 +213,7 @@ func (b *Builder) join(joinType JoinType, table string, args ...any) *Builder {
 		}
 	} else if len(args) >= 2 {
 		first, _ := args[0].(string)
+
 		if len(args) == 2 {
 			second, _ := args[1].(string)
 			j.On(first, "=", second)

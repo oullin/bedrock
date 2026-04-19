@@ -3,6 +3,7 @@ package query
 // GroupBy adds GROUP BY columns.
 func (b *Builder) GroupBy(groups ...string) *Builder {
 	b.groups = append(b.groups, groups...)
+
 	return b
 }
 
@@ -10,6 +11,7 @@ func (b *Builder) GroupBy(groups ...string) *Builder {
 func (b *Builder) GroupByRaw(sql string, bindings ...any) *Builder {
 	b.groups = append(b.groups, sql)
 	b.AddBinding(BindingGroupBy, bindings...)
+
 	return b
 }
 
@@ -25,6 +27,7 @@ func (b *Builder) OrHaving(column string, args ...any) *Builder {
 
 func (b *Builder) having(boolean, column string, args ...any) *Builder {
 	operator := "="
+
 	var value any
 
 	if len(args) == 1 {
@@ -38,6 +41,7 @@ func (b *Builder) having(boolean, column string, args ...any) *Builder {
 		Type: "Basic", Column: column, Operator: operator, Value: value, Boolean: boolean,
 	})
 	b.AddBinding(BindingHaving, value)
+
 	return b
 }
 
@@ -47,6 +51,7 @@ func (b *Builder) HavingRaw(sql string, bindings ...any) *Builder {
 		Type: "Raw", SQL: sql, Boolean: "and",
 	})
 	b.AddBinding(BindingHaving, bindings...)
+
 	return b
 }
 
@@ -56,6 +61,7 @@ func (b *Builder) OrHavingRaw(sql string, bindings ...any) *Builder {
 		Type: "Raw", SQL: sql, Boolean: "or",
 	})
 	b.AddBinding(BindingHaving, bindings...)
+
 	return b
 }
 
@@ -64,6 +70,7 @@ func (b *Builder) HavingNull(column string) *Builder {
 	b.havings = append(b.havings, HavingClause{
 		Type: "Null", Column: column, Boolean: "and",
 	})
+
 	return b
 }
 
@@ -72,6 +79,7 @@ func (b *Builder) OrHavingNull(column string) *Builder {
 	b.havings = append(b.havings, HavingClause{
 		Type: "Null", Column: column, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -80,6 +88,7 @@ func (b *Builder) HavingNotNull(column string) *Builder {
 	b.havings = append(b.havings, HavingClause{
 		Type: "NotNull", Column: column, Boolean: "and",
 	})
+
 	return b
 }
 
@@ -88,6 +97,7 @@ func (b *Builder) OrHavingNotNull(column string) *Builder {
 	b.havings = append(b.havings, HavingClause{
 		Type: "NotNull", Column: column, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -97,6 +107,7 @@ func (b *Builder) HavingBetween(column string, values [2]any) *Builder {
 		Type: "Between", Column: column, Values: []any{values[0], values[1]}, Boolean: "and",
 	})
 	b.AddBinding(BindingHaving, values[0], values[1])
+
 	return b
 }
 
@@ -106,6 +117,7 @@ func (b *Builder) HavingNotBetween(column string, values [2]any) *Builder {
 		Type: "Between", Column: column, Values: []any{values[0], values[1]}, Boolean: "and", Not: true,
 	})
 	b.AddBinding(BindingHaving, values[0], values[1])
+
 	return b
 }
 
@@ -115,6 +127,7 @@ func (b *Builder) OrHavingBetween(column string, values [2]any) *Builder {
 		Type: "Between", Column: column, Values: []any{values[0], values[1]}, Boolean: "or",
 	})
 	b.AddBinding(BindingHaving, values[0], values[1])
+
 	return b
 }
 
@@ -124,6 +137,7 @@ func (b *Builder) OrHavingNotBetween(column string, values [2]any) *Builder {
 		Type: "Between", Column: column, Values: []any{values[0], values[1]}, Boolean: "or", Not: true,
 	})
 	b.AddBinding(BindingHaving, values[0], values[1])
+
 	return b
 }
 
@@ -131,11 +145,13 @@ func (b *Builder) OrHavingNotBetween(column string, values [2]any) *Builder {
 func (b *Builder) HavingNested(fn func(*Builder)) *Builder {
 	q := b.NewQuery().From(b.from)
 	fn(q)
+
 	if len(q.havings) > 0 {
 		b.havings = append(b.havings, HavingClause{
 			Type: "Nested", Boolean: "and",
 		})
 		b.AddBinding(BindingHaving, q.GetRawBindings()[BindingHaving]...)
 	}
+
 	return b
 }
