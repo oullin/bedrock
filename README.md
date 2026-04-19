@@ -22,7 +22,7 @@ Bedrock is a collection of foundational Go packages for building web application
 
 ```
 packages/     Go library packages (listed above)
-services/     Internal services (storage, scripts)
+services/     Internal services, docs, storage, and demo apps
 ```
 
 ## Requirements

@@ -7,7 +7,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/bedrock/packages/bootstrap"
+	"github.com/bedrock/packages/container"
 	eventspkg "github.com/bedrock/packages/events"
 )
 
@@ -24,14 +24,14 @@ func Dispatcher() *eventspkg.EventDispatcher {
 	defer mu.Unlock()
 
 	if cached == nil {
-		cached = bootstrap.Resolve[*eventspkg.EventDispatcher]("events")
+		cached = container.Resolve[*eventspkg.EventDispatcher]("events")
 	}
 
 	return cached
 }
 
 // Reset clears the cached dispatcher. Tests must call this after reinstalling
-// a different Application via bootstrap.SetApp.
+// a different Application via container.SetApp.
 func Reset() {
 	mu.Lock()
 
