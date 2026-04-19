@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/bedrock/packages/container"
-	"github.com/bedrock/services/demo"
+	"github.com/bedrock/services/demo/api"
 )
 
 func assertStandardBindings(t *testing.T, application *container.Application) {
@@ -35,7 +35,7 @@ func assertStandardBindings(t *testing.T, application *container.Application) {
 func TestNewApplication_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	t.Parallel()
 
-	application := demo.NewApplication()
+	application := api.NewApplication()
 
 	if !application.Booted() {
 		t.Fatal("expected app to be booted")
@@ -48,7 +48,7 @@ func TestStandardProviders_ManualCompositionBootsAllStandardProviders(t *testing
 	t.Parallel()
 
 	application := container.NewApplication()
-	application.RegisterMany(demo.StandardProviders(application))
+	application.RegisterMany(api.StandardProviders(application))
 	application.Boot()
 
 	if !application.Booted() {
@@ -61,7 +61,7 @@ func TestStandardProviders_ManualCompositionBootsAllStandardProviders(t *testing
 func TestNewApplication_EncryptionSkippedWithoutKey(t *testing.T) {
 	t.Parallel()
 
-	application := demo.NewApplication()
+	application := api.NewApplication()
 
 	_, err := application.Make("encrypter")
 
@@ -73,7 +73,7 @@ func TestNewApplication_EncryptionSkippedWithoutKey(t *testing.T) {
 func TestNewApplication_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	t.Parallel()
 
-	application := demo.NewApplication(demo.Options{
+	application := api.NewApplication(api.Options{
 		EncryptionKey: make([]byte, 32),
 	})
 
@@ -91,7 +91,7 @@ func TestNewApplication_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 func TestNewApplication_OptionsOverrideDefaults(t *testing.T) {
 	t.Parallel()
 
-	application := demo.NewApplication(demo.Options{
+	application := api.NewApplication(api.Options{
 		CacheDefaultDriver: "redis",
 	})
 

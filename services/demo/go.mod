@@ -3,7 +3,7 @@ module github.com/bedrock/services/demo
 go 1.26.0
 
 require (
-	github.com/bedrock/packages/ai v0.0.0
+	github.com/bedrock/packages/ai/sdk v0.0.0
 	github.com/bedrock/packages/auth v0.0.0
 	github.com/bedrock/packages/bus v0.0.0
 	github.com/bedrock/packages/cache v0.0.0
@@ -47,7 +47,7 @@ require (
 )
 
 replace (
-	github.com/bedrock/packages/ai => ../../packages/ai
+	github.com/bedrock/packages/ai/sdk => ../../packages/ai/sdk
 	github.com/bedrock/packages/auth => ../../packages/auth
 	github.com/bedrock/packages/bus => ../../packages/bus
 	github.com/bedrock/packages/cache => ../../packages/cache
