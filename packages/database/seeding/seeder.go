@@ -18,17 +18,19 @@ type FuncSeeder struct {
 }
 
 // Run executes the seeder function.
-func (s *FuncSeeder) Run(ctx context.Context, conn dbcontract.Connection) error {
-	if s.RunFunc == nil {
-		return nil
-	}
-	return s.RunFunc(ctx, conn)
-}
 
 // Runner executes a list of seeders in order.
 type Runner struct {
 	resolver   dbcontract.ConnectionResolver
 	connection string
+}
+
+func (s *FuncSeeder) Run(ctx context.Context, conn dbcontract.Connection) error {
+	if s.RunFunc == nil {
+		return nil
+	}
+
+	return s.RunFunc(ctx, conn)
 }
 
 // NewRunner creates a new seeder Runner.
@@ -39,6 +41,7 @@ func NewRunner(resolver dbcontract.ConnectionResolver, connection string) *Runne
 // Run executes all given seeders.
 func (r *Runner) Run(ctx context.Context, seeders ...Seeder) error {
 	conn, err := r.resolver.Connection(ctx, r.connection)
+
 	if err != nil {
 		return err
 	}

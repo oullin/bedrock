@@ -19,10 +19,13 @@ var (
 // globalManager returns the package-level singleton Manager, creating it if needed.
 func globalManager() *Manager {
 	globalMu.Lock()
+
 	defer globalMu.Unlock()
+
 	if globalMgr == nil {
 		globalMgr = NewManager()
 	}
+
 	return globalMgr
 }
 
@@ -30,7 +33,9 @@ func globalManager() *Manager {
 // Called by AiServiceProvider.Register so the whole application shares one Manager.
 func SetManager(m *Manager) {
 	globalMu.Lock()
+
 	defer globalMu.Unlock()
+
 	globalMgr = m
 }
 

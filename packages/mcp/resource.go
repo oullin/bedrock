@@ -28,6 +28,14 @@ type funcResource struct {
 	reader      func(ctx context.Context, req *Request) (*Response, error)
 }
 
+// NewResource creates a Resource from plain functions.
+
+// funcResourceTemplate implements ResourceTemplate from plain functions.
+type funcResourceTemplate struct {
+	funcResource
+	uriTemplate string
+}
+
 func (r *funcResource) Name() string        { return r.name }
 func (r *funcResource) Description() string { return r.description }
 func (r *funcResource) URI() string         { return r.uri }
@@ -36,7 +44,6 @@ func (r *funcResource) Read(ctx context.Context, req *Request) (*Response, error
 	return r.reader(ctx, req)
 }
 
-// NewResource creates a Resource from plain functions.
 func NewResource(
 	name, description, uri, mimeType string,
 	reader func(ctx context.Context, req *Request) (*Response, error),
@@ -48,12 +55,6 @@ func NewResource(
 		mimeType:    mimeType,
 		reader:      reader,
 	}
-}
-
-// funcResourceTemplate implements ResourceTemplate from plain functions.
-type funcResourceTemplate struct {
-	funcResource
-	uriTemplate string
 }
 
 func (r *funcResourceTemplate) URITemplate() string { return r.uriTemplate }

@@ -19,6 +19,7 @@ func TestTranscriptionCanBeFaked(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.TranscriptionProvider()
+
 	if err != nil {
 		t.Fatalf("TranscriptionProvider error: %v", err)
 	}
@@ -27,9 +28,11 @@ func TestTranscriptionCanBeFaked(t *testing.T) {
 	result, genErr := provider.Transcribe(context.Background(), contractsprovider.TranscriptionRequest{
 		Audio: audio,
 	})
+
 	if genErr != nil {
 		t.Fatalf("Transcribe error: %v", genErr)
 	}
+
 	if result == nil {
 		t.Error("expected non-nil transcription result")
 	}

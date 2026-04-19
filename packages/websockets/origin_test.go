@@ -70,6 +70,7 @@ func TestValidateOrigin(t *testing.T) {
 			t.Parallel()
 
 			got := websockets.ValidateOrigin(tc.origin, tc.allowedOrigins)
+
 			if got != tc.want {
 				t.Errorf("ValidateOrigin(%q, %v) = %v, want %v", tc.origin, tc.allowedOrigins, got, tc.want)
 			}

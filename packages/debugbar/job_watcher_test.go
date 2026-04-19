@@ -59,6 +59,7 @@ func TestJobWatcherUpdatesStatusOnProcessed(t *testing.T) {
 	}
 
 	entries, err := repo.Get(debugbar.EntryTypeJob, debugbar.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,6 +92,7 @@ func TestJobWatcherUpdatesStatusOnFailed(t *testing.T) {
 	}
 
 	entries, err := repo.Get(debugbar.EntryTypeJob, debugbar.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}

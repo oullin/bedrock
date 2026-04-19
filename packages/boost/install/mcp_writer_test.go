@@ -43,16 +43,19 @@ func TestMcpWriterCreatesFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(agent.configPath)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
 
 	var root map[string]any
+
 	if err := json.Unmarshal(data, &root); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
 
 	servers, ok := root["mcpServers"].(map[string]any)
+
 	if !ok {
 		t.Fatalf("mcpServers not found or wrong type")
 	}
@@ -81,6 +84,7 @@ func TestMcpWriterIdempotent(t *testing.T) {
 
 	// Write again — must return false (already exists).
 	written, err := w.Write(agent, "boost", serverCfg)
+
 	if err != nil {
 		t.Fatalf("second Write: %v", err)
 	}
@@ -113,7 +117,9 @@ func TestMcpWriterMergesExistingKeys(t *testing.T) {
 	}
 
 	raw, _ := os.ReadFile(path)
+
 	var root map[string]any
+
 	_ = json.Unmarshal(raw, &root)
 
 	servers, _ := root["mcpServers"].(map[string]any)

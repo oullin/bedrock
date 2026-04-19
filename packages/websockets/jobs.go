@@ -50,6 +50,7 @@ func PruneStaleConnections(ctx context.Context, conns *ConnectionManager, apps *
 // on every tick of interval. It blocks until ctx is cancelled.
 func StartJobLoop(ctx context.Context, conns *ConnectionManager, apps *AppManager, interval time.Duration) {
 	ticker := time.NewTicker(interval)
+
 	defer ticker.Stop()
 
 	for {

@@ -26,6 +26,7 @@ func TestArrCollapseEmpty(t *testing.T) {
 	t.Parallel()
 
 	result := ArrCollapse([][]int{})
+
 	if len(result) != 0 {
 		t.Errorf("ArrCollapse empty = %v, want []", result)
 	}
@@ -36,6 +37,7 @@ func TestArrFirst(t *testing.T) {
 	t.Parallel()
 
 	val, ok := ArrFirst([]int{100, 200, 300})
+
 	if !ok || val != 100 {
 		t.Errorf("ArrFirst no predicate = (%v, %v), want (100, true)", val, ok)
 	}
@@ -43,6 +45,7 @@ func TestArrFirst(t *testing.T) {
 	val, ok = ArrFirst([]int{100, 200, 300}, func(v int, _ int) bool {
 		return v >= 150
 	})
+
 	if !ok || val != 200 {
 		t.Errorf("ArrFirst with predicate = (%v, %v), want (200, true)", val, ok)
 	}
@@ -52,6 +55,7 @@ func TestArrFirstEmpty(t *testing.T) {
 	t.Parallel()
 
 	val, ok := ArrFirst([]int{})
+
 	if ok || val != 0 {
 		t.Errorf("ArrFirst empty = (%v, %v), want (0, false)", val, ok)
 	}
@@ -74,6 +78,7 @@ func TestArrLast(t *testing.T) {
 	t.Parallel()
 
 	val, ok := ArrLast([]int{100, 200, 300})
+
 	if !ok || val != 300 {
 		t.Errorf("ArrLast no predicate = (%v, %v), want (300, true)", val, ok)
 	}
@@ -81,6 +86,7 @@ func TestArrLast(t *testing.T) {
 	val, ok = ArrLast([]int{100, 200, 300}, func(v int, _ int) bool {
 		return v < 250
 	})
+
 	if !ok || val != 200 {
 		t.Errorf("ArrLast with predicate = (%v, %v), want (200, true)", val, ok)
 	}
@@ -90,6 +96,7 @@ func TestArrLastEmpty(t *testing.T) {
 	t.Parallel()
 
 	val, ok := ArrLast([]int{})
+
 	if ok || val != 0 {
 		t.Errorf("ArrLast empty = (%v, %v), want (0, false)", val, ok)
 	}
@@ -103,6 +110,7 @@ func TestArrFlatten(t *testing.T) {
 	result := ArrFlatten(items)
 
 	expected := []any{1, 2, 3, 4, 5, 6}
+
 	if len(result) != len(expected) {
 		t.Fatalf("ArrFlatten length = %d, want %d", len(result), len(expected))
 	}
@@ -120,6 +128,7 @@ func TestArrFlattenWithDepth(t *testing.T) {
 	items := []any{1, []any{2, []any{3, 4}}}
 
 	result := ArrFlatten(items, 1)
+
 	if len(result) != 3 {
 		t.Fatalf("ArrFlatten depth=1 length = %d, want 3", len(result))
 	}
@@ -129,6 +138,7 @@ func TestArrFlattenWithDepth(t *testing.T) {
 	}
 
 	nested, ok := result[2].([]any)
+
 	if !ok || len(nested) != 2 {
 		t.Errorf("ArrFlatten depth=1 should preserve deeper nesting: %v", result[2])
 	}
@@ -167,6 +177,7 @@ func TestArrPrependEmpty(t *testing.T) {
 	t.Parallel()
 
 	result := ArrPrepend([]string{}, "first")
+
 	if len(result) != 1 || result[0] != "first" {
 		t.Errorf("ArrPrepend to empty = %v", result)
 	}
@@ -179,20 +190,25 @@ func TestArrRandom(t *testing.T) {
 	items := []int{1, 2, 3, 4, 5}
 
 	result, err := ArrRandom(items)
+
 	if err != nil {
 		t.Fatalf("ArrRandom error: %v", err)
 	}
+
 	if len(result) != 1 {
 		t.Errorf("ArrRandom should return 1 element, got %d", len(result))
 	}
 
 	found := false
+
 	for _, v := range items {
 		if v == result[0] {
 			found = true
+
 			break
 		}
 	}
+
 	if !found {
 		t.Errorf("ArrRandom returned %v which is not in original slice", result[0])
 	}
@@ -207,6 +223,7 @@ func TestArrRandomMultiple(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ArrRandom(3) error: %v", err)
 	}
+
 	if len(result) != 3 {
 		t.Errorf("ArrRandom(3) length = %d, want 3", len(result))
 	}
@@ -216,6 +233,7 @@ func TestArrRandomEmpty(t *testing.T) {
 	t.Parallel()
 
 	_, err := ArrRandom([]int{})
+
 	if err == nil {
 		t.Error("ArrRandom on empty slice should return error")
 	}
@@ -225,6 +243,7 @@ func TestArrRandomExceedsLength(t *testing.T) {
 	t.Parallel()
 
 	_, err := ArrRandom([]int{1, 2}, 5)
+
 	if err == nil {
 		t.Error("ArrRandom with count > length should return error")
 	}
@@ -332,16 +351,19 @@ func TestArrWrap(t *testing.T) {
 	t.Parallel()
 
 	result := ArrWrap[int](42)
+
 	if len(result) != 1 || result[0] != 42 {
 		t.Errorf("ArrWrap(42) = %v, want [42]", result)
 	}
 
 	result = ArrWrap[int]([]int{1, 2, 3})
+
 	if len(result) != 3 {
 		t.Errorf("ArrWrap(slice) = %v, want [1,2,3]", result)
 	}
 
 	result = ArrWrap[int](nil)
+
 	if len(result) != 0 {
 		t.Errorf("ArrWrap(nil) = %v, want []", result)
 	}
@@ -351,11 +373,13 @@ func TestArrWrapStrings(t *testing.T) {
 	t.Parallel()
 
 	result := ArrWrap[string]("hello")
+
 	if len(result) != 1 || result[0] != "hello" {
 		t.Errorf("ArrWrap string = %v, want [hello]", result)
 	}
 
 	result = ArrWrap[string]([]string{"a", "b"})
+
 	if len(result) != 2 {
 		t.Errorf("ArrWrap string slice = %v, want [a, b]", result)
 	}

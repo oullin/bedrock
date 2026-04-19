@@ -20,9 +20,11 @@ func NewConnectionManager() *ConnectionManager {
 // call Add for a connection that is already registered; the entry is replaced.
 func (m *ConnectionManager) Add(conn *Conn) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	appID := conn.AppID()
+
 	if m.conns[appID] == nil {
 		m.conns[appID] = make(map[string]*Conn)
 	}
@@ -34,6 +36,7 @@ func (m *ConnectionManager) Add(conn *Conn) {
 // registry. It is a no-op if the connection does not exist.
 func (m *ConnectionManager) Remove(appID, socketID string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if app, ok := m.conns[appID]; ok {
@@ -45,9 +48,11 @@ func (m *ConnectionManager) Remove(appID, socketID string) {
 // reports whether the connection was found.
 func (m *ConnectionManager) Find(appID, socketID string) (*Conn, bool) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	app, ok := m.conns[appID]
+
 	if !ok {
 		return nil, false
 	}
@@ -60,14 +65,17 @@ func (m *ConnectionManager) Find(appID, socketID string) (*Conn, bool) {
 // All returns a snapshot of every live connection for the given appID.
 func (m *ConnectionManager) All(appID string) []*Conn {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	app, ok := m.conns[appID]
+
 	if !ok {
 		return nil
 	}
 
 	conns := make([]*Conn, 0, len(app))
+
 	for _, conn := range app {
 		conns = append(conns, conn)
 	}
@@ -78,6 +86,7 @@ func (m *ConnectionManager) All(appID string) []*Conn {
 // Count returns the number of live connections for the given appID.
 func (m *ConnectionManager) Count(appID string) int {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	return len(m.conns[appID])

@@ -21,6 +21,7 @@ func setupFakeManager(t *testing.T) *socialauth.Manager {
 	m := socialauth.NewManager(req, session, configs)
 	socialauth.SetManager(m)
 	t.Cleanup(socialauth.ClearResolvedInstances)
+
 	return m
 }
 
@@ -37,23 +38,29 @@ func TestFakeDriverWithUser(t *testing.T) {
 	m.Fake("github", user)
 
 	p, err := m.Driver("github")
+
 	if err != nil {
 		t.Fatalf("Driver() returned error: %v", err)
 	}
+
 	if _, ok := p.(*socialauth.FakeProvider); !ok {
 		t.Error("expected Driver() to return *FakeProvider after Fake()")
 	}
 
 	u, err := p.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
+
 	if u.GetID() != "123" {
 		t.Errorf("expected ID '123', got %q", u.GetID())
 	}
+
 	if u.GetName() != "Test User" {
 		t.Errorf("expected Name 'Test User', got %q", u.GetName())
 	}
+
 	if u.GetEmail() != "test@example.com" {
 		t.Errorf("expected Email 'test@example.com', got %q", u.GetEmail())
 	}
@@ -69,12 +76,15 @@ func TestFakeDriverWithClosure(t *testing.T) {
 
 	p, _ := m.Driver("github")
 	u, err := p.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
+
 	if u.GetID() != "456" {
 		t.Errorf("expected ID '456', got %q", u.GetID())
 	}
+
 	if u.GetName() != "Closure User" {
 		t.Errorf("expected Name 'Closure User', got %q", u.GetName())
 	}
@@ -89,12 +99,14 @@ func TestFakeMultipleDrivers(t *testing.T) {
 
 	pGH, _ := m.Driver("github")
 	uGH, _ := pGH.User(context.Background())
+
 	if uGH.GetID() != "github-123" {
 		t.Errorf("expected github ID 'github-123', got %q", uGH.GetID())
 	}
 
 	pG, _ := m.Driver("google")
 	uG, _ := pG.User(context.Background())
+
 	if uG.GetID() != "google-456" {
 		t.Errorf("expected google ID 'google-456', got %q", uG.GetID())
 	}
@@ -107,9 +119,11 @@ func TestFakeReturnsRedirectURL(t *testing.T) {
 
 	p, _ := m.Driver("github")
 	redirectURL, err := p.Redirect(context.Background())
+
 	if err != nil {
 		t.Fatalf("Redirect() returned error: %v", err)
 	}
+
 	if redirectURL != "https://socialauth.fake/github/authorize" {
 		t.Errorf("expected fake redirect URL, got %q", redirectURL)
 	}
@@ -132,9 +146,11 @@ func TestFakeForwardsChainedCalls(t *testing.T) {
 	// User() still returns the preset user.
 	p, _ := m.Driver("github")
 	u, err := p.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
+
 	if u.GetID() != "123" {
 		t.Errorf("expected ID '123' after chaining, got %q", u.GetID())
 	}
@@ -159,9 +175,11 @@ func TestFakePreservesDecoratorPattern(t *testing.T) {
 	}
 
 	u, err := chained.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
+
 	if u.GetID() != "123" {
 		t.Errorf("expected ID '123', got %q", u.GetID())
 	}
@@ -176,15 +194,18 @@ func TestFakeReturnsRealDriverWhenNotFaked(t *testing.T) {
 	m.Fake("github", (&socialauth.User{}).Map(map[string]any{"id": "123"}))
 
 	pGH, _ := m.Driver("github")
+
 	if _, ok := pGH.(*socialauth.FakeProvider); !ok {
 		t.Error("faked driver 'github' should return *FakeProvider")
 	}
 
 	// Google was NOT faked — should return the real provider.
 	pG, _ := m.Driver("google")
+
 	if _, ok := pG.(*socialauth.FakeProvider); ok {
 		t.Error("non-faked driver 'google' should not return *FakeProvider")
 	}
+
 	if _, ok := pG.(*socialauth.GoogleProvider); !ok {
 		t.Errorf("non-faked 'google' driver should return *GoogleProvider, got %T", pG)
 	}

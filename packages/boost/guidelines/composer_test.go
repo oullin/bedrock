@@ -63,6 +63,7 @@ func TestGuidelineComposerCustomFiles(t *testing.T) {
 	for _, u := range used {
 		if u == "custom:project" {
 			found = true
+
 			break
 		}
 	}
@@ -107,5 +108,6 @@ func indexString(s, sub string) int {
 			return i
 		}
 	}
+
 	return -1
 }

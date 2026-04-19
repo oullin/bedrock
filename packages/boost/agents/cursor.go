@@ -16,6 +16,7 @@ type Cursor struct {
 // NewCursor constructs a Cursor agent.
 func NewCursor(opts ...AgentOptions) *Cursor {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

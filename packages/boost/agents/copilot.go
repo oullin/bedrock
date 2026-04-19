@@ -11,6 +11,7 @@ type Copilot struct {
 // NewCopilot constructs a Copilot agent.
 func NewCopilot(opts ...AgentOptions) *Copilot {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

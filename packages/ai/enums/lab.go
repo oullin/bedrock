@@ -34,5 +34,6 @@ func (l Lab) Valid() bool {
 		LabOpenAI, LabOpenRouter, LabVoyageAI, LabXAI:
 		return true
 	}
+
 	return false
 }

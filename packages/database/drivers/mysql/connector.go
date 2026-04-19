@@ -15,12 +15,14 @@ func (c *Connector) Connect(config database.ConnectionConfig) (*database.Connect
 	dsn := buildDSN(config)
 
 	db, err := sql.Open("mysql", dsn)
+
 	if err != nil {
 		return nil, fmt.Errorf("mysql: failed to open connection: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
 		db.Close()
+
 		return nil, fmt.Errorf("mysql: failed to ping: %w", err)
 	}
 
@@ -39,11 +41,13 @@ func (c *Connector) Connect(config database.ConnectionConfig) (*database.Connect
 
 func buildDSN(config database.ConnectionConfig) string {
 	charset := config.Charset
+
 	if charset == "" {
 		charset = "utf8mb4"
 	}
 
 	port := config.Port
+
 	if port == 0 {
 		port = 3306
 	}
@@ -59,6 +63,7 @@ func buildDSN(config database.ConnectionConfig) string {
 // NewConnectorFactory returns a ConnectorFactory for the database Manager.
 func NewConnectorFactory() database.ConnectorFactory {
 	c := &Connector{}
+
 	return func(config database.ConnectionConfig) (*database.Connection, error) {
 		return c.Connect(config)
 	}

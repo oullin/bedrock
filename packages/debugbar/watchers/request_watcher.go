@@ -11,7 +11,7 @@ import (
 	"github.com/bedrock/packages/debugbar"
 )
 
-const defaultRequestSizeLimit = 64 * 1024 // 64 KB
+// 64 KB
 
 // RequestWatcher monitors HTTP requests/responses and records them as
 // DebugBar entries. It mirrors Upstream's RequestWatcher class.
@@ -25,6 +25,42 @@ type RequestWatcher struct {
 }
 
 // NewRequestWatcher creates a RequestWatcher with the given options.
+
+// Register is a no-op for RequestWatcher; use Middleware() to integrate with
+// an http.Handler chain.
+
+// Middleware wraps an http.Handler, recording each request/response pair.
+
+// record builds and stores a request entry.
+
+// Headers (masked).
+
+// Payload (masked, body read up to limit).
+
+// Response.
+
+// ShouldIgnoreMethod reports whether the HTTP method is in the ignore list.
+
+// shouldIgnoreStatus reports whether the HTTP status code is in the ignore list.
+
+// sizeLimit returns the configured response size limit in bytes.
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// Strip port.
+
+// ─── Response recorder ───────────────────────────────────────────────────────
+
+type responseRecorder struct {
+	http.ResponseWriter
+	statusCode  int
+	body        bytes.Buffer
+	headers     http.Header
+	contentType string
+}
+
+const defaultRequestSizeLimit = 64 * 1024
+
 func NewRequestWatcher(t *debugbar.DebugBar, options map[string]any) *RequestWatcher {
 	w := &RequestWatcher{}
 	w.SetDebugBar(t)
@@ -33,11 +69,8 @@ func NewRequestWatcher(t *debugbar.DebugBar, options map[string]any) *RequestWat
 	return w
 }
 
-// Register is a no-op for RequestWatcher; use Middleware() to integrate with
-// an http.Handler chain.
 func (w *RequestWatcher) Register(_ any) error { return nil }
 
-// Middleware wraps an http.Handler, recording each request/response pair.
 func (w *RequestWatcher) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -53,19 +86,15 @@ func (w *RequestWatcher) Middleware(next http.Handler) http.Handler {
 	})
 }
 
-// record builds and stores a request entry.
 func (w *RequestWatcher) record(r *http.Request, rec *responseRecorder, duration time.Duration) {
 	sizeLimit := w.sizeLimit()
 	scope := w.Scope()
 
-	// Headers (masked).
 	requestHeaders := maskHeaders(r.Header, scope.HiddenRequestHeaders())
 
-	// Payload (masked, body read up to limit).
 	payload := readRequestBody(r, sizeLimit)
 	payload = maskMap(payload, scope.HiddenRequestParameters())
 
-	// Response.
 	responseBody := truncate(rec.body.Bytes(), sizeLimit)
 	responseHeaders := maskHeaders(rec.headers, scope.HiddenResponseParameters())
 
@@ -86,7 +115,6 @@ func (w *RequestWatcher) record(r *http.Request, rec *responseRecorder, duration
 	scope.RecordRequest(entry)
 }
 
-// ShouldIgnoreMethod reports whether the HTTP method is in the ignore list.
 func (w *RequestWatcher) shouldIgnoreMethod(method string) bool {
 	for _, m := range w.StringsOption("ignore_http_methods") {
 		if strings.EqualFold(m, method) {
@@ -97,7 +125,6 @@ func (w *RequestWatcher) shouldIgnoreMethod(method string) bool {
 	return false
 }
 
-// shouldIgnoreStatus reports whether the HTTP status code is in the ignore list.
 func (w *RequestWatcher) shouldIgnoreStatus(code int) bool {
 	if raw, ok := w.Options["ignore_status_codes"]; ok {
 		switch v := raw.(type) {
@@ -119,7 +146,6 @@ func (w *RequestWatcher) shouldIgnoreStatus(code int) bool {
 	return false
 }
 
-// sizeLimit returns the configured response size limit in bytes.
 func (w *RequestWatcher) sizeLimit() int {
 	if v, ok := w.Options["size_limit"]; ok {
 		switch n := v.(type) {
@@ -135,10 +161,9 @@ func (w *RequestWatcher) sizeLimit() int {
 	return defaultRequestSizeLimit
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 func requestURI(r *http.Request) string {
 	uri := r.RequestURI
+
 	if uri == "" {
 		uri = r.URL.RequestURI()
 	}
@@ -155,7 +180,6 @@ func clientIP(r *http.Request) string {
 		return ip
 	}
 
-	// Strip port.
 	addr := r.RemoteAddr
 
 	if idx := strings.LastIndex(addr, ":"); idx > 0 {
@@ -284,16 +308,6 @@ func truncate(b []byte, limit int) []byte {
 	return b[:limit]
 }
 
-// ─── Response recorder ───────────────────────────────────────────────────────
-
-type responseRecorder struct {
-	http.ResponseWriter
-	statusCode  int
-	body        bytes.Buffer
-	headers     http.Header
-	contentType string
-}
-
 func newResponseRecorder(w http.ResponseWriter) *responseRecorder {
 	return &responseRecorder{
 		ResponseWriter: w,
@@ -320,4 +334,3 @@ func (r *responseRecorder) Write(b []byte) (int, error) {
 
 	return r.ResponseWriter.Write(b)
 }
-

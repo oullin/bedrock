@@ -31,13 +31,13 @@ type (
 	ModelRetrieved     = dbevents.Retrieved
 
 	// Migration events.
-	MigrationStarted     = dbevents.MigrationStarted
-	MigrationEnded       = dbevents.MigrationEnded
-	MigrationSkipped     = dbevents.MigrationSkipped
-	MigrationsStarted    = dbevents.MigrationsStarted
-	MigrationsEnded      = dbevents.MigrationsEnded
-	NoPendingMigrations  = dbevents.NoPendingMigrations
-	MigrationsPruned     = dbevents.MigrationsPruned
+	MigrationStarted    = dbevents.MigrationStarted
+	MigrationEnded      = dbevents.MigrationEnded
+	MigrationSkipped    = dbevents.MigrationSkipped
+	MigrationsStarted   = dbevents.MigrationsStarted
+	MigrationsEnded     = dbevents.MigrationsEnded
+	NoPendingMigrations = dbevents.NoPendingMigrations
+	MigrationsPruned    = dbevents.MigrationsPruned
 
 	// Schema events.
 	SchemaDumped = dbevents.SchemaDumped

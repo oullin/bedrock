@@ -44,11 +44,13 @@ func (d *RedisDispatcher) redisKey(appID, channel string) string {
 // for appID will receive the message and broadcast it locally.
 func (d *RedisDispatcher) Dispatch(ctx context.Context, appID string, event contractsWebSockets.Event) error {
 	conn, err := d.redis.Connection("")
+
 	if err != nil {
 		return err
 	}
 
 	payload, err := json.Marshal(event)
+
 	if err != nil {
 		return err
 	}
@@ -64,6 +66,7 @@ func (d *RedisDispatcher) Dispatch(ctx context.Context, appID string, event cont
 // until ctx is cancelled.
 func (d *RedisDispatcher) Subscribe(ctx context.Context, appID string) error {
 	conn, err := d.redis.Connection("")
+
 	if err != nil {
 		return err
 	}
@@ -73,11 +76,13 @@ func (d *RedisDispatcher) Subscribe(ctx context.Context, appID string) error {
 	go func() {
 		_ = conn.PSubscribe(ctx, []string{pattern}, func(_, _, payload string) {
 			var event contractsWebSockets.Event
+
 			if err := json.Unmarshal([]byte(payload), &event); err != nil {
 				return
 			}
 
 			ch, ok := d.channels.Get(appID, event.Channel)
+
 			if !ok {
 				return
 			}

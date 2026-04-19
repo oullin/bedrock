@@ -7,16 +7,28 @@ import "runtime"
 // Mirrors Upstream\Boost\Install\Enums\Platform.
 type Platform int
 
+// Darwin represents macOS.
+
+// Linux represents any Linux distribution.
+
+// Windows represents Microsoft Windows.
+
+// Current returns the Platform matching the current OS.
+
+// String returns the canonical lowercase name.
+
+// McpInstallationStrategy determines how an agent writes its MCP server config.
+// Mirrors Upstream\Boost\Install\Enums\McpInstallationStrategy.
+type McpInstallationStrategy int
+
 const (
-	// Darwin represents macOS.
 	Darwin Platform = iota
-	// Linux represents any Linux distribution.
+
 	Linux
-	// Windows represents Microsoft Windows.
+
 	Windows
 )
 
-// Current returns the Platform matching the current OS.
 func Current() Platform {
 	switch runtime.GOOS {
 	case "darwin":
@@ -28,7 +40,6 @@ func Current() Platform {
 	}
 }
 
-// String returns the canonical lowercase name.
 func (p Platform) String() string {
 	switch p {
 	case Darwin:
@@ -39,10 +50,6 @@ func (p Platform) String() string {
 		return "linux"
 	}
 }
-
-// McpInstallationStrategy determines how an agent writes its MCP server config.
-// Mirrors Upstream\Boost\Install\Enums\McpInstallationStrategy.
-type McpInstallationStrategy int
 
 const (
 	// McpStrategyFile writes a JSON (or TOML) config file.

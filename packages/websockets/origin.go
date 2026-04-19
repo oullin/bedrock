@@ -26,10 +26,12 @@ func ValidateOrigin(origin string, allowedOrigins []string) bool {
 		if pattern == "*" {
 			return true
 		}
+
 		if matchPattern(host, pattern) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -37,11 +39,13 @@ func ValidateOrigin(origin string, allowedOrigins []string) bool {
 // Falls back to the raw string when not a valid URL.
 func extractHost(origin string) string {
 	u, err := url.Parse(origin)
+
 	if err != nil || u.Host == "" {
 		return origin
 	}
 	// Strip port.
 	host := u.Hostname()
+
 	return host
 }
 
@@ -55,6 +59,7 @@ func matchPattern(host, pattern string) bool {
 	// Wildcard pattern: "*.example.com"
 	if strings.HasPrefix(pattern, "*.") {
 		suffix := pattern[1:] // ".example.com"
+
 		return strings.HasSuffix(strings.ToLower(host), strings.ToLower(suffix))
 	}
 

@@ -22,15 +22,18 @@ func TestWriteEntryCreatesFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteEntry: %v", err)
 	}
+
 	if !written {
 		t.Error("expected written=true for new entry")
 	}
 
 	root := readJSON(t, path)
 	servers, ok := root["mcpServers"].(map[string]any)
+
 	if !ok {
 		t.Fatal("mcpServers key missing or wrong type")
 	}
+
 	if _, ok := servers["boost"]; !ok {
 		t.Error("boost entry not found")
 	}
@@ -43,11 +46,13 @@ func TestWriteEntryUsesSkeleton(t *testing.T) {
 	skeleton := map[string]any{"version": "1.0"}
 
 	_, err := jsonconfig.WriteEntry(path, "mcpServers", "boost", map[string]any{"command": "go"}, skeleton)
+
 	if err != nil {
 		t.Fatalf("WriteEntry: %v", err)
 	}
 
 	root := readJSON(t, path)
+
 	if root["version"] != "1.0" {
 		t.Errorf("skeleton key version=%v, want 1.0", root["version"])
 	}
@@ -64,9 +69,11 @@ func TestWriteEntryIdempotent(t *testing.T) {
 	}
 
 	written, err := jsonconfig.WriteEntry(path, "mcpServers", "boost", cfg, nil)
+
 	if err != nil {
 		t.Fatalf("second WriteEntry: %v", err)
 	}
+
 	if written {
 		t.Error("expected written=false for existing entry")
 	}
@@ -83,11 +90,13 @@ func TestWriteEntryMergesExisting(t *testing.T) {
 		},
 	}
 	data, _ := json.MarshalIndent(existing, "", "    ")
+
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatalf("setup: %v", err)
 	}
 
 	_, err := jsonconfig.WriteEntry(path, "mcpServers", "new-server", map[string]any{"command": "go"}, nil)
+
 	if err != nil {
 		t.Fatalf("WriteEntry: %v", err)
 	}
@@ -98,6 +107,7 @@ func TestWriteEntryMergesExisting(t *testing.T) {
 	if _, ok := servers["other"]; !ok {
 		t.Error("existing 'other' entry was removed")
 	}
+
 	if _, ok := servers["new-server"]; !ok {
 		t.Error("new 'new-server' entry not found")
 	}
@@ -114,8 +124,10 @@ func TestWriteEntryNoTempFileLeftBehind(t *testing.T) {
 	}
 
 	entries, _ := os.ReadDir(dir)
+
 	for _, e := range entries {
 		name := e.Name()
+
 		if name != "config.json" && name != "config.json.lock" {
 			t.Errorf("unexpected file left behind: %s", name)
 		}
@@ -135,6 +147,7 @@ func TestWriteEntryConcurrent(t *testing.T) {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
+
 			key := "server-" + string(rune('a'+idx))
 			_, err := jsonconfig.WriteEntry(path, "mcpServers", key, map[string]any{"id": idx}, nil)
 			errs[idx] = err
@@ -151,6 +164,7 @@ func TestWriteEntryConcurrent(t *testing.T) {
 
 	root := readJSON(t, path)
 	servers, ok := root["mcpServers"].(map[string]any)
+
 	if !ok {
 		t.Fatal("mcpServers missing or wrong type")
 	}
@@ -163,12 +177,16 @@ func TestWriteEntryConcurrent(t *testing.T) {
 func readJSON(t *testing.T, path string) map[string]any {
 	t.Helper()
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile %s: %v", path, err)
 	}
+
 	var m map[string]any
+
 	if err := json.Unmarshal(data, &m); err != nil {
 		t.Fatalf("Unmarshal %s: %v", path, err)
 	}
+
 	return m
 }

@@ -32,10 +32,10 @@ type AnonymousAgent struct {
 
 // Compile-time interface checks.
 var (
-	_ contractsai.Agent             = (*AnonymousAgent)(nil)
-	_ contractsai.Conversational    = (*AnonymousAgent)(nil)
-	_ contractsai.HasTools          = (*AnonymousAgent)(nil)
-	_ contractsai.HasMiddleware     = (*AnonymousAgent)(nil)
+	_ contractsai.Agent              = (*AnonymousAgent)(nil)
+	_ contractsai.Conversational     = (*AnonymousAgent)(nil)
+	_ contractsai.HasTools           = (*AnonymousAgent)(nil)
+	_ contractsai.HasMiddleware      = (*AnonymousAgent)(nil)
 	_ contractsai.HasProviderOptions = (*AnonymousAgent)(nil)
 )
 
@@ -49,30 +49,35 @@ func NewAnonymousAgent(mgr *Manager, instructions string) *AnonymousAgent {
 // WithMessages sets the prior conversation messages sent to the provider.
 func (a *AnonymousAgent) WithMessages(msgs []any) *AnonymousAgent {
 	a.msgs = msgs
+
 	return a
 }
 
 // WithTools sets the callable tools available to the LLM.
 func (a *AnonymousAgent) WithTools(tools []contractsai.Tool) *AnonymousAgent {
 	a.tools = tools
+
 	return a
 }
 
 // WithMiddleware appends middleware stages to the pipeline.
 func (a *AnonymousAgent) WithMiddleware(mw ...contractsai.MiddlewareFunc) *AnonymousAgent {
 	a.middleware = append(a.middleware, mw...)
+
 	return a
 }
 
 // WithProvider sets an agent-level provider override.
 func (a *AnonymousAgent) WithProvider(lab string) *AnonymousAgent {
 	a.providerHint = &lab
+
 	return a
 }
 
 // WithModel sets an agent-level model override.
 func (a *AnonymousAgent) WithModel(model string) *AnonymousAgent {
 	a.modelHint = &model
+
 	return a
 }
 
@@ -117,9 +122,11 @@ func (a *AnonymousAgent) Middleware() []contractsai.MiddlewareFunc { return a.mi
 // ProviderOptions surfaces the agent-level provider/model overrides.
 func (a *AnonymousAgent) ProviderOptions() map[string]any {
 	opts := make(map[string]any)
+
 	if a.providerHint != nil {
 		opts["provider"] = *a.providerHint
 	}
+
 	return opts
 }
 
@@ -133,25 +140,31 @@ func (a *AnonymousAgent) Prompt(ctx context.Context, text string, opts ...contra
 	agentPrompt := a.buildAgentPrompt(invocationID, text, cfg)
 
 	provider, err := a.resolveTextProvider(cfg)
+
 	if err != nil {
 		return nil, err
 	}
 
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
+
 		if !ok {
 			return nil, ErrProviderCapability
 		}
+
 		req := a.buildTextRequest(p)
+
 		return provider.Prompt(ctx, req)
 	}
 
 	result, err := a.runPipeline(ctx, agentPrompt, destination)
+
 	if err != nil {
 		return nil, err
 	}
 
 	providerResult, ok := result.(*contractsprovider.TextPromptResult)
+
 	if !ok {
 		return nil, ErrProviderCapability
 	}
@@ -172,25 +185,31 @@ func (a *AnonymousAgent) Stream(ctx context.Context, text string, opts ...contra
 	agentPrompt := a.buildAgentPrompt(invocationID, text, cfg)
 
 	provider, err := a.resolveTextProvider(cfg)
+
 	if err != nil {
 		return nil, err
 	}
 
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
+
 		if !ok {
 			return nil, ErrProviderCapability
 		}
+
 		req := a.buildTextRequest(p)
+
 		return provider.Stream(ctx, req)
 	}
 
 	result, err := a.runPipeline(ctx, agentPrompt, destination)
+
 	if err != nil {
 		return nil, err
 	}
 
 	streamResult, ok := result.(contractsprovider.StreamTextResult)
+
 	if !ok {
 		return nil, ErrProviderCapability
 	}
@@ -200,6 +219,7 @@ func (a *AnonymousAgent) Stream(ctx context.Context, text string, opts ...contra
 			if se, ok := e.(stream.Event); ok {
 				return yield(se)
 			}
+
 			return true
 		})
 	}
@@ -230,6 +250,7 @@ func (a *AnonymousAgent) buildAgentPrompt(invocationID, text string, cfg contrac
 		Provider:     cfg.Provider,
 		Model:        cfg.Model,
 	}
+
 	if cfg.Timeout != nil {
 		p = p.WithTimeout(*cfg.Timeout)
 	}
@@ -237,6 +258,7 @@ func (a *AnonymousAgent) buildAgentPrompt(invocationID, text string, cfg contrac
 	if p.Model == nil && a.modelHint != nil {
 		p = p.WithModel(*a.modelHint)
 	}
+
 	return p
 }
 
@@ -250,12 +272,15 @@ func (a *AnonymousAgent) buildTextRequest(p *prompts.AgentPrompt) contractsprovi
 		Model:        p.Model,
 		Timeout:      p.Timeout,
 	}
+
 	if len(a.tools) > 0 {
 		req.Tools = make([]any, len(a.tools))
+
 		for i, t := range a.tools {
 			req.Tools[i] = t
 		}
 	}
+
 	return req
 }
 
@@ -263,6 +288,7 @@ func (a *AnonymousAgent) resolveTextProvider(cfg contractsai.PromptConfig) (cont
 	if cfg.Provider != nil {
 		return a.manager.TextProvider(enums.Lab(*cfg.Provider))
 	}
+
 	return a.manager.TextProviderFor(a)
 }
 
@@ -274,10 +300,13 @@ func (a *AnonymousAgent) runPipeline(
 	if len(a.middleware) == 0 {
 		return destination(agentPrompt)
 	}
+
 	pipes := make([]any, len(a.middleware))
+
 	for i, mw := range a.middleware {
 		pipes[i] = pipeline.Pipe(mw)
 	}
+
 	return pipeline.New().Send(agentPrompt).Through(pipes...).Then(ctx, destination)
 }
 

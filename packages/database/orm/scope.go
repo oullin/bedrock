@@ -11,12 +11,13 @@ type Scope interface {
 type ScopeFunc func(builder *query.Builder)
 
 // Apply satisfies the Scope interface.
-func (f ScopeFunc) Apply(builder *query.Builder) { f(builder) }
 
 // GlobalScopes manages the global scope registry for a model.
 type GlobalScopes struct {
 	scopes map[string]Scope
 }
+
+func (f ScopeFunc) Apply(builder *query.Builder) { f(builder) }
 
 // InitScopes initializes the scope map.
 func (gs *GlobalScopes) InitScopes() {
@@ -44,6 +45,7 @@ func (gs *GlobalScopes) GetGlobalScopes() map[string]Scope {
 // HasGlobalScope checks if a named global scope is registered.
 func (gs *GlobalScopes) HasGlobalScope(name string) bool {
 	_, ok := gs.scopes[name]
+
 	return ok
 }
 

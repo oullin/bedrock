@@ -14,15 +14,26 @@ type Step struct {
 }
 
 // ToMap returns a map representation.
+
+// StructuredStep extends Step with parsed structured output data.
+type StructuredStep struct {
+	Step
+	Data map[string]any `json:"data"`
+}
+
 func (s Step) ToMap() map[string]any {
 	calls := make([]map[string]any, len(s.ToolCalls))
+
 	for i, c := range s.ToolCalls {
 		calls[i] = c.ToMap()
 	}
+
 	results := make([]map[string]any, len(s.ToolResults))
+
 	for i, r := range s.ToolResults {
 		results[i] = r.ToMap()
 	}
+
 	return map[string]any{
 		"text":          s.Text,
 		"tool_calls":    calls,
@@ -31,10 +42,4 @@ func (s Step) ToMap() map[string]any {
 		"usage":         s.Usage.ToMap(),
 		"meta":          s.Meta.ToMap(),
 	}
-}
-
-// StructuredStep extends Step with parsed structured output data.
-type StructuredStep struct {
-	Step
-	Data map[string]any `json:"data"`
 }

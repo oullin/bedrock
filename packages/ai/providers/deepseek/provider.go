@@ -36,6 +36,7 @@ func (p *Provider) Stream(ctx context.Context, req contractsprovider.TextPromptR
 
 func (p *Provider) UseTextGateway(gw contractsgw.TextGateway) contractsprovider.TextProvider {
 	p.Provider.UseTextGateway(gw)
+
 	return p
 }
 

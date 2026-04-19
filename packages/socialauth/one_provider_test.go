@@ -24,6 +24,7 @@ type mockOAuth1Server struct {
 
 func (m *mockOAuth1Server) GetTemporaryCredentials(_ context.Context) (*socialauth.TemporaryCredentials, error) {
 	m.gotTempCreds = true
+
 	return m.tempCreds, nil
 }
 
@@ -33,6 +34,7 @@ func (m *mockOAuth1Server) GetAuthorizationURL(temp *socialauth.TemporaryCredent
 
 func (m *mockOAuth1Server) GetTokenCredentials(_ context.Context, temp *socialauth.TemporaryCredentials, oauthToken, verifier string) (*socialauth.TokenCredentials, error) {
 	m.gotTokenCreds = true
+
 	return m.tokenCreds, nil
 }
 
@@ -46,6 +48,7 @@ func (m *mockOAuth1Server) MapUserToObject(raw map[string]any, token *socialauth
 	u.Email = stringify(raw["email"])
 	u.Raw = raw["extra"].(map[string]any)
 	u.SetOAuthToken(token.Identifier, token.Secret)
+
 	return u
 }
 
@@ -54,9 +57,11 @@ func stringify(v any) string {
 	if v == nil {
 		return ""
 	}
+
 	if s, ok := v.(string); ok {
 		return s
 	}
+
 	return ""
 }
 
@@ -74,17 +79,21 @@ func TestOAuth1RedirectGeneratesURL(t *testing.T) {
 
 	provider := socialauth.NewOneAbstractProvider(server, req, session)
 	redirectURL, err := provider.Redirect(context.Background())
+
 	if err != nil {
 		t.Fatalf("Redirect() returned error: %v", err)
 	}
+
 	if redirectURL != "http://auth.url" {
 		t.Errorf("expected redirect to http://auth.url, got %q", redirectURL)
 	}
+
 	if !server.gotTempCreds {
 		t.Error("expected GetTemporaryCredentials to be called")
 	}
 	// Temporary credentials must be stored in session.
 	stored := session.Get("oauth.temp")
+
 	if stored == nil {
 		t.Error("expected temporary credentials to be stored in session under 'oauth.temp'")
 	}
@@ -111,6 +120,7 @@ func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
 
 	provider := socialauth.NewOneAbstractProvider(server, req, session)
 	user, err := provider.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
@@ -118,12 +128,15 @@ func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
 	if user.ID != "uid" {
 		t.Errorf("expected ID 'uid', got %q", user.ID)
 	}
+
 	if user.Email != "foo@bar.com" {
 		t.Errorf("expected email 'foo@bar.com', got %q", user.Email)
 	}
+
 	if user.Token != "identifier" {
 		t.Errorf("expected Token 'identifier', got %q", user.Token)
 	}
+
 	if user.TokenSecret != "secret" {
 		t.Errorf("expected TokenSecret 'secret', got %q", user.TokenSecret)
 	}
@@ -138,6 +151,7 @@ func TestOAuth1ErrorsOnMissingVerifier(t *testing.T) {
 
 	provider := socialauth.NewOneAbstractProvider(server, req, session)
 	_, err := provider.User(context.Background())
+
 	if err != socialauth.ErrMissingVerifier {
 		t.Errorf("expected ErrMissingVerifier, got %v", err)
 	}
@@ -153,6 +167,7 @@ func TestOAuth1ErrorsOnMissingTemporaryCredentials(t *testing.T) {
 
 	provider := socialauth.NewOneAbstractProvider(server, req, session)
 	_, err := provider.User(context.Background())
+
 	if err != socialauth.ErrMissingTemporaryCredentials {
 		t.Errorf("expected ErrMissingTemporaryCredentials, got %v", err)
 	}

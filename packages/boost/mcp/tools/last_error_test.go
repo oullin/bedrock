@@ -23,6 +23,7 @@ func TestLastErrorNoFile(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
@@ -55,6 +56,7 @@ func TestLastErrorFindsError(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
@@ -78,6 +80,7 @@ func TestLastErrorNoErrors(t *testing.T) {
 	resp, _ := tool.Handle(tools.McpRequest{})
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}

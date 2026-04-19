@@ -36,6 +36,7 @@ func (t *StdioTransport) OnReceive(h func(ctx context.Context, message, sessionI
 // Send writes a JSON-RPC message to the output writer followed by a newline.
 func (t *StdioTransport) Send(_ context.Context, message, _ string) error {
 	_, err := fmt.Fprintln(t.out, message)
+
 	return err
 }
 
@@ -43,6 +44,7 @@ func (t *StdioTransport) Send(_ context.Context, message, _ string) error {
 // each line to the registered handler and writing the response to the output.
 func (t *StdioTransport) Run(ctx context.Context) error {
 	scanner := bufio.NewScanner(t.in)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -54,10 +56,12 @@ func (t *StdioTransport) Run(ctx context.Context) error {
 			if err := scanner.Err(); err != nil {
 				return err
 			}
+
 			return nil // EOF
 		}
 
 		line := scanner.Text()
+
 		if line == "" {
 			continue
 		}
@@ -67,11 +71,13 @@ func (t *StdioTransport) Run(ctx context.Context) error {
 		}
 
 		resp, err := t.handler(ctx, line, "")
+
 		if err != nil {
 			// Write a JSON-RPC internal error response.
 			errResp := ErrorResponse(nil, CodeInternalError, err.Error())
 			b, _ := errResp.ToJSON()
 			fmt.Fprintln(t.out, string(b)) //nolint:errcheck
+
 			continue
 		}
 

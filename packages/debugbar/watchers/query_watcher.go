@@ -10,7 +10,7 @@ import (
 	"github.com/bedrock/packages/debugbar"
 )
 
-const defaultSlowQueryThreshold = 100.0 // milliseconds
+// milliseconds
 
 // QueryWatcher monitors database query execution and records entries with SQL,
 // bindings, execution time, and slow-query tagging. It mirrors Upstream's
@@ -22,6 +22,8 @@ const defaultSlowQueryThreshold = 100.0 // milliseconds
 type QueryWatcher struct {
 	debugbar.BaseWatcher
 }
+
+const defaultSlowQueryThreshold = 100.0
 
 // NewQueryWatcher creates a QueryWatcher with the given options.
 func NewQueryWatcher(t *debugbar.DebugBar, options map[string]any) *QueryWatcher {
@@ -40,6 +42,7 @@ func (w *QueryWatcher) Register(_ any) error { return nil }
 // slowThreshold returns the configured slow-query threshold in milliseconds.
 func (w *QueryWatcher) slowThreshold() float64 {
 	t := w.Float64Option("slow")
+
 	if t <= 0 {
 		return defaultSlowQueryThreshold
 	}
@@ -118,6 +121,7 @@ func replacePositional(sql string, bindings []any) string {
 	return positionalPlaceholder.ReplaceAllStringFunc(sql, func(_ string) string {
 		if idx >= len(bindings) {
 			idx++
+
 			return "?"
 		}
 
@@ -135,6 +139,7 @@ func ReplaceNamedBindings(sql string, bindings map[string]any) string {
 		key := strings.TrimPrefix(match, ":")
 
 		v, ok := bindings[key]
+
 		if !ok {
 			return match
 		}
@@ -160,9 +165,11 @@ func quoteBinding(v any) string {
 	case string:
 		// Escape single quotes by doubling them.
 		escaped := strings.ReplaceAll(val, "'", "''")
+
 		return "'" + escaped + "'"
 	case []byte:
 		escaped := strings.ReplaceAll(string(val), "'", "''")
+
 		return "'" + escaped + "'"
 	case time.Time:
 		return "'" + val.Format("2006-01-02 15:04:05") + "'"

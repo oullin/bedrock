@@ -8,10 +8,6 @@ import (
 
 // GateResult constants mirror the two authorization outcomes recorded by
 // Upstream's GateWatcher.
-const (
-	GateResultAllowed = "allowed"
-	GateResultDenied  = "denied"
-)
 
 // GateWatcher monitors authorization gate checks and records them as DebugBar
 // entries. It mirrors Upstream's GateWatcher class.
@@ -22,6 +18,11 @@ const (
 type GateWatcher struct {
 	debugbar.BaseWatcher
 }
+
+const (
+	GateResultAllowed = "allowed"
+	GateResultDenied  = "denied"
+)
 
 // NewGateWatcher creates a GateWatcher with the given options.
 func NewGateWatcher(t *debugbar.DebugBar, options map[string]any) *GateWatcher {
@@ -55,6 +56,7 @@ func (w *GateWatcher) Record(ability string, allowed bool, user any, arguments [
 	}
 
 	result := GateResultAllowed
+
 	if !allowed {
 		result = GateResultDenied
 	}

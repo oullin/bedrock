@@ -40,11 +40,11 @@ func TestGuidelineConfigFromRepository(t *testing.T) {
 	t.Parallel()
 
 	repo := config.New(map[string]any{
-		"boost.base_path":               "/app",
-		"boost.custom_guideline_path":   "/app/.ai/guidelines",
-		"boost.packages":                []any{"upstream/boost", "myorg/mypackage"},
-		"boost.skills.enabled":          true,
-		"boost.mcp.enabled":             true,
+		"boost.base_path":             "/app",
+		"boost.custom_guideline_path": "/app/.ai/guidelines",
+		"boost.packages":              []any{"upstream/boost", "myorg/mypackage"},
+		"boost.skills.enabled":        true,
+		"boost.mcp.enabled":           true,
 	})
 	cfg := guidelines.NewGuidelineConfig(repo)
 
@@ -57,6 +57,7 @@ func TestGuidelineConfigFromRepository(t *testing.T) {
 	}
 
 	pkgs := cfg.Packages()
+
 	if len(pkgs) != 2 || pkgs[0] != "upstream/boost" || pkgs[1] != "myorg/mypackage" {
 		t.Errorf("Packages() = %v, want [upstream/boost myorg/mypackage]", pkgs)
 	}

@@ -21,11 +21,13 @@ func TestSyncDispatcher_Dispatch_BroadcastsEvent(t *testing.T) {
 
 	// Create channel and subscribe a fakeConn
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate: %v", err)
 	}
 
 	conn := newFakeConn("sock-1", "app-1")
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -33,11 +35,13 @@ func TestSyncDispatcher_Dispatch_BroadcastsEvent(t *testing.T) {
 	msgsBeforeDispatch := len(conn.SentMessages())
 
 	event := contractsWebSockets.Event{Event: "dispatched-event", Data: `{"x":1}`, Channel: "public-test"}
+
 	if err := dispatcher.Dispatch(ctx, "app-1", event); err != nil {
 		t.Fatalf("Dispatch: %v", err)
 	}
 
 	msgs := conn.SentMessages()
+
 	if len(msgs) <= msgsBeforeDispatch {
 		t.Error("expected fakeConn to receive the dispatched event")
 	}
@@ -59,6 +63,7 @@ func TestSyncDispatcher_Dispatch_MissingChannel(t *testing.T) {
 
 	event := contractsWebSockets.Event{Event: "some-event", Data: "{}", Channel: "nonexistent"}
 	err := dispatcher.Dispatch(ctx, "app-1", event)
+
 	if err != nil {
 		t.Errorf("expected nil error for missing channel, got: %v", err)
 	}
@@ -75,6 +80,7 @@ func TestSyncDispatcher_Subscribe_IsNoop(t *testing.T) {
 	ctx := context.Background()
 
 	err := dispatcher.Subscribe(ctx, "public-test")
+
 	if err != nil {
 		t.Errorf("expected Subscribe to be a no-op and return nil, got: %v", err)
 	}

@@ -9,7 +9,9 @@ func (b *Builder) Insert(ctx context.Context, values ...map[string]any) (bool, e
 	}
 
 	compiled := b.grammar.CompileInsert(b, values)
+
 	var bindings []any
+
 	for _, row := range values {
 		for _, v := range sortedValues(row) {
 			bindings = append(bindings, v)
@@ -26,7 +28,9 @@ func (b *Builder) InsertOrIgnore(ctx context.Context, values ...map[string]any) 
 	}
 
 	compiled := b.grammar.CompileInsertOrIgnore(b, values)
+
 	var bindings []any
+
 	for _, row := range values {
 		for _, v := range sortedValues(row) {
 			bindings = append(bindings, v)
@@ -39,12 +43,15 @@ func (b *Builder) InsertOrIgnore(ctx context.Context, values ...map[string]any) 
 // InsertGetId inserts a row and returns the auto-incrementing ID.
 func (b *Builder) InsertGetId(ctx context.Context, values map[string]any, sequence ...string) (int64, error) {
 	seq := "id"
+
 	if len(sequence) > 0 {
 		seq = sequence[0]
 	}
 
 	compiled := b.grammar.CompileInsertGetId(b, values, seq)
+
 	var bindings []any
+
 	for _, v := range sortedValues(values) {
 		bindings = append(bindings, v)
 	}
@@ -55,6 +62,7 @@ func (b *Builder) InsertGetId(ctx context.Context, values map[string]any, sequen
 // InsertUsing inserts using a subquery.
 func (b *Builder) InsertUsing(ctx context.Context, columns []string, query any) (int64, error) {
 	var sql string
+
 	var queryBindings []any
 
 	switch q := query.(type) {
@@ -77,7 +85,9 @@ func (b *Builder) Upsert(ctx context.Context, values []map[string]any, uniqueBy 
 	}
 
 	compiled := b.grammar.CompileUpsert(b, values, uniqueBy, update)
+
 	var bindings []any
+
 	for _, row := range values {
 		for _, v := range sortedValues(row) {
 			bindings = append(bindings, v)
@@ -99,15 +109,18 @@ func (b *Builder) Upsert(ctx context.Context, values []map[string]any, uniqueBy 
 func sortedValues(m map[string]any) []any {
 	keys := sortedKeys(m)
 	vals := make([]any, 0, len(keys))
+
 	for _, k := range keys {
 		vals = append(vals, m[k])
 	}
+
 	return vals
 }
 
 // sortedKeys returns map keys in sorted order for deterministic SQL generation.
 func sortedKeys(m map[string]any) []string {
 	keys := make([]string, 0, len(m))
+
 	for k := range m {
 		keys = append(keys, k)
 	}
@@ -117,5 +130,6 @@ func sortedKeys(m map[string]any) []string {
 			keys[j], keys[j-1] = keys[j-1], keys[j]
 		}
 	}
+
 	return keys
 }

@@ -26,6 +26,7 @@ func (p Param) Placeholder() string {
 	if p.Optional {
 		return "{" + p.Name + "?}"
 	}
+
 	return "{" + p.Name + "}"
 }
 
@@ -50,12 +51,13 @@ func (p Param) TSTypes() string {
 // (args, options, parsedArgs).
 func resolveParamSafeNames(method string) map[string]string {
 	reserved := map[string]string{
-		"args":      "routeArgs",
-		"options":   "routeOptions",
+		"args":       "routeArgs",
+		"options":    "routeOptions",
 		"parsedArgs": "routeParsedArgs",
 	}
 
 	result := make(map[string]string, len(reserved))
+
 	for k, v := range reserved {
 		if method == k {
 			result[k] = v
@@ -71,18 +73,21 @@ func resolveParamSafeNames(method string) map[string]string {
 // accounting for method-name collisions.
 func argsVar(method string) string {
 	names := resolveParamSafeNames(method)
+
 	return names["args"]
 }
 
 // optionsVar returns the variable name for the query-options argument.
 func optionsVar(method string) string {
 	names := resolveParamSafeNames(method)
+
 	return names["options"]
 }
 
 // parsedArgsVar returns the variable name for the resolved parameter object.
 func parsedArgsVar(method string) string {
 	names := resolveParamSafeNames(method)
+
 	return names["parsedArgs"]
 }
 
@@ -93,6 +98,7 @@ func hasOptional(params []Param) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -101,22 +107,26 @@ func allOptional(params []Param) bool {
 	if len(params) == 0 {
 		return false
 	}
+
 	for _, p := range params {
 		if !p.Optional {
 			return false
 		}
 	}
+
 	return true
 }
 
 // optionalNames returns the names of optional parameters in order.
 func optionalNames(params []Param) []string {
 	names := make([]string, 0)
+
 	for _, p := range params {
 		if p.Optional {
 			names = append(names, p.Name)
 		}
 	}
+
 	return names
 }
 
@@ -124,16 +134,21 @@ func optionalNames(params []Param) []string {
 // (e.g. ["get","head"]).
 func jsonStringSlice(ss []string) string {
 	var b strings.Builder
+
 	b.WriteByte('[')
+
 	for i, s := range ss {
 		if i > 0 {
 			b.WriteByte(',')
 		}
+
 		b.WriteByte('"')
 		b.WriteString(s)
 		b.WriteByte('"')
 	}
+
 	b.WriteByte(']')
+
 	return b.String()
 }
 
@@ -142,5 +157,6 @@ func jsonString(s string) string {
 	// Minimal JSON encoding — escape backslash and double quote.
 	s = strings.ReplaceAll(s, `\`, `\\`)
 	s = strings.ReplaceAll(s, `"`, `\"`)
+
 	return `"` + s + `"`
 }

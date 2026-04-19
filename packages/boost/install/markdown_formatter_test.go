@@ -12,9 +12,9 @@ func TestMarkdownFormatterStripFrontmatter(t *testing.T) {
 	f := &install.MarkdownFormatter{}
 
 	cases := []struct {
-		name    string
-		input   string
-		want    string
+		name  string
+		input string
+		want  string
 	}{
 		{
 			name:  "no frontmatter",
@@ -38,6 +38,7 @@ func TestMarkdownFormatterStripFrontmatter(t *testing.T) {
 			t.Parallel()
 
 			got := f.StripFrontmatter(tc.input)
+
 			if got != tc.want {
 				t.Errorf("StripFrontmatter() = %q, want %q", got, tc.want)
 			}
@@ -106,5 +107,6 @@ func min(a, b int) int {
 	if a < b {
 		return a
 	}
+
 	return b
 }

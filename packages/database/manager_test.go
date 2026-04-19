@@ -25,6 +25,7 @@ func TestManagerConnectionNotConfigured(t *testing.T) {
 	m.SetDefaultConnection("missing")
 
 	_, err := m.Connection(context.Background())
+
 	if err == nil {
 		t.Fatal("expected error for unconfigured connection")
 	}
@@ -42,9 +43,11 @@ func TestManagerExtend(t *testing.T) {
 	m.SetDefaultConnection("custom")
 
 	conn, err := m.Connection(context.Background())
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if conn.GetDatabaseName() != "test" {
 		t.Fatalf("expected database test, got %s", conn.GetDatabaseName())
 	}
@@ -71,11 +74,13 @@ func TestManagerPurge(t *testing.T) {
 	m.AddConnection("test", database.ConnectionConfig{Driver: "test"})
 
 	_, err := m.Connection(context.Background(), "test")
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	conns := m.GetConnections()
+
 	if len(conns) != 1 {
 		t.Fatalf("expected 1 connection, got %d", len(conns))
 	}
@@ -83,6 +88,7 @@ func TestManagerPurge(t *testing.T) {
 	m.Purge("test")
 
 	conns = m.GetConnections()
+
 	if len(conns) != 0 {
 		t.Fatalf("expected 0 connections after purge, got %d", len(conns))
 	}

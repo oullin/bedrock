@@ -20,6 +20,7 @@ func (r *EmbeddingsResponse) First() []float64 {
 	if len(r.Embeddings) == 0 {
 		return nil
 	}
+
 	return r.Embeddings[0]
 }
 

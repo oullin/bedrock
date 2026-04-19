@@ -32,8 +32,10 @@ func NewVerb(method string) Verb {
 // alongside GET but does not need its own generated helper).
 func verbsFromMethods(methods []string) []Verb {
 	verbs := make([]Verb, 0, len(methods))
+
 	for _, m := range methods {
 		verbs = append(verbs, NewVerb(m))
 	}
+
 	return verbs
 }

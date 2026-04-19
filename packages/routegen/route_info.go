@@ -61,6 +61,7 @@ func (r *RouteInfo) ControllerClass() string {
 	if idx := strings.LastIndex(r.Controller, "@"); idx >= 0 {
 		return r.Controller[:idx]
 	}
+
 	return r.Controller
 }
 
@@ -71,6 +72,7 @@ func (r *RouteInfo) ActionMethod() string {
 	if idx := strings.LastIndex(r.Controller, "@"); idx >= 0 {
 		return r.Controller[idx+1:]
 	}
+
 	return r.Controller
 }
 
@@ -85,6 +87,7 @@ func (r *RouteInfo) DotNamespace() string {
 	// Convert both Go backslash style and forward-slash style.
 	cls = strings.ReplaceAll(cls, "\\", ".")
 	cls = strings.ReplaceAll(cls, "/", ".")
+
 	return cls
 }
 
@@ -97,11 +100,14 @@ func (r *RouteInfo) OriginalJsMethod() string {
 		parts := strings.FieldsFunc(cls, func(c rune) bool {
 			return c == '\\' || c == '/'
 		})
+
 		if len(parts) > 0 {
 			return parts[len(parts)-1]
 		}
+
 		return cls
 	}
+
 	return r.ActionMethod()
 }
 
@@ -115,9 +121,11 @@ func (r *RouteInfo) JsMethod() string {
 // dot-segment of the route name. Mirrors Route::namedMethod() from PHP.
 func (r *RouteInfo) NamedMethod() string {
 	name := r.Name
+
 	if idx := strings.LastIndex(name, "."); idx >= 0 {
 		name = name[idx+1:]
 	}
+
 	return SafeMethod(name, "Method")
 }
 
@@ -131,6 +139,7 @@ func (r *RouteInfo) Verbs() []Verb {
 func (r *RouteInfo) FullURI() string {
 	// Apply defaults: mark defaulted parameters as optional in the URI.
 	uri := r.URI
+
 	if !strings.HasPrefix(uri, "/") {
 		uri = "/" + uri
 	}
@@ -151,9 +160,11 @@ func (r *RouteInfo) FullURI() string {
 	// Prepend domain if present.
 	if r.Domain != "" {
 		scheme := r.Scheme
+
 		if scheme == "" {
 			scheme = "//"
 		}
+
 		uri = scheme + r.Domain + uri
 	}
 
@@ -169,9 +180,11 @@ func (r *RouteInfo) FullURI() string {
 // definition.methods JSON.
 func (r *RouteInfo) methodActuals() []string {
 	out := make([]string, len(r.Methods))
+
 	for i, m := range r.Methods {
 		out[i] = strings.ToLower(m)
 	}
+
 	return out
 }
 
@@ -182,11 +195,13 @@ func (r *RouteInfo) methodActuals() []string {
 // "storage.export" → ["storage", "index"]
 func routeNameToFileParts(name string) []string {
 	parts := strings.Split(name, ".")
+
 	if len(parts) == 0 {
 		return []string{"index"}
 	}
 	// Pop the last segment (the leaf method name) and replace with "index".
 	parts[len(parts)-1] = "index"
+
 	return parts
 }
 
@@ -199,5 +214,6 @@ func routeNamePrefix(name string) string {
 	if idx := strings.LastIndex(name, "."); idx >= 0 {
 		return name[:idx]
 	}
+
 	return ""
 }

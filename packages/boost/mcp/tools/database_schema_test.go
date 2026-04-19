@@ -32,6 +32,7 @@ func TestDatabaseSchemaSchema(t *testing.T) {
 	}
 
 	props, ok := schema["properties"].(map[string]any)
+
 	if !ok {
 		t.Fatal("schema missing properties map")
 	}

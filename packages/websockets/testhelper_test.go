@@ -31,17 +31,21 @@ func (f *fakeConn) Send(_ context.Context, msg []byte) error {
 	f.mu.Lock()
 	f.sent = append(f.sent, msg)
 	f.mu.Unlock()
+
 	return nil
 }
 func (f *fakeConn) Close(_ context.Context, _ int, _ string) error {
 	f.mu.Lock()
 	f.closed = true
 	f.mu.Unlock()
+
 	return nil
 }
 func (f *fakeConn) LastSeenAt() time.Time {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
+
 	return f.lastSeen
 }
 func (f *fakeConn) Touch() {
@@ -54,13 +58,17 @@ func (f *fakeConn) TouchPong()    {}
 
 func (f *fakeConn) SentMessages() [][]byte {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
+
 	return append([][]byte(nil), f.sent...)
 }
 
 func (f *fakeConn) WasClosed() bool {
 	f.mu.Lock()
+
 	defer f.mu.Unlock()
+
 	return f.closed
 }
 

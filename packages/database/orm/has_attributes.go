@@ -20,9 +20,11 @@ func (h *HasAttributes) InitAttributes() {
 	if h.attributes == nil {
 		h.attributes = make(map[string]any)
 	}
+
 	if h.original == nil {
 		h.original = make(map[string]any)
 	}
+
 	if h.casts == nil {
 		h.casts = make(map[string]string)
 	}
@@ -31,9 +33,11 @@ func (h *HasAttributes) InitAttributes() {
 // GetAttribute returns the value of an attribute, applying casts.
 func (h *HasAttributes) GetAttribute(key string) any {
 	value, ok := h.attributes[key]
+
 	if !ok {
 		return nil
 	}
+
 	return h.castAttribute(key, value)
 }
 
@@ -51,6 +55,7 @@ func (h *HasAttributes) GetAttributes() map[string]any {
 // SetRawAttributes sets all attributes and syncs originals.
 func (h *HasAttributes) SetRawAttributes(attributes map[string]any, sync bool) {
 	h.attributes = attributes
+
 	if sync {
 		h.SyncOriginal()
 	}
@@ -66,12 +71,14 @@ func (h *HasAttributes) GetOriginalAttribute(key string) any {
 	if h.original == nil {
 		return nil
 	}
+
 	return h.original[key]
 }
 
 // SyncOriginal copies current attributes to originals.
 func (h *HasAttributes) SyncOriginal() {
 	h.original = make(map[string]any, len(h.attributes))
+
 	for k, v := range h.attributes {
 		h.original[k] = v
 	}
@@ -82,6 +89,7 @@ func (h *HasAttributes) SyncOriginalAttribute(key string) {
 	if h.original == nil {
 		h.original = make(map[string]any)
 	}
+
 	h.original[key] = h.attributes[key]
 }
 
@@ -89,14 +97,17 @@ func (h *HasAttributes) SyncOriginalAttribute(key string) {
 // If no attributes are given, checks if any attribute is dirty.
 func (h *HasAttributes) IsDirty(attributes ...string) bool {
 	dirty := h.GetDirty()
+
 	if len(attributes) == 0 {
 		return len(dirty) > 0
 	}
+
 	for _, attr := range attributes {
 		if _, ok := dirty[attr]; ok {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -113,12 +124,15 @@ func (h *HasAttributes) WasChanged(attributes ...string) bool {
 // GetDirty returns the attributes that have been modified.
 func (h *HasAttributes) GetDirty() map[string]any {
 	dirty := make(map[string]any)
+
 	for key, value := range h.attributes {
 		original, exists := h.original[key]
+
 		if !exists || value != original {
 			dirty[key] = value
 		}
 	}
+
 	return dirty
 }
 
@@ -130,6 +144,7 @@ func (h *HasAttributes) GetChanges() map[string]any {
 // HasAttribute checks if an attribute exists.
 func (h *HasAttributes) HasAttribute(key string) bool {
 	_, ok := h.attributes[key]
+
 	return ok
 }
 
@@ -146,6 +161,7 @@ func (h *HasAttributes) GetCasts() map[string]string {
 // HasCast checks if an attribute has a cast.
 func (h *HasAttributes) HasCast(key string) bool {
 	_, ok := h.casts[key]
+
 	return ok
 }
 
@@ -167,9 +183,11 @@ func (h *HasAttributes) SetDateFormat(format string) {
 // ToMap returns the attributes as a map.
 func (h *HasAttributes) ToMap() map[string]any {
 	m := make(map[string]any, len(h.attributes))
+
 	for k, v := range h.attributes {
 		m[k] = h.castAttribute(k, v)
 	}
+
 	return m
 }
 
@@ -181,6 +199,7 @@ func (h *HasAttributes) ToJSON() ([]byte, error) {
 // castAttribute applies the registered cast for a key.
 func (h *HasAttributes) castAttribute(key string, value any) any {
 	castType, ok := h.casts[key]
+
 	if !ok {
 		return value
 	}
@@ -213,7 +232,9 @@ func toInt(v any) int64 {
 		return int64(n)
 	case string:
 		var i int64
+
 		json.Unmarshal([]byte(n), &i)
+
 		return i
 	default:
 		return 0
@@ -241,6 +262,7 @@ func toString(v any) string {
 		return string(s)
 	default:
 		b, _ := json.Marshal(v)
+
 		return string(b)
 	}
 }
@@ -268,9 +290,11 @@ func toTime(v any) time.Time {
 		return t
 	case string:
 		parsed, err := time.Parse(time.RFC3339, t)
+
 		if err != nil {
 			parsed, _ = time.Parse("2006-01-02 15:04:05", t)
 		}
+
 		return parsed
 	default:
 		return time.Time{}
