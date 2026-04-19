@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"iter"
 	"os"
-	"syscall"
 )
 
 // Get reads the entire contents of a file.
@@ -48,11 +47,13 @@ func (f *Filesystem) SharedGet(path string) ([]byte, error) {
 
 	defer file.Close()
 
-	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_SH); err != nil {
+	if err := lockShared(file); err != nil {
 		return nil, err
 	}
 
-	defer syscall.Flock(int(file.Fd()), syscall.LOCK_UN)
+	defer func() {
+		_ = unlockFile(file)
+	}()
 
 	return os.ReadFile(path)
 }

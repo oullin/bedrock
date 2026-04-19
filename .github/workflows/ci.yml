@@ -35,6 +35,13 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Windows portability build
+        run: |
+          cd packages/filesystem
+          GOWORK=off GOOS=windows GOARCH=amd64 go build ./...
+          cd ../boost
+          GOWORK=off GOOS=windows GOARCH=amd64 go build . ./agents ./install ./internal/jsonconfig
+
       - name: Test with coverage
         run: pnpm test:coverage
 
