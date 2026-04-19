@@ -4,13 +4,13 @@ import "regexp"
 
 // Route describes a single named route in the registry.
 
-var paramRegex = regexp.MustCompile(`\{(\w+)\}`)
-
 type Route struct {
 	Name    string `json:"name"`
 	Method  string `json:"method"`
 	Pattern string `json:"pattern"`
 }
+
+var paramRegex = regexp.MustCompile(`\{(\w+)\}`)
 
 // Params extracts the parameter names from the route pattern.
 func (r Route) Params() []string {

@@ -10,12 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bedrock/packages/inertia/config"
-	"github.com/bedrock/packages/inertia/flash"
-	corei18n "github.com/bedrock/packages/inertia/i18n"
 	"github.com/bedrock/packages/inertia"
+	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/middleware"
-	"github.com/bedrock/packages/inertia/routegen"
+	corei18n "github.com/bedrock/packages/seo/i18n"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 	"github.com/bedrock/services/inertia-demo/api/internal/seed"
 )
@@ -27,7 +26,7 @@ type runtime struct {
 	db         *sql.DB
 	cryptoKey  []byte
 	inertia    *inertia.Inertia
-	localeCfg  *config.I18nConfig
+	localeCfg  *corei18n.I18nConfig
 	flashStore *flash.CookieStore
 	routes     *routegen.Registry
 }
@@ -60,7 +59,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	localeCfg, err := corei18n.LoadConfig(mustResolveResourcePath("i18n.yml"))
+	localeCfg, err := LoadI18n(mustResolveResourcePath("i18n.yml"))
 
 	if err != nil {
 		log.Fatal(err)
@@ -70,16 +69,7 @@ func main() {
 	// still consuming locale-driven head defaults from config.
 	localeCfg.URLPrefix = false
 
-	csrfMiddleware, err := middleware.CSRFFromFile(
-		mustResolveResourcePath("csrf.yml"),
-		mustResolveResourcePath("crypto.yml"),
-	)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cryptoCfg, err := config.LoadCrypto(mustResolveResourcePath("crypto.yml"))
+	cryptoCfg, err := LoadCrypto(mustResolveResourcePath("crypto.yml"))
 
 	if err != nil {
 		log.Fatal(err)
@@ -90,6 +80,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	csrfCfg, err := middleware.LoadCSRF(mustResolveResourcePath("csrf.yml"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	csrfMiddleware := middleware.CSRF(csrfCfg, cryptoKey)
 
 	db, err := database.Open("beacon.db")
 

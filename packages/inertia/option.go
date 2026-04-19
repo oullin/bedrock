@@ -6,21 +6,20 @@ import (
 	"html/template"
 	"os"
 
-	"github.com/bedrock/packages/inertia/config"
 	"github.com/bedrock/packages/inertia/protocol"
 )
 
 // Option configures an Inertia instance during construction.
+
+type headSource uint8
+
+type Option func(*Inertia) error
 
 const (
 	headSourceNone headSource = iota
 	headSourceConfig
 	headSourceExplicit
 )
-
-type headSource uint8
-
-type Option func(*Inertia) error
 
 // WithVersion sets a static asset version string.
 func WithVersion(version string) Option {
@@ -118,7 +117,7 @@ func WithHeadDefaults() Option {
 			return nil
 		}
 
-		i.head = config.DefaultHead()
+		i.head = DefaultHead()
 		i.headSource = headSourceConfig
 
 		return nil
@@ -136,7 +135,7 @@ func WithHeadFromFile(path string) Option {
 			return nil
 		}
 
-		head, err := config.LoadHead(path)
+		head, err := LoadHead(path)
 
 		if err != nil {
 			return fmt.Errorf("inertia: %w", err)

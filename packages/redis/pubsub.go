@@ -9,7 +9,9 @@ import "context"
 // Parity with PhpRedisConnection::subscribe.
 func (c *Connection) Subscribe(ctx context.Context, channels []string, fn func(channel, payload string)) error {
 	sub := c.client.Subscribe(ctx, channels...)
+
 	defer sub.Close()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -18,6 +20,7 @@ func (c *Connection) Subscribe(ctx context.Context, channels []string, fn func(c
 			if !ok {
 				return nil
 			}
+
 			fn(m.Channel, m.Payload)
 		}
 	}
@@ -27,7 +30,9 @@ func (c *Connection) Subscribe(ctx context.Context, channels []string, fn func(c
 // Parity with PhpRedisConnection::psubscribe.
 func (c *Connection) PSubscribe(ctx context.Context, patterns []string, fn func(pattern, channel, payload string)) error {
 	sub := c.client.PSubscribe(ctx, patterns...)
+
 	defer sub.Close()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -36,6 +41,7 @@ func (c *Connection) PSubscribe(ctx context.Context, patterns []string, fn func(
 			if !ok {
 				return nil
 			}
+
 			fn(m.Pattern, m.Channel, m.Payload)
 		}
 	}

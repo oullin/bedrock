@@ -16,11 +16,11 @@ go get github.com/gocanto/bedrock/packages/pagination@latest
 
 ## Paginator Types
 
-| Type                   | Knows total count | Use when                           |
-|------------------------|-------------------|------------------------------------|
-| `Paginator[T]`         | No                | Simple "next/previous" paging      |
-| `LengthAwarePaginator[T]` | Yes            | Full page-number navigation        |
-| `CursorPaginator[T]`   | No                | Stable cursor-based infinite scroll |
+| Type                      | Knows total count | Use when                            |
+| ------------------------- | ----------------- | ----------------------------------- |
+| `Paginator[T]`            | No                | Simple "next/previous" paging       |
+| `LengthAwarePaginator[T]` | Yes               | Full page-number navigation         |
+| `CursorPaginator[T]`      | No                | Stable cursor-based infinite scroll |
 
 ## Simple Paginator
 

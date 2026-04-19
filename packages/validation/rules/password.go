@@ -2,16 +2,29 @@ package rules
 
 import "unicode"
 
-func init_password() {
-	Register("Password", validatePassword)
-}
-
 // validatePassword validates a password against minimum requirements.
 // This is the basic form. The full Password rule object (PasswordRule) is in
 // rule.go and allows chaining (Min, Letters, Numbers, Symbols, Uncompromised).
 // When used as a bare string rule "password" it just checks minimum length 8.
+
+// PasswordOptions holds the requirements for the PasswordRule object.
+type PasswordOptions struct {
+	Min           int
+	Max           int // 0 = no limit
+	Letters       bool
+	Numbers       bool
+	Symbols       bool
+	Mixed         bool // mixed case required
+	Uncompromised bool
+}
+
+func init_password() {
+	Register("Password", validatePassword)
+}
+
 func validatePassword(_ string, value any, params []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -25,17 +38,6 @@ func validatePassword(_ string, value any, params []string, _ RuleContext) bool 
 	}
 
 	return len([]rune(s)) >= minLen
-}
-
-// PasswordOptions holds the requirements for the PasswordRule object.
-type PasswordOptions struct {
-	Min         int
-	Max         int  // 0 = no limit
-	Letters     bool
-	Numbers     bool
-	Symbols     bool
-	Mixed       bool // mixed case required
-	Uncompromised bool
 }
 
 // CheckPassword validates a password against a set of options.
@@ -56,6 +58,7 @@ func CheckPassword(s string, opts PasswordOptions) bool {
 		for _, r := range runes {
 			if unicode.IsLetter(r) {
 				hasLetter = true
+
 				break
 			}
 		}
@@ -71,6 +74,7 @@ func CheckPassword(s string, opts PasswordOptions) bool {
 		for _, r := range runes {
 			if unicode.IsDigit(r) {
 				hasDigit = true
+
 				break
 			}
 		}
@@ -86,6 +90,7 @@ func CheckPassword(s string, opts PasswordOptions) bool {
 		for _, r := range runes {
 			if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
 				hasSymbol = true
+
 				break
 			}
 		}

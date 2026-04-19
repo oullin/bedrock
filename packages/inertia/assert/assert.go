@@ -18,7 +18,7 @@ import (
 // assertions.
 type AssertableInertia struct {
 	Component      string              `json:"component"`
-	Props          protocol.Props         `json:"props"`
+	Props          protocol.Props      `json:"props"`
 	URL            string              `json:"url"`
 	Version        string              `json:"version"`
 	EncryptHistory bool                `json:"encryptHistory"`

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bedrock/packages/inertia/routegen"
+	"github.com/bedrock/packages/routegen"
 )
 
 type app struct {

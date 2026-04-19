@@ -1,62 +1,37 @@
 ROOT_PATH := $(shell pwd)
 GO_FMT_COMPOSE_FILE := go-fmt.compose.yaml
 GO_FMT_SERVICE := go-fmt
-GO_FMT_RUN := docker compose -f $(GO_FMT_COMPOSE_FILE) run --rm $(GO_FMT_SERVICE)
+GO_FMT_COMPOSE := docker compose -f $(GO_FMT_COMPOSE_FILE)
+GO_FMT_BIN := /usr/local/bin/go-fmt
+GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
 PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
+GO_MODULE_DIRS := $(shell awk 'BEGIN { in_use = 0 } /^use \(/ { in_use = 1; next } in_use && /^\)/ { in_use = 0; next } in_use { gsub(/^\.\//, "", $$1); print $$1 }' go.work)
 
-GO_PACKAGES := \
-	packages/auth \
-	packages/bus \
-	packages/cache \
-	packages/concurrency \
-	packages/conditionable \
-	packages/config \
-	packages/container \
-	packages/contracts \
-	packages/cookie \
-	packages/encryption \
-	packages/events \
-	packages/filesystem \
-	packages/hashing \
-	packages/httpx \
-	packages/inception \
-	packages/jsonx \
-	packages/log \
-	packages/mailx \
-	packages/notifications \
-	packages/pagination \
-	packages/pipeline \
-	packages/queue \
-	packages/routing \
-	packages/session \
-	packages/billing \
-	packages/translation
+.PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs
 
-.PHONY: format vet tidy typecheck test coverage build clean docs
-
-format:
+format: format-start
 	$(PACKAGE_FMT)
-	@for pkg in $(GO_PACKAGES); do \
-		broadcastclient "go vet ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
-	done
-	@for pkg in $(GO_PACKAGES); do \
-		broadcastclient "go-fmt format in $$pkg"; \
-		$(GO_FMT_RUN) format --host-path $(ROOT_PATH)/$$pkg; \
-	done
+	@broadcastclient "go-fmt format in $(ROOT_PATH)"; \
+	$(GO_FMT_EXEC) format --cwd $(ROOT_PATH) --host-path $(ROOT_PATH)
 	@if [ -n "$(MARKDOWN_FILES)" ]; then \
 		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
 	fi
 
+format-start:
+	@$(GO_FMT_COMPOSE) up -d $(GO_FMT_SERVICE)
+
+format-stop:
+	@$(GO_FMT_COMPOSE) stop $(GO_FMT_SERVICE)
+
 vet:
-	@for pkg in $(GO_PACKAGES); do \
+	@for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
 	done
 
 tidy:
-	@for pkg in $(GO_PACKAGES); do \
+	@for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go mod tidy in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
 	done

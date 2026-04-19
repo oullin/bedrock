@@ -6,14 +6,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/config"
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/middleware"
+	"github.com/bedrock/packages/inertia/protocol"
 )
 
 func testKey(t *testing.T) []byte {
@@ -33,7 +30,7 @@ func csrfMiddleware(t *testing.T) (func(http.Handler) http.Handler, []byte) {
 
 	key := testKey(t)
 
-	return middleware.CSRF(config.CSRFConfig{}, key), key
+	return middleware.CSRF(middleware.CSRFConfig{}, key), key
 }
 
 func issueCSRFCookie(t *testing.T, mw func(http.Handler) http.Handler) (*http.Cookie, string) {
@@ -286,87 +283,12 @@ func TestCSRF_MutationMethods(t *testing.T) {
 	}
 }
 
-func TestCSRFFromFile(t *testing.T) {
-	t.Parallel()
-
-	dir := t.TempDir()
-	csrfPath := filepath.Join(dir, "csrf.yml")
-	cryptoPath := filepath.Join(dir, "crypto.yml")
-
-	// Generate a valid 32-byte key.
-	key := make([]byte, 32)
-
-	if _, err := rand.Read(key); err != nil {
-		t.Fatal(err)
-	}
-
-	csrfContent := `
-cookie_name: "_my_csrf"
-secure: false
-same_site: "strict"
-`
-
-	cryptoContent := `
-key: "` + encodeKey(key) + `"
-`
-
-	if err := os.WriteFile(csrfPath, []byte(csrfContent), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(cryptoPath, []byte(cryptoContent), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	mw, err := middleware.CSRFFromFile(csrfPath, cryptoPath)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	handler.ServeHTTP(w, r)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("status = %d, want %d", w.Code, http.StatusOK)
-	}
-
-	// Check that it used the custom cookie name.
-	found := false
-
-	for _, c := range w.Result().Cookies() {
-		if c.Name == "_my_csrf" {
-			found = true
-		}
-	}
-
-	if !found {
-		t.Error("expected custom cookie name _my_csrf")
-	}
-}
-
-func TestCSRFFromFile_FileNotFound(t *testing.T) {
-	t.Parallel()
-
-	_, err := middleware.CSRFFromFile("/nonexistent/csrf.yml", "/nonexistent/crypto.yml")
-
-	if err == nil {
-		t.Error("expected error for missing file")
-	}
-}
-
 func TestCSRF_SameSiteStrict(t *testing.T) {
 	t.Parallel()
 
 	key := testKey(t)
 
-	mw := middleware.CSRF(config.CSRFConfig{
+	mw := middleware.CSRF(middleware.CSRFConfig{
 		SameSite: "strict",
 	}, key)
 
@@ -389,7 +311,7 @@ func TestCSRF_SameSiteNone(t *testing.T) {
 
 	key := testKey(t)
 
-	mw := middleware.CSRF(config.CSRFConfig{
+	mw := middleware.CSRF(middleware.CSRFConfig{
 		SameSite: "none",
 		Secure:   true,
 	}, key)
@@ -556,7 +478,7 @@ func TestCSRF_OriginOnlyFailedVerification_Returns403(t *testing.T) {
 	t.Parallel()
 
 	key := testKey(t)
-	mw := middleware.CSRF(config.CSRFConfig{
+	mw := middleware.CSRF(middleware.CSRFConfig{
 		OriginOnly: true,
 	}, key)
 
@@ -572,73 +494,11 @@ func TestCSRF_OriginOnlyFailedVerification_Returns403(t *testing.T) {
 	}
 }
 
-func TestCSRFFromFile_AllEnvOverrides(t *testing.T) {
-	t.Setenv("INERTIA_CSRF_COOKIE_NAME", "_env_csrf")
-	t.Setenv("INERTIA_CSRF_SECURE", "true")
-	t.Setenv("INERTIA_CSRF_SAME_SITE", "strict")
-
-	dir := t.TempDir()
-	csrfPath := filepath.Join(dir, "csrf.yml")
-	cryptoPath := filepath.Join(dir, "crypto.yml")
-
-	key := make([]byte, 32)
-
-	if _, err := rand.Read(key); err != nil {
-		t.Fatal(err)
-	}
-
-	csrfContent := `
-cookie_name: "_file_csrf"
-secure: false
-same_site: "lax"
-`
-
-	cryptoContent := `
-key: "` + encodeKey(key) + `"
-`
-
-	if err := os.WriteFile(csrfPath, []byte(csrfContent), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.WriteFile(cryptoPath, []byte(cryptoContent), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	mw, err := middleware.CSRFFromFile(csrfPath, cryptoPath)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	handler.ServeHTTP(w, r)
-
-	// Verify env-overridden cookie name.
-	found := false
-
-	for _, c := range w.Result().Cookies() {
-		if c.Name == "_env_csrf" {
-			found = true
-		}
-	}
-
-	if !found {
-		t.Error("expected env-overridden cookie name _env_csrf")
-	}
-}
-
 func TestCSRF_SameSiteFetchSite_AllowSameSiteTrue(t *testing.T) {
 	t.Parallel()
 
 	key := testKey(t)
-	mw := middleware.CSRF(config.CSRFConfig{
+	mw := middleware.CSRF(middleware.CSRFConfig{
 		AllowSameSite: true,
 	}, key)
 
@@ -657,30 +517,11 @@ func TestCSRF_SameSiteFetchSite_AllowSameSiteTrue(t *testing.T) {
 	}
 }
 
-func TestCSRFFromFile_InvalidCryptoPath(t *testing.T) {
-	t.Parallel()
-
-	dir := t.TempDir()
-	csrfPath := filepath.Join(dir, "csrf.yml")
-
-	csrfContent := `cookie_name: "TOKEN"`
-
-	if err := os.WriteFile(csrfPath, []byte(csrfContent), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	_, err := middleware.CSRFFromFile(csrfPath, "/nonexistent/crypto.yml")
-
-	if err == nil {
-		t.Error("expected error for missing crypto config")
-	}
-}
-
 func TestCSRF_SameSiteFetchSite_AllowSameSiteFalse(t *testing.T) {
 	t.Parallel()
 
 	key := testKey(t)
-	mw := middleware.CSRF(config.CSRFConfig{
+	mw := middleware.CSRF(middleware.CSRFConfig{
 		AllowSameSite: false,
 	}, key)
 

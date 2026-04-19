@@ -1,4 +1,4 @@
-package config
+package inertia
 
 import (
 	"fmt"

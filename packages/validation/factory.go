@@ -22,7 +22,7 @@ func NewFactory() *Factory {
 //
 //   - data:       the input to validate (map[string]any)
 //   - ruleMap:    rules keyed by attribute name; values may be strings,
-//                 []string, []any, or ValidationRule objects
+//     []string, []any, or ValidationRule objects
 //   - messages:   custom error messages (may be nil)
 //   - attributes: human-readable attribute names (may be nil)
 func (f *Factory) Make(
@@ -33,11 +33,13 @@ func (f *Factory) Make(
 ) *Validator {
 	// Copy extensions so each validator gets its own independent map
 	ext := make(map[string]rules.RuleFunc, len(f.extensions))
+
 	for k, v := range f.extensions {
 		ext[k] = v
 	}
 
 	impl := make(map[string]bool, len(f.implicitExt))
+
 	for k, v := range f.implicitExt {
 		impl[k] = v
 	}
@@ -54,6 +56,7 @@ func (f *Factory) Validate(
 	attributes map[string]string,
 ) (map[string]any, error) {
 	v := f.Make(data, ruleMap, messages, attributes)
+
 	return v.Validated()
 }
 
@@ -76,4 +79,3 @@ func (f *Factory) ExtendImplicit(name string, fn rules.RuleFunc) {
 func (f *Factory) SetPresenceVerifier(pv rules.PresenceVerifier) {
 	f.pv = pv
 }
-

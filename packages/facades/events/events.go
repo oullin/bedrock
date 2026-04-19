@@ -20,6 +20,7 @@ var (
 // Resolved once per process and cached.
 func Dispatcher() *eventspkg.EventDispatcher {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	if cached == nil {
@@ -33,6 +34,7 @@ func Dispatcher() *eventspkg.EventDispatcher {
 // a different Application via bedrock.SetApp.
 func Reset() {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	cached = nil

@@ -20,14 +20,18 @@ func StrPlural(value string, count ...int) string {
 	if len(count) > 0 && count[0] == 1 {
 		return value
 	}
+
 	lower := strings.ToLower(value)
+
 	if override, ok := pluralOverrides[lower]; ok {
 		// Preserve original capitalisation
 		if len(value) > 0 && strings.ToUpper(value[:1]) == value[:1] {
 			return strings.ToUpper(override[:1]) + override[1:]
 		}
+
 		return override
 	}
+
 	return inflection.Plural(value)
 }
 
@@ -47,6 +51,7 @@ func StrPluralStudly(value string, count ...int) string {
 
 	// Split studly words
 	parts := StrUcsplit(value)
+
 	if len(parts) == 0 {
 		return value
 	}

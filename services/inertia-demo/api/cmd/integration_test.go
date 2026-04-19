@@ -7,13 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/assert"
-	"github.com/bedrock/packages/inertia/config"
-	"github.com/bedrock/packages/inertia/cryptox"
-	coreflash "github.com/bedrock/packages/inertia/flash"
-	"github.com/bedrock/packages/inertia/protocol"
+	"github.com/bedrock/packages/encryption"
 	"github.com/bedrock/packages/inertia"
+	"github.com/bedrock/packages/inertia/assert"
+	coreflash "github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/middleware"
+	"github.com/bedrock/packages/inertia/protocol"
+	corei18n "github.com/bedrock/packages/seo/i18n"
 	"github.com/bedrock/services/inertia-demo/api/auth"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 	"github.com/bedrock/services/inertia-demo/api/internal/seed"
@@ -22,6 +22,42 @@ import (
 
 // testCryptoKey is a zero-filled 32-byte key used only in tests.
 var testCryptoKey = make([]byte, 32)
+
+func encryptForTest(t *testing.T, plaintext string) string {
+	t.Helper()
+
+	enc, err := encryption.NewEncrypter(testCryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		t.Fatalf("encrypter: %v", err)
+	}
+
+	s, err := enc.EncryptString(plaintext)
+
+	if err != nil {
+		t.Fatalf("encrypt: %v", err)
+	}
+
+	return s
+}
+
+func decryptForTest(t *testing.T, encoded string) string {
+	t.Helper()
+
+	enc, err := encryption.NewEncrypter(testCryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		t.Fatalf("encrypter: %v", err)
+	}
+
+	s, err := enc.DecryptString(encoded)
+
+	if err != nil {
+		t.Fatalf("decrypt: %v", err)
+	}
+
+	return s
+}
 
 func TestLoginHandlerRendersPage(t *testing.T) {
 	_, testMux := newPortTestMux(t)
@@ -78,11 +114,7 @@ func TestLoginHandlerCreatesSession(t *testing.T) {
 
 	cookie := testutil.FindCookie(t, w, auth.SessionCookieName)
 
-	decrypted, err := cryptox.Decrypt(cookie.Value, testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("decrypt session cookie: %v", err)
-	}
+	decrypted := decryptForTest(t, cookie.Value)
 
 	if decrypted != "1" {
 		t.Fatalf("session = %q, want %q", decrypted, "1")
@@ -394,7 +426,7 @@ func newPortTestMux(t *testing.T) (*runtime, http.Handler) {
 
 	t.Cleanup(func() { testDB.Close() })
 
-	cfg := config.DefaultI18n()
+	cfg := corei18n.DefaultI18n()
 	cfg.URLPrefix = false
 
 	rt := &runtime{
@@ -431,7 +463,7 @@ func newPortTestMux(t *testing.T) (*runtime, http.Handler) {
 
 	handler := rt.dashboardAppHandler(
 		authApp.WithCurrentUser(rt.withDemoProps(authApp, mux)),
-		middleware.CSRF(config.CSRFConfig{}, []byte("0123456789abcdef0123456789abcdef")),
+		middleware.CSRF(middleware.CSRFConfig{}, []byte("0123456789abcdef0123456789abcdef")),
 	)
 
 	return rt, handler
@@ -440,11 +472,7 @@ func newPortTestMux(t *testing.T) (*runtime, http.Handler) {
 func mustEncryptSession(t *testing.T, value string) string {
 	t.Helper()
 
-	encrypted, err := cryptox.Encrypt(value, testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("encrypt session: %v", err)
-	}
+	encrypted := encryptForTest(t, value)
 
 	return encrypted
 }
