@@ -6,7 +6,7 @@ package queue
 import (
 	"sync"
 
-	"github.com/bedrock/packages/bedrock"
+	"github.com/bedrock/app"
 	queuepkg "github.com/bedrock/packages/queue"
 )
 
@@ -23,14 +23,14 @@ func Manager() *queuepkg.Manager {
 	defer mu.Unlock()
 
 	if cached == nil {
-		cached = bedrock.Resolve[*queuepkg.Manager]("queue")
+		cached = app.Resolve[*queuepkg.Manager]("queue")
 	}
 
 	return cached
 }
 
 // Reset clears the cached manager. Tests must call this after reinstalling
-// a different Application via bedrock.SetApp.
+// a different Application via app.SetApp.
 func Reset() {
 	mu.Lock()
 

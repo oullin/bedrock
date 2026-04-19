@@ -1,14 +1,14 @@
-// Package bootstrap wires every standard bedrock service provider into a
+// Package app wires every standard bedrock service provider into a
 // single Application. It is the quickstart for new applications:
 //
-//	app := bootstrap.Default()
-//	bedrock.SetApp(app)
-//	// app.Make("cache"), facades, etc. all work
+//	application := app.Default()
+//	app.SetApp(application)
+//	// application.Make("cache"), facades, etc. all work
 //
 // Production apps are expected to compose providers manually so they can
 // substitute drivers, choose specific defaults, and skip components they
 // don't use. Default is a sensible starting point, not a binding contract.
-package bootstrap
+package app
 
 import (
 	"github.com/bedrock/packages/ai"
@@ -131,28 +131,28 @@ func Default(opts ...Options) *container.Application {
 	}
 
 	o = o.withDefaults()
-	app := container.NewApplication()
+	application := container.NewApplication()
 
 	providers := []provider.ServiceProvider{
 		// Layer 0: foundational, no cross-provider deps
-		events.NewEventsServiceProvider(app.Container),
-		hashing.NewHashingServiceProviderWithDefaults(app.Container, o.HashDefaultDriver),
-		filesystem.NewFilesystemServiceProvider(app.Container),
-		cookie.NewCookieServiceProvider(app.Container, defaultCookieOptions(o.CookieDefaults)),
-		validation.NewValidationServiceProvider(app.Container),
-		concurrency.NewConcurrencyServiceProvider(app.Container, o.ConcurrencyDefaultDriver),
+		events.NewEventsServiceProvider(application.Container),
+		hashing.NewHashingServiceProviderWithDefaults(application.Container, o.HashDefaultDriver),
+		filesystem.NewFilesystemServiceProvider(application.Container),
+		cookie.NewCookieServiceProvider(application.Container, defaultCookieOptions(o.CookieDefaults)),
+		validation.NewValidationServiceProvider(application.Container),
+		concurrency.NewConcurrencyServiceProvider(application.Container, o.ConcurrencyDefaultDriver),
 
 		// Layer 1: depend only on layer 0
-		cache.NewCacheServiceProvider(app.Container, o.CacheDefaultDriver),
-		session.NewSessionServiceProvider(app.Container, o.SessionName),
-		queue.NewQueueServiceProvider(app.Container, o.QueueDefaultConnection),
-		log.NewLogServiceProvider(app.Container, o.LogConfig),
-		auth.NewAuthServiceProvider(app.Container, o.AuthDefaultGuard),
+		cache.NewCacheServiceProvider(application.Container, o.CacheDefaultDriver),
+		session.NewSessionServiceProvider(application.Container, o.SessionName),
+		queue.NewQueueServiceProvider(application.Container, o.QueueDefaultConnection),
+		log.NewLogServiceProvider(application.Container, o.LogConfig),
+		auth.NewAuthServiceProvider(application.Container, o.AuthDefaultGuard),
 
 		// Layer 2: depend on layer 1 collaborators (resolved lazily)
-		bus.NewBusServiceProvider(app.Container),
-		notifications.NewNotificationsServiceProvider(app.Container),
-		routing.NewRoutingServiceProvider(app.Container),
+		bus.NewBusServiceProvider(application.Container),
+		notifications.NewNotificationsServiceProvider(application.Container),
+		routing.NewRoutingServiceProvider(application.Container),
 	}
 
 	if o.EncryptionKey != nil {
@@ -162,21 +162,21 @@ func Default(opts ...Options) *container.Application {
 			cipher = encryption.AES256GCM
 		}
 
-		providers = append(providers, encryption.NewEncryptionServiceProvider(app.Container, o.EncryptionKey, cipher))
+		providers = append(providers, encryption.NewEncryptionServiceProvider(application.Container, o.EncryptionKey, cipher))
 	}
 
 	if o.TranslationLoader != nil {
-		providers = append(providers, translation.NewTranslationServiceProvider(app.Container, o.TranslationLoader, o.TranslationLocale))
+		providers = append(providers, translation.NewTranslationServiceProvider(application.Container, o.TranslationLoader, o.TranslationLocale))
 	}
 
 	if o.AIDefaultProvider != "" {
-		providers = append(providers, ai.NewAiServiceProvider(app.Container, o.AIDefaultProvider, o.AIConfigs))
+		providers = append(providers, ai.NewAiServiceProvider(application.Container, o.AIDefaultProvider, o.AIConfigs))
 	}
 
-	app.RegisterMany(providers)
-	app.Boot()
+	application.RegisterMany(providers)
+	application.Boot()
 
-	return app
+	return application
 }
 
 // defaultCookieOptions returns the user-supplied options if set, otherwise
