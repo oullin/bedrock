@@ -1,4 +1,4 @@
-module github.com/bedrock/packages/bootstrap
+module github.com/bedrock/services/demo
 
 go 1.26.0
 
@@ -26,6 +26,7 @@ require (
 
 require (
 	github.com/bedrock/packages/config v0.0.0-00010101000000-000000000000 // indirect
+	github.com/bedrock/packages/pipeline v0.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -46,25 +47,25 @@ require (
 )
 
 replace (
-	github.com/bedrock/packages/ai => ../ai
-	github.com/bedrock/packages/auth => ../auth
-	github.com/bedrock/packages/bus => ../bus
-	github.com/bedrock/packages/cache => ../cache
-	github.com/bedrock/packages/concurrency => ../concurrency
-	github.com/bedrock/packages/config => ../config
-	github.com/bedrock/packages/container => ../container
-	github.com/bedrock/packages/contracts => ../contracts
-	github.com/bedrock/packages/cookie => ../cookie
-	github.com/bedrock/packages/encryption => ../encryption
-	github.com/bedrock/packages/events => ../events
-	github.com/bedrock/packages/filesystem => ../filesystem
-	github.com/bedrock/packages/hashing => ../hashing
-	github.com/bedrock/packages/log => ../log
-	github.com/bedrock/packages/mailx => ../mailx
-	github.com/bedrock/packages/notifications => ../notifications
-	github.com/bedrock/packages/queue => ../queue
-	github.com/bedrock/packages/routing => ../routing
-	github.com/bedrock/packages/session => ../session
-	github.com/bedrock/packages/translation => ../translation
-	github.com/bedrock/packages/validation => ../validation
+	github.com/bedrock/packages/ai => ../../packages/ai
+	github.com/bedrock/packages/auth => ../../packages/auth
+	github.com/bedrock/packages/bus => ../../packages/bus
+	github.com/bedrock/packages/cache => ../../packages/cache
+	github.com/bedrock/packages/concurrency => ../../packages/concurrency
+	github.com/bedrock/packages/config => ../../packages/config
+	github.com/bedrock/packages/container => ../../packages/container
+	github.com/bedrock/packages/contracts => ../../packages/contracts
+	github.com/bedrock/packages/cookie => ../../packages/cookie
+	github.com/bedrock/packages/encryption => ../../packages/encryption
+	github.com/bedrock/packages/events => ../../packages/events
+	github.com/bedrock/packages/filesystem => ../../packages/filesystem
+	github.com/bedrock/packages/hashing => ../../packages/hashing
+	github.com/bedrock/packages/log => ../../packages/log
+	github.com/bedrock/packages/notifications => ../../packages/notifications
+	github.com/bedrock/packages/pipeline => ../../packages/pipeline
+	github.com/bedrock/packages/queue => ../../packages/queue
+	github.com/bedrock/packages/routing => ../../packages/routing
+	github.com/bedrock/packages/session => ../../packages/session
+	github.com/bedrock/packages/translation => ../../packages/translation
+	github.com/bedrock/packages/validation => ../../packages/validation
 )

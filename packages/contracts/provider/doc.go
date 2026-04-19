@@ -62,8 +62,8 @@
 //
 //	mgr, _ := app.Make("cache")
 //
-// For the standard provider stack, use the bootstrap package:
+// To install an Application globally for facades and helper-based resolution:
 //
-//	application := bootstrap.Default()
-//	bootstrap.SetApp(application)
+//	application := container.NewApplication()
+//	container.SetApp(application)
 package provider

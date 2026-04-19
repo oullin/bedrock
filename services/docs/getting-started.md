@@ -25,7 +25,7 @@ go get github.com/gocanto/bedrock/packages/cache@latest
 
 ```
 packages/   Go library packages
-services/   Internal tooling (storage, scripts, docs)
+services/   Internal tooling, docs, storage, and demo applications
 ```
 
 ## Development Setup

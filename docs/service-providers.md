@@ -7,21 +7,22 @@ together via service providers. This document is the guide to the second mode.
 
 ```go
 import (
-    "github.com/bedrock/packages/bootstrap"
+    "github.com/bedrock/packages/container"
     cachefacade "github.com/bedrock/packages/facades/cache"
+    "github.com/bedrock/services/demo"
 )
 
 func main() {
-    application := bootstrap.Default()
-    bootstrap.SetApp(application)
+    application := demo.NewApplication()
+    container.SetApp(application)
 
     store, _ := cachefacade.Driver()
     _ = store
 }
 ```
 
-`bootstrap.Default()` registers every standard service provider in the right
-order and boots them. After `bootstrap.SetApp(application)`, the facades work.
+`demo.NewApplication()` registers every standard service provider in the right
+order and boots them. After `container.SetApp(application)`, the facades work.
 
 ## What is a service provider?
 
@@ -81,7 +82,7 @@ That's the full pattern: constructor takes the container plus configuration,
 
 ## Wiring an application by hand
 
-When `bootstrap.Default()` is too opinionated, build the stack yourself:
+When the demo composition is too opinionated, build the stack yourself:
 
 ```go
 application := container.NewApplication()
@@ -94,7 +95,7 @@ application.RegisterMany([]provider.ServiceProvider{
 })
 
 application.Boot()
-bootstrap.SetApp(application)
+container.SetApp(application)
 ```
 
 ## Boot phase
@@ -195,23 +196,23 @@ logfacade.Info("hello", map[string]any{"user": "ada"})
 ```
 
 Each facade caches the resolved manager once per process. In tests, after
-swapping the global app via `bootstrap.SetApp(...)`, call the facade's
+swapping the global app via `container.SetApp(...)`, call the facade's
 `Reset()` to drop the cache.
 
 ## Generic resolution
 
 When a facade doesn't exist (or the API surface you need is too large to
-forward by hand), use `bootstrap.Resolve[T]`:
+forward by hand), use `container.Resolve[T]`:
 
 ```go
-mgr := bootstrap.Resolve[*notifications.Manager]("notifications")
+mgr := container.Resolve[*notifications.Manager]("notifications")
 mgr.Send(ctx, recipient, MyNotification{})
 ```
 
 Or the non-panicking variant:
 
 ```go
-mgr, err := bootstrap.TryResolve[*notifications.Manager]("notifications")
+mgr, err := container.TryResolve[*notifications.Manager]("notifications")
 ```
 
 ## Container vs Application
