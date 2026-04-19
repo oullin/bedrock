@@ -21,6 +21,7 @@ func init_string() {
 
 func validateAlpha(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -40,6 +41,7 @@ func validateAlpha(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateAlphaDash(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -59,6 +61,7 @@ func validateAlphaDash(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateAlphaNum(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -78,6 +81,7 @@ func validateAlphaNum(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateAscii(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -93,6 +97,7 @@ func validateAscii(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateLowercase(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -102,6 +107,7 @@ func validateLowercase(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateUppercase(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -111,6 +117,7 @@ func validateUppercase(_ string, value any, _ []string, _ RuleContext) bool {
 
 func validateStartsWith(_ string, value any, params []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -126,6 +133,7 @@ func validateStartsWith(_ string, value any, params []string, _ RuleContext) boo
 
 func validateDoesntStartWith(_ string, value any, params []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return true
 	}
@@ -141,6 +149,7 @@ func validateDoesntStartWith(_ string, value any, params []string, _ RuleContext
 
 func validateEndsWith(_ string, value any, params []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -156,6 +165,7 @@ func validateEndsWith(_ string, value any, params []string, _ RuleContext) bool 
 
 func validateDoesntEndWith(_ string, value any, params []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return true
 	}
@@ -171,6 +181,7 @@ func validateDoesntEndWith(_ string, value any, params []string, _ RuleContext) 
 
 func validateHexColor(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}

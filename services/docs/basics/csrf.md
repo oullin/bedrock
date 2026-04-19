@@ -77,7 +77,7 @@ router.Use(csrf.Handle)
 
 ## Regenerating the Token
 
-After login, regenerate the session ID *and* the CSRF token to prevent session
+After login, regenerate the session ID _and_ the CSRF token to prevent session
 fixation:
 
 ```go

@@ -21,6 +21,7 @@ var (
 // once per process and cached.
 func Manager() *authpkg.Manager {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	if cached == nil {
@@ -34,6 +35,7 @@ func Manager() *authpkg.Manager {
 // a different Application via bedrock.SetApp.
 func Reset() {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	cached = nil

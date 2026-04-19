@@ -16,11 +16,11 @@ go get github.com/gocanto/bedrock/packages/hashing@latest
 
 ## Drivers
 
-| Driver      | Type       | Notes                              |
-|-------------|------------|------------------------------------|
-| `BcryptDriver`  | bcrypt     | Default cost: 12                   |
-| `ArgonDriver`   | Argon2i    | Interactive profile                |
-| `Argon2idDriver`| Argon2id   | Recommended for new applications   |
+| Driver           | Type     | Notes                            |
+| ---------------- | -------- | -------------------------------- |
+| `BcryptDriver`   | bcrypt   | Default cost: 12                 |
+| `ArgonDriver`    | Argon2i  | Interactive profile              |
+| `Argon2idDriver` | Argon2id | Recommended for new applications |
 
 ## Creating a Manager
 

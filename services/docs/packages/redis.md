@@ -17,11 +17,11 @@ go get github.com/gocanto/bedrock/packages/redis@latest
 
 ## Connection Drivers
 
-| Driver      | Description                          |
-|-------------|--------------------------------------|
-| `default`   | Single-node via `DialSingle`         |
-| `cluster`   | Redis Cluster via `DialCluster`      |
-| `sentinel`  | Redis Sentinel via `DialSentinel`    |
+| Driver     | Description                       |
+| ---------- | --------------------------------- |
+| `default`  | Single-node via `DialSingle`      |
+| `cluster`  | Redis Cluster via `DialCluster`   |
+| `sentinel` | Redis Sentinel via `DialSentinel` |
 
 ## Creating a Manager
 

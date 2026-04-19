@@ -15,6 +15,7 @@ func init_size() {
 
 func validateMin(_ string, value any, params []string, ctx RuleContext) bool {
 	min, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return true
 	}
@@ -26,6 +27,7 @@ func validateMin(_ string, value any, params []string, ctx RuleContext) bool {
 
 func validateMax(_ string, value any, params []string, ctx RuleContext) bool {
 	max, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return true
 	}
@@ -54,6 +56,7 @@ func validateBetween(_ string, value any, params []string, ctx RuleContext) bool
 
 func validateSize(_ string, value any, params []string, _ RuleContext) bool {
 	target, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return true
 	}
@@ -71,9 +74,11 @@ func validateGt(_ string, value any, params []string, ctx RuleContext) bool {
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if other == nil {
 		// treat as literal numeric
 		target, ok := parseFloat64Param(params, 0)
+
 		if !ok {
 			return true
 		}
@@ -95,8 +100,10 @@ func validateGte(_ string, value any, params []string, ctx RuleContext) bool {
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if other == nil {
 		target, ok := parseFloat64Param(params, 0)
+
 		if !ok {
 			return true
 		}
@@ -118,8 +125,10 @@ func validateLt(_ string, value any, params []string, ctx RuleContext) bool {
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if other == nil {
 		target, ok := parseFloat64Param(params, 0)
+
 		if !ok {
 			return true
 		}
@@ -141,8 +150,10 @@ func validateLte(_ string, value any, params []string, ctx RuleContext) bool {
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if other == nil {
 		target, ok := parseFloat64Param(params, 0)
+
 		if !ok {
 			return true
 		}
@@ -166,11 +177,13 @@ func MessageTypeForSize(rule string, value any) string {
 	}
 
 	_, kind := getSize(value)
+
 	if kind == "string" || kind == "numeric" || kind == "array" {
 		return rule + "." + kind
 	}
 
 	s, ok := value.(string)
+
 	if ok {
 		_ = strings.TrimSpace(s) // just to use the import
 	}

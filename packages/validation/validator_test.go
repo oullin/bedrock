@@ -8,6 +8,14 @@ import (
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
+// ─── basic tests ──────────────────────────────────────────────────────────────
+
+// items.0.name passes, items.1.name fails
+
+// With bail, only one error should be reported for the field
+
+type alwaysFailRule struct{ msg string }
+
 func makeValidator(data, rules map[string]any) *validation.Validator {
 	return validation.NewFactory().Make(data, rules, nil, nil)
 }
@@ -32,8 +40,10 @@ func assertError(t *testing.T, v *validation.Validator, attribute, ruleContains 
 	t.Helper()
 
 	msgs := v.Errors().Get(attribute)
+
 	if len(msgs) == 0 {
 		t.Errorf("expected error for %q, got none", attribute)
+
 		return
 	}
 
@@ -59,8 +69,6 @@ func findSub(s, sub string) bool {
 
 	return false
 }
-
-// ─── basic tests ──────────────────────────────────────────────────────────────
 
 func TestValidator_PassesWhenNoRules(t *testing.T) {
 	t.Parallel()
@@ -103,6 +111,7 @@ func TestValidator_Errors(t *testing.T) {
 	}
 
 	msgs := v.Errors().Get("email")
+
 	if len(msgs) == 0 {
 		t.Error("expected error for 'email'")
 	}
@@ -130,11 +139,13 @@ func TestValidator_Validate_ReturnsErrorOnFailure(t *testing.T) {
 	)
 
 	err := v.Validate()
+
 	if err == nil {
 		t.Error("Validate: expected error, got nil")
 	}
 
 	var ve *validation.ValidationException
+
 	if !isValidationException(err, &ve) {
 		t.Errorf("Validate: expected *ValidationException, got %T", err)
 	}
@@ -143,6 +154,7 @@ func TestValidator_Validate_ReturnsErrorOnFailure(t *testing.T) {
 func isValidationException(err error, ve **validation.ValidationException) bool {
 	if e, ok := err.(*validation.ValidationException); ok {
 		*ve = e
+
 		return true
 	}
 
@@ -158,6 +170,7 @@ func TestValidator_Validated_ReturnsSubset(t *testing.T) {
 	)
 
 	vd, err := v.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated: %v", err)
 	}
@@ -177,6 +190,7 @@ func TestValidator_Failed(t *testing.T) {
 	v.Fails()
 
 	failed := v.Failed()
+
 	if len(failed["email"]) == 0 {
 		t.Error("Failed: expected 'email' in failed map")
 	}
@@ -233,6 +247,7 @@ func TestValidator_CustomMessages(t *testing.T) {
 	v.Fails()
 
 	msgs := v.Errors().Get("name")
+
 	if len(msgs) == 0 || msgs[0] != "This field cannot be empty." {
 		t.Errorf("custom message: got %v", msgs)
 	}
@@ -249,6 +264,7 @@ func TestValidator_AttributeNames(t *testing.T) {
 	v.Fails()
 
 	msgs := v.Errors().Get("user_email")
+
 	if len(msgs) == 0 {
 		t.Fatal("expected error for user_email")
 	}
@@ -272,7 +288,6 @@ func TestValidator_WildcardRules(t *testing.T) {
 	)
 	assertFails(t, v)
 
-	// items.0.name passes, items.1.name fails
 	if v.Errors().Has("items.1.name") == false {
 		t.Error("expected error for items.1.name")
 	}
@@ -287,8 +302,8 @@ func TestValidator_BailStopsOnFirstFailure(t *testing.T) {
 	)
 	v.Fails()
 
-	// With bail, only one error should be reported for the field
 	msgs := v.Errors().Get("age")
+
 	if len(msgs) != 1 {
 		t.Errorf("bail: expected 1 error, got %d: %v", len(msgs), msgs)
 	}
@@ -318,8 +333,6 @@ func TestValidator_CustomRuleObject(t *testing.T) {
 	assertError(t, v, "field", "custom always fails")
 }
 
-type alwaysFailRule struct{ msg string }
-
 func (r *alwaysFailRule) Validate(_ string, _ any, fail func(string)) {
 	fail(r.msg)
 }
@@ -329,6 +342,7 @@ func TestValidator_AddExtension(t *testing.T) {
 
 	magicCode := validation.RuleFunc(func(attr string, value any, params []string, ctx validation.RuleContext) bool {
 		s, ok := value.(string)
+
 		return ok && s == "SECRET"
 	})
 

@@ -29,6 +29,7 @@ func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("Make(%q) failed: %v", key, err)
+
 			continue
 		}
 
@@ -81,6 +82,7 @@ func TestDefault_OptionsOverrideDefaults(t *testing.T) {
 	type defaultDriverGetter interface{ GetDefaultDriver() string }
 
 	raw, err := app.Make("cache")
+
 	if err != nil {
 		t.Fatal(err)
 	}
