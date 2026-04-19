@@ -3,7 +3,7 @@ module github.com/bedrock/packages/facades/log
 go 1.26.0
 
 require (
-	github.com/bedrock/app v0.0.0
+	github.com/bedrock/packages/bootstrap v0.0.0
 	github.com/bedrock/packages/log v0.0.0
 )
 
@@ -29,7 +29,7 @@ require (
 )
 
 replace (
-	github.com/bedrock/app => ../../app
+	github.com/bedrock/packages/bootstrap => ../../bootstrap
 	github.com/bedrock/packages/config => ../../config
 	github.com/bedrock/packages/container => ../../container
 	github.com/bedrock/packages/contracts => ../../contracts

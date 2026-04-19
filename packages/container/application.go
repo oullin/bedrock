@@ -14,7 +14,7 @@ import (
 //
 //   - provider.Deferred: providers that delay Register() until one of
 //     their declared abstracts is first resolved through Application.Make
-//     (or any helper that goes through it: app.Resolve, facades).
+//     (or any helper that goes through it: bootstrap.Resolve, facades).
 //   - provider.DependsOn: providers that declare prerequisite abstracts.
 //     RegisterMany topologically sorts deps before calling Register.
 //

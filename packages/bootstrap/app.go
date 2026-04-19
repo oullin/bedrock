@@ -1,4 +1,4 @@
-// Package app is the umbrella entry point for bedrock applications.
+// Package bootstrap is the umbrella entry point for bedrock applications.
 //
 // It exposes the global Application instance, generic resolution helpers,
 // and convenience accessors so calling code can avoid passing the container
@@ -6,11 +6,11 @@
 //
 // Typical usage:
 //
-//	application := app.Default()                // wires every standard provider
-//	app.SetApp(application)                     // installs the global instance
-//	mgr := app.Resolve[*cache.Manager]("cache") // resolve typed bindings
-//	user := app.MustMake("auth")                // panics on miss
-package app
+//	application := bootstrap.Default()                      // wires every standard provider
+//	bootstrap.SetApp(application)                          // installs the global instance
+//	mgr := bootstrap.Resolve[*cache.Manager]("cache")      // resolve typed bindings
+//	user := bootstrap.MustMake("auth")                     // panics on miss
+package bootstrap
 
 import (
 	"fmt"
@@ -43,7 +43,7 @@ func App() *container.Application {
 	defer mu.RUnlock()
 
 	if app == nil {
-		panic("app: no Application installed; call app.SetApp(application) first")
+		panic("bootstrap: no Application installed; call bootstrap.SetApp(application) first")
 	}
 
 	return app
@@ -70,7 +70,7 @@ func MustMake(abstract string) any {
 	v, err := App().Make(abstract)
 
 	if err != nil {
-		panic(fmt.Sprintf("app: MustMake(%q): %v", abstract, err))
+		panic(fmt.Sprintf("bootstrap: MustMake(%q): %v", abstract, err))
 	}
 
 	return v
@@ -79,7 +79,7 @@ func MustMake(abstract string) any {
 // Resolve is a generic, typed resolver. It panics if the abstract is missing
 // or if the resolved value cannot be type-asserted to T.
 //
-//	cacheManager := app.Resolve[*cache.Manager]("cache")
+//	cacheManager := bootstrap.Resolve[*cache.Manager]("cache")
 func Resolve[T any](abstract string) T {
 	raw := MustMake(abstract)
 
@@ -88,7 +88,7 @@ func Resolve[T any](abstract string) T {
 	if !ok {
 		var zero T
 
-		panic(fmt.Sprintf("app: Resolve[%T](%q): wrong type %T", zero, abstract, raw))
+		panic(fmt.Sprintf("bootstrap: Resolve[%T](%q): wrong type %T", zero, abstract, raw))
 	}
 
 	return v
@@ -100,7 +100,7 @@ func TryResolve[T any](abstract string) (T, error) {
 	var zero T
 
 	if !HasApp() {
-		return zero, fmt.Errorf("app: no Application installed")
+		return zero, fmt.Errorf("bootstrap: no Application installed")
 	}
 
 	raw, err := App().Make(abstract)
@@ -112,7 +112,7 @@ func TryResolve[T any](abstract string) (T, error) {
 	v, ok := raw.(T)
 
 	if !ok {
-		return zero, fmt.Errorf("app: TryResolve[%T](%q): wrong type %T", zero, abstract, raw)
+		return zero, fmt.Errorf("bootstrap: TryResolve[%T](%q): wrong type %T", zero, abstract, raw)
 	}
 
 	return v, nil

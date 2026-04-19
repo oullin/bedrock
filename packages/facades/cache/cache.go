@@ -9,13 +9,13 @@
 //
 // For the full Manager API, resolve directly:
 //
-//	mgr := app.Resolve[*cache.Manager]("cache")
+//	mgr := bootstrap.Resolve[*cache.Manager]("cache")
 package cache
 
 import (
 	"sync"
 
-	"github.com/bedrock/app"
+	"github.com/bedrock/packages/bootstrap"
 	cachepkg "github.com/bedrock/packages/cache"
 )
 
@@ -32,14 +32,14 @@ func Manager() *cachepkg.Manager {
 	defer mu.Unlock()
 
 	if cached == nil {
-		cached = app.Resolve[*cachepkg.Manager]("cache")
+		cached = bootstrap.Resolve[*cachepkg.Manager]("cache")
 	}
 
 	return cached
 }
 
 // Reset clears the cached manager pointer. Tests must call this after
-// reinstalling a different Application via app.SetApp.
+// reinstalling a different Application via bootstrap.SetApp.
 func Reset() {
 	mu.Lock()
 
