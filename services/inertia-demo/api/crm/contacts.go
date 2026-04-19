@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bedrock/packages/inertia/flash"
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia"
+	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/props"
+	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 )
 

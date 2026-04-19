@@ -11,6 +11,7 @@ func TestTimeboxMinimumDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	min := 100 * time.Millisecond
@@ -21,6 +22,7 @@ func TestTimeboxMinimumDuration(t *testing.T) {
 	if got < min {
 		t.Errorf("Timebox returned %v, expected at least %v", got, min)
 	}
+
 	fake.AssertSleptTimes(t, 1)
 }
 
@@ -29,6 +31,7 @@ func TestTimeboxNoSleepWhenExceedsMinimum(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	// Fake sleep so Timebox thinks time passed
@@ -58,6 +61,7 @@ func TestTimeboxWithError(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	sentinel := errors.New("timebox error")
@@ -75,6 +79,7 @@ func TestTimeboxWithErrorNil(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	_, err := TimeboxWithError(0, func() error {
@@ -91,6 +96,7 @@ func TestTimeboxReturnsDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	min := 50 * time.Millisecond

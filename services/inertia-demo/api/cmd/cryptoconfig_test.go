@@ -1,4 +1,4 @@
-package config_test
+package main
 
 import (
 	"encoding/base64"
@@ -6,14 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/bedrock/packages/inertia/config"
 )
 
 func TestDefaultCrypto(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.DefaultCrypto()
+	cfg := DefaultCrypto()
 
 	if strings.TrimSpace(cfg.Key) != "" {
 		t.Errorf("Key = %q, want empty", cfg.Key)
@@ -35,7 +33,7 @@ func TestLoadCrypto(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg, err := config.LoadCrypto(path)
+	cfg, err := LoadCrypto(path)
 
 	if err != nil {
 		t.Fatal(err)
@@ -61,7 +59,7 @@ func TestLoadCrypto_EnvOverride(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg, err := config.LoadCrypto(path)
+	cfg, err := LoadCrypto(path)
 
 	if err != nil {
 		t.Fatal(err)
@@ -75,7 +73,7 @@ func TestLoadCrypto_EnvOverride(t *testing.T) {
 func TestLoadCrypto_FileNotFound(t *testing.T) {
 	t.Parallel()
 
-	_, err := config.LoadCrypto("/nonexistent/crypto.yml")
+	_, err := LoadCrypto("/nonexistent/crypto.yml")
 
 	if err == nil {
 		t.Error("expected error for missing file")
@@ -91,7 +89,7 @@ func TestCryptoConfig_DecodedKey(t *testing.T) {
 		raw[i] = byte(i)
 	}
 
-	cfg := config.CryptoConfig{
+	cfg := CryptoConfig{
 		Key: base64.StdEncoding.EncodeToString(raw),
 	}
 
@@ -115,7 +113,7 @@ func TestCryptoConfig_DecodedKey(t *testing.T) {
 func TestCryptoConfig_DecodedKey_Empty(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.CryptoConfig{}
+	cfg := CryptoConfig{}
 
 	_, err := cfg.DecodedKey()
 
@@ -127,7 +125,7 @@ func TestCryptoConfig_DecodedKey_Empty(t *testing.T) {
 func TestCryptoConfig_DecodedKey_InvalidBase64(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.CryptoConfig{Key: "not-valid-base64!!!"}
+	cfg := CryptoConfig{Key: "not-valid-base64!!!"}
 
 	_, err := cfg.DecodedKey()
 
@@ -139,7 +137,7 @@ func TestCryptoConfig_DecodedKey_InvalidBase64(t *testing.T) {
 func TestCryptoConfig_DecodedKey_WrongLength(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.CryptoConfig{
+	cfg := CryptoConfig{
 		Key: base64.StdEncoding.EncodeToString(make([]byte, 16)),
 	}
 
@@ -154,7 +152,7 @@ func TestCryptoConfig_DecodedKey_LaravelBase64Prefix(t *testing.T) {
 	t.Parallel()
 
 	raw := make([]byte, 32)
-	cfg := config.CryptoConfig{
+	cfg := CryptoConfig{
 		Key: "base64:" + base64.StdEncoding.EncodeToString(raw),
 	}
 

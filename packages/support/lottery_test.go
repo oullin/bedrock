@@ -77,9 +77,11 @@ func TestLotteryWinnerCallback(t *testing.T) {
 	t.Parallel()
 
 	var result string
+
 	NewLottery(1, 1).
 		Winner(func(args ...any) any {
 			result = "won"
+
 			return nil
 		}).
 		Run()
@@ -94,9 +96,11 @@ func TestLotteryLoserCallback(t *testing.T) {
 	t.Parallel()
 
 	var result string
+
 	NewLottery(0, 1).
 		Loser(func(args ...any) any {
 			result = "lost"
+
 			return nil
 		}).
 		Run()
@@ -111,9 +115,11 @@ func TestLotteryPassesArgs(t *testing.T) {
 	t.Parallel()
 
 	var received []any
+
 	NewLottery(1, 1).
 		Winner(func(args ...any) any {
 			received = args
+
 			return nil
 		}).
 		Run("hello", 42)
@@ -160,6 +166,7 @@ func TestLotteryOdds(t *testing.T) {
 
 	l := LotteryOdds(1, 1)
 	l.ForceWin()
+
 	if !l.Choose() {
 		t.Error("LotteryOdds alias should work")
 	}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bedrock/packages/inertia/wayfinder"
+	"github.com/bedrock/packages/wayfinder"
 )
 
 type app struct {

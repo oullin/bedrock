@@ -12,6 +12,7 @@ func init_array() {
 // Params: optional "strict" or "ignore_case"
 func validateDistinct(_ string, value any, params []string, _ RuleContext) bool {
 	arr, ok := value.([]any)
+
 	if !ok {
 		return true // non-array values are considered passing
 	}
@@ -21,6 +22,7 @@ func validateDistinct(_ string, value any, params []string, _ RuleContext) bool 
 
 	for _, item := range arr {
 		key := stringify(item)
+
 		if ignoreCase {
 			key = toLower(key)
 		}
@@ -39,6 +41,7 @@ func validateDistinct(_ string, value any, params []string, _ RuleContext) bool 
 // Params: [key1, key2, ...]
 func validateRequiredArrayKeys(_ string, value any, params []string, _ RuleContext) bool {
 	m, ok := value.(map[string]any)
+
 	if !ok {
 		return false
 	}
@@ -56,6 +59,7 @@ func validateRequiredArrayKeys(_ string, value any, params []string, _ RuleConte
 // Params: [key1, key2, ...]
 func validateInArrayKeys(_ string, value any, params []string, _ RuleContext) bool {
 	m, ok := value.(map[string]any)
+
 	if !ok {
 		return true
 	}
@@ -73,6 +77,7 @@ func validateInArrayKeys(_ string, value any, params []string, _ RuleContext) bo
 // Params: [value1, value2, ...]
 func validateContains(_ string, value any, params []string, _ RuleContext) bool {
 	arr, ok := value.([]any)
+
 	if !ok {
 		return false
 	}
@@ -83,6 +88,7 @@ func validateContains(_ string, value any, params []string, _ RuleContext) bool 
 		for _, item := range arr {
 			if stringify(item) == p {
 				found = true
+
 				break
 			}
 		}
@@ -98,6 +104,7 @@ func validateContains(_ string, value any, params []string, _ RuleContext) bool 
 // validateDoesntContain: array must not contain any of the specified values.
 func validateDoesntContain(_ string, value any, params []string, _ RuleContext) bool {
 	arr, ok := value.([]any)
+
 	if !ok {
 		return true
 	}
@@ -113,8 +120,10 @@ func validateDoesntContain(_ string, value any, params []string, _ RuleContext) 
 
 func toLower(s string) string {
 	result := make([]byte, len(s))
+
 	for i := range s {
 		c := s[i]
+
 		if c >= 'A' && c <= 'Z' {
 			c += 32
 		}

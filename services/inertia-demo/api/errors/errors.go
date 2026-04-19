@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia/wayfinder"
+	"github.com/bedrock/packages/wayfinder"
 )
 
 // Container contains the host application integrations required by the errors package.

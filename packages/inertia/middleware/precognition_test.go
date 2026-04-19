@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/middleware"
+	"github.com/bedrock/packages/inertia/protocol"
 )
 
 func TestPrecognition_SetsVaryHeader(t *testing.T) {

@@ -31,6 +31,7 @@ func init_date() {
 
 func parseDate(value any) (time.Time, bool) {
 	s, ok := value.(string)
+
 	if !ok {
 		return time.Time{}, false
 	}
@@ -39,6 +40,7 @@ func parseDate(value any) (time.Time, bool) {
 
 	for _, layout := range commonDateLayouts {
 		t, err := time.Parse(layout, s)
+
 		if err == nil {
 			return t, true
 		}
@@ -78,6 +80,7 @@ func phpFormatToGo(format string) string {
 
 func validateDate(_ string, value any, _ []string, _ RuleContext) bool {
 	_, ok := parseDate(value)
+
 	return ok
 }
 
@@ -87,6 +90,7 @@ func validateDateFormat(_ string, value any, params []string, _ RuleContext) boo
 	}
 
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
@@ -100,6 +104,7 @@ func validateDateFormat(_ string, value any, params []string, _ RuleContext) boo
 func resolveDate(param string, ctx RuleContext) (time.Time, bool) {
 	// Check if param is a field name
 	other := ctx.GetValue(param)
+
 	if other != nil {
 		return parseDate(other)
 	}
@@ -114,11 +119,13 @@ func validateDateEquals(_ string, value any, params []string, ctx RuleContext) b
 	}
 
 	t1, ok1 := parseDate(value)
+
 	if !ok1 {
 		return false
 	}
 
 	t2, ok2 := resolveDate(params[0], ctx)
+
 	if !ok2 {
 		return false
 	}
@@ -132,11 +139,13 @@ func validateBefore(_ string, value any, params []string, ctx RuleContext) bool 
 	}
 
 	t1, ok1 := parseDate(value)
+
 	if !ok1 {
 		return false
 	}
 
 	t2, ok2 := resolveDate(params[0], ctx)
+
 	if !ok2 {
 		return false
 	}
@@ -150,11 +159,13 @@ func validateBeforeOrEqual(_ string, value any, params []string, ctx RuleContext
 	}
 
 	t1, ok1 := parseDate(value)
+
 	if !ok1 {
 		return false
 	}
 
 	t2, ok2 := resolveDate(params[0], ctx)
+
 	if !ok2 {
 		return false
 	}
@@ -168,11 +179,13 @@ func validateAfter(_ string, value any, params []string, ctx RuleContext) bool {
 	}
 
 	t1, ok1 := parseDate(value)
+
 	if !ok1 {
 		return false
 	}
 
 	t2, ok2 := resolveDate(params[0], ctx)
+
 	if !ok2 {
 		return false
 	}
@@ -186,11 +199,13 @@ func validateAfterOrEqual(_ string, value any, params []string, ctx RuleContext)
 	}
 
 	t1, ok1 := parseDate(value)
+
 	if !ok1 {
 		return false
 	}
 
 	t2, ok2 := resolveDate(params[0], ctx)
+
 	if !ok2 {
 		return false
 	}
@@ -201,6 +216,7 @@ func validateAfterOrEqual(_ string, value any, params []string, ctx RuleContext)
 // validateTimezone checks if value is a valid IANA timezone identifier.
 func validateTimezone(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}

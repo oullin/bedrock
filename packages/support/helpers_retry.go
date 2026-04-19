@@ -18,6 +18,7 @@ func Retry(times int, fn func(attempt int) error, sleep ...any) error {
 
 	for attempt := 1; attempt <= times; attempt++ {
 		lastErr = fn(attempt)
+
 		if lastErr == nil {
 			return nil
 		}
@@ -29,6 +30,7 @@ func Retry(times int, fn func(attempt int) error, sleep ...any) error {
 
 		if len(sleep) > 0 {
 			d := resolveSleepDuration(sleep[0], attempt)
+
 			if d > 0 {
 				time.Sleep(d)
 			}
@@ -45,6 +47,7 @@ func RetryWhen(times int, fn func(attempt int) error, when func(error) bool, sle
 
 	for attempt := 1; attempt <= times; attempt++ {
 		lastErr = fn(attempt)
+
 		if lastErr == nil {
 			return nil
 		}
@@ -59,6 +62,7 @@ func RetryWhen(times int, fn func(attempt int) error, when func(error) bool, sle
 
 		if len(sleep) > 0 {
 			d := resolveSleepDuration(sleep[0], attempt)
+
 			if d > 0 {
 				time.Sleep(d)
 			}
@@ -76,10 +80,13 @@ func resolveSleepDuration(sleep any, attempt int) time.Duration {
 		if len(v) == 0 {
 			return 0
 		}
+
 		idx := attempt - 1
+
 		if idx >= len(v) {
 			idx = len(v) - 1
 		}
+
 		return time.Duration(v[idx]) * time.Millisecond
 	case func(int) time.Duration:
 		return v(attempt)
@@ -96,6 +103,7 @@ func ThrowIf(condition bool, err error) error {
 	if condition {
 		return err
 	}
+
 	return nil
 }
 

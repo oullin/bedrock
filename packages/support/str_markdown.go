@@ -20,9 +20,11 @@ func StrMarkdown(str string, options ...map[string]any) string {
 	opts := mergeMarkdownOptions(options)
 
 	unsafe := false
+
 	if allow, ok := opts["html_input"].(string); ok && allow == "allow" {
 		unsafe = true
 	}
+
 	if u, ok := opts["allow_unsafe_links"].(bool); ok && u {
 		unsafe = true
 	}
@@ -33,6 +35,7 @@ func StrMarkdown(str string, options ...map[string]any) string {
 			parser.WithAutoHeadingID(),
 		),
 	}
+
 	if unsafe {
 		mdOpts = append(mdOpts, goldmark.WithRendererOptions(html.WithUnsafe()))
 	}
@@ -40,9 +43,11 @@ func StrMarkdown(str string, options ...map[string]any) string {
 	md := goldmark.New(mdOpts...)
 
 	var buf bytes.Buffer
+
 	if err := md.Convert([]byte(str), &buf); err != nil {
 		return str
 	}
+
 	return buf.String()
 }
 
@@ -54,6 +59,7 @@ func StrInlineMarkdown(str string, options ...map[string]any) string {
 
 	// Remove wrapping <p> tags for inline content
 	result = strings.TrimSpace(result)
+
 	if strings.HasPrefix(result, "<p>") && strings.HasSuffix(result, "</p>") {
 		inner := result[3 : len(result)-4]
 		// Only strip if there's a single paragraph (no nested block elements)
@@ -70,10 +76,12 @@ func mergeMarkdownOptions(options []map[string]any) map[string]any {
 		"html_input":         "strip",
 		"allow_unsafe_links": false,
 	}
+
 	if len(options) > 0 {
 		for k, v := range options[0] {
 			merged[k] = v
 		}
 	}
+
 	return merged
 }

@@ -43,20 +43,20 @@ features := inception.Features{
 features := inception.DefaultFeatures()
 ```
 
-| Feature | What it provides |
-|---------|-----------------|
-| `Registration` | `/register` endpoint + `CreatesNewUsers` action |
-| `ResetPasswords` | `/forgot-password`, `/reset-password` flow + email delivery |
-| `EmailVerification` | Signed verification links + middleware |
-| `UpdateProfileInformation` | `PUT /user/profile-information` |
-| `UpdatePasswords` | `PUT /user/password` |
-| `TwoFactorAuthentication` | TOTP enrollment, challenge, recovery codes |
-| `ConfirmPassword` | Password-gated re-confirmation for sensitive actions |
-| `Teams` | Team creation, switching, roles, member management |
-| `APITokens` | Personal access tokens with abilities |
-| `ProfilePhotos` | Avatar upload and storage |
-| `AccountDeletion` | Self-service account deletion |
-| `BrowserSessions` | List and revoke active sessions |
+| Feature                    | What it provides                                            |
+| -------------------------- | ----------------------------------------------------------- |
+| `Registration`             | `/register` endpoint + `CreatesNewUsers` action             |
+| `ResetPasswords`           | `/forgot-password`, `/reset-password` flow + email delivery |
+| `EmailVerification`        | Signed verification links + middleware                      |
+| `UpdateProfileInformation` | `PUT /user/profile-information`                             |
+| `UpdatePasswords`          | `PUT /user/password`                                        |
+| `TwoFactorAuthentication`  | TOTP enrollment, challenge, recovery codes                  |
+| `ConfirmPassword`          | Password-gated re-confirmation for sensitive actions        |
+| `Teams`                    | Team creation, switching, roles, member management          |
+| `APITokens`                | Personal access tokens with abilities                       |
+| `ProfilePhotos`            | Avatar upload and storage                                   |
+| `AccountDeletion`          | Self-service account deletion                               |
+| `BrowserSessions`          | List and revoke active sessions                             |
 
 ## Building an Instance
 
@@ -139,8 +139,8 @@ dispatcher.Listen(inception.TeamCreated{},    onTeamCreated)
 
 ## When to Use `inception` vs `auth` + `fortify` + `jetstream`
 
-| Use `inception` when | Use the à la carte packages when |
-|---------------------|----------------------------------|
-| You want a drop-in auth scaffold | You need fine-grained control |
-| Feature flags match your needs   | Your domain model diverges      |
+| Use `inception` when             | Use the à la carte packages when |
+| -------------------------------- | -------------------------------- |
+| You want a drop-in auth scaffold | You need fine-grained control    |
+| Feature flags match your needs   | Your domain model diverges       |
 | Opinionated routes are fine      | You want to design your own URLs |

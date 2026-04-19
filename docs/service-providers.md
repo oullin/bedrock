@@ -38,12 +38,12 @@ type ServiceProvider interface {
 
 Optional capabilities:
 
-| Interface  | Purpose |
-|---|---|
-| `Bootable` | Run code after every provider has registered (event listeners, middleware aliases, default channels). |
-| `Provides` | Declare the abstract keys this provider binds. Used for introspection and deferred resolution. |
-| `Deferred` | Opt-in lazy registration. Bindings are not created until first `Make`. |
-| `DependsOn` | Declare provider-level dependencies so `RegisterMany` can topologically sort. |
+| Interface   | Purpose                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| `Bootable`  | Run code after every provider has registered (event listeners, middleware aliases, default channels). |
+| `Provides`  | Declare the abstract keys this provider binds. Used for introspection and deferred resolution.        |
+| `Deferred`  | Opt-in lazy registration. Bindings are not created until first `Make`.                                |
+| `DependsOn` | Declare provider-level dependencies so `RegisterMany` can topologically sort.                         |
 
 ## Writing a provider
 
@@ -217,9 +217,9 @@ mgr, err := bedrock.TryResolve[*notifications.Manager]("notifications")
 
 ## Container vs Application
 
-| API | Provided by | Use when |
-|---|---|---|
-| `Bind`, `Singleton`, `Instance`, `Tag`, `Extend`, `Resolving`, ... | `*container.Container` | Building a provider's `Register()` body. |
+| API                                                                                                                | Provided by              | Use when                                                          |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------ | ----------------------------------------------------------------- |
+| `Bind`, `Singleton`, `Instance`, `Tag`, `Extend`, `Resolving`, ...                                                 | `*container.Container`   | Building a provider's `Register()` body.                          |
 | `Register`, `RegisterMany`, `Boot`, `Make`, `MakeWith`, `Get`, `HasProvider`, `ProviderFor`, `Providers`, `Booted` | `*container.Application` | Wiring the app and resolving services from outside provider code. |
 
 `Application` embeds `Container` — every Container method is reachable on
@@ -231,25 +231,25 @@ deferred-provider flushing.
 Every package below ships a `*ServiceProvider`. Click through to the
 constructor for its options.
 
-| Package | Provider | Abstract key |
-|---|---|---|
-| `events` | `NewEventsServiceProvider` | `events` |
-| `hashing` | `NewHashingServiceProvider`, `NewHashingServiceProviderWithDefaults` | `hash` |
-| `encryption` | `NewEncryptionServiceProvider` | `encrypter` |
-| `cache` | `NewCacheServiceProvider` | `cache` |
-| `session` | `NewSessionServiceProvider` | `session` |
-| `cookie` | `NewCookieServiceProvider` | `cookie` |
-| `redis` | `NewRedisServiceProvider` | `redis` |
-| `filesystem` | `NewFilesystemServiceProvider` | `files` |
-| `auth` | `NewAuthServiceProvider` | `auth` |
-| `log` | `NewLogServiceProvider` | `log` |
-| `queue` | `NewQueueServiceProvider` | `queue` |
-| `bus` | `NewBusServiceProvider` | `bus` |
-| `notifications` | `NewNotificationsServiceProvider` | `notifications` |
-| `mailx` | `NewMailServiceProvider` | `mailer` |
-| `translation` | `NewTranslationServiceProvider` | `translator` |
-| `validation` | `NewValidationServiceProvider` | `validator` |
-| `routing` | `NewRoutingServiceProvider` | `router`, `routes`, `url`, `redirect`, `response.factory`, `routing.callable_dispatcher`, `routing.controller_dispatcher` |
-| `concurrency` | `NewConcurrencyServiceProvider` | `concurrency` |
-| `spark` | `NewSparkServiceProvider` | `spark`, `spark.config` |
-| `inception` | `NewInceptionServiceProvider` | `inception` |
+| Package         | Provider                                                             | Abstract key                                                                                                              |
+| --------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `events`        | `NewEventsServiceProvider`                                           | `events`                                                                                                                  |
+| `hashing`       | `NewHashingServiceProvider`, `NewHashingServiceProviderWithDefaults` | `hash`                                                                                                                    |
+| `encryption`    | `NewEncryptionServiceProvider`                                       | `encrypter`                                                                                                               |
+| `cache`         | `NewCacheServiceProvider`                                            | `cache`                                                                                                                   |
+| `session`       | `NewSessionServiceProvider`                                          | `session`                                                                                                                 |
+| `cookie`        | `NewCookieServiceProvider`                                           | `cookie`                                                                                                                  |
+| `redis`         | `NewRedisServiceProvider`                                            | `redis`                                                                                                                   |
+| `filesystem`    | `NewFilesystemServiceProvider`                                       | `files`                                                                                                                   |
+| `auth`          | `NewAuthServiceProvider`                                             | `auth`                                                                                                                    |
+| `log`           | `NewLogServiceProvider`                                              | `log`                                                                                                                     |
+| `queue`         | `NewQueueServiceProvider`                                            | `queue`                                                                                                                   |
+| `bus`           | `NewBusServiceProvider`                                              | `bus`                                                                                                                     |
+| `notifications` | `NewNotificationsServiceProvider`                                    | `notifications`                                                                                                           |
+| `mailx`         | `NewMailServiceProvider`                                             | `mailer`                                                                                                                  |
+| `translation`   | `NewTranslationServiceProvider`                                      | `translator`                                                                                                              |
+| `validation`    | `NewValidationServiceProvider`                                       | `validator`                                                                                                               |
+| `routing`       | `NewRoutingServiceProvider`                                          | `router`, `routes`, `url`, `redirect`, `response.factory`, `routing.callable_dispatcher`, `routing.controller_dispatcher` |
+| `concurrency`   | `NewConcurrencyServiceProvider`                                      | `concurrency`                                                                                                             |
+| `spark`         | `NewSparkServiceProvider`                                            | `spark`, `spark.config`                                                                                                   |
+| `inception`     | `NewInceptionServiceProvider`                                        | `inception`                                                                                                               |

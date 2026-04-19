@@ -1,4 +1,4 @@
-package config_test
+package middleware_test
 
 import (
 	"net/http"
@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/config"
+	"github.com/bedrock/packages/inertia/middleware"
 )
 
 func TestDefaultCSRF(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.DefaultCSRF()
+	cfg := middleware.DefaultCSRF()
 
 	if cfg.CookieName != "XSRF-TOKEN" {
 		t.Errorf("CookieName = %q, want %q", cfg.CookieName, "XSRF-TOKEN")
@@ -41,7 +41,7 @@ secure: true
 		t.Fatal(err)
 	}
 
-	cfg, err := config.LoadCSRF(path)
+	cfg, err := middleware.LoadCSRF(path)
 
 	if err != nil {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ cookie_name: "FILE-TOKEN"
 		t.Fatal(err)
 	}
 
-	cfg, err := config.LoadCSRF(path)
+	cfg, err := middleware.LoadCSRF(path)
 
 	if err != nil {
 		t.Fatal(err)
@@ -89,7 +89,7 @@ cookie_name: "FILE-TOKEN"
 func TestLoadCSRF_FileNotFound(t *testing.T) {
 	t.Parallel()
 
-	_, err := config.LoadCSRF("/nonexistent/csrf.yml")
+	_, err := middleware.LoadCSRF("/nonexistent/csrf.yml")
 
 	if err == nil {
 		t.Error("expected error for missing file")
@@ -99,7 +99,7 @@ func TestLoadCSRF_FileNotFound(t *testing.T) {
 func TestCSRFConfig_Defaults_FillsEmptyFields(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.CSRFConfig{}
+	cfg := middleware.CSRFConfig{}
 
 	cfg.Defaults()
 
@@ -115,7 +115,7 @@ func TestCSRFConfig_Defaults_FillsEmptyFields(t *testing.T) {
 func TestCSRFConfig_Defaults_PreservesExistingValues(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.CSRFConfig{
+	cfg := middleware.CSRFConfig{
 		CookieName: "CUSTOM-TOKEN",
 		SameSite:   "strict",
 	}
@@ -150,7 +150,7 @@ func TestCSRFConfig_SameSiteMode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			cfg := config.CSRFConfig{SameSite: tt.input}
+			cfg := middleware.CSRFConfig{SameSite: tt.input}
 			got := cfg.SameSiteMode()
 
 			if got != tt.want {

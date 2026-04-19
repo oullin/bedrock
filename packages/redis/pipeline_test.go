@@ -15,15 +15,20 @@ func TestPipelineExecutesInOrder(t *testing.T) {
 	results, err := c.Pipeline(ctx, func(p redis.Pipeliner) error {
 		p.Do(ctx, "SET", "k", "v")
 		p.Do(ctx, "GET", "k")
+
 		return nil
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(results) != 2 {
 		t.Fatalf("want 2 results got %d", len(results))
 	}
+
 	v, err := results[1].Result()
+
 	if err != nil || v != "v" {
 		t.Fatalf("pipelined GET = %v err=%v", v, err)
 	}
@@ -35,8 +40,10 @@ func TestTransactionDiscardsOnError(t *testing.T) {
 	ctx := context.Background()
 	_, err := c.Transaction(ctx, func(p redis.Pipeliner) error {
 		p.Do(ctx, "SET", "k", "v")
+
 		return context.Canceled
 	})
+
 	if err != context.Canceled {
 		t.Fatalf("want context.Canceled, got %v", err)
 	}

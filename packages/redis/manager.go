@@ -33,12 +33,15 @@ func NewManager(defaultConn string, configs map[string]ConnectionConfig) *Manage
 		drivers:       make(map[string]DriverFactory),
 		events:        NewEventDispatcher(),
 	}
+
 	for k, v := range configs {
 		m.configs[k] = v
 	}
+
 	m.drivers["default"] = DialSingle
 	m.drivers["cluster"] = DialCluster
 	m.drivers["sentinel"] = DialSentinel
+
 	return m
 }
 
@@ -54,9 +57,11 @@ func (m *Manager) Extend(driver string, factory DriverFactory) {
 func (m *Manager) Register(name string, conn *Connection) {
 	m.mu.Lock()
 	m.connections[name] = conn
+
 	if m.events.Enabled() {
 		conn.Events().Enable()
 	}
+
 	m.mu.Unlock()
 }
 
@@ -73,33 +78,43 @@ func (m *Manager) Connection(name string) (*Connection, error) {
 	if name == "" {
 		name = m.defaultDriver
 	}
+
 	m.mu.RLock()
 	conn, ok := m.connections[name]
 	m.mu.RUnlock()
+
 	if ok {
 		return conn, nil
 	}
+
 	return m.Resolve(name)
 }
 
 // Resolve always builds a fresh connection (parity with ::resolve).
 func (m *Manager) Resolve(name string) (*Connection, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	cfg, ok := m.configs[name]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrConnectionNotFound, name)
 	}
+
 	driver := driverFor(cfg)
 	factory, ok := m.drivers[driver]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrDriverNotFound, driver)
 	}
+
 	client, err := factory(cfg)
+
 	if err != nil {
 		return nil, err
 	}
+
 	conn := NewConnection(name, client)
 	conn.isCluster = cfg.Cluster != nil
 	// Inherit manager-wide event enablement.
@@ -108,28 +123,36 @@ func (m *Manager) Resolve(name string) (*Connection, error) {
 		// Fan out dispatcher listeners to the connection.
 		conn.Events().Listen(func(e CommandExecuted) { m.events.Dispatch(e) })
 	}
+
 	m.connections[name] = conn
+
 	return conn, nil
 }
 
 // Connections returns a snapshot of cached connections.
 func (m *Manager) Connections() map[string]*Connection {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
+
 	out := make(map[string]*Connection, len(m.connections))
+
 	for k, v := range m.connections {
 		out[k] = v
 	}
+
 	return out
 }
 
 // Purge removes a cached connection so it will be rebuilt on next access.
 func (m *Manager) Purge(name string) {
 	m.mu.Lock()
+
 	if c, ok := m.connections[name]; ok {
 		_ = c.Close()
 		delete(m.connections, name)
 	}
+
 	m.mu.Unlock()
 }
 
@@ -143,7 +166,9 @@ func (m *Manager) SetDriver(name string) {
 // DefaultConnection returns the default connection name.
 func (m *Manager) DefaultConnection() string {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
+
 	return m.defaultDriver
 }
 
@@ -152,9 +177,11 @@ func (m *Manager) DefaultConnection() string {
 func (m *Manager) EnableEvents() {
 	m.mu.Lock()
 	m.events.Enable()
+
 	for _, c := range m.connections {
 		c.Events().Enable()
 	}
+
 	m.mu.Unlock()
 }
 
@@ -162,9 +189,11 @@ func (m *Manager) EnableEvents() {
 func (m *Manager) DisableEvents() {
 	m.mu.Lock()
 	m.events.Disable()
+
 	for _, c := range m.connections {
 		c.Events().Disable()
 	}
+
 	m.mu.Unlock()
 }
 

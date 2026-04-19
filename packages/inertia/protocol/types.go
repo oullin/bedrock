@@ -3,7 +3,6 @@ package protocol
 import "errors"
 
 // ErrNotFound indicates the requested resource could not be found.
-var ErrNotFound = errors.New("not found")
 
 // Props holds page properties passed to the frontend component.
 type Props map[string]any
@@ -29,3 +28,5 @@ type JSONMarshaler interface {
 type Logger interface {
 	Printf(format string, v ...any)
 }
+
+var ErrNotFound = errors.New("not found")

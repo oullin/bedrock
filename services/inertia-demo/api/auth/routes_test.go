@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/encryption"
+	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/assert"
-	"github.com/bedrock/packages/inertia/cryptox"
 	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 	"github.com/bedrock/services/inertia-demo/api/internal/seed"
 	"github.com/bedrock/services/inertia-demo/api/internal/testutil"
@@ -21,6 +21,42 @@ import (
 
 // testCryptoKey is a zero-filled 32-byte key used only in tests.
 var testCryptoKey = make([]byte, 32)
+
+func encryptForTest(t *testing.T, plaintext string) string {
+	t.Helper()
+
+	enc, err := encryption.NewEncrypter(testCryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		t.Fatalf("encrypter: %v", err)
+	}
+
+	s, err := enc.EncryptString(plaintext)
+
+	if err != nil {
+		t.Fatalf("encrypt: %v", err)
+	}
+
+	return s
+}
+
+func decryptForTest(t *testing.T, encoded string) string {
+	t.Helper()
+
+	enc, err := encryption.NewEncrypter(testCryptoKey, encryption.AES256CBC)
+
+	if err != nil {
+		t.Fatalf("encrypter: %v", err)
+	}
+
+	s, err := enc.DecryptString(encoded)
+
+	if err != nil {
+		t.Fatalf("decrypt: %v", err)
+	}
+
+	return s
+}
 
 func TestLoginHandlerRendersPage(t *testing.T) {
 	t.Parallel()
@@ -82,11 +118,7 @@ func TestLoginHandlerCreatesSession(t *testing.T) {
 
 	cookie := testutil.FindCookie(t, w, SessionCookieName)
 
-	decrypted, err := cryptox.Decrypt(cookie.Value, testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("decrypt session cookie: %v", err)
-	}
+	decrypted := decryptForTest(t, cookie.Value)
 
 	if decrypted != wantID {
 		t.Fatalf("session cookie value = %q, want %q", decrypted, wantID)
@@ -126,11 +158,7 @@ func TestLoginHandlerCreatesSessionFromJSON(t *testing.T) {
 
 	cookie := testutil.FindCookie(t, w, SessionCookieName)
 
-	decrypted, err := cryptox.Decrypt(cookie.Value, testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("decrypt session cookie: %v", err)
-	}
+	decrypted := decryptForTest(t, cookie.Value)
 
 	if decrypted != wantID {
 		t.Fatalf("session cookie value = %q, want %q", decrypted, wantID)
@@ -187,11 +215,7 @@ func TestLogoutHandlerClearsSession(t *testing.T) {
 		t.Fatalf("FindUserByEmail() error = %v", err)
 	}
 
-	encrypted, err := cryptox.Encrypt(strconv.FormatInt(user.ID, 10), testCryptoKey)
-
-	if err != nil {
-		t.Fatal(err)
-	}
+	encrypted := encryptForTest(t, strconv.FormatInt(user.ID, 10))
 
 	req := httptest.NewRequest(http.MethodPost, "/logout", nil)
 
@@ -237,11 +261,7 @@ func TestWithCurrentUserLoadsUserFromCookie(t *testing.T) {
 		t.Fatalf("FindUserByEmail() error = %v", err)
 	}
 
-	encrypted, err := cryptox.Encrypt(strconv.FormatInt(user.ID, 10), testCryptoKey)
-
-	if err != nil {
-		t.Fatal(err)
-	}
+	encrypted := encryptForTest(t, strconv.FormatInt(user.ID, 10))
 
 	req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
 

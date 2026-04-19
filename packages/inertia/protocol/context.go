@@ -1,14 +1,17 @@
 package protocol
 
-import "context"
+import (
+	"context"
 
-var (
-	ctxKeyCSRFToken    = &ctxKey{"csrfToken"}
-	ctxKeyLocale       = &ctxKey{"locale"}
-	ctxKeyPrecognition = &ctxKey{"precognition"}
+	"github.com/bedrock/packages/seo"
 )
 
 type ctxKey struct{ name string }
+
+var (
+	ctxKeyCSRFToken    = &ctxKey{"csrfToken"}
+	ctxKeyPrecognition = &ctxKey{"precognition"}
+)
 
 // SetCSRFToken stores a CSRF token in the request context. When present,
 // Render automatically adds <meta name="csrf-token" content="TOKEN"> to
@@ -24,17 +27,11 @@ func CSRFTokenFromContext(ctx context.Context) string {
 	return s
 }
 
-// SetLocale stores the resolved locale in the request context.
-func SetLocale(ctx context.Context, locale *Locale) context.Context {
-	return context.WithValue(ctx, ctxKeyLocale, locale)
-}
+// SetLocale re-exports seo.SetLocale.
+var SetLocale = seo.SetLocale
 
-// LocaleFromContext returns the locale stored in context, or nil.
-func LocaleFromContext(ctx context.Context) *Locale {
-	l, _ := ctx.Value(ctxKeyLocale).(*Locale)
-
-	return l
-}
+// LocaleFromContext re-exports seo.LocaleFromContext.
+var LocaleFromContext = seo.LocaleFromContext
 
 // SetPrecognition marks the request context as a precognition request.
 func SetPrecognition(ctx context.Context) context.Context {

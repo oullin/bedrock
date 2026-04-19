@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/cryptox"
 	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/services/inertia-demo/api/internal/database"
 )
@@ -73,11 +72,7 @@ func TestRequireAuthGuestOnlyAndCurrentUserBranches(t *testing.T) {
 		t.Fatalf("FindUserByEmail() error = %v", err)
 	}
 
-	encrypted, err := cryptox.Encrypt(strconv.FormatInt(user.ID, 10), testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("Encrypt() error = %v", err)
-	}
+	encrypted := encryptForTest(t, strconv.FormatInt(user.ID, 10))
 
 	req = httptest.NewRequest(http.MethodGet, "/login", nil)
 
@@ -116,11 +111,7 @@ func TestLoadCurrentUserAndPublicUser(t *testing.T) {
 	}
 
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
-	encrypted, err := cryptox.Encrypt("abc", testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("Encrypt() error = %v", err)
-	}
+	encrypted := encryptForTest(t, "abc")
 
 	req.AddCookie(&http.Cookie{Name: SessionCookieName, Value: encrypted})
 
@@ -135,11 +126,7 @@ func TestLoadCurrentUserAndPublicUser(t *testing.T) {
 	}
 
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
-	encrypted, err = cryptox.Encrypt(strconv.FormatInt(user.ID, 10), testCryptoKey)
-
-	if err != nil {
-		t.Fatalf("Encrypt() error = %v", err)
-	}
+	encrypted = encryptForTest(t, strconv.FormatInt(user.ID, 10))
 
 	req.AddCookie(&http.Cookie{Name: SessionCookieName, Value: encrypted})
 

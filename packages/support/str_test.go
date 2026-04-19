@@ -12,9 +12,11 @@ func TestStrWords(t *testing.T) {
 	if got := StrWords("This is a sentence", 3); got != "This is a..." {
 		t.Errorf("StrWords(3) = %q", got)
 	}
+
 	if got := StrWords("This is a sentence", 3, " >>>"); got != "This is a >>>" {
 		t.Errorf("StrWords(3, custom) = %q", got)
 	}
+
 	if got := StrWords("This is a sentence", 10); got != "This is a sentence" {
 		t.Errorf("StrWords(10) = %q", got)
 	}
@@ -39,6 +41,7 @@ func TestStrHeadline(t *testing.T) {
 		{"hello-world", "Hello World"},
 		{"hello world", "Hello World"},
 	}
+
 	for _, tc := range cases {
 		if got := StrHeadline(tc.in); got != tc.want {
 			t.Errorf("StrHeadline(%q) = %q, want %q", tc.in, got, tc.want)
@@ -53,9 +56,11 @@ func TestStrStartsWith(t *testing.T) {
 	if !StrStartsWith("jason", "jas") {
 		t.Error("startsWith(jas) should be true")
 	}
+
 	if !StrStartsWith("jason", "jason") {
 		t.Error("startsWith(jason) should be true")
 	}
+
 	if StrStartsWith("jason", "day") {
 		t.Error("startsWith(day) should be false")
 	}
@@ -72,12 +77,15 @@ func TestStrEndsWith(t *testing.T) {
 	if !StrEndsWith("jason", "on") {
 		t.Error("endsWith(on) should be true")
 	}
+
 	if !StrEndsWith("jason", "jason") {
 		t.Error("endsWith(jason) should be true")
 	}
+
 	if StrEndsWith("jason", "nope") {
 		t.Error("endsWith(nope) should be false")
 	}
+
 	if !StrEndsWith("jason", "on", "nope") {
 		t.Error("endsWith with multiple should find match")
 	}
@@ -90,9 +98,11 @@ func TestStrContains(t *testing.T) {
 	if !StrContains("taylor", "ylo") {
 		t.Error("contains(ylo) should be true")
 	}
+
 	if !StrContains("taylor", "taylor") {
 		t.Error("contains(full) should be true")
 	}
+
 	if StrContains("taylor", "nope") {
 		t.Error("contains(nope) should be false")
 	}
@@ -109,6 +119,7 @@ func TestStrContainsAll(t *testing.T) {
 	if !StrContainsAll("taylor otwell", []string{"taylor", "otwell"}) {
 		t.Error("containsAll should be true for both")
 	}
+
 	if StrContainsAll("taylor", []string{"taylor", "otwell"}) {
 		t.Error("containsAll should be false when one is missing")
 	}
@@ -124,8 +135,10 @@ func TestStrSlug(t *testing.T) {
 		{"My name is Taylor Otwell", "-", "my-name-is-taylor-otwell"},
 		{"hello---world", "-", "hello-world"},
 	}
+
 	for _, tc := range cases {
 		got := StrSlug(tc.in, tc.sep)
+
 		if got != tc.want {
 			t.Errorf("StrSlug(%q, %q) = %q, want %q", tc.in, tc.sep, got, tc.want)
 		}
@@ -142,8 +155,10 @@ func TestStrSnake(t *testing.T) {
 		{"foo bar", "foo_bar"},
 		{"HTMLParser", "html_parser"},
 	}
+
 	for _, tc := range cases {
 		got := StrSnake(tc.in)
+
 		if got != tc.want {
 			t.Errorf("StrSnake(%q) = %q, want %q", tc.in, got, tc.want)
 		}
@@ -160,8 +175,10 @@ func TestStrCamel(t *testing.T) {
 		{"foo bar", "fooBar"},
 		{"FooBar", "fooBar"},
 	}
+
 	for _, tc := range cases {
 		got := StrCamel(tc.in)
+
 		if got != tc.want {
 			t.Errorf("StrCamel(%q) = %q, want %q", tc.in, got, tc.want)
 		}
@@ -178,8 +195,10 @@ func TestStrStudly(t *testing.T) {
 		{"foo bar", "FooBar"},
 		{"fooBar", "FooBar"},
 	}
+
 	for _, tc := range cases {
 		got := StrStudly(tc.in)
+
 		if got != tc.want {
 			t.Errorf("StrStudly(%q) = %q, want %q", tc.in, got, tc.want)
 		}
@@ -202,9 +221,11 @@ func TestStrLimit(t *testing.T) {
 	if got := StrLimit("The quick brown fox jumped over the lazy dog", 20); got != "The quick brown fox ..." {
 		t.Errorf("StrLimit(20) = %q", got)
 	}
+
 	if got := StrLimit("Hello World", 100); got != "Hello World" {
 		t.Errorf("StrLimit(100) should return full string, got %q", got)
 	}
+
 	if got := StrLimit("Hello", 5, ""); got != "Hello" {
 		t.Errorf("StrLimit(5) exact = %q", got)
 	}
@@ -217,6 +238,7 @@ func TestStrAfter(t *testing.T) {
 	if got := StrAfter("hannah", "han"); got != "nah" {
 		t.Errorf("StrAfter = %q", got)
 	}
+
 	if got := StrAfter("hannah", ""); got != "hannah" {
 		t.Errorf("StrAfter empty = %q", got)
 	}
@@ -229,6 +251,7 @@ func TestStrBefore(t *testing.T) {
 	if got := StrBefore("hannah", "nah"); got != "han" {
 		t.Errorf("StrBefore = %q", got)
 	}
+
 	if got := StrBefore("hannah", ""); got != "hannah" {
 		t.Errorf("StrBefore empty = %q", got)
 	}
@@ -259,15 +282,19 @@ func TestStrIsJson(t *testing.T) {
 	if !StrIsJson(`{"key":"value"}`) {
 		t.Error("valid JSON should return true")
 	}
+
 	if !StrIsJson(`[1, 2, 3]`) {
 		t.Error("valid JSON array should return true")
 	}
+
 	if !StrIsJson(`"string"`) {
 		t.Error("valid JSON string should return true")
 	}
+
 	if StrIsJson(`not json`) {
 		t.Error("invalid JSON should return false")
 	}
+
 	if StrIsJson("") {
 		t.Error("empty string should return false")
 	}
@@ -280,9 +307,11 @@ func TestStrIsUuid(t *testing.T) {
 	if !StrIsUuid("550e8400-e29b-41d4-a716-446655440000") {
 		t.Error("valid UUID should return true")
 	}
+
 	if StrIsUuid("not-a-uuid") {
 		t.Error("invalid UUID should return false")
 	}
+
 	if StrIsUuid("") {
 		t.Error("empty should return false")
 	}
@@ -295,6 +324,7 @@ func TestStrIsUlid(t *testing.T) {
 	if !StrIsUlid("01ARZ3NDEKTSV4RRFFQ69G5FAV") {
 		t.Error("valid ULID should return true")
 	}
+
 	if StrIsUlid("not-a-ulid") {
 		t.Error("invalid ULID should return false")
 	}
@@ -305,6 +335,7 @@ func TestStrRandom(t *testing.T) {
 	t.Parallel()
 
 	r := StrRandom(16)
+
 	if len(r) != 16 {
 		t.Errorf("expected length 16, got %d", len(r))
 	}
@@ -323,14 +354,17 @@ func TestStrBase64(t *testing.T) {
 	t.Parallel()
 
 	encoded := StrToBase64("Hello World")
+
 	if encoded == "" {
 		t.Error("base64 encoding should not be empty")
 	}
 
 	decoded, err := StrFromBase64(encoded)
+
 	if err != nil {
 		t.Errorf("base64 decode error: %v", err)
 	}
+
 	if decoded != "Hello World" {
 		t.Errorf("round-trip failed: got %q", decoded)
 	}
@@ -379,6 +413,7 @@ func TestStrFinish(t *testing.T) {
 	if got := StrFinish("hello", "/"); got != "hello/" {
 		t.Errorf("StrFinish = %q", got)
 	}
+
 	if got := StrFinish("hello/", "/"); got != "hello/" {
 		t.Errorf("StrFinish already has suffix = %q", got)
 	}
@@ -391,6 +426,7 @@ func TestStrWrap(t *testing.T) {
 	if got := StrWrap("value", "'"); got != "'value'" {
 		t.Errorf("StrWrap = %q", got)
 	}
+
 	if got := StrWrap("value", "<", ">"); got != "<value>" {
 		t.Errorf("StrWrap asymmetric = %q", got)
 	}
@@ -403,6 +439,7 @@ func TestStrUnwrap(t *testing.T) {
 	if got := StrUnwrap("'value'", "'", "'"); got != "value" {
 		t.Errorf("StrUnwrap = %q", got)
 	}
+
 	if got := StrUnwrap("<value>", "<", ">"); got != "value" {
 		t.Errorf("StrUnwrap asymmetric = %q", got)
 	}
@@ -419,9 +456,11 @@ func TestStrSubstr(t *testing.T) {
 	if got := StrSubstr("hello world", 6); got != "world" {
 		t.Errorf("StrSubstr(6) = %q", got)
 	}
+
 	if got := StrSubstr("hello world", 0, 5); got != "hello" {
 		t.Errorf("StrSubstr(0, 5) = %q", got)
 	}
+
 	if got := StrSubstr("hello world", -5); got != "world" {
 		t.Errorf("StrSubstr(-5) = %q", got)
 	}
@@ -434,9 +473,11 @@ func TestStrMask(t *testing.T) {
 	if got := StrMask("taylor@example.com", "*", 3); got != "tay***************" {
 		t.Errorf("StrMask(3) = %q", got)
 	}
+
 	if got := StrMask("taylor@example.com", "*", -3); got != "taylor@example.***" {
 		t.Errorf("StrMask(-3) = %q", got)
 	}
+
 	if got := StrMask("taylor@example.com", "*", 3, 3); got != "tay***@example.com" {
 		t.Errorf("StrMask(3, 3) = %q", got)
 	}
@@ -449,6 +490,7 @@ func TestStrIsAscii(t *testing.T) {
 	if !StrIsAscii("hello") {
 		t.Error("ASCII string should be ASCII")
 	}
+
 	if StrIsAscii("héllo") {
 		t.Error("non-ASCII string should not be ASCII")
 	}
@@ -461,6 +503,7 @@ func TestStrChopStart(t *testing.T) {
 	if got := StrChopStart("foobar", "foo"); got != "bar" {
 		t.Errorf("StrChopStart = %q", got)
 	}
+
 	if got := StrChopStart("foobar", "baz"); got != "foobar" {
 		t.Errorf("StrChopStart no match = %q", got)
 	}
@@ -473,6 +516,7 @@ func TestStrChopEnd(t *testing.T) {
 	if got := StrChopEnd("foobar", "bar"); got != "foo" {
 		t.Errorf("StrChopEnd = %q", got)
 	}
+
 	if got := StrChopEnd("foobar", "baz"); got != "foobar" {
 		t.Errorf("StrChopEnd no match = %q", got)
 	}
@@ -496,6 +540,7 @@ func TestStrReplaceArray(t *testing.T) {
 	t.Parallel()
 
 	got := StrReplaceArray("?", []string{"foo", "bar"}, "? and ?")
+
 	if got != "foo and bar" {
 		t.Errorf("StrReplaceArray = %q", got)
 	}
@@ -526,6 +571,7 @@ func TestStrReplaceStart(t *testing.T) {
 	if got := StrReplaceStart("foo", "bar", "foobar"); got != "barbar" {
 		t.Errorf("StrReplaceStart = %q", got)
 	}
+
 	if got := StrReplaceStart("bar", "baz", "foobar"); got != "foobar" {
 		t.Errorf("StrReplaceStart no match = %q", got)
 	}
@@ -538,6 +584,7 @@ func TestStrReplaceEnd(t *testing.T) {
 	if got := StrReplaceEnd("bar", "baz", "foobar"); got != "foobaz" {
 		t.Errorf("StrReplaceEnd = %q", got)
 	}
+
 	if got := StrReplaceEnd("foo", "baz", "foobar"); got != "foobar" {
 		t.Errorf("StrReplaceEnd no match = %q", got)
 	}
@@ -572,6 +619,7 @@ func TestStrWordCount(t *testing.T) {
 	if got := StrWordCount("Hello World"); got != 2 {
 		t.Errorf("StrWordCount = %d", got)
 	}
+
 	if got := StrWordCount("one"); got != 1 {
 		t.Errorf("StrWordCount single = %d", got)
 	}
@@ -582,6 +630,7 @@ func TestStrReplaceMatches(t *testing.T) {
 	t.Parallel()
 
 	got := StrReplaceMatches(`\d+`, "number", "hello 123 world 456")
+
 	if got != "hello number world number" {
 		t.Errorf("StrReplaceMatches = %q", got)
 	}
@@ -594,6 +643,7 @@ func TestStrIsMatch(t *testing.T) {
 	if !StrIsMatch([]string{`\d+`}, "abc123") {
 		t.Error("should match digits pattern")
 	}
+
 	if StrIsMatch([]string{`^only-letters$`}, "abc123") {
 		t.Error("should not match letters-only pattern")
 	}
@@ -606,12 +656,15 @@ func TestStrIs(t *testing.T) {
 	if !StrIs("*oo*", "foobar") {
 		t.Error("wildcard pattern should match")
 	}
+
 	if !StrIs("foo*", "foobar") {
 		t.Error("prefix wildcard should match")
 	}
+
 	if StrIs("baz*", "foobar") {
 		t.Error("non-matching pattern should fail")
 	}
+
 	if !StrIs("*", "anything") {
 		t.Error("* should match anything")
 	}
@@ -622,6 +675,7 @@ func TestStrSwap(t *testing.T) {
 	t.Parallel()
 
 	got := StrSwap(map[string]string{"foo": "bar", "baz": "qux"}, "foo and baz")
+
 	if got != "bar and qux" {
 		t.Errorf("StrSwap = %q", got)
 	}
@@ -634,6 +688,7 @@ func TestStrTake(t *testing.T) {
 	if got := StrTake("hello", 3); got != "hel" {
 		t.Errorf("StrTake(3) = %q", got)
 	}
+
 	if got := StrTake("hello", -3); got != "llo" {
 		t.Errorf("StrTake(-3) = %q", got)
 	}
@@ -662,6 +717,7 @@ func TestStrUcsplit(t *testing.T) {
 	t.Parallel()
 
 	got := StrUcsplit("FooBar")
+
 	if len(got) != 2 || got[0] != "Foo" || got[1] != "Bar" {
 		t.Errorf("StrUcsplit(FooBar) = %v", got)
 	}
@@ -673,6 +729,7 @@ func TestStrExcerpt(t *testing.T) {
 
 	text := "This is my name"
 	got := StrExcerpt(text, "my", 5)
+
 	if !strings.Contains(got, "my") {
 		t.Errorf("StrExcerpt should contain 'my', got %q", got)
 	}
@@ -683,6 +740,7 @@ func TestStrMarkdown(t *testing.T) {
 	t.Parallel()
 
 	got := StrMarkdown("## Hello World")
+
 	if !strings.Contains(got, "<h2") {
 		t.Errorf("StrMarkdown should produce h2 tag, got %q", got)
 	}
@@ -693,9 +751,11 @@ func TestStrInlineMarkdown(t *testing.T) {
 	t.Parallel()
 
 	got := StrInlineMarkdown("**Hello**")
+
 	if strings.Contains(got, "<p>") {
 		t.Errorf("StrInlineMarkdown should not have <p> wrapper, got %q", got)
 	}
+
 	if !strings.Contains(got, "<strong>") {
 		t.Errorf("StrInlineMarkdown should have <strong>, got %q", got)
 	}
@@ -733,11 +793,13 @@ func TestStrPosition(t *testing.T) {
 	t.Parallel()
 
 	pos, ok := StrPosition("hello world", "world")
+
 	if !ok || pos != 6 {
 		t.Errorf("StrPosition = (%d, %v), want (6, true)", pos, ok)
 	}
 
 	_, ok2 := StrPosition("hello world", "missing")
+
 	if ok2 {
 		t.Error("StrPosition for missing should return false")
 	}
@@ -768,6 +830,7 @@ func TestStrTrim(t *testing.T) {
 	if got := StrTrim("  hello  "); got != "hello" {
 		t.Errorf("StrTrim = %q", got)
 	}
+
 	if got := StrTrim("//hello//", "/"); got != "hello" {
 		t.Errorf("StrTrim with chars = %q", got)
 	}
@@ -778,16 +841,19 @@ func TestStrPad(t *testing.T) {
 	t.Parallel()
 
 	got := StrPadBoth("hello", 11)
+
 	if got != "   hello   " {
 		t.Errorf("StrPadBoth = %q", got)
 	}
 
 	gotLeft := StrPadLeft("hello", 10)
+
 	if len(gotLeft) != 10 {
 		t.Errorf("StrPadLeft length = %d", len(gotLeft))
 	}
 
 	gotRight := StrPadRight("hello", 10)
+
 	if len(gotRight) != 10 {
 		t.Errorf("StrPadRight length = %d", len(gotRight))
 	}
@@ -807,6 +873,7 @@ func TestStrWordWrap(t *testing.T) {
 	t.Parallel()
 
 	got := StrWordWrap("The quick brown fox", 10)
+
 	if !strings.Contains(got, "\n") {
 		t.Errorf("StrWordWrap should contain newlines, got %q", got)
 	}
@@ -817,6 +884,7 @@ func TestStrOf(t *testing.T) {
 	t.Parallel()
 
 	result := Of("  hello world  ").Trim().Upper().Value()
+
 	if result != "HELLO WORLD" {
 		t.Errorf("fluent chain = %q", result)
 	}
@@ -826,6 +894,7 @@ func TestStrOf(t *testing.T) {
 func TestStrRandomFactory(t *testing.T) {
 	// NOT parallel — modifies global factory state
 	CreateRandomStringsUsing(func(int) string { return "fixed" })
+
 	defer CreateRandomStringsNormally()
 
 	if got := StrRandom(); got != "fixed" {
@@ -838,11 +907,13 @@ func TestStrRandomSequence(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := func() { CreateRandomStringsNormally() }
 	CreateRandomStringsUsingSequence([]string{"first", "second"})
+
 	defer cleanup()
 
 	if got := StrRandom(); got != "first" {
 		t.Errorf("first in sequence = %q", got)
 	}
+
 	if got := StrRandom(); got != "second" {
 		t.Errorf("second in sequence = %q", got)
 	}

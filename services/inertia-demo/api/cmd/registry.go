@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia"
-	"github.com/bedrock/packages/inertia/wayfinder"
+	"github.com/bedrock/packages/inertia/protocol"
+	"github.com/bedrock/packages/wayfinder"
 	"github.com/bedrock/services/inertia-demo/api/auth"
 	"github.com/bedrock/services/inertia-demo/api/crm"
 	demoerrors "github.com/bedrock/services/inertia-demo/api/errors"

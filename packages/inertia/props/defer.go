@@ -6,13 +6,13 @@ import "strings"
 // loads deferred props asynchronously after the page renders.
 // Props can be grouped so multiple deferred values are fetched together.
 
-const defaultDeferGroup = "default"
-
 type DeferProp struct {
 	Value any
 	Group string
 	merge bool
 }
+
+const defaultDeferGroup = "default"
 
 // Defer creates a deferred prop. An optional group name controls which
 // deferred props are loaded together; it defaults to "default".

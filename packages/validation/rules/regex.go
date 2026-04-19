@@ -13,6 +13,7 @@ func validateRegex(_ string, value any, params []string, _ RuleContext) bool {
 	}
 
 	s, ok := value.(string)
+
 	if !ok {
 		s = stringify(value)
 	}
@@ -25,6 +26,7 @@ func validateRegex(_ string, value any, params []string, _ RuleContext) bool {
 	}
 
 	re, err := regexp.Compile(pattern)
+
 	if err != nil {
 		return false
 	}

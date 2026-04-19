@@ -5,9 +5,9 @@ import "github.com/bedrock/packages/container"
 // RedisServiceProvider registers the Redis manager into the container.
 // It mirrors Illuminate\Redis\RedisServiceProvider.
 type RedisServiceProvider struct {
-	app        *container.Container
+	app         *container.Container
 	defaultConn string
-	configs    map[string]ConnectionConfig
+	configs     map[string]ConnectionConfig
 }
 
 // NewRedisServiceProvider constructs the provider.
@@ -15,9 +15,9 @@ type RedisServiceProvider struct {
 // configs maps connection names to their ConnectionConfig.
 func NewRedisServiceProvider(app *container.Container, defaultConn string, configs map[string]ConnectionConfig) *RedisServiceProvider {
 	return &RedisServiceProvider{
-		app:        app,
+		app:         app,
 		defaultConn: defaultConn,
-		configs:    configs,
+		configs:     configs,
 	}
 }
 

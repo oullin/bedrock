@@ -13,8 +13,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/bedrock/packages/inertia/config"
-	"github.com/bedrock/packages/inertia/cryptox"
+	"github.com/bedrock/packages/encryption"
 	"github.com/bedrock/packages/inertia/protocol"
 )
 
@@ -29,7 +28,7 @@ const statusPageExpired = 419
 // as a <meta> tag. Mutation requests must present the token via one of
 // three sources: _token form field, X-CSRF-TOKEN header, or X-XSRF-TOKEN
 // header (the encrypted cookie value, auto-sent by Axios).
-func CSRF(cfg config.CSRFConfig, key []byte) func(http.Handler) http.Handler {
+func CSRF(cfg CSRFConfig, key []byte) func(http.Handler) http.Handler {
 	cfg.Defaults()
 
 	return func(next http.Handler) http.Handler {
@@ -99,30 +98,6 @@ func CSRF(cfg config.CSRFConfig, key []byte) func(http.Handler) http.Handler {
 	}
 }
 
-// CSRFFromFile reads YAML config files and returns the CSRF middleware.
-// It loads both the CSRF config and the crypto config (for the encryption key).
-func CSRFFromFile(csrfPath, cryptoPath string) (func(http.Handler) http.Handler, error) {
-	cfg, err := config.LoadCSRF(csrfPath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	cryptoCfg, err := config.LoadCrypto(cryptoPath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := cryptoCfg.DecodedKey()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return CSRF(cfg, key), nil
-}
-
 func generateToken() (string, error) {
 	b := make([]byte, 32)
 
@@ -134,7 +109,13 @@ func generateToken() (string, error) {
 }
 
 func setTokenCookie(w http.ResponseWriter, name, token string, key []byte, secure bool, sameSite http.SameSite) error {
-	encrypted, err := cryptox.Encrypt(cookiePrefix(name, key)+token, key)
+	enc, err := encryption.NewEncrypter(key, encryption.AES256CBC)
+
+	if err != nil {
+		return fmt.Errorf("csrf: encrypter: %w", err)
+	}
+
+	encrypted, err := enc.EncryptString(cookiePrefix(name, key) + token)
 
 	if err != nil {
 		return fmt.Errorf("csrf: failed to encrypt token: %w", err)
@@ -159,7 +140,13 @@ func tokenFromCookie(r *http.Request, name string, key []byte) (string, error) {
 		return "", err
 	}
 
-	token, err := cryptox.Decrypt(cookie.Value, key)
+	enc, err := encryption.NewEncrypter(key, encryption.AES256CBC)
+
+	if err != nil {
+		return "", err
+	}
+
+	token, err := enc.DecryptString(cookie.Value)
 
 	if err != nil {
 		return "", err
@@ -191,7 +178,13 @@ func extractToken(r *http.Request, cookieName string, key []byte) (string, error
 			return "", err
 		}
 
-		token, err := cryptox.Decrypt(decoded, key)
+		enc, err := encryption.NewEncrypter(key, encryption.AES256CBC)
+
+		if err != nil {
+			return "", err
+		}
+
+		token, err := enc.DecryptString(decoded)
 
 		if err != nil {
 			return "", err

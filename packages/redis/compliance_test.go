@@ -19,9 +19,11 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 	// RedisConnectionTest.php :: testItGetsAndSetsKeys
 	t.Run("RedisConnectionTest/GetsAndSetsKeys", func(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
+
 		if err := c.Set(ctx, "name", "taylor", 0); err != nil {
 			t.Fatal(err)
 		}
+
 		if v, _ := c.Get(ctx, "name"); v != "taylor" {
 			t.Fatalf("got %q", v)
 		}
@@ -31,6 +33,7 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 	t.Run("RedisConnectionTest/DeletesKeys", func(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
 		_ = c.Set(ctx, "a", "1", 0)
+
 		if n, _ := c.Del(ctx, "a"); n != 1 {
 			t.Fatalf("Del=%d", n)
 		}
@@ -41,10 +44,13 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
 		_, _ = c.Incr(ctx, "counter")
 		n, _ := c.IncrBy(ctx, "counter", 4)
+
 		if n != 5 {
 			t.Fatalf("IncrBy=%d", n)
 		}
+
 		n, _ = c.Decr(ctx, "counter")
+
 		if n != 4 {
 			t.Fatalf("Decr=%d", n)
 		}
@@ -55,6 +61,7 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
 		_, _ = c.HSet(ctx, "h", "name", "taylor")
 		v, _ := c.HGet(ctx, "h", "name")
+
 		if v != "taylor" {
 			t.Fatalf("HGet=%q", v)
 		}
@@ -65,6 +72,7 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
 		_, _ = c.RPush(ctx, "l", "a", "b", "c")
 		vals, _ := c.LRange(ctx, "l", 0, -1)
+
 		if len(vals) != 3 {
 			t.Fatalf("LRange=%+v", vals)
 		}
@@ -73,9 +81,12 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 	// RedisEventsTest.php :: testCommandExecutedEventIsFired
 	t.Run("RedisEventsTest/CommandExecutedFired", func(t *testing.T) {
 		c := redis.NewConnection("default", mock.New())
+
 		var n int
+
 		c.Listen(func(redis.CommandExecuted) { n++ })
 		_, _ = c.Get(ctx, "k")
+
 		if n != 1 {
 			t.Fatalf("events fired=%d", n)
 		}
@@ -87,6 +98,7 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 		m.Extend("default", func(redis.ConnectionConfig) (redis.Client, error) {
 			return mock.New(), nil
 		})
+
 		if _, err := m.Connection("p"); err != nil {
 			t.Fatal(err)
 		}
@@ -98,8 +110,10 @@ func TestCompliance_IlluminateRedis(t *testing.T) {
 		cmds, err := c.Pipeline(ctx, func(p redis.Pipeliner) error {
 			p.Do(ctx, "SET", "k", "v")
 			p.Do(ctx, "GET", "k")
+
 			return nil
 		})
+
 		if err != nil || len(cmds) != 2 {
 			t.Fatalf("Pipeline err=%v len=%d", err, len(cmds))
 		}

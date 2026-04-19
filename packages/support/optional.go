@@ -27,8 +27,10 @@ func Opt[T any](ptr *T) Optional[T] {
 func (o Optional[T]) Get() (T, bool) {
 	if o.value == nil {
 		var zero T
+
 		return zero, false
 	}
+
 	return *o.value, true
 }
 
@@ -37,6 +39,7 @@ func (o Optional[T]) OrElse(def T) T {
 	if o.value == nil {
 		return def
 	}
+
 	return *o.value
 }
 
@@ -46,6 +49,7 @@ func (o Optional[T]) OrElseGet(fn func() T) T {
 	if o.value == nil {
 		return fn()
 	}
+
 	return *o.value
 }
 
@@ -82,7 +86,9 @@ func (o Optional[T]) Map(fn func(T) T) Optional[T] {
 	if o.value == nil {
 		return None[T]()
 	}
+
 	result := fn(*o.value)
+
 	return Some(result)
 }
 
@@ -92,6 +98,7 @@ func (o Optional[T]) Filter(predicate func(T) bool) Optional[T] {
 	if o.value != nil && predicate(*o.value) {
 		return o
 	}
+
 	return None[T]()
 }
 

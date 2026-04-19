@@ -17,8 +17,8 @@ go get github.com/gocanto/bedrock/packages/encryption@latest
 
 ## Ciphers
 
-| Constant              | Algorithm        | Key size |
-|-----------------------|------------------|----------|
+| Constant               | Algorithm                 | Key size |
+| ---------------------- | ------------------------- | -------- |
 | `encryption.AES128CBC` | AES-128-CBC + HMAC-SHA256 | 16 bytes |
 | `encryption.AES256CBC` | AES-256-CBC + HMAC-SHA256 | 32 bytes |
 | `encryption.AES128GCM` | AES-128-GCM (AEAD)        | 16 bytes |

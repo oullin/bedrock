@@ -47,8 +47,10 @@ func Parse(rule string) ParsedRule {
 
 	// regex rules keep the full string after "regex:" intact
 	lower := strings.ToLower(rule)
+
 	if strings.HasPrefix(lower, "regex:") || strings.HasPrefix(lower, "not_regex:") {
 		parts := strings.SplitN(rule, ":", 2)
+
 		return ParsedRule{
 			Name:       StudlyCase(parts[0]),
 			Parameters: []string{parts[1]},
@@ -56,6 +58,7 @@ func Parse(rule string) ParsedRule {
 	}
 
 	idx := strings.IndexByte(rule, ':')
+
 	if idx == -1 {
 		return ParsedRule{Name: StudlyCase(rule)}
 	}
@@ -114,6 +117,7 @@ func explodeString(s string) []ParsedRule {
 
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
+
 		if p == "" {
 			continue
 		}
@@ -206,6 +210,7 @@ func ExpandWildcards(pattern string, flat map[string]any) []string {
 func wildcardToRegex(pattern string) string {
 	// Escape regex meta-characters except our own *
 	var b strings.Builder
+
 	b.WriteString("^")
 
 	for _, ch := range pattern {
@@ -239,6 +244,7 @@ func FlattenData(data map[string]any) map[string]any {
 func flattenInto(out map[string]any, data map[string]any, prefix string) {
 	for k, v := range data {
 		key := k
+
 		if prefix != "" {
 			key = prefix + "." + k
 		}
@@ -249,6 +255,7 @@ func flattenInto(out map[string]any, data map[string]any, prefix string) {
 		case []any:
 			for i, item := range child {
 				indexKey := fmt.Sprintf("%s.%d", key, i)
+
 				if nested, ok := item.(map[string]any); ok {
 					flattenInto(out, nested, indexKey)
 				} else {

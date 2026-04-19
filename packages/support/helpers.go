@@ -21,6 +21,7 @@ func Blank(value any) bool {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	switch rv.Kind() {
 	case reflect.Slice, reflect.Map, reflect.Array:
 		return rv.Len() == 0
@@ -58,6 +59,7 @@ func Value[T any](value any, args ...any) T {
 		if len(args) > 0 {
 			return fn(args[0])
 		}
+
 		return fn(nil)
 	case func(...any) T:
 		return fn(args...)
@@ -71,6 +73,7 @@ func Value[T any](value any, args ...any) T {
 	}
 
 	var zero T
+
 	return zero
 }
 
@@ -80,6 +83,7 @@ func With[T any](value T, fn ...func(T) T) T {
 	if len(fn) > 0 && fn[0] != nil {
 		return fn[0](value)
 	}
+
 	return value
 }
 
@@ -91,7 +95,9 @@ func Transform[T, U any](value T, fn func(T) U, def ...U) (U, bool) {
 		if len(def) > 0 {
 			return def[0], false
 		}
+
 		var zero U
+
 		return zero, false
 	}
 
@@ -111,10 +117,12 @@ func E(value string) string {
 // Mirrors Laravel's env() helper.
 func Env(key string, def ...string) string {
 	val, ok := os.LookupEnv(key)
+
 	if !ok || val == "" {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return ""
 	}
 
@@ -141,10 +149,12 @@ func Env(key string, def ...string) string {
 // "true", "1", "yes", "on" → true; everything else → false.
 func EnvBool(key string, def ...bool) bool {
 	val, ok := os.LookupEnv(key)
+
 	if !ok {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return false
 	}
 
