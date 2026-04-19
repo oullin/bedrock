@@ -26,12 +26,15 @@ func WriteEntry(
 	}
 
 	unlock, err := lockFile(configPath + ".lock")
+
 	if err != nil {
 		return false, fmt.Errorf("jsonconfig: lock %s: %w", configPath, err)
 	}
+
 	defer unlock()
 
 	root, err := readRoot(configPath, skeleton)
+
 	if err != nil {
 		return false, err
 	}
@@ -45,6 +48,7 @@ func WriteEntry(
 	servers[serverKey] = serverConfig
 
 	out, err := json.MarshalIndent(root, "", "    ")
+
 	if err != nil {
 		return false, fmt.Errorf("jsonconfig: marshal: %w", err)
 	}
@@ -60,23 +64,28 @@ func WriteEntry(
 // empty map when the file does not exist.
 func readRoot(path string, skeleton map[string]any) (map[string]any, error) {
 	data, err := os.ReadFile(path)
+
 	if err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("jsonconfig: read %s: %w", path, err)
 	}
 
 	if len(data) > 0 {
 		var root map[string]any
+
 		if err := json.Unmarshal(data, &root); err != nil {
 			return nil, fmt.Errorf("jsonconfig: unmarshal %s: %w", path, err)
 		}
+
 		return root, nil
 	}
 
 	if skeleton != nil {
 		cp := make(map[string]any, len(skeleton))
+
 		for k, v := range skeleton {
 			cp[k] = v
 		}
+
 		return cp, nil
 	}
 
@@ -88,8 +97,10 @@ func ensureMap(root map[string]any, key string) map[string]any {
 	if m, ok := root[key].(map[string]any); ok {
 		return m
 	}
+
 	m := make(map[string]any)
 	root[key] = m
+
 	return m
 }
 
@@ -99,24 +110,29 @@ func atomicWrite(path string, data []byte, perm os.FileMode) error {
 	dir := filepath.Dir(path)
 
 	tmp, err := os.CreateTemp(dir, ".tmp_*")
+
 	if err != nil {
 		return err
 	}
+
 	tmpName := tmp.Name()
 
 	if _, err := tmp.Write(data); err != nil {
 		tmp.Close()
 		os.Remove(tmpName)
+
 		return err
 	}
 
 	if err := tmp.Close(); err != nil {
 		os.Remove(tmpName)
+
 		return err
 	}
 
 	if err := os.Chmod(tmpName, perm); err != nil {
 		os.Remove(tmpName)
+
 		return err
 	}
 
@@ -128,12 +144,14 @@ func atomicWrite(path string, data []byte, perm os.FileMode) error {
 // pattern used in packages/filesystem/lockable_file.go.
 func lockFile(path string) (unlock func(), err error) {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o644)
+
 	if err != nil {
 		return nil, err
 	}
 
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
 		f.Close()
+
 		return nil, err
 	}
 

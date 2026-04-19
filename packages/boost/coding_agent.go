@@ -10,14 +10,11 @@ type Platform = platform.Platform
 // Type alias for internal/platform.McpInstallationStrategy.
 type McpInstallationStrategy = platform.McpInstallationStrategy
 
-const (
-	// McpStrategyFile writes a JSON (or TOML) config file.
-	McpStrategyFile = platform.McpStrategyFile
-	// McpStrategyShell runs a shell command to install the MCP server.
-	McpStrategyShell = platform.McpStrategyShell
-	// McpStrategyNone indicates no MCP support for this agent.
-	McpStrategyNone = platform.McpStrategyNone
-)
+// McpStrategyFile writes a JSON (or TOML) config file.
+
+// McpStrategyShell runs a shell command to install the MCP server.
+
+// McpStrategyNone indicates no MCP support for this agent.
 
 // CodingAgent is the base interface every IDE coding-assistant agent must satisfy.
 // Named CodingAgent (not Agent) to avoid collision with contracts/ai.Agent, which
@@ -104,3 +101,11 @@ type SupportsSkills interface {
 	CodingAgent
 	SkillsPath() string
 }
+
+const (
+	McpStrategyFile = platform.McpStrategyFile
+
+	McpStrategyShell = platform.McpStrategyShell
+
+	McpStrategyNone = platform.McpStrategyNone
+)

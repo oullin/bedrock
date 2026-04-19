@@ -26,21 +26,26 @@ func (p *MariaDBProcessor) ProcessInsertGetId(b *query.Builder, sql string, valu
 	// the returned row directly — same approach as PostgreSQL.
 	conn := b.GetConnection()
 	rows, err := conn.Select(context.Background(), sql, values...)
+
 	if err != nil {
 		return 0, fmt.Errorf("processors: insert failed: %w", err)
 	}
+
 	if len(rows) == 0 {
 		return 0, nil
 	}
+
 	return toInt64(rows[0][sequence]), nil
 }
 
 func (p *MariaDBProcessor) ProcessColumnListing(results []map[string]any) []string {
 	var columns []string
+
 	for _, row := range results {
 		if col, ok := row["column_name"]; ok {
 			columns = append(columns, fmt.Sprintf("%v", col))
 		}
 	}
+
 	return columns
 }

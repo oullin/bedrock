@@ -24,6 +24,7 @@ func NewSocialAuthServiceProvider(app *container.Container, configs map[string]P
 // Use this to extend the manager with custom drivers after registration.
 func (p *SocialAuthServiceProvider) WithBoot(fn func(*Manager)) *SocialAuthServiceProvider {
 	p.onBoot = fn
+
 	return p
 }
 
@@ -34,6 +35,7 @@ func (p *SocialAuthServiceProvider) Register() {
 	p.app.Singleton("socialauth", func(_ *container.Container) (any, error) {
 		m := NewManager(new(http.Request), nil, p.configs)
 		SetManager(m)
+
 		return m, nil
 	})
 }
@@ -43,10 +45,13 @@ func (p *SocialAuthServiceProvider) Boot() {
 	if p.onBoot == nil {
 		return
 	}
+
 	raw, err := p.app.Make("socialauth")
+
 	if err != nil {
 		return
 	}
+
 	if m, ok := raw.(*Manager); ok {
 		p.onBoot(m)
 	}

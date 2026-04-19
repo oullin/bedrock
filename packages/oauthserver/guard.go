@@ -45,6 +45,7 @@ func NewTokenGuard(
 // and token so that the next User() call resolves fresh state.
 func (g *TokenGuard) SetRequest(r *http.Request) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	g.request = r
@@ -60,6 +61,7 @@ func (g *TokenGuard) SetRequest(r *http.Request) {
 //  3. Bearer token from Authorization header → TokenStore.Find → UserProvider
 func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	// 1. Test override.
@@ -122,6 +124,7 @@ func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 // Client returns the OAuth client associated with the current request's token.
 func (g *TokenGuard) Client(ctx context.Context) (*Client, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	// Test override: return acting-as client.

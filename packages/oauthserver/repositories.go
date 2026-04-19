@@ -68,6 +68,67 @@ type DeviceCodeStore interface {
 // ---- In-memory implementations (for testing) ----------------------------------
 
 // generateID produces a cryptographically random 32-byte hex string.
+
+// generateSecret produces a cryptographically random 20-byte hex string,
+// used as client secrets (40 hex chars, matching Str::random(40) in Upstream).
+
+// ---- MemoryTokenStore --------------------------------------------------------
+
+// MemoryTokenStore is a thread-safe in-memory TokenStore for testing.
+type MemoryTokenStore struct {
+	mu       sync.RWMutex
+	tokens   map[string]*Token
+	oauthserver *OAuthServer
+}
+
+// NewMemoryTokenStore returns an empty in-memory token store.
+
+// WithOAuthServer sets the OAuthServer config so that tokens returned from Find
+// have scope resolution wired up.
+
+// Return a copy with the oauthserver attached.
+
+// ---- MemoryClientStore -------------------------------------------------------
+
+// MemoryClientStore is a thread-safe in-memory ClientStore for testing.
+type MemoryClientStore struct {
+	mu                     sync.RWMutex
+	clients                map[string]*Client
+	personalAccessClientID string
+}
+
+// NewMemoryClientStore returns an empty in-memory client store.
+
+// SetPersonalAccessClientID configures which client ID is the personal access client.
+
+// ---- MemoryRefreshTokenStore -------------------------------------------------
+
+// MemoryRefreshTokenStore is a thread-safe in-memory RefreshTokenStore for testing.
+type MemoryRefreshTokenStore struct {
+	mu     sync.RWMutex
+	tokens map[string]*RefreshToken
+}
+
+// NewMemoryRefreshTokenStore returns an empty in-memory refresh token store.
+
+// ---- MemoryAuthCodeStore -----------------------------------------------------
+
+// MemoryAuthCodeStore is a thread-safe in-memory AuthCodeStore for testing.
+type MemoryAuthCodeStore struct {
+	mu    sync.RWMutex
+	codes map[string]*AuthCode
+}
+
+// NewMemoryAuthCodeStore returns an empty in-memory auth code store.
+
+// ---- MemoryDeviceCodeStore ---------------------------------------------------
+
+// MemoryDeviceCodeStore is a thread-safe in-memory DeviceCodeStore for testing.
+type MemoryDeviceCodeStore struct {
+	mu    sync.RWMutex
+	codes map[string]*DeviceCode
+}
+
 func generateID() (string, error) {
 	b := make([]byte, 32)
 
@@ -78,8 +139,6 @@ func generateID() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// generateSecret produces a cryptographically random 20-byte hex string,
-// used as client secrets (40 hex chars, matching Str::random(40) in Upstream).
 func generateSecret() (string, error) {
 	b := make([]byte, 20)
 
@@ -90,22 +149,10 @@ func generateSecret() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// ---- MemoryTokenStore --------------------------------------------------------
-
-// MemoryTokenStore is a thread-safe in-memory TokenStore for testing.
-type MemoryTokenStore struct {
-	mu      sync.RWMutex
-	tokens  map[string]*Token
-	oauthserver *OAuthServer
-}
-
-// NewMemoryTokenStore returns an empty in-memory token store.
 func NewMemoryTokenStore() *MemoryTokenStore {
 	return &MemoryTokenStore{tokens: make(map[string]*Token)}
 }
 
-// WithOAuthServer sets the OAuthServer config so that tokens returned from Find
-// have scope resolution wired up.
 func (s *MemoryTokenStore) WithOAuthServer(p *OAuthServer) *MemoryTokenStore {
 	s.oauthserver = p
 
@@ -114,6 +161,7 @@ func (s *MemoryTokenStore) WithOAuthServer(p *OAuthServer) *MemoryTokenStore {
 
 func (s *MemoryTokenStore) Find(_ context.Context, id string) (*Token, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	t, ok := s.tokens[id]
@@ -122,7 +170,6 @@ func (s *MemoryTokenStore) Find(_ context.Context, id string) (*Token, error) {
 		return nil, nil
 	}
 
-	// Return a copy with the oauthserver attached.
 	copy := *t
 
 	if s.oauthserver != nil {
@@ -134,6 +181,7 @@ func (s *MemoryTokenStore) Find(_ context.Context, id string) (*Token, error) {
 
 func (s *MemoryTokenStore) FindForUser(_ context.Context, tokenID, userID string) (*Token, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	t, ok := s.tokens[tokenID]
@@ -153,6 +201,7 @@ func (s *MemoryTokenStore) FindForUser(_ context.Context, tokenID, userID string
 
 func (s *MemoryTokenStore) Save(_ context.Context, token *Token) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	copy := *token
@@ -163,6 +212,7 @@ func (s *MemoryTokenStore) Save(_ context.Context, token *Token) error {
 
 func (s *MemoryTokenStore) Revoke(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if t, ok := s.tokens[id]; ok {
@@ -174,6 +224,7 @@ func (s *MemoryTokenStore) Revoke(_ context.Context, id string) error {
 
 func (s *MemoryTokenStore) ForUser(_ context.Context, userID string) ([]*Token, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	var out []*Token
@@ -188,23 +239,13 @@ func (s *MemoryTokenStore) ForUser(_ context.Context, userID string) ([]*Token, 
 	return out, nil
 }
 
-// ---- MemoryClientStore -------------------------------------------------------
-
-// MemoryClientStore is a thread-safe in-memory ClientStore for testing.
-type MemoryClientStore struct {
-	mu                     sync.RWMutex
-	clients                map[string]*Client
-	personalAccessClientID string
-}
-
-// NewMemoryClientStore returns an empty in-memory client store.
 func NewMemoryClientStore() *MemoryClientStore {
 	return &MemoryClientStore{clients: make(map[string]*Client)}
 }
 
-// SetPersonalAccessClientID configures which client ID is the personal access client.
 func (s *MemoryClientStore) SetPersonalAccessClientID(id string) {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	s.personalAccessClientID = id
@@ -212,6 +253,7 @@ func (s *MemoryClientStore) SetPersonalAccessClientID(id string) {
 
 func (s *MemoryClientStore) Find(_ context.Context, id string) (*Client, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	c, ok := s.clients[id]
@@ -241,6 +283,7 @@ func (s *MemoryClientStore) FindActive(ctx context.Context, id string) (*Client,
 
 func (s *MemoryClientStore) PersonalAccessClient(_ context.Context) (*Client, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	if s.personalAccessClientID == "" {
@@ -260,6 +303,7 @@ func (s *MemoryClientStore) PersonalAccessClient(_ context.Context) (*Client, er
 
 func (s *MemoryClientStore) Create(_ context.Context, client *Client) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	copy := *client
@@ -270,6 +314,7 @@ func (s *MemoryClientStore) Create(_ context.Context, client *Client) error {
 
 func (s *MemoryClientStore) Delete(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if c, ok := s.clients[id]; ok {
@@ -287,6 +332,7 @@ func (s *MemoryClientStore) RegenerateSecret(_ context.Context, id string) (stri
 	}
 
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if c, ok := s.clients[id]; ok {
@@ -358,21 +404,13 @@ func (s *MemoryClientStore) createClient(ctx context.Context, userID, name, redi
 	return c, s.Create(ctx, c)
 }
 
-// ---- MemoryRefreshTokenStore -------------------------------------------------
-
-// MemoryRefreshTokenStore is a thread-safe in-memory RefreshTokenStore for testing.
-type MemoryRefreshTokenStore struct {
-	mu     sync.RWMutex
-	tokens map[string]*RefreshToken
-}
-
-// NewMemoryRefreshTokenStore returns an empty in-memory refresh token store.
 func NewMemoryRefreshTokenStore() *MemoryRefreshTokenStore {
 	return &MemoryRefreshTokenStore{tokens: make(map[string]*RefreshToken)}
 }
 
 func (s *MemoryRefreshTokenStore) Find(_ context.Context, id string) (*RefreshToken, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	rt, ok := s.tokens[id]
@@ -388,6 +426,7 @@ func (s *MemoryRefreshTokenStore) Find(_ context.Context, id string) (*RefreshTo
 
 func (s *MemoryRefreshTokenStore) Save(_ context.Context, rt *RefreshToken) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	copy := *rt
@@ -398,6 +437,7 @@ func (s *MemoryRefreshTokenStore) Save(_ context.Context, rt *RefreshToken) erro
 
 func (s *MemoryRefreshTokenStore) Revoke(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if rt, ok := s.tokens[id]; ok {
@@ -409,6 +449,7 @@ func (s *MemoryRefreshTokenStore) Revoke(_ context.Context, id string) error {
 
 func (s *MemoryRefreshTokenStore) RevokeByAccessTokenID(_ context.Context, accessTokenID string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	for _, rt := range s.tokens {
@@ -422,6 +463,7 @@ func (s *MemoryRefreshTokenStore) RevokeByAccessTokenID(_ context.Context, acces
 
 func (s *MemoryRefreshTokenStore) IsRevoked(_ context.Context, id string) (bool, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	rt, ok := s.tokens[id]
@@ -433,21 +475,13 @@ func (s *MemoryRefreshTokenStore) IsRevoked(_ context.Context, id string) (bool,
 	return rt.Revoked, nil
 }
 
-// ---- MemoryAuthCodeStore -----------------------------------------------------
-
-// MemoryAuthCodeStore is a thread-safe in-memory AuthCodeStore for testing.
-type MemoryAuthCodeStore struct {
-	mu    sync.RWMutex
-	codes map[string]*AuthCode
-}
-
-// NewMemoryAuthCodeStore returns an empty in-memory auth code store.
 func NewMemoryAuthCodeStore() *MemoryAuthCodeStore {
 	return &MemoryAuthCodeStore{codes: make(map[string]*AuthCode)}
 }
 
 func (s *MemoryAuthCodeStore) Find(_ context.Context, id string) (*AuthCode, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	c, ok := s.codes[id]
@@ -463,6 +497,7 @@ func (s *MemoryAuthCodeStore) Find(_ context.Context, id string) (*AuthCode, err
 
 func (s *MemoryAuthCodeStore) Save(_ context.Context, code *AuthCode) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	copy := *code
@@ -473,6 +508,7 @@ func (s *MemoryAuthCodeStore) Save(_ context.Context, code *AuthCode) error {
 
 func (s *MemoryAuthCodeStore) Revoke(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if c, ok := s.codes[id]; ok {
@@ -484,6 +520,7 @@ func (s *MemoryAuthCodeStore) Revoke(_ context.Context, id string) error {
 
 func (s *MemoryAuthCodeStore) IsRevoked(_ context.Context, id string) (bool, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	c, ok := s.codes[id]
@@ -495,14 +532,6 @@ func (s *MemoryAuthCodeStore) IsRevoked(_ context.Context, id string) (bool, err
 	return c.Revoked, nil
 }
 
-// ---- MemoryDeviceCodeStore ---------------------------------------------------
-
-// MemoryDeviceCodeStore is a thread-safe in-memory DeviceCodeStore for testing.
-type MemoryDeviceCodeStore struct {
-	mu    sync.RWMutex
-	codes map[string]*DeviceCode
-}
-
 // NewMemoryDeviceCodeStore returns an empty in-memory device code store.
 func NewMemoryDeviceCodeStore() *MemoryDeviceCodeStore {
 	return &MemoryDeviceCodeStore{codes: make(map[string]*DeviceCode)}
@@ -510,6 +539,7 @@ func NewMemoryDeviceCodeStore() *MemoryDeviceCodeStore {
 
 func (s *MemoryDeviceCodeStore) Find(_ context.Context, id string) (*DeviceCode, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	c, ok := s.codes[id]
@@ -525,6 +555,7 @@ func (s *MemoryDeviceCodeStore) Find(_ context.Context, id string) (*DeviceCode,
 
 func (s *MemoryDeviceCodeStore) FindByDeviceCode(_ context.Context, deviceCode string) (*DeviceCode, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	for _, c := range s.codes {
@@ -540,6 +571,7 @@ func (s *MemoryDeviceCodeStore) FindByDeviceCode(_ context.Context, deviceCode s
 
 func (s *MemoryDeviceCodeStore) FindByUserCode(_ context.Context, userCode string) (*DeviceCode, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	now := time.Now()
@@ -557,6 +589,7 @@ func (s *MemoryDeviceCodeStore) FindByUserCode(_ context.Context, userCode strin
 
 func (s *MemoryDeviceCodeStore) Save(_ context.Context, code *DeviceCode) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	copy := *code
@@ -567,6 +600,7 @@ func (s *MemoryDeviceCodeStore) Save(_ context.Context, code *DeviceCode) error 
 
 func (s *MemoryDeviceCodeStore) Revoke(_ context.Context, id string) error {
 	s.mu.Lock()
+
 	defer s.mu.Unlock()
 
 	if c, ok := s.codes[id]; ok {
@@ -578,6 +612,7 @@ func (s *MemoryDeviceCodeStore) Revoke(_ context.Context, id string) error {
 
 func (s *MemoryDeviceCodeStore) IsRevoked(_ context.Context, id string) (bool, error) {
 	s.mu.RLock()
+
 	defer s.mu.RUnlock()
 
 	c, ok := s.codes[id]

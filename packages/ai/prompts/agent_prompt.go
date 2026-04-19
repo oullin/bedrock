@@ -18,6 +18,7 @@ type AgentPrompt struct {
 func (p *AgentPrompt) WithProvider(provider string) *AgentPrompt {
 	cp := *p
 	cp.Provider = &provider
+
 	return &cp
 }
 
@@ -25,6 +26,7 @@ func (p *AgentPrompt) WithProvider(provider string) *AgentPrompt {
 func (p *AgentPrompt) WithModel(model string) *AgentPrompt {
 	cp := *p
 	cp.Model = &model
+
 	return &cp
 }
 
@@ -32,5 +34,6 @@ func (p *AgentPrompt) WithModel(model string) *AgentPrompt {
 func (p *AgentPrompt) WithTimeout(secs int) *AgentPrompt {
 	cp := *p
 	cp.Timeout = secs
+
 	return &cp
 }

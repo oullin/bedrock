@@ -10,57 +10,11 @@ import (
 )
 
 // Binding category keys.
-const (
-	BindingSelect  = "select"
-	BindingFrom    = "from"
-	BindingJoin    = "join"
-	BindingWhere   = "where"
-	BindingGroupBy = "groupby"
-	BindingHaving  = "having"
-	BindingOrder   = "order"
-	BindingUnion   = "union"
-)
 
 // Valid SQL operators.
-var validOperators = map[string]bool{
-	"=": true, "<": true, ">": true, "<=": true, ">=": true, "<>": true, "!=": true,
-	"like": true, "like binary": true, "not like": true, "ilike": true,
-	"&": true, "|": true, "^": true, "<<": true, ">>": true, "<=>": true,
-	"rlike": true, "not rlike": true, "regexp": true, "not regexp": true,
-	"~": true, "~*": true, "!~": true, "!~*": true, "similar to": true,
-	"not similar to": true, "not ilike": true, "~~*": true, "!~~*": true,
-}
 
 // WhereType identifies the kind of WHERE clause.
 type WhereType string
-
-const (
-	WhereBasic       WhereType = "Basic"
-	WhereColumn      WhereType = "Column"
-	WhereIn          WhereType = "In"
-	WhereNotIn       WhereType = "NotIn"
-	WhereNull        WhereType = "Null"
-	WhereNotNull     WhereType = "NotNull"
-	WhereBetween     WhereType = "Between"
-	WhereNotBetween  WhereType = "NotBetween"
-	WhereDate        WhereType = "Date"
-	WhereTime        WhereType = "Time"
-	WhereDay         WhereType = "Day"
-	WhereMonth       WhereType = "Month"
-	WhereYear        WhereType = "Year"
-	WhereRaw         WhereType = "Raw"
-	WhereExists      WhereType = "Exists"
-	WhereNotExists   WhereType = "NotExists"
-	WhereNested      WhereType = "Nested"
-	WhereSub         WhereType = "Sub"
-	WhereLike        WhereType = "Like"
-	WhereNotLike     WhereType = "NotLike"
-	WhereJsonContains    WhereType = "JsonContains"
-	WhereJsonLength      WhereType = "JsonLength"
-	WhereFullText        WhereType = "Fulltext"
-	WhereBetweenColumns  WhereType = "BetweenColumns"
-	WhereRowValues       WhereType = "RowValues"
-)
 
 // WhereClause represents a single WHERE condition.
 type WhereClause struct {
@@ -104,14 +58,6 @@ type UnionClause struct {
 // JoinType identifies a JOIN kind.
 type JoinType string
 
-const (
-	JoinInner   JoinType = "inner"
-	JoinLeft    JoinType = "left"
-	JoinRight   JoinType = "right"
-	JoinCross   JoinType = "cross"
-	JoinLateral JoinType = "lateral"
-)
-
 // IndexHint represents an index hint.
 type IndexHint struct {
 	Type  string // "use", "force", "ignore"
@@ -137,25 +83,25 @@ type Builder struct {
 	processor  Processor
 
 	// Query components.
-	columns       []any    // string or Expression
-	distinct      bool
+	columns         []any // string or Expression
+	distinct        bool
 	distinctColumns []string
-	from          string
-	fromRaw       string
-	joins         []*JoinClause
-	wheres        []WhereClause
-	groups        []string
-	havings       []HavingClause
-	orders        []OrderClause
-	limit_        *int
-	offset_       *int
-	unions        []UnionClause
-	unionLimit    *int
-	unionOffset   *int
-	unionOrders   []OrderClause
-	lock          any
-	indexHint     *IndexHint
-	aggregate     *AggregateClause
+	from            string
+	fromRaw         string
+	joins           []*JoinClause
+	wheres          []WhereClause
+	groups          []string
+	havings         []HavingClause
+	orders          []OrderClause
+	limit_          *int
+	offset_         *int
+	unions          []UnionClause
+	unionLimit      *int
+	unionOffset     *int
+	unionOrders     []OrderClause
+	lock            any
+	indexHint       *IndexHint
+	aggregate       *AggregateClause
 
 	// Bindings keyed by category.
 	bindings map[string][]any
@@ -169,6 +115,62 @@ type AggregateClause struct {
 	Function string
 	Columns  []string
 }
+
+const (
+	BindingSelect  = "select"
+	BindingFrom    = "from"
+	BindingJoin    = "join"
+	BindingWhere   = "where"
+	BindingGroupBy = "groupby"
+	BindingHaving  = "having"
+	BindingOrder   = "order"
+	BindingUnion   = "union"
+)
+
+var validOperators = map[string]bool{
+	"=": true, "<": true, ">": true, "<=": true, ">=": true, "<>": true, "!=": true,
+	"like": true, "like binary": true, "not like": true, "ilike": true,
+	"&": true, "|": true, "^": true, "<<": true, ">>": true, "<=>": true,
+	"rlike": true, "not rlike": true, "regexp": true, "not regexp": true,
+	"~": true, "~*": true, "!~": true, "!~*": true, "similar to": true,
+	"not similar to": true, "not ilike": true, "~~*": true, "!~~*": true,
+}
+
+const (
+	WhereBasic          WhereType = "Basic"
+	WhereColumn         WhereType = "Column"
+	WhereIn             WhereType = "In"
+	WhereNotIn          WhereType = "NotIn"
+	WhereNull           WhereType = "Null"
+	WhereNotNull        WhereType = "NotNull"
+	WhereBetween        WhereType = "Between"
+	WhereNotBetween     WhereType = "NotBetween"
+	WhereDate           WhereType = "Date"
+	WhereTime           WhereType = "Time"
+	WhereDay            WhereType = "Day"
+	WhereMonth          WhereType = "Month"
+	WhereYear           WhereType = "Year"
+	WhereRaw            WhereType = "Raw"
+	WhereExists         WhereType = "Exists"
+	WhereNotExists      WhereType = "NotExists"
+	WhereNested         WhereType = "Nested"
+	WhereSub            WhereType = "Sub"
+	WhereLike           WhereType = "Like"
+	WhereNotLike        WhereType = "NotLike"
+	WhereJsonContains   WhereType = "JsonContains"
+	WhereJsonLength     WhereType = "JsonLength"
+	WhereFullText       WhereType = "Fulltext"
+	WhereBetweenColumns WhereType = "BetweenColumns"
+	WhereRowValues      WhereType = "RowValues"
+)
+
+const (
+	JoinInner   JoinType = "inner"
+	JoinLeft    JoinType = "left"
+	JoinRight   JoinType = "right"
+	JoinCross   JoinType = "cross"
+	JoinLateral JoinType = "lateral"
+)
 
 // NewBuilder creates a new query Builder.
 func NewBuilder(connection ConnectionInterface, grammar Grammar, processor Processor) *Builder {
@@ -208,19 +210,23 @@ func (b *Builder) Clone() *Builder {
 	clone.orders = append([]OrderClause(nil), b.orders...)
 	clone.unions = append([]UnionClause(nil), b.unions...)
 	clone.bindings = make(map[string][]any, len(b.bindings))
+
 	for k, v := range b.bindings {
 		clone.bindings[k] = append([]any(nil), v...)
 	}
+
 	if b.joins != nil {
 		clone.joins = make([]*JoinClause, len(b.joins))
 		copy(clone.joins, b.joins)
 	}
+
 	return &clone
 }
 
 // CloneWithout creates a clone that omits the given properties.
 func (b *Builder) CloneWithout(properties ...string) *Builder {
 	clone := b.Clone()
+
 	for _, prop := range properties {
 		switch prop {
 		case "columns":
@@ -249,15 +255,18 @@ func (b *Builder) CloneWithout(properties ...string) *Builder {
 			clone.bindings[BindingJoin] = nil
 		}
 	}
+
 	return clone
 }
 
 // CloneWithoutBindings creates a clone that omits bindings for given categories.
 func (b *Builder) CloneWithoutBindings(categories ...string) *Builder {
 	clone := b.Clone()
+
 	for _, cat := range categories {
 		clone.bindings[cat] = nil
 	}
+
 	return clone
 }
 
@@ -268,6 +277,7 @@ func (b *Builder) From(table string, as ...string) *Builder {
 	} else {
 		b.from = table
 	}
+
 	return b
 }
 
@@ -280,6 +290,7 @@ func (b *Builder) FromSub(query any, as string) *Builder {
 	case string:
 		b.fromRaw = "(" + q + ") as " + b.grammar.Wrap(as)
 	}
+
 	return b
 }
 
@@ -287,6 +298,7 @@ func (b *Builder) FromSub(query any, as string) *Builder {
 func (b *Builder) FromRaw(expression string, bindings ...any) *Builder {
 	b.fromRaw = expression
 	b.AddBinding(BindingFrom, bindings...)
+
 	return b
 }
 
@@ -295,6 +307,7 @@ func (b *Builder) GetFrom() string {
 	if b.fromRaw != "" {
 		return b.fromRaw
 	}
+
 	return b.from
 }
 
@@ -336,6 +349,7 @@ func (b *Builder) GetLimit() int {
 	if b.limit_ == nil {
 		return -1
 	}
+
 	return *b.limit_
 }
 
@@ -344,6 +358,7 @@ func (b *Builder) GetOffset() int {
 	if b.offset_ == nil {
 		return -1
 	}
+
 	return *b.offset_
 }
 
@@ -371,6 +386,7 @@ func (b *Builder) GetAggregate() *AggregateClause { return b.aggregate }
 // SetAggregate sets the aggregate function and columns.
 func (b *Builder) SetAggregate(function string, columns []string) *Builder {
 	b.aggregate = &AggregateClause{Function: function, Columns: columns}
+
 	return b
 }
 
@@ -379,12 +395,14 @@ func (b *Builder) SetAggregate(function string, columns []string) *Builder {
 // AddBinding adds values to a binding category.
 func (b *Builder) AddBinding(category string, values ...any) *Builder {
 	b.bindings[category] = append(b.bindings[category], values...)
+
 	return b
 }
 
 // SetBindings replaces bindings for a category.
 func (b *Builder) SetBindings(category string, values []any) *Builder {
 	b.bindings[category] = values
+
 	return b
 }
 
@@ -394,10 +412,13 @@ func (b *Builder) GetBindings() []any {
 		BindingSelect, BindingFrom, BindingJoin, BindingWhere,
 		BindingGroupBy, BindingHaving, BindingOrder, BindingUnion,
 	}
+
 	var all []any
+
 	for _, key := range order {
 		all = append(all, b.bindings[key]...)
 	}
+
 	return all
 }
 
@@ -411,11 +432,13 @@ func (b *Builder) Get(ctx context.Context, columns ...string) ([]map[string]any,
 	if len(columns) > 0 {
 		original := b.columns
 		b.columns = stringsToAny(columns)
+
 		defer func() { b.columns = original }()
 	}
 
 	compiled := b.grammar.CompileSelect(b)
 	results, err := b.connection.Select(ctx, compiled, b.GetBindings()...)
+
 	if err != nil {
 		return nil, err
 	}
@@ -434,75 +457,97 @@ func (b *Builder) First(ctx context.Context, columns ...string) (map[string]any,
 	original := b.limit_
 	one := 1
 	b.limit_ = &one
+
 	defer func() { b.limit_ = original }()
 
 	results, err := b.Get(ctx, columns...)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if len(results) == 0 {
 		return nil, nil
 	}
+
 	return results[0], nil
 }
 
 // Value returns a single column value from the first row.
 func (b *Builder) Value(ctx context.Context, column string) (any, error) {
 	row, err := b.First(ctx, column)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if row == nil {
 		return nil, nil
 	}
+
 	return row[column], nil
 }
 
 // Pluck returns a slice of values for a single column.
 func (b *Builder) Pluck(ctx context.Context, column string) ([]any, error) {
 	rows, err := b.Get(ctx, column)
+
 	if err != nil {
 		return nil, err
 	}
+
 	var values []any
+
 	for _, row := range rows {
 		values = append(values, row[column])
 	}
+
 	return values, nil
 }
 
 // PluckMap returns a map of key-value pairs from two columns.
 func (b *Builder) PluckMap(ctx context.Context, column, key string) (map[any]any, error) {
 	rows, err := b.Get(ctx, column, key)
+
 	if err != nil {
 		return nil, err
 	}
+
 	m := make(map[any]any, len(rows))
+
 	for _, row := range rows {
 		m[row[key]] = row[column]
 	}
+
 	return m, nil
 }
 
 // Chunk processes results in chunks of the given size.
 func (b *Builder) Chunk(ctx context.Context, count int, fn func([]map[string]any, int) bool) error {
 	page := 1
+
 	for {
 		results, err := b.ForPage(page, count).Get(ctx)
+
 		if err != nil {
 			return err
 		}
+
 		if len(results) == 0 {
 			break
 		}
+
 		if !fn(results, page) {
 			break
 		}
+
 		if len(results) < count {
 			break
 		}
+
 		page++
 	}
+
 	return nil
 }
 
@@ -512,24 +557,32 @@ func (b *Builder) ChunkByID(ctx context.Context, count int, column string, fn fu
 
 	for {
 		clone := b.Clone()
+
 		if lastID != nil {
 			clone.Where(column, ">", lastID)
 		}
+
 		results, err := clone.OrderBy(column).Limit(count).Get(ctx)
+
 		if err != nil {
 			return err
 		}
+
 		if len(results) == 0 {
 			break
 		}
+
 		if !fn(results) {
 			break
 		}
+
 		lastID = results[len(results)-1][column]
+
 		if len(results) < count {
 			break
 		}
 	}
+
 	return nil
 }
 
@@ -541,12 +594,14 @@ func (b *Builder) ToSQL() (string, []any) {
 // Dump returns the SQL and bindings as a formatted string.
 func (b *Builder) Dump() string {
 	sql, bindings := b.ToSQL()
+
 	return fmt.Sprintf("SQL: %s\nBindings: %v", sql, bindings)
 }
 
 // AfterQuery registers a callback to run after query execution.
 func (b *Builder) AfterQuery(fn func([]map[string]any)) *Builder {
 	b.afterQueryCallbacks = append(b.afterQueryCallbacks, fn)
+
 	return b
 }
 
@@ -555,36 +610,42 @@ func (b *Builder) AfterQuery(fn func([]map[string]any)) *Builder {
 // UseIndex adds a USE INDEX hint.
 func (b *Builder) UseIndex(index string) *Builder {
 	b.indexHint = &IndexHint{Type: "use", Index: index}
+
 	return b
 }
 
 // ForceIndex adds a FORCE INDEX hint.
 func (b *Builder) ForceIndex(index string) *Builder {
 	b.indexHint = &IndexHint{Type: "force", Index: index}
+
 	return b
 }
 
 // IgnoreIndex adds an IGNORE INDEX hint.
 func (b *Builder) IgnoreIndex(index string) *Builder {
 	b.indexHint = &IndexHint{Type: "ignore", Index: index}
+
 	return b
 }
 
 // LockForUpdate adds a "for update" lock to the query.
 func (b *Builder) LockForUpdate() *Builder {
 	b.lock = "for update"
+
 	return b
 }
 
 // SharedLock adds a shared lock to the query.
 func (b *Builder) SharedLock() *Builder {
 	b.lock = "lock in share mode"
+
 	return b
 }
 
 // Lock sets a custom lock expression.
 func (b *Builder) Lock(value any) *Builder {
 	b.lock = value
+
 	return b
 }
 
@@ -593,9 +654,11 @@ func (b *Builder) When(condition bool, callback func(*Builder) *Builder, otherwi
 	if condition {
 		return callback(b)
 	}
+
 	if len(otherwise) > 0 {
 		return otherwise[0](b)
 	}
+
 	return b
 }
 
@@ -607,6 +670,7 @@ func (b *Builder) Unless(condition bool, callback func(*Builder) *Builder, other
 // Tap passes the builder to a callback for inspection without modifying it.
 func (b *Builder) Tap(callback func(*Builder)) *Builder {
 	callback(b)
+
 	return b
 }
 
@@ -618,9 +682,11 @@ func invalidOperator(operator string) bool {
 // stringsToAny converts a string slice to an any slice.
 func stringsToAny(s []string) []any {
 	result := make([]any, len(s))
+
 	for i, v := range s {
 		result[i] = v
 	}
+
 	return result
 }
 
@@ -628,19 +694,23 @@ func stringsToAny(s []string) []any {
 func (b *Builder) Reorder(columns ...string) *Builder {
 	b.orders = nil
 	b.bindings[BindingOrder] = nil
+
 	if len(columns) > 0 {
 		for _, col := range columns {
 			b.OrderBy(col)
 		}
 	}
+
 	return b
 }
 
 // getDB returns the underlying *sql.DB for raw operations.
 func (b *Builder) getDB() *sql.DB {
 	type dbGetter interface{ DB() *sql.DB }
+
 	if dg, ok := b.connection.(dbGetter); ok {
 		return dg.DB()
 	}
+
 	return nil
 }

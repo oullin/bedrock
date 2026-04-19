@@ -32,6 +32,7 @@ func (p *Provider) Audio(ctx context.Context, req contractsprovider.AudioGenerat
 
 func (p *Provider) UseAudioGateway(gw contractsgw.AudioGateway) contractsprovider.AudioProvider {
 	p.Provider.UseAudioGateway(gw)
+
 	return p
 }
 

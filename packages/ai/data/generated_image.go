@@ -8,7 +8,7 @@ import (
 // GeneratedImage holds a single generated image.
 // Mirrors Upstream\Ai\Responses\Data\GeneratedImage.
 type GeneratedImage struct {
-	Image    string `json:"image"`    // base64-encoded or URL
+	Image    string `json:"image"`     // base64-encoded or URL
 	MimeType string `json:"mime_type"` // default: image/png
 }
 
@@ -18,6 +18,7 @@ func (g GeneratedImage) Content() string { return g.Image }
 // RandomStorageName returns a random filename with the correct extension.
 func (g GeneratedImage) RandomStorageName() string {
 	ext := "png"
+
 	switch g.MimeType {
 	case "image/jpeg":
 		ext = "jpg"
@@ -26,6 +27,7 @@ func (g GeneratedImage) RandomStorageName() string {
 	case "image/gif":
 		ext = "gif"
 	}
+
 	return fmt.Sprintf("%d.%s", rand.Int64(), ext)
 }
 

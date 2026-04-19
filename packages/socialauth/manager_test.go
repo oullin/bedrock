@@ -22,9 +22,11 @@ func TestManagerInstantiatesGithubDriver(t *testing.T) {
 	m := socialauth.NewManager(req, session, configs)
 
 	p, err := m.Driver("github")
+
 	if err != nil {
 		t.Fatalf("Driver('github') returned error: %v", err)
 	}
+
 	if _, ok := p.(*socialauth.GithubProvider); !ok {
 		t.Errorf("expected *GithubProvider, got %T", p)
 	}
@@ -41,6 +43,7 @@ func TestManagerCachesResolvedDriver(t *testing.T) {
 
 	p1, _ := m.Driver("github")
 	p2, _ := m.Driver("github")
+
 	if p1 != p2 {
 		t.Error("expected Driver() to return cached instance on second call")
 	}
@@ -57,6 +60,7 @@ func TestManagerForgetDrivers(t *testing.T) {
 	p1, _ := m.Driver("github")
 	m.ForgetDrivers()
 	p2, _ := m.Driver("github")
+
 	if p1 == p2 {
 		t.Error("expected fresh instance after ForgetDrivers()")
 	}
@@ -68,6 +72,7 @@ func TestManagerUnknownDriverReturnsError(t *testing.T) {
 	m := socialauth.NewManager(req, nil, nil)
 
 	_, err := m.Driver("nonexistent")
+
 	if err == nil {
 		t.Error("expected error for unknown driver, got nil")
 	}
@@ -87,9 +92,11 @@ func TestManagerExtend(t *testing.T) {
 	})
 
 	p, err := m.Driver("mydriver")
+
 	if err != nil {
 		t.Fatalf("extended driver returned error: %v", err)
 	}
+
 	if p == nil {
 		t.Error("expected non-nil provider from extended driver")
 	}

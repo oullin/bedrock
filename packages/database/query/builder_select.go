@@ -23,6 +23,7 @@ func (b *Builder) Select(columns ...any) *Builder {
 func (b *Builder) SelectRaw(expression string, bindings ...any) *Builder {
 	b.AddSelect(b.connection.Raw(expression))
 	b.AddBinding(BindingSelect, bindings...)
+
 	return b
 }
 
@@ -36,6 +37,7 @@ func (b *Builder) SelectSub(query any, as string) *Builder {
 	case string:
 		b.columns = append(b.columns, b.connection.Raw("("+q+") as "+b.grammar.Wrap(as)))
 	}
+
 	return b
 }
 
@@ -44,14 +46,17 @@ func (b *Builder) AddSelect(columns ...any) *Builder {
 	for _, col := range columns {
 		b.columns = append(b.columns, col)
 	}
+
 	return b
 }
 
 // Distinct marks the query as a DISTINCT query.
 func (b *Builder) Distinct(columns ...string) *Builder {
 	b.distinct = true
+
 	if len(columns) > 0 {
 		b.distinctColumns = columns
 	}
+
 	return b
 }

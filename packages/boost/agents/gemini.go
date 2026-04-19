@@ -11,6 +11,7 @@ type Gemini struct {
 // NewGemini constructs a Gemini agent.
 func NewGemini(opts ...AgentOptions) *Gemini {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

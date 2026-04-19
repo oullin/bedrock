@@ -11,10 +11,10 @@ import (
 // emptyMessages simulates a validator with no errors.
 type emptyMessages struct{}
 
-func (emptyMessages) IsEmpty() bool { return true }
-
 // nonEmptyMessages simulates a validator with errors.
 type nonEmptyMessages struct{}
+
+func (emptyMessages) IsEmpty() bool { return true }
 
 func (nonEmptyMessages) IsEmpty() bool { return false }
 

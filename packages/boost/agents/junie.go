@@ -11,6 +11,7 @@ type Junie struct {
 // NewJunie constructs a Junie agent.
 func NewJunie(opts ...AgentOptions) *Junie {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

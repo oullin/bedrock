@@ -19,20 +19,8 @@ type PersonalAccessTokenResult struct {
 }
 
 // ToArray returns a map representation for JSON serialization.
-func (r *PersonalAccessTokenResult) ToArray() map[string]any {
-	return map[string]any{
-		"accessToken": r.AccessToken,
-		"token":       r.AccessToken,
-		"type":        r.TokenType,
-		"expiresIn":   r.ExpiresIn,
-		"expiresAt":   r.ExpiresAt.Format(time.RFC3339),
-	}
-}
 
 // MarshalJSON implements json.Marshaler using ToArray.
-func (r *PersonalAccessTokenResult) MarshalJSON() ([]byte, error) {
-	return json.Marshal(r.ToArray())
-}
 
 // PersonalAccessTokenFactory creates personal access tokens on behalf of users.
 // It mirrors Upstream OAuthServer's PersonalAccessTokenFactory class.
@@ -45,6 +33,20 @@ type PersonalAccessTokenFactory struct {
 	server   AuthorizationServer // optional — nil-safe
 	tokens   TokenStore
 	events   EventDispatcher // optional — nil-safe
+}
+
+func (r *PersonalAccessTokenResult) ToArray() map[string]any {
+	return map[string]any{
+		"accessToken": r.AccessToken,
+		"token":       r.AccessToken,
+		"type":        r.TokenType,
+		"expiresIn":   r.ExpiresIn,
+		"expiresAt":   r.ExpiresAt.Format(time.RFC3339),
+	}
+}
+
+func (r *PersonalAccessTokenResult) MarshalJSON() ([]byte, error) {
+	return json.Marshal(r.ToArray())
 }
 
 // NewPersonalAccessTokenFactory constructs the factory.

@@ -17,6 +17,7 @@ func NewGoogleProvider(req *http.Request, session Session, clientID, clientSecre
 	g.AbstractProvider = NewAbstractProvider(g, req, session, clientID, clientSecret, redirectURL)
 	g.scopes = []string{"openid", "profile", "email"}
 	g.scopeSep = " "
+
 	return g
 }
 
@@ -39,11 +40,14 @@ func (g *GoogleProvider) MapUserToObject(raw map[string]any) *User {
 	u.Name = stringify(raw["name"])
 	u.Email = stringify(raw["email"])
 	u.Avatar = stringify(raw["picture"])
+
 	if u.Attributes == nil {
 		u.Attributes = make(map[string]any)
 	}
+
 	u.Attributes["avatar_original"] = stringify(raw["picture"])
 	u.Attributes["verified_email"] = raw["email_verified"]
 	u.Attributes["link"] = raw["profile"]
+
 	return u
 }

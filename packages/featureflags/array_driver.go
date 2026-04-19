@@ -14,7 +14,7 @@ type ArrayDriver struct {
 	mu             sync.RWMutex
 	resolvers      map[string]func(ctx context.Context, scope any) (any, error)
 	resolvedStates map[string]map[string]any // feature → serializedScope → value
-	dispatcher     EventDispatcher            // nil = no events
+	dispatcher     EventDispatcher           // nil = no events
 	inflight       sync.Map                  // inflightKey → *resolveOnce
 }
 
@@ -27,9 +27,9 @@ type resolveOnce struct {
 	err  error
 }
 
-var _ Driver               = (*ArrayDriver)(nil)
+var _ Driver = (*ArrayDriver)(nil)
 var _ StoredFeaturesLister = (*ArrayDriver)(nil)
-var _ BulkFeatureSetter    = (*ArrayDriver)(nil)
+var _ BulkFeatureSetter = (*ArrayDriver)(nil)
 
 // NewArrayDriver creates an ArrayDriver with no event dispatcher.
 func NewArrayDriver() *ArrayDriver {
@@ -51,6 +51,7 @@ func NewArrayDriverWithDispatcher(d EventDispatcher) *ArrayDriver {
 // Define registers a resolver for a named feature.
 func (a *ArrayDriver) Define(name string, resolver func(ctx context.Context, scope any) (any, error)) {
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	a.resolvers[name] = resolver
@@ -59,6 +60,7 @@ func (a *ArrayDriver) Define(name string, resolver func(ctx context.Context, sco
 // Defined returns the names of all features with registered resolvers.
 func (a *ArrayDriver) Defined() []string {
 	a.mu.RLock()
+
 	defer a.mu.RUnlock()
 
 	names := make([]string, 0, len(a.resolvers))
@@ -75,12 +77,14 @@ func (a *ArrayDriver) Defined() []string {
 // via a per-key sync.Once stored in the inflight map.
 func (a *ArrayDriver) Get(ctx context.Context, feature string, scope any) (any, error) {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Fast path: already resolved.
 	a.mu.RLock()
+
 	if scopes, ok := a.resolvedStates[feature]; ok {
 		if val, ok := scopes[key]; ok {
 			a.mu.RUnlock()
@@ -136,6 +140,7 @@ func (a *ArrayDriver) GetAll(ctx context.Context, features map[string][]any) (ma
 
 		for i, scope := range scopes {
 			val, err := a.Get(ctx, feature, scope)
+
 			if err != nil {
 				return nil, err
 			}
@@ -153,11 +158,13 @@ func (a *ArrayDriver) GetAll(ctx context.Context, features map[string][]any) (ma
 // resolver.
 func (a *ArrayDriver) Set(_ context.Context, feature string, scope any, value any) error {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return err
 	}
 
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	if _, ok := a.resolvedStates[feature]; !ok {
@@ -172,10 +179,12 @@ func (a *ArrayDriver) Set(_ context.Context, feature string, scope any, value an
 // SetAll stores multiple (feature, scope, value) entries atomically.
 func (a *ArrayDriver) SetAll(_ context.Context, entries []FeatureEntry) error {
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	for _, e := range entries {
 		key, err := SerializeScope(e.Scope)
+
 		if err != nil {
 			return err
 		}
@@ -194,9 +203,11 @@ func (a *ArrayDriver) SetAll(_ context.Context, entries []FeatureEntry) error {
 // given feature.
 func (a *ArrayDriver) SetForAllScopes(_ context.Context, feature string, value any) error {
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	scopes, ok := a.resolvedStates[feature]
+
 	if !ok {
 		return nil
 	}
@@ -211,11 +222,13 @@ func (a *ArrayDriver) SetForAllScopes(_ context.Context, feature string, value a
 // Delete removes the stored resolved value for the given feature and scope.
 func (a *ArrayDriver) Delete(_ context.Context, feature string, scope any) error {
 	key, err := SerializeScope(scope)
+
 	if err != nil {
 		return err
 	}
 
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	if scopes, ok := a.resolvedStates[feature]; ok {
@@ -232,12 +245,14 @@ func (a *ArrayDriver) Delete(_ context.Context, feature string, scope any) error
 // is a no-op; a non-empty slice purges only the named features.
 func (a *ArrayDriver) Purge(_ context.Context, features []string) error {
 	a.mu.Lock()
+
 	defer a.mu.Unlock()
 
 	if features == nil {
 		a.resolvedStates = make(map[string]map[string]any)
 		a.inflight.Range(func(k, _ any) bool {
 			a.inflight.Delete(k)
+
 			return true
 		})
 
@@ -264,6 +279,7 @@ func (a *ArrayDriver) Purge(_ context.Context, features []string) error {
 // scope entry.
 func (a *ArrayDriver) Stored(_ context.Context) ([]string, error) {
 	a.mu.RLock()
+
 	defer a.mu.RUnlock()
 
 	names := make([]string, 0, len(a.resolvedStates))

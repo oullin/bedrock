@@ -14,11 +14,13 @@ func (b *Builder) Paginate(ctx context.Context, perPage, page int, columns ...st
 	}
 
 	total, err := b.CloneWithout("columns", "orders", "limit", "offset").Count(ctx)
+
 	if err != nil {
 		return nil, err
 	}
 
 	results, err := b.ForPage(page, perPage).Get(ctx, columns...)
+
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +35,7 @@ func (b *Builder) SimplePaginate(ctx context.Context, perPage, page int, columns
 	}
 
 	results, err := b.ForPage(page, perPage+1).Get(ctx, columns...)
+
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +49,8 @@ func (b *Builder) CursorPaginate(ctx context.Context, perPage int, cursor *cpagi
 		perPage = 15
 	}
 
-	results, err := b.Limit(perPage + 1).Get(ctx, columns...)
+	results, err := b.Limit(perPage+1).Get(ctx, columns...)
+
 	if err != nil {
 		return nil, err
 	}

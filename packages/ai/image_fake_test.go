@@ -18,6 +18,7 @@ func TestImageCanBeFakedWithAString(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.ImageProvider()
+
 	if err != nil {
 		t.Fatalf("ImageProvider error: %v", err)
 	}
@@ -25,9 +26,11 @@ func TestImageCanBeFakedWithAString(t *testing.T) {
 	result, genErr := provider.Image(context.Background(), contractsprovider.ImageGenerateRequest{
 		Prompt: "a cat",
 	})
+
 	if genErr != nil {
 		t.Fatalf("Image error: %v", genErr)
 	}
+
 	if len(result.Images) == 0 {
 		t.Error("expected at least one image in result")
 	}
@@ -55,9 +58,11 @@ func TestImageAssertNotGenerated(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.ImageProvider()
+
 	if err != nil {
 		t.Fatalf("ImageProvider error: %v", err)
 	}
+
 	provider.Image(context.Background(), contractsprovider.ImageGenerateRequest{Prompt: "a dog"}) //nolint:errcheck
 
 	rec.AssertImageNotGenerated(t, func(p *prompts.ImagePrompt) bool {

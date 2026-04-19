@@ -39,6 +39,7 @@ func (p *Provider) Stream(ctx context.Context, req contractsprovider.TextPromptR
 
 func (p *Provider) UseTextGateway(gw contractsgw.TextGateway) contractsprovider.TextProvider {
 	p.Provider.UseTextGateway(gw)
+
 	return p
 }
 
@@ -54,6 +55,7 @@ func (p *Provider) Transcribe(ctx context.Context, req contractsprovider.Transcr
 
 func (p *Provider) UseTranscriptionGateway(gw contractsgw.TranscriptionGateway) contractsprovider.TranscriptionProvider {
 	p.Provider.UseTranscriptionGateway(gw)
+
 	return p
 }
 

@@ -36,11 +36,13 @@ var errorLineRe = regexp.MustCompile(`(?i)(ERROR|CRITICAL|EMERGENCY|ALERT|level=
 // Handle reads the log file and returns the last error entry.
 func (t *LastError) Handle(_ McpRequest) (McpResponse, error) {
 	path := t.LogFilePath
+
 	if path == "" {
 		path = "storage/logs/app.log"
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return OkResponse(map[string]any{"error": nil, "message": "no log file found"}), nil
@@ -55,6 +57,7 @@ func (t *LastError) Handle(_ McpRequest) (McpResponse, error) {
 		if errorLineRe.MatchString(lines[i]) {
 			// Collect the entry (current line + any following non-timestamp lines).
 			entry := collectLogEntry(lines, i)
+
 			return OkResponse(map[string]any{"error": entry}), nil
 		}
 	}
@@ -66,7 +69,9 @@ func (t *LastError) Handle(_ McpRequest) (McpResponse, error) {
 // continuation lines that don't start a new log entry.
 func collectLogEntry(lines []string, start int) string {
 	newEntryRe := regexp.MustCompile(`^\[?\d{4}-\d{2}-\d{2}`)
+
 	var sb strings.Builder
+
 	sb.WriteString(lines[start])
 
 	for i := start + 1; i < len(lines); i++ {

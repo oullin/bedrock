@@ -11,6 +11,20 @@ type Pivot struct {
 }
 
 // NewPivot creates a new Pivot model.
+
+// GetForeignKey returns the foreign key column name.
+
+// GetRelatedKey returns the related key column name.
+
+// GetPivotParent returns the parent of this pivot.
+
+// MorphPivot represents a pivot table record in a polymorphic many-to-many.
+type MorphPivot struct {
+	*Pivot
+	morphType  string
+	morphClass string
+}
+
 func NewPivot(parent *orm.Model, attributes map[string]any, table, foreignKey, relatedKey string) *Pivot {
 	p := &Pivot{
 		Model:       orm.NewModel(),
@@ -21,28 +35,20 @@ func NewPivot(parent *orm.Model, attributes map[string]any, table, foreignKey, r
 	p.SetTable(table)
 	p.SetIncrementing(false)
 	p.SetTimestamps(false)
+
 	if attributes != nil {
 		p.SetRawAttributes(attributes, true)
 		p.SetExists(true)
 	}
+
 	return p
 }
 
-// GetForeignKey returns the foreign key column name.
 func (p *Pivot) GetForeignKey() string { return p.foreignKey }
 
-// GetRelatedKey returns the related key column name.
 func (p *Pivot) GetRelatedKey() string { return p.relatedKey }
 
-// GetPivotParent returns the parent of this pivot.
 func (p *Pivot) GetPivotParent() *orm.Model { return p.pivotParent }
-
-// MorphPivot represents a pivot table record in a polymorphic many-to-many.
-type MorphPivot struct {
-	*Pivot
-	morphType  string
-	morphClass string
-}
 
 // NewMorphPivot creates a new MorphPivot model.
 func NewMorphPivot(parent *orm.Model, attributes map[string]any, table, foreignKey, relatedKey, morphType, morphClass string) *MorphPivot {

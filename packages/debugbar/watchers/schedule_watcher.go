@@ -11,16 +11,8 @@ type ScheduleWatcher struct {
 }
 
 // NewScheduleWatcher creates a ScheduleWatcher with the given options.
-func NewScheduleWatcher(t *debugbar.DebugBar, options map[string]any) *ScheduleWatcher {
-	w := &ScheduleWatcher{}
-	w.SetDebugBar(t)
-	w.Options = options
-
-	return w
-}
 
 // Register is a no-op for ScheduleWatcher; callers drive it via Record.
-func (w *ScheduleWatcher) Register(_ any) error { return nil }
 
 // ScheduledTask carries metadata about a scheduled task execution.
 type ScheduledTask struct {
@@ -39,6 +31,16 @@ type ScheduledTask struct {
 	// ExitCode is the exit code of the command.
 	ExitCode int
 }
+
+func NewScheduleWatcher(t *debugbar.DebugBar, options map[string]any) *ScheduleWatcher {
+	w := &ScheduleWatcher{}
+	w.SetDebugBar(t)
+	w.Options = options
+
+	return w
+}
+
+func (w *ScheduleWatcher) Register(_ any) error { return nil }
 
 // Record records a scheduled task execution entry.
 func (w *ScheduleWatcher) Record(task ScheduledTask) {

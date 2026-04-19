@@ -1,8 +1,8 @@
 package websockets
 
 import (
-	contractsWebSockets "github.com/bedrock/packages/contracts/websockets"
 	"github.com/bedrock/packages/container"
+	contractsWebSockets "github.com/bedrock/packages/contracts/websockets"
 	"github.com/bedrock/packages/redis"
 )
 
@@ -42,6 +42,7 @@ func (p *WebSocketsServiceProvider) Register() {
 
 	p.app.Singleton("websockets.channels", func(c *container.Container) (any, error) {
 		raw, err := c.Make("websockets.apps")
+
 		if err != nil {
 			return nil, err
 		}
@@ -53,6 +54,7 @@ func (p *WebSocketsServiceProvider) Register() {
 
 	p.app.Singleton("websockets.dispatcher", func(c *container.Container) (any, error) {
 		raw, err := c.Make("websockets.channels")
+
 		if err != nil {
 			return nil, err
 		}
@@ -61,12 +63,14 @@ func (p *WebSocketsServiceProvider) Register() {
 
 		if cfg.Redis != nil {
 			redisMgrRaw, err := c.Make("redis")
+
 			if err != nil {
 				return nil, err
 			}
 
 			redisMgr := redisMgrRaw.(*redis.Manager)
 			prefix := cfg.Redis.Prefix
+
 			if prefix == "" {
 				prefix = "websockets"
 			}
@@ -79,21 +83,25 @@ func (p *WebSocketsServiceProvider) Register() {
 
 	p.app.Singleton("websockets.server", func(c *container.Container) (any, error) {
 		appsRaw, err := c.Make("websockets.apps")
+
 		if err != nil {
 			return nil, err
 		}
 
 		connsRaw, err := c.Make("websockets.conns")
+
 		if err != nil {
 			return nil, err
 		}
 
 		channelsRaw, err := c.Make("websockets.channels")
+
 		if err != nil {
 			return nil, err
 		}
 
 		dispatcherRaw, err := c.Make("websockets.dispatcher")
+
 		if err != nil {
 			return nil, err
 		}
@@ -109,16 +117,19 @@ func (p *WebSocketsServiceProvider) Register() {
 
 	p.app.Singleton("websockets.http", func(c *container.Container) (any, error) {
 		appsRaw, err := c.Make("websockets.apps")
+
 		if err != nil {
 			return nil, err
 		}
 
 		channelsRaw, err := c.Make("websockets.channels")
+
 		if err != nil {
 			return nil, err
 		}
 
 		dispatcherRaw, err := c.Make("websockets.dispatcher")
+
 		if err != nil {
 			return nil, err
 		}

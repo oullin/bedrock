@@ -39,6 +39,7 @@ func NewTool(
 	if schema == nil {
 		schema = map[string]any{"type": "object", "properties": map[string]any{}}
 	}
+
 	return &funcTool{name: name, description: description, schema: schema, handler: handler}
 }
 

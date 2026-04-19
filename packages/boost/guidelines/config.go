@@ -22,6 +22,7 @@ func NewGuidelineConfig(repo *config.Repository) *GuidelineConfig {
 // Defaults to "." when not configured.
 func (c *GuidelineConfig) BasePath() string {
 	v, _ := c.repo.String("boost.base_path", ".")
+
 	return v
 }
 
@@ -43,17 +44,20 @@ func (c *GuidelineConfig) Packages() []string {
 // Defaults to ".ai/guidelines".
 func (c *GuidelineConfig) CustomPath() string {
 	v, _ := c.repo.String("boost.custom_guideline_path", ".ai/guidelines")
+
 	return v
 }
 
 // HasSkillsEnabled reports whether skills support is enabled.
 func (c *GuidelineConfig) HasSkillsEnabled() bool {
 	v, _ := c.repo.Boolean("boost.skills.enabled", false)
+
 	return v
 }
 
 // HasMcpEnabled reports whether MCP server support is enabled.
 func (c *GuidelineConfig) HasMcpEnabled() bool {
 	v, _ := c.repo.Boolean("boost.mcp.enabled", false)
+
 	return v
 }

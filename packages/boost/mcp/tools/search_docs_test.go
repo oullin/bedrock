@@ -37,6 +37,7 @@ func TestSearchDocsCallsAPI(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(apiResp)
 	}))
+
 	defer srv.Close()
 
 	tool := &tools.SearchDocs{
@@ -67,6 +68,7 @@ func TestSearchDocsPassesPackageFilter(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{}`))
 	}))
+
 	defer srv.Close()
 
 	tool := &tools.SearchDocs{APIUrl: srv.URL, HTTPClient: srv.Client()}

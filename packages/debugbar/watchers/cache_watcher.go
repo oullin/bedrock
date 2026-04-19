@@ -8,11 +8,6 @@ import (
 
 // ignoredCachePrefixes contains internal cache key prefixes that should not be
 // recorded, mirroring Upstream's CacheWatcher ignore list.
-var ignoredCachePrefixes = []string{
-	"framework:queue:restart",
-	"framework/schedule",
-	"debugbar:",
-}
 
 // CacheWatcher monitors cache operations (hit, miss, set, forget) and records
 // them as DebugBar entries. It mirrors Upstream's CacheWatcher class.
@@ -21,6 +16,12 @@ var ignoredCachePrefixes = []string{
 //   - "hidden" ([]string): key names whose values will be masked.
 type CacheWatcher struct {
 	debugbar.BaseWatcher
+}
+
+var ignoredCachePrefixes = []string{
+	"framework:queue:restart",
+	"framework/schedule",
+	"debugbar:",
 }
 
 // NewCacheWatcher creates a CacheWatcher with the given options.

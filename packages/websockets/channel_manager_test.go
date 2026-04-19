@@ -16,6 +16,7 @@ func TestChannelManager_GetOrCreate_PublicChannel(t *testing.T) {
 	mgr := websockets.NewChannelManager(apps)
 
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate returned unexpected error: %v", err)
 	}
@@ -38,11 +39,13 @@ func TestChannelManager_GetOrCreate_SameChannel(t *testing.T) {
 	mgr := websockets.NewChannelManager(apps)
 
 	ch1, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("first GetOrCreate: %v", err)
 	}
 
 	ch2, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("second GetOrCreate: %v", err)
 	}
@@ -61,6 +64,7 @@ func TestChannelManager_Get_NotFound(t *testing.T) {
 	mgr := websockets.NewChannelManager(apps)
 
 	_, found := mgr.Get("app-1", "nonexistent")
+
 	if found {
 		t.Error("expected Get to return false for unknown channel")
 	}
@@ -81,6 +85,7 @@ func TestChannelManager_Remove(t *testing.T) {
 	mgr.Remove("app-1", "public-test")
 
 	_, found := mgr.Get("app-1", "public-test")
+
 	if found {
 		t.Error("expected channel to be absent after Remove")
 	}
@@ -96,12 +101,14 @@ func TestChannelManager_CleanupEmpty(t *testing.T) {
 	ctx := context.Background()
 
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate: %v", err)
 	}
 
 	// Subscribe and then unsubscribe a connection so the channel becomes empty
 	conn := newFakeConn("sock-1", "app-1")
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -112,6 +119,7 @@ func TestChannelManager_CleanupEmpty(t *testing.T) {
 	mgr.CleanupEmpty("app-1")
 
 	_, found := mgr.Get("app-1", "public-test")
+
 	if found {
 		t.Error("expected empty channel to be removed by CleanupEmpty")
 	}
@@ -126,6 +134,7 @@ func TestChannelManager_All(t *testing.T) {
 	mgr := websockets.NewChannelManager(apps)
 
 	names := []string{"public-a", "public-b", "public-c"}
+
 	for _, name := range names {
 		if _, err := mgr.GetOrCreate("app-1", name); err != nil {
 			t.Fatalf("GetOrCreate %q: %v", name, err)
@@ -133,6 +142,7 @@ func TestChannelManager_All(t *testing.T) {
 	}
 
 	all := mgr.All("app-1")
+
 	if len(all) != len(names) {
 		t.Errorf("expected %d channels, got %d", len(names), len(all))
 	}

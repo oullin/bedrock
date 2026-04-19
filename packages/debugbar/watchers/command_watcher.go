@@ -6,11 +6,6 @@ import (
 
 // ignoredCommands lists CLI commands that should not be recorded by default,
 // mirroring Upstream's CommandWatcher ignore list.
-var ignoredCommands = []string{
-	"schedule:run",
-	"schedule:finish",
-	"package:discover",
-}
 
 // CommandWatcher monitors CLI command execution and records entries as
 // DebugBar entries. It mirrors Upstream's CommandWatcher class.
@@ -19,6 +14,12 @@ var ignoredCommands = []string{
 //   - "ignore" ([]string): additional command names to skip.
 type CommandWatcher struct {
 	debugbar.BaseWatcher
+}
+
+var ignoredCommands = []string{
+	"schedule:run",
+	"schedule:finish",
+	"package:discover",
 }
 
 // NewCommandWatcher creates a CommandWatcher with the given options.

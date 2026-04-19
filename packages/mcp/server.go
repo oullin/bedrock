@@ -8,11 +8,6 @@ import (
 	"testing"
 )
 
-const (
-	defaultPagination = 15
-	maxPagination     = 50
-)
-
 // Server is an MCP server that handles JSON-RPC 2.0 messages and exposes
 // tools, resources, and prompts to AI agents.
 type Server struct {
@@ -31,6 +26,11 @@ type Server struct {
 
 // Option is a functional option for configuring a Server.
 type Option func(*Server)
+
+const (
+	defaultPagination = 15
+	maxPagination     = 50
+)
 
 // WithDescription sets a human-readable description for the server.
 func WithDescription(d string) Option {
@@ -59,15 +59,18 @@ func NewServer(name, version string, opts ...Option) *Server {
 		defaultPaginationLength: defaultPagination,
 		maxPaginationLength:     maxPagination,
 	}
+
 	for _, o := range opts {
 		o(s)
 	}
+
 	return s
 }
 
 // AddTool registers one or more tools with the server.
 func (s *Server) AddTool(tools ...Tool) *Server {
 	s.tools = append(s.tools, tools...)
+
 	return s
 }
 
@@ -75,12 +78,14 @@ func (s *Server) AddTool(tools ...Tool) *Server {
 // the server.
 func (s *Server) AddResource(resources ...Resource) *Server {
 	s.resources = append(s.resources, resources...)
+
 	return s
 }
 
 // AddPrompt registers one or more prompts with the server.
 func (s *Server) AddPrompt(prompts ...Prompt) *Server {
 	s.prompts = append(s.prompts, prompts...)
+
 	return s
 }
 
@@ -104,22 +109,28 @@ func (s *Server) context() *ServerContext {
 // JSON-RPC response. sessionID is the MCP session identifier, if any.
 func (s *Server) Handle(ctx context.Context, message, sessionID string) (string, error) {
 	req, err := ParseJsonRpcRequest([]byte(message), sessionID)
+
 	if err != nil {
 		var resp *JsonRpcResponse
+
 		if err == ErrInvalidRequest {
 			resp = ErrorResponse(nil, CodeInvalidRequest, err.Error())
 		} else {
 			resp = ErrorResponse(nil, CodeParseError, err.Error())
 		}
+
 		b, _ := resp.ToJSON()
+
 		return string(b), nil
 	}
 
 	sc := s.context()
 	handler, ok := dispatchTable[req.Method]
+
 	if !ok {
 		resp := ErrorResponse(req.ID, CodeMethodNotFound, fmt.Sprintf("method not found: %q", req.Method))
 		b, _ := resp.ToJSON()
+
 		return string(b), nil
 	}
 
@@ -129,21 +140,25 @@ func (s *Server) Handle(ctx context.Context, message, sessionID string) (string,
 				rerr = fmt.Errorf("internal panic: %v", r)
 			}
 		}()
+
 		return handler(ctx, req, sc)
 	}()
 
 	if err != nil {
 		resp := ErrorResponse(req.ID, CodeInternalError, err.Error())
 		b, _ := resp.ToJSON()
+
 		return string(b), nil
 	}
 
 	resp := ResultResponse(req.ID, result)
 	b, err := resp.ToJSON()
+
 	if err != nil {
 		errResp := ErrorResponse(req.ID, CodeInternalError, "failed to serialise response")
 		b, _ = errResp.ToJSON()
 	}
+
 	return string(b), nil
 }
 
@@ -161,6 +176,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) ServeStdio(ctx context.Context) error {
 	t := NewStdioTransport()
 	t.OnReceive(s.Handle)
+
 	return t.Run(ctx)
 }
 
@@ -175,6 +191,7 @@ func (s *Server) handleRaw(ctx context.Context, method string, params map[string
 	if params == nil {
 		params = map[string]any{}
 	}
+
 	req := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      1,
@@ -183,7 +200,10 @@ func (s *Server) handleRaw(ctx context.Context, method string, params map[string
 	}
 	b, _ := json.Marshal(req)
 	respStr, _ := s.Handle(ctx, string(b), "test-session")
+
 	var out map[string]any
+
 	json.Unmarshal([]byte(respStr), &out) //nolint:errcheck
+
 	return out
 }

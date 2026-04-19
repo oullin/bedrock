@@ -9,17 +9,18 @@ import (
 
 // ignoredRedisCommands lists commands that should not be recorded (pipeline /
 // transaction control), mirroring Upstream's RedisWatcher.
-var ignoredRedisCommands = []string{
-	"MULTI",
-	"EXEC",
-	"DISCARD",
-	"PIPELINE",
-}
 
 // RedisWatcher monitors Redis command execution and records entries as
 // DebugBar entries. It mirrors Upstream's RedisWatcher class.
 type RedisWatcher struct {
 	debugbar.BaseWatcher
+}
+
+var ignoredRedisCommands = []string{
+	"MULTI",
+	"EXEC",
+	"DISCARD",
+	"PIPELINE",
 }
 
 // NewRedisWatcher creates a RedisWatcher with the given options.

@@ -8,14 +8,17 @@ import (
 // OrderBy adds an ORDER BY clause.
 func (b *Builder) OrderBy(column string, direction ...string) *Builder {
 	dir := "asc"
+
 	if len(direction) > 0 {
 		dir = strings.ToLower(direction[0])
 	}
+
 	if dir != "asc" && dir != "desc" {
 		dir = "asc"
 	}
 
 	b.orders = append(b.orders, OrderClause{Column: column, Direction: dir})
+
 	return b
 }
 
@@ -28,34 +31,42 @@ func (b *Builder) OrderByDesc(column string) *Builder {
 func (b *Builder) OrderByRaw(sql string, bindings ...any) *Builder {
 	b.orders = append(b.orders, OrderClause{SQL: sql})
 	b.AddBinding(BindingOrder, bindings...)
+
 	return b
 }
 
 // Latest orders by the given column descending (default: "created_at").
 func (b *Builder) Latest(column ...string) *Builder {
 	col := "created_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return b.OrderByDesc(col)
 }
 
 // Oldest orders by the given column ascending (default: "created_at").
 func (b *Builder) Oldest(column ...string) *Builder {
 	col := "created_at"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	return b.OrderBy(col, "asc")
 }
 
 // InRandomOrder orders by random.
 func (b *Builder) InRandomOrder(seed ...string) *Builder {
 	s := ""
+
 	if len(seed) > 0 {
 		s = seed[0]
 	}
+
 	b.orders = append(b.orders, OrderClause{SQL: b.grammar.CompileRandom(s)})
+
 	return b
 }
 
@@ -66,6 +77,7 @@ func (b *Builder) Limit(n int) *Builder {
 	} else {
 		b.limit_ = nil
 	}
+
 	return b
 }
 
@@ -81,6 +93,7 @@ func (b *Builder) Offset(n int) *Builder {
 	} else {
 		b.offset_ = nil
 	}
+
 	return b
 }
 
@@ -97,28 +110,36 @@ func (b *Builder) ForPage(page, perPage int) *Builder {
 // ForPageBeforeId constrains results to rows with an id less than the given value.
 func (b *Builder) ForPageBeforeId(perPage int, lastId any, column ...string) *Builder {
 	col := "id"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	b.orders = nil
 	b.bindings[BindingOrder] = nil
+
 	if lastId != nil {
 		return b.Where(col, "<", lastId).OrderByDesc(col).Limit(perPage)
 	}
+
 	return b.OrderByDesc(col).Limit(perPage)
 }
 
 // ForPageAfterId constrains results to rows with an id greater than the given value.
 func (b *Builder) ForPageAfterId(perPage int, lastId any, column ...string) *Builder {
 	col := "id"
+
 	if len(column) > 0 {
 		col = column[0]
 	}
+
 	b.orders = nil
 	b.bindings[BindingOrder] = nil
+
 	if lastId != nil {
 		return b.Where(col, ">", lastId).OrderBy(col).Limit(perPage)
 	}
+
 	return b.OrderBy(col).Limit(perPage)
 }
 
@@ -131,6 +152,7 @@ func (b *Builder) InOrderOf(column string, values []any) *Builder {
 	raw := "field(" + b.grammar.Wrap(column) + ", " + b.grammar.Parameterize(values) + ")"
 	b.orders = append(b.orders, OrderClause{SQL: raw})
 	b.AddBinding(BindingOrder, values...)
+
 	return b
 }
 
@@ -148,6 +170,7 @@ func (b *Builder) Cursor(ctx context.Context, fn func(map[string]any) bool) erro
 				return false
 			}
 		}
+
 		return true
 	})
 }

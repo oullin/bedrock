@@ -28,16 +28,21 @@ func AssertNothingEmbeddingsGenerated(t fake.TestingT) {
 // Mirrors Upstream\Ai\Testing\FakeEmbedding.
 func FakeEmbedding(dims int) []float64 {
 	vec := make([]float64, dims)
+
 	var sumSq float64
+
 	for i := range vec {
 		vec[i] = rand.Float64()
 		sumSq += vec[i] * vec[i]
 	}
+
 	mag := math.Sqrt(sumSq)
+
 	if mag > 0 {
 		for i := range vec {
 			vec[i] /= mag
 		}
 	}
+
 	return vec
 }

@@ -28,21 +28,27 @@ func NewEmbeddingGateway(recorder *Recorder) *EmbeddingGateway {
 // SetResponses configures queued fake responses.
 func (g *EmbeddingGateway) SetResponses(resps []any) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.responses = resps
 }
 
 // SetDimensions sets the default dimensionality for auto-generated embeddings.
 func (g *EmbeddingGateway) SetDimensions(dims int) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.dims = dims
 }
 
 // PreventStray enables stray-call prevention.
 func (g *EmbeddingGateway) PreventStray() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.prevent = true
 }
 
@@ -52,14 +58,17 @@ func (g *EmbeddingGateway) GenerateEmbeddings(ctx context.Context, req contracts
 		Inputs:  req.Inputs,
 		Timeout: req.Timeout,
 	}
+
 	if req.Dimensions > 0 {
 		d := req.Dimensions
 		prompt.Dimensions = &d
 	}
+
 	if req.Model != "" {
 		m := req.Model
 		prompt.Model = &m
 	}
+
 	g.recorder.recordEmbeddings(prompt, false)
 
 	return g.nextResponse(prompt, req)
@@ -67,9 +76,11 @@ func (g *EmbeddingGateway) GenerateEmbeddings(ctx context.Context, req contracts
 
 func (g *EmbeddingGateway) nextResponse(prompt *prompts.EmbeddingsPrompt, req contractsgw.EmbeddingGenerateRequest) (*contractsgw.EmbeddingGenerateResult, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	dims := g.dims
+
 	if req.Dimensions > 0 {
 		dims = req.Dimensions
 	}
@@ -80,9 +91,11 @@ func (g *EmbeddingGateway) nextResponse(prompt *prompts.EmbeddingsPrompt, req co
 		}
 		// Auto-generate normalised embeddings for each input
 		embeddings := make([][]float64, len(req.Inputs))
+
 		for i := range embeddings {
 			embeddings[i] = FakeEmbedding(dims)
 		}
+
 		return &contractsgw.EmbeddingGenerateResult{
 			Embeddings: embeddings,
 			Tokens:     len(req.Inputs) * 10,
@@ -90,6 +103,7 @@ func (g *EmbeddingGateway) nextResponse(prompt *prompts.EmbeddingsPrompt, req co
 	}
 
 	raw := g.responses[0]
+
 	if len(g.responses) > 1 {
 		g.responses = g.responses[1:]
 	}

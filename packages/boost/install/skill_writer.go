@@ -37,27 +37,32 @@ func (s *SkillEntry) SkillContent() string { return s.Content }
 // skill. Parent directories are created as needed.
 func (w *SkillWriter) Write(agent SupportsSkillsPath, skills []Skill) error {
 	base := agent.SkillsPath()
+
 	if base == "" {
 		return fmt.Errorf("install: agent returned an empty skills path")
 	}
 
 	for _, s := range skills {
 		name := s.SkillName()
+
 		if name == "" {
 			continue
 		}
 
 		dir := filepath.Join(base, name)
+
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("install: create skill dir %s: %w", dir, err)
 		}
 
 		content := s.SkillContent()
+
 		if !strings.HasSuffix(content, "\n") {
 			content += "\n"
 		}
 
 		dest := filepath.Join(dir, "SKILL.md")
+
 		if err := os.WriteFile(dest, []byte(content), 0644); err != nil {
 			return fmt.Errorf("install: write skill %s: %w", dest, err)
 		}

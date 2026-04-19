@@ -28,14 +28,18 @@ func NewImageGateway(recorder *Recorder) *ImageGateway {
 // SetResponses configures queued fake responses.
 func (g *ImageGateway) SetResponses(resps []any) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.responses = resps
 }
 
 // PreventStray enables stray-call prevention.
 func (g *ImageGateway) PreventStray() {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
+
 	g.prevent = true
 }
 
@@ -47,10 +51,12 @@ func (g *ImageGateway) GenerateImage(ctx context.Context, req contractsgw.ImageG
 		Quality: req.Quality,
 		Timeout: req.Timeout,
 	}
+
 	if req.Model != "" {
 		m := req.Model
 		prompt.Model = &m
 	}
+
 	g.recorder.recordImage(prompt, false)
 
 	return g.nextResponse(prompt)
@@ -58,16 +64,19 @@ func (g *ImageGateway) GenerateImage(ctx context.Context, req contractsgw.ImageG
 
 func (g *ImageGateway) nextResponse(prompt *prompts.ImagePrompt) (*contractsgw.ImageGenerateResult, error) {
 	g.mu.Lock()
+
 	defer g.mu.Unlock()
 
 	if len(g.responses) == 0 {
 		if g.prevent {
 			return nil, fmt.Errorf("ai: unexpected call to faked image gateway")
 		}
+
 		return defaultImageResult(), nil
 	}
 
 	raw := g.responses[0]
+
 	if len(g.responses) > 1 {
 		g.responses = g.responses[1:]
 	}
@@ -89,6 +98,7 @@ func (g *ImageGateway) nextResponse(prompt *prompts.ImagePrompt) (*contractsgw.I
 func defaultImageResult() *contractsgw.ImageGenerateResult {
 	// 1×1 transparent PNG, base64-encoded
 	const placeholder = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
 	return &contractsgw.ImageGenerateResult{
 		Images: []contractsgw.GeneratedImageData{{Image: placeholder, MimeType: "image/png"}},
 	}
@@ -106,11 +116,14 @@ func FakeEmbedding(dims int) []float64 {
 	if dims <= 0 {
 		return nil
 	}
+
 	vec := make([]float64, dims)
+
 	var sumSq float64
 
 	// Deterministic LCG seeded by dims so results are reproducible per dimension.
 	state := uint64(dims)*6364136223846793005 + 1442695040888963407
+
 	for i := range vec {
 		state = state*6364136223846793005 + 1442695040888963407
 		// map to (0, 1]
@@ -120,8 +133,10 @@ func FakeEmbedding(dims int) []float64 {
 	}
 
 	mag := math.Sqrt(sumSq)
+
 	for i := range vec {
 		vec[i] /= mag
 	}
+
 	return vec
 }

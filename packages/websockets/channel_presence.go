@@ -18,7 +18,7 @@ type presenceMember struct {
 // Each member is identified by user_id; multiple connections from the same
 // user_id count as a single presence member.
 type PresenceChannel struct {
-	channel                          // base channel (not PrivateChannel, to avoid double mutex)
+	channel // base channel (not PrivateChannel, to avoid double mutex)
 	app     *App
 	mu      sync.RWMutex
 	members map[string]presenceMember // socketID → presenceMember
@@ -51,15 +51,18 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 		UserID   string `json:"user_id"`
 		UserInfo any    `json:"user_info"`
 	}
+
 	_ = json.Unmarshal([]byte(channelData), &cd)
 
 	ch.mu.Lock()
 
 	// Check whether this user_id is already present before this socket joins.
 	isNewUser := true
+
 	for _, m := range ch.members {
 		if m.UserID == cd.UserID {
 			isNewUser = false
+
 			break
 		}
 	}
@@ -90,6 +93,7 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 	// Build subscription_succeeded with presence data.
 	presenceData := ch.subscriptionData()
 	presencePayload, err := json.Marshal(map[string]any{"presence": presenceData})
+
 	if err != nil {
 		return err
 	}
@@ -99,6 +103,7 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 		"data":    string(presencePayload),
 		"channel": ch.name,
 	})
+
 	if err != nil {
 		return err
 	}
@@ -121,6 +126,7 @@ func (ch *PresenceChannel) Unsubscribe(ctx context.Context, conn contractsWebSoc
 
 	// Count remaining connections for this user_id.
 	remaining := 0
+
 	if exists {
 		for _, m := range ch.members {
 			if m.UserID == member.UserID {
@@ -157,9 +163,11 @@ func (ch *PresenceChannel) BroadcastToAll(ctx context.Context, event contractsWe
 // Members returns a deduplicated map of user_id → user_info for all subscribers.
 func (ch *PresenceChannel) Members() map[string]any {
 	ch.mu.RLock()
+
 	defer ch.mu.RUnlock()
 
 	result := make(map[string]any)
+
 	for _, m := range ch.members {
 		result[m.UserID] = m.UserInfo
 	}
@@ -176,6 +184,7 @@ func (ch *PresenceChannel) MemberCount() int {
 func (ch *PresenceChannel) MemberIDs() []string {
 	members := ch.Members()
 	ids := make([]string, 0, len(members))
+
 	for id := range members {
 		ids = append(ids, id)
 	}

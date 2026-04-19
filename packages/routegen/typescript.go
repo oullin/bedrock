@@ -51,6 +51,7 @@ func SafeMethod(method, suffix string) string {
 
 	// 4. Starts with a non-[a-zA-Z_$] character → prepend lowered suffix.
 	first, _ := utf8.DecodeRuneInString(s)
+
 	if first != utf8.RuneError && !unicode.IsLetter(first) && first != '_' && first != '$' {
 		return sfxLower + s
 	}
@@ -65,10 +66,13 @@ func QuoteIfNeeded(name string) string {
 	if isNumeric(name) {
 		return name
 	}
+
 	first := name[0]
+
 	if first >= '0' && first <= '9' {
 		return `"` + name + `"`
 	}
+
 	return name
 }
 
@@ -77,11 +81,13 @@ func isNumeric(s string) bool {
 	if s == "" {
 		return false
 	}
+
 	for _, c := range s {
 		if c < '0' || c > '9' {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -89,20 +95,22 @@ func isNumeric(s string) bool {
 // "invalid-js-name" → "invalidJsName".
 func toCamel(s string) string {
 	parts := strings.Split(s, "-")
+
 	for i := 1; i < len(parts); i++ {
 		if len(parts[i]) > 0 {
 			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 		}
 	}
+
 	return strings.Join(parts, "")
 }
 
 // cleanUpRe holds pre-compiled regexps used by CleanUp.
 var (
-	cleanUpArrowRe    = regexp.MustCompile(`=>\s*\{\n{2,}`)
-	cleanUpReplaceRe  = regexp.MustCompile(`\\\s+\.replace`)
-	cleanUpQueryRe    = regexp.MustCompile(`\s+\+ queryParams\(options\)`)
-	cleanUpMultiNlRe  = regexp.MustCompile(`\n{3,}`)
+	cleanUpArrowRe   = regexp.MustCompile(`=>\s*\{\n{2,}`)
+	cleanUpReplaceRe = regexp.MustCompile(`\\\s+\.replace`)
+	cleanUpQueryRe   = regexp.MustCompile(`\s+\+ queryParams\(options\)`)
+	cleanUpMultiNlRe = regexp.MustCompile(`\n{3,}`)
 )
 
 // CleanUp normalises the whitespace and indentation of a generated TypeScript
@@ -117,6 +125,7 @@ func CleanUp(src string) string {
 		{" )", ")"},
 		{"( ", "("},
 	}
+
 	for _, r := range replacements {
 		src = strings.ReplaceAll(src, r[0], r[1])
 	}
@@ -140,13 +149,17 @@ func CleanUp(src string) string {
 func reindent(src string) string {
 	lines := strings.Split(src, "\n")
 	depth := 0
+
 	var b strings.Builder
+
 	b.Grow(len(src))
 
 	for i, raw := range lines {
 		line := strings.TrimSpace(raw)
+
 		if line == "" {
 			b.WriteByte('\n')
+
 			continue
 		}
 
@@ -159,6 +172,7 @@ func reindent(src string) string {
 
 		b.WriteString(strings.Repeat("    ", depth))
 		b.WriteString(line)
+
 		if i < len(lines)-1 {
 			b.WriteByte('\n')
 		}

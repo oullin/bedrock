@@ -35,6 +35,7 @@ func TestSkillWriterCreatesFiles(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("expected SKILL.md at %s: %v", dest, err)
+
 			continue
 		}
 

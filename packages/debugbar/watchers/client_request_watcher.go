@@ -19,16 +19,8 @@ type ClientRequestWatcher struct {
 }
 
 // NewClientRequestWatcher creates a ClientRequestWatcher with the given options.
-func NewClientRequestWatcher(t *debugbar.DebugBar, options map[string]any) *ClientRequestWatcher {
-	w := &ClientRequestWatcher{}
-	w.SetDebugBar(t)
-	w.Options = options
-
-	return w
-}
 
 // Register is a no-op for ClientRequestWatcher; callers drive it via Record.
-func (w *ClientRequestWatcher) Register(_ any) error { return nil }
 
 // ClientResponse carries the response data from an outbound HTTP request.
 type ClientResponse struct {
@@ -37,6 +29,16 @@ type ClientResponse struct {
 	Body        []byte
 	ContentType string
 }
+
+func NewClientRequestWatcher(t *debugbar.DebugBar, options map[string]any) *ClientRequestWatcher {
+	w := &ClientRequestWatcher{}
+	w.SetDebugBar(t)
+	w.Options = options
+
+	return w
+}
+
+func (w *ClientRequestWatcher) Register(_ any) error { return nil }
 
 // Record records an outbound HTTP client request/response pair.
 func (w *ClientRequestWatcher) Record(
@@ -53,11 +55,11 @@ func (w *ClientRequestWatcher) Record(
 	maskedPayload := parseClientBody(requestBody, requestHeaders.Get("Content-Type"))
 
 	content := map[string]any{
-		"method":           strings.ToUpper(method),
-		"uri":              uri,
-		"headers":          maskedHeaders,
-		"payload":          maskedPayload,
-		"duration":         float64(duration.Milliseconds()),
+		"method":   strings.ToUpper(method),
+		"uri":      uri,
+		"headers":  maskedHeaders,
+		"payload":  maskedPayload,
+		"duration": float64(duration.Milliseconds()),
 	}
 
 	if response != nil {

@@ -23,11 +23,13 @@ func TestReadLogEntriesNoFile(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
 
 	entries, _ := data["entries"].([]any)
+
 	if len(entries) != 0 {
 		t.Errorf("entries = %v, want empty", entries)
 	}
@@ -52,11 +54,13 @@ func TestReadLogEntriesPSR3(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
 
 	entries, _ := data["entries"].([]any)
+
 	if len(entries) != 2 {
 		t.Errorf("entries count = %d, want 2", len(entries))
 	}
@@ -81,11 +85,13 @@ func TestReadLogEntriesJSON(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
 
 	entries, _ := data["entries"].([]any)
+
 	if len(entries) != 2 {
 		t.Errorf("JSON entries count = %d, want 2", len(entries))
 	}

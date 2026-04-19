@@ -19,11 +19,13 @@ func (r MessageRole) Valid() bool {
 	case RoleAssistant, RoleUser, RoleToolResult:
 		return true
 	}
+
 	return false
 }
 
 // TryFrom parses a string into a MessageRole, returning false if unrecognised.
 func TryFromMessageRole(s string) (MessageRole, bool) {
 	r := MessageRole(s)
+
 	return r, r.Valid()
 }

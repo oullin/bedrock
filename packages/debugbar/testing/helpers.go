@@ -66,6 +66,7 @@ func (tc *DebugBarTestCase) LoadEntries() []*debugbar.EntryResult {
 	tc.Store()
 
 	results, err := tc.Repository.Get("", debugbar.DefaultQueryOptions().WithLimit(500))
+
 	if err != nil {
 		tc.T.Fatalf("debugbar: load entries failed: %v", err)
 	}
@@ -80,6 +81,7 @@ func (tc *DebugBarTestCase) LoadEntriesOfType(entryType string) []*debugbar.Entr
 	tc.Store()
 
 	results, err := tc.Repository.Get(entryType, debugbar.DefaultQueryOptions().WithLimit(500))
+
 	if err != nil {
 		tc.T.Fatalf("debugbar: load entries of type %q failed: %v", entryType, err)
 	}

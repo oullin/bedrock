@@ -13,6 +13,7 @@ type ClaudeCode struct {
 // the default paths (mirrors config('boost.agents.claude_code.*')).
 func NewClaudeCode(opts ...AgentOptions) *ClaudeCode {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

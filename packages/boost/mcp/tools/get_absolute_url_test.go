@@ -21,6 +21,7 @@ func TestGetAbsoluteUrlPath(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
@@ -39,11 +40,13 @@ func TestGetAbsoluteUrlNamedRoute(t *testing.T) {
 	}
 
 	resp, err := tool.Handle(tools.McpRequest{Args: map[string]any{"route": "users.index"}})
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
@@ -64,11 +67,13 @@ func TestGetAbsoluteUrlDefaultBase(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("data type = %T", resp.Content[0].Data)
 	}
 
 	u, _ := data["url"].(string)
+
 	if u == "" {
 		t.Error("url should not be empty")
 	}
