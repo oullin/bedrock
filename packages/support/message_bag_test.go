@@ -30,9 +30,11 @@ func TestMessageBagAdd(t *testing.T) {
 	if bag.Count() != 3 {
 		t.Errorf("expected 3, got %d", bag.Count())
 	}
+
 	if !bag.Has("email") {
 		t.Error("expected Has('email') = true")
 	}
+
 	if !bag.Has("name") {
 		t.Error("expected Has('name') = true")
 	}
@@ -44,11 +46,13 @@ func TestMessageBagAddIf(t *testing.T) {
 
 	bag := NewMessageBag()
 	bag.AddIf(false, "key", "should not appear")
+
 	if bag.Count() != 0 {
 		t.Errorf("expected 0, got %d", bag.Count())
 	}
 
 	bag.AddIf(true, "key", "should appear")
+
 	if bag.Count() != 1 {
 		t.Errorf("expected 1, got %d", bag.Count())
 	}
@@ -63,9 +67,11 @@ func TestMessageBagGet(t *testing.T) {
 	bag.Add("email", "Bar")
 
 	msgs := bag.Get("email")
+
 	if len(msgs) != 2 {
 		t.Errorf("expected 2, got %d", len(msgs))
 	}
+
 	if msgs[0] != "Foo" || msgs[1] != "Bar" {
 		t.Errorf("unexpected messages: %v", msgs)
 	}
@@ -80,6 +86,7 @@ func TestMessageBagGetWildcard(t *testing.T) {
 	bag.Add("messages.1", "Second")
 
 	msgs := bag.Get("messages.*")
+
 	if len(msgs) != 2 {
 		t.Errorf("expected 2, got %d: %v", len(msgs), msgs)
 	}
@@ -115,9 +122,11 @@ func TestMessageBagFirstEmpty(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag()
+
 	if got := bag.First(); got != "" {
 		t.Errorf("First() on empty bag = %q", got)
 	}
+
 	if got := bag.First("missing"); got != "" {
 		t.Errorf("First('missing') = %q", got)
 	}
@@ -133,6 +142,7 @@ func TestMessageBagHas(t *testing.T) {
 	if !bag.Has("email") {
 		t.Error("expected Has('email') = true")
 	}
+
 	if bag.Has("name") {
 		t.Error("expected Has('name') = false")
 	}
@@ -143,6 +153,7 @@ func TestMessageBagHasEmpty(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag()
+
 	if bag.Has("email") {
 		t.Error("Has on empty bag should return false")
 	}
@@ -159,6 +170,7 @@ func TestMessageBagHasMultipleKeys(t *testing.T) {
 	if !bag.Has("email", "name") {
 		t.Error("Has('email','name') should be true")
 	}
+
 	if bag.Has("email", "missing") {
 		t.Error("Has('email','missing') should be false")
 	}
@@ -174,6 +186,7 @@ func TestMessageBagHasAny(t *testing.T) {
 	if !bag.HasAny("email", "name") {
 		t.Error("HasAny should return true when at least one key exists")
 	}
+
 	if bag.HasAny("name", "phone") {
 		t.Error("HasAny should return false when no key exists")
 	}
@@ -201,6 +214,7 @@ func TestMessageBagMissing(t *testing.T) {
 	if bag.Missing("email") {
 		t.Error("Missing('email') should be false when key exists")
 	}
+
 	if !bag.Missing("name") {
 		t.Error("Missing('name') should be true when key absent")
 	}
@@ -215,6 +229,7 @@ func TestMessageBagAll(t *testing.T) {
 	bag.Add("name", "n1")
 
 	all := bag.All()
+
 	if len(all) != 2 {
 		t.Errorf("All() should return 2, got %d", len(all))
 	}
@@ -264,6 +279,7 @@ func TestMessageBagForget(t *testing.T) {
 	if bag.Has("email") {
 		t.Error("Forget should remove 'email'")
 	}
+
 	if !bag.Has("name") {
 		t.Error("Forget should not remove 'name'")
 	}
@@ -278,6 +294,7 @@ func TestMessageBagKeys(t *testing.T) {
 	bag.Add("name", "error")
 
 	keys := bag.Keys()
+
 	if len(keys) != 2 {
 		t.Errorf("expected 2 keys, got %d: %v", len(keys), keys)
 	}
@@ -288,6 +305,7 @@ func TestMessageBagCount(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag()
+
 	if bag.Count() != 0 {
 		t.Error("empty bag count should be 0")
 	}
@@ -306,17 +324,21 @@ func TestMessageBagIsEmpty(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag()
+
 	if !bag.IsEmpty() {
 		t.Error("new bag should be empty")
 	}
+
 	if bag.IsNotEmpty() {
 		t.Error("new bag should not be not-empty")
 	}
 
 	bag.Add("key", "val")
+
 	if bag.IsEmpty() {
 		t.Error("bag with message should not be empty")
 	}
+
 	if !bag.IsNotEmpty() {
 		t.Error("bag with message should be not-empty")
 	}
@@ -327,6 +349,7 @@ func TestMessageBagFormat(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag()
+
 	if bag.GetFormat() != ":message" {
 		t.Errorf("default format = %q", bag.GetFormat())
 	}
@@ -335,6 +358,7 @@ func TestMessageBagFormat(t *testing.T) {
 	bag.Add("key", "hello")
 
 	first := bag.First("key")
+
 	if first != "<p>hello</p>" {
 		t.Errorf("formatted message = %q", first)
 	}
@@ -350,6 +374,7 @@ func TestMessageBagCustomFormat(t *testing.T) {
 	bag.Add("email", "required")
 
 	msgs := bag.Get("email")
+
 	for _, m := range msgs {
 		if m != "<li>invalid</li>" && m != "<li>required</li>" {
 			t.Errorf("unexpected formatted message: %q", m)
@@ -366,6 +391,7 @@ func TestMessageBagGetMessages(t *testing.T) {
 	bag.Add("a", "two")
 
 	raw := bag.GetMessages()
+
 	if len(raw["a"]) != 2 {
 		t.Errorf("GetMessages['a'] = %v", raw["a"])
 	}
@@ -379,14 +405,17 @@ func TestMessageBagJSON(t *testing.T) {
 	bag.Add("email", "invalid")
 
 	data, err := bag.ToJSON()
+
 	if err != nil {
 		t.Fatalf("ToJSON error: %v", err)
 	}
 
 	var result map[string][]string
+
 	if err := json.Unmarshal(data, &result); err != nil {
 		t.Fatalf("unmarshal error: %v", err)
 	}
+
 	if len(result["email"]) != 1 || result["email"][0] != "invalid" {
 		t.Errorf("JSON result = %v", result)
 	}
@@ -415,6 +444,7 @@ func TestMessageBagUnique(t *testing.T) {
 
 	unique := bag.Unique()
 	msgs := unique.Get("key")
+
 	if len(msgs) != 2 {
 		t.Errorf("Unique should deduplicate, got %v", msgs)
 	}
@@ -429,6 +459,7 @@ func TestMessageBagAllWithFormat(t *testing.T) {
 	bag.Add("x", "bad")
 
 	all := bag.All()
+
 	if len(all) != 1 || all[0] != "[error: bad]" {
 		t.Errorf("All() with format = %v", all)
 	}
@@ -445,6 +476,7 @@ func TestMessageBagHasWildcard(t *testing.T) {
 	if !bag.Has("errors.*") {
 		t.Error("Has with wildcard should match")
 	}
+
 	if bag.Has("other.*") {
 		t.Error("Has with non-matching wildcard should return false")
 	}
@@ -463,6 +495,7 @@ func TestMessageBagForgetMultiple(t *testing.T) {
 	if bag.Has("a") || bag.Has("b") {
 		t.Error("Forget should remove both a and b")
 	}
+
 	if !bag.Has("c") {
 		t.Error("Forget should leave c")
 	}
@@ -476,6 +509,7 @@ func TestMessageBagString(t *testing.T) {
 	bag.Add("key", "value")
 
 	s := bag.String()
+
 	if s == "" || s == "{}" {
 		t.Errorf("String() = %q — expected non-empty JSON", s)
 	}

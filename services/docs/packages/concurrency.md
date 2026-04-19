@@ -16,10 +16,10 @@ go get github.com/gocanto/bedrock/packages/concurrency@latest
 
 ## Drivers
 
-| Driver           | Behaviour                                             |
-|------------------|-------------------------------------------------------|
-| `GoroutineDriver` | Runs tasks concurrently — one goroutine per task     |
-| `SyncDriver`      | Runs tasks sequentially — predictable in tests       |
+| Driver            | Behaviour                                        |
+| ----------------- | ------------------------------------------------ |
+| `GoroutineDriver` | Runs tasks concurrently — one goroutine per task |
+| `SyncDriver`      | Runs tasks sequentially — predictable in tests   |
 
 ## Creating a Manager
 

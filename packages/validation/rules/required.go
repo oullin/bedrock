@@ -49,6 +49,7 @@ func validateRequiredIfAccepted(attribute string, value any, params []string, ct
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if !isAcceptable(other) {
 		return true
 	}
@@ -63,6 +64,7 @@ func validateRequiredIfDeclined(attribute string, value any, params []string, ct
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if !isDeclinable(other) {
 		return true
 	}
@@ -107,6 +109,7 @@ func validateRequiredWithAll(attribute string, value any, params []string, ctx R
 	for _, p := range params {
 		if !ctx.IsPresent(p) || !isFilled(ctx.GetValue(p)) {
 			allPresent = false
+
 			break
 		}
 	}
@@ -136,6 +139,7 @@ func validateRequiredWithoutAll(attribute string, value any, params []string, ct
 	for _, p := range params {
 		if ctx.IsPresent(p) && isFilled(ctx.GetValue(p)) {
 			allAbsent = false
+
 			break
 		}
 	}

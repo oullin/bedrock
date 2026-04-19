@@ -16,10 +16,10 @@ go get github.com/gocanto/bedrock/packages/translation@latest
 
 ## Loaders
 
-| Loader        | Description                                         |
-|---------------|-----------------------------------------------------|
-| `FileLoader`  | Reads JSON files from a directory tree              |
-| `ArrayLoader` | In-memory map — ideal for tests and small apps      |
+| Loader        | Description                                    |
+| ------------- | ---------------------------------------------- |
+| `FileLoader`  | Reads JSON files from a directory tree         |
+| `ArrayLoader` | In-memory map — ideal for tests and small apps |
 
 ## File Structure
 

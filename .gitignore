@@ -50,3 +50,5 @@ service/storage/.cache/**
 service/storage/.turbo/**
 !service/storage/.turbo/
 !service/storage/.turbo/.gitkeep
+
+services/storage/dist/

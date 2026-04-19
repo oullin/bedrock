@@ -28,6 +28,7 @@ var (
 // once per process and cached. Panics if the binding is missing or wrong type.
 func Manager() *cachepkg.Manager {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	if cached == nil {
@@ -41,6 +42,7 @@ func Manager() *cachepkg.Manager {
 // reinstalling a different Application via bedrock.SetApp.
 func Reset() {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	cached = nil

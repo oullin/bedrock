@@ -17,6 +17,47 @@ type Lottery struct {
 // NewLottery creates a new Lottery with the given chances (numerator out of denominator).
 // Example: NewLottery(1, 100) = 1% chance of winning.
 // Mirrors new Lottery($chances, $outOf) / Lottery::odds().
+
+// LotteryOdds is an alias for NewLottery that matches Laravel's Lottery::odds() API.
+
+// Winner sets the callback to invoke when the lottery is won.
+// Mirrors Lottery::winner().
+
+// Loser sets the callback to invoke when the lottery is lost.
+// Mirrors Lottery::loser().
+
+// Run runs the lottery and invokes the winner or loser callback.
+// Extra arguments are forwarded to the callbacks.
+// Returns true if the lottery was won.
+// Mirrors Lottery::__invoke() / choose().
+
+// Choose determines if the lottery is won without invoking callbacks.
+
+//nolint:gosec
+
+// Always forces the lottery to always be won (for testing).
+// Mirrors Lottery::alwaysWin().
+
+// Never forces the lottery to always be lost (for testing).
+// Mirrors Lottery::alwaysLose().
+
+// ForceWin forces the lottery to always be won.
+
+// ForceLose forces the lottery to always be lost.
+
+// ResetForce restores normal random behaviour.
+
+// Fix sets a sequence of results (true = win, false = lose).
+// Used for deterministic testing.
+// Mirrors Lottery::fix().
+
+// fixedLottery wraps a Lottery with a predetermined sequence of outcomes.
+type fixedLottery struct {
+	*Lottery
+	sequence []bool
+	pos      int
+}
+
 func NewLottery(numerator, denominator int) *Lottery {
 	return &Lottery{
 		numerator:   numerator,
@@ -24,29 +65,22 @@ func NewLottery(numerator, denominator int) *Lottery {
 	}
 }
 
-// LotteryOdds is an alias for NewLottery that matches Laravel's Lottery::odds() API.
 func LotteryOdds(chances, outOf int) *Lottery {
 	return NewLottery(chances, outOf)
 }
 
-// Winner sets the callback to invoke when the lottery is won.
-// Mirrors Lottery::winner().
 func (l *Lottery) Winner(fn func(...any) any) *Lottery {
 	l.winner = fn
+
 	return l
 }
 
-// Loser sets the callback to invoke when the lottery is lost.
-// Mirrors Lottery::loser().
 func (l *Lottery) Loser(fn func(...any) any) *Lottery {
 	l.loser = fn
+
 	return l
 }
 
-// Run runs the lottery and invokes the winner or loser callback.
-// Extra arguments are forwarded to the callbacks.
-// Returns true if the lottery was won.
-// Mirrors Lottery::__invoke() / choose().
 func (l *Lottery) Run(args ...any) bool {
 	won := l.determine()
 
@@ -59,7 +93,6 @@ func (l *Lottery) Run(args ...any) bool {
 	return won
 }
 
-// Choose determines if the lottery is won without invoking callbacks.
 func (l *Lottery) Choose() bool {
 	return l.determine()
 }
@@ -68,60 +101,48 @@ func (l *Lottery) determine() bool {
 	if l.forced != nil {
 		return *l.forced
 	}
+
 	if l.denominator <= 0 {
 		return false
 	}
-	return rand.Intn(l.denominator) < l.numerator //nolint:gosec
+
+	return rand.Intn(l.denominator) < l.numerator
 }
 
-// Always forces the lottery to always be won (for testing).
-// Mirrors Lottery::alwaysWin().
 func (l *Lottery) Always() *Lottery {
 	t := true
 	l.forced = &t
+
 	return l
 }
 
-// Never forces the lottery to always be lost (for testing).
-// Mirrors Lottery::alwaysLose().
 func (l *Lottery) Never() *Lottery {
 	f := false
 	l.forced = &f
+
 	return l
 }
 
-// ForceWin forces the lottery to always be won.
 func (l *Lottery) ForceWin() {
 	l.Always()
 }
 
-// ForceLose forces the lottery to always be lost.
 func (l *Lottery) ForceLose() {
 	l.Never()
 }
 
-// ResetForce restores normal random behaviour.
 func (l *Lottery) ResetForce() {
 	l.forced = nil
 }
 
-// Fix sets a sequence of results (true = win, false = lose).
-// Used for deterministic testing.
-// Mirrors Lottery::fix().
 func (l *Lottery) Fix(sequence []bool) *fixedLottery {
 	return &fixedLottery{Lottery: l, sequence: sequence}
-}
-
-// fixedLottery wraps a Lottery with a predetermined sequence of outcomes.
-type fixedLottery struct {
-	*Lottery
-	sequence []bool
-	pos      int
 }
 
 // Run runs the lottery using the next value in the sequence.
 func (fl *fixedLottery) Run(args ...any) bool {
 	won := false
+
 	if fl.pos < len(fl.sequence) {
 		won = fl.sequence[fl.pos]
 		fl.pos++

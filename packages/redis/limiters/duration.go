@@ -20,77 +20,16 @@ type DurationLimiter struct {
 }
 
 // NewDurationLimiter returns a DurationLimiter.
-func NewDurationLimiter(conn ConnectionLike, name string, maxLocks int, decay time.Duration) *DurationLimiter {
-	return &DurationLimiter{conn: conn, name: name, maxLocks: maxLocks, decay: decay}
-}
 
 // Acquire attempts to consume one slot. Returns true on success.
-func (l *DurationLimiter) Acquire(ctx context.Context) (bool, error) {
-	now := time.Now().Unix()
-	v, err := l.conn.Eval(ctx, DurationAcquire, []string{l.key()},
-		l.maxLocks,
-		int64(l.decay.Seconds()),
-		now,
-	)
-	if err != nil && !errors.Is(err, redis.ErrNil) {
-		return false, err
-	}
-	// Expected reply shape: [count_or_false, decays_at]
-	arr, ok := v.([]any)
-	if !ok || len(arr) != 2 {
-		return false, nil
-	}
-	decaysAt, _ := toInt64(arr[1])
-	l.DecaysAt = decaysAt
 
-	switch first := arr[0].(type) {
-	case bool:
-		if !first {
-			l.Remaining = 0
-			return false, nil
-		}
-	case int64:
-		l.Remaining = l.maxLocks - int(first)
-		return true, nil
-	case int:
-		l.Remaining = l.maxLocks - first
-		return true, nil
-	}
-	return false, nil
-}
+// Expected reply shape: [count_or_false, decays_at]
 
 // Block waits for a slot up to timeout, then invokes fn.
-func (l *DurationLimiter) Block(ctx context.Context, timeout, sleep time.Duration, fn func() error) error {
-	deadline := time.Now().Add(timeout)
-	for {
-		ok, err := l.Acquire(ctx)
-		if err != nil {
-			return err
-		}
-		if ok {
-			return fn()
-		}
-		if time.Now().After(deadline) {
-			return redis.ErrLimiterTimeout
-		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(sleep):
-		}
-	}
-}
 
 // TooManyAttempts reports whether the limiter has exhausted its quota.
-func (l *DurationLimiter) TooManyAttempts() bool { return l.Remaining <= 0 }
 
 // Clear resets the limiter key.
-func (l *DurationLimiter) Clear(ctx context.Context) error {
-	_, err := l.conn.Eval(ctx, `redis.call('DEL', KEYS[1]); return 1`, []string{l.key()})
-	return err
-}
-
-func (l *DurationLimiter) key() string { return "limiter:duration:" + l.name }
 
 // DurationBuilder is the fluent builder (parity with
 // DurationLimiterBuilder).
@@ -102,6 +41,87 @@ type DurationBuilder struct {
 	blockFor time.Duration
 	sleepFor time.Duration
 }
+
+func NewDurationLimiter(conn ConnectionLike, name string, maxLocks int, decay time.Duration) *DurationLimiter {
+	return &DurationLimiter{conn: conn, name: name, maxLocks: maxLocks, decay: decay}
+}
+
+func (l *DurationLimiter) Acquire(ctx context.Context) (bool, error) {
+	now := time.Now().Unix()
+	v, err := l.conn.Eval(ctx, DurationAcquire, []string{l.key()},
+		l.maxLocks,
+		int64(l.decay.Seconds()),
+		now,
+	)
+
+	if err != nil && !errors.Is(err, redis.ErrNil) {
+		return false, err
+	}
+
+	arr, ok := v.([]any)
+
+	if !ok || len(arr) != 2 {
+		return false, nil
+	}
+
+	decaysAt, _ := toInt64(arr[1])
+	l.DecaysAt = decaysAt
+
+	switch first := arr[0].(type) {
+	case bool:
+		if !first {
+			l.Remaining = 0
+
+			return false, nil
+		}
+	case int64:
+		l.Remaining = l.maxLocks - int(first)
+
+		return true, nil
+	case int:
+		l.Remaining = l.maxLocks - first
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (l *DurationLimiter) Block(ctx context.Context, timeout, sleep time.Duration, fn func() error) error {
+	deadline := time.Now().Add(timeout)
+
+	for {
+		ok, err := l.Acquire(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		if ok {
+			return fn()
+		}
+
+		if time.Now().After(deadline) {
+			return redis.ErrLimiterTimeout
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(sleep):
+		}
+	}
+}
+
+func (l *DurationLimiter) TooManyAttempts() bool { return l.Remaining <= 0 }
+
+func (l *DurationLimiter) Clear(ctx context.Context) error {
+	_, err := l.conn.Eval(ctx, `redis.call('DEL', KEYS[1]); return 1`, []string{l.key()})
+
+	return err
+}
+
+func (l *DurationLimiter) key() string { return "limiter:duration:" + l.name }
 
 // NewDurationBuilder creates a builder.
 func NewDurationBuilder(conn ConnectionLike, name string) *DurationBuilder {
@@ -131,9 +151,11 @@ func (b *DurationBuilder) Sleep(d time.Duration) *DurationBuilder { b.sleepFor =
 func (b *DurationBuilder) Then(ctx context.Context, fn func() error, failure func(error) error) error {
 	lim := NewDurationLimiter(b.conn, b.name, b.maxLocks, b.decay)
 	err := lim.Block(ctx, b.blockFor, b.sleepFor, fn)
+
 	if err != nil && errors.Is(err, redis.ErrLimiterTimeout) && failure != nil {
 		return failure(err)
 	}
+
 	return err
 }
 
@@ -148,5 +170,6 @@ func toInt64(v any) (int64, error) {
 	case float64:
 		return int64(x), nil
 	}
+
 	return 0, nil
 }

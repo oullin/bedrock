@@ -10,6 +10,7 @@ func TestFakeSleepRecordsCalls(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	Sleep(10 * time.Millisecond)
@@ -25,6 +26,7 @@ func TestFakeSleepTotalDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	Sleep(100 * time.Millisecond)
@@ -40,6 +42,7 @@ func TestFakeSleepAssertNeverSlept(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	fake.AssertNeverSlept(t)
@@ -50,6 +53,7 @@ func TestFakeSleepAssertAtLeast(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	Sleep(500 * time.Millisecond)
@@ -63,6 +67,7 @@ func TestFakeSleepAssertSequence(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	Sleep(1 * time.Second)
@@ -81,12 +86,14 @@ func TestFakeSleepSleptTimes(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	Sleep(5 * time.Millisecond)
 	Sleep(10 * time.Millisecond)
 
 	calls := fake.SleptTimes()
+
 	if len(calls) != 2 || calls[0] != 5*time.Millisecond || calls[1] != 10*time.Millisecond {
 		t.Errorf("SleptTimes() = %v", calls)
 	}
@@ -112,6 +119,7 @@ func TestSleepUntil(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	future := time.Now().Add(50 * time.Millisecond)
@@ -125,6 +133,7 @@ func TestSleepUntilPast(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
 	cleanup := FakeSleepWith(fake)
+
 	defer cleanup()
 
 	past := time.Now().Add(-1 * time.Second)

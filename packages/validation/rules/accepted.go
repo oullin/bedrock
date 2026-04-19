@@ -71,6 +71,7 @@ func isAcceptable(value any) bool {
 		return v == 1
 	case string:
 		lower := strings.ToLower(strings.TrimSpace(v))
+
 		return lower == "yes" || lower == "on" || lower == "1" || lower == "true"
 	}
 
@@ -89,6 +90,7 @@ func isDeclinable(value any) bool {
 		return v == 0
 	case string:
 		lower := strings.ToLower(strings.TrimSpace(v))
+
 		return lower == "no" || lower == "off" || lower == "0" || lower == "false"
 	}
 
