@@ -19,6 +19,7 @@ func init_file() {
 
 func validateFile(_ string, value any, _ []string, _ RuleContext) bool {
 	_, ok := value.(*multipart.FileHeader)
+
 	return ok
 }
 
@@ -29,6 +30,7 @@ var imageExts = map[string]bool{
 
 func validateImage(_ string, value any, _ []string, _ RuleContext) bool {
 	fh, ok := value.(*multipart.FileHeader)
+
 	if !ok {
 		return false
 	}
@@ -42,6 +44,7 @@ func validateImage(_ string, value any, _ []string, _ RuleContext) bool {
 // Params: [jpeg, png, pdf, ...]  (extensions, not full MIME types)
 func validateMimes(_ string, value any, params []string, _ RuleContext) bool {
 	fh, ok := value.(*multipart.FileHeader)
+
 	if !ok {
 		return false
 	}
@@ -55,6 +58,7 @@ func validateMimes(_ string, value any, params []string, _ RuleContext) bool {
 // Params: [image/jpeg, application/pdf, ...]
 func validateMimetypes(_ string, value any, params []string, _ RuleContext) bool {
 	fh, ok := value.(*multipart.FileHeader)
+
 	if !ok {
 		return false
 	}
@@ -73,6 +77,7 @@ func validateMimetypes(_ string, value any, params []string, _ RuleContext) bool
 // validateExtensions: file must have one of the allowed extensions.
 func validateExtensions(_ string, value any, params []string, _ RuleContext) bool {
 	fh, ok := value.(*multipart.FileHeader)
+
 	if !ok {
 		return false
 	}

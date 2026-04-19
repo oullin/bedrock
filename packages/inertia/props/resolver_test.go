@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/props"
+	"github.com/bedrock/packages/inertia/protocol"
 )
 
 // No X-Inertia-Partial-Data header — onlySet is empty.

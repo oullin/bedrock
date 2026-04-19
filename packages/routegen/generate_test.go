@@ -13,11 +13,11 @@ import (
 
 // limitWriter fails after n bytes.
 
-var errWriteLimited = errors.New("write limit reached")
-
 type limitWriter struct {
 	n int
 }
+
+var errWriteLimited = errors.New("write limit reached")
 
 func TestGenerateTypeScript(t *testing.T) {
 	t.Parallel()

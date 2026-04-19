@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"encoding/base64"
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// CryptoConfig holds the encryption key used by the cryptox package.
+// CryptoConfig holds the encryption key used for cookie encryption.
 // The key must be a base64-encoded 32-byte value for AES-256-CBC.
 type CryptoConfig struct {
 	Key string `json:"key" yaml:"key" mapstructure:"key"`

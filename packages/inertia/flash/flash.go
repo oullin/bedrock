@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bedrock/packages/inertia/cryptox"
+	"github.com/bedrock/packages/encryption"
 )
 
 // Message carries a flash notification across requests.
@@ -14,13 +14,6 @@ type Message struct {
 	Kind    string `json:"kind"`
 	Title   string `json:"title"`
 	Message string `json:"message"`
-}
-
-// Store defines the interface for flash message persistence.
-// CookieStore is the default implementation.
-type Store interface {
-	Set(w http.ResponseWriter, msg Message) error
-	Consume(w http.ResponseWriter, r *http.Request) *Message
 }
 
 // CookieStore persists flash messages in an HTTP cookie.
@@ -109,7 +102,13 @@ func (s *CookieStore) Set(w http.ResponseWriter, msg Message) error {
 	value := url.QueryEscape(string(data))
 
 	if s.key != nil {
-		encrypted, err := cryptox.Encrypt(string(data), s.key)
+		enc, err := encryption.NewEncrypter(s.key, encryption.AES256CBC)
+
+		if err != nil {
+			return fmt.Errorf("flash: encrypter: %w", err)
+		}
+
+		encrypted, err := enc.EncryptString(string(data))
 
 		if err != nil {
 			return fmt.Errorf("flash: encrypt: %w", err)
@@ -154,7 +153,13 @@ func (s *CookieStore) Consume(w http.ResponseWriter, r *http.Request) *Message {
 	var value string
 
 	if s.key != nil {
-		decrypted, err := cryptox.Decrypt(cookie.Value, s.key)
+		enc, err := encryption.NewEncrypter(s.key, encryption.AES256CBC)
+
+		if err != nil {
+			return nil
+		}
+
+		decrypted, err := enc.DecryptString(cookie.Value)
 
 		if err != nil {
 			return nil

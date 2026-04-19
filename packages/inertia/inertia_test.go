@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/props"
+	"github.com/bedrock/packages/inertia/protocol"
 	"github.com/bedrock/packages/inertia/response"
 )
 
@@ -36,12 +36,6 @@ import (
 
 // --- Helpers ---
 
-const testTemplate = `<!DOCTYPE html>
-<html>
-<head>{{ .inertiaHead }}</head>
-<body>{{ .inertia }}</body>
-</html>`
-
 type failReader struct{}
 
 type testJSONMarshaler struct {
@@ -49,6 +43,12 @@ type testJSONMarshaler struct {
 }
 
 type testLogger struct{}
+
+const testTemplate = `<!DOCTYPE html>
+<html>
+<head>{{ .inertiaHead }}</head>
+<body>{{ .inertia }}</body>
+</html>`
 
 func newTestInertia(t *testing.T) *inertia.Inertia {
 	t.Helper()
@@ -2263,7 +2263,7 @@ func TestCSRFTokenInHead(t *testing.T) {
 	i := newTestInertia(t)
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	ctx := inertia.SetCSRFToken(r.Context(), "test-csrf-token")
+	ctx := protocol.SetCSRFToken(r.Context(), "test-csrf-token")
 	r = r.WithContext(ctx)
 
 	w := httptest.NewRecorder()
@@ -2296,7 +2296,7 @@ func TestLocaleHeadMerge(t *testing.T) {
 	)
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	ctx := inertia.SetLocale(r.Context(), &protocol.Locale{
+	ctx := protocol.SetLocale(r.Context(), &protocol.Locale{
 		Code:      "ar",
 		Name:      "Arabic",
 		Direction: "rtl",
@@ -2562,8 +2562,8 @@ func TestSetHTTPPreview_Context(t *testing.T) {
 
 	r := httptest.NewRequest(http.MethodPost, "/submit", nil)
 
-	// Use inertia.SetHTTPPreview (the context helper).
-	ctx := inertia.SetHTTPPreview(r.Context())
+	// Use protocol.SetHTTPPreview (the context helper).
+	ctx := protocol.SetHTTPPreview(r.Context())
 	r = r.WithContext(ctx)
 
 	w := httptest.NewRecorder()

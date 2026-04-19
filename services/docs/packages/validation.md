@@ -113,20 +113,20 @@ bag.ToJSON()            // JSON bytes
 
 ## Selected Built-in Rules
 
-| Rule | Description |
-|------|-------------|
-| `required` | Field must be present and non-empty |
-| `string` | Must be a string |
-| `integer` / `int` | Must be an integer |
-| `numeric` | Must be a number |
-| `email` | Must be a valid e-mail |
-| `url` | Must be a valid URL |
-| `min:N` | Minimum value / length / count |
-| `max:N` | Maximum value / length / count |
-| `between:N,M` | Value between N and M |
-| `in:a,b,c` | Must be one of the listed values |
-| `unique:table,column` | Must not exist in the database |
-| `confirmed` | Must match `{field}_confirmation` |
-| `date` | Must be a parseable date |
-| `regex:pattern` | Must match the regular expression |
-| `nullable` | Allow null values to pass validation |
+| Rule                  | Description                          |
+| --------------------- | ------------------------------------ |
+| `required`            | Field must be present and non-empty  |
+| `string`              | Must be a string                     |
+| `integer` / `int`     | Must be an integer                   |
+| `numeric`             | Must be a number                     |
+| `email`               | Must be a valid e-mail               |
+| `url`                 | Must be a valid URL                  |
+| `min:N`               | Minimum value / length / count       |
+| `max:N`               | Maximum value / length / count       |
+| `between:N,M`         | Value between N and M                |
+| `in:a,b,c`            | Must be one of the listed values     |
+| `unique:table,column` | Must not exist in the database       |
+| `confirmed`           | Must match `{field}_confirmation`    |
+| `date`                | Must be a parseable date             |
+| `regex:pattern`       | Must match the regular expression    |
+| `nullable`            | Allow null values to pass validation |

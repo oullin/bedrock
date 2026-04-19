@@ -5,14 +5,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bedrock/packages/inertia/config"
-	"github.com/bedrock/packages/inertia/protocol"
+	"github.com/bedrock/packages/seo"
 )
 
 // Middleware returns an HTTP middleware that detects the locale from the
 // URL prefix (e.g. /es/dashboard), strips the prefix, sets the locale
 // in context, and auto-generates hreflang alternate links.
-func Middleware(cfg *config.I18nConfig, next http.Handler) http.Handler {
+func Middleware(cfg *I18nConfig, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		locale, cleanPath := resolve(cfg, r.URL.Path)
 
@@ -33,12 +32,12 @@ func Middleware(cfg *config.I18nConfig, next http.Handler) http.Handler {
 
 		// Build a shallow copy with auto-generated hreflang links appended.
 		resolved := *locale
-		resolved.Head.Meta = append([]protocol.MetaTag(nil), locale.Head.Meta...)
-		resolved.Head.Links = append([]protocol.LinkTag(nil), locale.Head.Links...)
+		resolved.Head.Meta = append([]seo.MetaTag(nil), locale.Head.Meta...)
+		resolved.Head.Links = append([]seo.LinkTag(nil), locale.Head.Links...)
 		resolved.Head.Links = append(resolved.Head.Links, hreflangLinks(cfg, cleanPath)...)
 
 		ctx := r.Context()
-		ctx = protocol.SetLocale(ctx, &resolved)
+		ctx = seo.SetLocale(ctx, &resolved)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -47,7 +46,7 @@ func Middleware(cfg *config.I18nConfig, next http.Handler) http.Handler {
 // resolve extracts the locale code from a URL-prefix path. Returns the
 // matching Locale and the path with the prefix stripped. Falls back to
 // the default locale when no prefix matches.
-func resolve(cfg *config.I18nConfig, path string) (*protocol.Locale, string) {
+func resolve(cfg *I18nConfig, path string) (*seo.Locale, string) {
 	if !cfg.URLPrefix {
 		return cfg.Default(), path
 	}
@@ -74,7 +73,7 @@ func resolve(cfg *config.I18nConfig, path string) (*protocol.Locale, string) {
 
 // hreflangLinks builds <link rel="alternate" hreflang> tags for all
 // configured locales, using the given clean path.
-func hreflangLinks(cfg *config.I18nConfig, cleanPath string) []protocol.LinkTag {
+func hreflangLinks(cfg *I18nConfig, cleanPath string) []seo.LinkTag {
 	if len(cfg.Locales) <= 1 {
 		return nil
 	}
@@ -84,7 +83,7 @@ func hreflangLinks(cfg *config.I18nConfig, cleanPath string) []protocol.LinkTag 
 
 	sort.Strings(codes)
 
-	links := make([]protocol.LinkTag, 0, len(codes))
+	links := make([]seo.LinkTag, 0, len(codes))
 
 	for _, code := range codes {
 		href := cleanPath
@@ -97,7 +96,7 @@ func hreflangLinks(cfg *config.I18nConfig, cleanPath string) []protocol.LinkTag 
 			}
 		}
 
-		links = append(links, protocol.LinkTag{
+		links = append(links, seo.LinkTag{
 			Rel:      "alternate",
 			Href:     href,
 			HrefLang: code,

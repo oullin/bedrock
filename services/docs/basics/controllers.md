@@ -56,15 +56,15 @@ router.Resource("/users", users)
 
 `Router.Resource("/users", controller)` registers these routes by convention:
 
-| HTTP   | URI                 | Method    | Name           |
-|--------|---------------------|-----------|----------------|
-| GET    | `/users`            | `Index`   | `users.index`  |
-| GET    | `/users/create`     | `Create`  | `users.create` |
-| POST   | `/users`            | `Store`   | `users.store`  |
-| GET    | `/users/{id}`       | `Show`    | `users.show`   |
-| GET    | `/users/{id}/edit`  | `Edit`    | `users.edit`   |
-| PUT    | `/users/{id}`       | `Update`  | `users.update` |
-| DELETE | `/users/{id}`       | `Destroy` | `users.destroy` |
+| HTTP   | URI                | Method    | Name            |
+| ------ | ------------------ | --------- | --------------- |
+| GET    | `/users`           | `Index`   | `users.index`   |
+| GET    | `/users/create`    | `Create`  | `users.create`  |
+| POST   | `/users`           | `Store`   | `users.store`   |
+| GET    | `/users/{id}`      | `Show`    | `users.show`    |
+| GET    | `/users/{id}/edit` | `Edit`    | `users.edit`    |
+| PUT    | `/users/{id}`      | `Update`  | `users.update`  |
+| DELETE | `/users/{id}`      | `Destroy` | `users.destroy` |
 
 Only the methods your controller defines are registered; missing actions are
 skipped.

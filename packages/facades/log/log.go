@@ -19,6 +19,7 @@ var (
 // once per process and cached.
 func Manager() *logpkg.LogManager {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	if cached == nil {
@@ -32,6 +33,7 @@ func Manager() *logpkg.LogManager {
 // a different Application via bedrock.SetApp.
 func Reset() {
 	mu.Lock()
+
 	defer mu.Unlock()
 
 	cached = nil

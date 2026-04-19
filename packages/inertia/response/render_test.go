@@ -11,13 +11,13 @@ import (
 	"github.com/bedrock/packages/inertia/response"
 )
 
-var errMarshal = &marshalError{}
-
 type testMarshaler struct{}
 
 type failMarshaler struct{}
 
 type marshalError struct{}
+
+var errMarshal = &marshalError{}
 
 func (m *testMarshaler) Marshal(v any) ([]byte, error)   { return json.Marshal(v) }
 func (m *testMarshaler) Unmarshal(b []byte, v any) error { return json.Unmarshal(b, v) }
@@ -366,7 +366,7 @@ func TestWriteJSON_IncludesScrollPropsField(t *testing.T) {
 		Props:     map[string]any{},
 		URL:       "/",
 		Version:   "v1",
-		ScrollProps: map[string]response.Scroll{
+		ScrollProps: map[string]protocol.Scroll{
 			"feed": {
 				PageName:     "feedPage",
 				PreviousPage: nil,
@@ -399,7 +399,7 @@ func TestWriteJSON_IncludesOncePropsField(t *testing.T) {
 		Props:     map[string]any{},
 		URL:       "/",
 		Version:   "v1",
-		OnceProps: map[string]response.Once{
+		OnceProps: map[string]protocol.Once{
 			"notes": {Prop: "notes"},
 		},
 	}
@@ -430,7 +430,7 @@ func TestWriteJSON_OncePropsWithExpiresAt(t *testing.T) {
 		Props:     map[string]any{},
 		URL:       "/",
 		Version:   "v1",
-		OnceProps: map[string]response.Once{
+		OnceProps: map[string]protocol.Once{
 			"notes": {Prop: "notes", ExpiresAt: &expires},
 		},
 	}

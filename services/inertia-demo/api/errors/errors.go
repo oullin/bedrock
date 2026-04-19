@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia/routegen"
+	"github.com/bedrock/packages/routegen"
 )
 
 // Container contains the host application integrations required by the errors package.

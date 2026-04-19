@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/assert"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/inertia"
-	"github.com/bedrock/packages/inertia/routegen"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/inertia-demo/api/internal/testutil"
 )
 

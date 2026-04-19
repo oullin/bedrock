@@ -6,6 +6,8 @@ import (
 	"github.com/bedrock/packages/inertia/protocol"
 )
 
+type contextKey struct{ name string }
+
 var (
 	ctxKeyProps            = &contextKey{"props"}
 	ctxKeyTemplateData     = &contextKey{"templateData"}
@@ -14,8 +16,6 @@ var (
 	ctxKeyClearHistory     = &contextKey{"clearHistory"}
 	ctxKeyHead             = &contextKey{"head"}
 )
-
-type contextKey struct{ name string }
 
 // SetProp stores a single prop on the request context. Props set this
 // way are merged into the response during Render, with higher priority
@@ -75,6 +75,8 @@ func SetTemplateDatum(ctx context.Context, key string, val any) context.Context 
 }
 
 // PropsFromContext returns the props stored in the request context.
+// Other middleware can use this to read props that earlier middleware
+// or handlers added via SetProp / SetProps.
 func PropsFromContext(ctx context.Context) protocol.Props {
 	if p, ok := ctx.Value(ctxKeyProps).(protocol.Props); ok {
 		return p
@@ -145,26 +147,6 @@ func SetMeta(ctx context.Context, tags ...protocol.MetaTag) context.Context {
 // SetLinks is a convenience helper that adds link tags to the request context.
 func SetLinks(ctx context.Context, links ...protocol.LinkTag) context.Context {
 	return SetHead(ctx, protocol.Head{Links: links})
-}
-
-// SetCSRFToken stores a CSRF token in the request context. When present,
-// Render automatically adds <meta name="csrf-token" content="TOKEN"> to
-// the head on initial page loads. Delegates to protocol.SetCSRFToken.
-func SetCSRFToken(ctx context.Context, token string) context.Context {
-	return protocol.SetCSRFToken(ctx, token)
-}
-
-// SetHTTPPreview marks the request context as a httppreview request.
-// Delegates to protocol.SetHTTPPreview.
-func SetHTTPPreview(ctx context.Context) context.Context {
-	return protocol.SetHTTPPreview(ctx)
-}
-
-// SetLocale stores the resolved locale in the request context. This is
-// typically called by the i18n middleware, not by application code.
-// Delegates to protocol.SetLocale.
-func SetLocale(ctx context.Context, locale *protocol.Locale) context.Context {
-	return protocol.SetLocale(ctx, locale)
 }
 
 func headFromContext(ctx context.Context) protocol.Head {

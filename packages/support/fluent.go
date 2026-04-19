@@ -18,11 +18,13 @@ type Fluent struct {
 // Mirrors new Fluent($attributes).
 func NewFluent(attrs ...map[string]any) *Fluent {
 	f := &Fluent{attributes: make(map[string]any)}
+
 	if len(attrs) > 0 {
 		for k, v := range attrs[0] {
 			f.attributes[k] = v
 		}
 	}
+
 	return f
 }
 
@@ -32,15 +34,19 @@ func NewFluent(attrs ...map[string]any) *Fluent {
 // Mirrors Fluent::get().
 func (f *Fluent) Get(key string, def ...any) any {
 	val, ok := f.attributes[key]
+
 	if !ok {
 		if len(def) > 0 {
 			if fn, isFn := def[0].(func() any); isFn {
 				return fn()
 			}
+
 			return def[0]
 		}
+
 		return nil
 	}
+
 	return val
 }
 
@@ -48,12 +54,14 @@ func (f *Fluent) Get(key string, def ...any) any {
 // Mirrors Fluent::set().
 func (f *Fluent) Set(key string, value any) *Fluent {
 	f.attributes[key] = value
+
 	return f
 }
 
 // Has reports whether the key exists in the attributes.
 func (f *Fluent) Has(key string) bool {
 	_, ok := f.attributes[key]
+
 	return ok
 }
 
@@ -66,9 +74,11 @@ func (f *Fluent) Missing(key string) bool {
 // Mirrors Fluent::all().
 func (f *Fluent) All() map[string]any {
 	result := make(map[string]any, len(f.attributes))
+
 	for k, v := range f.attributes {
 		result[k] = v
 	}
+
 	return result
 }
 
@@ -76,11 +86,13 @@ func (f *Fluent) All() map[string]any {
 // Mirrors Fluent::only().
 func (f *Fluent) Only(keys ...string) map[string]any {
 	result := make(map[string]any, len(keys))
+
 	for _, k := range keys {
 		if v, ok := f.attributes[k]; ok {
 			result[k] = v
 		}
 	}
+
 	return result
 }
 
@@ -88,15 +100,19 @@ func (f *Fluent) Only(keys ...string) map[string]any {
 // Mirrors Fluent::except() (via Arr::except equivalent).
 func (f *Fluent) Except(keys ...string) map[string]any {
 	excluded := make(map[string]bool, len(keys))
+
 	for _, k := range keys {
 		excluded[k] = true
 	}
+
 	result := make(map[string]any)
+
 	for k, v := range f.attributes {
 		if !excluded[k] {
 			result[k] = v
 		}
 	}
+
 	return result
 }
 
@@ -106,6 +122,7 @@ func (f *Fluent) Fill(attrs map[string]any) *Fluent {
 	for k, v := range attrs {
 		f.attributes[k] = v
 	}
+
 	return f
 }
 
@@ -117,6 +134,7 @@ func (f *Fluent) Merge(attrs map[string]any) *Fluent {
 			f.attributes[k] = v
 		}
 	}
+
 	return f
 }
 
@@ -126,6 +144,7 @@ func (f *Fluent) Merge(attrs map[string]any) *Fluent {
 func (f *Fluent) Scope(key string) *Fluent {
 	result := make(map[string]any)
 	prefix := key + "."
+
 	for k, v := range f.attributes {
 		if strings.HasPrefix(k, prefix) {
 			result[k[len(prefix):]] = v
@@ -135,6 +154,7 @@ func (f *Fluent) Scope(key string) *Fluent {
 			}
 		}
 	}
+
 	return NewFluent(result)
 }
 
@@ -157,12 +177,15 @@ func (f *Fluent) Count() int {
 // Mirrors Fluent::string().
 func (f *Fluent) String(key string, def ...string) string {
 	v := f.Get(key)
+
 	if v == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return ""
 	}
+
 	switch s := v.(type) {
 	case string:
 		return s
@@ -178,12 +201,15 @@ func (f *Fluent) String(key string, def ...string) string {
 // Mirrors Fluent::boolean().
 func (f *Fluent) Bool(key string, def ...bool) bool {
 	v := f.Get(key)
+
 	if v == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return false
 	}
+
 	switch b := v.(type) {
 	case bool:
 		return b
@@ -196,8 +222,10 @@ func (f *Fluent) Bool(key string, def ...bool) bool {
 		case "true", "yes", "on", "1":
 			return true
 		}
+
 		return false
 	}
+
 	return false
 }
 
@@ -205,12 +233,15 @@ func (f *Fluent) Bool(key string, def ...bool) bool {
 // Mirrors Fluent::integer().
 func (f *Fluent) Int(key string, def ...int) int {
 	v := f.Get(key)
+
 	if v == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return 0
 	}
+
 	switch n := v.(type) {
 	case int:
 		return n
@@ -220,8 +251,10 @@ func (f *Fluent) Int(key string, def ...int) int {
 		return int(n)
 	case string:
 		i, _ := strconv.Atoi(n)
+
 		return i
 	}
+
 	return 0
 }
 
@@ -229,12 +262,15 @@ func (f *Fluent) Int(key string, def ...int) int {
 // Mirrors Fluent::float().
 func (f *Fluent) Float(key string, def ...float64) float64 {
 	v := f.Get(key)
+
 	if v == nil {
 		if len(def) > 0 {
 			return def[0]
 		}
+
 		return 0
 	}
+
 	switch n := v.(type) {
 	case float64:
 		return n
@@ -244,8 +280,10 @@ func (f *Fluent) Float(key string, def ...float64) float64 {
 		return float64(n)
 	case string:
 		f, _ := strconv.ParseFloat(n, 64)
+
 		return f
 	}
+
 	return 0
 }
 
@@ -263,6 +301,7 @@ func (f *Fluent) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (f *Fluent) UnmarshalJSON(data []byte) error {
 	f.attributes = make(map[string]any)
+
 	return json.Unmarshal(data, &f.attributes)
 }
 

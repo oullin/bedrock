@@ -16,6 +16,7 @@ func (v *ValidatedInput) All() map[string]any {
 // Get returns the value for key, along with whether it was present.
 func (v *ValidatedInput) Get(key string) (any, bool) {
 	val, ok := v.data[key]
+
 	return val, ok
 }
 
@@ -35,6 +36,7 @@ func (v *ValidatedInput) Only(keys ...string) map[string]any {
 // Except returns a new map excluding the specified keys.
 func (v *ValidatedInput) Except(keys ...string) map[string]any {
 	exclude := make(map[string]bool, len(keys))
+
 	for _, k := range keys {
 		exclude[k] = true
 	}

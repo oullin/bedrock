@@ -10,17 +10,17 @@ mocks, network, or disk.
 
 ## Built-in Test Doubles
 
-| Package | Fake / stub | Purpose |
-|---------|-------------|---------|
-| `cache` | `MemoryStore` / `NullStore` | Swap out Redis or database in tests |
-| `queue` | `SyncConnector` / `NullConnector` | Run jobs inline or discard them |
-| `events` | `NullDispatcher` | Silence all event dispatch |
-| `mailx` | `ArrayTransport` | Capture sent messages in memory |
-| `session` | `ArrayHandler` | In-memory session storage |
-| `concurrency` | `SyncDriver` | Run parallel code sequentially |
-| `log` | `NullHandler` | Discard all log records |
-| `httpx` | `TestRequest` / `TestResponse` | Build requests, assert responses |
-| `redis` | Custom `Client` interface | Inject a fake Redis client |
+| Package       | Fake / stub                       | Purpose                             |
+| ------------- | --------------------------------- | ----------------------------------- |
+| `cache`       | `MemoryStore` / `NullStore`       | Swap out Redis or database in tests |
+| `queue`       | `SyncConnector` / `NullConnector` | Run jobs inline or discard them     |
+| `events`      | `NullDispatcher`                  | Silence all event dispatch          |
+| `mailx`       | `ArrayTransport`                  | Capture sent messages in memory     |
+| `session`     | `ArrayHandler`                    | In-memory session storage           |
+| `concurrency` | `SyncDriver`                      | Run parallel code sequentially      |
+| `log`         | `NullHandler`                     | Discard all log records             |
+| `httpx`       | `TestRequest` / `TestResponse`    | Build requests, assert responses    |
+| `redis`       | Custom `Client` interface         | Inject a fake Redis client          |
 
 ## Example: Testing a Mail-Sending Service
 

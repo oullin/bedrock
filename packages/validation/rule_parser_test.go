@@ -24,6 +24,7 @@ func TestStudlyCase(t *testing.T) {
 
 	for _, tc := range cases {
 		got := validation.StudlyCase(tc.in)
+
 		if got != tc.want {
 			t.Errorf("StudlyCase(%q) = %q, want %q", tc.in, got, tc.want)
 		}
@@ -55,6 +56,7 @@ func TestParse(t *testing.T) {
 
 		if len(got.Parameters) != len(tc.wantParams) {
 			t.Errorf("Parse(%q).Parameters = %v, want %v", tc.rule, got.Parameters, tc.wantParams)
+
 			continue
 		}
 

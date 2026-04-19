@@ -54,6 +54,7 @@ func TestMessageBag_Get(t *testing.T) {
 	b.Add("email", "invalid")
 
 	msgs := b.Get("email")
+
 	if len(msgs) != 2 {
 		t.Fatalf("Get: got %d messages, want 2", len(msgs))
 	}
@@ -133,6 +134,7 @@ func TestMessageBag_ToMap(t *testing.T) {
 	b.Add("email", "required")
 
 	m := b.ToMap()
+
 	if len(m["email"]) != 1 || m["email"][0] != "required" {
 		t.Errorf("ToMap: got %v", m)
 	}
@@ -145,6 +147,7 @@ func TestMessageBag_ToJSON(t *testing.T) {
 	b.Add("email", "required")
 
 	data, err := b.ToJSON()
+
 	if err != nil {
 		t.Fatalf("ToJSON: %v", err)
 	}

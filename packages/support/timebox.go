@@ -14,8 +14,10 @@ func Timebox(minDuration time.Duration, fn func()) time.Duration {
 	if elapsed < minDuration {
 		remaining := minDuration - elapsed
 		Sleep(remaining)
+
 		return minDuration
 	}
+
 	return elapsed
 }
 
@@ -29,7 +31,9 @@ func TimeboxWithError(minDuration time.Duration, fn func() error) (time.Duration
 	if elapsed < minDuration {
 		remaining := minDuration - elapsed
 		Sleep(remaining)
+
 		return minDuration, err
 	}
+
 	return elapsed, err
 }
