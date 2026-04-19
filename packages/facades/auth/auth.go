@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	authpkg "github.com/bedrock/packages/auth"
-	"github.com/bedrock/packages/bedrock"
+	"github.com/bedrock/packages/container"
 	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
@@ -25,14 +25,14 @@ func Manager() *authpkg.Manager {
 	defer mu.Unlock()
 
 	if cached == nil {
-		cached = bedrock.Resolve[*authpkg.Manager]("auth")
+		cached = container.Resolve[*authpkg.Manager]("auth")
 	}
 
 	return cached
 }
 
 // Reset clears the cached manager. Tests must call this after reinstalling
-// a different Application via bedrock.SetApp.
+// a different Application via container.SetApp.
 func Reset() {
 	mu.Lock()
 
