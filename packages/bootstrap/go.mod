@@ -3,6 +3,7 @@ module github.com/bedrock/packages/bootstrap
 go 1.26.0
 
 require (
+	github.com/bedrock/packages/ai v0.0.0
 	github.com/bedrock/packages/auth v0.0.0
 	github.com/bedrock/packages/bus v0.0.0
 	github.com/bedrock/packages/cache v0.0.0
@@ -27,6 +28,7 @@ require (
 	github.com/bedrock/packages/config v0.0.0-00010101000000-000000000000 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -44,6 +46,7 @@ require (
 )
 
 replace (
+	github.com/bedrock/packages/ai => ../ai
 	github.com/bedrock/packages/auth => ../auth
 	github.com/bedrock/packages/bus => ../bus
 	github.com/bedrock/packages/cache => ../cache

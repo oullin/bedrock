@@ -59,9 +59,12 @@ export default defineUserConfig({
           text: 'Architecture',
           collapsible: true,
           children: [
+            { text: 'bedrock', link: '/packages/bedrock' },
+            { text: 'bootstrap', link: '/packages/bootstrap' },
             { text: 'container', link: '/packages/container' },
             { text: 'config', link: '/packages/config' },
             { text: 'contracts', link: '/packages/contracts' },
+            { text: 'facades', link: '/packages/facades' },
           ],
         },
         {
@@ -73,10 +76,12 @@ export default defineUserConfig({
             { text: 'middleware', link: '/basics/middleware' },
             { text: 'url generation', link: '/basics/url-generation' },
             { text: 'httpx', link: '/packages/httpx' },
+            { text: 'inertia', link: '/packages/inertia' },
             { text: 'session', link: '/packages/session' },
             { text: 'cookie', link: '/packages/cookie' },
             { text: 'csrf protection', link: '/basics/csrf' },
             { text: 'validation', link: '/packages/validation' },
+            { text: 'httppreview', link: '/packages/httppreview' },
           ],
         },
         {
@@ -86,7 +91,15 @@ export default defineUserConfig({
             { text: 'auth', link: '/packages/auth' },
             { text: 'encryption', link: '/packages/encryption' },
             { text: 'hashing', link: '/packages/hashing' },
-            { text: 'authflows', link: '/packages/authflows' },
+            { text: 'oauthserver', link: '/packages/oauthserver' },
+            { text: 'socialauth', link: '/packages/socialauth' },
+          ],
+        },
+        {
+          text: 'Database',
+          collapsible: true,
+          children: [
+            { text: 'database', link: '/packages/database' },
           ],
         },
         {
@@ -97,6 +110,7 @@ export default defineUserConfig({
             { text: 'redis', link: '/packages/redis' },
             { text: 'filesystem', link: '/packages/filesystem' },
             { text: 'pagination', link: '/packages/pagination' },
+            { text: 'search', link: '/packages/search' },
           ],
         },
         {
@@ -118,6 +132,30 @@ export default defineUserConfig({
           ],
         },
         {
+          text: 'Real-time',
+          collapsible: true,
+          children: [
+            { text: 'broadcastclient', link: '/packages/broadcastclient' },
+            { text: 'websockets', link: '/packages/websockets' },
+          ],
+        },
+        {
+          text: 'Feature Flags',
+          collapsible: true,
+          children: [
+            { text: 'featureflags', link: '/packages/featureflags' },
+          ],
+        },
+        {
+          text: 'AI & Integrations',
+          collapsible: true,
+          children: [
+            { text: 'ai', link: '/packages/ai' },
+            { text: 'mcp', link: '/packages/mcp' },
+            { text: 'boost', link: '/packages/boost' },
+          ],
+        },
+        {
           text: 'Support & Utilities',
           collapsible: true,
           children: [
@@ -126,7 +164,18 @@ export default defineUserConfig({
             { text: 'translation', link: '/packages/translation' },
             { text: 'concurrency', link: '/packages/concurrency' },
             { text: 'conditionable', link: '/packages/conditionable' },
+            { text: 'helpers', link: '/packages/helpers' },
             { text: 'jsonx', link: '/packages/jsonx' },
+            { text: 'seo', link: '/packages/seo' },
+            { text: 'routegen', link: '/packages/routegen' },
+          ],
+        },
+        {
+          text: 'Developer Tools',
+          collapsible: true,
+          children: [
+            { text: 'prompts', link: '/packages/prompts' },
+            { text: 'debugbar', link: '/packages/debugbar' },
           ],
         },
         {
@@ -134,7 +183,6 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'inception', link: '/packages/inception' },
-            { text: 'authkit', link: '/packages/authkit' },
             { text: 'billing', link: '/packages/billing' },
           ],
         },
