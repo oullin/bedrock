@@ -15,7 +15,7 @@ require (
 
 replace (
 	github.com/bedrock/packages/auth => ../../auth
-	github.com/bedrock/app => ../../../app
+	github.com/bedrock/app => ../../app
 	github.com/bedrock/packages/container => ../../container
 	github.com/bedrock/packages/contracts => ../../contracts
 	github.com/bedrock/packages/cookie => ../../cookie

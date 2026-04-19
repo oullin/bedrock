@@ -24,8 +24,8 @@ go get github.com/bedrock/packages/ai@latest
 
 ## Architecture
 
-| Layer      | Responsibility                                          |
-| ---------- | ------------------------------------------------------- |
+| Layer      | Responsibility                                         |
+| ---------- | ------------------------------------------------------ |
 | `Manager`  | Resolves and caches provider instances by `Lab` enum   |
 | `Provider` | Implements capability interfaces (Text, Image, Audio…) |
 | `Gateway`  | Thin HTTP/SDK adapter used by the provider             |
