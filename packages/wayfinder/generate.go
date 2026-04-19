@@ -23,7 +23,7 @@ type GenerateOptions struct {
 	Header string
 }
 
-// Generate writes TypeScript or JavaScript route definitions to w.
+// GenerateRouteCode writes TypeScript or JavaScript route definitions to w.
 
 // GenerateFile writes generated code to the file at path.
 
@@ -32,7 +32,7 @@ type groupMember struct {
 	route Route
 }
 
-func Generate(reg *Registry, w io.Writer, opts GenerateOptions) error {
+func GenerateRouteCode(reg *Registry, w io.Writer, opts GenerateOptions) error {
 	if opts.FlatOnly && opts.NestedOnly {
 		return fmt.Errorf("wayfinder: FlatOnly and NestedOnly are mutually exclusive")
 	}
@@ -91,7 +91,7 @@ func GenerateFile(reg *Registry, path string, opts GenerateOptions) error {
 		return err
 	}
 
-	if err := Generate(reg, f, opts); err != nil {
+	if err := GenerateRouteCode(reg, f, opts); err != nil {
 		f.Close()
 
 		return err

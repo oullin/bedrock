@@ -29,7 +29,7 @@ func TestGenerateTypeScript(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -72,7 +72,7 @@ func TestGenerateJavaScript(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: false})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: false})
 
 	if err != nil {
 		t.Fatal(err)
@@ -102,7 +102,7 @@ func TestGenerateFlatOnly(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{FlatOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{FlatOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -128,7 +128,7 @@ func TestGenerateNestedOnly(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{NestedOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestGenerateConflictingFlags(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{FlatOnly: true, NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{FlatOnly: true, NestedOnly: true})
 
 	if err == nil {
 		t.Fatal("expected error when both FlatOnly and NestedOnly are set")
@@ -174,7 +174,7 @@ func TestGenerateCustomHeader(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{
 		Header: "// Custom header",
 	})
 
@@ -199,7 +199,7 @@ func TestGenerateNestedGrouping(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{NestedOnly: true, TypeScript: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{NestedOnly: true, TypeScript: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -234,7 +234,7 @@ func TestGenerateTopLevelRoutes(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{NestedOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -257,7 +257,7 @@ func TestGenerateTopLevelRoutes_CollisionWithAppGroup(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{NestedOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -285,7 +285,7 @@ func TestGenerateTopLevelRoutes_DoubleCollision(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{NestedOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -333,7 +333,7 @@ func TestGenerateHyphenatedRoutes(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -384,7 +384,7 @@ func TestGeneratePropagatesWriteError(t *testing.T) {
 	// Allow just enough bytes for the header, then fail.
 	w := &limitWriter{n: 10}
 
-	err := Generate(reg, w, GenerateOptions{})
+	err := GenerateRouteCode(reg, w, GenerateOptions{})
 
 	if err == nil {
 		t.Fatal("expected a write error, got nil")
@@ -452,7 +452,7 @@ func TestGenerateJS_NestedWithParams(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: false, NestedOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: false, NestedOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -478,7 +478,7 @@ func TestGenerateTS_FlatWithParams(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: true, FlatOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: true, FlatOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -500,7 +500,7 @@ func TestGenerateJS_FlatWithParams(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: false, FlatOnly: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: false, FlatOnly: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -520,7 +520,7 @@ func TestGenerateEmptyRegistry(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err := Generate(reg, &buf, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, &buf, GenerateOptions{TypeScript: true})
 
 	if err != nil {
 		t.Fatal(err)
@@ -568,7 +568,7 @@ func TestGenerate_WriteErrorInHeader(t *testing.T) {
 
 	// Fail immediately — can't even write the header.
 	w := &limitWriter{n: 0}
-	err := Generate(reg, w, GenerateOptions{})
+	err := GenerateRouteCode(reg, w, GenerateOptions{})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -584,7 +584,7 @@ func TestGenerate_WriteErrorInTypeDecl(t *testing.T) {
 
 	// Allow header but fail on type declaration.
 	w := &limitWriter{n: 60}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -600,7 +600,7 @@ func TestGenerate_WriteErrorInFlatSection(t *testing.T) {
 
 	// Allow header + type decl, fail in flat section.
 	w := &limitWriter{n: 120}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -616,7 +616,7 @@ func TestGenerate_WriteErrorInNestedSection(t *testing.T) {
 
 	// Allow enough for header + flat, fail in nested.
 	w := &limitWriter{n: 300}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -632,7 +632,7 @@ func TestGenerate_WriteErrorSeparator(t *testing.T) {
 
 	// Allow header + flat, fail on the separator newline between flat and nested.
 	w := &limitWriter{n: 170}
-	err := Generate(reg, w, GenerateOptions{})
+	err := GenerateRouteCode(reg, w, GenerateOptions{})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -648,7 +648,7 @@ func TestGenerate_WriteErrorInFlatNoParams(t *testing.T) {
 
 	// Enough for header + newline + type decl + newline, fail in flat func def.
 	w := &limitWriter{n: 100}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -664,7 +664,7 @@ func TestGenerate_WriteErrorInFlatReturn(t *testing.T) {
 
 	// Enough for header + type decl + func declaration, fail on return statement.
 	w := &limitWriter{n: 140}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -680,7 +680,7 @@ func TestGenerate_WriteErrorInNestedMember(t *testing.T) {
 
 	// Enough for header + newline but fail in nested.
 	w := &limitWriter{n: 80}
-	err := Generate(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -696,7 +696,7 @@ func TestGenerate_WriteErrorInNestedClose(t *testing.T) {
 
 	// Enough for header + group open + member, fail on close.
 	w := &limitWriter{n: 160}
-	err := Generate(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -712,7 +712,7 @@ func TestGenerate_WriteErrorInNestedParams(t *testing.T) {
 
 	// Enough for header + group open, fail on member with params.
 	w := &limitWriter{n: 120}
-	err := Generate(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{NestedOnly: true, TypeScript: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -728,7 +728,7 @@ func TestGenerate_WriteErrorInFlatWithParams(t *testing.T) {
 
 	// Enough for header + type decl, fail in flat func with params.
 	w := &limitWriter{n: 110}
-	err := Generate(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -743,7 +743,7 @@ func TestGenerate_WriteErrorInJS_FlatNoParams(t *testing.T) {
 	reg.Add("login", "GET", "/login")
 
 	w := &limitWriter{n: 60}
-	err := Generate(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -758,7 +758,7 @@ func TestGenerate_WriteErrorInJS_FlatWithParams(t *testing.T) {
 	reg.Add("contacts.show", "GET", "/contacts/{contact}")
 
 	w := &limitWriter{n: 60}
-	err := Generate(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -773,7 +773,7 @@ func TestGenerate_WriteErrorInJS_NestedNoParams(t *testing.T) {
 	reg.Add("contacts.index", "GET", "/contacts")
 
 	w := &limitWriter{n: 80}
-	err := Generate(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -788,7 +788,7 @@ func TestGenerate_WriteErrorInJS_NestedWithParams(t *testing.T) {
 	reg.Add("contacts.show", "GET", "/contacts/{contact}")
 
 	w := &limitWriter{n: 100}
-	err := Generate(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -803,7 +803,7 @@ func TestGenerate_WriteErrorInJS_NestedClose(t *testing.T) {
 	reg.Add("contacts.index", "GET", "/contacts")
 
 	w := &limitWriter{n: 130}
-	err := Generate(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
+	err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, NestedOnly: true})
 
 	if err == nil {
 		t.Error("expected write error, got nil")
@@ -822,7 +822,7 @@ func TestGenerate_WriteErrorInFlatClosingBrace(t *testing.T) {
 	for n := 150; n < 200; n++ {
 		w := &limitWriter{n: n}
 
-		if err := Generate(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true}); err != nil {
+		if err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true}); err != nil {
 			break // Found the right threshold
 		}
 	}
@@ -839,7 +839,7 @@ func TestGenerate_WriteErrorInFlatTrailingNewline(t *testing.T) {
 	for n := 100; n < 180; n++ {
 		w := &limitWriter{n: n}
 
-		if err := Generate(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true}); err != nil {
+		if err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: false, FlatOnly: true}); err != nil {
 			break
 		}
 	}
@@ -855,7 +855,7 @@ func TestGenerate_WriteErrorInFlatReturnParams(t *testing.T) {
 	for n := 120; n < 250; n++ {
 		w := &limitWriter{n: n}
 
-		if err := Generate(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true}); err != nil {
+		if err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true, FlatOnly: true}); err != nil {
 			break
 		}
 	}
@@ -871,7 +871,7 @@ func TestGenerate_WriteErrorInNestedTrailingNewline(t *testing.T) {
 	for n := 130; n < 200; n++ {
 		w := &limitWriter{n: n}
 
-		if err := Generate(reg, w, GenerateOptions{TypeScript: true, NestedOnly: true}); err != nil {
+		if err := GenerateRouteCode(reg, w, GenerateOptions{TypeScript: true, NestedOnly: true}); err != nil {
 			break
 		}
 	}

@@ -29,7 +29,7 @@ require (
 )
 
 replace (
-	github.com/bedrock/app => ../../../app
+	github.com/bedrock/app => ../../app
 	github.com/bedrock/packages/config => ../../config
 	github.com/bedrock/packages/container => ../../container
 	github.com/bedrock/packages/contracts => ../../contracts

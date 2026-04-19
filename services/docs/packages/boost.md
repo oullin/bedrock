@@ -17,12 +17,12 @@ go get github.com/bedrock/packages/boost@latest
 
 ## MCP Server Tools
 
-| Tool              | Description                                |
-| ----------------- | ------------------------------------------ |
-| Application info  | Exposes app metadata to agents             |
-| Database          | Schema introspection for AI context        |
-| Log reader        | Surfaces recent log entries                |
-| Docs search       | Searches documentation from the agent     |
+| Tool             | Description                           |
+| ---------------- | ------------------------------------- |
+| Application info | Exposes app metadata to agents        |
+| Database         | Schema introspection for AI context   |
+| Log reader       | Surfaces recent log entries           |
+| Docs search      | Searches documentation from the agent |
 
 ## Coming Soon
 

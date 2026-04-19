@@ -176,7 +176,7 @@ func (e *Engine) DeleteIndex(ctx context.Context, name string) error {
 
 // DeleteAllIndexes removes all indexes from Meilisearch.
 func (e *Engine) DeleteAllIndexes(ctx context.Context) error {
-	indexes, err := e.client.GetIndexes(nil)
+	indexes, err := e.client.ListIndexes(nil)
 
 	if err != nil {
 		return fmt.Errorf("scout: meilisearch get indexes failed: %w", err)

@@ -11,13 +11,13 @@ the need to pass service instances through every layer.
 
 ## Available Facades
 
-| Facade  | Module                                         | Wraps           |
-| ------- | ---------------------------------------------- | --------------- |
-| `auth`  | `github.com/bedrock/packages/facades/auth`     | `packages/auth` |
-| `cache` | `github.com/bedrock/packages/facades/cache`    | `packages/cache`|
-| `events`| `github.com/bedrock/packages/facades/events`   | `packages/events`|
-| `log`   | `github.com/bedrock/packages/facades/log`      | `packages/log`  |
-| `queue` | `github.com/bedrock/packages/facades/queue`    | `packages/queue`|
+| Facade   | Module                                       | Wraps             |
+| -------- | -------------------------------------------- | ----------------- |
+| `auth`   | `github.com/bedrock/packages/facades/auth`   | `packages/auth`   |
+| `cache`  | `github.com/bedrock/packages/facades/cache`  | `packages/cache`  |
+| `events` | `github.com/bedrock/packages/facades/events` | `packages/events` |
+| `log`    | `github.com/bedrock/packages/facades/log`    | `packages/log`    |
+| `queue`  | `github.com/bedrock/packages/facades/queue`  | `packages/queue`  |
 
 ## Installation
 

@@ -17,10 +17,10 @@ go get github.com/bedrock/packages/pennant@latest
 
 ## Drivers
 
-| Driver          | Description                                     |
-| --------------- | ----------------------------------------------- |
-| `ArrayDriver`   | In-memory storage — suitable for tests          |
-| `DatabaseDriver`| SQL-backed persistence                          |
+| Driver           | Description                            |
+| ---------------- | -------------------------------------- |
+| `ArrayDriver`    | In-memory storage — suitable for tests |
+| `DatabaseDriver` | SQL-backed persistence                 |
 
 ## Coming Soon
 

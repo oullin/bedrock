@@ -16,19 +16,19 @@ go get github.com/bedrock/packages/scout@latest
 
 ## Supported Engines
 
-| Engine        | Module                                                      |
-| ------------- | ----------------------------------------------------------- |
-| Database      | Built-in — SQL full-text search (MATCH/AGAINST, tsvector)  |
-| Algolia       | `github.com/bedrock/packages/scout/engines/algolia`         |
-| Meilisearch   | `github.com/bedrock/packages/scout/engines/meilisearch`     |
-| Typesense     | `github.com/bedrock/packages/scout/engines/typesense`       |
+| Engine      | Module                                                    |
+| ----------- | --------------------------------------------------------- |
+| Database    | Built-in — SQL full-text search (MATCH/AGAINST, tsvector) |
+| Algolia     | `github.com/bedrock/packages/scout/engines/algolia`       |
+| Meilisearch | `github.com/bedrock/packages/scout/engines/meilisearch`   |
+| Typesense   | `github.com/bedrock/packages/scout/engines/typesense`     |
 
 ## Sub-packages
 
-| Package         | Description                               |
-| --------------- | ----------------------------------------- |
-| `scout/events`  | Scout-specific model indexing events      |
-| `scout/jobs`    | Background indexing and removal jobs      |
+| Package        | Description                          |
+| -------------- | ------------------------------------ |
+| `scout/events` | Scout-specific model indexing events |
+| `scout/jobs`   | Background indexing and removal jobs |
 
 ## Coming Soon
 
