@@ -1,0 +1,50 @@
+title: "Progressive Oullin"
+lang: "en"
+
+meta:
+  # Standard SEO
+  - name: "description"
+    content: "A progressive dashboard application"
+  - name: "keywords"
+    content: ""
+
+  # Robots / AI
+  - name: "robots"
+    content: "index, follow"
+  - name: "googlebot"
+    content: ""
+
+  # Open Graph
+  - property: "og:title"
+    content: ""
+  - property: "og:description"
+    content: ""
+  - property: "og:image"
+    content: ""
+  - property: "og:url"
+    content: ""
+  - property: "og:type"
+    content: "website"
+  - property: "og:site_name"
+    content: "Progressive Oullin"
+  - property: "og:locale"
+    content: "en_US"
+
+  # Twitter Cards
+  - name: "twitter:card"
+    content: ""
+  - name: "twitter:title"
+    content: ""
+  - name: "twitter:description"
+    content: ""
+  - name: "twitter:image"
+    content: ""
+  - name: "twitter:site"
+    content: ""
+
+links:
+  - rel: "canonical"
+    href: ""
+  - rel: "alternate"
+    href: ""
+    hreflang: ""

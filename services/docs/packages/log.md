@@ -17,14 +17,14 @@ go get github.com/gocanto/bedrock/packages/log@latest
 
 ## Handlers
 
-| Handler           | Description                                |
-|-------------------|--------------------------------------------|
-| `StreamHandler`   | Writes to any `io.Writer` (stdout, file)   |
-| `StderrHandler`   | Writes to `os.Stderr`                      |
-| `RotatingHandler` | Daily rotating log files                   |
-| `SyslogHandler`   | Writes to the system syslog                |
-| `StackHandler`    | Fan-out to multiple handlers               |
-| `NullHandler`     | Discards all records (testing)             |
+| Handler           | Description                              |
+| ----------------- | ---------------------------------------- |
+| `StreamHandler`   | Writes to any `io.Writer` (stdout, file) |
+| `StderrHandler`   | Writes to `os.Stderr`                    |
+| `RotatingHandler` | Daily rotating log files                 |
+| `SyslogHandler`   | Writes to the system syslog              |
+| `StackHandler`    | Fan-out to multiple handlers             |
+| `NullHandler`     | Discards all records (testing)           |
 
 ## Creating a Manager
 
@@ -65,16 +65,16 @@ manager.Warning("Deprecated method called")
 
 ## Log Levels
 
-| Method      | Level     |
-|-------------|-----------|
-| `Emergency` | 800       |
-| `Alert`     | 700       |
-| `Critical`  | 600       |
-| `Error`     | 500       |
-| `Warning`   | 400       |
-| `Notice`    | 300       |
-| `Info`      | 200       |
-| `Debug`     | 100       |
+| Method      | Level |
+| ----------- | ----- |
+| `Emergency` | 800   |
+| `Alert`     | 700   |
+| `Critical`  | 600   |
+| `Error`     | 500   |
+| `Warning`   | 400   |
+| `Notice`    | 300   |
+| `Info`      | 200   |
+| `Debug`     | 100   |
 
 ## Using a Named Channel
 

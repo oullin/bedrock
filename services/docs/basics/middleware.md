@@ -67,13 +67,13 @@ router.Group(func(r *routing.Router) {
 
 ## Built-in Middleware
 
-| Package              | Middleware                                    |
-|----------------------|-----------------------------------------------|
-| `httpx/middleware`   | `Logging`, `CORS`, `Throttle`, `RequestID`    |
-| `cookie`             | `Middleware` — encrypts cookies both ways     |
-| `session`            | Session start/save wrapper                    |
-| `routing/middleware` | `Throttle`, `SubstituteBindings`, redirects   |
-| `auth`               | `Middleware` — checks the default guard       |
+| Package              | Middleware                                  |
+| -------------------- | ------------------------------------------- |
+| `httpx/middleware`   | `Logging`, `CORS`, `Throttle`, `RequestID`  |
+| `cookie`             | `Middleware` — encrypts cookies both ways   |
+| `session`            | Session start/save wrapper                  |
+| `routing/middleware` | `Throttle`, `SubstituteBindings`, redirects |
+| `auth`               | `Middleware` — checks the default guard     |
 
 ## Parameterised Middleware
 
@@ -123,7 +123,7 @@ func RequireHTTPS(next http.Handler) http.Handler {
 
 ## Terminable Middleware
 
-For work that must happen *after* the response is sent — e.g. persisting
+For work that must happen _after_ the response is sent — e.g. persisting
 session state, draining queued cookies, emitting after-commit events — use
 deferred dispatch or register a listener on the `route.matched` event rather
 than writing your own terminable middleware. Bedrock's built-in session and

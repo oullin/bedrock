@@ -70,6 +70,7 @@ func validateInArray(_ string, value any, params []string, ctx RuleContext) bool
 	other := ctx.GetValue(params[0])
 
 	arr, ok := other.([]any)
+
 	if !ok {
 		return false
 	}

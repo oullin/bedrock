@@ -1,0 +1,3 @@
+cookie_name: "XSRF-TOKEN"
+secure: false
+same_site: "lax"

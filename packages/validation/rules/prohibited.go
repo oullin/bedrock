@@ -43,6 +43,7 @@ func validateProhibitedIfAccepted(attribute string, value any, params []string, 
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if isAcceptable(other) {
 		return validateProhibited(attribute, value, nil, ctx)
 	}
@@ -57,6 +58,7 @@ func validateProhibitedIfDeclined(attribute string, value any, params []string, 
 	}
 
 	other := ctx.GetValue(params[0])
+
 	if isDeclinable(other) {
 		return validateProhibited(attribute, value, nil, ctx)
 	}

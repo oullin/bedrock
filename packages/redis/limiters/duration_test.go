@@ -18,17 +18,22 @@ func TestDurationLimiterAllowsUpToMax(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		ok, err := lim.Acquire(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if !ok {
 			t.Fatalf("attempt %d: expected success", i)
 		}
 	}
+
 	ok, _ := lim.Acquire(ctx)
+
 	if ok {
 		t.Fatal("4th acquire should fail")
 	}
+
 	if !lim.TooManyAttempts() {
 		t.Fatal("TooManyAttempts should be true after exhaustion")
 	}
@@ -51,11 +56,14 @@ func TestDurationBuilderThenFailure(t *testing.T) {
 	var failed bool
 	err := b.Then(context.Background(), func() error { return nil }, func(e error) error {
 		failed = true
+
 		return e
 	})
+
 	if !failed {
 		t.Fatal("failure callback did not fire")
 	}
+
 	if !errors.Is(err, redis.ErrLimiterTimeout) {
 		t.Fatalf("err=%v", err)
 	}
@@ -67,10 +75,13 @@ func TestDurationLimiterClear(t *testing.T) {
 	lim := limiters.NewDurationLimiter(conn, "api3", 1, time.Minute)
 	ctx := context.Background()
 	_, _ = lim.Acquire(ctx)
+
 	if err := lim.Clear(ctx); err != nil {
 		t.Fatal(err)
 	}
+
 	ok, _ := lim.Acquire(ctx)
+
 	if !ok {
 		t.Fatal("acquire should succeed after Clear")
 	}

@@ -50,6 +50,7 @@ func (b *MessageBag) Merge(src map[string][]string) {
 // string (default ":message").
 func (b *MessageBag) Get(key string) []string {
 	msgs, ok := b.messages[key]
+
 	if !ok {
 		return nil
 	}
@@ -74,6 +75,7 @@ func (b *MessageBag) All() []string {
 func (b *MessageBag) First(key ...string) string {
 	if len(key) > 0 {
 		msgs := b.Get(key[0])
+
 		if len(msgs) > 0 {
 			return msgs[0]
 		}
@@ -82,6 +84,7 @@ func (b *MessageBag) First(key ...string) string {
 	}
 
 	all := b.All()
+
 	if len(all) > 0 {
 		return all[0]
 	}
@@ -120,6 +123,7 @@ func (b *MessageBag) IsNotEmpty() bool {
 // Count returns the total number of messages across all keys.
 func (b *MessageBag) Count() int {
 	n := 0
+
 	for _, msgs := range b.messages {
 		n += len(msgs)
 	}
@@ -131,6 +135,7 @@ func (b *MessageBag) Count() int {
 // placeholder for the raw message text.  Defaults to ":message".
 func (b *MessageBag) SetFormat(format string) *MessageBag {
 	b.format = format
+
 	return b
 }
 
@@ -164,6 +169,7 @@ func (b *MessageBag) ToJSON() ([]byte, error) {
 // format_ applies the bag's format string to a slice of raw messages.
 func (b *MessageBag) format_(msgs []string) []string {
 	format := b.GetFormat()
+
 	if format == ":message" {
 		return msgs
 	}

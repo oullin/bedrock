@@ -28,7 +28,9 @@ var (
 // Pass nil to clear it (useful for tests).
 func SetApp(a *container.Application) {
 	mu.Lock()
+
 	defer mu.Unlock()
+
 	app = a
 }
 
@@ -37,6 +39,7 @@ func SetApp(a *container.Application) {
 // honest.
 func App() *container.Application {
 	mu.RLock()
+
 	defer mu.RUnlock()
 
 	if app == nil {
@@ -49,6 +52,7 @@ func App() *container.Application {
 // HasApp reports whether a global Application has been installed.
 func HasApp() bool {
 	mu.RLock()
+
 	defer mu.RUnlock()
 
 	return app != nil
@@ -83,6 +87,7 @@ func Resolve[T any](abstract string) T {
 
 	if !ok {
 		var zero T
+
 		panic(fmt.Sprintf("bedrock: Resolve[%T](%q): wrong type %T", zero, abstract, raw))
 	}
 
