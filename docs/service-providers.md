@@ -9,11 +9,11 @@ together via service providers. This document is the guide to the second mode.
 import (
     "github.com/bedrock/packages/container"
     cachefacade "github.com/bedrock/packages/facades/cache"
-    "github.com/bedrock/services/demo"
+    "github.com/bedrock/services/demo/api"
 )
 
 func main() {
-    application := demo.NewApplication()
+    application := api.NewApplication()
     container.SetApp(application)
 
     store, _ := cachefacade.Driver()
