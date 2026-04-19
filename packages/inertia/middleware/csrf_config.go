@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/bedrock/packages/config"
 )
 
 // CSRFConfig holds configuration for the CSRF middleware.
@@ -34,13 +34,15 @@ func DefaultCSRF() CSRFConfig {
 func LoadCSRF(path string) (CSRFConfig, error) {
 	defaults := DefaultCSRF()
 
-	v := viper.New()
+	repo := config.NewWithDefaults(map[string]any{
+		"cookie_name":    defaults.CookieName,
+		"secure":         defaults.Secure,
+		"same_site":      defaults.SameSite,
+		"origin_only":    defaults.OriginOnly,
+		"allow_same_site": defaults.AllowSameSite,
+	})
 
-	v.SetDefault("cookie_name", defaults.CookieName)
-	v.SetDefault("secure", defaults.Secure)
-	v.SetDefault("same_site", defaults.SameSite)
-	v.SetDefault("origin_only", defaults.OriginOnly)
-	v.SetDefault("allow_same_site", defaults.AllowSameSite)
+	v := repo.Viper()
 
 	v.SetConfigFile(path)
 

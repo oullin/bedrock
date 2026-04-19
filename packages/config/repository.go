@@ -36,6 +36,18 @@ func NewFromViper(v *viper.Viper) *Repository {
 	return &Repository{v: v}
 }
 
+// NewWithDefaults creates a Repository with the given key-value pairs registered
+// as defaults. File values and environment variables override these defaults.
+func NewWithDefaults(defaults map[string]any) *Repository {
+	v := viper.New()
+
+	for key, value := range defaults {
+		v.SetDefault(key, value)
+	}
+
+	return &Repository{v: v}
+}
+
 // Viper returns the underlying Viper instance so consumers can configure file
 // paths, environment prefixes, key replacers, and call ReadInConfig directly.
 func (r *Repository) Viper() *viper.Viper {
