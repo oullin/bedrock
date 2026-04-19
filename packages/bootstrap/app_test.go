@@ -1,33 +1,33 @@
-package app_test
+package bootstrap_test
 
 import (
 	"errors"
 	"testing"
 
-	bedrockapp "github.com/bedrock/app"
+	"github.com/bedrock/packages/bootstrap"
 	"github.com/bedrock/packages/container"
 )
 
 type sample struct{ x int }
 
 func resetBedrock() {
-	bedrockapp.SetApp(nil)
+	bootstrap.SetApp(nil)
 }
 
 func TestSetApp_AndApp(t *testing.T) {
 	t.Cleanup(resetBedrock)
 
 	application := container.NewApplication()
-	bedrockapp.SetApp(application)
+	bootstrap.SetApp(application)
 
-	if got := bedrockapp.App(); got != application {
+	if got := bootstrap.App(); got != application {
 		t.Fatalf("App() returned %p, want %p", got, application)
 	}
 }
 
 func TestApp_PanicsWhenNotInstalled(t *testing.T) {
 	t.Cleanup(resetBedrock)
-	bedrockapp.SetApp(nil)
+	bootstrap.SetApp(nil)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -35,20 +35,20 @@ func TestApp_PanicsWhenNotInstalled(t *testing.T) {
 		}
 	}()
 
-	bedrockapp.App()
+	bootstrap.App()
 }
 
 func TestHasApp(t *testing.T) {
 	t.Cleanup(resetBedrock)
-	bedrockapp.SetApp(nil)
+	bootstrap.SetApp(nil)
 
-	if bedrockapp.HasApp() {
+	if bootstrap.HasApp() {
 		t.Fatal("HasApp should be false before SetApp")
 	}
 
-	bedrockapp.SetApp(container.NewApplication())
+	bootstrap.SetApp(container.NewApplication())
 
-	if !bedrockapp.HasApp() {
+	if !bootstrap.HasApp() {
 		t.Fatal("HasApp should be true after SetApp")
 	}
 }
@@ -58,9 +58,9 @@ func TestMustMake_ResolvesValue(t *testing.T) {
 
 	application := container.NewApplication()
 	application.Instance("answer", 42)
-	bedrockapp.SetApp(application)
+	bootstrap.SetApp(application)
 
-	if got := bedrockapp.MustMake("answer"); got != 42 {
+	if got := bootstrap.MustMake("answer"); got != 42 {
 		t.Fatalf("expected 42, got %v", got)
 	}
 }
@@ -68,7 +68,7 @@ func TestMustMake_ResolvesValue(t *testing.T) {
 func TestMustMake_PanicsOnMiss(t *testing.T) {
 	t.Cleanup(resetBedrock)
 
-	bedrockapp.SetApp(container.NewApplication())
+	bootstrap.SetApp(container.NewApplication())
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -76,7 +76,7 @@ func TestMustMake_PanicsOnMiss(t *testing.T) {
 		}
 	}()
 
-	bedrockapp.MustMake("nope")
+	bootstrap.MustMake("nope")
 }
 
 func TestResolve_GenericTypedAccess(t *testing.T) {
@@ -84,9 +84,9 @@ func TestResolve_GenericTypedAccess(t *testing.T) {
 
 	application := container.NewApplication()
 	application.Instance("sample", &sample{x: 7})
-	bedrockapp.SetApp(application)
+	bootstrap.SetApp(application)
 
-	got := bedrockapp.Resolve[*sample]("sample")
+	got := bootstrap.Resolve[*sample]("sample")
 
 	if got.x != 7 {
 		t.Fatalf("expected x=7, got %d", got.x)
@@ -98,7 +98,7 @@ func TestResolve_PanicsOnWrongType(t *testing.T) {
 
 	application := container.NewApplication()
 	application.Instance("sample", "not a *sample")
-	bedrockapp.SetApp(application)
+	bootstrap.SetApp(application)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -106,15 +106,15 @@ func TestResolve_PanicsOnWrongType(t *testing.T) {
 		}
 	}()
 
-	bedrockapp.Resolve[*sample]("sample")
+	bootstrap.Resolve[*sample]("sample")
 }
 
 func TestTryResolve_ReturnsErrorOnMiss(t *testing.T) {
 	t.Cleanup(resetBedrock)
 
-	bedrockapp.SetApp(container.NewApplication())
+	bootstrap.SetApp(container.NewApplication())
 
-	_, err := bedrockapp.TryResolve[*sample]("nope")
+	_, err := bootstrap.TryResolve[*sample]("nope")
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -127,9 +127,9 @@ func TestTryResolve_ReturnsErrorOnMiss(t *testing.T) {
 
 func TestTryResolve_ReturnsErrorWhenNoApp(t *testing.T) {
 	t.Cleanup(resetBedrock)
-	bedrockapp.SetApp(nil)
+	bootstrap.SetApp(nil)
 
-	_, err := bedrockapp.TryResolve[*sample]("anything")
+	_, err := bootstrap.TryResolve[*sample]("anything")
 
 	if err == nil {
 		t.Fatal("expected error when no app installed")
@@ -141,9 +141,9 @@ func TestTryResolve_ReturnsErrorOnWrongType(t *testing.T) {
 
 	application := container.NewApplication()
 	application.Instance("sample", 42)
-	bedrockapp.SetApp(application)
+	bootstrap.SetApp(application)
 
-	_, err := bedrockapp.TryResolve[*sample]("sample")
+	_, err := bootstrap.TryResolve[*sample]("sample")
 
 	if err == nil {
 		t.Fatal("expected type error")
