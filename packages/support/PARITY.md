@@ -1,7 +1,12 @@
-# Laravel Support Parity — Adaptation Rules
+# Laravel Support Parity — Split Package Notes
 
-This document governs how `packages/support` maintains behavioural parity with
+This document tracks how Bedrock's split support packages map onto
 `laravel/framework` 13.x `Illuminate\Support` and its PHPUnit test suite.
+The implementation now lives across three modules:
+
+- `packages/support` for helpers, `Fluent`, `Optional`, `MessageBag`, `Sleep`, and `Timebox`
+- `packages/str` for the `Str*` API and `StringBuilder`
+- `packages/lottery` for the `Lottery` API
 
 **Source of truth:** https://github.com/laravel/framework/tree/13.x/src/Illuminate/Support
 
@@ -29,17 +34,17 @@ Rules:
 
 | PHP feature                                         | Go adaptation                                                                                                                                       |
 | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Str::` static class methods                        | Package-level functions prefixed `Str*`                                                                                                             |
-| `Stringable` class (`__toString`, fluent chain)     | `StringBuilder` struct wrapping a string; `Of(value)` constructor; methods return `*StringBuilder`; `String()` implements `fmt.Stringer`            |
+| `Str::` static class methods                        | Package-level functions prefixed `Str*` in `packages/str`                                                                                            |
+| `Stringable` class (`__toString`, fluent chain)     | `str.StringBuilder` wrapping a string; `Of(value)` constructor; methods return `*StringBuilder`; `String()` implements `fmt.Stringer`               |
 | `Str::freezeUuids()` global state                   | Package-level mutex-guarded `uuidFactory` var; tests using freeze must NOT call `t.Parallel()` at the top level                                     |
 | `Str::createUuidsUsingSequence()`                   | `CreateUuidsUsingSequence([]string)` returns cleanup func; same mutex pattern                                                                       |
-| `optional($x)->method()` null proxy                 | `Optional[T any]` generic struct; `Some(v)`, `None[T]()`, `Opt(ptr)`; methods: `Get`, `OrElse`, `IsPresent`, `IfPresent`, `Map`, `Filter`           |
-| `Fluent->__get($key)` / `__set($key, $value)` magic | Explicit `Get(key)` / `Set(key, value)` methods; no dynamic property access                                                                         |
+| `optional($x)->method()` null proxy                 | `support.Optional[T]` generic struct; `Some(v)`, `None[T]()`, `Opt(ptr)`; methods: `Get`, `OrElse`, `IsPresent`, `IfPresent`, `Map`, `Filter`      |
+| `Fluent->__get($key)` / `__set($key, $value)` magic | Explicit `support.Fluent` `Get(key)` / `Set(key, value)` methods; no dynamic property access                                                        |
 | `Fluent::fill()` vs `Fluent::merge()`               | `Fill` overwrites existing keys; `Merge` skips existing keys                                                                                        |
-| `MessageBag::has()` with wildcard                   | `filepath.Match` handles `*` glob patterns                                                                                                          |
-| `Lottery::alwaysWin()` / `alwaysLose()`             | `Always()` / `Never()` (also `ForceWin()` / `ForceLose()` aliases)                                                                                  |
-| `Lottery::fix(sequence)`                            | `Fix([]bool)` returns a `*fixedLottery` with predetermined outcomes                                                                                 |
-| `Sleep::fake()` static global                       | `FakeSleepWith(fake)` installs and returns a cleanup closure                                                                                        |
+| `MessageBag::has()` with wildcard                   | `support.MessageBag` uses `filepath.Match` for `*` glob patterns                                                                                    |
+| `Lottery::alwaysWin()` / `alwaysLose()`             | `lottery.Always()` / `Never()` (also `ForceWin()` / `ForceLose()` aliases)                                                                         |
+| `Lottery::fix(sequence)`                            | `lottery.Fix([]bool)` returns a `*fixedLottery` with predetermined outcomes                                                                        |
+| `Sleep::fake()` static global                       | `support.FakeSleepWith(fake)` installs and returns a cleanup closure                                                                                |
 | `Str::plural()` non-English                         | English-only via `jinzhu/inflection`; known mismatches documented below                                                                             |
 | `Str::mask()` with negative index                   | Negative index counts from end: `-n` starts at `len - n`                                                                                            |
 | `Macroable` trait                                   | Not ported; Go has no dynamic method registration                                                                                                   |
@@ -48,7 +53,7 @@ Rules:
 
 ## 3. Known semantic divergences
 
-### Str::plural — English-only
+### `str.StrPlural` — English-only
 
 `StrPlural` / `StrSingular` use `jinzhu/inflection` which is English-only. Non-English
 pluralisation (Laravel supports custom language files) is not supported.
@@ -91,14 +96,14 @@ map from Laravel's `lang/` directory. Language-specific overrides are not suppor
 
 | PHP test class                                   | Go test file                               |
 | ------------------------------------------------ | ------------------------------------------ |
-| `Illuminate\Tests\Support\SupportStrTest`        | `str_test.go`, `str_uuid_test.go`          |
-| `Illuminate\Tests\Support\SupportFluentTest`     | `fluent_test.go`                           |
-| `Illuminate\Tests\Support\SupportOptionalTest`   | `optional_test.go`                         |
-| `Illuminate\Tests\Support\SupportMessageBagTest` | `message_bag_test.go`                      |
-| `Illuminate\Tests\Support\SupportHelpersTest`    | `helpers_test.go`, `helpers_retry_test.go` |
-| `Illuminate\Tests\Support\LotteryTest`           | `lottery_test.go`                          |
-| `Illuminate\Tests\Support\SleepTest`             | `sleep_test.go`                            |
-| `Illuminate\Tests\Support\TimeboxTest`           | `timebox_test.go`                          |
+| `Illuminate\Tests\Support\SupportStrTest`        | `packages/str/str_test.go`, `packages/str/str_uuid_test.go`         |
+| `Illuminate\Tests\Support\SupportFluentTest`     | `packages/support/fluent_test.go`                                   |
+| `Illuminate\Tests\Support\SupportOptionalTest`   | `packages/support/optional_test.go`                                 |
+| `Illuminate\Tests\Support\SupportMessageBagTest` | `packages/support/message_bag_test.go`                              |
+| `Illuminate\Tests\Support\SupportHelpersTest`    | `packages/support/helpers_test.go`, `packages/support/helpers_retry_test.go` |
+| `Illuminate\Tests\Support\LotteryTest`           | `packages/lottery/lottery_test.go`                                  |
+| `Illuminate\Tests\Support\SleepTest`             | `packages/support/sleep_test.go`                                    |
+| `Illuminate\Tests\Support\TimeboxTest`           | `packages/support/timebox_test.go`                                  |
 
 ## 5. Coverage rule
 
@@ -124,7 +129,6 @@ this port by user decision:
 
 | Excluded                      | Reason                                                              |
 | ----------------------------- | ------------------------------------------------------------------- |
-| `Arr` / `data_*` helpers      | Array/map helpers; idiomatic Go uses built-in slice/map ops         |
 | `Number`                      | Number formatting; use `fmt` / `golang.org/x/text/message` directly |
 | `Once`                        | Memoization; Go's `sync.Once` is the idiomatic equivalent           |
 | `Benchmark`                   | Benchmarking utility; Go's `testing.B` is the idiomatic equivalent  |

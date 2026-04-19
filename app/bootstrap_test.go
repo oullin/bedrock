@@ -1,19 +1,19 @@
-package bootstrap_test
+package app_test
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/bedrock/packages/bootstrap"
+	bedrockapp "github.com/bedrock/app"
 	"github.com/bedrock/packages/container"
 )
 
 func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	t.Parallel()
 
-	app := bootstrap.Default()
+	application := bedrockapp.Default()
 
-	if !app.Booted() {
+	if !application.Booted() {
 		t.Fatal("expected app to be booted")
 	}
 
@@ -25,7 +25,7 @@ func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	}
 
 	for _, key := range standardKeys {
-		v, err := app.Make(key)
+		v, err := application.Make(key)
 
 		if err != nil {
 			t.Errorf("Make(%q) failed: %v", key, err)
@@ -42,9 +42,9 @@ func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
 	t.Parallel()
 
-	app := bootstrap.Default()
+	application := bedrockapp.Default()
 
-	_, err := app.Make("encrypter")
+	_, err := application.Make("encrypter")
 
 	if !errors.Is(err, container.ErrNotBound) {
 		t.Fatalf("expected ErrNotBound for encrypter without key, got %v", err)
@@ -54,11 +54,11 @@ func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
 func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	t.Parallel()
 
-	app := bootstrap.Default(bootstrap.Options{
+	application := bedrockapp.Default(bedrockapp.Options{
 		EncryptionKey: make([]byte, 32),
 	})
 
-	v, err := app.Make("encrypter")
+	v, err := application.Make("encrypter")
 
 	if err != nil {
 		t.Fatalf("expected encrypter to resolve when key provided, got %v", err)
@@ -72,7 +72,7 @@ func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 func TestDefault_OptionsOverrideDefaults(t *testing.T) {
 	t.Parallel()
 
-	app := bootstrap.Default(bootstrap.Options{
+	application := bedrockapp.Default(bedrockapp.Options{
 		CacheDefaultDriver: "redis",
 	})
 
@@ -81,7 +81,7 @@ func TestDefault_OptionsOverrideDefaults(t *testing.T) {
 	// own deps, so resolve as any and rely on a method check.
 	type defaultDriverGetter interface{ GetDefaultDriver() string }
 
-	raw, err := app.Make("cache")
+	raw, err := application.Make("cache")
 
 	if err != nil {
 		t.Fatal(err)
