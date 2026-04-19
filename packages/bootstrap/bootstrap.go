@@ -1,14 +1,14 @@
-// Package app wires every standard bedrock service provider into a
+// Package bootstrap wires every standard bedrock service provider into a
 // single Application. It is the quickstart for new applications:
 //
-//	application := app.Default()
-//	app.SetApp(application)
+//	application := bootstrap.Default()
+//	bootstrap.SetApp(application)
 //	// application.Make("cache"), facades, etc. all work
 //
 // Production apps are expected to compose providers manually so they can
 // substitute drivers, choose specific defaults, and skip components they
 // don't use. Default is a sensible starting point, not a binding contract.
-package app
+package bootstrap
 
 import (
 	"github.com/bedrock/packages/ai"

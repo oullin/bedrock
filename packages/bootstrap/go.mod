@@ -1,4 +1,4 @@
-module github.com/bedrock/app
+module github.com/bedrock/packages/bootstrap
 
 go 1.26.0
 
