@@ -8,6 +8,8 @@ import (
 	"github.com/bedrock/packages/container"
 )
 
+type sample struct{ x int }
+
 func resetBedrock() {
 	bedrock.SetApp(nil)
 }
@@ -76,8 +78,6 @@ func TestMustMake_PanicsOnMiss(t *testing.T) {
 
 	bedrock.MustMake("nope")
 }
-
-type sample struct{ x int }
 
 func TestResolve_GenericTypedAccess(t *testing.T) {
 	t.Cleanup(resetBedrock)

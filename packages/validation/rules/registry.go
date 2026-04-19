@@ -12,7 +12,7 @@ import "sync"
 //   - value:     the field value (may be nil when the field is absent)
 //   - params:    the colon-separated parameters, e.g. ["255"] for max:255
 //   - ctx:       a RuleContext that provides access to the full data set,
-//                other fields, and the ability to add custom failure messages
+//     other fields, and the ability to add custom failure messages
 type RuleFunc func(attribute string, value any, params []string, ctx RuleContext) bool
 
 // RuleContext is passed to every RuleFunc and gives it access to the
@@ -66,6 +66,7 @@ func Register(name string, fn RuleFunc) {
 	}
 
 	global.mu.Lock()
+
 	defer global.mu.Unlock()
 
 	global.rules[name] = fn
@@ -77,6 +78,7 @@ func RegisterImplicit(name string, fn RuleFunc) {
 	Register(name, fn)
 
 	global.mu.Lock()
+
 	defer global.mu.Unlock()
 
 	global.implicit[name] = true
@@ -85,6 +87,7 @@ func RegisterImplicit(name string, fn RuleFunc) {
 // Lookup returns the RuleFunc for name, or (nil, false) if not found.
 func Lookup(name string) (RuleFunc, bool) {
 	global.mu.RLock()
+
 	defer global.mu.RUnlock()
 
 	fn, ok := global.rules[name]
@@ -95,6 +98,7 @@ func Lookup(name string) (RuleFunc, bool) {
 // IsImplicit reports whether name is an implicit rule.
 func IsImplicit(name string) bool {
 	global.mu.RLock()
+
 	defer global.mu.RUnlock()
 
 	return global.implicit[name]
@@ -103,6 +107,7 @@ func IsImplicit(name string) bool {
 // All returns a copy of all registered rules (name → fn).
 func All() map[string]RuleFunc {
 	global.mu.RLock()
+
 	defer global.mu.RUnlock()
 
 	out := make(map[string]RuleFunc, len(global.rules))

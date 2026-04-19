@@ -16,14 +16,14 @@ go get github.com/gocanto/bedrock/packages/jsonx@latest
 
 ## Schema Types
 
-| Builder      | JSON Schema type |
-|--------------|-----------------|
-| `Object(…)`  | `"type": "object"` |
-| `Array()`    | `"type": "array"` |
-| `String()`   | `"type": "string"` |
-| `Integer()`  | `"type": "integer"` |
-| `Number()`   | `"type": "number"` |
-| `Boolean()`  | `"type": "boolean"` |
+| Builder     | JSON Schema type    |
+| ----------- | ------------------- |
+| `Object(…)` | `"type": "object"`  |
+| `Array()`   | `"type": "array"`   |
+| `String()`  | `"type": "string"`  |
+| `Integer()` | `"type": "integer"` |
+| `Number()`  | `"type": "number"`  |
+| `Boolean()` | `"type": "boolean"` |
 
 ## Building a Schema
 

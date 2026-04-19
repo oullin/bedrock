@@ -21,21 +21,21 @@ This package has no runtime logic — only interface definitions.
 
 Interfaces are grouped by domain. Import only the sub-package you need:
 
-| Sub-package                    | Key interfaces                                        |
-|--------------------------------|-------------------------------------------------------|
-| `contracts/auth`               | `Authenticatable`, `Guard`, `UserProvider`, `PasswordHasher` |
-| `contracts/concurrency`        | `Driver`                                              |
-| `contracts/encryption`         | `Encrypter`, `StringEncrypter`                        |
-| `contracts/events`             | `Dispatcher`, `Listener`, `Subscriber`                |
-| `contracts/filesystem`         | `Filesystem`                                          |
-| `contracts/hashing`            | `Hasher`, `HashInfo`                                  |
-| `contracts/log`                | `Logger`                                              |
-| `contracts/mail`               | `Mailer`, `Mailable`, `Message`, `Envelope`, `Attachment` |
-| `contracts/notifications`      | `Channel`, `Notifiable`, `Dispatcher`                 |
-| `contracts/pagination`         | `Paginator`, `LengthAwarePaginator`, `CursorPaginator`, `Cursor` |
-| `contracts/pipeline`           | `Pipeline`, `Pipe`                                    |
-| `contracts/provider`           | `ServiceProvider`, `Bootable`, `Provides`             |
-| `contracts/validation`         | `Rule`, `Validator`, `MessageBag`                     |
+| Sub-package               | Key interfaces                                                   |
+| ------------------------- | ---------------------------------------------------------------- |
+| `contracts/auth`          | `Authenticatable`, `Guard`, `UserProvider`, `PasswordHasher`     |
+| `contracts/concurrency`   | `Driver`                                                         |
+| `contracts/encryption`    | `Encrypter`, `StringEncrypter`                                   |
+| `contracts/events`        | `Dispatcher`, `Listener`, `Subscriber`                           |
+| `contracts/filesystem`    | `Filesystem`                                                     |
+| `contracts/hashing`       | `Hasher`, `HashInfo`                                             |
+| `contracts/log`           | `Logger`                                                         |
+| `contracts/mail`          | `Mailer`, `Mailable`, `Message`, `Envelope`, `Attachment`        |
+| `contracts/notifications` | `Channel`, `Notifiable`, `Dispatcher`                            |
+| `contracts/pagination`    | `Paginator`, `LengthAwarePaginator`, `CursorPaginator`, `Cursor` |
+| `contracts/pipeline`      | `Pipeline`, `Pipe`                                               |
+| `contracts/provider`      | `ServiceProvider`, `Bootable`, `Provides`                        |
+| `contracts/validation`    | `Rule`, `Validator`, `MessageBag`                                |
 
 ## Top-level Contracts
 

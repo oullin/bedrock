@@ -23,6 +23,7 @@ func NewMessageBag(messages ...map[string][]string) *MessageBag {
 		messages: make(map[string][]string),
 		format:   ":message",
 	}
+
 	if len(messages) > 0 {
 		for k, msgs := range messages[0] {
 			for _, msg := range msgs {
@@ -30,6 +31,7 @@ func NewMessageBag(messages ...map[string][]string) *MessageBag {
 			}
 		}
 	}
+
 	return b
 }
 
@@ -39,6 +41,7 @@ func (b *MessageBag) addUnique(key, message string) {
 			return
 		}
 	}
+
 	b.messages[key] = append(b.messages[key], message)
 }
 
@@ -47,6 +50,7 @@ func (b *MessageBag) addUnique(key, message string) {
 // Mirrors MessageBag::add().
 func (b *MessageBag) Add(key, message string) *MessageBag {
 	b.addUnique(key, message)
+
 	return b
 }
 
@@ -56,6 +60,7 @@ func (b *MessageBag) AddIf(condition bool, key, message string) *MessageBag {
 	if condition {
 		return b.Add(key, message)
 	}
+
 	return b
 }
 
@@ -73,6 +78,7 @@ func (b *MessageBag) Merge(source any) *MessageBag {
 		msgs = v
 	case map[string]string:
 		msgs = make(map[string][]string)
+
 		for k, m := range v {
 			msgs[k] = []string{m}
 		}
@@ -83,6 +89,7 @@ func (b *MessageBag) Merge(source any) *MessageBag {
 			b.addUnique(k, m)
 		}
 	}
+
 	return b
 }
 
@@ -93,11 +100,13 @@ func (b *MessageBag) Has(keys ...string) bool {
 	if len(keys) == 0 {
 		return b.IsNotEmpty()
 	}
+
 	for _, key := range keys {
 		if !b.hasForKey(key) {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -112,6 +121,7 @@ func (b *MessageBag) hasForKey(key string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -121,11 +131,13 @@ func (b *MessageBag) HasAny(keys ...string) bool {
 	if len(keys) == 0 {
 		return b.IsNotEmpty()
 	}
+
 	for _, key := range keys {
 		if b.hasForKey(key) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -146,14 +158,17 @@ func (b *MessageBag) First(key ...string) string {
 				return b.formatMessage(msgs[0])
 			}
 		}
+
 		return ""
 	}
 
 	// Get() already applies formatting; return the first formatted message directly.
 	msgs := b.Get(key[0])
+
 	if len(msgs) > 0 {
 		return msgs[0]
 	}
+
 	return ""
 }
 
@@ -168,11 +183,13 @@ func (b *MessageBag) Get(key string) []string {
 		for _, m := range msgs {
 			result = append(result, b.formatMessage(m))
 		}
+
 		return result
 	}
 
 	// Wildcard match
 	keys := b.sortedKeys()
+
 	for _, k := range keys {
 		if matched, _ := filepath.Match(key, k); matched {
 			for _, m := range b.messages[k] {
@@ -180,6 +197,7 @@ func (b *MessageBag) Get(key string) []string {
 			}
 		}
 	}
+
 	return result
 }
 
@@ -187,11 +205,13 @@ func (b *MessageBag) Get(key string) []string {
 // Mirrors MessageBag::all().
 func (b *MessageBag) All() []string {
 	var result []string
+
 	for _, k := range b.sortedKeys() {
 		for _, m := range b.messages[k] {
 			result = append(result, b.formatMessage(m))
 		}
 	}
+
 	return result
 }
 
@@ -201,8 +221,10 @@ func (b *MessageBag) Unique() *MessageBag {
 	// Already unique (addUnique enforces this), but return a copy.
 	newBag := NewMessageBag()
 	newBag.format = b.format
+
 	for k, msgs := range b.messages {
 		seen := make(map[string]bool)
+
 		for _, m := range msgs {
 			if !seen[m] {
 				seen[m] = true
@@ -210,6 +232,7 @@ func (b *MessageBag) Unique() *MessageBag {
 			}
 		}
 	}
+
 	return newBag
 }
 
@@ -219,6 +242,7 @@ func (b *MessageBag) Forget(keys ...string) *MessageBag {
 	for _, key := range keys {
 		delete(b.messages, key)
 	}
+
 	return b
 }
 
@@ -232,9 +256,11 @@ func (b *MessageBag) Keys() []string {
 // Mirrors MessageBag::count() (Countable interface).
 func (b *MessageBag) Count() int {
 	total := 0
+
 	for _, msgs := range b.messages {
 		total += len(msgs)
 	}
+
 	return total
 }
 
@@ -255,6 +281,7 @@ func (b *MessageBag) IsNotEmpty() bool {
 // Mirrors MessageBag::setFormat().
 func (b *MessageBag) SetFormat(format string) *MessageBag {
 	b.format = format
+
 	return b
 }
 
@@ -268,11 +295,13 @@ func (b *MessageBag) GetFormat() string {
 // Mirrors MessageBag::getMessages().
 func (b *MessageBag) GetMessages() map[string][]string {
 	result := make(map[string][]string, len(b.messages))
+
 	for k, v := range b.messages {
 		cp := make([]string, len(v))
 		copy(cp, v)
 		result[k] = cp
 	}
+
 	return result
 }
 
@@ -289,6 +318,7 @@ func (b *MessageBag) ToJSON() ([]byte, error) {
 // String returns the JSON-encoded bag (implements fmt.Stringer).
 func (b *MessageBag) String() string {
 	data, _ := json.Marshal(b.messages)
+
 	return string(data)
 }
 
@@ -296,14 +326,18 @@ func (b *MessageBag) formatMessage(message string) string {
 	if b.format == ":message" || b.format == "" {
 		return message
 	}
+
 	return strings.ReplaceAll(b.format, ":message", message)
 }
 
 func (b *MessageBag) sortedKeys() []string {
 	keys := make([]string, 0, len(b.messages))
+
 	for k := range b.messages {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
+
 	return keys
 }

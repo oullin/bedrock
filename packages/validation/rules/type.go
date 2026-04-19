@@ -66,6 +66,7 @@ func validateBoolean(_ string, value any, _ []string, _ RuleContext) bool {
 		return v == 0 || v == 1
 	case string:
 		lower := strings.ToLower(strings.TrimSpace(v))
+
 		return lower == "true" || lower == "false" || lower == "1" || lower == "0"
 	}
 
@@ -78,10 +79,13 @@ func validateArray(_ string, value any, params []string, _ RuleContext) bool {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Map {
 		_, ok := value.([]any)
+
 		if !ok {
 			_, ok = value.(map[string]any)
+
 			if !ok {
 				return false
 			}
@@ -91,6 +95,7 @@ func validateArray(_ string, value any, params []string, _ RuleContext) bool {
 	// If params are given they specify the only allowed keys
 	if len(params) > 0 {
 		m, ok := value.(map[string]any)
+
 		if !ok {
 			return true // non-map array — key constraint doesn't apply
 		}
@@ -108,15 +113,18 @@ func validateArray(_ string, value any, params []string, _ RuleContext) bool {
 // validateList requires the value to be a sequential (0-indexed) array, not a map.
 func validateList(_ string, value any, _ []string, _ RuleContext) bool {
 	_, ok := value.([]any)
+
 	return ok
 }
 
 func validateJson(_ string, value any, _ []string, _ RuleContext) bool {
 	s, ok := value.(string)
+
 	if !ok {
 		return false
 	}
 
 	var out any
+
 	return json.Unmarshal([]byte(strings.TrimSpace(s)), &out) == nil
 }

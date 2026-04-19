@@ -40,9 +40,99 @@ type Validator struct {
 	excludedAttrs map[string]bool
 }
 
+// newValidator creates a Validator from already-parsed state.
+
+// Passes runs all validation rules and returns true when every rule passes.
+
+// Fails returns true when at least one rule fails.
+
+// Validate runs all rules and returns a *ValidationException when any rule
+// fails.
+
+// Validated returns only the attributes that passed validation.  Returns an
+// error if validation has not run or if it failed.
+
+// Safe returns a ValidatedInput containing only the validated attributes.
+
+// Errors returns the MessageBag of accumulated failures.
+
+// Failed returns a map of attribute → []ruleName for every failed rule.
+
+// SetData replaces the data under validation.
+
+// SetRules replaces the rule set.
+
+// AddRules merges additional rules into the existing set.
+
+// GetData returns the data under validation.
+
+// GetRules returns the parsed rule map.
+
+// HasRule reports whether the attribute has any of the named rules.
+
+// SetCustomMessages registers custom error messages.
+
+// SetAttributeNames registers human-readable attribute names used in messages.
+
+// AddExtension registers a custom rule function.
+
+// AddImplicitExtension registers a custom implicit rule function.
+
+// SetPresenceVerifier sets the database presence verifier.
+
+// ─── internal ──────────────────────────────────────────────────────────────────
+
+// Expand wildcards to concrete attributes
+
+// Even if not in data, we still need to run implicit rules
+
+// Handle special marker rules
+
+// skip remaining rules for null with nullable
+
+// field not present at all — skip
+
+// Check for exclusion rules
+
+// Skip non-implicit rules when value is absent/blank
+
+// unknown rule — pass
+
+// User extensions take precedence over built-ins
+
+// 1. Custom message keyed by "attribute.rule"
+
+// 2. Custom message keyed by just "rule"
+
+// 3. Type-qualified default (e.g. "Max.string")
+
+// 4. Default message
+
+// Value of the attribute
+
+// Params
+
+// Common single-param rules
+
+// Convert dot-notation and underscores to spaces
+
+// getValue returns the value for attribute using dot-notation lookup.
+
+// Try nested map traversal
+
+// flatDataHas reports whether the attribute key exists in the flattened data.
+
+// dotGet traverses a nested map using dot notation.
+
+// ruleContext implements rules.RuleContext, used internally by rule functions.
+type ruleContext struct {
+	validator     *Validator
+	attribute     string
+	customMessage string
+}
+
 var _ contract.Validator = (*Validator)(nil)
 
-// newValidator creates a Validator from already-parsed state.
 func newValidator(
 	data map[string]any,
 	rawRules map[string]any,
@@ -95,7 +185,6 @@ func newValidator(
 	return v
 }
 
-// Passes runs all validation rules and returns true when every rule passes.
 func (v *Validator) Passes() bool {
 	v.errs = NewMessageBag()
 	v.failedRules = make(map[string][]string)
@@ -112,13 +201,10 @@ func (v *Validator) Passes() bool {
 	return v.errs.IsEmpty()
 }
 
-// Fails returns true when at least one rule fails.
 func (v *Validator) Fails() bool {
 	return !v.Passes()
 }
 
-// Validate runs all rules and returns a *ValidationException when any rule
-// fails.
 func (v *Validator) Validate() error {
 	if v.Passes() {
 		return nil
@@ -127,8 +213,6 @@ func (v *Validator) Validate() error {
 	return &ValidationException{Bag: v.errs}
 }
 
-// Validated returns only the attributes that passed validation.  Returns an
-// error if validation has not run or if it failed.
 func (v *Validator) Validated() (map[string]any, error) {
 	if !v.hasRun {
 		if err := v.Validate(); err != nil {
@@ -143,15 +227,16 @@ func (v *Validator) Validated() (map[string]any, error) {
 	return v.validated, nil
 }
 
-// Safe returns a ValidatedInput containing only the validated attributes.
 func (v *Validator) Safe(keys ...string) (*ValidatedInput, error) {
 	vd, err := v.Validated()
+
 	if err != nil {
 		return nil, err
 	}
 
 	if len(keys) > 0 {
 		filtered := make(map[string]any, len(keys))
+
 		for _, k := range keys {
 			if val, ok := vd[k]; ok {
 				filtered[k] = val
@@ -164,17 +249,14 @@ func (v *Validator) Safe(keys ...string) (*ValidatedInput, error) {
 	return &ValidatedInput{data: vd}, nil
 }
 
-// Errors returns the MessageBag of accumulated failures.
 func (v *Validator) Errors() contract.MessageBag {
 	return v.errs
 }
 
-// Failed returns a map of attribute → []ruleName for every failed rule.
 func (v *Validator) Failed() map[string][]string {
 	return v.failedRules
 }
 
-// SetData replaces the data under validation.
 func (v *Validator) SetData(data map[string]any) contract.Validator {
 	v.data = data
 	v.flatData = FlattenData(data)
@@ -183,7 +265,6 @@ func (v *Validator) SetData(data map[string]any) contract.Validator {
 	return v
 }
 
-// SetRules replaces the rule set.
 func (v *Validator) SetRules(ruleMap map[string]any) contract.Validator {
 	v.rawRules = ruleMap
 	v.parsedRules = v.parseAllRules()
@@ -192,7 +273,6 @@ func (v *Validator) SetRules(ruleMap map[string]any) contract.Validator {
 	return v
 }
 
-// AddRules merges additional rules into the existing set.
 func (v *Validator) AddRules(ruleMap map[string]any) contract.Validator {
 	for k, r := range ruleMap {
 		existing := Explode(v.rawRules[k])
@@ -205,19 +285,17 @@ func (v *Validator) AddRules(ruleMap map[string]any) contract.Validator {
 	return v
 }
 
-// GetData returns the data under validation.
 func (v *Validator) GetData() map[string]any {
 	return v.data
 }
 
-// GetRules returns the parsed rule map.
 func (v *Validator) GetRules() map[string][]ParsedRule {
 	return v.parsedRules
 }
 
-// HasRule reports whether the attribute has any of the named rules.
 func (v *Validator) HasRule(attribute string, ruleNames ...string) bool {
 	pr, ok := v.parsedRules[attribute]
+
 	if !ok {
 		return false
 	}
@@ -233,7 +311,6 @@ func (v *Validator) HasRule(attribute string, ruleNames ...string) bool {
 	return false
 }
 
-// SetCustomMessages registers custom error messages.
 func (v *Validator) SetCustomMessages(messages map[string]string) contract.Validator {
 	for k, msg := range messages {
 		v.customMessages[k] = msg
@@ -242,7 +319,6 @@ func (v *Validator) SetCustomMessages(messages map[string]string) contract.Valid
 	return v
 }
 
-// SetAttributeNames registers human-readable attribute names used in messages.
 func (v *Validator) SetAttributeNames(names map[string]string) contract.Validator {
 	for k, name := range names {
 		v.attrNames[k] = name
@@ -251,13 +327,12 @@ func (v *Validator) SetAttributeNames(names map[string]string) contract.Validato
 	return v
 }
 
-// AddExtension registers a custom rule function.
 func (v *Validator) AddExtension(name string, fn rules.RuleFunc) *Validator {
 	v.extensions[StudlyCase(name)] = fn
+
 	return v
 }
 
-// AddImplicitExtension registers a custom implicit rule function.
 func (v *Validator) AddImplicitExtension(name string, fn rules.RuleFunc) *Validator {
 	studly := StudlyCase(name)
 	v.extensions[studly] = fn
@@ -266,20 +341,19 @@ func (v *Validator) AddImplicitExtension(name string, fn rules.RuleFunc) *Valida
 	return v
 }
 
-// SetPresenceVerifier sets the database presence verifier.
 func (v *Validator) SetPresenceVerifier(pv rules.PresenceVerifier) *Validator {
 	v.presenceVerifier = pv
+
 	return v
 }
 
-// ─── internal ──────────────────────────────────────────────────────────────────
-
 func (v *Validator) validateAll() {
 	for attribute, parsedRuleList := range v.parsedRules {
-		// Expand wildcards to concrete attributes
+
 		attrs := ExpandWildcards(attribute, v.flatData)
+
 		if len(attrs) == 0 {
-			// Even if not in data, we still need to run implicit rules
+
 			attrs = []string{attribute}
 		}
 
@@ -296,6 +370,7 @@ func (v *Validator) validateAttributeRules(attribute string, parsedRuleList []Pa
 	for _, rule := range parsedRuleList {
 		if rule.IsObject() {
 			v.validateRuleObject(attribute, value, rule)
+
 			if bail && v.errs.Has(attribute) {
 				return
 			}
@@ -305,28 +380,28 @@ func (v *Validator) validateAttributeRules(attribute string, parsedRuleList []Pa
 
 		name := rule.Name
 
-		// Handle special marker rules
 		switch name {
 		case "Bail":
 			bail = true
+
 			continue
 		case "Nullable":
 			if value == nil {
-				return // skip remaining rules for null with nullable
+				return
 			}
 
 			continue
 		case "Sometimes":
 			if !v.flatDataHas(attribute) {
-				return // field not present at all — skip
+				return
 			}
 
 			continue
 		}
 
-		// Check for exclusion rules
 		if isExcludeRule(name) {
 			ctx := v.makeContext(attribute)
+
 			if rules.ShouldExclude(attribute, name, rule.Parameters, ctx) {
 				v.excludedAttrs[attribute] = true
 			}
@@ -334,7 +409,6 @@ func (v *Validator) validateAttributeRules(attribute string, parsedRuleList []Pa
 			continue
 		}
 
-		// Skip non-implicit rules when value is absent/blank
 		if !v.isImplicitRule(name) && !v.flatDataHas(attribute) {
 			continue
 		}
@@ -351,6 +425,7 @@ func (v *Validator) validateRuleObject(attribute string, value any, rule ParsedR
 	obj := rule.Object
 	ctx := v.makeContext(attribute)
 	failed := false
+
 	var customMsg string
 
 	obj.Validate(attribute, value, func(message string) {
@@ -369,8 +444,9 @@ func (v *Validator) validateRuleObject(attribute string, value any, rule ParsedR
 
 func (v *Validator) runRule(attribute string, value any, rule ParsedRule) bool {
 	fn := v.lookupRule(rule.Name)
+
 	if fn == nil {
-		return true // unknown rule — pass
+		return true
 	}
 
 	ctx := v.makeContext(attribute)
@@ -384,7 +460,7 @@ func (v *Validator) runRule(attribute string, value any, rule ParsedRule) bool {
 }
 
 func (v *Validator) lookupRule(name string) rules.RuleFunc {
-	// User extensions take precedence over built-ins
+
 	if fn, ok := v.extensions[name]; ok {
 		return fn
 	}
@@ -404,6 +480,7 @@ func (v *Validator) isImplicitRule(name string) bool {
 
 func (v *Validator) addFailureWithContext(attribute, ruleName string, params []string, ctx *ruleContext) {
 	msg := ctx.customMessage
+
 	if msg == "" {
 		msg = v.makeMessage(attribute, ruleName, params)
 	}
@@ -413,19 +490,19 @@ func (v *Validator) addFailureWithContext(attribute, ruleName string, params []s
 }
 
 func (v *Validator) makeMessage(attribute, ruleName string, params []string) string {
-	// 1. Custom message keyed by "attribute.rule"
+
 	key1 := attribute + "." + strings.ToLower(ruleName)
+
 	if msg, ok := v.customMessages[key1]; ok {
 		return v.replacePlaceholders(msg, attribute, ruleName, params)
 	}
 
-	// 2. Custom message keyed by just "rule"
 	key2 := strings.ToLower(ruleName)
+
 	if msg, ok := v.customMessages[key2]; ok {
 		return v.replacePlaceholders(msg, attribute, ruleName, params)
 	}
 
-	// 3. Type-qualified default (e.g. "Max.string")
 	value := v.getValue(attribute)
 	typeKey := rules.MessageTypeForSize(ruleName, value)
 
@@ -435,7 +512,6 @@ func (v *Validator) makeMessage(attribute, ruleName string, params []string) str
 		}
 	}
 
-	// 4. Default message
 	if msg, ok := rules.DefaultMessages[ruleName]; ok && msg != "" {
 		return v.replacePlaceholders(msg, attribute, ruleName, params)
 	}
@@ -450,11 +526,9 @@ func (v *Validator) replacePlaceholders(msg, attribute, ruleName string, params 
 	msg = strings.ReplaceAll(msg, ":Attribute", titleCase(displayAttr))
 	msg = strings.ReplaceAll(msg, ":ATTRIBUTE", strings.ToUpper(displayAttr))
 
-	// Value of the attribute
 	value := v.getValue(attribute)
 	msg = strings.ReplaceAll(msg, ":input", stringify(value))
 
-	// Params
 	paramPlaceholders := []string{
 		":min", ":max", ":size", ":other", ":value", ":values",
 		":date", ":format", ":digits", ":decimal",
@@ -469,7 +543,6 @@ func (v *Validator) replacePlaceholders(msg, attribute, ruleName string, params 
 		}
 	}
 
-	// Common single-param rules
 	if len(params) > 0 {
 		msg = strings.ReplaceAll(msg, ":min", params[0])
 		msg = strings.ReplaceAll(msg, ":max", params[0])
@@ -498,41 +571,39 @@ func (v *Validator) displayAttribute(attribute string) string {
 		return name
 	}
 
-	// Convert dot-notation and underscores to spaces
 	s := strings.ReplaceAll(attribute, "_", " ")
 	s = strings.ReplaceAll(s, ".", " ")
 
 	return s
 }
 
-// getValue returns the value for attribute using dot-notation lookup.
 func (v *Validator) getValue(attribute string) any {
 	if val, ok := v.flatData[attribute]; ok {
 		return val
 	}
 
-	// Try nested map traversal
 	return dotGet(v.data, attribute)
 }
 
-// flatDataHas reports whether the attribute key exists in the flattened data.
 func (v *Validator) flatDataHas(attribute string) bool {
 	_, ok := v.flatData[attribute]
+
 	return ok
 }
 
-// dotGet traverses a nested map using dot notation.
 func dotGet(data map[string]any, key string) any {
 	if val, ok := data[key]; ok {
 		return val
 	}
 
 	parts := strings.SplitN(key, ".", 2)
+
 	if len(parts) == 1 {
 		return nil
 	}
 
 	next, ok := data[parts[0]]
+
 	if !ok {
 		return nil
 	}
@@ -575,19 +646,13 @@ func (v *Validator) buildValidated() {
 		}
 
 		val := v.getValue(attr)
+
 		if val != nil || v.flatDataHas(attr) {
 			result[attr] = val
 		}
 	}
 
 	v.validated = result
-}
-
-// ruleContext implements rules.RuleContext, used internally by rule functions.
-type ruleContext struct {
-	validator     *Validator
-	attribute     string
-	customMessage string
 }
 
 func (v *Validator) makeContext(attribute string) *ruleContext {
@@ -608,6 +673,7 @@ func (c *ruleContext) GetOriginalData() map[string]any {
 
 func (c *ruleContext) IsSometimes(attribute string) bool {
 	pr, ok := c.validator.parsedRules[attribute]
+
 	if !ok {
 		return false
 	}

@@ -17,9 +17,9 @@ go get github.com/gocanto/bedrock/packages/container@latest
 
 ## Container vs Application
 
-| Type          | Use when                                                       |
-|---------------|----------------------------------------------------------------|
-| `Container`   | Standalone DI container with no provider lifecycle             |
+| Type          | Use when                                                      |
+| ------------- | ------------------------------------------------------------- |
+| `Container`   | Standalone DI container with no provider lifecycle            |
 | `Application` | Full bootstrap: register service providers then call `Boot()` |
 
 ## Binding
@@ -114,8 +114,8 @@ func (p *CacheProvider) Boot() {
 }
 ```
 
-| Interface             | Purpose                                                  |
-|-----------------------|----------------------------------------------------------|
-| `ServiceProvider`     | Required — `Register()` binds into the container         |
-| `Bootable`            | Optional — `Boot()` runs after all providers registered  |
-| `Provides`            | Optional — declares which abstract keys this binds       |
+| Interface         | Purpose                                                 |
+| ----------------- | ------------------------------------------------------- |
+| `ServiceProvider` | Required — `Register()` binds into the container        |
+| `Bootable`        | Optional — `Boot()` runs after all providers registered |
+| `Provides`        | Optional — declares which abstract keys this binds      |

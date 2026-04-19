@@ -16,11 +16,11 @@ go get github.com/gocanto/bedrock/packages/notifications@latest
 
 ## Built-in Channels
 
-| Channel     | Delivery mechanism                          |
-|-------------|---------------------------------------------|
-| `mail`      | Sends via the `mailx` package               |
-| `database`  | Persists to a `DatabaseNotificationStore`   |
-| `broadcast` | Publishes to a broadcast backend            |
+| Channel     | Delivery mechanism                        |
+| ----------- | ----------------------------------------- |
+| `mail`      | Sends via the `mailx` package             |
+| `database`  | Persists to a `DatabaseNotificationStore` |
+| `broadcast` | Publishes to a broadcast backend          |
 
 ## Defining a Notification
 

@@ -9,6 +9,7 @@ import (
 func TestStrUuid(t *testing.T) {
 	// NOT parallel — UUID tests may conflict with freeze
 	uuid := StrUuid()
+
 	if !StrIsUuid(uuid) {
 		t.Errorf("StrUuid() = %q is not a valid UUID", uuid)
 	}
@@ -18,6 +19,7 @@ func TestStrUuid(t *testing.T) {
 func TestStrFreezeUuids(t *testing.T) {
 	// NOT parallel — modifies global UUID state
 	cleanup := FreezeUuids(func() string { return "frozen-uuid" })
+
 	defer cleanup()
 
 	if got := StrUuid(); got != "frozen-uuid" {
@@ -34,9 +36,11 @@ func TestStrFreezeUuidsCleanup(t *testing.T) {
 
 	// After cleanup, should generate real UUIDs again
 	normal := StrUuid()
+
 	if normal == "frozen" && frozen != normal {
 		// This is fine — just verify cleanup runs
 	}
+
 	if frozen != "frozen" {
 		t.Errorf("expected 'frozen', got %q", frozen)
 	}
@@ -49,11 +53,13 @@ func TestStrUuidSequence(t *testing.T) {
 		"first-uuid",
 		"second-uuid",
 	})
+
 	defer cleanup()
 
 	if got := StrUuid(); got != "first-uuid" {
 		t.Errorf("sequence[0] = %q", got)
 	}
+
 	if got := StrUuid(); got != "second-uuid" {
 		t.Errorf("sequence[1] = %q", got)
 	}
@@ -63,6 +69,7 @@ func TestStrUuidSequence(t *testing.T) {
 func TestStrFreezeUlids(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := FreezeUlids(func() string { return "FROZENULID00000000000000000" })
+
 	defer cleanup()
 
 	if got := StrUlid(); got != "FROZENULID00000000000000000" {
@@ -78,11 +85,13 @@ func TestStrUlidSequence(t *testing.T) {
 		"01ARZ3NDEKTSV4RRFFQ69G5FAW",
 	}
 	cleanup := CreateUlidsUsingSequence(seq)
+
 	defer cleanup()
 
 	if got := StrUlid(); got != seq[0] {
 		t.Errorf("sequence[0] = %q", got)
 	}
+
 	if got := StrUlid(); got != seq[1] {
 		t.Errorf("sequence[1] = %q", got)
 	}
@@ -95,9 +104,11 @@ func TestStrCreateUuidsNormally(t *testing.T) {
 	cleanup() // restore immediately
 
 	uuid := StrUuid()
+
 	if uuid == "frozen" {
 		t.Error("after CreateUuidsNormally, should generate real UUIDs")
 	}
+
 	if !StrIsUuid(uuid) {
 		t.Errorf("should be valid UUID, got %q", uuid)
 	}
@@ -107,6 +118,7 @@ func TestStrCreateUuidsNormally(t *testing.T) {
 func TestStrOrderedUuid(t *testing.T) {
 	// NOT parallel — may interfere with UUID freeze tests
 	uuid := StrOrderedUuid()
+
 	if !StrIsUuid(uuid) {
 		t.Errorf("StrOrderedUuid() = %q is not a valid UUID", uuid)
 	}
@@ -116,9 +128,11 @@ func TestStrOrderedUuid(t *testing.T) {
 func TestStrUlid(t *testing.T) {
 	// NOT parallel
 	ulid := StrUlid()
+
 	if len(ulid) != 26 {
 		t.Errorf("ULID length should be 26, got %d (%q)", len(ulid), ulid)
 	}
+
 	if strings.ToUpper(ulid) != ulid {
 		// ULID should be uppercase
 		t.Errorf("ULID should be uppercase, got %q", ulid)
@@ -132,6 +146,7 @@ func TestStrResetFactoryState(t *testing.T) {
 	ResetFactoryState()
 
 	uuid := StrUuid()
+
 	if uuid == "custom" {
 		t.Error("after ResetFactoryState, UUID factory should be reset")
 	}

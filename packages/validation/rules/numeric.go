@@ -26,6 +26,7 @@ func validateDigits(_ string, value any, params []string, _ RuleContext) bool {
 	}
 
 	n, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return false
 	}
@@ -71,10 +72,12 @@ func validateDecimal(_ string, value any, params []string, _ RuleContext) bool {
 	}
 
 	parts := strings.Split(s, ".")
+
 	if len(parts) != 2 {
 		// No decimal point — 0 decimal places
 		if len(params) == 1 {
 			n, ok := parseFloat64Param(params, 0)
+
 			return ok && n == 0
 		}
 
@@ -92,6 +95,7 @@ func validateDecimal(_ string, value any, params []string, _ RuleContext) bool {
 
 	if len(params) == 1 {
 		n, ok := parseFloat64Param(params, 0)
+
 		return ok && decimals == n
 	}
 
@@ -116,6 +120,7 @@ func validateMinDigits(_ string, value any, params []string, _ RuleContext) bool
 	}
 
 	min, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return true
 	}
@@ -134,6 +139,7 @@ func validateMaxDigits(_ string, value any, params []string, _ RuleContext) bool
 	}
 
 	max, ok := parseFloat64Param(params, 0)
+
 	if !ok {
 		return true
 	}
@@ -144,11 +150,13 @@ func validateMaxDigits(_ string, value any, params []string, _ RuleContext) bool
 // validateMultipleOf: value must be a multiple of divisor.
 func validateMultipleOf(_ string, value any, params []string, _ RuleContext) bool {
 	f, ok := toFloat64(value)
+
 	if !ok {
 		return false
 	}
 
 	divisor, ok := parseFloat64Param(params, 0)
+
 	if !ok || divisor == 0 {
 		return false
 	}

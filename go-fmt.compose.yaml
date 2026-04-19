@@ -6,4 +6,6 @@ services:
       - .:/work
     environment:
       HOST_PROJECT_PATH: ${PWD}
-    command: ["help"]
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - trap 'exit 0' TERM INT; while :; do sleep 3600; done
