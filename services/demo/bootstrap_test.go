@@ -1,23 +1,16 @@
-package bootstrap_test
+package demo_test
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/bedrock/packages/bootstrap"
 	"github.com/bedrock/packages/container"
+	"github.com/bedrock/services/demo"
 )
 
-func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
-	t.Parallel()
+func assertStandardBindings(t *testing.T, application *container.Application) {
+	t.Helper()
 
-	application := bootstrap.Default()
-
-	if !application.Booted() {
-		t.Fatal("expected app to be booted")
-	}
-
-	// Every standard binding should resolve.
 	standardKeys := []string{
 		"events", "hash", "files", "cookie", "validator", "concurrency",
 		"cache", "session", "queue", "log", "auth",
@@ -39,10 +32,36 @@ func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	}
 }
 
-func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
+func TestNewApplication_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	t.Parallel()
 
-	application := bootstrap.Default()
+	application := demo.NewApplication()
+
+	if !application.Booted() {
+		t.Fatal("expected app to be booted")
+	}
+
+	assertStandardBindings(t, application)
+}
+
+func TestStandardProviders_ManualCompositionBootsAllStandardProviders(t *testing.T) {
+	t.Parallel()
+
+	application := container.NewApplication()
+	application.RegisterMany(demo.StandardProviders(application))
+	application.Boot()
+
+	if !application.Booted() {
+		t.Fatal("expected app to be booted")
+	}
+
+	assertStandardBindings(t, application)
+}
+
+func TestNewApplication_EncryptionSkippedWithoutKey(t *testing.T) {
+	t.Parallel()
+
+	application := demo.NewApplication()
 
 	_, err := application.Make("encrypter")
 
@@ -51,10 +70,10 @@ func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
 	}
 }
 
-func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
+func TestNewApplication_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	t.Parallel()
 
-	application := bootstrap.Default(bootstrap.Options{
+	application := demo.NewApplication(demo.Options{
 		EncryptionKey: make([]byte, 32),
 	})
 
@@ -69,16 +88,13 @@ func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	}
 }
 
-func TestDefault_OptionsOverrideDefaults(t *testing.T) {
+func TestNewApplication_OptionsOverrideDefaults(t *testing.T) {
 	t.Parallel()
 
-	application := bootstrap.Default(bootstrap.Options{
+	application := demo.NewApplication(demo.Options{
 		CacheDefaultDriver: "redis",
 	})
 
-	// Resolve the cache and check the default driver was applied.
-	// We can't import cache here without circular imports through bootstrap's
-	// own deps, so resolve as any and rely on a method check.
 	type defaultDriverGetter interface{ GetDefaultDriver() string }
 
 	raw, err := application.Make("cache")

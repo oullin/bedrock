@@ -6,7 +6,7 @@ package log
 import (
 	"sync"
 
-	"github.com/bedrock/packages/bootstrap"
+	"github.com/bedrock/packages/container"
 	logpkg "github.com/bedrock/packages/log"
 )
 
@@ -23,14 +23,14 @@ func Manager() *logpkg.LogManager {
 	defer mu.Unlock()
 
 	if cached == nil {
-		cached = bootstrap.Resolve[*logpkg.LogManager]("log")
+		cached = container.Resolve[*logpkg.LogManager]("log")
 	}
 
 	return cached
 }
 
 // Reset clears the cached manager. Tests must call this after reinstalling
-// a different Application via bootstrap.SetApp.
+// a different Application via container.SetApp.
 func Reset() {
 	mu.Lock()
 
