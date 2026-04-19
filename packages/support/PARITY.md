@@ -34,16 +34,16 @@ Rules:
 
 | PHP feature                                         | Go adaptation                                                                                                                                       |
 | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Str::` static class methods                        | Package-level functions prefixed `Str*` in `packages/str`                                                                                            |
+| `Str::` static class methods                        | Package-level functions prefixed `Str*` in `packages/str`                                                                                           |
 | `Stringable` class (`__toString`, fluent chain)     | `str.StringBuilder` wrapping a string; `Of(value)` constructor; methods return `*StringBuilder`; `String()` implements `fmt.Stringer`               |
 | `Str::freezeUuids()` global state                   | Package-level mutex-guarded `uuidFactory` var; tests using freeze must NOT call `t.Parallel()` at the top level                                     |
 | `Str::createUuidsUsingSequence()`                   | `CreateUuidsUsingSequence([]string)` returns cleanup func; same mutex pattern                                                                       |
-| `optional($x)->method()` null proxy                 | `support.Optional[T]` generic struct; `Some(v)`, `None[T]()`, `Opt(ptr)`; methods: `Get`, `OrElse`, `IsPresent`, `IfPresent`, `Map`, `Filter`      |
+| `optional($x)->method()` null proxy                 | `support.Optional[T]` generic struct; `Some(v)`, `None[T]()`, `Opt(ptr)`; methods: `Get`, `OrElse`, `IsPresent`, `IfPresent`, `Map`, `Filter`       |
 | `Fluent->__get($key)` / `__set($key, $value)` magic | Explicit `support.Fluent` `Get(key)` / `Set(key, value)` methods; no dynamic property access                                                        |
 | `Fluent::fill()` vs `Fluent::merge()`               | `Fill` overwrites existing keys; `Merge` skips existing keys                                                                                        |
 | `MessageBag::has()` with wildcard                   | `support.MessageBag` uses `filepath.Match` for `*` glob patterns                                                                                    |
-| `Lottery::alwaysWin()` / `alwaysLose()`             | `lottery.Always()` / `Never()` (also `ForceWin()` / `ForceLose()` aliases)                                                                         |
-| `Lottery::fix(sequence)`                            | `lottery.Fix([]bool)` returns a `*fixedLottery` with predetermined outcomes                                                                        |
+| `Lottery::alwaysWin()` / `alwaysLose()`             | `lottery.Always()` / `Never()` (also `ForceWin()` / `ForceLose()` aliases)                                                                          |
+| `Lottery::fix(sequence)`                            | `lottery.Fix([]bool)` returns a `*fixedLottery` with predetermined outcomes                                                                         |
 | `Sleep::fake()` static global                       | `support.FakeSleepWith(fake)` installs and returns a cleanup closure                                                                                |
 | `Str::plural()` non-English                         | English-only via `jinzhu/inflection`; known mismatches documented below                                                                             |
 | `Str::mask()` with negative index                   | Negative index counts from end: `-n` starts at `len - n`                                                                                            |
@@ -94,16 +94,16 @@ map from Upstream's `lang/` directory. Language-specific overrides are not suppo
 
 ## 4. Test file map
 
-| PHP test class                                   | Go test file                               |
-| ------------------------------------------------ | ------------------------------------------ |
-| `Framework\Tests\Support\SupportStrTest`        | `packages/str/str_test.go`, `packages/str/str_uuid_test.go`         |
-| `Framework\Tests\Support\SupportFluentTest`     | `packages/support/fluent_test.go`                                   |
-| `Framework\Tests\Support\SupportOptionalTest`   | `packages/support/optional_test.go`                                 |
-| `Framework\Tests\Support\SupportMessageBagTest` | `packages/support/message_bag_test.go`                              |
+| PHP test class                                   | Go test file                                                                 |
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `Framework\Tests\Support\SupportStrTest`        | `packages/str/str_test.go`, `packages/str/str_uuid_test.go`                  |
+| `Framework\Tests\Support\SupportFluentTest`     | `packages/support/fluent_test.go`                                            |
+| `Framework\Tests\Support\SupportOptionalTest`   | `packages/support/optional_test.go`                                          |
+| `Framework\Tests\Support\SupportMessageBagTest` | `packages/support/message_bag_test.go`                                       |
 | `Framework\Tests\Support\SupportHelpersTest`    | `packages/support/helpers_test.go`, `packages/support/helpers_retry_test.go` |
-| `Framework\Tests\Support\LotteryTest`           | `packages/lottery/lottery_test.go`                                  |
-| `Framework\Tests\Support\SleepTest`             | `packages/support/sleep_test.go`                                    |
-| `Framework\Tests\Support\TimeboxTest`           | `packages/support/timebox_test.go`                                  |
+| `Framework\Tests\Support\LotteryTest`           | `packages/lottery/lottery_test.go`                                           |
+| `Framework\Tests\Support\SleepTest`             | `packages/support/sleep_test.go`                                             |
+| `Framework\Tests\Support\TimeboxTest`           | `packages/support/timebox_test.go`                                           |
 
 ## 5. Coverage rule
 
