@@ -1,4 +1,4 @@
-package support
+package lottery
 
 import (
 	"math/rand"

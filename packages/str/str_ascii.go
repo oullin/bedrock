@@ -1,4 +1,4 @@
-package support
+package str
 
 // asciiMap maps common non-ASCII Unicode runes to their closest ASCII representation.
 // Covers Latin extended characters, common symbols, and other frequently used characters.

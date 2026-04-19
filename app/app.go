@@ -1,4 +1,4 @@
-// Package bedrock is the umbrella entry point for bedrock applications.
+// Package app is the umbrella entry point for bedrock applications.
 //
 // It exposes the global Application instance, generic resolution helpers,
 // and convenience accessors so calling code can avoid passing the container
@@ -6,11 +6,11 @@
 //
 // Typical usage:
 //
-//	app := bootstrap.Default()        // wires every standard provider
-//	bedrock.SetApp(app)               // installs the global instance
-//	mgr := bedrock.Resolve[*cache.Manager]("cache")
-//	user := bedrock.MustMake("auth")  // panics on miss
-package bedrock
+//	application := app.Default()                // wires every standard provider
+//	app.SetApp(application)                     // installs the global instance
+//	mgr := app.Resolve[*cache.Manager]("cache") // resolve typed bindings
+//	user := app.MustMake("auth")                // panics on miss
+package app
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ var (
 	app *container.Application
 )
 
-// SetApp installs the given Application as the process-wide bedrock instance.
+// SetApp installs the given Application as the process-wide instance.
 // Pass nil to clear it (useful for tests).
 func SetApp(a *container.Application) {
 	mu.Lock()
@@ -35,7 +35,7 @@ func SetApp(a *container.Application) {
 }
 
 // App returns the process-wide Application. Panics if SetApp has not been
-// called — bedrock is opinionated about explicit installation to keep tests
+// called — the package is opinionated about explicit installation to keep tests
 // honest.
 func App() *container.Application {
 	mu.RLock()
@@ -43,7 +43,7 @@ func App() *container.Application {
 	defer mu.RUnlock()
 
 	if app == nil {
-		panic("bedrock: no Application installed; call bedrock.SetApp(app) first")
+		panic("app: no Application installed; call app.SetApp(application) first")
 	}
 
 	return app
@@ -70,7 +70,7 @@ func MustMake(abstract string) any {
 	v, err := App().Make(abstract)
 
 	if err != nil {
-		panic(fmt.Sprintf("bedrock: MustMake(%q): %v", abstract, err))
+		panic(fmt.Sprintf("app: MustMake(%q): %v", abstract, err))
 	}
 
 	return v
@@ -79,7 +79,7 @@ func MustMake(abstract string) any {
 // Resolve is a generic, typed resolver. It panics if the abstract is missing
 // or if the resolved value cannot be type-asserted to T.
 //
-//	cacheManager := bedrock.Resolve[*cache.Manager]("cache")
+//	cacheManager := app.Resolve[*cache.Manager]("cache")
 func Resolve[T any](abstract string) T {
 	raw := MustMake(abstract)
 
@@ -88,7 +88,7 @@ func Resolve[T any](abstract string) T {
 	if !ok {
 		var zero T
 
-		panic(fmt.Sprintf("bedrock: Resolve[%T](%q): wrong type %T", zero, abstract, raw))
+		panic(fmt.Sprintf("app: Resolve[%T](%q): wrong type %T", zero, abstract, raw))
 	}
 
 	return v
@@ -100,7 +100,7 @@ func TryResolve[T any](abstract string) (T, error) {
 	var zero T
 
 	if !HasApp() {
-		return zero, fmt.Errorf("bedrock: no Application installed")
+		return zero, fmt.Errorf("app: no Application installed")
 	}
 
 	raw, err := App().Make(abstract)
@@ -112,7 +112,7 @@ func TryResolve[T any](abstract string) (T, error) {
 	v, ok := raw.(T)
 
 	if !ok {
-		return zero, fmt.Errorf("bedrock: TryResolve[%T](%q): wrong type %T", zero, abstract, raw)
+		return zero, fmt.Errorf("app: TryResolve[%T](%q): wrong type %T", zero, abstract, raw)
 	}
 
 	return v, nil

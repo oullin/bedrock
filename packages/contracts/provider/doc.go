@@ -64,6 +64,6 @@
 //
 // For the standard provider stack, use the bootstrap package:
 //
-//	app := bootstrap.Default()
-//	bedrock.SetApp(app)
+//	application := app.Default()
+//	app.SetApp(application)
 package provider
