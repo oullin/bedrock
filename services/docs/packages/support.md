@@ -1,17 +1,17 @@
 # support
 
-General-purpose helpers and types — a Go port of `Framework\Support`.
+General-purpose helpers and types from Bedrock's Upstream support port.
 
 ## Overview
 
 The `support` package provides the utility layer shared across Bedrock: global
-helpers, `Fluent` dynamic bags, `Optional[T]`, `MessageBag`, string builders,
-probabilistic execution, and sleeping.
+helpers, array and dot-notation helpers, `Fluent` dynamic bags, `Optional[T]`,
+`MessageBag`, sleeping helpers, and `Timebox`.
 
-**Module:** `github.com/gocanto/bedrock/packages/support`
+**Module:** `github.com/bedrock/packages/support`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/support@latest
+go get github.com/bedrock/packages/support@latest
 ```
 
 ## Global Helpers
@@ -85,28 +85,29 @@ bag.All()           // map[string][]string
 bag.IsEmpty()       // false
 ```
 
-## String Helpers
+## Array Helpers
 
 ```go
-support.StrSlug("Hello World!")     // "hello-world"
-support.StrCamel("hello_world")     // "helloWorld"
-support.StrStudly("hello_world")    // "HelloWorld"
-support.StrSnake("HelloWorld")      // "hello_world"
-support.StrUuid()                   // "550e8400-e29b-41d4-a716-..."
-support.StrContains("abc", "b")     // true
-support.StrLimit("long text", 5)    // "long …"
+values := map[string]any{"user": map[string]any{"name": "Ada"}}
+
+support.ArrGet(values, "user.name")            // "Ada"
+support.ArrSet(values, "user.email", "a@b.c")  // mutates nested map
+support.ArrHas(values, "user.name", "user.email")
+support.ArrDot(values)                         // flatten nested map to dot keys
 ```
 
-## Lottery
+## Split Packages
 
-Execute code probabilistically:
+String utilities and probabilistic execution now live in dedicated modules:
 
 ```go
-support.Lottery(1, 100).Winner(func() {
-    // runs ~1% of the time
-}).Loser(func() {
-    // runs the other 99%
-}).Choose()
+import (
+    "github.com/bedrock/packages/lottery"
+    "github.com/bedrock/packages/str"
+)
+
+str.StrSlug("Hello World!")
+lottery.NewLottery(1, 100).Choose()
 ```
 
 ## Sleep
