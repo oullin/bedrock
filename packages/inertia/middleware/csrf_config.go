@@ -35,10 +35,10 @@ func LoadCSRF(path string) (CSRFConfig, error) {
 	defaults := DefaultCSRF()
 
 	repo := config.NewWithDefaults(map[string]any{
-		"cookie_name":    defaults.CookieName,
-		"secure":         defaults.Secure,
-		"same_site":      defaults.SameSite,
-		"origin_only":    defaults.OriginOnly,
+		"cookie_name":     defaults.CookieName,
+		"secure":          defaults.Secure,
+		"same_site":       defaults.SameSite,
+		"origin_only":     defaults.OriginOnly,
 		"allow_same_site": defaults.AllowSameSite,
 	})
 
