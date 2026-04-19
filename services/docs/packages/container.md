@@ -119,3 +119,19 @@ func (p *CacheProvider) Boot() {
 | `ServiceProvider` | Required — `Register()` binds into the container        |
 | `Bootable`        | Optional — `Boot()` runs after all providers registered |
 | `Provides`        | Optional — declares which abstract keys this binds      |
+
+## Global Application Helpers
+
+When you want facades or package-level helper resolution, install one
+`Application` process-wide:
+
+```go
+app := container.NewApplication()
+app.Register(myProvider)
+app.Boot()
+
+container.SetApp(app)
+
+cacheManager := container.Resolve[*cache.Manager]("cache")
+mailer, err := container.TryResolve[*mailx.Manager]("mailer")
+```

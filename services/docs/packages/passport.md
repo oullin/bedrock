@@ -17,13 +17,13 @@ go get github.com/bedrock/packages/passport@latest
 
 ## Supported Grant Types
 
-| Grant              | Description                                              |
-| ------------------ | -------------------------------------------------------- |
-| Authorization Code | Standard redirect-based OAuth 2 flow                     |
-| Client Credentials | Machine-to-machine token issuance                        |
-| Personal Access    | Long-lived tokens for API access                         |
-| Device Code        | OAuth 2 device authorization flow                        |
-| Refresh Token      | Exchange a refresh token for a new access token          |
+| Grant              | Description                                     |
+| ------------------ | ----------------------------------------------- |
+| Authorization Code | Standard redirect-based OAuth 2 flow            |
+| Client Credentials | Machine-to-machine token issuance               |
+| Personal Access    | Long-lived tokens for API access                |
+| Device Code        | OAuth 2 device authorization flow               |
+| Refresh Token      | Exchange a refresh token for a new access token |
 
 ## Coming Soon
 

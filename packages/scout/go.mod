@@ -14,5 +14,4 @@ replace (
 	github.com/bedrock/packages/database => ../database
 	github.com/bedrock/packages/events => ../events
 	github.com/bedrock/packages/pagination => ../pagination
-	github.com/bedrock/packages/support => ../support
 )

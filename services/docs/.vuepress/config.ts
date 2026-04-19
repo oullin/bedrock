@@ -150,9 +150,9 @@ export default defineUserConfig({
           text: 'AI & Integrations',
           collapsible: true,
           children: [
-            { text: 'ai', link: '/packages/ai' },
-            { text: 'mcp', link: '/packages/mcp' },
-            { text: 'boost', link: '/packages/boost' },
+            { text: 'ai/sdk', link: '/packages/ai/sdk' },
+            { text: 'ai/mcp', link: '/packages/ai/mcp' },
+            { text: 'ai/boost', link: '/packages/ai/boost' },
           ],
         },
         {

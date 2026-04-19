@@ -17,20 +17,20 @@ go get github.com/bedrock/packages/database@latest
 
 ## Supported Drivers
 
-| Driver     | Notes                                    |
-| ---------- | ---------------------------------------- |
-| MySQL      | Driver-specific grammar and processor    |
-| PostgreSQL | Driver-specific grammar and processor    |
-| SQLite     | Driver-specific grammar and processor    |
+| Driver     | Notes                                 |
+| ---------- | ------------------------------------- |
+| MySQL      | Driver-specific grammar and processor |
+| PostgreSQL | Driver-specific grammar and processor |
+| SQLite     | Driver-specific grammar and processor |
 
 ## Key Components
 
-| Component        | Description                                       |
-| ---------------- | ------------------------------------------------- |
-| Query Builder    | Fluent, chainable SQL construction                |
-| ORM              | Eloquent-inspired model layer with relationships  |
-| Schema Builder   | Create and modify tables, columns, and indexes    |
-| Migration Runner | Version-controlled database schema migrations     |
+| Component        | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| Query Builder    | Fluent, chainable SQL construction               |
+| ORM              | Eloquent-inspired model layer with relationships |
+| Schema Builder   | Create and modify tables, columns, and indexes   |
+| Migration Runner | Version-controlled database schema migrations    |
 
 ## Coming Soon
 
