@@ -64,6 +64,6 @@
 //
 // For the standard provider stack, use the bootstrap package:
 //
-//	application := app.Default()
-//	app.SetApp(application)
+//	application := bootstrap.Default()
+//	bootstrap.SetApp(application)
 package provider

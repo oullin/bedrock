@@ -1,17 +1,17 @@
-package app_test
+package bootstrap_test
 
 import (
 	"errors"
 	"testing"
 
-	bedrockapp "github.com/bedrock/app"
+	"github.com/bedrock/packages/bootstrap"
 	"github.com/bedrock/packages/container"
 )
 
 func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	t.Parallel()
 
-	application := bedrockapp.Default()
+	application := bootstrap.Default()
 
 	if !application.Booted() {
 		t.Fatal("expected app to be booted")
@@ -42,7 +42,7 @@ func TestDefault_RegistersAndBootsAllStandardProviders(t *testing.T) {
 func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
 	t.Parallel()
 
-	application := bedrockapp.Default()
+	application := bootstrap.Default()
 
 	_, err := application.Make("encrypter")
 
@@ -54,7 +54,7 @@ func TestDefault_EncryptionSkippedWithoutKey(t *testing.T) {
 func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	t.Parallel()
 
-	application := bedrockapp.Default(bedrockapp.Options{
+	application := bootstrap.Default(bootstrap.Options{
 		EncryptionKey: make([]byte, 32),
 	})
 
@@ -72,7 +72,7 @@ func TestDefault_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 func TestDefault_OptionsOverrideDefaults(t *testing.T) {
 	t.Parallel()
 
-	application := bedrockapp.Default(bedrockapp.Options{
+	application := bootstrap.Default(bootstrap.Options{
 		CacheDefaultDriver: "redis",
 	})
 
