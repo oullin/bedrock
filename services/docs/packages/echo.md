@@ -17,19 +17,19 @@ go get github.com/bedrock/packages/broadcastclient@latest
 
 ## Supported Backends
 
-| Backend   | Description                                  |
-| --------- | -------------------------------------------- |
-| Pusher    | Connects to Pusher or the `websockets` server    |
-| Socket.IO | Socket.IO-compatible transports              |
-| Null      | No-op stub for testing                       |
+| Backend   | Description                               |
+| --------- | ----------------------------------------- |
+| Pusher    | Connects to Pusher or the `websockets` server |
+| Socket.IO | Socket.IO-compatible transports           |
+| Null      | No-op stub for testing                    |
 
 ## Channel Types
 
-| Type      | Description                                        |
-| --------- | -------------------------------------------------- |
-| Public    | Unauthenticated channel open to all connections    |
-| Private   | Authenticated, user-scoped channel                 |
-| Presence  | Authenticated with member tracking                 |
+| Type     | Description                                     |
+| -------- | ----------------------------------------------- |
+| Public   | Unauthenticated channel open to all connections |
+| Private  | Authenticated, user-scoped channel              |
+| Presence | Authenticated with member tracking              |
 
 ## Coming Soon
 

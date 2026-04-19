@@ -57,7 +57,7 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 		objects[i] = obj
 	}
 
-	_, err := e.client.SaveObjects(e.client.NewApiSaveObjectsRequest(index, objects))
+	_, err := e.client.SaveObjects(index, objects)
 
 	if err != nil {
 		return fmt.Errorf("search: algolia update failed: %w", err)
@@ -78,7 +78,7 @@ func (e *Engine) Delete(ctx context.Context, models []contract.Searchable) error
 		ids[i] = fmt.Sprintf("%v", model.GetScoutKey())
 	}
 
-	_, err := e.client.DeleteObjects(e.client.NewApiDeleteObjectsRequest(index, ids))
+	_, err := e.client.DeleteObjects(index, ids)
 
 	if err != nil {
 		return fmt.Errorf("search: algolia delete failed: %w", err)
@@ -105,7 +105,7 @@ func (e *Engine) MapIds(results any) []any {
 	ids := make([]any, len(sr.Hits))
 
 	for i, hit := range sr.Hits {
-		ids[i] = hit["objectID"]
+		ids[i] = hit.ObjectID
 	}
 
 	return ids
@@ -127,11 +127,7 @@ func (e *Engine) GetTotalCount(results any) int64 {
 		return 0
 	}
 
-	if sr.NbHits != nil {
-		return int64(*sr.NbHits)
-	}
-
-	return 0
+	return int64(sr.NbHits)
 }
 
 func (e *Engine) Flush(ctx context.Context, model contract.Searchable) error {

@@ -17,11 +17,11 @@ go get github.com/bedrock/packages/seo@latest
 
 ## Components
 
-| Component  | Description                                                   |
-| ---------- | ------------------------------------------------------------- |
-| Head tags  | Structured `<title>`, `<meta>`, and `<link>` representation   |
-| Locale     | Locale metadata (language, region, direction)                 |
-| Context    | Request context key for carrying the resolved locale          |
+| Component | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| Head tags | Structured `<title>`, `<meta>`, and `<link>` representation |
+| Locale    | Locale metadata (language, region, direction)               |
+| Context   | Request context key for carrying the resolved locale        |
 
 ## Coming Soon
 
