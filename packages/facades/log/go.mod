@@ -3,13 +3,12 @@ module github.com/bedrock/packages/facades/log
 go 1.26.0
 
 require (
-	github.com/bedrock/packages/bedrock v0.0.0
+	github.com/bedrock/packages/container v0.0.0
 	github.com/bedrock/packages/log v0.0.0
 )
 
 require (
 	github.com/bedrock/packages/config v0.0.0-00010101000000-000000000000 // indirect
-	github.com/bedrock/packages/container v0.0.0 // indirect
 	github.com/bedrock/packages/contracts v0.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
@@ -29,7 +28,6 @@ require (
 )
 
 replace (
-	github.com/bedrock/packages/bedrock => ../../bedrock
 	github.com/bedrock/packages/config => ../../config
 	github.com/bedrock/packages/container => ../../container
 	github.com/bedrock/packages/contracts => ../../contracts

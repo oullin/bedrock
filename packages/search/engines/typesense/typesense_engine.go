@@ -53,7 +53,7 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 			}
 		}
 
-		_, err := e.client.Collection(collection).Documents().Upsert(ctx, doc)
+		_, err := e.client.Collection(collection).Documents().Upsert(ctx, doc, &api.DocumentIndexParameters{})
 
 		if err != nil {
 			return fmt.Errorf("search: typesense update failed: %w", err)
@@ -101,9 +101,8 @@ func (e *Engine) MapIds(results any) []any {
 
 	for _, hit := range *sr.Hits {
 		if hit.Document != nil {
-			if doc, ok := (*hit.Document).(map[string]any); ok {
-				ids = append(ids, doc["id"])
-			}
+			doc := *hit.Document
+			ids = append(ids, doc["id"])
 		}
 	}
 
@@ -184,9 +183,11 @@ func (e *Engine) performSearch(ctx context.Context, builder contract.SearchBuild
 		query = "*"
 	}
 
+	queryBy := e.getQueryBy(builder)
+
 	params := &api.SearchCollectionParams{
-		Q:       query,
-		QueryBy: e.getQueryBy(builder),
+		Q:       &query,
+		QueryBy: &queryBy,
 	}
 
 	// Build filter.
