@@ -44,8 +44,10 @@ func (b *Builder) Create(ctx context.Context, table string, callback func(*Bluep
 	callback(bp)
 
 	statements := b.grammar.CompileCreate(bp)
+
 	for _, sql := range statements {
 		_, err := b.connection.Statement(ctx, sql)
+
 		if err != nil {
 			return err
 		}
@@ -54,8 +56,10 @@ func (b *Builder) Create(ctx context.Context, table string, callback func(*Bluep
 	// Create indexes.
 	for _, cmd := range bp.Commands {
 		sql := b.compileCommand(bp, cmd)
+
 		if sql != "" {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -65,8 +69,10 @@ func (b *Builder) Create(ctx context.Context, table string, callback func(*Bluep
 	// Create foreign keys.
 	for _, fk := range bp.ForeignKeys {
 		sql := b.grammar.CompileCreateForeignKey(bp, fk)
+
 		if sql != "" {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -85,6 +91,7 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 	if added := bp.GetAddedColumns(); len(added) > 0 {
 		for _, sql := range b.grammar.CompileAdd(bp) {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -95,6 +102,7 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 	if changed := bp.GetChangedColumns(); len(changed) > 0 {
 		for _, sql := range b.grammar.CompileChange(bp) {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -104,8 +112,10 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 	// Execute commands (indexes, drops, renames, etc.).
 	for _, cmd := range bp.Commands {
 		sql := b.compileCommand(bp, cmd)
+
 		if sql != "" {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -115,8 +125,10 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 	// Create foreign keys.
 	for _, fk := range bp.ForeignKeys {
 		sql := b.grammar.CompileCreateForeignKey(bp, fk)
+
 		if sql != "" {
 			_, err := b.connection.Statement(ctx, sql)
+
 			if err != nil {
 				return err
 			}
@@ -129,18 +141,21 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 // Drop drops a table.
 func (b *Builder) Drop(ctx context.Context, table string) error {
 	_, err := b.connection.Statement(ctx, b.grammar.CompileDrop(table))
+
 	return err
 }
 
 // DropIfExists drops a table if it exists.
 func (b *Builder) DropIfExists(ctx context.Context, table string) error {
 	_, err := b.connection.Statement(ctx, b.grammar.CompileDropIfExists(table))
+
 	return err
 }
 
 // Rename renames a table.
 func (b *Builder) Rename(ctx context.Context, from, to string) error {
 	_, err := b.connection.Statement(ctx, b.grammar.CompileRename(from, to))
+
 	return err
 }
 
@@ -148,23 +163,28 @@ func (b *Builder) Rename(ctx context.Context, from, to string) error {
 func (b *Builder) HasTable(ctx context.Context, table string) (bool, error) {
 	sql := b.grammar.CompileTableExists()
 	rows, err := b.connection.Select(ctx, sql, table)
+
 	if err != nil {
 		return false, err
 	}
+
 	return len(rows) > 0, nil
 }
 
 // HasColumn checks if a column exists on a table.
 func (b *Builder) HasColumn(ctx context.Context, table, column string) (bool, error) {
 	columns, err := b.GetColumnListing(ctx, table)
+
 	if err != nil {
 		return false, err
 	}
+
 	for _, col := range columns {
 		if col == column {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -172,10 +192,13 @@ func (b *Builder) HasColumn(ctx context.Context, table, column string) (bool, er
 func (b *Builder) GetColumnListing(ctx context.Context, table string) ([]string, error) {
 	sql := b.grammar.CompileColumnListing(table)
 	rows, err := b.connection.Select(ctx, sql)
+
 	if err != nil {
 		return nil, err
 	}
+
 	var columns []string
+
 	for _, row := range rows {
 		if name, ok := row["column_name"]; ok {
 			if s, ok := name.(string); ok {
@@ -183,18 +206,21 @@ func (b *Builder) GetColumnListing(ctx context.Context, table string) ([]string,
 			}
 		}
 	}
+
 	return columns, nil
 }
 
 // EnableForeignKeyConstraints enables foreign key constraints.
 func (b *Builder) EnableForeignKeyConstraints(ctx context.Context) error {
 	_, err := b.connection.Statement(ctx, b.grammar.CompileEnableForeignKeyConstraints())
+
 	return err
 }
 
 // DisableForeignKeyConstraints disables foreign key constraints.
 func (b *Builder) DisableForeignKeyConstraints(ctx context.Context) error {
 	_, err := b.connection.Statement(ctx, b.grammar.CompileDisableForeignKeyConstraints())
+
 	return err
 }
 
@@ -219,5 +245,6 @@ func (b *Builder) compileCommand(bp *Blueprint, cmd BlueprintCommand) string {
 	case "dropForeign":
 		return b.grammar.CompileDropForeignKey(bp, cmd.Index)
 	}
+
 	return ""
 }

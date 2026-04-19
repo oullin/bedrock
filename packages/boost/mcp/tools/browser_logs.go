@@ -39,6 +39,7 @@ func (t *BrowserLogs) Schema() map[string]any {
 // Handle reads the browser log and returns the last N entries.
 func (t *BrowserLogs) Handle(req McpRequest) (McpResponse, error) {
 	n := 20
+
 	if v, ok := req.Args["entries"]; ok {
 		switch val := v.(type) {
 		case int:
@@ -53,11 +54,13 @@ func (t *BrowserLogs) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	path := t.LogFilePath
+
 	if path == "" {
 		path = "storage/logs/browser.log"
 	}
 
 	entries, err := readLastLines(path, n)
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("browser_logs: %v", err)), nil
 	}
@@ -68,6 +71,7 @@ func (t *BrowserLogs) Handle(req McpRequest) (McpResponse, error) {
 // readLastLines returns the last n lines of the file at path.
 func readLastLines(path string, n int) ([]string, error) {
 	f, err := os.Open(path)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []string{}, nil
@@ -75,6 +79,7 @@ func readLastLines(path string, n int) ([]string, error) {
 
 		return nil, err
 	}
+
 	defer f.Close()
 
 	var lines []string

@@ -8,12 +8,13 @@ import (
 // Socialite is the package-level manager instance. It is populated by
 // SetManager() — typically called from the service provider — and provides a
 // convenient static API that mirrors the Laravel Socialite facade.
-var Socialite *staticFacade
 
 // staticFacade wraps a *Manager and exposes a static-style API.
 type staticFacade struct {
 	manager *Manager
 }
+
+var Socialite *staticFacade
 
 // SetManager wires the package-level Socialite variable to a fully configured
 // Manager. Call this from your bootstrap or service provider.
@@ -36,10 +37,13 @@ func Driver(name string) Provider {
 	if Socialite == nil {
 		panic("socialite: no manager configured — call socialite.SetManager first")
 	}
+
 	p, err := Socialite.manager.Driver(name)
+
 	if err != nil {
 		panic(fmt.Sprintf("socialite: %v", err))
 	}
+
 	return p
 }
 
@@ -49,6 +53,7 @@ func Fake(name string, user *User) *FakeProvider {
 	if Socialite == nil {
 		panic("socialite: no manager configured — call socialite.SetManager first")
 	}
+
 	return Socialite.manager.Fake(name, user)
 }
 
@@ -57,6 +62,7 @@ func FakeWith(name string, fn func() *User) *FakeProvider {
 	if Socialite == nil {
 		panic("socialite: no manager configured — call socialite.SetManager first")
 	}
+
 	return Socialite.manager.FakeWith(name, fn)
 }
 
@@ -66,10 +72,13 @@ func Redirect(ctx context.Context, driver string) (string, error) {
 	if Socialite == nil {
 		panic("socialite: no manager configured — call socialite.SetManager first")
 	}
+
 	p, err := Socialite.manager.Driver(driver)
+
 	if err != nil {
 		return "", err
 	}
+
 	return p.Redirect(ctx)
 }
 
@@ -78,9 +87,12 @@ func GetUser(ctx context.Context, driver string) (*User, error) {
 	if Socialite == nil {
 		panic("socialite: no manager configured — call socialite.SetManager first")
 	}
+
 	p, err := Socialite.manager.Driver(driver)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return p.User(ctx)
 }

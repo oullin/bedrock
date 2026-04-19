@@ -17,11 +17,13 @@ func TestBoostServiceProviderRegistersKey(t *testing.T) {
 
 	// "boost" must be resolvable from the container.
 	val, err := app.Make("boost")
+
 	if err != nil {
 		t.Fatalf("container.Make(\"boost\"): %v", err)
 	}
 
 	m, ok := val.(*boost.Manager)
+
 	if !ok {
 		t.Fatalf("resolved value is %T, want *boost.Manager", val)
 	}

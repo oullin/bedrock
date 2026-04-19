@@ -18,9 +18,11 @@ func generateTo(t *testing.T, routes []*wayfinder.RouteInfo, opts wayfinder.Opti
 	t.Helper()
 	dir := t.TempDir()
 	opts.Path = dir
+
 	if err := wayfinder.Generate(routes, opts); err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
+
 	return dir
 }
 
@@ -28,15 +30,18 @@ func generateTo(t *testing.T, routes []*wayfinder.RouteInfo, opts wayfinder.Opti
 func readFile(t *testing.T, base, rel string) string {
 	t.Helper()
 	b, err := os.ReadFile(filepath.Join(base, filepath.FromSlash(rel)))
+
 	if err != nil {
 		t.Fatalf("readFile(%q): %v", rel, err)
 	}
+
 	return string(b)
 }
 
 // assertContains checks that content contains the expected substring.
 func assertContains(t *testing.T, content, want string) {
 	t.Helper()
+
 	if !strings.Contains(content, want) {
 		t.Errorf("expected content to contain:\n  %q\ngot:\n%s", want, content)
 	}
@@ -45,6 +50,7 @@ func assertContains(t *testing.T, content, want string) {
 // assertNotContains checks that content does NOT contain the given substring.
 func assertNotContains(t *testing.T, content, unwanted string) {
 	t.Helper()
+
 	if strings.Contains(content, unwanted) {
 		t.Errorf("expected content NOT to contain %q", unwanted)
 	}
@@ -56,6 +62,7 @@ func assertNotContains(t *testing.T, content, unwanted string) {
 
 func postControllerRoutes() []*wayfinder.RouteInfo {
 	base := "App\\Http\\Controllers\\PostController"
+
 	return []*wayfinder.RouteInfo{
 		{URI: "/posts", Methods: []string{"get", "head"}, Controller: base + "@index"},
 		{URI: "/posts/create", Methods: []string{"get", "head"}, Controller: base + "@create"},
@@ -507,6 +514,7 @@ func TestSkipOptions(t *testing.T) {
 	t.Run("skip_actions", func(t *testing.T) {
 		t.Parallel()
 		dir := generateTo(t, routes, wayfinder.Options{SkipActions: true})
+
 		if _, err := os.Stat(filepath.Join(dir, "actions")); !os.IsNotExist(err) {
 			t.Error("actions/ directory should not exist when SkipActions=true")
 		}
@@ -515,6 +523,7 @@ func TestSkipOptions(t *testing.T) {
 	t.Run("skip_routes", func(t *testing.T) {
 		t.Parallel()
 		dir := generateTo(t, routes, wayfinder.Options{SkipRoutes: true})
+
 		if _, err := os.Stat(filepath.Join(dir, "routes")); !os.IsNotExist(err) {
 			t.Error("routes/ directory should not exist when SkipRoutes=true")
 		}

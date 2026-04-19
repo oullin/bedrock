@@ -14,49 +14,58 @@ type SoftDeletes struct {
 }
 
 // InitSoftDeletes sets the default deleted_at column.
+
+// GetDeletedAtColumn returns the deleted_at column name.
+
+// SetDeletedAtColumn sets the deleted_at column name.
+
+// IsForceDeleting returns whether the model is being force-deleted.
+
+// Trashed checks if a model instance has been soft-deleted.
+
+// RunSoftDelete sets the deleted_at attribute on the model.
+
+// Restore clears the deleted_at attribute on the model.
+
+// SoftDeleteScope is a global scope that excludes soft-deleted models.
+type SoftDeleteScope struct {
+	column string
+}
+
 func (sd *SoftDeletes) InitSoftDeletes() {
 	if sd.deletedAtColumn == "" {
 		sd.deletedAtColumn = "deleted_at"
 	}
 }
 
-// GetDeletedAtColumn returns the deleted_at column name.
 func (sd *SoftDeletes) GetDeletedAtColumn() string {
 	if sd.deletedAtColumn == "" {
 		return "deleted_at"
 	}
+
 	return sd.deletedAtColumn
 }
 
-// SetDeletedAtColumn sets the deleted_at column name.
 func (sd *SoftDeletes) SetDeletedAtColumn(column string) {
 	sd.deletedAtColumn = column
 }
 
-// IsForceDeleting returns whether the model is being force-deleted.
 func (sd *SoftDeletes) IsForceDeleting() bool {
 	return sd.forceDeleting
 }
 
-// Trashed checks if a model instance has been soft-deleted.
 func (sd *SoftDeletes) Trashed(attrs *HasAttributes) bool {
 	deletedAt := attrs.GetAttribute(sd.GetDeletedAtColumn())
+
 	return deletedAt != nil
 }
 
-// RunSoftDelete sets the deleted_at attribute on the model.
 func (sd *SoftDeletes) RunSoftDelete(attrs *HasAttributes) {
 	attrs.SetAttribute(sd.GetDeletedAtColumn(), time.Now().Format("2006-01-02 15:04:05"))
 }
 
-// Restore clears the deleted_at attribute on the model.
 func (sd *SoftDeletes) Restore(attrs *HasAttributes) {
 	attrs.SetAttribute(sd.GetDeletedAtColumn(), nil)
-}
-
-// SoftDeleteScope is a global scope that excludes soft-deleted models.
-type SoftDeleteScope struct {
-	column string
 }
 
 // NewSoftDeleteScope creates a new soft delete global scope.

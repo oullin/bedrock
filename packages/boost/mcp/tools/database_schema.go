@@ -56,6 +56,7 @@ func (t *DatabaseSchema) Handle(req McpRequest) (McpResponse, error) {
 	summary, _ := req.Args["summary"].(bool)
 
 	tables, err := t.getTables(filter)
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("database_schema: %v", err)), nil
 	}
@@ -68,6 +69,7 @@ func (t *DatabaseSchema) Handle(req McpRequest) (McpResponse, error) {
 
 	for _, table := range tables {
 		cols, colErr := t.getColumns(table)
+
 		if colErr != nil {
 			continue
 		}
@@ -87,6 +89,7 @@ func (t *DatabaseSchema) getTables(filter string) ([]string, error) {
 	switch strings.ToLower(t.Driver) {
 	case "sqlite", "sqlite3":
 		query = "SELECT name FROM sqlite_master WHERE type='table'"
+
 		if filter != "" {
 			query += fmt.Sprintf(" AND name LIKE '%%%s%%'", filter)
 		}
@@ -94,6 +97,7 @@ func (t *DatabaseSchema) getTables(filter string) ([]string, error) {
 		query += " ORDER BY name"
 	case "postgres", "postgresql":
 		query = "SELECT tablename FROM pg_tables WHERE schemaname='public'"
+
 		if filter != "" {
 			query += fmt.Sprintf(" AND tablename LIKE '%%%s%%'", filter)
 		}
@@ -104,15 +108,18 @@ func (t *DatabaseSchema) getTables(filter string) ([]string, error) {
 	}
 
 	rows, err := t.DB.Query(query) //nolint:gosec
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var tables []string
 
 	for rows.Next() {
 		var name string
+
 		if err := rows.Scan(&name); err != nil {
 			continue
 		}
@@ -140,12 +147,15 @@ func (t *DatabaseSchema) getColumns(table string) ([]map[string]any, error) {
 	}
 
 	rows, err := t.DB.Query(query) //nolint:gosec
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	cols, err := rows.Columns()
+
 	if err != nil {
 		return nil, err
 	}
@@ -165,6 +175,7 @@ func (t *DatabaseSchema) getColumns(table string) ([]map[string]any, error) {
 		}
 
 		row := make(map[string]any, len(cols))
+
 		for i, col := range cols {
 			row[col] = values[i]
 		}

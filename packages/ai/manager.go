@@ -41,28 +41,36 @@ func NewManager() *Manager {
 // SetDefault sets the default provider lab name.
 func (m *Manager) SetDefault(lab string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.defaultLab = lab
 }
 
 // Default returns the default provider lab name.
 func (m *Manager) Default() string {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
+
 	return m.defaultLab
 }
 
 // Extend registers a driver factory for the given lab name.
 func (m *Manager) Extend(lab string, factory DriverFactory) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.factories[lab] = factory
 }
 
 // Configure stores provider configuration for the given lab.
 func (m *Manager) Configure(lab string, config map[string]any) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.configs[lab] = config
 }
 
@@ -72,6 +80,7 @@ func (m *Manager) RecordQueuedAgent(p *prompts.AgentPrompt) {
 	m.mu.Lock()
 	rec := m.recorder
 	m.mu.Unlock()
+
 	if rec != nil {
 		rec.RecordQueuedPrompt(p)
 	}
@@ -80,7 +89,9 @@ func (m *Manager) RecordQueuedAgent(p *prompts.AgentPrompt) {
 // Reset clears all cached instances and fake state.
 func (m *Manager) Reset() {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	m.instances = make(map[string]any)
 	m.recorder = nil
 }
@@ -89,7 +100,9 @@ func (m *Manager) Reset() {
 // This is used by static accessors to run assertions.
 func (m *Manager) Recorder() *fake.Recorder {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	return m.ensureRecorderLocked()
 }
 
@@ -99,7 +112,9 @@ func (m *Manager) Recorder() *fake.Recorder {
 // Callers must NOT hold m.mu.
 func (m *Manager) resolve(lab string) (any, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
+
 	return m.resolveLocked(lab)
 }
 
@@ -108,16 +123,22 @@ func (m *Manager) resolveLocked(lab string) (any, error) {
 	if inst, ok := m.instances[lab]; ok {
 		return inst, nil
 	}
+
 	factory, ok := m.factories[lab]
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q", ErrUnsupportedProvider, lab)
 	}
+
 	cfg := m.configs[lab]
+
 	if cfg == nil {
 		cfg = make(map[string]any)
 	}
+
 	inst := factory(cfg)
 	m.instances[lab] = inst
+
 	return inst, nil
 }
 
@@ -125,6 +146,7 @@ func (m *Manager) ensureRecorderLocked() *fake.Recorder {
 	if m.recorder == nil {
 		m.recorder = fake.NewRecorder()
 	}
+
 	return m.recorder
 }
 
@@ -133,6 +155,7 @@ func (m *Manager) labFor(labs []enums.Lab) string {
 	if len(labs) > 0 {
 		return string(labs[0])
 	}
+
 	return m.Default()
 }
 
@@ -143,13 +166,17 @@ func (m *Manager) labFor(labs []enums.Lab) string {
 func (m *Manager) TextProvider(labs ...enums.Lab) (contractsprovider.TextProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	tp, ok := inst.(contractsprovider.TextProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support text generation", ErrProviderCapability, lab)
 	}
+
 	return tp, nil
 }
 
@@ -158,11 +185,13 @@ func (m *Manager) TextProvider(labs ...enums.Lab) (contractsprovider.TextProvide
 // that lab is used; otherwise the Manager default is used.
 func (m *Manager) TextProviderFor(agent contractsai.Agent) (contractsprovider.TextProvider, error) {
 	lab := m.Default()
+
 	if opts, ok := agent.(contractsai.HasProviderOptions); ok {
 		if p, ok := opts.ProviderOptions()["provider"].(string); ok && p != "" {
 			lab = p
 		}
 	}
+
 	return m.TextProvider(enums.Lab(lab))
 }
 
@@ -180,14 +209,17 @@ func (m *Manager) FakeTextProvider(responses ...any) contractsprovider.TextProvi
 	}
 
 	gw := fake.NewTextGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	tp, ok := inst.(contractsprovider.TextProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeTextProvider: default provider %q does not support text", m.defaultLab))
 	}
+
 	return tp.UseTextGateway(gw)
 }
 
@@ -197,13 +229,17 @@ func (m *Manager) FakeTextProvider(responses ...any) contractsprovider.TextProvi
 func (m *Manager) ImageProvider(labs ...enums.Lab) (contractsprovider.ImageProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	ip, ok := inst.(contractsprovider.ImageProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support image generation", ErrProviderCapability, lab)
 	}
+
 	return ip, nil
 }
 
@@ -219,14 +255,17 @@ func (m *Manager) FakeImageProvider(responses ...any) contractsprovider.ImagePro
 	}
 
 	gw := fake.NewImageGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	ip, ok := inst.(contractsprovider.ImageProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeImageProvider: default provider %q does not support images", m.defaultLab))
 	}
+
 	return ip.UseImageGateway(gw)
 }
 
@@ -236,13 +275,17 @@ func (m *Manager) FakeImageProvider(responses ...any) contractsprovider.ImagePro
 func (m *Manager) AudioProvider(labs ...enums.Lab) (contractsprovider.AudioProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	ap, ok := inst.(contractsprovider.AudioProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support audio generation", ErrProviderCapability, lab)
 	}
+
 	return ap, nil
 }
 
@@ -258,14 +301,17 @@ func (m *Manager) FakeAudioProvider(responses ...any) contractsprovider.AudioPro
 	}
 
 	gw := fake.NewAudioGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	ap, ok := inst.(contractsprovider.AudioProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeAudioProvider: default provider %q does not support audio", m.defaultLab))
 	}
+
 	return ap.UseAudioGateway(gw)
 }
 
@@ -275,13 +321,17 @@ func (m *Manager) FakeAudioProvider(responses ...any) contractsprovider.AudioPro
 func (m *Manager) EmbeddingProvider(labs ...enums.Lab) (contractsprovider.EmbeddingProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	ep, ok := inst.(contractsprovider.EmbeddingProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support embeddings", ErrProviderCapability, lab)
 	}
+
 	return ep, nil
 }
 
@@ -297,14 +347,17 @@ func (m *Manager) FakeEmbeddingProvider(responses ...any) contractsprovider.Embe
 	}
 
 	gw := fake.NewEmbeddingGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	ep, ok := inst.(contractsprovider.EmbeddingProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeEmbeddingProvider: default provider %q does not support embeddings", m.defaultLab))
 	}
+
 	return ep.UseEmbeddingGateway(gw)
 }
 
@@ -314,13 +367,17 @@ func (m *Manager) FakeEmbeddingProvider(responses ...any) contractsprovider.Embe
 func (m *Manager) TranscriptionProvider(labs ...enums.Lab) (contractsprovider.TranscriptionProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	tp, ok := inst.(contractsprovider.TranscriptionProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support transcription", ErrProviderCapability, lab)
 	}
+
 	return tp, nil
 }
 
@@ -336,14 +393,17 @@ func (m *Manager) FakeTranscriptionProvider(responses ...any) contractsprovider.
 	}
 
 	gw := fake.NewTranscriptionGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	tp, ok := inst.(contractsprovider.TranscriptionProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeTranscriptionProvider: default provider %q does not support transcription", m.defaultLab))
 	}
+
 	return tp.UseTranscriptionGateway(gw)
 }
 
@@ -353,13 +413,17 @@ func (m *Manager) FakeTranscriptionProvider(responses ...any) contractsprovider.
 func (m *Manager) RerankingProvider(labs ...enums.Lab) (contractsprovider.RerankingProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	rp, ok := inst.(contractsprovider.RerankingProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support reranking", ErrProviderCapability, lab)
 	}
+
 	return rp, nil
 }
 
@@ -375,14 +439,17 @@ func (m *Manager) FakeRerankingProvider(responses ...any) contractsprovider.Rera
 	}
 
 	gw := fake.NewRerankingGateway(rec)
+
 	if len(responses) > 0 {
 		gw.SetResponses(responses)
 	}
 
 	rp, ok := inst.(contractsprovider.RerankingProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeRerankingProvider: default provider %q does not support reranking", m.defaultLab))
 	}
+
 	return rp.UseRerankingGateway(gw)
 }
 
@@ -392,13 +459,17 @@ func (m *Manager) FakeRerankingProvider(responses ...any) contractsprovider.Rera
 func (m *Manager) FileProvider(labs ...enums.Lab) (contractsprovider.FileProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	fp, ok := inst.(contractsprovider.FileProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support file management", ErrProviderCapability, lab)
 	}
+
 	return fp, nil
 }
 
@@ -416,9 +487,11 @@ func (m *Manager) FakeFileProvider() contractsprovider.FileProvider {
 	gw := fake.NewFileGateway(rec)
 
 	fp, ok := inst.(contractsprovider.FileProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeFileProvider: default provider %q does not support files", m.defaultLab))
 	}
+
 	return fp.UseFileGateway(gw)
 }
 
@@ -428,13 +501,17 @@ func (m *Manager) FakeFileProvider() contractsprovider.FileProvider {
 func (m *Manager) StoreProvider(labs ...enums.Lab) (contractsprovider.StoreProvider, error) {
 	lab := m.labFor(labs)
 	inst, err := m.resolve(lab)
+
 	if err != nil {
 		return nil, err
 	}
+
 	sp, ok := inst.(contractsprovider.StoreProvider)
+
 	if !ok {
 		return nil, fmt.Errorf("%w: %q does not support vector stores", ErrProviderCapability, lab)
 	}
+
 	return sp, nil
 }
 
@@ -452,9 +529,11 @@ func (m *Manager) FakeStoreProvider() contractsprovider.StoreProvider {
 	gw := fake.NewStoreGateway(rec)
 
 	sp, ok := inst.(contractsprovider.StoreProvider)
+
 	if !ok {
 		panic(fmt.Sprintf("ai: FakeStoreProvider: default provider %q does not support stores", m.defaultLab))
 	}
+
 	return sp.UseStoreGateway(gw)
 }
 
@@ -471,8 +550,10 @@ func (m *Manager) Fake(textResponses ...any) *fake.Recorder {
 		if _, ok := m.factories["stub"]; !ok {
 			m.factories["stub"] = newStubProvider
 		}
+
 		m.defaultLab = "stub"
 	}
+
 	rec := m.ensureRecorderLocked()
 	inst, err := m.resolveLocked(m.defaultLab)
 	m.mu.Unlock()
@@ -484,29 +565,38 @@ func (m *Manager) Fake(textResponses ...any) *fake.Recorder {
 	// Inject fake gateways for each supported capability.
 	if tp, ok := inst.(contractsprovider.TextProvider); ok {
 		gw := fake.NewTextGateway(rec)
+
 		if len(textResponses) > 0 {
 			gw.SetResponses(textResponses)
 		}
+
 		tp.UseTextGateway(gw)
 	}
+
 	if ip, ok := inst.(contractsprovider.ImageProvider); ok {
 		ip.UseImageGateway(fake.NewImageGateway(rec))
 	}
+
 	if ap, ok := inst.(contractsprovider.AudioProvider); ok {
 		ap.UseAudioGateway(fake.NewAudioGateway(rec))
 	}
+
 	if ep, ok := inst.(contractsprovider.EmbeddingProvider); ok {
 		ep.UseEmbeddingGateway(fake.NewEmbeddingGateway(rec))
 	}
+
 	if tp, ok := inst.(contractsprovider.TranscriptionProvider); ok {
 		tp.UseTranscriptionGateway(fake.NewTranscriptionGateway(rec))
 	}
+
 	if rp, ok := inst.(contractsprovider.RerankingProvider); ok {
 		rp.UseRerankingGateway(fake.NewRerankingGateway(rec))
 	}
+
 	if fp, ok := inst.(contractsprovider.FileProvider); ok {
 		fp.UseFileGateway(fake.NewFileGateway(rec))
 	}
+
 	if sp, ok := inst.(contractsprovider.StoreProvider); ok {
 		sp.UseStoreGateway(fake.NewStoreGateway(rec))
 	}

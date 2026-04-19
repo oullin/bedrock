@@ -23,17 +23,20 @@ func TestBrowserLogsNoFile(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("content data type = %T, want map[string]any", resp.Content[0].Data)
 	}
 
 	entriesLen := 0
+
 	switch v := data["entries"].(type) {
 	case []string:
 		entriesLen = len(v)
 	case []any:
 		entriesLen = len(v)
 	}
+
 	if entriesLen != 0 {
 		t.Errorf("entries count = %d, want empty (type: %T)", entriesLen, data["entries"])
 	}
@@ -58,18 +61,21 @@ func TestBrowserLogsReadsFile(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("content data type = %T", resp.Content[0].Data)
 	}
 
 	// The entries value is []string from the implementation.
 	entriesLen := 0
+
 	switch v := data["entries"].(type) {
 	case []string:
 		entriesLen = len(v)
 	case []any:
 		entriesLen = len(v)
 	}
+
 	if entriesLen != 2 {
 		t.Errorf("entries count = %d, want 2 (raw type: %T)", entriesLen, data["entries"])
 	}

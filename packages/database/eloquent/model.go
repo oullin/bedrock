@@ -18,14 +18,14 @@ type Model struct {
 	GlobalScopes
 	SoftDeletes
 
-	table          string
-	primaryKey     string
-	keyType        string
-	incrementing   bool
-	connection     string
-	exists         bool
+	table              string
+	primaryKey         string
+	keyType            string
+	incrementing       bool
+	connection         string
+	exists             bool
 	wasRecentlyCreated bool
-	perPage        int
+	perPage            int
 
 	// Dependencies injected at construction time.
 	resolver dbcontract.ConnectionResolver
@@ -41,6 +41,7 @@ func NewModel() *Model {
 	}
 	m.InitAttributes()
 	m.InitTimestamps()
+
 	return m
 }
 
@@ -62,6 +63,7 @@ func (m *Model) GetTable() string {
 	if m.table != "" {
 		return m.table
 	}
+
 	return "models" // Default; in practice, derived from struct name.
 }
 
@@ -120,9 +122,11 @@ func (m *Model) QualifyColumn(column string) string {
 // QualifyColumns qualifies multiple column names.
 func (m *Model) QualifyColumns(columns []string) []string {
 	qualified := make([]string, len(columns))
+
 	for i, col := range columns {
 		qualified[i] = m.QualifyColumn(col)
 	}
+
 	return qualified
 }
 
@@ -131,14 +135,19 @@ func (m *Model) NewQueryBuilder() (*query.Builder, error) {
 	if m.resolver == nil {
 		return nil, ErrModelNotFound
 	}
+
 	conn, err := m.resolver.Connection(context.Background(), m.connection)
+
 	if err != nil {
 		return nil, err
 	}
+
 	result := conn.Table(context.Background(), m.GetTable())
+
 	if builder, ok := result.(*query.Builder); ok {
 		return builder, nil
 	}
+
 	return nil, nil
 }
 
@@ -159,6 +168,7 @@ func (m *Model) Save(ctx context.Context) error {
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return err
 	}
@@ -166,6 +176,7 @@ func (m *Model) Save(ctx context.Context) error {
 	if m.exists {
 		return m.performUpdate(ctx, conn)
 	}
+
 	return m.performInsert(ctx, conn)
 }
 
@@ -176,11 +187,13 @@ func (m *Model) Delete(ctx context.Context) error {
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return err
 	}
 
 	keyValue := m.GetKey()
+
 	if keyValue == nil {
 		return ErrModelNotFound
 	}
@@ -189,11 +202,13 @@ func (m *Model) Delete(ctx context.Context) error {
 		"delete from "+m.GetTable()+" where "+m.GetKeyName()+" = ?",
 		keyValue,
 	)
+
 	if err != nil {
 		return err
 	}
 
 	m.exists = false
+
 	return nil
 }
 
@@ -204,6 +219,7 @@ func (m *Model) Refresh(ctx context.Context) error {
 	}
 
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return err
 	}
@@ -212,14 +228,17 @@ func (m *Model) Refresh(ctx context.Context) error {
 		"select * from "+m.GetTable()+" where "+m.GetKeyName()+" = ? limit 1",
 		m.GetKey(),
 	)
+
 	if err != nil {
 		return err
 	}
+
 	if row == nil {
 		return ErrModelNotFound
 	}
 
 	m.SetRawAttributes(row, true)
+
 	return nil
 }
 
@@ -239,17 +258,20 @@ func (m *Model) Replicate(except ...string) *Model {
 	clone.HidesAttributes = m.HidesAttributes
 
 	attrs := make(map[string]any, len(m.attributes))
+
 	for k, v := range m.attributes {
 		attrs[k] = v
 	}
 
 	// Remove the primary key and any excluded attributes.
 	delete(attrs, m.primaryKey)
+
 	for _, e := range except {
 		delete(attrs, e)
 	}
 
 	clone.SetRawAttributes(attrs, false)
+
 	return clone
 }
 
@@ -258,6 +280,7 @@ func (m *Model) Is(other *Model) bool {
 	if other == nil {
 		return false
 	}
+
 	return m.GetTable() == other.GetTable() &&
 		m.GetKeyName() == other.GetKeyName() &&
 		m.GetKey() == other.GetKey() &&
@@ -272,6 +295,7 @@ func (m *Model) IsNot(other *Model) bool {
 // ToMap returns the model as a map, applying hidden/visible rules.
 func (m *Model) ToMap() map[string]any {
 	attrs := m.HasAttributes.ToMap()
+
 	return m.HidesAttributes.FilterAttributes(attrs)
 }
 
@@ -298,6 +322,7 @@ func (m *Model) SaveQuietly(ctx context.Context) error {
 // UpdateAttributes updates the model with the given attributes and saves.
 func (m *Model) UpdateAttributes(ctx context.Context, attributes map[string]any) error {
 	m.ForceFill(attributes)
+
 	return m.Save(ctx)
 }
 
@@ -316,6 +341,7 @@ func (m *Model) DeleteOrFail(ctx context.Context) error {
 	if !m.exists {
 		return ErrModelNotFound
 	}
+
 	return m.Delete(ctx)
 }
 
@@ -327,7 +353,9 @@ func (m *Model) DeleteQuietly(ctx context.Context) error {
 // ForceDelete hard-deletes the model (bypassing soft deletes).
 func (m *Model) ForceDelete(ctx context.Context) error {
 	m.SoftDeletes.forceDeleting = true
+
 	defer func() { m.SoftDeletes.forceDeleting = false }()
+
 	return m.Delete(ctx)
 }
 
@@ -336,12 +364,16 @@ func Destroy(ctx context.Context, resolver dbcontract.ConnectionResolver, table,
 	if len(ids) == 0 {
 		return 0, nil
 	}
+
 	conn, err := resolver.Connection(ctx, connection)
+
 	if err != nil {
 		return 0, err
 	}
+
 	placeholders := makePlaceholders(len(ids))
 	sql := "delete from " + table + " where " + keyName + " in (" + placeholders + ")"
+
 	return conn.Delete(ctx, sql, ids...)
 }
 
@@ -350,7 +382,9 @@ func (m *Model) Touch(ctx context.Context) error {
 	if !m.UsesTimestamps() {
 		return nil
 	}
+
 	m.SetAttribute(m.GetUpdatedAtColumn(), m.FreshTimestampString())
+
 	return m.Save(ctx)
 }
 
@@ -359,24 +393,32 @@ func (m *Model) Fresh(ctx context.Context, columns ...string) (*Model, error) {
 	if !m.exists || m.resolver == nil {
 		return nil, ErrModelNotFound
 	}
+
 	conn, err := m.resolver.Connection(ctx, m.connection)
+
 	if err != nil {
 		return nil, err
 	}
+
 	cols := "*"
+
 	if len(columns) > 0 {
 		cols = joinStrings(columns, ", ")
 	}
+
 	row, err := conn.SelectOne(ctx,
 		"select "+cols+" from "+m.GetTable()+" where "+m.GetKeyName()+" = ? limit 1",
 		m.GetKey(),
 	)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if row == nil {
 		return nil, ErrModelNotFound
 	}
+
 	fresh := NewModel()
 	fresh.table = m.table
 	fresh.primaryKey = m.primaryKey
@@ -386,6 +428,7 @@ func (m *Model) Fresh(ctx context.Context, columns ...string) (*Model, error) {
 	fresh.resolver = m.resolver
 	fresh.SetRawAttributes(row, true)
 	fresh.exists = true
+
 	return fresh, nil
 }
 
@@ -398,9 +441,11 @@ func (m *Model) NewInstance(attributes ...map[string]any) *Model {
 	instance.incrementing = m.incrementing
 	instance.connection = m.connection
 	instance.resolver = m.resolver
+
 	if len(attributes) > 0 {
 		instance.ForceFill(attributes[0])
 	}
+
 	return instance
 }
 
@@ -409,6 +454,7 @@ func (m *Model) NewFromBuilder(attributes map[string]any) *Model {
 	instance := m.NewInstance()
 	instance.SetRawAttributes(attributes, true)
 	instance.exists = true
+
 	return instance
 }
 
@@ -430,11 +476,15 @@ func (m *Model) ReplicateQuietly(except ...string) *Model {
 // Increment increments a column and saves.
 func (m *Model) Increment(ctx context.Context, column string, amount ...any) error {
 	amt := any(1)
+
 	if len(amount) > 0 {
 		amt = amount[0]
 	}
+
 	current := m.GetAttribute(column)
+
 	var newVal any
+
 	switch v := current.(type) {
 	case int64:
 		if a, ok := amt.(int); ok {
@@ -451,18 +501,24 @@ func (m *Model) Increment(ctx context.Context, column string, amount ...any) err
 	default:
 		newVal = amt
 	}
+
 	m.SetAttribute(column, newVal)
+
 	return m.Save(ctx)
 }
 
 // Decrement decrements a column and saves.
 func (m *Model) Decrement(ctx context.Context, column string, amount ...any) error {
 	amt := any(1)
+
 	if len(amount) > 0 {
 		amt = amount[0]
 	}
+
 	current := m.GetAttribute(column)
+
 	var newVal any
+
 	switch v := current.(type) {
 	case int64:
 		if a, ok := amt.(int); ok {
@@ -479,7 +535,9 @@ func (m *Model) Decrement(ctx context.Context, column string, amount ...any) err
 	default:
 		newVal = amt
 	}
+
 	m.SetAttribute(column, newVal)
+
 	return m.Save(ctx)
 }
 
@@ -493,6 +551,7 @@ func (m *Model) performInsert(ctx context.Context, conn dbcontract.Connection) e
 
 	if m.UsesTimestamps() {
 		m.HasTimestamps.UpdateTimestamps(attrs, true)
+
 		for k, v := range attrs {
 			m.SetAttribute(k, v)
 		}
@@ -510,9 +569,11 @@ func (m *Model) performInsert(ctx context.Context, conn dbcontract.Connection) e
 		" values (" + placeholders + ")"
 
 	ok, err := conn.Insert(ctx, sql, values...)
+
 	if err != nil {
 		return err
 	}
+
 	if !ok {
 		return ErrModelNotFound
 	}
@@ -529,6 +590,7 @@ func (m *Model) performUpdate(ctx context.Context, conn dbcontract.Connection) e
 
 	if m.UsesTimestamps() {
 		m.HasTimestamps.UpdateTimestamps(dirty, false)
+
 		for k, v := range dirty {
 			m.SetAttribute(k, v)
 		}
@@ -541,6 +603,7 @@ func (m *Model) performUpdate(ctx context.Context, conn dbcontract.Connection) e
 	columns, values := mapToColumnsValues(dirty)
 
 	var sets []string
+
 	for _, col := range columns {
 		sets = append(sets, col+" = ?")
 	}
@@ -552,11 +615,13 @@ func (m *Model) performUpdate(ctx context.Context, conn dbcontract.Connection) e
 		" where " + m.GetKeyName() + " = ?"
 
 	_, err := conn.Update(ctx, sql, values...)
+
 	if err != nil {
 		return err
 	}
 
 	m.SyncOriginal()
+
 	return nil
 }
 
@@ -565,28 +630,34 @@ func (m *Model) GetDirtyForSave() map[string]any {
 	if !m.exists {
 		return m.GetAttributes()
 	}
+
 	return m.GetDirty()
 }
 
 func mapToColumnsValues(m map[string]any) ([]string, []any) {
 	keys := sortedMapKeys(m)
 	values := make([]any, len(keys))
+
 	for i, k := range keys {
 		values[i] = m[k]
 	}
+
 	return keys, values
 }
 
 func sortedMapKeys(m map[string]any) []string {
 	keys := make([]string, 0, len(m))
+
 	for k := range m {
 		keys = append(keys, k)
 	}
+
 	for i := 1; i < len(keys); i++ {
 		for j := i; j > 0 && keys[j] < keys[j-1]; j-- {
 			keys[j], keys[j-1] = keys[j-1], keys[j]
 		}
 	}
+
 	return keys
 }
 
@@ -594,10 +665,13 @@ func makePlaceholders(n int) string {
 	if n <= 0 {
 		return ""
 	}
+
 	s := "?"
+
 	for i := 1; i < n; i++ {
 		s += ", ?"
 	}
+
 	return s
 }
 
@@ -605,9 +679,12 @@ func joinStrings(s []string, sep string) string {
 	if len(s) == 0 {
 		return ""
 	}
+
 	result := s[0]
+
 	for _, v := range s[1:] {
 		result += sep + v
 	}
+
 	return result
 }

@@ -24,6 +24,7 @@ func NewSkillComposer(cfg *guidelines.GuidelineConfig) *SkillComposer {
 // Skills returns all discovered skills from all sources.
 func (c *SkillComposer) Skills() []Skill {
 	var all []Skill
+
 	all = append(all, c.BoostSkills()...)
 	all = append(all, c.ThirdPartySkills()...)
 	all = append(all, c.UserSkills()...)
@@ -57,12 +58,14 @@ func (c *SkillComposer) UserSkills() []Skill {
 // DiscoverExplicitUserSkills returns skills from <basePath>/.ai/skills/.
 func (c *SkillComposer) DiscoverExplicitUserSkills() []Skill {
 	dir := filepath.Join(c.config.BasePath(), ".ai", "skills")
+
 	return c.DiscoverSkillsFromPath(dir)
 }
 
 // DiscoverSkillsFromPath walks the given directory and returns all SKILL.md files.
 func (c *SkillComposer) DiscoverSkillsFromPath(dir string) []Skill {
 	entries, err := os.ReadDir(dir)
+
 	if err != nil {
 		return []Skill{}
 	}
@@ -89,6 +92,7 @@ func (c *SkillComposer) DiscoverSkillsFromPath(dir string) []Skill {
 // Returns nil if the file does not exist or cannot be parsed.
 func (c *SkillComposer) ParseSkill(path string) (*Skill, error) {
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +101,7 @@ func (c *SkillComposer) ParseSkill(path string) (*Skill, error) {
 	frontmatter := c.ParseSkillFrontmatter(content)
 
 	name := frontmatter["name"]
+
 	if name == "" {
 		name = filepath.Base(filepath.Dir(path))
 	}
@@ -123,6 +128,7 @@ func (c *SkillComposer) ParseSkillFrontmatter(content string) map[string]string 
 		if line == "---" {
 			if !inFrontmatter {
 				inFrontmatter = true
+
 				continue
 			}
 

@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-const defaultDocsAPIURL = "https://boost.laravel.com/api/search"
-
 // SearchDocs performs semantic search over the Boost documentation API.
 // Mirrors Laravel\Boost\Mcp\Tools\SearchDocs.
 type SearchDocs struct {
@@ -19,6 +17,8 @@ type SearchDocs struct {
 	// HTTPClient allows injecting a custom http.Client for testing.
 	HTTPClient *http.Client
 }
+
+const defaultDocsAPIURL = "https://boost.laravel.com/api/search"
 
 func (t *SearchDocs) Name() string     { return "search_docs" }
 func (t *SearchDocs) IsReadOnly() bool { return true }
@@ -54,6 +54,7 @@ func (t *SearchDocs) Schema() map[string]any {
 // Handle calls the Boost docs API and returns the search results.
 func (t *SearchDocs) Handle(req McpRequest) (McpResponse, error) {
 	queries := extractStringSlice(req.Args["queries"])
+
 	if len(queries) == 0 {
 		return ErrorResponse("search_docs: queries argument is required"), nil
 	}
@@ -69,32 +70,39 @@ func (t *SearchDocs) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	body, err := json.Marshal(payload)
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("search_docs: marshal: %v", err)), nil
 	}
 
 	apiURL := t.APIUrl
+
 	if apiURL == "" {
 		apiURL = defaultDocsAPIURL
 	}
 
 	client := t.HTTPClient
+
 	if client == nil {
 		client = &http.Client{Timeout: 30 * time.Second}
 	}
 
 	resp, err := client.Post(apiURL, "application/json", bytes.NewReader(body)) //nolint:gosec
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("search_docs: request: %v", err)), nil
 	}
+
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("search_docs: read response: %v", err)), nil
 	}
 
 	var result any
+
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return TextResponse(string(respBody)), nil
 	}
@@ -113,6 +121,7 @@ func extractStringSlice(v any) []string {
 		return val
 	case []any:
 		result := make([]string, 0, len(val))
+
 		for _, item := range val {
 			if s, ok := item.(string); ok {
 				result = append(result, s)

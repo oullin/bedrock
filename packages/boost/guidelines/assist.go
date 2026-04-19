@@ -32,26 +32,32 @@ func (g *GuidelineAssist) Models() map[string]string {
 		if err != nil {
 			return nil
 		}
+
 		if d.IsDir() {
 			switch d.Name() {
 			case "vendor", "node_modules", ".git":
 				return filepath.SkipDir
 			}
+
 			return nil
 		}
+
 		if filepath.Ext(path) != ".go" {
 			return nil
 		}
 
 		data, readErr := os.ReadFile(path)
+
 		if readErr != nil {
 			return nil
 		}
 
 		for _, line := range strings.Split(string(data), "\n") {
 			trimmed := strings.TrimSpace(line)
+
 			if strings.HasPrefix(trimmed, "type ") && strings.Contains(trimmed, " struct") {
 				parts := strings.Fields(trimmed)
+
 				if len(parts) >= 3 && parts[0] == "type" {
 					result[parts[1]] = path
 				}
@@ -157,11 +163,13 @@ func (g *GuidelineAssist) HasMcpEnabled() bool { return g.config.HasMcpEnabled()
 // packageJSONField reads a string field from the project package.json.
 func (g *GuidelineAssist) packageJSONField(field string) string {
 	data, err := os.ReadFile(filepath.Join(g.config.BasePath(), "package.json"))
+
 	if err != nil {
 		return ""
 	}
 
 	var m map[string]any
+
 	if err := json.Unmarshal(data, &m); err != nil {
 		return ""
 	}

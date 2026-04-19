@@ -20,6 +20,7 @@ func NewMySQLGrammar() *MySQLGrammar { return &MySQLGrammar{} }
 func (g *MySQLGrammar) CompileCreate(bp *schema.Blueprint) []string {
 	columns := g.getColumns(bp)
 	temporary := ""
+
 	if bp.Temporary {
 		temporary = "temporary "
 	}
@@ -29,9 +30,11 @@ func (g *MySQLGrammar) CompileCreate(bp *schema.Blueprint) []string {
 	if bp.Engine != "" {
 		sql += " engine = " + bp.Engine
 	}
+
 	if bp.Charset != "" {
 		sql += " default character set " + bp.Charset
 	}
+
 	if bp.Collation != "" {
 		sql += " collate " + bp.Collation
 	}
@@ -41,23 +44,29 @@ func (g *MySQLGrammar) CompileCreate(bp *schema.Blueprint) []string {
 
 func (g *MySQLGrammar) CompileAdd(bp *schema.Blueprint) []string {
 	var parts []string
+
 	for _, col := range bp.GetAddedColumns() {
 		parts = append(parts, "add "+g.compileColumn(col))
 	}
+
 	if len(parts) == 0 {
 		return nil
 	}
+
 	return []string{fmt.Sprintf("alter table %s %s", g.wrapTable(bp.Table), strings.Join(parts, ", "))}
 }
 
 func (g *MySQLGrammar) CompileChange(bp *schema.Blueprint) []string {
 	var parts []string
+
 	for _, col := range bp.GetChangedColumns() {
 		parts = append(parts, fmt.Sprintf("modify %s", g.compileColumn(col)))
 	}
+
 	if len(parts) == 0 {
 		return nil
 	}
+
 	return []string{fmt.Sprintf("alter table %s %s", g.wrapTable(bp.Table), strings.Join(parts, ", "))}
 }
 
@@ -75,9 +84,11 @@ func (g *MySQLGrammar) CompileRename(from, to string) string {
 
 func (g *MySQLGrammar) CompileDropColumn(bp *schema.Blueprint, columns []string) string {
 	cols := make([]string, len(columns))
+
 	for i, c := range columns {
 		cols[i] = "drop " + g.wrap(c)
 	}
+
 	return "alter table " + g.wrapTable(bp.Table) + " " + strings.Join(cols, ", ")
 }
 
@@ -87,6 +98,7 @@ func (g *MySQLGrammar) CompileRenameColumn(bp *schema.Blueprint, from, to string
 
 func (g *MySQLGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.BlueprintCommand) string {
 	cols := make([]string, len(cmd.Columns))
+
 	for i, c := range cmd.Columns {
 		cols[i] = g.wrap(c)
 	}
@@ -101,6 +113,7 @@ func (g *MySQLGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.Bluep
 	case "fulltext":
 		return fmt.Sprintf("alter table %s add fulltext %s(%s)", g.wrapTable(bp.Table), g.wrap(cmd.Index), strings.Join(cols, ", "))
 	}
+
 	return ""
 }
 
@@ -110,10 +123,13 @@ func (g *MySQLGrammar) CompileDropIndex(bp *schema.Blueprint, name string) strin
 
 func (g *MySQLGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
 	cols := make([]string, len(fk.Columns))
+
 	for i, c := range fk.Columns {
 		cols[i] = g.wrap(c)
 	}
+
 	refCols := make([]string, len(fk.RefColumns))
+
 	for i, c := range fk.RefColumns {
 		refCols[i] = g.wrap(c)
 	}
@@ -125,6 +141,7 @@ func (g *MySQLGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.
 	if fk.OnDeleteAction != "" {
 		sql += " on delete " + fk.OnDeleteAction
 	}
+
 	if fk.OnUpdateAction != "" {
 		sql += " on update " + fk.OnUpdateAction
 	}
@@ -154,9 +171,11 @@ func (g *MySQLGrammar) CompileDisableForeignKeyConstraints() string {
 
 func (g *MySQLGrammar) getColumns(bp *schema.Blueprint) []string {
 	var cols []string
+
 	for _, col := range bp.GetAddedColumns() {
 		cols = append(cols, g.compileColumn(col))
 	}
+
 	return cols
 }
 
@@ -166,36 +185,47 @@ func (g *MySQLGrammar) compileColumn(col *schema.ColumnDefinition) string {
 	if col.Unsigned {
 		sql += " unsigned"
 	}
+
 	if col.AutoIncrement {
 		sql += " auto_increment primary key"
 	}
+
 	if col.CharsetName != "" {
 		sql += " character set " + col.CharsetName
 	}
+
 	if col.Collation != "" {
 		sql += " collate " + col.Collation
 	}
+
 	if !col.IsNullable && !col.AutoIncrement {
 		sql += " not null"
 	}
+
 	if col.IsNullable {
 		sql += " null"
 	}
+
 	if col.HasDefault {
 		sql += " default " + g.getDefaultValue(col.DefaultValue)
 	}
+
 	if col.CommentText != "" {
 		sql += " comment '" + strings.ReplaceAll(col.CommentText, "'", "\\'") + "'"
 	}
+
 	if col.AfterColumn != "" {
 		sql += " after " + g.wrap(col.AfterColumn)
 	}
+
 	if col.IsFirst {
 		sql += " first"
 	}
+
 	if col.VirtualAs != "" {
 		sql += " as (" + col.VirtualAs + ")"
 	}
+
 	if col.StoredAs != "" {
 		sql += " as (" + col.StoredAs + ") stored"
 	}
@@ -241,31 +271,37 @@ func (g *MySQLGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Precision > 0 {
 			return fmt.Sprintf("datetime(%d)", col.Precision)
 		}
+
 		return "datetime"
 	case "dateTimeTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("datetime(%d)", col.Precision)
 		}
+
 		return "datetime"
 	case "time":
 		if col.Precision > 0 {
 			return fmt.Sprintf("time(%d)", col.Precision)
 		}
+
 		return "time"
 	case "timeTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("time(%d)", col.Precision)
 		}
+
 		return "time"
 	case "timestamp":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d)", col.Precision)
 		}
+
 		return "timestamp"
 	case "timestampTz":
 		if col.Precision > 0 {
 			return fmt.Sprintf("timestamp(%d)", col.Precision)
 		}
+
 		return "timestamp"
 	case "year":
 		return "year"
@@ -273,6 +309,7 @@ func (g *MySQLGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Length > 0 {
 			return fmt.Sprintf("binary(%d)", col.Length)
 		}
+
 		return "blob"
 	case "json":
 		return "json"
@@ -296,6 +333,7 @@ func (g *MySQLGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Total > 0 {
 			return fmt.Sprintf("vector(%d)", col.Total)
 		}
+
 		return "vector"
 	default:
 		return col.Type
@@ -310,6 +348,7 @@ func (g *MySQLGrammar) getDefaultValue(value any) string {
 		if v {
 			return "'1'"
 		}
+
 		return "'0'"
 	case nil:
 		return "null"

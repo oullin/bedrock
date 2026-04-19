@@ -90,9 +90,11 @@ func (c *AppConfig) defaults() {
 	if c.PingInterval == 0 {
 		c.PingInterval = 60
 	}
+
 	if c.ActivityTimeout == 0 {
 		c.ActivityTimeout = 30
 	}
+
 	if c.ClientEvents.Mode == "" {
 		c.ClientEvents.Mode = "none"
 	}

@@ -6,11 +6,6 @@ import (
 
 // JobStatus constants mirror the three lifecycle states recorded by Laravel's
 // JobWatcher.
-const (
-	JobStatusPending   = "pending"
-	JobStatusProcessed = "processed"
-	JobStatusFailed    = "failed"
-)
 
 // JobWatcher monitors queued job lifecycle events (pending, processed, failed)
 // and records them as Telescope entries. It mirrors Laravel's JobWatcher class.
@@ -22,28 +17,11 @@ type JobWatcher struct {
 }
 
 // NewJobWatcher creates a JobWatcher with the given options.
-func NewJobWatcher(t *telescope.Telescope, options map[string]any) *JobWatcher {
-	w := &JobWatcher{}
-	w.SetTelescope(t)
-	w.Options = options
-
-	return w
-}
 
 // Register is a no-op for JobWatcher; callers drive it via Pending, Processed,
 // and Failed.
-func (w *JobWatcher) Register(_ any) error { return nil }
 
 // ShouldIgnore reports whether the job type should be skipped.
-func (w *JobWatcher) ShouldIgnore(jobType string) bool {
-	for _, name := range w.StringsOption("ignore") {
-		if name == jobType {
-			return true
-		}
-	}
-
-	return false
-}
 
 // JobMeta carries metadata about a queued job dispatched into the queue.
 type JobMeta struct {
@@ -63,6 +41,32 @@ type JobMeta struct {
 	Timeout int
 	// Tags are additional searchable tags.
 	Tags []string
+}
+
+const (
+	JobStatusPending   = "pending"
+	JobStatusProcessed = "processed"
+	JobStatusFailed    = "failed"
+)
+
+func NewJobWatcher(t *telescope.Telescope, options map[string]any) *JobWatcher {
+	w := &JobWatcher{}
+	w.SetTelescope(t)
+	w.Options = options
+
+	return w
+}
+
+func (w *JobWatcher) Register(_ any) error { return nil }
+
+func (w *JobWatcher) ShouldIgnore(jobType string) bool {
+	for _, name := range w.StringsOption("ignore") {
+		if name == jobType {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Pending records a pending (dispatched) job entry.

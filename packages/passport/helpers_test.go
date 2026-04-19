@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/bedrock/packages/passport"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/passport"
 )
 
 // ---- stubProvider ------------------------------------------------------------
@@ -13,6 +13,15 @@ import (
 // stubProvider is a minimal cauth.UserProvider backed by a map.
 type stubProvider struct {
 	users map[string]cauth.Authenticatable
+}
+
+// ---- stubUser ----------------------------------------------------------------
+
+// stubUser is a minimal cauth.Authenticatable implementation.
+type stubUser struct {
+	id       string
+	password string
+	token    string
 }
 
 func (p *stubProvider) RetrieveByID(_ context.Context, id string) (cauth.Authenticatable, error) {
@@ -47,15 +56,6 @@ func (p *stubProvider) ValidateCredentials(_ context.Context, _ cauth.Authentica
 
 func (p *stubProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
-}
-
-// ---- stubUser ----------------------------------------------------------------
-
-// stubUser is a minimal cauth.Authenticatable implementation.
-type stubUser struct {
-	id       string
-	password string
-	token    string
 }
 
 func newStubUser(id string) *stubUser {

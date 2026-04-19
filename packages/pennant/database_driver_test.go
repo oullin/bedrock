@@ -26,6 +26,51 @@ import (
 
 type fakeDriver struct{}
 
+type fakeConn struct{ dsn string }
+
+type fakeStmt struct{ dsn string }
+
+// Format: "col:v1|v2|…" or just "v1|v2|…" (col defaults to "col")
+
+type fakeRows struct {
+	col    string
+	values []string
+	pos    int
+}
+
+// fakeDB opens a throwaway *sql.DB backed by the registered fake driver.
+// It is safe to call multiple times — each call opens a fresh connection.
+
+// openFakeRows returns a *sql.Rows containing the given string values in a
+// single column named "name".
+
+// fakeRow returns a *sql.Row that scans the given string when Scan is called.
+
+// fakeEmptyRow returns a *sql.Row whose Scan returns sql.ErrNoRows.
+
+// mockResult satisfies sql.Result.
+type mockResult struct{}
+
+// ---------------------------------------------------------------------------
+// inMemoryDB — DBExecutor backed by an in-memory slice of rows.
+// ---------------------------------------------------------------------------
+
+type dbRow struct {
+	name  string
+	scope string
+	value string // JSON-encoded
+}
+
+// inMemoryDB simulates the features SQL table entirely in memory.
+// It is safe for concurrent use.
+type inMemoryDB struct {
+	mu             sync.Mutex
+	rows           []dbRow
+	shouldConflict bool
+	conflictCount  int
+	conflictsSeen  int
+}
+
 func init() {
 	sql.Register("pennant_fake", &fakeDriver{})
 }
@@ -34,19 +79,15 @@ func (f *fakeDriver) Open(name string) (driver.Conn, error) {
 	return &fakeConn{dsn: name}, nil
 }
 
-type fakeConn struct{ dsn string }
-
 func (c *fakeConn) Prepare(_ string) (driver.Stmt, error) {
 	return &fakeStmt{dsn: c.dsn}, nil
 }
 
-func (c *fakeConn) Close() error                        { return nil }
-func (c *fakeConn) Begin() (driver.Tx, error)           { return nil, fmt.Errorf("not supported") }
+func (c *fakeConn) Close() error              { return nil }
+func (c *fakeConn) Begin() (driver.Tx, error) { return nil, fmt.Errorf("not supported") }
 
-type fakeStmt struct{ dsn string }
-
-func (s *fakeStmt) Close() error      { return nil }
-func (s *fakeStmt) NumInput() int     { return -1 }
+func (s *fakeStmt) Close() error  { return nil }
+func (s *fakeStmt) NumInput() int { return -1 }
 func (s *fakeStmt) Exec(_ []driver.Value) (driver.Result, error) {
 	return nil, fmt.Errorf("not supported")
 }
@@ -56,7 +97,6 @@ func (s *fakeStmt) Query(_ []driver.Value) (driver.Rows, error) {
 		return &fakeRows{col: "col", values: nil}, nil
 	}
 
-	// Format: "col:v1|v2|…" or just "v1|v2|…" (col defaults to "col")
 	col := "col"
 	data := s.dsn
 
@@ -66,17 +106,12 @@ func (s *fakeStmt) Query(_ []driver.Value) (driver.Rows, error) {
 	}
 
 	var values []string
+
 	if data != "" {
 		values = strings.Split(data, "|")
 	}
 
 	return &fakeRows{col: col, values: values}, nil
-}
-
-type fakeRows struct {
-	col    string
-	values []string
-	pos    int
 }
 
 func (r *fakeRows) Columns() []string { return []string{r.col} }
@@ -93,13 +128,12 @@ func (r *fakeRows) Next(dest []driver.Value) error {
 	return nil
 }
 
-// fakeDB opens a throwaway *sql.DB backed by the registered fake driver.
-// It is safe to call multiple times — each call opens a fresh connection.
 var fakeDBOnce sync.Once
 var globalFakeDB *sql.DB
 
 func openFakeDB(dsn string) *sql.DB {
 	db, err := sql.Open("pennant_fake", dsn)
+
 	if err != nil {
 		panic(err)
 	}
@@ -107,10 +141,9 @@ func openFakeDB(dsn string) *sql.DB {
 	return db
 }
 
-// openFakeRows returns a *sql.Rows containing the given string values in a
-// single column named "name".
 func openFakeRows(names []string) (*sql.Rows, error) {
 	dsn := "name:" + strings.Join(names, "|")
+
 	if len(names) == 0 {
 		dsn = ""
 	}
@@ -120,49 +153,25 @@ func openFakeRows(names []string) (*sql.Rows, error) {
 	return db.QueryContext(context.Background(), "SELECT name")
 }
 
-// fakeRow returns a *sql.Row that scans the given string when Scan is called.
 func fakeRow(value string) *sql.Row {
 	db := openFakeDB("value:" + value)
 
 	return db.QueryRowContext(context.Background(), "SELECT value")
 }
 
-// fakeEmptyRow returns a *sql.Row whose Scan returns sql.ErrNoRows.
 func fakeEmptyRow() *sql.Row {
 	db := openFakeDB("")
 
 	return db.QueryRowContext(context.Background(), "SELECT value")
 }
 
-// mockResult satisfies sql.Result.
-type mockResult struct{}
-
 func (mockResult) LastInsertId() (int64, error) { return 0, nil }
 func (mockResult) RowsAffected() (int64, error) { return 1, nil }
-
-// ---------------------------------------------------------------------------
-// inMemoryDB — DBExecutor backed by an in-memory slice of rows.
-// ---------------------------------------------------------------------------
-
-type dbRow struct {
-	name  string
-	scope string
-	value string // JSON-encoded
-}
-
-// inMemoryDB simulates the features SQL table entirely in memory.
-// It is safe for concurrent use.
-type inMemoryDB struct {
-	mu            sync.Mutex
-	rows          []dbRow
-	shouldConflict bool
-	conflictCount  int
-	conflictsSeen  int
-}
 
 // ExecContext dispatches INSERT, UPDATE, and DELETE statements.
 func (m *inMemoryDB) ExecContext(_ context.Context, query string, args ...any) (sql.Result, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	upper := strings.ToUpper(strings.TrimSpace(query))
@@ -186,6 +195,7 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 
 	if m.shouldConflict && m.conflictsSeen < m.conflictCount {
 		m.conflictsSeen++
+
 		return nil, fmt.Errorf("unique constraint violation")
 	}
 
@@ -199,6 +209,7 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 		if r.name == name && r.scope == scope {
 			if isUpsert {
 				m.rows[i].value = value
+
 				return mockResult{}, nil
 			}
 
@@ -236,6 +247,7 @@ func (m *inMemoryDB) handleDelete(query string, args ...any) (sql.Result, error)
 	// Purge all — no WHERE clause.
 	if !strings.Contains(upper, "WHERE") {
 		m.rows = m.rows[:0]
+
 		return mockResult{}, nil
 	}
 
@@ -284,14 +296,17 @@ func (m *inMemoryDB) handleDelete(query string, args ...any) (sql.Result, error)
 // QueryContext handles: SELECT DISTINCT name FROM table
 func (m *inMemoryDB) QueryContext(_ context.Context, query string, _ ...any) (*sql.Rows, error) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	upper := strings.ToUpper(strings.TrimSpace(query))
+
 	if !strings.Contains(upper, "SELECT DISTINCT NAME") {
 		return nil, fmt.Errorf("inMemoryDB: unsupported QueryContext: %s", query)
 	}
 
 	seen := make(map[string]struct{})
+
 	var names []string
 
 	for _, r := range m.rows {
@@ -307,6 +322,7 @@ func (m *inMemoryDB) QueryContext(_ context.Context, query string, _ ...any) (*s
 // QueryRowContext handles: SELECT value FROM table WHERE name=$1 AND scope=$2
 func (m *inMemoryDB) QueryRowContext(_ context.Context, _ string, args ...any) *sql.Row {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if len(args) < 2 {
@@ -338,9 +354,11 @@ const testTable = "features"
 func TestDatabaseDriver_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver               = (*pennant.DatabaseDriver)(nil)
+	var _ pennant.Driver = (*pennant.DatabaseDriver)(nil)
+
 	var _ pennant.StoredFeaturesLister = (*pennant.DatabaseDriver)(nil)
-	var _ pennant.BulkFeatureSetter    = (*pennant.DatabaseDriver)(nil)
+
+	var _ pennant.BulkFeatureSetter = (*pennant.DatabaseDriver)(nil)
 }
 
 func TestDatabaseDriver_Define_Get(t *testing.T) {
@@ -355,6 +373,7 @@ func TestDatabaseDriver_Define_Get(t *testing.T) {
 	})
 
 	val, err := drv.Get(ctx, "dark-mode", nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -395,6 +414,7 @@ func TestDatabaseDriver_Get_CachesInDB(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return "variant-a", nil
 	})
 
@@ -405,6 +425,7 @@ func TestDatabaseDriver_Get_CachesInDB(t *testing.T) {
 
 	// Second call should find value in DB without invoking resolver again.
 	val, err := drv.Get(ctx, "flag", "user:1")
+
 	if err != nil {
 		t.Fatalf("second Get: %v", err)
 	}
@@ -434,6 +455,7 @@ func TestDatabaseDriver_Set_BypassesResolver(t *testing.T) {
 	}
 
 	val, err := drv.Get(ctx, "flag", nil)
+
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
@@ -460,6 +482,7 @@ func TestDatabaseDriver_SetAll(t *testing.T) {
 	}
 
 	valA, err := drv.Get(ctx, "flag-a", "user:1")
+
 	if err != nil {
 		t.Fatalf("Get flag-a: %v", err)
 	}
@@ -469,6 +492,7 @@ func TestDatabaseDriver_SetAll(t *testing.T) {
 	}
 
 	valB, err := drv.Get(ctx, "flag-b", "user:1")
+
 	if err != nil {
 		t.Fatalf("Get flag-b: %v", err)
 	}
@@ -502,6 +526,7 @@ func TestDatabaseDriver_SetForAllScopes(t *testing.T) {
 
 	for _, scope := range []any{"user:1", "user:2"} {
 		val, err := drv.Get(ctx, "flag", scope)
+
 		if err != nil {
 			t.Fatalf("Get %v: %v", scope, err)
 		}
@@ -523,6 +548,7 @@ func TestDatabaseDriver_Delete(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 
@@ -562,6 +588,7 @@ func TestDatabaseDriver_Purge_All(t *testing.T) {
 	}
 
 	stored, err := drv.Stored(ctx)
+
 	if err != nil {
 		t.Fatalf("Stored: %v", err)
 	}
@@ -589,6 +616,7 @@ func TestDatabaseDriver_Purge_Specific(t *testing.T) {
 	}
 
 	stored, err := drv.Stored(ctx)
+
 	if err != nil {
 		t.Fatalf("Stored: %v", err)
 	}
@@ -614,6 +642,7 @@ func TestDatabaseDriver_Purge_EmptySlice_IsNoOp(t *testing.T) {
 	}
 
 	stored, err := drv.Stored(ctx)
+
 	if err != nil {
 		t.Fatalf("Stored: %v", err)
 	}
@@ -636,6 +665,7 @@ func TestDatabaseDriver_Stored(t *testing.T) {
 	drv.Get(ctx, "flag-a", nil) //nolint:errcheck
 
 	stored, err := drv.Stored(ctx)
+
 	if err != nil {
 		t.Fatalf("Stored: %v", err)
 	}
@@ -657,11 +687,13 @@ func TestDatabaseDriver_JSON_Bool_RoundTrip(t *testing.T) {
 	}
 
 	val, err := drv.Get(ctx, "feature", "scope1")
+
 	if err != nil {
 		t.Fatalf("Get false: %v", err)
 	}
 
 	b, ok := val.(bool)
+
 	if !ok {
 		t.Fatalf("expected bool, got %T (%v)", val, val)
 	}
@@ -675,11 +707,13 @@ func TestDatabaseDriver_JSON_Bool_RoundTrip(t *testing.T) {
 	}
 
 	val2, err := drv.Get(ctx, "feature2", "scope1")
+
 	if err != nil {
 		t.Fatalf("Get true: %v", err)
 	}
 
 	b2, ok := val2.(bool)
+
 	if !ok {
 		t.Fatalf("expected bool, got %T (%v)", val2, val2)
 	}
@@ -701,11 +735,13 @@ func TestDatabaseDriver_JSON_String_RoundTrip(t *testing.T) {
 	}
 
 	val, err := drv.Get(ctx, "theme", "user:42")
+
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
 
 	s, ok := val.(string)
+
 	if !ok {
 		t.Fatalf("expected string, got %T (%v)", val, val)
 	}

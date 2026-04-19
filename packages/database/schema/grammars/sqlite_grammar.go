@@ -20,6 +20,7 @@ func NewSQLiteGrammar() *SQLiteGrammar { return &SQLiteGrammar{} }
 func (g *SQLiteGrammar) CompileCreate(bp *schema.Blueprint) []string {
 	columns := g.getColumns(bp)
 	temporary := ""
+
 	if bp.Temporary {
 		temporary = "temporary "
 	}
@@ -39,9 +40,11 @@ func (g *SQLiteGrammar) CompileCreate(bp *schema.Blueprint) []string {
 
 func (g *SQLiteGrammar) CompileAdd(bp *schema.Blueprint) []string {
 	var statements []string
+
 	for _, col := range bp.GetAddedColumns() {
 		statements = append(statements, fmt.Sprintf("alter table %s add column %s", g.wrapTable(bp.Table), g.compileColumn(col)))
 	}
+
 	return statements
 }
 
@@ -49,9 +52,11 @@ func (g *SQLiteGrammar) CompileChange(bp *schema.Blueprint) []string {
 	// SQLite has limited ALTER TABLE support. Column modification requires
 	// recreating the table in many cases.
 	var statements []string
+
 	for _, col := range bp.GetChangedColumns() {
 		statements = append(statements, fmt.Sprintf("alter table %s rename column %s to %s", g.wrapTable(bp.Table), g.wrap(col.Name), g.wrap(col.Name)))
 	}
+
 	return statements
 }
 
@@ -69,9 +74,11 @@ func (g *SQLiteGrammar) CompileRename(from, to string) string {
 
 func (g *SQLiteGrammar) CompileDropColumn(bp *schema.Blueprint, columns []string) string {
 	cols := make([]string, len(columns))
+
 	for i, c := range columns {
 		cols[i] = g.wrap(c)
 	}
+
 	return "alter table " + g.wrapTable(bp.Table) + " drop column " + strings.Join(cols, ", drop column ")
 }
 
@@ -81,6 +88,7 @@ func (g *SQLiteGrammar) CompileRenameColumn(bp *schema.Blueprint, from, to strin
 
 func (g *SQLiteGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.BlueprintCommand) string {
 	cols := make([]string, len(cmd.Columns))
+
 	for i, c := range cmd.Columns {
 		cols[i] = g.wrap(c)
 	}
@@ -94,6 +102,7 @@ func (g *SQLiteGrammar) CompileCreateIndex(bp *schema.Blueprint, cmd schema.Blue
 		// SQLite handles primary keys in CREATE TABLE.
 		return ""
 	}
+
 	return ""
 }
 
@@ -129,9 +138,11 @@ func (g *SQLiteGrammar) CompileDisableForeignKeyConstraints() string {
 
 func (g *SQLiteGrammar) getColumns(bp *schema.Blueprint) []string {
 	var cols []string
+
 	for _, col := range bp.GetAddedColumns() {
 		cols = append(cols, g.compileColumn(col))
 	}
+
 	return cols
 }
 
@@ -140,6 +151,7 @@ func (g *SQLiteGrammar) compileColumn(col *schema.ColumnDefinition) string {
 
 	if col.AutoIncrement {
 		sql = g.wrap(col.Name) + " integer primary key autoincrement"
+
 		return sql
 	}
 
@@ -166,6 +178,7 @@ func (g *SQLiteGrammar) getType(col *schema.ColumnDefinition) string {
 		if col.Length > 0 {
 			return fmt.Sprintf("varchar(%d)", col.Length)
 		}
+
 		return "varchar"
 	case "text", "tinyText", "mediumText", "longText":
 		return "text"
@@ -214,6 +227,7 @@ func (g *SQLiteGrammar) getDefaultValue(value any) string {
 		if v {
 			return "1"
 		}
+
 		return "0"
 	case nil:
 		return "null"
@@ -226,6 +240,7 @@ func (g *SQLiteGrammar) wrap(value string) string {
 	if value == "*" {
 		return value
 	}
+
 	return "\"" + strings.ReplaceAll(value, "\"", "\"\"") + "\""
 }
 

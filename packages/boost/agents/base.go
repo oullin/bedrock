@@ -63,6 +63,7 @@ func (b *BaseAgent) TransformGuidelines(markdown string) string { return markdow
 // binary is resolved via exec.LookPath. Adapts PHP's getPhpPath().
 func (b *BaseAgent) GoBinaryPath(forceAbsolute bool) string {
 	binary := b.opts.GoBinary
+
 	if binary == "" {
 		binary = "go"
 	}
@@ -75,6 +76,7 @@ func (b *BaseAgent) GoBinaryPath(forceAbsolute bool) string {
 		if p, err := exec.LookPath(binary); err == nil {
 			return p
 		}
+
 		if gr := runtime.GOROOT(); gr != "" {
 			return filepath.Join(gr, "bin", "go")
 		}
@@ -87,6 +89,7 @@ func (b *BaseAgent) GoBinaryPath(forceAbsolute bool) string {
 // Adapts PHP's getArtisanPath(); defaults to "main.go".
 func (b *BaseAgent) EntryPointPath(forceAbsolute bool) string {
 	ep := b.opts.EntryPoint
+
 	if ep == "" {
 		ep = "main.go"
 	}
@@ -162,6 +165,7 @@ func normalizeCommand(command string, extraArgs []string) (string, []string) {
 	}
 
 	parts := strings.Fields(command)
+
 	if len(parts) <= 1 {
 		return command, extraArgs
 	}
@@ -183,6 +187,7 @@ func writeJSONConfigEntry(
 	skeleton map[string]any,
 ) (bool, error) {
 	_, err := jsonconfig.WriteEntry(configPath, configKey, serverKey, serverConfig, skeleton)
+
 	if err != nil {
 		return false, err
 	}
@@ -206,23 +211,27 @@ func fallback(override, def string) string {
 // existsOnDisk reports whether path exists on the filesystem.
 func existsOnDisk(path string) bool {
 	_, err := os.Stat(path)
+
 	return err == nil
 }
 
 // commandInPath reports whether the binary name is in PATH.
 func commandInPath(name string) bool {
 	_, err := exec.LookPath(name)
+
 	return err == nil
 }
 
 // commandExists runs the shell detection command and returns true on exit 0.
 func commandExists(command string) bool {
 	parts := strings.Fields(command)
+
 	if len(parts) == 0 {
 		return false
 	}
 
 	cmd := exec.Command(parts[0], parts[1:]...) //nolint:gosec
+
 	return cmd.Run() == nil
 }
 

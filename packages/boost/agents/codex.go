@@ -11,6 +11,7 @@ type Codex struct {
 // NewCodex constructs a Codex agent.
 func NewCodex(opts ...AgentOptions) *Codex {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

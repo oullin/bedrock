@@ -18,6 +18,7 @@ func NewSlackProvider(req *http.Request, session Session, clientID, clientSecret
 	s.AbstractProvider = NewAbstractProvider(s, req, session, clientID, clientSecret, redirectURL)
 	s.scopes = []string{"identity.basic", "identity.email", "identity.team", "identity.avatar"}
 	s.scopeSep = ","
+
 	return s
 }
 
@@ -25,6 +26,7 @@ func NewSlackProvider(req *http.Request, session Session, clientID, clientSecret
 // the human user token. It mirrors SlackProvider::asBotUser().
 func (s *SlackProvider) AsBotUser() *SlackProvider {
 	s.asBotUser = true
+
 	return s
 }
 
@@ -44,20 +46,25 @@ func (s *SlackProvider) GetUserByToken(ctx context.Context, token string) (map[s
 
 func (s *SlackProvider) MapUserToObject(raw map[string]any) *User {
 	u := &User{}
+
 	if user, ok := raw["user"].(map[string]any); ok {
 		u.ID = stringify(user["id"])
 		u.Name = stringify(user["name"])
 		u.Email = stringify(user["email"])
+
 		if image, ok := user["image_512"].(string); ok {
 			u.Avatar = image
 		}
 	}
+
 	if team, ok := raw["team"].(map[string]any); ok {
 		if u.Attributes == nil {
 			u.Attributes = make(map[string]any)
 		}
+
 		u.Attributes["organization"] = stringify(team["name"])
 	}
+
 	return u
 }
 

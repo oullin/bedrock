@@ -45,6 +45,7 @@ func (p *Provider) Stream(ctx context.Context, req contractsprovider.TextPromptR
 
 func (p *Provider) UseTextGateway(gw contractsgw.TextGateway) contractsprovider.TextProvider {
 	p.Provider.UseTextGateway(gw)
+
 	return p
 }
 
@@ -60,6 +61,7 @@ func (p *Provider) Image(ctx context.Context, req contractsprovider.ImageGenerat
 
 func (p *Provider) UseImageGateway(gw contractsgw.ImageGateway) contractsprovider.ImageProvider {
 	p.Provider.UseImageGateway(gw)
+
 	return p
 }
 
@@ -73,6 +75,7 @@ func (p *Provider) Audio(ctx context.Context, req contractsprovider.AudioGenerat
 
 func (p *Provider) UseAudioGateway(gw contractsgw.AudioGateway) contractsprovider.AudioProvider {
 	p.Provider.UseAudioGateway(gw)
+
 	return p
 }
 
@@ -86,11 +89,12 @@ func (p *Provider) Embeddings(ctx context.Context, req contractsprovider.Embeddi
 
 func (p *Provider) UseEmbeddingGateway(gw contractsgw.EmbeddingGateway) contractsprovider.EmbeddingProvider {
 	p.Provider.UseEmbeddingGateway(gw)
+
 	return p
 }
 
-func (p *Provider) DefaultEmbeddingsModel() string    { return "text-embedding-3-small" }
-func (p *Provider) DefaultEmbeddingsDimensions() int  { return 1536 }
+func (p *Provider) DefaultEmbeddingsModel() string   { return "text-embedding-3-small" }
+func (p *Provider) DefaultEmbeddingsDimensions() int { return 1536 }
 
 // --- TranscriptionProvider ---
 
@@ -100,6 +104,7 @@ func (p *Provider) Transcribe(ctx context.Context, req contractsprovider.Transcr
 
 func (p *Provider) UseTranscriptionGateway(gw contractsgw.TranscriptionGateway) contractsprovider.TranscriptionProvider {
 	p.Provider.UseTranscriptionGateway(gw)
+
 	return p
 }
 
@@ -121,6 +126,7 @@ func (p *Provider) DeleteFile(ctx context.Context, id string) error {
 
 func (p *Provider) UseFileGateway(gw contractsgw.FileGateway) contractsprovider.FileProvider {
 	p.Provider.UseFileGateway(gw)
+
 	return p
 }
 
@@ -148,5 +154,6 @@ func (p *Provider) DeleteStore(ctx context.Context, id string) error {
 
 func (p *Provider) UseStoreGateway(gw contractsgw.StoreGateway) contractsprovider.StoreProvider {
 	p.Provider.UseStoreGateway(gw)
+
 	return p
 }

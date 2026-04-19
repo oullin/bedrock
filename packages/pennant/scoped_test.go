@@ -19,6 +19,7 @@ func newScopedWithFeatures(
 	scope any,
 ) *pennant.ScopedFeatureInteraction {
 	drv := pennant.NewArrayDriver()
+
 	for name, resolver := range features {
 		drv.Define(name, resolver)
 	}
@@ -137,6 +138,7 @@ func TestScoped_Value_Returns_RawValue(t *testing.T) {
 	}, nil)
 
 	val, err := s.Value(ctx, "flag")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -156,6 +158,7 @@ func TestScoped_Values_ReturnsMap(t *testing.T) {
 	}, nil)
 
 	vals, err := s.Values(ctx, []string{"flag-a", "flag-b"})
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -303,6 +306,7 @@ func TestScoped_ActivateWithValue_SetsCustomValue(t *testing.T) {
 	}
 
 	val, err := s.Value(ctx, "theme")
+
 	if err != nil {
 		t.Fatalf("Value returned error: %v", err)
 	}
@@ -345,6 +349,7 @@ func TestScoped_Forget_RemovesState(t *testing.T) {
 	drv := pennant.NewArrayDriver()
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 
@@ -394,6 +399,7 @@ func TestScoped_Purge_RemovesAll(t *testing.T) {
 	}
 
 	stored, err := dec.Stored(ctx)
+
 	if err != nil {
 		t.Fatalf("Stored returned error: %v", err)
 	}
@@ -460,6 +466,7 @@ func TestScoped_When_NilCallbacksNoPanic(t *testing.T) {
 	}, nil)
 
 	result, err := s.When(ctx, "flag", nil, nil)
+
 	if err != nil {
 		t.Fatalf("When with nil callbacks returned error: %v", err)
 	}
@@ -506,6 +513,7 @@ func TestScoped_Load_PopulatesCache(t *testing.T) {
 	drv := pennant.NewArrayDriver()
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 

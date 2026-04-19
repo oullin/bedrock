@@ -17,6 +17,7 @@ func TestFileCanBePut(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.FileProvider()
+
 	if err != nil {
 		t.Fatalf("FileProvider error: %v", err)
 	}
@@ -27,9 +28,11 @@ func TestFileCanBePut(t *testing.T) {
 		MimeType: "text/plain",
 	}
 	result, putErr := provider.PutFile(context.Background(), file)
+
 	if putErr != nil {
 		t.Fatalf("PutFile error: %v", putErr)
 	}
+
 	if result == nil {
 		t.Error("expected non-nil file put result")
 	}
@@ -57,11 +60,13 @@ func TestFileCanBeDeleted(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.FileProvider()
+
 	if err != nil {
 		t.Fatalf("FileProvider error: %v", err)
 	}
 
 	delErr := provider.DeleteFile(context.Background(), "file-abc-123")
+
 	if delErr != nil {
 		t.Fatalf("DeleteFile error: %v", delErr)
 	}

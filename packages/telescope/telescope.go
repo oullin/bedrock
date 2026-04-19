@@ -31,33 +31,15 @@ type AfterStoringFunc func(batchID string, entries []*IncomingEntry)
 type Option func(*Telescope)
 
 // WithRepository sets the persistence backend.
-func WithRepository(r Repository) Option {
-	return func(t *Telescope) { t.repository = r }
-}
 
 // WithHiddenRequestHeaders registers header names whose values will be masked
 // with "********" in recorded request entries.
-func WithHiddenRequestHeaders(headers ...string) Option {
-	return func(t *Telescope) {
-		t.hiddenRequestHeaders = append(t.hiddenRequestHeaders, headers...)
-	}
-}
 
 // WithHiddenRequestParameters registers parameter names whose values will be
 // masked in recorded request payload.
-func WithHiddenRequestParameters(params ...string) Option {
-	return func(t *Telescope) {
-		t.hiddenRequestParameters = append(t.hiddenRequestParameters, params...)
-	}
-}
 
 // WithHiddenResponseParameters registers parameter names whose values will be
 // masked in recorded response bodies.
-func WithHiddenResponseParameters(params ...string) Option {
-	return func(t *Telescope) {
-		t.hiddenResponseParameters = append(t.hiddenResponseParameters, params...)
-	}
-}
 
 // Telescope is the central hub that collects, filters, tags, and stores
 // telemetry entries. It mirrors the behaviour of Laravel's Telescope class.
@@ -88,6 +70,28 @@ type Telescope struct {
 	batchID string
 }
 
+func WithRepository(r Repository) Option {
+	return func(t *Telescope) { t.repository = r }
+}
+
+func WithHiddenRequestHeaders(headers ...string) Option {
+	return func(t *Telescope) {
+		t.hiddenRequestHeaders = append(t.hiddenRequestHeaders, headers...)
+	}
+}
+
+func WithHiddenRequestParameters(params ...string) Option {
+	return func(t *Telescope) {
+		t.hiddenRequestParameters = append(t.hiddenRequestParameters, params...)
+	}
+}
+
+func WithHiddenResponseParameters(params ...string) Option {
+	return func(t *Telescope) {
+		t.hiddenResponseParameters = append(t.hiddenResponseParameters, params...)
+	}
+}
+
 // New creates a Telescope instance with the given options. Recording is
 // disabled by default; call StartRecording to begin capturing entries.
 func New(opts ...Option) *Telescope {
@@ -114,6 +118,7 @@ func New(opts ...Option) *Telescope {
 // StartRecording enables entry recording and assigns a new batch UUID.
 func (t *Telescope) StartRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.recording = true
@@ -124,6 +129,7 @@ func (t *Telescope) StartRecording() {
 // StopRecording disables entry recording.
 func (t *Telescope) StopRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.recording = false
@@ -132,6 +138,7 @@ func (t *Telescope) StopRecording() {
 // PauseRecording temporarily halts recording without resetting the batch.
 func (t *Telescope) PauseRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.paused = true
@@ -140,6 +147,7 @@ func (t *Telescope) PauseRecording() {
 // ResumeRecording re-enables recording after a pause.
 func (t *Telescope) ResumeRecording() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.paused = false
@@ -148,6 +156,7 @@ func (t *Telescope) ResumeRecording() {
 // IsRecording reports whether entries are currently being captured.
 func (t *Telescope) IsRecording() bool {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.recording && !t.paused
@@ -156,6 +165,7 @@ func (t *Telescope) IsRecording() bool {
 // WithoutRecording executes fn while recording is paused, then resumes.
 func (t *Telescope) WithoutRecording(fn func()) {
 	t.PauseRecording()
+
 	defer t.ResumeRecording()
 
 	fn()
@@ -165,6 +175,7 @@ func (t *Telescope) WithoutRecording(fn func()) {
 // it. Call this at the start of each logical request/command.
 func (t *Telescope) NewBatch() string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.batchID = uuid.New().String()
@@ -175,6 +186,7 @@ func (t *Telescope) NewBatch() string {
 // CurrentBatchID returns the active batch UUID.
 func (t *Telescope) CurrentBatchID() string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.batchID
@@ -186,6 +198,7 @@ func (t *Telescope) CurrentBatchID() string {
 // recorded. If any registered filter returns false the entry is dropped.
 func (t *Telescope) Filter(fn FilterFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.filterCallbacks = append(t.filterCallbacks, fn)
@@ -195,6 +208,7 @@ func (t *Telescope) Filter(fn FilterFunc) {
 // queued entries is stored. Receives the full slice; return false to drop all.
 func (t *Telescope) FilterBatch(fn FilterBatchFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.filterBatchCallbacks = append(t.filterBatchCallbacks, fn)
@@ -204,6 +218,7 @@ func (t *Telescope) FilterBatch(fn FilterBatchFunc) {
 // passes all filters.
 func (t *Telescope) Tag(fn TagFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.tagCallbacks = append(t.tagCallbacks, fn)
@@ -213,6 +228,7 @@ func (t *Telescope) Tag(fn TagFunc) {
 // appended to the queue.
 func (t *Telescope) AfterRecording(fn AfterRecordingFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.afterRecordingCallbacks = append(t.afterRecordingCallbacks, fn)
@@ -222,6 +238,7 @@ func (t *Telescope) AfterRecording(fn AfterRecordingFunc) {
 // persisted. Receives the batch UUID and the stored entries.
 func (t *Telescope) AfterStoring(fn AfterStoringFunc) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.afterStoringCallbacks = append(t.afterStoringCallbacks, fn)
@@ -231,6 +248,7 @@ func (t *Telescope) AfterStoring(fn AfterStoringFunc) {
 // masked in recorded entries.
 func (t *Telescope) HiddenRequestHeaders() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenRequestHeaders))
@@ -243,6 +261,7 @@ func (t *Telescope) HiddenRequestHeaders() []string {
 // will be masked in recorded entries.
 func (t *Telescope) HiddenRequestParameters() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenRequestParameters))
@@ -255,6 +274,7 @@ func (t *Telescope) HiddenRequestParameters() []string {
 // will be masked in recorded entries.
 func (t *Telescope) HiddenResponseParameters() []string {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]string, len(t.hiddenResponseParameters))
@@ -274,6 +294,7 @@ func (t *Telescope) Record(entry *IncomingEntry) {
 
 	if !t.recording || t.paused {
 		t.mu.Unlock()
+
 		return
 	}
 
@@ -283,6 +304,7 @@ func (t *Telescope) Record(entry *IncomingEntry) {
 	for _, fn := range t.filterCallbacks {
 		if !fn(entry) {
 			t.mu.Unlock()
+
 			return
 		}
 	}
@@ -408,6 +430,7 @@ func (t *Telescope) Store(ctx context.Context) error {
 	for _, fn := range t.filterBatchCallbacks {
 		if !fn(entries) {
 			t.mu.Unlock()
+
 			return nil
 		}
 	}
@@ -443,6 +466,7 @@ func (t *Telescope) Store(ctx context.Context) error {
 // Update queues a set of entry mutations to be flushed on the next Store call.
 func (t *Telescope) Update(updates []*EntryUpdate) {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.updatesQueue = append(t.updatesQueue, updates...)
@@ -451,6 +475,7 @@ func (t *Telescope) Update(updates []*EntryUpdate) {
 // Flush discards all queued entries and updates without persisting them.
 func (t *Telescope) Flush() {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	t.entriesQueue = nil
@@ -461,6 +486,7 @@ func (t *Telescope) Flush() {
 // tests to inspect state before Store is called).
 func (t *Telescope) QueuedEntries() []*IncomingEntry {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	out := make([]*IncomingEntry, len(t.entriesQueue))
@@ -472,6 +498,7 @@ func (t *Telescope) QueuedEntries() []*IncomingEntry {
 // Repository returns the configured persistence backend.
 func (t *Telescope) Repository() Repository {
 	t.mu.Lock()
+
 	defer t.mu.Unlock()
 
 	return t.repository

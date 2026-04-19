@@ -11,7 +11,6 @@ import (
 )
 
 // ErrNotFound is returned when no entry matches the requested UUID.
-var ErrNotFound = errors.New("telescope: entry not found")
 
 // storedEntry pairs an IncomingEntry with its auto-assigned sequence number.
 type storedEntry struct {
@@ -23,11 +22,13 @@ type storedEntry struct {
 // for use in tests. It mirrors the behaviour of DatabaseEntriesRepository
 // without requiring a database connection.
 type InMemoryRepository struct {
-	mu             sync.RWMutex
-	entries        []*storedEntry
-	monitoredTags  map[string]struct{}
-	nextSequence   int64
+	mu            sync.RWMutex
+	entries       []*storedEntry
+	monitoredTags map[string]struct{}
+	nextSequence  int64
 }
+
+var ErrNotFound = errors.New("telescope: entry not found")
 
 // NewInMemoryRepository creates an empty InMemoryRepository.
 func NewInMemoryRepository() *InMemoryRepository {
@@ -43,6 +44,7 @@ var _ telescope.Repository = (*InMemoryRepository)(nil)
 // Find retrieves a single entry by UUID.
 func (r *InMemoryRepository) Find(id string) (*telescope.EntryResult, error) {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, se := range r.entries {
@@ -57,9 +59,11 @@ func (r *InMemoryRepository) Find(id string) (*telescope.EntryResult, error) {
 // Get retrieves entries of the given type filtered by EntryQueryOptions.
 func (r *InMemoryRepository) Get(entryType string, opts telescope.EntryQueryOptions) ([]*telescope.EntryResult, error) {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	limit := opts.Limit
+
 	if limit <= 0 {
 		limit = 50
 	}
@@ -108,6 +112,7 @@ func (r *InMemoryRepository) Get(entryType string, opts telescope.EntryQueryOpti
 // Store persists a batch of incoming entries.
 func (r *InMemoryRepository) Store(entries []*telescope.IncomingEntry) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, e := range entries {
@@ -124,6 +129,7 @@ func (r *InMemoryRepository) Store(entries []*telescope.IncomingEntry) error {
 // Update applies field mutations to stored entries.
 func (r *InMemoryRepository) Update(updates []*telescope.EntryUpdate) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	index := make(map[string]*storedEntry, len(r.entries))
@@ -134,6 +140,7 @@ func (r *InMemoryRepository) Update(updates []*telescope.EntryUpdate) error {
 
 	for _, u := range updates {
 		se, ok := index[u.UUID]
+
 		if !ok {
 			continue
 		}
@@ -184,6 +191,7 @@ func (r *InMemoryRepository) LoadMonitoredTags() error { return nil }
 // IsMonitoring reports whether any of the given tags are monitored.
 func (r *InMemoryRepository) IsMonitoring(tags []string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, t := range tags {
@@ -198,6 +206,7 @@ func (r *InMemoryRepository) IsMonitoring(tags []string) bool {
 // Monitoring returns the list of currently monitored tags.
 func (r *InMemoryRepository) Monitoring() []string {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	out := make([]string, 0, len(r.monitoredTags))
@@ -214,6 +223,7 @@ func (r *InMemoryRepository) Monitoring() []string {
 // Monitor activates monitoring for the given tags.
 func (r *InMemoryRepository) Monitor(tags []string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, t := range tags {
@@ -226,6 +236,7 @@ func (r *InMemoryRepository) Monitor(tags []string) error {
 // StopMonitoring deactivates monitoring for the given tags.
 func (r *InMemoryRepository) StopMonitoring(tags []string) error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, t := range tags {
@@ -238,6 +249,7 @@ func (r *InMemoryRepository) StopMonitoring(tags []string) error {
 // Clear removes all stored entries.
 func (r *InMemoryRepository) Clear() error {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.entries = nil
@@ -250,15 +262,18 @@ func (r *InMemoryRepository) Clear() error {
 // exception entries are retained regardless of age.
 func (r *InMemoryRepository) Prune(before time.Time, keepExceptions bool) (int64, error) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	var kept []*storedEntry
+
 	var pruned int64
 
 	for _, se := range r.entries {
 		if se.entry.RecordedAt.Before(before) {
 			if keepExceptions && se.entry.Type == telescope.EntryTypeException {
 				kept = append(kept, se)
+
 				continue
 			}
 
@@ -278,6 +293,7 @@ func (r *InMemoryRepository) Prune(before time.Time, keepExceptions bool) (int64
 // Entries returns a snapshot of all stored entries (for test assertions).
 func (r *InMemoryRepository) Entries() []*telescope.IncomingEntry {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	out := make([]*telescope.IncomingEntry, len(r.entries))
@@ -292,6 +308,7 @@ func (r *InMemoryRepository) Entries() []*telescope.IncomingEntry {
 // Count returns the total number of stored entries.
 func (r *InMemoryRepository) Count() int {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return len(r.entries)

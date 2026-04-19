@@ -21,6 +21,7 @@ type ToolRegistry struct {
 func NewRegistry() *ToolRegistry {
 	r := &ToolRegistry{}
 	r.loadDefaults()
+
 	return r
 }
 
@@ -43,11 +44,13 @@ func (r *ToolRegistry) loadDefaults() {
 // exists it is replaced.
 func (r *ToolRegistry) Register(t tools.McpTool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for i, existing := range r.registered {
 		if existing.Name() == t.Name() {
 			r.registered[i] = t
+
 			return
 		}
 	}
@@ -59,7 +62,9 @@ func (r *ToolRegistry) Register(t tools.McpTool) {
 // empty slice re-enables all tools.
 func (r *ToolRegistry) SetAllowed(names []string) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.allowed = names
 }
 
@@ -67,6 +72,7 @@ func (r *ToolRegistry) SetAllowed(names []string) {
 // allow-list is set, in which case all tools are allowed).
 func (r *ToolRegistry) IsToolAllowed(name string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	if len(r.allowed) == 0 {
@@ -86,15 +92,18 @@ func (r *ToolRegistry) IsToolAllowed(name string) bool {
 // allow-list filter.
 func (r *ToolRegistry) GetAvailableTools() []tools.McpTool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	if len(r.allowed) == 0 {
 		out := make([]tools.McpTool, len(r.registered))
 		copy(out, r.registered)
+
 		return out
 	}
 
 	var out []tools.McpTool
+
 	for _, t := range r.registered {
 		if r.isAllowed(t.Name()) {
 			out = append(out, t)
@@ -108,15 +117,18 @@ func (r *ToolRegistry) GetAvailableTools() []tools.McpTool {
 func (r *ToolRegistry) GetToolNames() []string {
 	available := r.GetAvailableTools()
 	names := make([]string, len(available))
+
 	for i, t := range available {
 		names[i] = t.Name()
 	}
+
 	return names
 }
 
 // Find returns the tool with the given name, or nil if not found or not allowed.
 func (r *ToolRegistry) Find(name string) tools.McpTool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	if !r.isAllowed(name) {
@@ -135,7 +147,9 @@ func (r *ToolRegistry) Find(name string) tools.McpTool {
 // ClearCache removes the allow-list, making all registered tools visible again.
 func (r *ToolRegistry) ClearCache() {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.allowed = nil
 }
 

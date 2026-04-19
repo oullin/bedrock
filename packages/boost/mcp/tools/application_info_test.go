@@ -27,11 +27,13 @@ func TestApplicationInfoHandle(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("content data type = %T, want map[string]any", resp.Content[0].Data)
 	}
 
 	wantKeys := []string{"go_version", "os", "arch"}
+
 	for _, k := range wantKeys {
 		if _, exists := data[k]; !exists {
 			t.Errorf("response missing key %q", k)

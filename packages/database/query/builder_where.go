@@ -66,12 +66,14 @@ func (b *Builder) where(boolean string, args ...any) *Builder {
 func (b *Builder) whereNested(boolean string, fn func(*Builder)) *Builder {
 	query := b.NewQuery().From(b.from)
 	fn(query)
+
 	if len(query.wheres) > 0 {
 		b.wheres = append(b.wheres, WhereClause{
 			Type: WhereNested, Query: query, Boolean: boolean,
 		})
 		b.AddBinding(BindingWhere, query.GetRawBindings()[BindingWhere]...)
 	}
+
 	return b
 }
 
@@ -82,6 +84,7 @@ func (b *Builder) whereMap(boolean string, m map[string]any) *Builder {
 		})
 		b.AddBinding(BindingWhere, val)
 	}
+
 	return b
 }
 
@@ -97,16 +100,20 @@ func (b *Builder) OrWhereColumn(first string, args ...any) *Builder {
 
 func (b *Builder) whereColumn(boolean, first string, args ...any) *Builder {
 	operator := "="
+
 	var second string
+
 	if len(args) == 1 {
 		second, _ = args[0].(string)
 	} else if len(args) >= 2 {
 		operator, _ = args[0].(string)
 		second, _ = args[1].(string)
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereColumn, Column: first, Operator: operator, Value: second, Boolean: boolean,
 	})
+
 	return b
 }
 
@@ -132,25 +139,31 @@ func (b *Builder) OrWhereNotIn(column string, values []any) *Builder {
 
 func (b *Builder) whereIn(boolean, column string, values []any, not bool) *Builder {
 	t := WhereIn
+
 	if not {
 		t = WhereNotIn
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: t, Column: column, Values: values, Boolean: boolean,
 	})
 	b.AddBinding(BindingWhere, values...)
+
 	return b
 }
 
 // WhereIntegerInRaw adds a WHERE IN with raw integer values (no bindings).
 func (b *Builder) WhereIntegerInRaw(column string, values []int64) *Builder {
 	anyValues := make([]any, len(values))
+
 	for i, v := range values {
 		anyValues[i] = v
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereIn, Column: column, Values: anyValues, Boolean: "and",
 	})
+
 	return b
 }
 
@@ -161,6 +174,7 @@ func (b *Builder) WhereNull(columns ...string) *Builder {
 			Type: WhereNull, Column: col, Boolean: "and",
 		})
 	}
+
 	return b
 }
 
@@ -169,6 +183,7 @@ func (b *Builder) OrWhereNull(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereNull, Column: column, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -179,6 +194,7 @@ func (b *Builder) WhereNotNull(columns ...string) *Builder {
 			Type: WhereNotNull, Column: col, Boolean: "and",
 		})
 	}
+
 	return b
 }
 
@@ -187,6 +203,7 @@ func (b *Builder) OrWhereNotNull(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereNotNull, Column: column, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -212,13 +229,16 @@ func (b *Builder) OrWhereNotBetween(column string, values [2]any) *Builder {
 
 func (b *Builder) whereBetween(boolean, column string, values [2]any, not bool) *Builder {
 	t := WhereBetween
+
 	if not {
 		t = WhereNotBetween
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: t, Column: column, Values: []any{values[0], values[1]}, Boolean: boolean, Not: not,
 	})
 	b.AddBinding(BindingWhere, values[0], values[1])
+
 	return b
 }
 
@@ -227,6 +247,7 @@ func (b *Builder) WhereBetweenColumns(column string, columns [2]string) *Builder
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereBetweenColumns, Column: column, Columns: columns[:], Boolean: "and",
 	})
+
 	return b
 }
 
@@ -235,6 +256,7 @@ func (b *Builder) OrWhereBetweenColumns(column string, columns [2]string) *Build
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereBetweenColumns, Column: column, Columns: columns[:], Boolean: "or",
 	})
+
 	return b
 }
 
@@ -293,6 +315,7 @@ func (b *Builder) whereDateTime(boolean string, whereType WhereType, column, ope
 		Type: whereType, Column: column, Operator: operator, Value: value, Boolean: boolean,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -302,6 +325,7 @@ func (b *Builder) WhereRaw(sql string, bindings ...any) *Builder {
 		Type: WhereRaw, SQL: sql, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, bindings...)
+
 	return b
 }
 
@@ -311,6 +335,7 @@ func (b *Builder) OrWhereRaw(sql string, bindings ...any) *Builder {
 		Type: WhereRaw, SQL: sql, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, bindings...)
+
 	return b
 }
 
@@ -336,6 +361,7 @@ func (b *Builder) OrWhereNotExists(query any) *Builder {
 
 func (b *Builder) whereExists(boolean string, query any, not bool) *Builder {
 	t := WhereExists
+
 	if not {
 		t = WhereNotExists
 	}
@@ -374,6 +400,7 @@ func (b *Builder) WhereSub(column, operator string, query any) *Builder {
 		})
 		b.AddBinding(BindingWhere, q.GetBindings()...)
 	}
+
 	return b
 }
 
@@ -383,6 +410,7 @@ func (b *Builder) WhereLike(column string, value any, caseSensitive ...bool) *Bu
 		Type: WhereLike, Column: column, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -392,6 +420,7 @@ func (b *Builder) OrWhereLike(column string, value any, caseSensitive ...bool) *
 		Type: WhereLike, Column: column, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -401,6 +430,7 @@ func (b *Builder) WhereNotLike(column string, value any, caseSensitive ...bool) 
 		Type: WhereNotLike, Column: column, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -410,6 +440,7 @@ func (b *Builder) OrWhereNotLike(column string, value any, caseSensitive ...bool
 		Type: WhereNotLike, Column: column, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -419,6 +450,7 @@ func (b *Builder) WhereJsonContains(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -428,6 +460,7 @@ func (b *Builder) OrWhereJsonContains(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -437,6 +470,7 @@ func (b *Builder) WhereJsonLength(column, operator string, value any) *Builder {
 		Type: WhereJsonLength, Column: column, Operator: operator, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -446,6 +480,7 @@ func (b *Builder) OrWhereJsonLength(column, operator string, value any) *Builder
 		Type: WhereJsonLength, Column: column, Operator: operator, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -455,6 +490,7 @@ func (b *Builder) WhereFullText(columns []string, value string, options ...map[s
 		Type: WhereFullText, Columns: columns, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -464,6 +500,7 @@ func (b *Builder) OrWhereFullText(columns []string, value string, options ...map
 		Type: WhereFullText, Columns: columns, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -518,6 +555,7 @@ func (b *Builder) WhereRowValues(columns []string, operator string, values []any
 		Type: WhereRowValues, Columns: columns, Operator: operator, Values: values, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, values...)
+
 	return b
 }
 
@@ -527,6 +565,7 @@ func (b *Builder) OrWhereRowValues(columns []string, operator string, values []a
 		Type: WhereRowValues, Columns: columns, Operator: operator, Values: values, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, values...)
+
 	return b
 }
 
@@ -544,6 +583,7 @@ func (b *Builder) WhereNotBetweenColumns(column string, columns [2]string) *Buil
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereBetweenColumns, Column: column, Columns: columns[:], Boolean: "and", Not: true,
 	})
+
 	return b
 }
 
@@ -552,6 +592,7 @@ func (b *Builder) OrWhereNotBetweenColumns(column string, columns [2]string) *Bu
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereBetweenColumns, Column: column, Columns: columns[:], Boolean: "or", Not: true,
 	})
+
 	return b
 }
 
@@ -561,6 +602,7 @@ func (b *Builder) WhereValueBetween(value any, columns [2]string) *Builder {
 		Type: WhereBetweenColumns, Value: value, Columns: columns[:], Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -570,6 +612,7 @@ func (b *Builder) OrWhereValueBetween(value any, columns [2]string) *Builder {
 		Type: WhereBetweenColumns, Value: value, Columns: columns[:], Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -579,6 +622,7 @@ func (b *Builder) WhereValueNotBetween(value any, columns [2]string) *Builder {
 		Type: WhereBetweenColumns, Value: value, Columns: columns[:], Boolean: "and", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -588,42 +632,52 @@ func (b *Builder) OrWhereValueNotBetween(value any, columns [2]string) *Builder 
 		Type: WhereBetweenColumns, Value: value, Columns: columns[:], Boolean: "or", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
 // OrWhereIntegerInRaw adds an OR WHERE IN with raw integer values.
 func (b *Builder) OrWhereIntegerInRaw(column string, values []int64) *Builder {
 	anyValues := make([]any, len(values))
+
 	for i, v := range values {
 		anyValues[i] = v
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereIn, Column: column, Values: anyValues, Boolean: "or",
 	})
+
 	return b
 }
 
 // WhereIntegerNotInRaw adds a WHERE NOT IN with raw integer values.
 func (b *Builder) WhereIntegerNotInRaw(column string, values []int64) *Builder {
 	anyValues := make([]any, len(values))
+
 	for i, v := range values {
 		anyValues[i] = v
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereNotIn, Column: column, Values: anyValues, Boolean: "and",
 	})
+
 	return b
 }
 
 // OrWhereIntegerNotInRaw adds an OR WHERE NOT IN with raw integer values.
 func (b *Builder) OrWhereIntegerNotInRaw(column string, values []int64) *Builder {
 	anyValues := make([]any, len(values))
+
 	for i, v := range values {
 		anyValues[i] = v
 	}
+
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereNotIn, Column: column, Values: anyValues, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -633,6 +687,7 @@ func (b *Builder) WhereJsonDoesntContain(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "and", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -642,6 +697,7 @@ func (b *Builder) OrWhereJsonDoesntContain(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "or", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -651,6 +707,7 @@ func (b *Builder) WhereJsonOverlaps(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -660,6 +717,7 @@ func (b *Builder) OrWhereJsonOverlaps(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -669,6 +727,7 @@ func (b *Builder) WhereJsonDoesntOverlap(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "and", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -678,6 +737,7 @@ func (b *Builder) OrWhereJsonDoesntOverlap(column string, value any) *Builder {
 		Type: WhereJsonContains, Column: column, Value: value, Boolean: "or", Not: true,
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -686,6 +746,7 @@ func (b *Builder) WhereJsonContainsKey(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereJsonContains, Column: column, Boolean: "and",
 	})
+
 	return b
 }
 
@@ -694,6 +755,7 @@ func (b *Builder) OrWhereJsonContainsKey(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereJsonContains, Column: column, Boolean: "or",
 	})
+
 	return b
 }
 
@@ -702,6 +764,7 @@ func (b *Builder) WhereJsonDoesntContainKey(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereJsonContains, Column: column, Boolean: "and", Not: true,
 	})
+
 	return b
 }
 
@@ -710,6 +773,7 @@ func (b *Builder) OrWhereJsonDoesntContainKey(column string) *Builder {
 	b.wheres = append(b.wheres, WhereClause{
 		Type: WhereJsonContains, Column: column, Boolean: "or", Not: true,
 	})
+
 	return b
 }
 
@@ -719,6 +783,7 @@ func (b *Builder) WhereNullSafeEquals(column string, value any) *Builder {
 		Type: WhereBasic, Column: column, Operator: "<=>", Value: value, Boolean: "and",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 
@@ -728,6 +793,7 @@ func (b *Builder) OrWhereNullSafeEquals(column string, value any) *Builder {
 		Type: WhereBasic, Column: column, Operator: "<=>", Value: value, Boolean: "or",
 	})
 	b.AddBinding(BindingWhere, value)
+
 	return b
 }
 

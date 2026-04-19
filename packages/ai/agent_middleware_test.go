@@ -20,14 +20,17 @@ func TestMiddlewareIsExecuted(t *testing.T) {
 	executed := false
 	mw := contractsai.MiddlewareFunc(func(ctx context.Context, passable any, next func(any) (any, error)) (any, error) {
 		executed = true
+
 		return next(passable)
 	})
 
 	agent := ai.NewAnonymousAgent(m, "Be helpful.").WithMiddleware(mw)
 	_, err := agent.Prompt(context.Background(), "hello")
+
 	if err != nil {
 		t.Fatalf("Prompt error: %v", err)
 	}
+
 	if !executed {
 		t.Error("expected middleware to be executed")
 	}
@@ -44,11 +47,13 @@ func TestMiddlewareCanModifyPrompt(t *testing.T) {
 		if p, ok := passable.(*prompts.AgentPrompt); ok {
 			p.Text = "modified: " + p.Text
 		}
+
 		return next(passable)
 	})
 
 	agent := ai.NewAnonymousAgent(m, "Be helpful.").WithMiddleware(mw)
 	_, err := agent.Prompt(context.Background(), "original")
+
 	if err != nil {
 		t.Fatalf("Prompt error: %v", err)
 	}
@@ -76,9 +81,11 @@ func TestMiddlewareCanShortCircuit(t *testing.T) {
 
 	agent := ai.NewAnonymousAgent(m, "Be helpful.").WithMiddleware(mw)
 	_, err := agent.Prompt(context.Background(), "test")
+
 	if err != nil {
 		t.Fatalf("Prompt error: %v", err)
 	}
+
 	if !shortCircuited {
 		t.Error("expected middleware to run")
 	}
@@ -97,25 +104,30 @@ func TestMultipleMiddlewareRunInOrder(t *testing.T) {
 		order = append(order, 1)
 		result, err := next(passable)
 		order = append(order, 10)
+
 		return result, err
 	})
 	mw2 := contractsai.MiddlewareFunc(func(ctx context.Context, passable any, next func(any) (any, error)) (any, error) {
 		order = append(order, 2)
 		result, err := next(passable)
 		order = append(order, 20)
+
 		return result, err
 	})
 
 	agent := ai.NewAnonymousAgent(m, "Be helpful.").WithMiddleware(mw1, mw2)
 	_, err := agent.Prompt(context.Background(), "hello")
+
 	if err != nil {
 		t.Fatalf("Prompt error: %v", err)
 	}
 
 	expected := []int{1, 2, 20, 10}
+
 	if len(order) != len(expected) {
 		t.Fatalf("order length mismatch: got %v", order)
 	}
+
 	for i, v := range expected {
 		if order[i] != v {
 			t.Errorf("order[%d] = %d, want %d", i, order[i], v)

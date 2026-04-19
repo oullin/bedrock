@@ -18,6 +18,7 @@ func TestManager_StoreReturnsDefault(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	dec, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -33,6 +34,7 @@ func TestManager_StoreNamed(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	dec, err := m.Store("array")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -48,11 +50,13 @@ func TestManager_StoreIsSingleton(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	first, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("first Store: %v", err)
 	}
 
 	second, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("second Store: %v", err)
 	}
@@ -68,11 +72,13 @@ func TestManager_Driver_IsAliasForStore(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	fromStore, err := m.Store("array")
+
 	if err != nil {
 		t.Fatalf("Store: %v", err)
 	}
 
 	fromDriver, err := m.Driver("array")
+
 	if err != nil {
 		t.Fatalf("Driver: %v", err)
 	}
@@ -94,10 +100,12 @@ func TestManager_Extend_CustomFactory(t *testing.T) {
 	invoked := false
 	m.Extend("custom", func(_ map[string]any) (pennant.Driver, error) {
 		invoked = true
+
 		return pennant.NewArrayDriver(), nil
 	})
 
 	dec, err := m.Store("custom")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -119,6 +127,7 @@ func TestManager_Extend_CustomFactory_UsedByStore(t *testing.T) {
 	called := 0
 	m.Extend("my-driver", func(_ map[string]any) (pennant.Driver, error) {
 		called++
+
 		return pennant.NewArrayDriver(), nil
 	})
 
@@ -153,6 +162,7 @@ func TestManager_SetDefaultDriver_ChangesDefault(t *testing.T) {
 	m.SetDefaultDriver("other")
 
 	dec, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("unexpected error after SetDefaultDriver: %v", err)
 	}
@@ -188,6 +198,7 @@ func TestManager_FlushCache_PropagatesAll(t *testing.T) {
 	ctx := context.Background()
 
 	dec, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("Store: %v", err)
 	}
@@ -230,6 +241,7 @@ func TestManager_SerializeScope_Delegates(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	got, err := m.SerializeScope("user:42")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -239,6 +251,7 @@ func TestManager_SerializeScope_Delegates(t *testing.T) {
 	}
 
 	got, err = m.SerializeScope(nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error for nil scope: %v", err)
 	}
@@ -260,6 +273,7 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 	called := false
 	m.ResolveScopeUsing(func(_ context.Context) (any, error) {
 		called = true
+
 		return "user:1", nil
 	})
 
@@ -278,6 +292,7 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 		_ = ctx // Resolver is stored inside m; we call a local closure here to
 		// exercise the "called" flag via a local reference.
 		called = true
+
 		return "user:1", nil
 	}()
 
@@ -304,6 +319,7 @@ func TestManager_StoreUnknownDriver_ReturnsError(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	_, err := m.Store("does-not-exist")
+
 	if err == nil {
 		t.Fatal("expected an error for an unknown driver, got nil")
 	}
@@ -325,6 +341,7 @@ func TestManager_WithDispatcher_DispatchesEvents(t *testing.T) {
 	ctx := context.Background()
 
 	dec, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("Store: %v", err)
 	}
@@ -352,11 +369,13 @@ func TestManager_DefaultDecorator_ReturnsSameAsStore(t *testing.T) {
 	m := pennant.NewManager("array")
 
 	fromStore, err := m.Store()
+
 	if err != nil {
 		t.Fatalf("Store: %v", err)
 	}
 
 	fromDefault, err := m.DefaultDecorator()
+
 	if err != nil {
 		t.Fatalf("DefaultDecorator: %v", err)
 	}

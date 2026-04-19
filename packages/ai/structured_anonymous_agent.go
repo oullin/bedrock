@@ -41,30 +41,37 @@ func (a *StructuredAnonymousAgent) Prompt(ctx context.Context, text string, opts
 	agentPrompt := a.buildAgentPrompt(invocationID, text, cfg)
 
 	provider, err := a.resolveTextProvider(cfg)
+
 	if err != nil {
 		return nil, err
 	}
 
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
+
 		if !ok {
 			return nil, ErrProviderCapability
 		}
+
 		req := a.buildStructuredTextRequest(p)
+
 		return provider.Prompt(ctx, req)
 	}
 
 	result, err := a.runPipeline(ctx, agentPrompt, destination)
+
 	if err != nil {
 		return nil, err
 	}
 
 	providerResult, ok := result.(*contractsprovider.TextPromptResult)
+
 	if !ok {
 		return nil, ErrProviderCapability
 	}
 
 	var parsed map[string]any
+
 	if jsonErr := json.Unmarshal([]byte(providerResult.Text), &parsed); jsonErr != nil {
 		parsed = make(map[string]any)
 	}
@@ -81,5 +88,6 @@ func (a *StructuredAnonymousAgent) Prompt(ctx context.Context, text string, opts
 func (a *StructuredAnonymousAgent) buildStructuredTextRequest(p *prompts.AgentPrompt) contractsprovider.TextPromptRequest {
 	req := a.AnonymousAgent.buildTextRequest(p)
 	req.Schema = a.schema
+
 	return req
 }

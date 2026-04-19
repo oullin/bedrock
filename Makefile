@@ -8,7 +8,7 @@ PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
 GO_MODULE_DIRS := $(shell awk 'BEGIN { in_use = 0 } /^use \(/ { in_use = 1; next } in_use && /^\)/ { in_use = 0; next } in_use { gsub(/^\.\//, "", $$1); print $$1 }' go.work)
 
-.PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs
+.PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs go-test go-build go-coverage
 
 format: format-start
 	$(PACKAGE_FMT)
@@ -34,6 +34,24 @@ tidy:
 	@for pkg in $(GO_MODULE_DIRS); do \
 		echo "go mod tidy in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
+	done
+
+go-test:
+	@for pkg in $(GO_MODULE_DIRS); do \
+		echo "go test ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go test ./...; \
+	done
+
+go-build:
+	@for pkg in $(GO_MODULE_DIRS); do \
+		echo "go build ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go build ./...; \
+	done
+
+go-coverage:
+	@for pkg in $(GO_MODULE_DIRS); do \
+		echo "go test -cover ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go test -cover ./...; \
 	done
 
 typecheck:

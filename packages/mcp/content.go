@@ -22,34 +22,12 @@ type TextContent struct {
 }
 
 // newTextContent creates a TextContent, optionally merging extra metadata.
-func newTextContent(text string, meta map[string]any) *TextContent {
-	return &TextContent{Text: text, meta: meta}
-}
 
 // ToTool implements Content.
-func (c *TextContent) ToTool() map[string]any {
-	m := map[string]any{"type": "text", "text": c.Text}
-	for k, v := range c.meta {
-		m[k] = v
-	}
-	return m
-}
 
 // ToPrompt implements Content.
-func (c *TextContent) ToPrompt() map[string]any {
-	return c.ToTool()
-}
 
 // ToResource implements Content.
-func (c *TextContent) ToResource(uri string) map[string]any {
-	m := map[string]any{"uri": uri, "text": c.Text}
-	if c.meta != nil {
-		if mt, ok := c.meta["mimeType"]; ok {
-			m["mimeType"] = mt
-		}
-	}
-	return m
-}
 
 // ImageContent holds a base64-encoded image.
 type ImageContent struct {
@@ -59,23 +37,10 @@ type ImageContent struct {
 }
 
 // ToTool implements Content.
-func (c *ImageContent) ToTool() map[string]any {
-	m := map[string]any{"type": "image", "data": c.Data, "mimeType": c.MIMEType}
-	for k, v := range c.meta {
-		m[k] = v
-	}
-	return m
-}
 
 // ToPrompt implements Content.
-func (c *ImageContent) ToPrompt() map[string]any {
-	return c.ToTool()
-}
 
 // ToResource implements Content.
-func (c *ImageContent) ToResource(uri string) map[string]any {
-	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
-}
 
 // AudioContent holds base64-encoded audio.
 type AudioContent struct {
@@ -85,28 +50,81 @@ type AudioContent struct {
 }
 
 // ToTool implements Content.
-func (c *AudioContent) ToTool() map[string]any {
-	m := map[string]any{"type": "audio", "data": c.Data, "mimeType": c.MIMEType}
-	for k, v := range c.meta {
-		m[k] = v
-	}
-	return m
-}
 
 // ToPrompt implements Content.
-func (c *AudioContent) ToPrompt() map[string]any {
-	return c.ToTool()
-}
 
 // ToResource implements Content.
-func (c *AudioContent) ToResource(uri string) map[string]any {
-	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
-}
 
 // BlobContent holds raw binary data for resource responses.
 type BlobContent struct {
 	Blob     []byte
 	MIMEType string
+}
+
+func newTextContent(text string, meta map[string]any) *TextContent {
+	return &TextContent{Text: text, meta: meta}
+}
+
+func (c *TextContent) ToTool() map[string]any {
+	m := map[string]any{"type": "text", "text": c.Text}
+
+	for k, v := range c.meta {
+		m[k] = v
+	}
+
+	return m
+}
+
+func (c *TextContent) ToPrompt() map[string]any {
+	return c.ToTool()
+}
+
+func (c *TextContent) ToResource(uri string) map[string]any {
+	m := map[string]any{"uri": uri, "text": c.Text}
+
+	if c.meta != nil {
+		if mt, ok := c.meta["mimeType"]; ok {
+			m["mimeType"] = mt
+		}
+	}
+
+	return m
+}
+
+func (c *ImageContent) ToTool() map[string]any {
+	m := map[string]any{"type": "image", "data": c.Data, "mimeType": c.MIMEType}
+
+	for k, v := range c.meta {
+		m[k] = v
+	}
+
+	return m
+}
+
+func (c *ImageContent) ToPrompt() map[string]any {
+	return c.ToTool()
+}
+
+func (c *ImageContent) ToResource(uri string) map[string]any {
+	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
+}
+
+func (c *AudioContent) ToTool() map[string]any {
+	m := map[string]any{"type": "audio", "data": c.Data, "mimeType": c.MIMEType}
+
+	for k, v := range c.meta {
+		m[k] = v
+	}
+
+	return m
+}
+
+func (c *AudioContent) ToPrompt() map[string]any {
+	return c.ToTool()
+}
+
+func (c *AudioContent) ToResource(uri string) map[string]any {
+	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
 }
 
 // ToTool implements Content — binary is base64-encoded as image for tools.

@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/passport"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/passport"
 )
 
 // okHandler is a test HTTP handler that always returns 200 OK.

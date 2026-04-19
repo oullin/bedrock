@@ -12,9 +12,9 @@ type mockGuidelinesAgent struct {
 	path string
 }
 
-func (m *mockGuidelinesAgent) GuidelinesPath() string                    { return m.path }
-func (m *mockGuidelinesAgent) Frontmatter() bool                         { return false }
-func (m *mockGuidelinesAgent) TransformGuidelines(md string) string      { return md }
+func (m *mockGuidelinesAgent) GuidelinesPath() string               { return m.path }
+func (m *mockGuidelinesAgent) Frontmatter() bool                    { return false }
+func (m *mockGuidelinesAgent) TransformGuidelines(md string) string { return md }
 
 // TestGuidelineWriterCreatesFile verifies the writer creates the file.
 func TestGuidelineWriterCreatesFile(t *testing.T) {
@@ -32,6 +32,7 @@ func TestGuidelineWriterCreatesFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(dest)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}

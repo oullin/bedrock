@@ -11,6 +11,7 @@ type Amp struct {
 // NewAmp constructs an Amp agent.
 func NewAmp(opts ...AgentOptions) *Amp {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

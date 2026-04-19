@@ -10,12 +10,51 @@ import (
 	"github.com/bedrock/packages/pennant"
 )
 
+//nolint:errcheck
+
+//nolint:errcheck
+//nolint:errcheck
+
+//nolint:errcheck
+//nolint:errcheck
+
+// Resolve for two different scopes.
+//nolint:errcheck
+//nolint:errcheck
+
+// Deactivate for all scopes.
+
+//nolint:errcheck
+
+// Next Get should re-invoke resolver.
+//nolint:errcheck
+
+//nolint:errcheck
+//nolint:errcheck
+
+//nolint:errcheck
+//nolint:errcheck
+
+//nolint:errcheck
+
+//nolint:errcheck
+
+//nolint:errcheck
+
+// testDispatcher is a simple in-memory EventDispatcher for tests.
+type testDispatcher struct {
+	mu     sync.Mutex
+	events []pennant.Event
+}
+
 func TestArrayDriver_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver               = (*pennant.ArrayDriver)(nil)
+	var _ pennant.Driver = (*pennant.ArrayDriver)(nil)
+
 	var _ pennant.StoredFeaturesLister = (*pennant.ArrayDriver)(nil)
-	var _ pennant.BulkFeatureSetter    = (*pennant.ArrayDriver)(nil)
+
+	var _ pennant.BulkFeatureSetter = (*pennant.ArrayDriver)(nil)
 }
 
 func TestArrayDriver_Define_Get(t *testing.T) {
@@ -74,7 +113,7 @@ func TestArrayDriver_Get_UndefinedFeature_DispatchesEvent(t *testing.T) {
 	d := pennant.NewArrayDriverWithDispatcher(dispatcher)
 	ctx := context.Background()
 
-	d.Get(ctx, "unknown", nil) //nolint:errcheck
+	d.Get(ctx, "unknown", nil)
 
 	if dispatcher.count("UnknownFeatureResolved") != 1 {
 		t.Fatalf("expected 1 UnknownFeatureResolved event, got %d", dispatcher.count("UnknownFeatureResolved"))
@@ -94,8 +133,8 @@ func TestArrayDriver_Get_CachesResult(t *testing.T) {
 		return "variant-a", nil
 	})
 
-	d.Get(ctx, "flag", nil) //nolint:errcheck
-	d.Get(ctx, "flag", nil) //nolint:errcheck
+	d.Get(ctx, "flag", nil)
+	d.Get(ctx, "flag", nil)
 
 	if calls != 1 {
 		t.Fatalf("expected resolver to be called once, got %d calls", calls)
@@ -115,8 +154,8 @@ func TestArrayDriver_Get_DifferentScopes_CallsResolverPerScope(t *testing.T) {
 		return true, nil
 	})
 
-	d.Get(ctx, "flag", "user:1") //nolint:errcheck
-	d.Get(ctx, "flag", "user:2") //nolint:errcheck
+	d.Get(ctx, "flag", "user:1")
+	d.Get(ctx, "flag", "user:2")
 
 	if calls != 2 {
 		t.Fatalf("expected resolver called twice, got %d", calls)
@@ -190,11 +229,9 @@ func TestArrayDriver_SetForAllScopes(t *testing.T) {
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	// Resolve for two different scopes.
-	d.Get(ctx, "flag", "user:1") //nolint:errcheck
-	d.Get(ctx, "flag", "user:2") //nolint:errcheck
+	d.Get(ctx, "flag", "user:1")
+	d.Get(ctx, "flag", "user:2")
 
-	// Deactivate for all scopes.
 	if err := d.SetForAllScopes(ctx, "flag", false); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -225,14 +262,13 @@ func TestArrayDriver_Delete(t *testing.T) {
 		return true, nil
 	})
 
-	d.Get(ctx, "flag", nil) //nolint:errcheck
+	d.Get(ctx, "flag", nil)
 
 	if err := d.Delete(ctx, "flag", nil); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Next Get should re-invoke resolver.
-	d.Get(ctx, "flag", nil) //nolint:errcheck
+	d.Get(ctx, "flag", nil)
 
 	if calls != 2 {
 		t.Fatalf("expected resolver called twice (after delete), got %d", calls)
@@ -248,8 +284,8 @@ func TestArrayDriver_Purge_All(t *testing.T) {
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	d.Define("flag-b", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	d.Get(ctx, "flag-a", nil) //nolint:errcheck
-	d.Get(ctx, "flag-b", nil) //nolint:errcheck
+	d.Get(ctx, "flag-a", nil)
+	d.Get(ctx, "flag-b", nil)
 
 	if err := d.Purge(ctx, nil); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -271,8 +307,8 @@ func TestArrayDriver_Purge_Specific(t *testing.T) {
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	d.Define("flag-b", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	d.Get(ctx, "flag-a", nil) //nolint:errcheck
-	d.Get(ctx, "flag-b", nil) //nolint:errcheck
+	d.Get(ctx, "flag-a", nil)
+	d.Get(ctx, "flag-b", nil)
 
 	if err := d.Purge(ctx, []string{"flag-a"}); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -293,7 +329,7 @@ func TestArrayDriver_Purge_EmptySlice_IsNoOp(t *testing.T) {
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	d.Get(ctx, "flag", nil) //nolint:errcheck
+	d.Get(ctx, "flag", nil)
 
 	if err := d.Purge(ctx, []string{}); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -315,7 +351,7 @@ func TestArrayDriver_Stored(t *testing.T) {
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	d.Define("flag-b", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	d.Get(ctx, "flag-a", nil) //nolint:errcheck
+	d.Get(ctx, "flag-a", nil)
 
 	stored, err := d.Stored(ctx)
 
@@ -378,7 +414,7 @@ func TestArrayDriver_ConcurrentGet_ResolverCalledOnce(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
-			d.Get(ctx, "flag", nil) //nolint:errcheck
+			d.Get(ctx, "flag", nil)
 		}()
 	}
 
@@ -418,14 +454,9 @@ func TestArrayDriver_RichValue(t *testing.T) {
 	}
 }
 
-// testDispatcher is a simple in-memory EventDispatcher for tests.
-type testDispatcher struct {
-	mu     sync.Mutex
-	events []pennant.Event
-}
-
 func (d *testDispatcher) Dispatch(_ context.Context, event pennant.Event) {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.events = append(d.events, event)
@@ -433,6 +464,7 @@ func (d *testDispatcher) Dispatch(_ context.Context, event pennant.Event) {
 
 func (d *testDispatcher) count(typeName string) int {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	n := 0
@@ -475,6 +507,7 @@ func (d *testDispatcher) count(typeName string) int {
 
 func (d *testDispatcher) last() pennant.Event {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	if len(d.events) == 0 {

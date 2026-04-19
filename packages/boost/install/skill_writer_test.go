@@ -30,6 +30,7 @@ func TestInstallSkillWriterCreatesFiles(t *testing.T) {
 
 	for _, s := range skills {
 		dest := filepath.Join(tmp, ".claude", "skills", s.SkillName(), "SKILL.md")
+
 		if _, err := os.Stat(dest); err != nil {
 			t.Errorf("expected SKILL.md at %s: %v", dest, err)
 		}

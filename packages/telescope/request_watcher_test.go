@@ -32,6 +32,7 @@ func doTestRequest(t *testing.T, w *watchers.RequestWatcher, method, path string
 	}
 
 	var req *http.Request
+
 	var err error
 
 	if bodyReader != nil {
@@ -70,6 +71,7 @@ func TestRequestWatcherRecordsBasicRequest(t *testing.T) {
 	}
 
 	entries, err := repo.Get(telescope.EntryTypeRequest, telescope.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,6 +106,7 @@ func TestRequestWatcherMasksPasswordParameter(t *testing.T) {
 	}
 
 	entries, err := repo.Get(telescope.EntryTypeRequest, telescope.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,6 +140,7 @@ func TestRequestWatcherMasksAuthorizationHeader(t *testing.T) {
 	}
 
 	entries, err := repo.Get(telescope.EntryTypeRequest, telescope.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,6 +171,7 @@ func TestRequestWatcherIgnoresConfiguredHttpMethods(t *testing.T) {
 	}
 
 	entries, err := repo.Get(telescope.EntryTypeRequest, telescope.DefaultQueryOptions())
+
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -42,12 +42,14 @@ func (b *BaseWatcher) Option(key string) any {
 // BoolOption returns a boolean watcher option, defaulting to false.
 func (b *BaseWatcher) BoolOption(key string) bool {
 	v, _ := b.Options[key].(bool)
+
 	return v
 }
 
 // StringOption returns a string watcher option, defaulting to "".
 func (b *BaseWatcher) StringOption(key string) string {
 	v, _ := b.Options[key].(string)
+
 	return v
 }
 
@@ -68,5 +70,6 @@ func (b *BaseWatcher) Float64Option(key string) float64 {
 // StringsOption returns a []string watcher option, defaulting to nil.
 func (b *BaseWatcher) StringsOption(key string) []string {
 	v, _ := b.Options[key].([]string)
+
 	return v
 }

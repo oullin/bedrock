@@ -35,11 +35,13 @@ func (r *AgentResponse) GetInvocationID() string { return r.InvocationID }
 func (r *AgentResponse) WithinConversation(id string, user any) *AgentResponse {
 	r.ConversationID = &id
 	r.ConversationUser = user
+
 	return r
 }
 
 // Then executes a callback with this response and returns it (fluent chaining).
 func (r *AgentResponse) Then(fn func(*AgentResponse)) *AgentResponse {
 	fn(r)
+
 	return r
 }

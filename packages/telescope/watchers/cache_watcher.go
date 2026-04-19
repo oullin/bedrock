@@ -8,11 +8,6 @@ import (
 
 // ignoredCachePrefixes contains internal cache key prefixes that should not be
 // recorded, mirroring Laravel's CacheWatcher ignore list.
-var ignoredCachePrefixes = []string{
-	"illuminate:queue:restart",
-	"framework/schedule",
-	"telescope:",
-}
 
 // CacheWatcher monitors cache operations (hit, miss, set, forget) and records
 // them as Telescope entries. It mirrors Laravel's CacheWatcher class.
@@ -21,6 +16,12 @@ var ignoredCachePrefixes = []string{
 //   - "hidden" ([]string): key names whose values will be masked.
 type CacheWatcher struct {
 	telescope.BaseWatcher
+}
+
+var ignoredCachePrefixes = []string{
+	"illuminate:queue:restart",
+	"framework/schedule",
+	"telescope:",
 }
 
 // NewCacheWatcher creates a CacheWatcher with the given options.

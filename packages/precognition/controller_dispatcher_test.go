@@ -10,6 +10,17 @@ import (
 // testController is a fake controller for testing the controller dispatcher.
 type testController struct{}
 
+// testController does not implement HasMiddleware, so should return empty.
+
+// middlewareController implements HasMiddleware for testing.
+type middlewareController struct{}
+
+type testMiddlewareDef struct {
+	Middleware any
+	Only       []string
+	Except     []string
+}
+
 func (c *testController) Store(name string) string {
 	return "stored: " + name
 }
@@ -97,21 +108,11 @@ func TestControllerDispatcherGetMiddleware(t *testing.T) {
 
 	d := precognition.NewControllerDispatcher(nil)
 
-	// testController does not implement HasMiddleware, so should return empty.
 	mw := d.GetMiddleware(&testController{}, "Store")
 
 	if len(mw) != 0 {
 		t.Fatalf("expected empty middleware list, got %d items", len(mw))
 	}
-}
-
-// middlewareController implements HasMiddleware for testing.
-type middlewareController struct{}
-
-type testMiddlewareDef struct {
-	Middleware any
-	Only       []string
-	Except     []string
 }
 
 func (c *middlewareController) Store()   {}

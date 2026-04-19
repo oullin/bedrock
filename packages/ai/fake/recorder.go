@@ -87,7 +87,9 @@ func NewRecorder() *Recorder { return &Recorder{} }
 // Reset clears all recorded interactions.
 func (r *Recorder) Reset() {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.agents = nil
 	r.images = nil
 	r.audio = nil
@@ -102,7 +104,9 @@ func (r *Recorder) Reset() {
 
 func (r *Recorder) recordAgent(p *prompts.AgentPrompt, queued bool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.agents = append(r.agents, agentRecord{prompt: p, queued: queued})
 }
 
@@ -110,12 +114,15 @@ func (r *Recorder) recordAgent(p *prompts.AgentPrompt, queued bool) {
 func (r *Recorder) AssertAgentWasPrompted(t TestingT, fn func(*prompts.AgentPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if !rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected agent to have been prompted but no matching prompt was found")
 }
 
@@ -123,10 +130,13 @@ func (r *Recorder) AssertAgentWasPrompted(t TestingT, fn func(*prompts.AgentProm
 func (r *Recorder) AssertAgentNotPrompted(t TestingT, fn func(*prompts.AgentPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if !rec.queued && fn(rec.prompt) {
 			t.Errorf("ai: expected agent not to have been prompted but a matching prompt was found")
+
 			return
 		}
 	}
@@ -136,10 +146,13 @@ func (r *Recorder) AssertAgentNotPrompted(t TestingT, fn func(*prompts.AgentProm
 func (r *Recorder) AssertAgentNeverPrompted(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if !rec.queued {
 			t.Errorf("ai: expected agent to never have been prompted but %d prompt(s) were recorded", len(r.agents))
+
 			return
 		}
 	}
@@ -149,12 +162,15 @@ func (r *Recorder) AssertAgentNeverPrompted(t TestingT) {
 func (r *Recorder) AssertAgentWasQueued(t TestingT, fn func(*prompts.AgentPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected agent to have been queued but no matching queued prompt was found")
 }
 
@@ -162,10 +178,13 @@ func (r *Recorder) AssertAgentWasQueued(t TestingT, fn func(*prompts.AgentPrompt
 func (r *Recorder) AssertAgentNotQueued(t TestingT, fn func(*prompts.AgentPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if rec.queued && fn(rec.prompt) {
 			t.Errorf("ai: expected agent not to have been queued but a matching queued prompt was found")
+
 			return
 		}
 	}
@@ -175,10 +194,13 @@ func (r *Recorder) AssertAgentNotQueued(t TestingT, fn func(*prompts.AgentPrompt
 func (r *Recorder) AssertAgentNeverQueued(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.agents {
 		if rec.queued {
 			t.Errorf("ai: expected agent to never have been queued but queued prompts were recorded")
+
 			return
 		}
 	}
@@ -188,7 +210,9 @@ func (r *Recorder) AssertAgentNeverQueued(t TestingT) {
 
 func (r *Recorder) recordImage(p *prompts.ImagePrompt, queued bool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.images = append(r.images, imageRecord{prompt: p, queued: queued})
 }
 
@@ -196,12 +220,15 @@ func (r *Recorder) recordImage(p *prompts.ImagePrompt, queued bool) {
 func (r *Recorder) AssertImageGenerated(t TestingT, fn func(*prompts.ImagePrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.images {
 		if !rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected image to have been generated but no matching prompt was found")
 }
 
@@ -209,10 +236,13 @@ func (r *Recorder) AssertImageGenerated(t TestingT, fn func(*prompts.ImagePrompt
 func (r *Recorder) AssertImageNotGenerated(t TestingT, fn func(*prompts.ImagePrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.images {
 		if !rec.queued && fn(rec.prompt) {
 			t.Errorf("ai: expected image not to have been generated but a matching prompt was found")
+
 			return
 		}
 	}
@@ -222,10 +252,13 @@ func (r *Recorder) AssertImageNotGenerated(t TestingT, fn func(*prompts.ImagePro
 func (r *Recorder) AssertNothingImageGenerated(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.images {
 		if !rec.queued {
 			t.Errorf("ai: expected no images to have been generated but %d generation(s) were recorded", len(r.images))
+
 			return
 		}
 	}
@@ -235,12 +268,15 @@ func (r *Recorder) AssertNothingImageGenerated(t TestingT) {
 func (r *Recorder) AssertImageQueued(t TestingT, fn func(*prompts.ImagePrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.images {
 		if rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected image to have been queued but no matching queued prompt was found")
 }
 
@@ -248,10 +284,13 @@ func (r *Recorder) AssertImageQueued(t TestingT, fn func(*prompts.ImagePrompt) b
 func (r *Recorder) AssertNothingImageQueued(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.images {
 		if rec.queued {
 			t.Errorf("ai: expected no images to have been queued but queued generations were recorded")
+
 			return
 		}
 	}
@@ -261,7 +300,9 @@ func (r *Recorder) AssertNothingImageQueued(t TestingT) {
 
 func (r *Recorder) recordAudio(p *prompts.AudioPrompt, queued bool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.audio = append(r.audio, audioRecord{prompt: p, queued: queued})
 }
 
@@ -269,12 +310,15 @@ func (r *Recorder) recordAudio(p *prompts.AudioPrompt, queued bool) {
 func (r *Recorder) AssertAudioGenerated(t TestingT, fn func(*prompts.AudioPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.audio {
 		if !rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected audio to have been generated but no matching prompt was found")
 }
 
@@ -282,10 +326,13 @@ func (r *Recorder) AssertAudioGenerated(t TestingT, fn func(*prompts.AudioPrompt
 func (r *Recorder) AssertNothingAudioGenerated(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.audio {
 		if !rec.queued {
 			t.Errorf("ai: expected no audio to have been generated but generations were recorded")
+
 			return
 		}
 	}
@@ -295,7 +342,9 @@ func (r *Recorder) AssertNothingAudioGenerated(t TestingT) {
 
 func (r *Recorder) recordEmbeddings(p *prompts.EmbeddingsPrompt, queued bool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.embeddings = append(r.embeddings, embeddingsRecord{prompt: p, queued: queued})
 }
 
@@ -303,12 +352,15 @@ func (r *Recorder) recordEmbeddings(p *prompts.EmbeddingsPrompt, queued bool) {
 func (r *Recorder) AssertEmbeddingsGenerated(t TestingT, fn func(*prompts.EmbeddingsPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.embeddings {
 		if !rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected embeddings to have been generated but no matching prompt was found")
 }
 
@@ -316,10 +368,13 @@ func (r *Recorder) AssertEmbeddingsGenerated(t TestingT, fn func(*prompts.Embedd
 func (r *Recorder) AssertNothingEmbeddingsGenerated(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.embeddings {
 		if !rec.queued {
 			t.Errorf("ai: expected no embeddings to have been generated but generations were recorded")
+
 			return
 		}
 	}
@@ -329,7 +384,9 @@ func (r *Recorder) AssertNothingEmbeddingsGenerated(t TestingT) {
 
 func (r *Recorder) recordTranscription(p *prompts.TranscriptionPrompt, queued bool) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.transcriptions = append(r.transcriptions, transcriptionRecord{prompt: p, queued: queued})
 }
 
@@ -337,12 +394,15 @@ func (r *Recorder) recordTranscription(p *prompts.TranscriptionPrompt, queued bo
 func (r *Recorder) AssertTranscriptionGenerated(t TestingT, fn func(*prompts.TranscriptionPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.transcriptions {
 		if !rec.queued && fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected transcription to have been generated but no matching prompt was found")
 }
 
@@ -350,10 +410,13 @@ func (r *Recorder) AssertTranscriptionGenerated(t TestingT, fn func(*prompts.Tra
 func (r *Recorder) AssertNothingTranscriptionGenerated(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.transcriptions {
 		if !rec.queued {
 			t.Errorf("ai: expected no transcriptions to have been generated but generations were recorded")
+
 			return
 		}
 	}
@@ -363,7 +426,9 @@ func (r *Recorder) AssertNothingTranscriptionGenerated(t TestingT) {
 
 func (r *Recorder) recordReranking(p *prompts.RerankingPrompt) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.rerankings = append(r.rerankings, rerankingRecord{prompt: p})
 }
 
@@ -371,12 +436,15 @@ func (r *Recorder) recordReranking(p *prompts.RerankingPrompt) {
 func (r *Recorder) AssertReranked(t TestingT, fn func(*prompts.RerankingPrompt) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.rerankings {
 		if fn(rec.prompt) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected reranking to have been performed but no matching prompt was found")
 }
 
@@ -384,7 +452,9 @@ func (r *Recorder) AssertReranked(t TestingT, fn func(*prompts.RerankingPrompt) 
 func (r *Recorder) AssertNothingReranked(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	if len(r.rerankings) > 0 {
 		t.Errorf("ai: expected no rerankings to have been performed but %d were recorded", len(r.rerankings))
 	}
@@ -394,7 +464,9 @@ func (r *Recorder) AssertNothingReranked(t TestingT) {
 
 func (r *Recorder) recordStore(op, storeID, fileID string) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.stores = append(r.stores, storeRecord{op: op, storeID: storeID, fileID: fileID})
 }
 
@@ -402,12 +474,15 @@ func (r *Recorder) recordStore(op, storeID, fileID string) {
 func (r *Recorder) AssertStoreFileAdded(t TestingT, fn func(fileID string) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.stores {
 		if rec.op == "add_file" && fn(rec.fileID) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected a file to have been added to a store but no matching operation was found")
 }
 
@@ -415,12 +490,15 @@ func (r *Recorder) AssertStoreFileAdded(t TestingT, fn func(fileID string) bool)
 func (r *Recorder) AssertStoreFileRemoved(t TestingT, fn func(fileID string) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.stores {
 		if rec.op == "remove_file" && fn(rec.fileID) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected a file to have been removed from a store but no matching operation was found")
 }
 
@@ -428,7 +506,9 @@ func (r *Recorder) AssertStoreFileRemoved(t TestingT, fn func(fileID string) boo
 
 func (r *Recorder) recordFile(op, id, filename string) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	r.files = append(r.files, fileRecord{op: op, id: id, filename: filename})
 }
 
@@ -436,12 +516,15 @@ func (r *Recorder) recordFile(op, id, filename string) {
 func (r *Recorder) AssertFileStored(t TestingT, fn func(filename string) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.files {
 		if rec.op == "put" && fn(rec.filename) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected a file to have been stored but no matching operation was found")
 }
 
@@ -449,10 +532,13 @@ func (r *Recorder) AssertFileStored(t TestingT, fn func(filename string) bool) {
 func (r *Recorder) AssertNothingFileStored(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.files {
 		if rec.op == "put" {
 			t.Errorf("ai: expected no files to have been stored but storage operations were recorded")
+
 			return
 		}
 	}
@@ -462,12 +548,15 @@ func (r *Recorder) AssertNothingFileStored(t TestingT) {
 func (r *Recorder) AssertFileDeleted(t TestingT, fn func(id string) bool) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.files {
 		if rec.op == "delete" && fn(rec.id) {
 			return
 		}
 	}
+
 	t.Errorf("ai: expected a file to have been deleted but no matching operation was found")
 }
 
@@ -475,10 +564,13 @@ func (r *Recorder) AssertFileDeleted(t TestingT, fn func(id string) bool) {
 func (r *Recorder) AssertNothingFileDeleted(t TestingT) {
 	t.Helper()
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
+
 	for _, rec := range r.files {
 		if rec.op == "delete" {
 			t.Errorf("ai: expected no files to have been deleted but delete operations were recorded")
+
 			return
 		}
 	}

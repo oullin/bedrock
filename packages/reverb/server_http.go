@@ -24,13 +24,6 @@ type HTTPHandler struct {
 }
 
 // NewHTTPHandler constructs an HTTPHandler with the given managers and dispatcher.
-func NewHTTPHandler(apps *AppManager, channels *ChannelManager, dispatcher contractsReverb.Dispatcher) *HTTPHandler {
-	return &HTTPHandler{
-		apps:       apps,
-		channels:   channels,
-		dispatcher: dispatcher,
-	}
-}
 
 // TriggerRequest is the body for POST /apps/{id}/events.
 type TriggerRequest struct {
@@ -46,11 +39,42 @@ type BatchTriggerRequest struct {
 }
 
 // ServeHTTP routes incoming requests to the appropriate handler.
+
+// path: /apps/{id}/events  or  /apps/{id}/channels  etc.
+
+// authenticate verifies the Pusher HMAC signature on the request.
+// It returns true when authentication succeeds, and false (after writing a 401)
+// when it fails.
+
+// handleTrigger processes POST /apps/{id}/events.
+
+// handleBatchTrigger processes POST /apps/{id}/batch_events.
+
+// channelInfo holds the JSON shape for a single channel in list/info responses.
+type channelInfo struct {
+	SubscriptionCount int `json:"subscription_count"`
+}
+
+// channelsResponse is the JSON shape for GET /apps/{id}/channels.
+type channelsResponse struct {
+	Channels map[string]channelInfo `json:"channels"`
+}
+
+func NewHTTPHandler(apps *AppManager, channels *ChannelManager, dispatcher contractsReverb.Dispatcher) *HTTPHandler {
+	return &HTTPHandler{
+		apps:       apps,
+		channels:   channels,
+		dispatcher: dispatcher,
+	}
+}
+
 func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// path: /apps/{id}/events  or  /apps/{id}/channels  etc.
+
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/apps/"), "/")
+
 	if len(parts) < 2 {
 		http.Error(w, "not found", http.StatusNotFound)
+
 		return
 	}
 
@@ -58,8 +82,10 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resource := parts[1]
 
 	app, err := h.apps.FindByID(appID)
+
 	if err != nil {
 		http.Error(w, "app not found", http.StatusNotFound)
+
 		return
 	}
 
@@ -87,18 +113,17 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// authenticate verifies the Pusher HMAC signature on the request.
-// It returns true when authentication succeeds, and false (after writing a 401)
-// when it fails.
 func (h *HTTPHandler) authenticate(w http.ResponseWriter, r *http.Request, app *App) bool {
 	q := r.URL.Query()
 	signature := q.Get("auth_signature")
 
 	params := make(map[string]string, len(q))
+
 	for k, vs := range q {
 		if k == "auth_signature" {
 			continue
 		}
+
 		if len(vs) > 0 {
 			params[k] = vs[0]
 		}
@@ -106,17 +131,19 @@ func (h *HTTPHandler) authenticate(w http.ResponseWriter, r *http.Request, app *
 
 	if !VerifyHTTPRequest(app.Secret(), r.Method, r.URL.Path, params, signature) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
+
 		return false
 	}
 
 	return true
 }
 
-// handleTrigger processes POST /apps/{id}/events.
 func (h *HTTPHandler) handleTrigger(w http.ResponseWriter, r *http.Request, app *App) {
 	var req TriggerRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
+
 		return
 	}
 
@@ -124,8 +151,10 @@ func (h *HTTPHandler) handleTrigger(w http.ResponseWriter, r *http.Request, app 
 
 	for _, chanName := range req.Channels {
 		ch, err := h.channels.GetOrCreate(app.ID(), chanName)
+
 		if err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
+
 			return
 		}
 
@@ -145,11 +174,12 @@ func (h *HTTPHandler) handleTrigger(w http.ResponseWriter, r *http.Request, app 
 	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
 }
 
-// handleBatchTrigger processes POST /apps/{id}/batch_events.
 func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request, app *App) {
 	var req BatchTriggerRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
+
 		return
 	}
 
@@ -158,8 +188,10 @@ func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request,
 	for _, item := range req.Batch {
 		for _, chanName := range item.Channels {
 			ch, err := h.channels.GetOrCreate(app.ID(), chanName)
+
 			if err != nil {
 				http.Error(w, "internal error", http.StatusInternalServerError)
+
 				return
 			}
 
@@ -180,21 +212,12 @@ func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request,
 	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
 }
 
-// channelInfo holds the JSON shape for a single channel in list/info responses.
-type channelInfo struct {
-	SubscriptionCount int `json:"subscription_count"`
-}
-
-// channelsResponse is the JSON shape for GET /apps/{id}/channels.
-type channelsResponse struct {
-	Channels map[string]channelInfo `json:"channels"`
-}
-
 // handleChannels lists all channels for the application.
 func (h *HTTPHandler) handleChannels(w http.ResponseWriter, app *App) {
 	all := h.channels.All(app.ID())
 
 	result := make(map[string]channelInfo, len(all))
+
 	for _, ch := range all {
 		result[ch.Name()] = channelInfo{
 			SubscriptionCount: len(ch.Connections()),
@@ -207,8 +230,10 @@ func (h *HTTPHandler) handleChannels(w http.ResponseWriter, app *App) {
 // handleChannel returns info for a single channel.
 func (h *HTTPHandler) handleChannel(w http.ResponseWriter, app *App, name string) {
 	ch, ok := h.channels.Get(app.ID(), name)
+
 	if !ok {
 		http.Error(w, "channel not found", http.StatusNotFound)
+
 		return
 	}
 

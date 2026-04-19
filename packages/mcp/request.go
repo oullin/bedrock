@@ -29,18 +29,22 @@ func (r *Request) Get(key string, fallback ...any) any {
 			return v
 		}
 	}
+
 	if len(fallback) > 0 {
 		return fallback[0]
 	}
+
 	return nil
 }
 
 // All returns a shallow copy of the arguments map.
 func (r *Request) All() map[string]any {
 	out := make(map[string]any, len(r.Arguments))
+
 	for k, v := range r.Arguments {
 		out[k] = v
 	}
+
 	return out
 }
 
@@ -48,12 +52,15 @@ func (r *Request) All() map[string]any {
 // Existing keys are overwritten by data.
 func (r *Request) Merge(data map[string]any) *Request {
 	merged := make(map[string]any, len(r.Arguments)+len(data))
+
 	for k, v := range r.Arguments {
 		merged[k] = v
 	}
+
 	for k, v := range data {
 		merged[k] = v
 	}
+
 	return &Request{
 		Arguments: merged,
 		SessionID: r.SessionID,

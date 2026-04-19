@@ -24,6 +24,7 @@ func TestInstallGuidelineWriterCreatesFile(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(dest)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}

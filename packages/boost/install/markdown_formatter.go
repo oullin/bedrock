@@ -10,11 +10,12 @@ import (
 
 // frontmatterRe matches a YAML front-matter block at the very start of a file.
 // Uses [\s\S]*? so it handles both non-empty and empty (---\n---\n) blocks.
-var frontmatterRe = regexp.MustCompile(`(?s)^---\n[\s\S]*?---\n?`)
 
 // MarkdownFormatter applies lightweight formatting transformations to Markdown
 // content. Mirrors Laravel\Boost\Install\MarkdownFormatter.
 type MarkdownFormatter struct{}
+
+var frontmatterRe = regexp.MustCompile(`(?s)^---\n[\s\S]*?---\n?`)
 
 // StripFrontmatter removes the YAML front-matter block (if any) from content.
 func (f *MarkdownFormatter) StripFrontmatter(content string) string {
@@ -31,6 +32,7 @@ func (f *MarkdownFormatter) AddFrontmatter(content string, data map[string]strin
 	}
 
 	var sb strings.Builder
+
 	sb.WriteString("---\n")
 
 	for k, v := range data {
@@ -54,9 +56,11 @@ func (f *MarkdownFormatter) NormalizeHeadings(content string) string {
 
 	// Find the minimum heading level used in the document.
 	minLevel := 0
+
 	for _, line := range lines {
 		trimmed := strings.TrimLeft(line, "#")
 		level := len(line) - len(trimmed)
+
 		if level > 0 && (minLevel == 0 || level < minLevel) {
 			minLevel = level
 		}
@@ -72,6 +76,7 @@ func (f *MarkdownFormatter) NormalizeHeadings(content string) string {
 	for i, line := range lines {
 		trimmed := strings.TrimLeft(line, "#")
 		level := len(line) - len(trimmed)
+
 		if level > 0 {
 			result[i] = strings.Repeat("#", level-promote) + trimmed
 		} else {

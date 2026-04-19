@@ -14,9 +14,6 @@ type GuidelineWriter struct {
 }
 
 // NewGuidelineWriter returns a GuidelineWriter with the default MarkdownFormatter.
-func NewGuidelineWriter() *GuidelineWriter {
-	return &GuidelineWriter{formatter: &MarkdownFormatter{}}
-}
 
 // SupportsGuidelinesPath is the minimal interface required by GuidelineWriter;
 // satisfied by any coding agent that has a guidelines file path.
@@ -24,10 +21,15 @@ type SupportsGuidelinesPath interface {
 	GuidelinesPath() string
 }
 
+func NewGuidelineWriter() *GuidelineWriter {
+	return &GuidelineWriter{formatter: &MarkdownFormatter{}}
+}
+
 // Write writes content to the agent's guidelines path, creating any missing
 // parent directories. Returns an error if the write fails.
 func (w *GuidelineWriter) Write(agent SupportsGuidelinesPath, content string) error {
 	path := agent.GuidelinesPath()
+
 	if path == "" {
 		return fmt.Errorf("install: agent returned an empty guidelines path")
 	}

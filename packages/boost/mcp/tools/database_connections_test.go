@@ -21,6 +21,7 @@ func TestDatabaseConnectionsEmpty(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("content data type = %T, want map[string]any", resp.Content[0].Data)
 	}
@@ -39,6 +40,7 @@ func TestDatabaseConnectionsWithConnections(t *testing.T) {
 	}
 
 	resp, err := tool.Handle(tools.McpRequest{})
+
 	if err != nil {
 		t.Fatalf("Handle: %v", err)
 	}
@@ -48,6 +50,7 @@ func TestDatabaseConnectionsWithConnections(t *testing.T) {
 	}
 
 	data, ok := resp.Content[0].Data.(map[string]any)
+
 	if !ok {
 		t.Fatalf("content data type = %T", resp.Content[0].Data)
 	}

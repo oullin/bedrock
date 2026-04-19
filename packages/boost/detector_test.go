@@ -39,14 +39,17 @@ func TestDetectorDiscoverProjectInstalled(t *testing.T) {
 
 	// At least claude_code should be detected.
 	var names []string
+
 	for _, a := range found {
 		names = append(names, a.Name())
 	}
 
 	hasClaudeCode := false
+
 	for _, n := range names {
 		if n == "claude_code" {
 			hasClaudeCode = true
+
 			break
 		}
 	}

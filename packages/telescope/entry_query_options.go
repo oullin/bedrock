@@ -1,7 +1,5 @@
 package telescope
 
-const defaultQueryLimit = 50
-
 // EntryQueryOptions carries filter parameters for repository queries. It
 // mirrors Laravel's EntryQueryOptions class with its fluent builder interface.
 type EntryQueryOptions struct {
@@ -13,6 +11,8 @@ type EntryQueryOptions struct {
 	Limit          int
 }
 
+const defaultQueryLimit = 50
+
 // DefaultQueryOptions returns an EntryQueryOptions with the default query
 // limit (50), matching the Laravel default.
 func DefaultQueryOptions() EntryQueryOptions {
@@ -23,35 +23,41 @@ func DefaultQueryOptions() EntryQueryOptions {
 // mirroring EntryQueryOptions::forBatchId().
 func (o EntryQueryOptions) ForBatchID(id string) EntryQueryOptions {
 	o.BatchID = id
+
 	return o
 }
 
 // WithTag returns a new EntryQueryOptions filtered to a specific tag.
 func (o EntryQueryOptions) WithTag(tag string) EntryQueryOptions {
 	o.Tag = tag
+
 	return o
 }
 
 // WithFamilyHash returns a new EntryQueryOptions filtered by family hash.
 func (o EntryQueryOptions) WithFamilyHash(hash string) EntryQueryOptions {
 	o.FamilyHash = hash
+
 	return o
 }
 
 // Before returns a new EntryQueryOptions paginating before the given sequence.
 func (o EntryQueryOptions) Before(sequence int64) EntryQueryOptions {
 	o.BeforeSequence = sequence
+
 	return o
 }
 
 // WithLimit returns a new EntryQueryOptions with the specified result limit.
 func (o EntryQueryOptions) WithLimit(n int) EntryQueryOptions {
 	o.Limit = n
+
 	return o
 }
 
 // WithUUIDs returns a new EntryQueryOptions filtered to specific UUIDs.
 func (o EntryQueryOptions) WithUUIDs(uuids []string) EntryQueryOptions {
 	o.UUIDs = uuids
+
 	return o
 }

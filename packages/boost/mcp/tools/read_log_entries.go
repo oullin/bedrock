@@ -61,11 +61,13 @@ func (t *ReadLogEntries) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	path := t.LogFilePath
+
 	if path == "" {
 		path = "storage/logs/app.log"
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return OkResponse(map[string]any{"entries": []any{}}), nil
@@ -107,6 +109,7 @@ func parseLogEntries(content string, n int) []any {
 
 func parsePSR3Log(lines []string, n int) []any {
 	var entries []string
+
 	var current strings.Builder
 
 	for _, line := range lines {
@@ -130,6 +133,7 @@ func parsePSR3Log(lines []string, n int) []any {
 	}
 
 	result := make([]any, len(entries))
+
 	for i, e := range entries {
 		result[i] = e
 	}
@@ -142,11 +146,13 @@ func parseJSONLog(lines []string, n int) []any {
 
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
+
 		if trimmed == "" {
 			continue
 		}
 
 		var m map[string]any
+
 		if err := json.Unmarshal([]byte(trimmed), &m); err == nil {
 			entries = append(entries, m)
 		}

@@ -27,21 +27,26 @@ func NewChannelManager(apps *AppManager) *ChannelManager {
 func (m *ChannelManager) GetOrCreate(appID, channelName string) (contractsReverb.Channel, error) {
 	// Fast path: channel already exists.
 	m.mu.RLock()
+
 	if appChans, ok := m.channels[appID]; ok {
 		if ch, ok := appChans[channelName]; ok {
 			m.mu.RUnlock()
+
 			return ch, nil
 		}
 	}
+
 	m.mu.RUnlock()
 
 	// Resolve the app to build the channel.
 	app, err := m.apps.FindByID(appID)
+
 	if err != nil {
 		return nil, err
 	}
 
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	// Double-check after acquiring the write lock.
@@ -65,9 +70,11 @@ func (m *ChannelManager) GetOrCreate(appID, channelName string) (contractsReverb
 // Get returns the channel for (appID, channelName) and reports whether it exists.
 func (m *ChannelManager) Get(appID, channelName string) (contractsReverb.Channel, bool) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	appChans, ok := m.channels[appID]
+
 	if !ok {
 		return nil, false
 	}
@@ -80,6 +87,7 @@ func (m *ChannelManager) Get(appID, channelName string) (contractsReverb.Channel
 // Remove deletes the channel identified by (appID, channelName).
 func (m *ChannelManager) Remove(appID, channelName string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	if appChans, ok := m.channels[appID]; ok {
@@ -90,14 +98,17 @@ func (m *ChannelManager) Remove(appID, channelName string) {
 // All returns a snapshot of every channel registered for appID.
 func (m *ChannelManager) All(appID string) []contractsReverb.Channel {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	appChans, ok := m.channels[appID]
+
 	if !ok {
 		return nil
 	}
 
 	out := make([]contractsReverb.Channel, 0, len(appChans))
+
 	for _, ch := range appChans {
 		out = append(out, ch)
 	}
@@ -108,9 +119,11 @@ func (m *ChannelManager) All(appID string) []contractsReverb.Channel {
 // CleanupEmpty removes every channel under appID that has no subscribers.
 func (m *ChannelManager) CleanupEmpty(appID string) {
 	m.mu.Lock()
+
 	defer m.mu.Unlock()
 
 	appChans, ok := m.channels[appID]
+
 	if !ok {
 		return
 	}

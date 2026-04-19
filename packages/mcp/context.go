@@ -23,22 +23,26 @@ func (c *ServerContext) ToolsList() []Tool { return c.tools }
 // ResourcesList returns only static-URI resources (not templates).
 func (c *ServerContext) ResourcesList() []Resource {
 	out := make([]Resource, 0, len(c.resources))
+
 	for _, r := range c.resources {
 		if _, ok := r.(ResourceTemplate); !ok {
 			out = append(out, r)
 		}
 	}
+
 	return out
 }
 
 // ResourceTemplates returns only ResourceTemplate instances.
 func (c *ServerContext) ResourceTemplates() []ResourceTemplate {
 	out := make([]ResourceTemplate, 0)
+
 	for _, r := range c.resources {
 		if rt, ok := r.(ResourceTemplate); ok {
 			out = append(out, rt)
 		}
 	}
+
 	return out
 }
 
@@ -52,6 +56,7 @@ func (c *ServerContext) FindTool(name string) (Tool, bool) {
 			return t, true
 		}
 	}
+
 	return nil, false
 }
 
@@ -70,17 +75,22 @@ func (c *ServerContext) FindResource(uri string) (Resource, map[string]string, b
 	// Then URI templates.
 	for _, r := range c.resources {
 		rt, ok := r.(ResourceTemplate)
+
 		if !ok {
 			continue
 		}
+
 		tmpl, err := NewUriTemplate(rt.URITemplate())
+
 		if err != nil {
 			continue
 		}
+
 		if vars, matched := tmpl.Match(uri); matched {
 			return rt, vars, true
 		}
 	}
+
 	return nil, nil, false
 }
 
@@ -91,6 +101,7 @@ func (c *ServerContext) FindPrompt(name string) (Prompt, bool) {
 			return p, true
 		}
 	}
+
 	return nil, false
 }
 
@@ -100,9 +111,11 @@ func (c *ServerContext) PerPage(requested int) int {
 	if requested <= 0 {
 		return c.DefaultPaginationLength
 	}
+
 	if requested > c.MaxPaginationLength {
 		return c.MaxPaginationLength
 	}
+
 	return requested
 }
 
@@ -114,15 +127,18 @@ func (c *ServerContext) HasCompletions() bool {
 			return true
 		}
 	}
+
 	for _, r := range c.resources {
 		if _, ok := r.(Completable); ok {
 			return true
 		}
 	}
+
 	for _, p := range c.prompts {
 		if _, ok := p.(Completable); ok {
 			return true
 		}
 	}
+
 	return false
 }

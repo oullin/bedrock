@@ -29,9 +29,11 @@ func NewAppManager(configs []AppConfig) *AppManager {
 // FindByID returns the App with the given ID, or ErrAppNotFound if none exists.
 func (m *AppManager) FindByID(id string) (*App, error) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	app, ok := m.byID[id]
+
 	if !ok {
 		return nil, ErrAppNotFound
 	}
@@ -42,9 +44,11 @@ func (m *AppManager) FindByID(id string) (*App, error) {
 // FindByKey returns the App with the given key, or ErrAppNotFound if none exists.
 func (m *AppManager) FindByKey(key string) (*App, error) {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	app, ok := m.byKey[key]
+
 	if !ok {
 		return nil, ErrAppNotFound
 	}
@@ -55,9 +59,11 @@ func (m *AppManager) FindByKey(key string) (*App, error) {
 // All returns a snapshot of every registered App.
 func (m *AppManager) All() []*App {
 	m.mu.RLock()
+
 	defer m.mu.RUnlock()
 
 	apps := make([]*App, 0, len(m.byID))
+
 	for _, app := range m.byID {
 		apps = append(apps, app)
 	}

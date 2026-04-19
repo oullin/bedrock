@@ -11,6 +11,7 @@ type OpenCode struct {
 // NewOpenCode constructs an OpenCode agent.
 func NewOpenCode(opts ...AgentOptions) *OpenCode {
 	var o AgentOptions
+
 	if len(opts) > 0 {
 		o = opts[0]
 	}

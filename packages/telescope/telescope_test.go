@@ -145,6 +145,7 @@ func TestTelescopeEntriesAreTaggedWithBatchID(t *testing.T) {
 	}
 
 	entries := repo.Entries()
+
 	if len(entries) == 0 {
 		t.Fatal("no entries stored")
 	}
@@ -232,6 +233,7 @@ func TestTelescopeTagCallbackAddsTagsToEntry(t *testing.T) {
 	}
 
 	entries := repo.Entries()
+
 	if len(entries) == 0 {
 		t.Fatal("no entries stored")
 	}
@@ -241,6 +243,7 @@ func TestTelescopeTagCallbackAddsTagsToEntry(t *testing.T) {
 	for _, tag := range entries[0].Tags {
 		if tag == "custom-tag" {
 			found = true
+
 			break
 		}
 	}
@@ -258,6 +261,7 @@ func TestTelescopeAfterStoringHookIsCalledWithBatchAndEntries(t *testing.T) {
 	scope, _ := newTestScope(t)
 
 	var hookBatchID string
+
 	var hookEntryCount int
 
 	scope.AfterStoring(func(batchID string, entries []*telescope.IncomingEntry) {

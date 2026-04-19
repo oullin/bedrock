@@ -11,6 +11,9 @@ import (
 	"github.com/bedrock/packages/routing"
 )
 
+// emptyBag simulates a validator with no errors.
+type emptyBag struct{}
+
 func TestNonPrecognitivePassesThrough(t *testing.T) {
 	t.Parallel()
 
@@ -129,9 +132,6 @@ func TestPrecognitiveAddsVaryHeader(t *testing.T) {
 		t.Fatalf("expected Vary header to contain Precognition, got %v", values)
 	}
 }
-
-// emptyBag simulates a validator with no errors.
-type emptyBag struct{}
 
 func (emptyBag) IsEmpty() bool { return true }
 

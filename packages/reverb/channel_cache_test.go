@@ -21,6 +21,7 @@ func TestCacheChannel_CacheMiss_OnSubscribe(t *testing.T) {
 	}
 
 	msgs := conn.SentMessages()
+
 	if !containsBytes(msgs, []byte("pusher:cache_miss")) {
 		t.Errorf("expected pusher:cache_miss event in sent messages, got: %s", msgs)
 	}
@@ -35,17 +36,20 @@ func TestCacheChannel_CachedEvent_Delivered(t *testing.T) {
 
 	// Subscribe conn1 and broadcast an event to cache it
 	conn1 := newFakeConn("sock-1", app.ID())
+
 	if err := ch.Subscribe(ctx, conn1, "", ""); err != nil {
 		t.Fatalf("Subscribe conn1: %v", err)
 	}
 
 	event := contractsReverb.Event{Event: "my-event", Data: `{"value":42}`, Channel: "cache-test"}
+
 	if err := ch.BroadcastToAll(ctx, event); err != nil {
 		t.Fatalf("BroadcastToAll: %v", err)
 	}
 
 	// Subscribe conn2 - should receive the cached event, not cache_miss
 	conn2 := newFakeConn("sock-2", app.ID())
+
 	if err := ch.Subscribe(ctx, conn2, "", ""); err != nil {
 		t.Fatalf("Subscribe conn2: %v", err)
 	}
@@ -70,6 +74,7 @@ func TestPrivateCacheChannel_RequiresAuth(t *testing.T) {
 	ctx := context.Background()
 
 	err := ch.Subscribe(ctx, conn, "key-1:invalidsignature", "")
+
 	if err != reverb.ErrUnauthorized {
 		t.Errorf("expected ErrUnauthorized, got %v", err)
 	}
@@ -83,6 +88,7 @@ func TestCacheChannel_UpdatesOnBroadcast(t *testing.T) {
 	ctx := context.Background()
 
 	conn := newFakeConn("sock-1", app.ID())
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -93,11 +99,13 @@ func TestCacheChannel_UpdatesOnBroadcast(t *testing.T) {
 	}
 
 	event := contractsReverb.Event{Event: "cache-event", Data: `{"n":1}`, Channel: "cache-test"}
+
 	if err := ch.BroadcastToAll(ctx, event); err != nil {
 		t.Fatalf("BroadcastToAll: %v", err)
 	}
 
 	last := ch.LastEvent()
+
 	if last == nil {
 		t.Fatal("expected LastEvent() to be non-nil after broadcast")
 	}
@@ -137,6 +145,7 @@ func TestPresenceCacheChannel_HasPresenceAndCache(t *testing.T) {
 
 	// Broadcast an event to populate the cache
 	event := contractsReverb.Event{Event: "presence-cache-event", Data: `{"msg":"hello"}`, Channel: channelName}
+
 	if err := ch.BroadcastToAll(ctx, event); err != nil {
 		t.Fatalf("BroadcastToAll: %v", err)
 	}

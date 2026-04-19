@@ -31,23 +31,30 @@ func decodeCursor(cursor string) int {
 	if cursor == "" {
 		return 0
 	}
+
 	b, err := base64.StdEncoding.DecodeString(cursor)
+
 	if err != nil {
 		return 0
 	}
+
 	var p cursorPayload
+
 	if err := json.Unmarshal(b, &p); err != nil {
 		return 0
 	}
+
 	if p.Offset < 0 {
 		return 0
 	}
+
 	return p.Offset
 }
 
 // encodeCursor encodes an offset as a base64 cursor string.
 func encodeCursor(offset int) string {
 	b, _ := json.Marshal(cursorPayload{Offset: offset})
+
 	return base64.StdEncoding.EncodeToString(b)
 }
 
@@ -55,20 +62,24 @@ func encodeCursor(offset int) string {
 // items remain, a "nextCursor" entry.
 func (p *CursorPaginator) Paginate(key string) map[string]any {
 	offset := decodeCursor(p.cursor)
+
 	if offset >= len(p.items) {
 		return map[string]any{key: []any{}}
 	}
 
 	end := offset + p.perPage
 	hasMore := end < len(p.items)
+
 	if end > len(p.items) {
 		end = len(p.items)
 	}
 
 	page := p.items[offset:end]
 	result := map[string]any{key: page}
+
 	if hasMore {
 		result["nextCursor"] = encodeCursor(end)
 	}
+
 	return result
 }

@@ -47,9 +47,11 @@ func (p *Provider) Name() string { return p.name }
 // PromptText performs a blocking text generation using the text gateway.
 func (p *Provider) PromptText(ctx context.Context, req contractsprovider.TextPromptRequest) (*contractsprovider.TextPromptResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.TextGenerateRequest{
 		Model:        model,
 		Instructions: req.Instructions,
@@ -61,9 +63,11 @@ func (p *Provider) PromptText(ctx context.Context, req contractsprovider.TextPro
 		Timeout:      req.Timeout,
 	}
 	result, err := p.textGW.GenerateText(ctx, gwReq)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return &contractsprovider.TextPromptResult{
 		InvocationID: req.InvocationID,
 		Text:         result.Text,
@@ -77,9 +81,11 @@ func (p *Provider) PromptText(ctx context.Context, req contractsprovider.TextPro
 // StreamText performs a streaming text generation.
 func (p *Provider) StreamText(ctx context.Context, req contractsprovider.TextPromptRequest) (contractsprovider.StreamTextResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.TextGenerateRequest{
 		Model:        model,
 		Instructions: req.Instructions,
@@ -91,9 +97,11 @@ func (p *Provider) StreamText(ctx context.Context, req contractsprovider.TextPro
 		Timeout:      req.Timeout,
 	}
 	events, err := p.textGW.StreamText(ctx, req.InvocationID, gwReq)
+
 	if err != nil {
 		return contractsprovider.StreamTextResult{}, err
 	}
+
 	return contractsprovider.StreamTextResult{
 		InvocationID: req.InvocationID,
 		Events:       events,
@@ -111,9 +119,11 @@ func (p *Provider) UseTextGateway(gw contractsgw.TextGateway) { p.textGW = gw }
 // GenerateImage performs image generation using the image gateway.
 func (p *Provider) GenerateImage(ctx context.Context, req contractsprovider.ImageGenerateRequest) (*contractsgw.ImageGenerateResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.ImageGenerateRequest{
 		Model:       model,
 		Prompt:      req.Prompt,
@@ -122,6 +132,7 @@ func (p *Provider) GenerateImage(ctx context.Context, req contractsprovider.Imag
 		Quality:     req.Quality,
 		Timeout:     req.Timeout,
 	}
+
 	return p.imageGW.GenerateImage(ctx, gwReq)
 }
 
@@ -136,9 +147,11 @@ func (p *Provider) UseImageGateway(gw contractsgw.ImageGateway) { p.imageGW = gw
 // GenerateAudio performs audio (TTS) generation.
 func (p *Provider) GenerateAudio(ctx context.Context, req contractsprovider.AudioGenerateRequest) (*contractsgw.AudioGenerateResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.AudioGenerateRequest{
 		Model:        model,
 		Text:         req.Text,
@@ -146,6 +159,7 @@ func (p *Provider) GenerateAudio(ctx context.Context, req contractsprovider.Audi
 		Instructions: req.Instructions,
 		Timeout:      req.Timeout,
 	}
+
 	return p.audioGW.GenerateAudio(ctx, gwReq)
 }
 
@@ -160,19 +174,24 @@ func (p *Provider) UseAudioGateway(gw contractsgw.AudioGateway) { p.audioGW = gw
 // GenerateEmbeddings performs embedding generation.
 func (p *Provider) GenerateEmbeddings(ctx context.Context, req contractsprovider.EmbeddingRequest) (*contractsgw.EmbeddingGenerateResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	dims := 0
+
 	if req.Dimensions != nil {
 		dims = *req.Dimensions
 	}
+
 	gwReq := contractsgw.EmbeddingGenerateRequest{
 		Model:      model,
 		Inputs:     req.Inputs,
 		Dimensions: dims,
 		Timeout:    req.Timeout,
 	}
+
 	return p.embeddingGW.GenerateEmbeddings(ctx, gwReq)
 }
 
@@ -187,9 +206,11 @@ func (p *Provider) UseEmbeddingGateway(gw contractsgw.EmbeddingGateway) { p.embe
 // GenerateTranscription performs speech-to-text.
 func (p *Provider) GenerateTranscription(ctx context.Context, req contractsprovider.TranscriptionRequest) (*contractsgw.TranscriptionResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.TranscriptionRequest{
 		Model:    model,
 		Audio:    req.Audio,
@@ -197,6 +218,7 @@ func (p *Provider) GenerateTranscription(ctx context.Context, req contractsprovi
 		Diarize:  req.Diarize,
 		Timeout:  req.Timeout,
 	}
+
 	return p.transcriptionGW.GenerateTranscription(ctx, gwReq)
 }
 
@@ -215,15 +237,18 @@ func (p *Provider) UseTranscriptionGateway(gw contractsgw.TranscriptionGateway) 
 // Rerank performs document reranking.
 func (p *Provider) DoRerank(ctx context.Context, req contractsprovider.RerankingRequest) (*contractsgw.RerankResult, error) {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	gwReq := contractsgw.RerankRequest{
 		Model:     model,
 		Documents: req.Documents,
 		Query:     req.Query,
 		Limit:     req.Limit,
 	}
+
 	return p.rerankingGW.Rerank(ctx, gwReq)
 }
 
@@ -254,9 +279,11 @@ func (p *Provider) UseStoreGateway(gw contractsgw.StoreGateway) { p.storeGW = gw
 // resolvePrompt converts an AgentPrompt into the gateway request format.
 func resolvePrompt(req contractsprovider.TextPromptRequest) contractsgw.TextGenerateRequest {
 	model := ""
+
 	if req.Model != nil {
 		model = *req.Model
 	}
+
 	return contractsgw.TextGenerateRequest{
 		Model:        model,
 		Instructions: req.Instructions,
@@ -276,6 +303,7 @@ func streamEventsToSeq(gwSeq iter.Seq[contractsgw.StreamEvent]) iter.Seq[stream.
 			if se, ok := e.(stream.Event); ok {
 				return yield(se)
 			}
+
 			return true
 		})
 	}
@@ -289,6 +317,7 @@ func buildAgentResponse(result *contractsprovider.TextPromptResult) *responses.A
 		gwUsageToData(result.Usage),
 		gwMetaToData(result.Meta),
 	)
+
 	return resp
 }
 
@@ -317,18 +346,20 @@ func buildStreamable(result contractsprovider.StreamTextResult) *responses.Strea
 			if se, ok := e.(stream.Event); ok {
 				return yield(se)
 			}
+
 			return true
 		})
 	}
+
 	return responses.NewStreamableAgentResponse(
 		result.InvocationID, events, data.Usage{}, data.Meta{},
 	)
 }
 
 // setTextGW is a helper for concrete providers to set their text gateway.
-func (p *Provider) setTextGW(gw contractsgw.TextGateway)          { p.textGW = gw }
-func (p *Provider) setImageGW(gw contractsgw.ImageGateway)        { p.imageGW = gw }
-func (p *Provider) setAudioGW(gw contractsgw.AudioGateway)        { p.audioGW = gw }
+func (p *Provider) setTextGW(gw contractsgw.TextGateway)           { p.textGW = gw }
+func (p *Provider) setImageGW(gw contractsgw.ImageGateway)         { p.imageGW = gw }
+func (p *Provider) setAudioGW(gw contractsgw.AudioGateway)         { p.audioGW = gw }
 func (p *Provider) setEmbeddingGW(gw contractsgw.EmbeddingGateway) { p.embeddingGW = gw }
 func (p *Provider) setTranscriptionGW(gw contractsgw.TranscriptionGateway) {
 	p.transcriptionGW = gw

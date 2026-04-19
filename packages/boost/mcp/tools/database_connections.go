@@ -27,6 +27,7 @@ func (t *DatabaseConnections) Schema() map[string]any {
 // Handle returns all connections and the default.
 func (t *DatabaseConnections) Handle(_ McpRequest) (McpResponse, error) {
 	names := make([]string, 0, len(t.Connections))
+
 	for name := range t.Connections {
 		names = append(names, name)
 	}

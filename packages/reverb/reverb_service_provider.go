@@ -1,8 +1,8 @@
 package reverb
 
 import (
-	contractsReverb "github.com/bedrock/packages/contracts/reverb"
 	"github.com/bedrock/packages/container"
+	contractsReverb "github.com/bedrock/packages/contracts/reverb"
 	"github.com/bedrock/packages/redis"
 )
 
@@ -42,6 +42,7 @@ func (p *ReverbServiceProvider) Register() {
 
 	p.app.Singleton("reverb.channels", func(c *container.Container) (any, error) {
 		raw, err := c.Make("reverb.apps")
+
 		if err != nil {
 			return nil, err
 		}
@@ -53,6 +54,7 @@ func (p *ReverbServiceProvider) Register() {
 
 	p.app.Singleton("reverb.dispatcher", func(c *container.Container) (any, error) {
 		raw, err := c.Make("reverb.channels")
+
 		if err != nil {
 			return nil, err
 		}
@@ -61,12 +63,14 @@ func (p *ReverbServiceProvider) Register() {
 
 		if cfg.Redis != nil {
 			redisMgrRaw, err := c.Make("redis")
+
 			if err != nil {
 				return nil, err
 			}
 
 			redisMgr := redisMgrRaw.(*redis.Manager)
 			prefix := cfg.Redis.Prefix
+
 			if prefix == "" {
 				prefix = "reverb"
 			}
@@ -79,21 +83,25 @@ func (p *ReverbServiceProvider) Register() {
 
 	p.app.Singleton("reverb.server", func(c *container.Container) (any, error) {
 		appsRaw, err := c.Make("reverb.apps")
+
 		if err != nil {
 			return nil, err
 		}
 
 		connsRaw, err := c.Make("reverb.conns")
+
 		if err != nil {
 			return nil, err
 		}
 
 		channelsRaw, err := c.Make("reverb.channels")
+
 		if err != nil {
 			return nil, err
 		}
 
 		dispatcherRaw, err := c.Make("reverb.dispatcher")
+
 		if err != nil {
 			return nil, err
 		}
@@ -109,16 +117,19 @@ func (p *ReverbServiceProvider) Register() {
 
 	p.app.Singleton("reverb.http", func(c *container.Container) (any, error) {
 		appsRaw, err := c.Make("reverb.apps")
+
 		if err != nil {
 			return nil, err
 		}
 
 		channelsRaw, err := c.Make("reverb.channels")
+
 		if err != nil {
 			return nil, err
 		}
 
 		dispatcherRaw, err := c.Make("reverb.dispatcher")
+
 		if err != nil {
 			return nil, err
 		}

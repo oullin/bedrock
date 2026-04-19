@@ -15,7 +15,8 @@ import (
 func TestDecorator_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver       = (*pennant.Decorator)(nil)
+	var _ pennant.Driver = (*pennant.Decorator)(nil)
+
 	var _ pennant.CacheFlusher = (*pennant.Decorator)(nil)
 }
 
@@ -32,18 +33,22 @@ func TestDecorator_Get_CacheMiss_PopulatesCache(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 
 	dec := pennant.NewDecorator(drv)
 
 	val, err := dec.Get(ctx, "flag", nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if val != true {
 		t.Fatalf("expected true, got %v", val)
 	}
+
 	if calls != 1 {
 		t.Fatalf("expected 1 driver call, got %d", calls)
 	}
@@ -58,6 +63,7 @@ func TestDecorator_Get_CacheHit(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return "cached-value", nil
 	})
 
@@ -68,12 +74,15 @@ func TestDecorator_Get_CacheHit(t *testing.T) {
 
 	// Second call must be served from cache — driver should not be called again.
 	val, err := dec.Get(ctx, "flag", nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if val != "cached-value" {
 		t.Fatalf("expected cached-value, got %v", val)
 	}
+
 	if calls != 1 {
 		t.Fatalf("expected exactly 1 driver call (cache hit on 2nd), got %d", calls)
 	}
@@ -99,12 +108,15 @@ func TestDecorator_Get_DispatchesFeatureResolved(t *testing.T) {
 	}
 
 	ev, ok := dispatcher.last().(pennant.FeatureResolved)
+
 	if !ok {
 		t.Fatalf("last event is not FeatureResolved: %T", dispatcher.last())
 	}
+
 	if ev.Feature != "flag" {
 		t.Fatalf("expected feature=flag, got %q", ev.Feature)
 	}
+
 	if ev.Value != true {
 		t.Fatalf("expected value=true, got %v", ev.Value)
 	}
@@ -120,12 +132,14 @@ func TestDecorator_Get_ErrorNotCached(t *testing.T) {
 	dec := pennant.NewDecorator(drv)
 
 	_, err := dec.Get(ctx, "undefined-flag", nil)
+
 	if err == nil {
 		t.Fatal("expected error for undefined feature, got nil")
 	}
 
 	// Second call must also go to the driver (no error stored in cache).
 	_, err2 := dec.Get(ctx, "undefined-flag", nil)
+
 	if err2 == nil {
 		t.Fatal("expected error on second call too")
 	}
@@ -145,6 +159,7 @@ func TestDecorator_Set_UpdatesCache_DispatchesEvent(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 
@@ -156,12 +171,15 @@ func TestDecorator_Set_UpdatesCache_DispatchesEvent(t *testing.T) {
 
 	// Value should come from the cache (set to false), resolver not called.
 	val, err := dec.Get(ctx, "flag", nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if val != false {
 		t.Fatalf("expected false (set value), got %v", val)
 	}
+
 	if calls != 0 {
 		t.Fatalf("expected 0 resolver calls after Set, got %d", calls)
 	}
@@ -203,9 +221,11 @@ func TestDecorator_SetForAllScopes_ClearsCacheForFeature_DispatchesEvent(t *test
 	// After SetForAllScopes the decorator cache is wiped, so the next Get goes
 	// to the driver which now stores false for both scopes.
 	val, err := dec.Get(ctx, "flag", "user:1")
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if val != false {
 		t.Fatalf("expected false after SetForAllScopes, got %v", val)
 	}
@@ -225,6 +245,7 @@ func TestDecorator_Delete_RemovesCacheEntry_DispatchesEvent(t *testing.T) {
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
+
 		return true, nil
 	})
 
@@ -232,6 +253,7 @@ func TestDecorator_Delete_RemovesCacheEntry_DispatchesEvent(t *testing.T) {
 
 	// Resolve once to populate cache.
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
+
 	if calls != 1 {
 		t.Fatalf("setup: expected 1 call, got %d", calls)
 	}
@@ -246,6 +268,7 @@ func TestDecorator_Delete_RemovesCacheEntry_DispatchesEvent(t *testing.T) {
 
 	// Next Get must go back to the driver because cache entry was removed.
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
+
 	if calls != 2 {
 		t.Fatalf("expected 2 driver calls after delete, got %d", calls)
 	}
@@ -277,6 +300,7 @@ func TestDecorator_Purge_Nil_ClearsAllCache_DispatchesAllFeaturesPurged(t *testi
 	if dispatcher.count("AllFeaturesPurged") != 1 {
 		t.Fatalf("expected 1 AllFeaturesPurged, got %d", dispatcher.count("AllFeaturesPurged"))
 	}
+
 	if dispatcher.count("FeaturesPurged") != 0 {
 		t.Fatalf("expected 0 FeaturesPurged, got %d", dispatcher.count("FeaturesPurged"))
 	}
@@ -306,9 +330,11 @@ func TestDecorator_Purge_List_ClearsNamedFeatures_DispatchesFeaturesPurged(t *te
 	}
 
 	ev, ok := dispatcher.last().(pennant.FeaturesPurged)
+
 	if !ok {
 		t.Fatalf("last event is not FeaturesPurged: %T", dispatcher.last())
 	}
+
 	if len(ev.Features) != 1 || ev.Features[0] != "flag-a" {
 		t.Fatalf("expected Features=[flag-a], got %v", ev.Features)
 	}
@@ -332,6 +358,7 @@ func TestDecorator_Purge_EmptySlice_IsNoOp_NoEvents(t *testing.T) {
 	}
 
 	totalEvents := dispatcher.count("FeaturesPurged") + dispatcher.count("AllFeaturesPurged")
+
 	if totalEvents != 0 {
 		t.Fatalf("expected no purge events for empty slice, got %d", totalEvents)
 	}
@@ -358,6 +385,7 @@ func TestDecorator_FlushCache_ClearsWithoutEvents(t *testing.T) {
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
 
 	resolvedBefore := dispatcher.count("FeatureResolved")
+
 	if resolvedBefore != 1 {
 		t.Fatalf("setup: expected 1 FeatureResolved, got %d", resolvedBefore)
 	}
@@ -368,6 +396,7 @@ func TestDecorator_FlushCache_ClearsWithoutEvents(t *testing.T) {
 	dec.FlushCache()
 
 	purgeEventsAfter := dispatcher.count("AllFeaturesPurged") + dispatcher.count("FeaturesPurged")
+
 	if purgeEventsAfter != purgeEventsBefore {
 		t.Fatalf("FlushCache must not dispatch purge events (before=%d, after=%d)", purgeEventsBefore, purgeEventsAfter)
 	}
@@ -378,6 +407,7 @@ func TestDecorator_FlushCache_ClearsWithoutEvents(t *testing.T) {
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
 
 	resolvedAfter := dispatcher.count("FeatureResolved")
+
 	if resolvedAfter != 2 {
 		t.Fatalf("expected 2 FeatureResolved events after FlushCache + Get, got %d", resolvedAfter)
 	}
@@ -402,11 +432,11 @@ func TestDecorator_NilDispatcher_NoPanic(t *testing.T) {
 		t.Fatalf("Set panicked or returned error: %v", err)
 	}
 
-	dec.Get(ctx, "flag", nil)             //nolint:errcheck
+	dec.Get(ctx, "flag", nil)               //nolint:errcheck
 	dec.SetForAllScopes(ctx, "flag", false) //nolint:errcheck
-	dec.Delete(ctx, "flag", nil)          //nolint:errcheck
-	dec.Purge(ctx, nil)                   //nolint:errcheck
-	dec.Purge(ctx, []string{"flag"})      //nolint:errcheck
+	dec.Delete(ctx, "flag", nil)            //nolint:errcheck
+	dec.Purge(ctx, nil)                     //nolint:errcheck
+	dec.Purge(ctx, []string{"flag"})        //nolint:errcheck
 	dec.FlushCache()
 }
 
@@ -418,6 +448,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 	t.Parallel()
 
 	calls := map[string]int{}
+
 	var mu sync.Mutex
 
 	drv := pennant.NewArrayDriver()
@@ -427,6 +458,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 		mu.Lock()
 		calls["flag-a"]++
 		mu.Unlock()
+
 		return "a", nil
 	})
 
@@ -434,6 +466,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 		mu.Lock()
 		calls["flag-b"]++
 		mu.Unlock()
+
 		return "b", nil
 	})
 
@@ -445,13 +478,14 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 	mu.Lock()
 	callsBeforeGetAll := calls["flag-a"]
 	mu.Unlock()
+
 	if callsBeforeGetAll != 1 {
 		t.Fatalf("setup: expected 1 call for flag-a, got %d", callsBeforeGetAll)
 	}
 
 	result, err := dec.GetAll(ctx, map[string][]any{
-		"flag-a": {nil},        // cache hit — driver should NOT be called
-		"flag-b": {"user:1"},   // cache miss — driver must be called
+		"flag-a": {nil},      // cache hit — driver should NOT be called
+		"flag-b": {"user:1"}, // cache miss — driver must be called
 	})
 
 	if err != nil {
@@ -461,6 +495,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 	if result["flag-a"][0] != "a" {
 		t.Fatalf("expected a for flag-a, got %v", result["flag-a"][0])
 	}
+
 	if result["flag-b"][0] != "b" {
 		t.Fatalf("expected b for flag-b, got %v", result["flag-b"][0])
 	}
@@ -492,9 +527,11 @@ func TestDecorator_Define_PassedToDriver(t *testing.T) {
 	})
 
 	val, err := dec.Get(ctx, "flag", nil)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if val != "from-decorator-define" {
 		t.Fatalf("expected from-decorator-define, got %v", val)
 	}

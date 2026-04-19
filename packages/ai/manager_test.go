@@ -34,6 +34,7 @@ func TestManagerSetAndGetDefault(t *testing.T) {
 
 	m := ai.NewManager()
 	m.SetDefault("openai")
+
 	if m.Default() != "openai" {
 		t.Errorf("expected %q got %q", "openai", m.Default())
 	}
@@ -47,14 +48,17 @@ func TestManagerExtendAndResolve(t *testing.T) {
 	called := false
 	m.Extend("test-provider", func(cfg map[string]any) any {
 		called = true
+
 		return &textOnlyStub{}
 	})
 	m.SetDefault("test-provider")
 
 	_, err := m.TextProvider()
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !called {
 		t.Error("expected factory to be called")
 	}
@@ -72,6 +76,7 @@ func TestManagerProviderCached(t *testing.T) {
 
 	p1, _ := m.TextProvider()
 	p2, _ := m.TextProvider()
+
 	if p1 != p2 {
 		t.Error("expected cached provider instance to be reused")
 	}
@@ -88,6 +93,7 @@ func TestManagerTextProviderCapabilityError(t *testing.T) {
 	m.SetDefault("audio-only")
 
 	_, err := m.TextProvider()
+
 	if err == nil {
 		t.Fatal("expected ErrProviderCapability but got nil")
 	}
@@ -99,6 +105,7 @@ func TestManagerFakeRecorderReturned(t *testing.T) {
 
 	m := ai.NewManager()
 	rec := m.Fake("hello")
+
 	if rec == nil {
 		t.Fatal("expected non-nil recorder from Fake()")
 	}
@@ -112,6 +119,7 @@ func TestManagerResetClearsInstances(t *testing.T) {
 	count := 0
 	m.Extend("cnt", func(cfg map[string]any) any {
 		count++
+
 		return &textOnlyStub{}
 	})
 	m.SetDefault("cnt")
@@ -135,9 +143,11 @@ func TestManagerNamedProvider(t *testing.T) {
 	m.SetDefault("alpha")
 
 	p, err := m.TextProvider(enums.Lab("beta"))
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if _, ok := p.(*textOnlyStub); !ok {
 		t.Errorf("expected textOnlyStub, got %T", p)
 	}

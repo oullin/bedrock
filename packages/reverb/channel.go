@@ -11,6 +11,54 @@ import (
 
 // TypeOf returns the channel type string for the given channel name, using
 // prefix matching in priority order.
+
+// channel is the unexported base struct shared by all channel types.
+type channel struct {
+	name  string
+	app   *App
+	mu    sync.RWMutex
+	conns map[string]contractsReverb.Connection // socketID → Connection
+}
+
+// Name returns the channel name.
+
+// Connections returns a snapshot of all subscribed connections.
+
+// HasConnection reports whether the given socket ID is subscribed.
+
+// broadcast sends event to all connections except the one identified by except.
+// Pass nil to broadcast to everyone.
+
+// broadcastAll sends event to every subscriber without exclusions.
+
+// sendSubscriptionSucceeded sends the subscription_succeeded event to conn.
+
+// ─────────────────────────────────────────────
+// Channel – public channel (no auth required)
+// ─────────────────────────────────────────────
+
+// Channel is a public (unauthenticated) Pusher channel.
+type Channel struct {
+	channel
+}
+
+// Subscribe adds conn to the channel and sends subscription_succeeded.
+
+// Unsubscribe removes conn from the channel.
+
+// Broadcast sends the event to all subscribers except the sender.
+
+// BroadcastToAll sends the event to every subscriber.
+
+// ─────────────────────────────────────────────
+// PrivateChannel – HMAC-authenticated channel
+// ─────────────────────────────────────────────
+
+// PrivateChannel is a private Pusher channel that requires HMAC auth.
+type PrivateChannel struct {
+	channel
+}
+
 func TypeOf(name string) string {
 	switch {
 	case strings.HasPrefix(name, "private-cache-"):
@@ -28,25 +76,17 @@ func TypeOf(name string) string {
 	}
 }
 
-// channel is the unexported base struct shared by all channel types.
-type channel struct {
-	name  string
-	app   *App
-	mu    sync.RWMutex
-	conns map[string]contractsReverb.Connection // socketID → Connection
-}
-
-// Name returns the channel name.
 func (c *channel) Name() string {
 	return c.name
 }
 
-// Connections returns a snapshot of all subscribed connections.
 func (c *channel) Connections() []contractsReverb.Connection {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	out := make([]contractsReverb.Connection, 0, len(c.conns))
+
 	for _, conn := range c.conns {
 		out = append(out, conn)
 	}
@@ -54,9 +94,9 @@ func (c *channel) Connections() []contractsReverb.Connection {
 	return out
 }
 
-// HasConnection reports whether the given socket ID is subscribed.
 func (c *channel) HasConnection(socketID string) bool {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	_, ok := c.conns[socketID]
@@ -64,15 +104,15 @@ func (c *channel) HasConnection(socketID string) bool {
 	return ok
 }
 
-// broadcast sends event to all connections except the one identified by except.
-// Pass nil to broadcast to everyone.
 func (c *channel) broadcast(ctx context.Context, event contractsReverb.Event, except *string) error {
 	b, err := json.Marshal(event)
+
 	if err != nil {
 		return err
 	}
 
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
 
 	for id, conn := range c.conns {
@@ -88,18 +128,17 @@ func (c *channel) broadcast(ctx context.Context, event contractsReverb.Event, ex
 	return nil
 }
 
-// broadcastAll sends event to every subscriber without exclusions.
 func (c *channel) broadcastAll(ctx context.Context, event contractsReverb.Event) error {
 	return c.broadcast(ctx, event, nil)
 }
 
-// sendSubscriptionSucceeded sends the subscription_succeeded event to conn.
 func sendSubscriptionSucceeded(ctx context.Context, conn contractsReverb.Connection, name string) error {
 	b, err := json.Marshal(map[string]string{
 		"event":   "pusher_internal:subscription_succeeded",
 		"data":    "{}",
 		"channel": name,
 	})
+
 	if err != nil {
 		return err
 	}
@@ -107,18 +146,8 @@ func sendSubscriptionSucceeded(ctx context.Context, conn contractsReverb.Connect
 	return conn.Send(ctx, b)
 }
 
-// ─────────────────────────────────────────────
-// Channel – public channel (no auth required)
-// ─────────────────────────────────────────────
-
-// Channel is a public (unauthenticated) Pusher channel.
-type Channel struct {
-	channel
-}
-
 var _ contractsReverb.Channel = (*Channel)(nil)
 
-// Subscribe adds conn to the channel and sends subscription_succeeded.
 func (ch *Channel) Subscribe(ctx context.Context, conn contractsReverb.Connection, auth, data string) error {
 	ch.mu.Lock()
 	ch.conns[conn.SocketID()] = conn
@@ -127,31 +156,20 @@ func (ch *Channel) Subscribe(ctx context.Context, conn contractsReverb.Connectio
 	return sendSubscriptionSucceeded(ctx, conn, ch.name)
 }
 
-// Unsubscribe removes conn from the channel.
 func (ch *Channel) Unsubscribe(_ context.Context, conn contractsReverb.Connection) {
 	ch.mu.Lock()
+
 	defer ch.mu.Unlock()
 
 	delete(ch.conns, conn.SocketID())
 }
 
-// Broadcast sends the event to all subscribers except the sender.
 func (ch *Channel) Broadcast(ctx context.Context, event contractsReverb.Event, except *string) error {
 	return ch.broadcast(ctx, event, except)
 }
 
-// BroadcastToAll sends the event to every subscriber.
 func (ch *Channel) BroadcastToAll(ctx context.Context, event contractsReverb.Event) error {
 	return ch.broadcastAll(ctx, event)
-}
-
-// ─────────────────────────────────────────────
-// PrivateChannel – HMAC-authenticated channel
-// ─────────────────────────────────────────────
-
-// PrivateChannel is a private Pusher channel that requires HMAC auth.
-type PrivateChannel struct {
-	channel
 }
 
 var _ contractsReverb.Channel = (*PrivateChannel)(nil)
@@ -172,6 +190,7 @@ func (ch *PrivateChannel) Subscribe(ctx context.Context, conn contractsReverb.Co
 // Unsubscribe removes conn from the channel.
 func (ch *PrivateChannel) Unsubscribe(_ context.Context, conn contractsReverb.Connection) {
 	ch.mu.Lock()
+
 	defer ch.mu.Unlock()
 
 	delete(ch.conns, conn.SocketID())

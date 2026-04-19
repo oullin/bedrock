@@ -28,15 +28,18 @@ func signedRequest(t *testing.T, method, path, secret string, body []byte) *http
 
 	// Build query string
 	var qparts []string
+
 	for k, v := range params {
 		qparts = append(qparts, fmt.Sprintf("%s=%s", k, v))
 	}
+
 	qparts = append(qparts, "auth_signature="+sig)
 	queryString := strings.Join(qparts, "&")
 
 	fullURL := path + "?" + queryString
 
 	var bodyReader *bytes.Reader
+
 	if body != nil {
 		bodyReader = bytes.NewReader(body)
 	} else {
@@ -44,6 +47,7 @@ func signedRequest(t *testing.T, method, path, secret string, body []byte) *http
 	}
 
 	req := httptest.NewRequest(method, fullURL, bodyReader)
+
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
@@ -72,11 +76,13 @@ func TestHTTPHandler_Trigger_Success(t *testing.T) {
 
 	// Create a channel and subscribe a fakeConn
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate: %v", err)
 	}
 
 	conn := newFakeConn("sock-1", "app-1")
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -96,11 +102,13 @@ func TestHTTPHandler_Trigger_Success(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
 	msgs := conn.SentMessages()
+
 	if len(msgs) <= msgsBeforeTrigger {
 		t.Error("expected fakeConn to receive the triggered event")
 	}
@@ -129,6 +137,7 @@ func TestHTTPHandler_Trigger_InvalidSignature(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Errorf("expected 401, got %d", resp.StatusCode)
 	}
@@ -152,6 +161,7 @@ func TestHTTPHandler_Trigger_AppNotFound(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", resp.StatusCode)
 	}
@@ -165,10 +175,13 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 
 	// Set up two channels
 	ch1, err := mgr.GetOrCreate("app-1", "public-ch1")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate ch1: %v", err)
 	}
+
 	ch2, err := mgr.GetOrCreate("app-1", "public-ch2")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate ch2: %v", err)
 	}
@@ -179,6 +192,7 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 	if err := ch1.Subscribe(ctx, conn1, "", ""); err != nil {
 		t.Fatalf("Subscribe conn1: %v", err)
 	}
+
 	if err := ch2.Subscribe(ctx, conn2, "", ""); err != nil {
 		t.Fatalf("Subscribe conn2: %v", err)
 	}
@@ -200,6 +214,7 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
@@ -210,6 +225,7 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 	if len(msgs1) <= msgs1Before {
 		t.Error("expected conn1 to receive event-for-ch1")
 	}
+
 	if len(msgs2) <= msgs2Before {
 		t.Error("expected conn2 to receive event-for-ch2")
 	}
@@ -217,6 +233,7 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 	if !containsBytes(msgs1[msgs1Before:], []byte("event-for-ch1")) {
 		t.Errorf("expected event-for-ch1 in conn1 messages, got: %s", msgs1[msgs1Before:])
 	}
+
 	if !containsBytes(msgs2[msgs2Before:], []byte("event-for-ch2")) {
 		t.Errorf("expected event-for-ch2 in conn2 messages, got: %s", msgs2[msgs2Before:])
 	}
@@ -230,11 +247,13 @@ func TestHTTPHandler_GetChannels(t *testing.T) {
 
 	// Create a channel with a subscriber
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate: %v", err)
 	}
 
 	conn := newFakeConn("sock-1", "app-1")
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -246,16 +265,19 @@ func TestHTTPHandler_GetChannels(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
 	var result map[string]any
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		t.Fatalf("failed to decode response body: %v", err)
 	}
 
 	channels, ok := result["channels"]
+
 	if !ok {
 		t.Error("expected 'channels' key in response JSON")
 	}
@@ -270,11 +292,13 @@ func TestHTTPHandler_GetChannel_Found(t *testing.T) {
 	ctx := httptest.NewRequest(http.MethodGet, "/", nil).Context()
 
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
+
 	if err != nil {
 		t.Fatalf("GetOrCreate: %v", err)
 	}
 
 	conn := newFakeConn("sock-1", "app-1")
+
 	if err := ch.Subscribe(ctx, conn, "", ""); err != nil {
 		t.Fatalf("Subscribe: %v", err)
 	}
@@ -286,6 +310,7 @@ func TestHTTPHandler_GetChannel_Found(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
@@ -303,6 +328,7 @@ func TestHTTPHandler_GetChannel_NotFound(t *testing.T) {
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
+
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", resp.StatusCode)
 	}

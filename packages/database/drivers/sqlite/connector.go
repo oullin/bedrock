@@ -13,17 +13,20 @@ type Connector struct{}
 // Connect opens a SQLite connection using the given configuration.
 func (c *Connector) Connect(config database.ConnectionConfig) (*database.Connection, error) {
 	dsn := config.Database
+
 	if dsn == "" {
 		dsn = ":memory:"
 	}
 
 	db, err := sql.Open("sqlite3", dsn)
+
 	if err != nil {
 		return nil, fmt.Errorf("sqlite: failed to open connection: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
 		db.Close()
+
 		return nil, fmt.Errorf("sqlite: failed to ping: %w", err)
 	}
 
@@ -43,6 +46,7 @@ func (c *Connector) Connect(config database.ConnectionConfig) (*database.Connect
 // NewConnectorFactory returns a ConnectorFactory for the database Manager.
 func NewConnectorFactory() database.ConnectorFactory {
 	c := &Connector{}
+
 	return func(config database.ConnectionConfig) (*database.Connection, error) {
 		return c.Connect(config)
 	}

@@ -4,34 +4,25 @@ import "context"
 
 // Grant type identifiers — matches Laravel Passport grant names exactly.
 // These correspond to the grant type strings used in token requests.
-const (
-	// GrantAuthorizationCode is the standard OAuth2 Authorization Code grant.
-	GrantAuthorizationCode = "authorization_code"
 
-	// GrantAuthorizationCodePKCE is the Authorization Code grant with PKCE
-	// (Proof Key for Code Exchange), used for public clients like SPAs and mobile apps.
-	GrantAuthorizationCodePKCE = "authorization_code_pkce"
+// GrantAuthorizationCode is the standard OAuth2 Authorization Code grant.
 
-	// GrantPassword is the Resource Owner Password Credentials grant.
-	// Use only for highly trusted first-party applications.
-	GrantPassword = "password"
+// GrantAuthorizationCodePKCE is the Authorization Code grant with PKCE
+// (Proof Key for Code Exchange), used for public clients like SPAs and mobile apps.
 
-	// GrantClientCredentials is the Client Credentials grant for machine-to-machine auth.
-	GrantClientCredentials = "client_credentials"
+// GrantPassword is the Resource Owner Password Credentials grant.
+// Use only for highly trusted first-party applications.
 
-	// GrantImplicit is the (deprecated) Implicit grant for browser-based apps.
-	GrantImplicit = "implicit"
+// GrantClientCredentials is the Client Credentials grant for machine-to-machine auth.
 
-	// GrantRefreshToken is the Refresh Token grant for obtaining new access tokens.
-	GrantRefreshToken = "refresh_token"
+// GrantImplicit is the (deprecated) Implicit grant for browser-based apps.
 
-	// GrantDeviceCode is the Device Authorization grant (RFC 8628) for input-constrained devices.
-	GrantDeviceCode = "urn:ietf:params:oauth:grant-type:device_code"
+// GrantRefreshToken is the Refresh Token grant for obtaining new access tokens.
 
-	// GrantPersonalAccess is the custom Laravel Passport grant for personal access tokens.
-	// It is not a standard OAuth2 grant type.
-	GrantPersonalAccess = "personal_access"
-)
+// GrantDeviceCode is the Device Authorization grant (RFC 8628) for input-constrained devices.
+
+// GrantPersonalAccess is the custom Laravel Passport grant for personal access tokens.
+// It is not a standard OAuth2 grant type.
 
 // GrantDriver handles a specific OAuth2 grant flow.
 // The AuthorizationServer delegates token issuance to registered GrantDrivers.
@@ -76,3 +67,21 @@ type DeviceAuthorizationDriver interface {
 	// DenyDeviceAuthorization marks a device code as denied.
 	DenyDeviceAuthorization(ctx context.Context, userCode string) error
 }
+
+const (
+	GrantAuthorizationCode = "authorization_code"
+
+	GrantAuthorizationCodePKCE = "authorization_code_pkce"
+
+	GrantPassword = "password"
+
+	GrantClientCredentials = "client_credentials"
+
+	GrantImplicit = "implicit"
+
+	GrantRefreshToken = "refresh_token"
+
+	GrantDeviceCode = "urn:ietf:params:oauth:grant-type:device_code"
+
+	GrantPersonalAccess = "personal_access"
+)

@@ -6,6 +6,12 @@ import (
 	"github.com/bedrock/packages/precognition"
 )
 
+// fakeRoute satisfies the routeAccessor interface used by the dispatchers.
+type fakeRoute struct {
+	params     map[string]string
+	paramNames []string
+}
+
 func TestCallableDispatcherResolvesAndAborts(t *testing.T) {
 	t.Parallel()
 
@@ -64,12 +70,6 @@ func TestCallableDispatcherWithRouteAccessor(t *testing.T) {
 	}()
 
 	d.Dispatch(route, callable)
-}
-
-// fakeRoute satisfies the routeAccessor interface used by the dispatchers.
-type fakeRoute struct {
-	params     map[string]string
-	paramNames []string
 }
 
 func (r *fakeRoute) ParametersWithoutNulls() map[string]string { return r.params }

@@ -51,12 +51,14 @@ func NewEntry(entryType string, content map[string]any) *IncomingEntry {
 // WithBatchID sets the batch identifier and returns the entry for chaining.
 func (e *IncomingEntry) WithBatchID(id string) *IncomingEntry {
 	e.BatchID = id
+
 	return e
 }
 
 // WithType sets the entry type and returns the entry for chaining.
 func (e *IncomingEntry) WithType(t string) *IncomingEntry {
 	e.Type = t
+
 	return e
 }
 
@@ -64,6 +66,7 @@ func (e *IncomingEntry) WithType(t string) *IncomingEntry {
 // repeated identical SQL queries) and returns the entry for chaining.
 func (e *IncomingEntry) WithFamilyHash(hash string) *IncomingEntry {
 	e.FamilyHash = hash
+
 	return e
 }
 
@@ -87,6 +90,7 @@ func (e *IncomingEntry) WithUser(user *EntryUser) *IncomingEntry {
 // WithTags replaces the entry's tag slice and returns the entry for chaining.
 func (e *IncomingEntry) WithTags(tags []string) *IncomingEntry {
 	e.Tags = tags
+
 	return e
 }
 
@@ -136,6 +140,7 @@ func (e *IncomingEntry) IsFailedRequest() bool {
 	}
 
 	status, _ := e.Content["response_status"].(int)
+
 	return status >= 500
 }
 
@@ -149,6 +154,7 @@ func (e *IncomingEntry) IsSlowQuery() bool {
 	}
 
 	slow, _ := e.Content["slow"].(bool)
+
 	return slow
 }
 
@@ -168,6 +174,7 @@ func (e *IncomingEntry) IsFailedJob() bool {
 	}
 
 	status, _ := e.Content["status"].(string)
+
 	return status == "failed"
 }
 

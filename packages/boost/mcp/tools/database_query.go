@@ -42,6 +42,7 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	query, _ := req.Args["query"].(string)
+
 	if query == "" {
 		return ErrorResponse("database_query: query argument is required"), nil
 	}
@@ -51,12 +52,15 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 	}
 
 	rows, err := t.DB.Query(query) //nolint:gosec
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("database_query: %v", err)), nil
 	}
+
 	defer rows.Close()
 
 	cols, err := rows.Columns()
+
 	if err != nil {
 		return ErrorResponse(fmt.Sprintf("database_query: columns: %v", err)), nil
 	}
@@ -76,6 +80,7 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 		}
 
 		row := make(map[string]any, len(cols))
+
 		for i, col := range cols {
 			row[col] = values[i]
 		}
@@ -93,6 +98,7 @@ func (t *DatabaseQuery) Handle(req McpRequest) (McpResponse, error) {
 // isSelectQuery performs a simple check that the query is read-only.
 func isSelectQuery(query string) bool {
 	upper := strings.TrimSpace(strings.ToUpper(query))
+
 	return strings.HasPrefix(upper, "SELECT") ||
 		strings.HasPrefix(upper, "WITH") ||
 		strings.HasPrefix(upper, "EXPLAIN")

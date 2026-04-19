@@ -18,6 +18,7 @@ func TestAudioCanBeFaked(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.AudioProvider()
+
 	if err != nil {
 		t.Fatalf("AudioProvider error: %v", err)
 	}
@@ -26,9 +27,11 @@ func TestAudioCanBeFaked(t *testing.T) {
 		Text:  "Hello world",
 		Voice: "alloy",
 	})
+
 	if genErr != nil {
 		t.Fatalf("Audio error: %v", genErr)
 	}
+
 	if result == nil {
 		t.Error("expected non-nil audio result")
 	}

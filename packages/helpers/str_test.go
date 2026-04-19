@@ -28,6 +28,7 @@ func TestEndsWith(t *testing.T) {
 	if !EndsWith("jason", "on") {
 		t.Error("EndsWith(on) should be true")
 	}
+
 	if EndsWith("jason", "no") {
 		t.Error("EndsWith(no) should be false")
 	}
@@ -55,6 +56,7 @@ func TestStartsWith(t *testing.T) {
 	if !StartsWith("jason", "jas") {
 		t.Error("StartsWith(jas) should be true")
 	}
+
 	if StartsWith("jason", "day") {
 		t.Error("StartsWith(day) should be false")
 	}
@@ -82,6 +84,7 @@ func TestStrFinishDelegation(t *testing.T) {
 	if got := StrFinish("hello", "/"); got != "hello/" {
 		t.Errorf("StrFinish = %q, want %q", got, "hello/")
 	}
+
 	if got := StrFinish("hello/", "/"); got != "hello/" {
 		t.Errorf("StrFinish already finished = %q, want %q", got, "hello/")
 	}
@@ -93,6 +96,7 @@ func TestStrIsDelegation(t *testing.T) {
 	if !StrIs("foo*", "foobar") {
 		t.Error("StrIs(foo*, foobar) should be true")
 	}
+
 	if StrIs("baz*", "foobar") {
 		t.Error("StrIs(baz*, foobar) should be false")
 	}
@@ -112,6 +116,7 @@ func TestStrPluralDelegation(t *testing.T) {
 	if got := StrPlural("car"); got != "cars" {
 		t.Errorf("StrPlural = %q, want %q", got, "cars")
 	}
+
 	if got := StrPlural("car", 1); got != "car" {
 		t.Errorf("StrPlural(1) = %q, want %q", got, "car")
 	}
@@ -121,6 +126,7 @@ func TestStrRandomDelegation(t *testing.T) {
 	t.Parallel()
 
 	got := StrRandom(16)
+
 	if len(got) == 0 {
 		t.Error("StrRandom should return non-empty string")
 	}
@@ -130,6 +136,7 @@ func TestStrReplaceArrayDelegation(t *testing.T) {
 	t.Parallel()
 
 	got := StrReplaceArray("?", []string{"8:30", "9:00"}, "? and ?")
+
 	if got != "8:30 and 9:00" {
 		t.Errorf("StrReplaceArray = %q, want %q", got, "8:30 and 9:00")
 	}
@@ -139,6 +146,7 @@ func TestStrReplaceFirstDelegation(t *testing.T) {
 	t.Parallel()
 
 	got := StrReplaceFirst("the", "a", "the quick brown fox jumps over the lazy dog")
+
 	if !strings.HasPrefix(got, "a quick") {
 		t.Errorf("StrReplaceFirst = %q", got)
 	}
@@ -148,6 +156,7 @@ func TestStrReplaceLastDelegation(t *testing.T) {
 	t.Parallel()
 
 	got := StrReplaceLast("the", "a", "the quick brown fox jumps over the lazy dog")
+
 	if !strings.Contains(got, "a lazy") {
 		t.Errorf("StrReplaceLast = %q", got)
 	}
@@ -175,6 +184,7 @@ func TestStrStartDelegation(t *testing.T) {
 	if got := StrStart("path", "/"); got != "/path" {
 		t.Errorf("StrStart = %q, want %q", got, "/path")
 	}
+
 	if got := StrStart("/path", "/"); got != "/path" {
 		t.Errorf("StrStart already started = %q, want %q", got, "/path")
 	}

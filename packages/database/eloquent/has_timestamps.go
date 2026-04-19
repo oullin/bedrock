@@ -59,9 +59,11 @@ func (h *HasTimestamps) FreshTimestampString() string {
 // UpdateTimestamps sets the timestamp attributes on the given attribute map.
 func (h *HasTimestamps) UpdateTimestamps(attrs map[string]any, creating bool) {
 	now := h.FreshTimestampString()
+
 	if h.updatedAt != "" {
 		attrs[h.updatedAt] = now
 	}
+
 	if creating && h.createdAt != "" {
 		attrs[h.createdAt] = now
 	}

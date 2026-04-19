@@ -19,6 +19,19 @@ type testSession struct {
 	data map[string]any
 }
 
+// oauthTwoTestProvider is the Go equivalent of OAuthTwoTestProviderStub.php.
+type oauthTwoTestProvider struct {
+	socialite.AbstractProvider
+}
+
+// oauthTwoWithPKCETestProvider mirrors OAuthTwoWithPKCETestProviderStub.php.
+type oauthTwoWithPKCETestProvider struct {
+	socialite.AbstractProvider
+}
+
+// roundTripper is a function-based http.RoundTripper for test HTTP injection.
+type roundTripper func(*http.Request) (*http.Response, error)
+
 func newTestSession() *testSession {
 	return &testSession{data: make(map[string]any)}
 }
@@ -28,17 +41,14 @@ func (s *testSession) Get(key string) any        { return s.data[key] }
 func (s *testSession) Pull(key string) any {
 	v := s.data[key]
 	delete(s.data, key)
-	return v
-}
 
-// oauthTwoTestProvider is the Go equivalent of OAuthTwoTestProviderStub.php.
-type oauthTwoTestProvider struct {
-	socialite.AbstractProvider
+	return v
 }
 
 func newTestProvider(req *http.Request, session socialite.Session, clientID, clientSecret, redirectURL string) *oauthTwoTestProvider {
 	p := &oauthTwoTestProvider{}
 	p.AbstractProvider = socialite.NewAbstractProvider(p, req, session, clientID, clientSecret, redirectURL)
+
 	return p
 }
 
@@ -55,18 +65,15 @@ func (p *oauthTwoTestProvider) GetUserByToken(_ context.Context, _ string) (map[
 func (p *oauthTwoTestProvider) MapUserToObject(raw map[string]any) *socialite.User {
 	u := &socialite.User{}
 	u.ID = fmt.Sprintf("%v", raw["id"])
-	return u
-}
 
-// oauthTwoWithPKCETestProvider mirrors OAuthTwoWithPKCETestProviderStub.php.
-type oauthTwoWithPKCETestProvider struct {
-	socialite.AbstractProvider
+	return u
 }
 
 func newPKCETestProvider(req *http.Request, session socialite.Session, clientID, clientSecret, redirectURL string) *oauthTwoWithPKCETestProvider {
 	p := &oauthTwoWithPKCETestProvider{}
 	p.AbstractProvider = socialite.NewAbstractProvider(p, req, session, clientID, clientSecret, redirectURL)
 	p.EnablePKCE()
+
 	return p
 }
 
@@ -80,11 +87,9 @@ func (p *oauthTwoWithPKCETestProvider) GetUserByToken(_ context.Context, _ strin
 func (p *oauthTwoWithPKCETestProvider) MapUserToObject(raw map[string]any) *socialite.User {
 	u := &socialite.User{}
 	u.ID = fmt.Sprintf("%v", raw["id"])
+
 	return u
 }
-
-// roundTripper is a function-based http.RoundTripper for test HTTP injection.
-type roundTripper func(*http.Request) (*http.Response, error)
 
 func (f roundTripper) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
 
@@ -109,21 +114,25 @@ func TestRedirectBuildsURLWithoutPKCE(t *testing.T) {
 
 	provider := newTestProvider(req, session, "client_id", "client_secret", "redirect")
 	redirectURL, err := provider.Redirect(context.Background())
+
 	if err != nil {
 		t.Fatalf("Redirect() returned error: %v", err)
 	}
 
 	state, _ := session.data["state"].(string) // was Put during Redirect
+
 	if state == "" {
 		// state was already pulled — grab from URL instead
 		parsed, _ := url.Parse(redirectURL)
 		state = parsed.Query().Get("state")
 	}
+
 	if state == "" {
 		t.Fatal("expected state to be stored in session")
 	}
 
 	want := "http://auth.url?client_id=client_id&redirect_uri=redirect&response_type=code&scope=&state=" + state
+
 	if redirectURL != want {
 		t.Errorf("redirect URL mismatch\ngot:  %s\nwant: %s", redirectURL, want)
 	}
@@ -137,6 +146,7 @@ func TestRedirectBuildsURLWithPKCE(t *testing.T) {
 
 	provider := newPKCETestProvider(req, session, "client_id", "client_secret", "redirect")
 	redirectURL, err := provider.Redirect(context.Background())
+
 	if err != nil {
 		t.Fatalf("Redirect() returned error: %v", err)
 	}
@@ -147,9 +157,11 @@ func TestRedirectBuildsURLWithPKCE(t *testing.T) {
 	if q.Get("code_challenge_method") != "S256" {
 		t.Errorf("expected code_challenge_method=S256, got %q", q.Get("code_challenge_method"))
 	}
+
 	if q.Get("code_challenge") == "" {
 		t.Error("expected code_challenge to be set")
 	}
+
 	if q.Get("state") == "" {
 		t.Error("expected state to be set")
 	}
@@ -175,6 +187,7 @@ func TestTokenRequestIncludesPKCECodeVerifier(t *testing.T) {
 			b, _ := io.ReadAll(r.Body)
 			capturedBody = string(b)
 			body := `{"access_token":"access_token","refresh_token":"refresh_token","expires_in":3600}`
+
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body:       io.NopCloser(strings.NewReader(body)),
@@ -183,6 +196,7 @@ func TestTokenRequestIncludesPKCECodeVerifier(t *testing.T) {
 	}
 
 	user, err := provider.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
@@ -190,18 +204,22 @@ func TestTokenRequestIncludesPKCECodeVerifier(t *testing.T) {
 	if user.ID != "foo" {
 		t.Errorf("expected user ID 'foo', got %q", user.ID)
 	}
+
 	if user.Token != "access_token" {
 		t.Errorf("expected token 'access_token', got %q", user.Token)
 	}
+
 	if user.RefreshToken != "refresh_token" {
 		t.Errorf("expected refresh_token 'refresh_token', got %q", user.RefreshToken)
 	}
+
 	if user.ExpiresIn != 3600 {
 		t.Errorf("expected expires_in 3600, got %d", user.ExpiresIn)
 	}
 
 	// Verify code_verifier was included in the POST body.
 	vals, _ := url.ParseQuery(capturedBody)
+
 	if vals.Get("code_verifier") != codeVerifier {
 		t.Errorf("expected code_verifier %q in token request, got %q", codeVerifier, vals.Get("code_verifier"))
 	}
@@ -224,24 +242,30 @@ func TestUserReturnsAuthenticatedUser(t *testing.T) {
 	)
 
 	user, err := provider.User(context.Background())
+
 	if err != nil {
 		t.Fatalf("User() returned error: %v", err)
 	}
+
 	if user.ID != "foo" {
 		t.Errorf("expected ID 'foo', got %q", user.ID)
 	}
+
 	if user.Token != "access_token" {
 		t.Errorf("expected token 'access_token', got %q", user.Token)
 	}
+
 	if user.RefreshToken != "refresh_token" {
 		t.Errorf("expected refresh_token 'refresh_token', got %q", user.RefreshToken)
 	}
+
 	if user.ExpiresIn != 3600 {
 		t.Errorf("expected expires_in 3600, got %d", user.ExpiresIn)
 	}
 
 	// Second call should return the cached user.
 	user2, _ := provider.User(context.Background())
+
 	if user2 != user {
 		t.Error("expected second User() call to return cached instance")
 	}
@@ -257,6 +281,7 @@ func TestUserErrorsOnInvalidState(t *testing.T) {
 
 	provider := newTestProvider(req, session, "client_id", "client_secret", "redirect")
 	_, err := provider.User(context.Background())
+
 	if err != socialite.ErrInvalidState {
 		t.Errorf("expected ErrInvalidState, got %v", err)
 	}
@@ -271,6 +296,7 @@ func TestUserErrorsOnMissingState(t *testing.T) {
 
 	provider := newTestProvider(req, session, "client_id", "client_secret", "redirect")
 	_, err := provider.User(context.Background())
+
 	if err != socialite.ErrInvalidState {
 		t.Errorf("expected ErrInvalidState, got %v", err)
 	}
@@ -284,6 +310,7 @@ func TestGetAuthURL(t *testing.T) {
 	provider := newTestProvider(req, session, "client_id", "client_secret", "redirect")
 	got := provider.GetAuthURL(nil)
 	want := "http://auth.url?client_id=client_id&redirect_uri=redirect&response_type=code&scope="
+
 	if got != want {
 		t.Errorf("GetAuthURL mismatch\ngot:  %s\nwant: %s", got, want)
 	}
@@ -298,6 +325,7 @@ func TestGetStatelessAuthURL(t *testing.T) {
 	provider.Stateless()
 	got := provider.GetAuthURL(nil)
 	want := "http://auth.url?client_id=client_id&redirect_uri=redirect&response_type=code&scope="
+
 	if got != want {
 		t.Errorf("stateless GetAuthURL mismatch\ngot:  %s\nwant: %s", got, want)
 	}
@@ -312,14 +340,17 @@ func TestStatelessRedirectOmitsState(t *testing.T) {
 	provider := newTestProvider(req, session, "client_id", "client_secret", "redirect")
 	provider.Stateless()
 	redirectURL, err := provider.Redirect(context.Background())
+
 	if err != nil {
 		t.Fatalf("Redirect() returned error: %v", err)
 	}
 
 	parsed, _ := url.Parse(redirectURL)
+
 	if parsed.Query().Get("state") != "" {
 		t.Error("stateless redirect should not include state parameter")
 	}
+
 	if session.data["state"] != nil {
 		t.Error("stateless redirect should not store state in session")
 	}

@@ -33,6 +33,7 @@ func (f *FakeProvider) User(_ context.Context) (*User, error) {
 	if f.userFn != nil {
 		return f.userFn(), nil
 	}
+
 	return f.user, nil
 }
 
@@ -42,38 +43,51 @@ func (f *FakeProvider) Stateless() *FakeProvider {
 	if ap, ok := f.real.(interface{ Stateless() *AbstractProvider }); ok {
 		ap.Stateless()
 	}
+
 	return f
 }
 
 // Scopes forwards the call to the real provider and returns the FakeProvider.
 func (f *FakeProvider) Scopes(scopes []string) *FakeProvider {
-	if ap, ok := f.real.(interface{ Scopes([]string) *AbstractProvider }); ok {
+	if ap, ok := f.real.(interface {
+		Scopes([]string) *AbstractProvider
+	}); ok {
 		ap.Scopes(scopes)
 	}
+
 	return f
 }
 
 // SetScopes forwards the call to the real provider and returns the FakeProvider.
 func (f *FakeProvider) SetScopes(scopes []string) *FakeProvider {
-	if ap, ok := f.real.(interface{ SetScopes([]string) *AbstractProvider }); ok {
+	if ap, ok := f.real.(interface {
+		SetScopes([]string) *AbstractProvider
+	}); ok {
 		ap.SetScopes(scopes)
 	}
+
 	return f
 }
 
 // RedirectURL forwards the call to the real provider and returns the FakeProvider.
 func (f *FakeProvider) RedirectURL(u string) *FakeProvider {
-	if ap, ok := f.real.(interface{ RedirectURL(string) *AbstractProvider }); ok {
+	if ap, ok := f.real.(interface {
+		RedirectURL(string) *AbstractProvider
+	}); ok {
 		ap.RedirectURL(u)
 	}
+
 	return f
 }
 
 // With forwards the call to the real provider and returns the FakeProvider.
 func (f *FakeProvider) With(params map[string]string) *FakeProvider {
-	if ap, ok := f.real.(interface{ With(map[string]string) *AbstractProvider }); ok {
+	if ap, ok := f.real.(interface {
+		With(map[string]string) *AbstractProvider
+	}); ok {
 		ap.With(params)
 	}
+
 	return f
 }
 
@@ -82,5 +96,6 @@ func (f *FakeProvider) EnablePKCE() *FakeProvider {
 	if ap, ok := f.real.(interface{ EnablePKCE() *AbstractProvider }); ok {
 		ap.EnablePKCE()
 	}
+
 	return f
 }

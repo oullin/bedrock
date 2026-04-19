@@ -24,6 +24,7 @@ func NewSocialiteServiceProvider(app *container.Container, configs map[string]Pr
 // Use this to extend the manager with custom drivers after registration.
 func (p *SocialiteServiceProvider) WithBoot(fn func(*Manager)) *SocialiteServiceProvider {
 	p.onBoot = fn
+
 	return p
 }
 
@@ -34,6 +35,7 @@ func (p *SocialiteServiceProvider) Register() {
 	p.app.Singleton("socialite", func(_ *container.Container) (any, error) {
 		m := NewManager(new(http.Request), nil, p.configs)
 		SetManager(m)
+
 		return m, nil
 	})
 }
@@ -43,10 +45,13 @@ func (p *SocialiteServiceProvider) Boot() {
 	if p.onBoot == nil {
 		return
 	}
+
 	raw, err := p.app.Make("socialite")
+
 	if err != nil {
 		return
 	}
+
 	if m, ok := raw.(*Manager); ok {
 		p.onBoot(m)
 	}

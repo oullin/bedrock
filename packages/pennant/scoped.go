@@ -59,6 +59,7 @@ func (s *ScopedFeatureInteraction) Active(ctx context.Context, feature string) b
 	scope := s.resolveScopes()[0]
 
 	val, err := s.decorator.Get(ctx, feature, scope)
+
 	if err != nil {
 		return false
 	}
@@ -83,16 +84,19 @@ func (s *ScopedFeatureInteraction) Values(ctx context.Context, features []string
 	scope := s.resolveScopes()[0]
 
 	input := make(map[string][]any, len(features))
+
 	for _, f := range features {
 		input[f] = []any{scope}
 	}
 
 	all, err := s.decorator.GetAll(ctx, input)
+
 	if err != nil {
 		return nil, err
 	}
 
 	out := make(map[string]any, len(features))
+
 	for _, f := range features {
 		if vals, ok := all[f]; ok && len(vals) > 0 {
 			out[f] = vals[0]
@@ -109,6 +113,7 @@ func (s *ScopedFeatureInteraction) AllAreActive(ctx context.Context, features []
 	for _, feature := range features {
 		for _, scope := range scopes {
 			val, err := s.decorator.Get(ctx, feature, scope)
+
 			if err != nil || !isTruthy(val) {
 				return false
 			}
@@ -125,6 +130,7 @@ func (s *ScopedFeatureInteraction) SomeAreActive(ctx context.Context, features [
 	for _, feature := range features {
 		for _, scope := range scopes {
 			val, err := s.decorator.Get(ctx, feature, scope)
+
 			if err == nil && isTruthy(val) {
 				return true
 			}
@@ -141,6 +147,7 @@ func (s *ScopedFeatureInteraction) AllAreInactive(ctx context.Context, features 
 	for _, feature := range features {
 		for _, scope := range scopes {
 			val, err := s.decorator.Get(ctx, feature, scope)
+
 			if err == nil && isTruthy(val) {
 				return false
 			}
@@ -157,6 +164,7 @@ func (s *ScopedFeatureInteraction) SomeAreInactive(ctx context.Context, features
 	for _, feature := range features {
 		for _, scope := range scopes {
 			val, err := s.decorator.Get(ctx, feature, scope)
+
 			if err != nil || !isTruthy(val) {
 				return true
 			}
@@ -220,6 +228,7 @@ func (s *ScopedFeatureInteraction) When(
 	whenInactive func(value any) (any, error),
 ) (any, error) {
 	val, err := s.Value(ctx, feature)
+
 	if err != nil && whenInactive != nil {
 		return whenInactive(nil)
 	}
@@ -256,6 +265,7 @@ func (s *ScopedFeatureInteraction) Load(ctx context.Context, features []string) 
 	scopes := s.resolveScopes()
 
 	input := make(map[string][]any, len(features))
+
 	for _, f := range features {
 		input[f] = scopes
 	}
@@ -280,6 +290,7 @@ func (d *Decorator) For(scopes ...any) *ScopedFeatureInteraction {
 // For returns a ScopedFeatureInteraction backed by the Manager's default driver.
 func (m *Manager) For(scopes ...any) (*ScopedFeatureInteraction, error) {
 	dec, err := m.DefaultDecorator()
+
 	if err != nil {
 		return nil, err
 	}

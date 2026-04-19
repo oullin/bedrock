@@ -7,13 +7,6 @@ import (
 	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
-const (
-	defaultTokensTTL               = 365 * 24 * time.Hour
-	defaultRefreshTokensTTL        = 30 * 24 * time.Hour
-	defaultPersonalAccessTokensTTL = 365 * 24 * time.Hour
-	defaultClientCredentialsTTL    = 365 * 24 * time.Hour
-)
-
 // Passport is the central configuration and registrar for the passport package.
 // It mirrors the static API of Laravel Passport's Passport facade.
 //
@@ -46,6 +39,13 @@ type Passport struct {
 	actingAsScopes []string
 }
 
+const (
+	defaultTokensTTL               = 365 * 24 * time.Hour
+	defaultRefreshTokensTTL        = 30 * 24 * time.Hour
+	defaultPersonalAccessTokensTTL = 365 * 24 * time.Hour
+	defaultClientCredentialsTTL    = 365 * 24 * time.Hour
+)
+
 // NewPassport creates a Passport with the given config and sensible defaults.
 // When cfg is nil, an empty PassportConfig is used (useful for tests).
 func NewPassport(cfg *PassportConfig) *Passport {
@@ -70,6 +70,7 @@ func NewPassport(cfg *PassportConfig) *Passport {
 // Mirrors Passport::tokensCan().
 func (p *Passport) TokensCan(scopes map[string]string) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	for id, desc := range scopes {
@@ -82,6 +83,7 @@ func (p *Passport) TokensCan(scopes map[string]string) *Passport {
 // Scopes returns all registered scopes as a slice.
 func (p *Passport) Scopes() []Scope {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	out := make([]Scope, 0, len(p.scopes))
@@ -96,6 +98,7 @@ func (p *Passport) Scopes() []Scope {
 // ScopeIDs returns the IDs of all registered scopes.
 func (p *Passport) ScopeIDs() []string {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	ids := make([]string, 0, len(p.scopes))
@@ -111,6 +114,7 @@ func (p *Passport) ScopeIDs() []string {
 // Mirrors Passport::scopes() in Laravel (which returns a Collection keyed by ID).
 func (p *Passport) FindScope(id string) *Scope {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	if s, ok := p.scopes[id]; ok {
@@ -123,6 +127,7 @@ func (p *Passport) FindScope(id string) *Scope {
 // HasScope reports whether the given scope ID is registered.
 func (p *Passport) HasScope(id string) bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	_, ok := p.scopes[id]
@@ -134,6 +139,7 @@ func (p *Passport) HasScope(id string) bool {
 // When enabled, Can("user:read") returns true for a token that carries "user".
 func (p *Passport) UseInheritedScopes(enabled bool) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.inheritedScopes = enabled
@@ -144,6 +150,7 @@ func (p *Passport) UseInheritedScopes(enabled bool) *Passport {
 // InheritedScopesEnabled reports whether hierarchical scope resolution is active.
 func (p *Passport) InheritedScopesEnabled() bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.inheritedScopes
@@ -154,6 +161,7 @@ func (p *Passport) InheritedScopesEnabled() bool {
 // TokensExpireIn sets the TTL for access tokens.
 func (p *Passport) TokensExpireIn(d time.Duration) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.tokensTTL = d
@@ -164,6 +172,7 @@ func (p *Passport) TokensExpireIn(d time.Duration) *Passport {
 // TokensTTL returns the current access token TTL.
 func (p *Passport) TokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.tokensTTL
@@ -172,6 +181,7 @@ func (p *Passport) TokensTTL() time.Duration {
 // RefreshTokensExpireIn sets the TTL for refresh tokens.
 func (p *Passport) RefreshTokensExpireIn(d time.Duration) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokensTTL = d
@@ -182,6 +192,7 @@ func (p *Passport) RefreshTokensExpireIn(d time.Duration) *Passport {
 // RefreshTokensTTL returns the current refresh token TTL.
 func (p *Passport) RefreshTokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.refreshTokensTTL
@@ -190,6 +201,7 @@ func (p *Passport) RefreshTokensTTL() time.Duration {
 // PersonalAccessTokensExpireIn sets the TTL for personal access tokens.
 func (p *Passport) PersonalAccessTokensExpireIn(d time.Duration) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.personalAccessTokensTTL = d
@@ -200,6 +212,7 @@ func (p *Passport) PersonalAccessTokensExpireIn(d time.Duration) *Passport {
 // PersonalAccessTokensTTL returns the current personal access token TTL.
 func (p *Passport) PersonalAccessTokensTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.personalAccessTokensTTL
@@ -208,6 +221,7 @@ func (p *Passport) PersonalAccessTokensTTL() time.Duration {
 // ClientCredentialsTokensExpireIn sets the TTL for client credentials tokens.
 func (p *Passport) ClientCredentialsTokensExpireIn(d time.Duration) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsTTL = d
@@ -218,6 +232,7 @@ func (p *Passport) ClientCredentialsTokensExpireIn(d time.Duration) *Passport {
 // ClientCredentialsTTL returns the current client credentials token TTL.
 func (p *Passport) ClientCredentialsTTL() time.Duration {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.clientCredentialsTTL
@@ -228,6 +243,7 @@ func (p *Passport) ClientCredentialsTTL() time.Duration {
 // EnableAuthorizationCodeGrant activates the Authorization Code grant.
 func (p *Passport) EnableAuthorizationCodeGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.authCodeGrantEnabled = true
@@ -238,6 +254,7 @@ func (p *Passport) EnableAuthorizationCodeGrant() *Passport {
 // DisableAuthorizationCodeGrant deactivates the Authorization Code grant.
 func (p *Passport) DisableAuthorizationCodeGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.authCodeGrantEnabled = false
@@ -248,6 +265,7 @@ func (p *Passport) DisableAuthorizationCodeGrant() *Passport {
 // EnablePasswordGrant activates the Resource Owner Password Credentials grant.
 func (p *Passport) EnablePasswordGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.passwordGrantEnabled = true
@@ -258,6 +276,7 @@ func (p *Passport) EnablePasswordGrant() *Passport {
 // DisablePasswordGrant deactivates the Password grant.
 func (p *Passport) DisablePasswordGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.passwordGrantEnabled = false
@@ -268,6 +287,7 @@ func (p *Passport) DisablePasswordGrant() *Passport {
 // EnableClientCredentialsGrant activates the Client Credentials grant.
 func (p *Passport) EnableClientCredentialsGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsGrantEnabled = true
@@ -278,6 +298,7 @@ func (p *Passport) EnableClientCredentialsGrant() *Passport {
 // DisableClientCredentialsGrant deactivates the Client Credentials grant.
 func (p *Passport) DisableClientCredentialsGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.clientCredentialsGrantEnabled = false
@@ -288,6 +309,7 @@ func (p *Passport) DisableClientCredentialsGrant() *Passport {
 // EnableImplicitGrant activates the (deprecated) Implicit grant.
 func (p *Passport) EnableImplicitGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.implicitGrantEnabled = true
@@ -298,6 +320,7 @@ func (p *Passport) EnableImplicitGrant() *Passport {
 // DisableImplicitGrant deactivates the Implicit grant.
 func (p *Passport) DisableImplicitGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.implicitGrantEnabled = false
@@ -308,6 +331,7 @@ func (p *Passport) DisableImplicitGrant() *Passport {
 // EnableDeviceCodeGrant activates the Device Authorization grant (RFC 8628).
 func (p *Passport) EnableDeviceCodeGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.deviceCodeGrantEnabled = true
@@ -318,6 +342,7 @@ func (p *Passport) EnableDeviceCodeGrant() *Passport {
 // DisableDeviceCodeGrant deactivates the Device Authorization grant.
 func (p *Passport) DisableDeviceCodeGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.deviceCodeGrantEnabled = false
@@ -328,6 +353,7 @@ func (p *Passport) DisableDeviceCodeGrant() *Passport {
 // EnableRefreshTokenGrant activates the Refresh Token grant.
 func (p *Passport) EnableRefreshTokenGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokenGrantEnabled = true
@@ -338,6 +364,7 @@ func (p *Passport) EnableRefreshTokenGrant() *Passport {
 // DisableRefreshTokenGrant deactivates the Refresh Token grant.
 func (p *Passport) DisableRefreshTokenGrant() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.refreshTokenGrantEnabled = false
@@ -349,6 +376,7 @@ func (p *Passport) DisableRefreshTokenGrant() *Passport {
 // grantType should be one of the Grant* constants defined in grants.go.
 func (p *Passport) IsGrantEnabled(grantType string) bool {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	switch grantType {
@@ -372,6 +400,7 @@ func (p *Passport) IsGrantEnabled(grantType string) bool {
 // Config returns the PassportConfig used to create this Passport.
 func (p *Passport) Config() *PassportConfig {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	return p.config
@@ -384,6 +413,7 @@ func (p *Passport) Config() *PassportConfig {
 // Mirrors Passport::actingAs().
 func (p *Passport) ActingAs(user cauth.Authenticatable, token *AccessToken, scopes []string) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsUser = user
@@ -398,6 +428,7 @@ func (p *Passport) ActingAs(user cauth.Authenticatable, token *AccessToken, scop
 // Mirrors Passport::actingAsClient().
 func (p *Passport) ActingAsClient(client *Client, scopes []string) *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsClient = client
@@ -409,6 +440,7 @@ func (p *Passport) ActingAsClient(client *Client, scopes []string) *Passport {
 // ClearActing removes all test overrides.
 func (p *Passport) ClearActing() *Passport {
 	p.mu.Lock()
+
 	defer p.mu.Unlock()
 
 	p.actingAsUser = nil
@@ -423,6 +455,7 @@ func (p *Passport) ClearActing() *Passport {
 // Returns (user, token, client, scopes, isSet).
 func (p *Passport) actingAsState() (cauth.Authenticatable, *AccessToken, *Client, []string, bool) {
 	p.mu.RLock()
+
 	defer p.mu.RUnlock()
 
 	if p.actingAsUser != nil || p.actingAsClient != nil {

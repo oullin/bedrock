@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/passport"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	"github.com/bedrock/packages/passport"
 )
 
 func newGuard(p *passport.Passport, tokens passport.TokenStore, clients passport.ClientStore, users map[string]cauth.Authenticatable) *passport.TokenGuard {

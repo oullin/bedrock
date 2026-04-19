@@ -36,9 +36,11 @@ func (r *BelongsTo) AddConstraints() {
 
 func (r *BelongsTo) AddEagerConstraints(models []*eloquent.Model) {
 	keys := make([]any, 0, len(models))
+
 	for _, m := range models {
 		keys = append(keys, m.GetAttribute(r.foreignKey))
 	}
+
 	if r.query != nil {
 		r.query.WhereIn(r.ownerKey, keys)
 	}
@@ -50,16 +52,20 @@ func (r *BelongsTo) InitRelation(models []*eloquent.Model, relation string) []*e
 
 func (r *BelongsTo) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
 	dictionary := make(map[any]*eloquent.Model)
+
 	for _, result := range results {
 		key := result.GetAttribute(r.ownerKey)
 		dictionary[key] = result
 	}
+
 	for _, model := range models {
 		key := model.GetAttribute(r.foreignKey)
+
 		if match, ok := dictionary[key]; ok {
 			model.SetAttribute(relation, match)
 		}
 	}
+
 	return models
 }
 
@@ -67,11 +73,15 @@ func (r *BelongsTo) GetResults() ([]*eloquent.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
+
 	rows, err := r.query.Get(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
+
 	models := make([]*eloquent.Model, 0, len(rows))
+
 	for _, row := range rows {
 		m := eloquent.NewModel()
 		m.SetTable(r.related.GetTable())
@@ -79,6 +89,7 @@ func (r *BelongsTo) GetResults() ([]*eloquent.Model, error) {
 		m.SetExists(true)
 		models = append(models, m)
 	}
+
 	return models, nil
 }
 

@@ -46,6 +46,7 @@ func NewConn(ws *websocket.Conn, appID string) *Conn {
 // SocketID returns the unique identifier for this connection.
 func (c *Conn) SocketID() string {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	return c.id
@@ -54,6 +55,7 @@ func (c *Conn) SocketID() string {
 // AppID returns the application ID this connection belongs to.
 func (c *Conn) AppID() string {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	return c.appID
@@ -74,6 +76,7 @@ func (c *Conn) Close(ctx context.Context, code int, reason string) error {
 // LastSeenAt returns the time the connection last sent any message.
 func (c *Conn) LastSeenAt() time.Time {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	return c.lastSeenAt
@@ -82,6 +85,7 @@ func (c *Conn) LastSeenAt() time.Time {
 // Touch updates the LastSeenAt timestamp to now.
 func (c *Conn) Touch() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.lastSeenAt = time.Now()
@@ -90,6 +94,7 @@ func (c *Conn) Touch() {
 // TouchMessage updates the last-message-at timestamp to now.
 func (c *Conn) TouchMessage() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.lastMsgAt = time.Now()
@@ -98,6 +103,7 @@ func (c *Conn) TouchMessage() {
 // TouchPong updates the last-pong-at timestamp to now.
 func (c *Conn) TouchPong() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.pongedAt = time.Now()
@@ -107,6 +113,7 @@ func (c *Conn) TouchPong() {
 // new count.
 func (c *Conn) IncrMessageCount() int64 {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.msgCount++
@@ -118,6 +125,7 @@ func (c *Conn) IncrMessageCount() int64 {
 // start time to t.
 func (c *Conn) ResetMessageWindow(t time.Time) {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	c.msgCount = 0
@@ -127,6 +135,7 @@ func (c *Conn) ResetMessageWindow(t time.Time) {
 // MessageWindowStart returns the start time of the current message rate window.
 func (c *Conn) MessageWindowStart() time.Time {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
 
 	return c.msgWindowStart

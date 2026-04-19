@@ -41,6 +41,7 @@ func (p *stubProvider) Stream(ctx context.Context, req contractsprovider.TextPro
 }
 func (p *stubProvider) UseTextGateway(gw contractsgw.TextGateway) contractsprovider.TextProvider {
 	p.Provider.UseTextGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultTextModel() string  { return "stub" }
@@ -53,6 +54,7 @@ func (p *stubProvider) Image(ctx context.Context, req contractsprovider.ImageGen
 }
 func (p *stubProvider) UseImageGateway(gw contractsgw.ImageGateway) contractsprovider.ImageProvider {
 	p.Provider.UseImageGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultImageModel() string { return "stub" }
@@ -63,6 +65,7 @@ func (p *stubProvider) Audio(ctx context.Context, req contractsprovider.AudioGen
 }
 func (p *stubProvider) UseAudioGateway(gw contractsgw.AudioGateway) contractsprovider.AudioProvider {
 	p.Provider.UseAudioGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultAudioModel() string { return "stub" }
@@ -73,6 +76,7 @@ func (p *stubProvider) Embeddings(ctx context.Context, req contractsprovider.Emb
 }
 func (p *stubProvider) UseEmbeddingGateway(gw contractsgw.EmbeddingGateway) contractsprovider.EmbeddingProvider {
 	p.Provider.UseEmbeddingGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultEmbeddingsModel() string   { return "stub" }
@@ -84,6 +88,7 @@ func (p *stubProvider) Transcribe(ctx context.Context, req contractsprovider.Tra
 }
 func (p *stubProvider) UseTranscriptionGateway(gw contractsgw.TranscriptionGateway) contractsprovider.TranscriptionProvider {
 	p.Provider.UseTranscriptionGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultTranscriptionModel() string { return "stub" }
@@ -94,6 +99,7 @@ func (p *stubProvider) Rerank(ctx context.Context, req contractsprovider.Reranki
 }
 func (p *stubProvider) UseRerankingGateway(gw contractsgw.RerankingGateway) contractsprovider.RerankingProvider {
 	p.Provider.UseRerankingGateway(gw)
+
 	return p
 }
 func (p *stubProvider) DefaultRerankingModel() string { return "stub" }
@@ -110,6 +116,7 @@ func (p *stubProvider) DeleteFile(ctx context.Context, id string) error {
 }
 func (p *stubProvider) UseFileGateway(gw contractsgw.FileGateway) contractsprovider.FileProvider {
 	p.Provider.UseFileGateway(gw)
+
 	return p
 }
 
@@ -131,5 +138,6 @@ func (p *stubProvider) DeleteStore(ctx context.Context, id string) error {
 }
 func (p *stubProvider) UseStoreGateway(gw contractsgw.StoreGateway) contractsprovider.StoreProvider {
 	p.Provider.UseStoreGateway(gw)
+
 	return p
 }

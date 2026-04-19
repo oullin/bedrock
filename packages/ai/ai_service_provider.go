@@ -23,9 +23,9 @@ import (
 // AiServiceProvider registers the AI Manager as a singleton in the container.
 // It mirrors Laravel\Ai\AiServiceProvider.
 type AiServiceProvider struct {
-	app            *container.Container
+	app             *container.Container
 	defaultProvider string
-	configs        map[string]map[string]any
+	configs         map[string]map[string]any
 }
 
 // NewAiServiceProvider constructs the provider.
@@ -35,8 +35,9 @@ func NewAiServiceProvider(app *container.Container, defaultProvider string, conf
 	if configs == nil {
 		configs = make(map[string]map[string]any)
 	}
+
 	return &AiServiceProvider{
-		app:            app,
+		app:             app,
 		defaultProvider: defaultProvider,
 		configs:         configs,
 	}

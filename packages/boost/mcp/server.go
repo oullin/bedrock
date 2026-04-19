@@ -18,6 +18,7 @@ type Server struct {
 func NewServer() *Server {
 	r := NewRegistry()
 	e := NewExecutor(r)
+
 	return &Server{registry: r, executor: e}
 }
 

@@ -18,7 +18,7 @@ type Decorator struct {
 	serialize  func(any) (string, error) // defaults to SerializeScope
 }
 
-var _ Driver       = (*Decorator)(nil)
+var _ Driver = (*Decorator)(nil)
 var _ CacheFlusher = (*Decorator)(nil)
 
 // NewDecorator wraps driver with in-process caching but no event dispatch.
@@ -57,12 +57,14 @@ func (d *Decorator) Defined() []string {
 // resolution.
 func (d *Decorator) Get(ctx context.Context, feature string, scope any) (any, error) {
 	key, err := d.serialize(scope)
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Fast path: cache hit.
 	d.mu.RLock()
+
 	if scopes, ok := d.cache[feature]; ok {
 		if val, ok := scopes[key]; ok {
 			d.mu.RUnlock()
@@ -70,19 +72,23 @@ func (d *Decorator) Get(ctx context.Context, feature string, scope any) (any, er
 			return val, nil
 		}
 	}
+
 	d.mu.RUnlock()
 
 	// Call driver outside any lock — it may be slow.
 	value, err := d.driver.Get(ctx, feature, scope)
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Store result in cache.
 	d.mu.Lock()
+
 	if _, ok := d.cache[feature]; !ok {
 		d.cache[feature] = make(map[string]any)
 	}
+
 	d.cache[feature][key] = value
 	d.mu.Unlock()
 
@@ -102,6 +108,7 @@ func (d *Decorator) GetAll(ctx context.Context, features map[string][]any) (map[
 		idx   int
 		scope any
 	}
+
 	misses := make(map[string][]miss)
 
 	// Allocate result slices and collect cache hits.
@@ -110,16 +117,21 @@ func (d *Decorator) GetAll(ctx context.Context, features map[string][]any) (map[
 
 		for i, scope := range scopes {
 			key, err := d.serialize(scope)
+
 			if err != nil {
 				return nil, err
 			}
 
 			d.mu.RLock()
+
 			var cached any
+
 			var hit bool
+
 			if scopeMap, ok := d.cache[feature]; ok {
 				cached, hit = scopeMap[key]
 			}
+
 			d.mu.RUnlock()
 
 			if hit {
@@ -136,15 +148,19 @@ func (d *Decorator) GetAll(ctx context.Context, features map[string][]any) (map[
 
 	// Build the input map for the driver containing only misses.
 	driverInput := make(map[string][]any, len(misses))
+
 	for feature, ms := range misses {
 		scopes := make([]any, len(ms))
+
 		for j, m := range ms {
 			scopes[j] = m.scope
 		}
+
 		driverInput[feature] = scopes
 	}
 
 	driverResult, err := d.driver.GetAll(ctx, driverInput)
+
 	if err != nil {
 		return nil, err
 	}
@@ -157,14 +173,17 @@ func (d *Decorator) GetAll(ctx context.Context, features map[string][]any) (map[
 			value := vals[j]
 
 			key, err := d.serialize(m.scope)
+
 			if err != nil {
 				return nil, err
 			}
 
 			d.mu.Lock()
+
 			if _, ok := d.cache[feature]; !ok {
 				d.cache[feature] = make(map[string]any)
 			}
+
 			d.cache[feature][key] = value
 			d.mu.Unlock()
 
@@ -185,14 +204,17 @@ func (d *Decorator) Set(ctx context.Context, feature string, scope any, value an
 	}
 
 	key, err := d.serialize(scope)
+
 	if err != nil {
 		return err
 	}
 
 	d.mu.Lock()
+
 	if _, ok := d.cache[feature]; !ok {
 		d.cache[feature] = make(map[string]any)
 	}
+
 	d.cache[feature][key] = value
 	d.mu.Unlock()
 
@@ -227,14 +249,17 @@ func (d *Decorator) Delete(ctx context.Context, feature string, scope any) error
 	}
 
 	key, err := d.serialize(scope)
+
 	if err != nil {
 		return err
 	}
 
 	d.mu.Lock()
+
 	if scopes, ok := d.cache[feature]; ok {
 		delete(scopes, key)
 	}
+
 	d.mu.Unlock()
 
 	d.dispatch(ctx, FeatureDeleted{Feature: feature, Scope: scope})
@@ -270,9 +295,11 @@ func (d *Decorator) Purge(ctx context.Context, features []string) error {
 	}
 
 	d.mu.Lock()
+
 	for _, name := range features {
 		delete(d.cache, name)
 	}
+
 	d.mu.Unlock()
 
 	d.dispatch(ctx, FeaturesPurged{Features: features})
@@ -291,14 +318,17 @@ func (d *Decorator) SetAll(ctx context.Context, entries []FeatureEntry) error {
 
 		for _, e := range entries {
 			key, err := d.serialize(e.Scope)
+
 			if err != nil {
 				return err
 			}
 
 			d.mu.Lock()
+
 			if _, ok := d.cache[e.Feature]; !ok {
 				d.cache[e.Feature] = make(map[string]any)
 			}
+
 			d.cache[e.Feature][key] = e.Value
 			d.mu.Unlock()
 		}
@@ -330,6 +360,7 @@ func (d *Decorator) Stored(ctx context.Context) ([]string, error) {
 // dispatched.
 func (d *Decorator) FlushCache() {
 	d.mu.Lock()
+
 	defer d.mu.Unlock()
 
 	d.cache = make(map[string]map[string]any)

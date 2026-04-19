@@ -41,10 +41,13 @@ func Generate(routes []*RouteInfo, opts Options) error {
 
 	if !opts.SkipActions {
 		actionsBase := filepath.Join(opts.Path, "actions")
+
 		if err := os.RemoveAll(actionsBase); err != nil {
 			return fmt.Errorf("wayfinder: clearing actions dir: %w", err)
 		}
+
 		g.generateActions(routes, actionsBase)
+
 		if err := g.flush(actionsBase); err != nil {
 			return fmt.Errorf("wayfinder: writing actions: %w", err)
 		}
@@ -52,10 +55,13 @@ func Generate(routes []*RouteInfo, opts Options) error {
 
 	if !opts.SkipRoutes {
 		routesBase := filepath.Join(opts.Path, "routes")
+
 		if err := os.RemoveAll(routesBase); err != nil {
 			return fmt.Errorf("wayfinder: clearing routes dir: %w", err)
 		}
+
 		g.generateRoutes(routes, routesBase)
+
 		if err := g.flush(routesBase); err != nil {
 			return fmt.Errorf("wayfinder: writing routes: %w", err)
 		}
@@ -63,6 +69,7 @@ func Generate(routes []*RouteInfo, opts Options) error {
 
 	// Always copy the runtime utility.
 	wayfinderDir := filepath.Join(opts.Path, "wayfinder")
+
 	if err := writeWayfinderTS(wayfinderDir); err != nil {
 		return fmt.Errorf("wayfinder: writing runtime utility: %w", err)
 	}

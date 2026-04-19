@@ -17,6 +17,7 @@ func TestStoreFileCanBeAdded(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.StoreProvider()
+
 	if err != nil {
 		t.Fatalf("StoreProvider error: %v", err)
 	}
@@ -28,9 +29,11 @@ func TestStoreFileCanBeAdded(t *testing.T) {
 		MimeType: "text/plain",
 	}
 	result, addErr := provider.AddFileToStore(context.Background(), storeID, file, nil)
+
 	if addErr != nil {
 		t.Fatalf("AddFileToStore error: %v", addErr)
 	}
+
 	if result == nil {
 		t.Error("expected non-nil add result")
 	}
@@ -48,11 +51,13 @@ func TestStoreFileCanBeRemoved(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.StoreProvider()
+
 	if err != nil {
 		t.Fatalf("StoreProvider error: %v", err)
 	}
 
 	removeErr := provider.RemoveFileFromStore(context.Background(), "store-abc", "file-xyz")
+
 	if removeErr != nil {
 		t.Fatalf("RemoveFileFromStore error: %v", removeErr)
 	}

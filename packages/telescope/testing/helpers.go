@@ -66,6 +66,7 @@ func (tc *TelescopeTestCase) LoadEntries() []*telescope.EntryResult {
 	tc.Store()
 
 	results, err := tc.Repository.Get("", telescope.DefaultQueryOptions().WithLimit(500))
+
 	if err != nil {
 		tc.T.Fatalf("telescope: load entries failed: %v", err)
 	}
@@ -80,6 +81,7 @@ func (tc *TelescopeTestCase) LoadEntriesOfType(entryType string) []*telescope.En
 	tc.Store()
 
 	results, err := tc.Repository.Get(entryType, telescope.DefaultQueryOptions().WithLimit(500))
+
 	if err != nil {
 		tc.T.Fatalf("telescope: load entries of type %q failed: %v", entryType, err)
 	}

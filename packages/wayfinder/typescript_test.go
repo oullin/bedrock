@@ -55,6 +55,7 @@ func TestSafeMethod(t *testing.T) {
 		t.Run(c.input, func(t *testing.T) {
 			t.Parallel()
 			got := SafeMethod(c.input, c.suffix)
+
 			if got != c.want {
 				t.Errorf("SafeMethod(%q, %q) = %q, want %q", c.input, c.suffix, got, c.want)
 			}
@@ -67,9 +68,9 @@ func TestQuoteIfNeeded(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct{ input, want string }{
-		{"404", "404"},        // pure integer — no quotes
+		{"404", "404"},       // pure integer — no quotes
 		{"2fa", `"2fa"`},     // starts with digit → quoted
-		{"delete", "delete"},  // doesn't start with digit → no quotes
+		{"delete", "delete"}, // doesn't start with digit → no quotes
 		{"index", "index"},
 	}
 
@@ -78,6 +79,7 @@ func TestQuoteIfNeeded(t *testing.T) {
 		t.Run(c.input, func(t *testing.T) {
 			t.Parallel()
 			got := QuoteIfNeeded(c.input)
+
 			if got != c.want {
 				t.Errorf("QuoteIfNeeded(%q) = %q, want %q", c.input, got, c.want)
 			}
@@ -109,9 +111,11 @@ func TestNewVerb(t *testing.T) {
 		t.Run(c.method, func(t *testing.T) {
 			t.Parallel()
 			v := NewVerb(c.method)
+
 			if v.Actual != c.actual {
 				t.Errorf("Verb.Actual = %q, want %q", v.Actual, c.actual)
 			}
+
 			if v.FormSafe != c.formSafe {
 				t.Errorf("Verb.FormSafe = %q, want %q", v.FormSafe, c.formSafe)
 			}
@@ -206,6 +210,7 @@ func TestFullURI(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			t.Parallel()
 			got := c.route.FullURI()
+
 			if got != c.wantJSON {
 				t.Errorf("FullURI() = %s, want %s", got, c.wantJSON)
 			}

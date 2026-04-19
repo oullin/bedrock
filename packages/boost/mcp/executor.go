@@ -8,14 +8,14 @@ import (
 	"github.com/bedrock/packages/boost/mcp/tools"
 )
 
-const defaultTimeout = 180 * time.Second
-
 // ToolExecutor dispatches MCP tool requests to the appropriate handler.
 // Mirrors Laravel\Boost\Mcp\ToolExecutor.
 type ToolExecutor struct {
 	registry *ToolRegistry
 	timeout  time.Duration
 }
+
+const defaultTimeout = 180 * time.Second
 
 // NewExecutor returns a ToolExecutor backed by registry with the default 180 s
 // timeout.
@@ -34,6 +34,7 @@ func (e *ToolExecutor) WithTimeout(d time.Duration) *ToolExecutor {
 // that MCP clients receive structured responses.
 func (e *ToolExecutor) Execute(name string, args map[string]any) (tools.McpResponse, error) {
 	tool := e.registry.Find(name)
+
 	if tool == nil {
 		return tools.ErrorResponse(fmt.Sprintf("tool not found: %s", name)), nil
 	}
@@ -50,6 +51,7 @@ func (e *ToolExecutor) Execute(name string, args map[string]any) (tools.McpRespo
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), e.timeout)
+
 	defer cancel()
 
 	ch := make(chan result, 1)
@@ -72,6 +74,7 @@ func (e *ToolExecutor) Execute(name string, args map[string]any) (tools.McpRespo
 func (e *ToolExecutor) ExecuteReadOnly(name string, args map[string]any, readOnlyMode bool) (tools.McpResponse, error) {
 	if readOnlyMode {
 		tool := e.registry.Find(name)
+
 		if tool != nil && !tool.IsReadOnly() {
 			return tools.ErrorResponse(fmt.Sprintf("tool %s is not allowed in read-only mode", name)), nil
 		}

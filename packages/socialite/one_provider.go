@@ -61,10 +61,13 @@ func NewOneAbstractProvider(server OAuth1Server, req *http.Request, session Sess
 // returns the authorization URL. It mirrors One\AbstractProvider::redirect().
 func (p *OneAbstractProvider) Redirect(ctx context.Context) (string, error) {
 	temp, err := p.server.GetTemporaryCredentials(ctx)
+
 	if err != nil {
 		return "", err
 	}
+
 	p.session.Put("oauth.temp", temp)
+
 	return p.server.GetAuthorizationURL(temp), nil
 }
 
@@ -80,16 +83,19 @@ func (p *OneAbstractProvider) User(ctx context.Context) (*User, error) {
 	}
 
 	temp, ok := p.session.Get("oauth.temp").(*TemporaryCredentials)
+
 	if !ok || temp == nil {
 		return nil, ErrMissingTemporaryCredentials
 	}
 
 	tokenCreds, err := p.server.GetTokenCredentials(ctx, temp, oauthToken, verifier)
+
 	if err != nil {
 		return nil, err
 	}
 
 	raw, err := p.server.GetUserDetails(ctx, tokenCreds)
+
 	if err != nil {
 		return nil, err
 	}

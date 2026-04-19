@@ -17,7 +17,7 @@ type ApplicationInfo struct {
 	ModFilePath string
 }
 
-func (t *ApplicationInfo) Name() string { return "application_info" }
+func (t *ApplicationInfo) Name() string     { return "application_info" }
 func (t *ApplicationInfo) IsReadOnly() bool { return true }
 
 func (t *ApplicationInfo) Description() string {
@@ -37,6 +37,7 @@ func (t *ApplicationInfo) Schema() map[string]any {
 // Handle returns application info.
 func (t *ApplicationInfo) Handle(_ McpRequest) (McpResponse, error) {
 	modPath := t.ModFilePath
+
 	if modPath == "" {
 		modPath = "go.mod"
 	}
@@ -55,12 +56,15 @@ func (t *ApplicationInfo) Handle(_ McpRequest) (McpResponse, error) {
 // parseGoMod extracts the module name and require dependencies from go.mod.
 func parseGoMod(path string) (string, []map[string]string) {
 	f, err := os.Open(path)
+
 	if err != nil {
 		return "", nil
 	}
+
 	defer f.Close()
 
 	var moduleName string
+
 	var deps []map[string]string
 	inRequire := false
 	scanner := bufio.NewScanner(f)
@@ -70,16 +74,19 @@ func parseGoMod(path string) (string, []map[string]string) {
 
 		if strings.HasPrefix(line, "module ") {
 			moduleName = strings.TrimPrefix(line, "module ")
+
 			continue
 		}
 
 		if line == "require (" {
 			inRequire = true
+
 			continue
 		}
 
 		if inRequire && line == ")" {
 			inRequire = false
+
 			continue
 		}
 

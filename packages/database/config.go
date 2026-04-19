@@ -29,6 +29,7 @@ type ConnectionConfig struct {
 //	sqlite:///path/to/database.db
 func ParseDatabaseURL(rawURL string) (*ConnectionConfig, error) {
 	u, err := url.Parse(rawURL)
+
 	if err != nil {
 		return nil, err
 	}
@@ -41,9 +42,11 @@ func ParseDatabaseURL(rawURL string) (*ConnectionConfig, error) {
 
 	if p := u.Port(); p != "" {
 		port := 0
+
 		for _, c := range p {
 			port = port*10 + int(c-'0')
 		}
+
 		cfg.Port = port
 	}
 

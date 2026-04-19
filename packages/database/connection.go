@@ -45,9 +45,97 @@ type QueryLog struct {
 	Duration time.Duration
 }
 
+// NewConnection creates a new Connection wrapping the given *sql.DB.
+
+// SetDriverName sets the driver name for this connection.
+
+// SetEventDispatcher sets the event dispatcher.
+
+// GetEventDispatcher returns the event dispatcher.
+
+// DB returns the underlying *sql.DB.
+
+// SetReadDB sets a separate read connection.
+
+// GetReadDB returns the read *sql.DB, falling back to the write connection.
+
+// Table begins a fluent query against a database table. The returned value is
+// a *query.Builder — the any return satisfies the contract without creating a
+// circular import. Callers assert the concrete type.
+
+// Implemented by the query package via SetQueryBuilder on connection init.
+// This stub satisfies the interface; driver connections override it.
+
+// Raw creates a raw Expression.
+
+// SelectOne runs a SELECT query and returns the first row.
+
+// Select runs a SELECT query and returns all rows as maps.
+
+// Insert executes an INSERT statement.
+
+// Update executes an UPDATE statement and returns affected rows.
+
+// Delete executes a DELETE statement and returns affected rows.
+
+// Statement executes a raw SQL statement.
+
+// AffectingStatement executes a statement and returns affected rows.
+
+// Unprepared runs a raw query without parameter binding.
+
+// PrepareBindings prepares bindings for execution.
+
+// GetTablePrefix returns the table prefix.
+
+// SetTablePrefix sets the table prefix.
+
+// GetDatabaseName returns the database name.
+
+// SetDatabaseName sets the database name.
+
+// GetDriverName returns the driver name.
+
+// GetName returns the connection name.
+
+// GetConfig returns a configuration value.
+
+// EnableQueryLog enables query logging.
+
+// DisableQueryLog disables query logging.
+
+// IsLogging reports whether query logging is enabled.
+
+// GetQueryLog returns the query log.
+
+// FlushQueryLog clears the query log.
+
+// Pretend runs queries in pretend mode (logging only, no execution).
+
+// IsPretending returns true if the connection is in pretend mode.
+
+// BeforeExecuting registers a callback to run before each query.
+
+// Disconnect closes the underlying database connection.
+
+// statement executes a statement and returns success.
+
+// affectingStatement executes a statement and returns affected rows.
+
+// run executes a query, fires events, and logs the query.
+
+// logQuery logs a query and dispatches the QueryExecuted event.
+
+type queryConnection interface {
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+}
+
+type execConnection interface {
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+}
+
 var _ dbcontract.Connection = (*Connection)(nil)
 
-// NewConnection creates a new Connection wrapping the given *sql.DB.
 func NewConnection(db *sql.DB, name, database, tablePrefix string, config map[string]any) *Connection {
 	return &Connection{
 		db:          db,
@@ -60,68 +148,60 @@ func NewConnection(db *sql.DB, name, database, tablePrefix string, config map[st
 	}
 }
 
-// SetDriverName sets the driver name for this connection.
 func (c *Connection) SetDriverName(driver string) {
 	c.driverName = driver
 }
 
-// SetEventDispatcher sets the event dispatcher.
 func (c *Connection) SetEventDispatcher(events cevents.Dispatcher) {
 	c.events = events
 }
 
-// GetEventDispatcher returns the event dispatcher.
 func (c *Connection) GetEventDispatcher() cevents.Dispatcher {
 	return c.events
 }
 
-// DB returns the underlying *sql.DB.
 func (c *Connection) DB() *sql.DB {
 	return c.db
 }
 
-// SetReadDB sets a separate read connection.
 func (c *Connection) SetReadDB(db *sql.DB) {
 	c.readDB = db
 }
 
-// GetReadDB returns the read *sql.DB, falling back to the write connection.
 func (c *Connection) GetReadDB() *sql.DB {
 	if c.readDB != nil {
 		return c.readDB
 	}
+
 	return c.db
 }
 
-// Table begins a fluent query against a database table. The returned value is
-// a *query.Builder — the any return satisfies the contract without creating a
-// circular import. Callers assert the concrete type.
 func (c *Connection) Table(_ context.Context, table string, as ...string) any {
-	// Implemented by the query package via SetQueryBuilder on connection init.
-	// This stub satisfies the interface; driver connections override it.
+
 	_ = table
 	_ = as
+
 	return nil
 }
 
-// Raw creates a raw Expression.
 func (c *Connection) Raw(value string) dbcontract.Expression {
 	return NewExpr(value)
 }
 
-// SelectOne runs a SELECT query and returns the first row.
 func (c *Connection) SelectOne(ctx context.Context, query string, bindings ...any) (map[string]any, error) {
 	rows, err := c.Select(ctx, query, bindings...)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if len(rows) == 0 {
 		return nil, nil
 	}
+
 	return rows[0], nil
 }
 
-// Select runs a SELECT query and returns all rows as maps.
 func (c *Connection) Select(ctx context.Context, query string, bindings ...any) ([]map[string]any, error) {
 	return c.run(ctx, query, bindings, func(ctx context.Context, q string, b []any) ([]map[string]any, error) {
 		if c.pretending {
@@ -131,48 +211,44 @@ func (c *Connection) Select(ctx context.Context, query string, bindings ...any) 
 		stmt := c.getQueryConnection()
 
 		rows, err := stmt.QueryContext(ctx, q, b...)
+
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrQueryFailed, err)
 		}
+
 		defer rows.Close()
 
 		return scanRows(rows)
 	})
 }
 
-// Insert executes an INSERT statement.
 func (c *Connection) Insert(ctx context.Context, query string, bindings ...any) (bool, error) {
 	return c.statement(ctx, query, bindings)
 }
 
-// Update executes an UPDATE statement and returns affected rows.
 func (c *Connection) Update(ctx context.Context, query string, bindings ...any) (int64, error) {
 	return c.affectingStatement(ctx, query, bindings)
 }
 
-// Delete executes a DELETE statement and returns affected rows.
 func (c *Connection) Delete(ctx context.Context, query string, bindings ...any) (int64, error) {
 	return c.affectingStatement(ctx, query, bindings)
 }
 
-// Statement executes a raw SQL statement.
 func (c *Connection) Statement(ctx context.Context, query string, bindings ...any) (bool, error) {
 	return c.statement(ctx, query, bindings)
 }
 
-// AffectingStatement executes a statement and returns affected rows.
 func (c *Connection) AffectingStatement(ctx context.Context, query string, bindings ...any) (int64, error) {
 	return c.affectingStatement(ctx, query, bindings)
 }
 
-// Unprepared runs a raw query without parameter binding.
 func (c *Connection) Unprepared(ctx context.Context, query string) (bool, error) {
 	return c.statement(ctx, query, nil)
 }
 
-// PrepareBindings prepares bindings for execution.
 func (c *Connection) PrepareBindings(bindings []any) []any {
 	prepared := make([]any, len(bindings))
+
 	for i, b := range bindings {
 		switch v := b.(type) {
 		case bool:
@@ -185,79 +261,73 @@ func (c *Connection) PrepareBindings(bindings []any) []any {
 			prepared[i] = v
 		}
 	}
+
 	return prepared
 }
 
-// GetTablePrefix returns the table prefix.
 func (c *Connection) GetTablePrefix() string {
 	return c.tablePrefix
 }
 
-// SetTablePrefix sets the table prefix.
 func (c *Connection) SetTablePrefix(prefix string) {
 	c.tablePrefix = prefix
 }
 
-// GetDatabaseName returns the database name.
 func (c *Connection) GetDatabaseName() string {
 	return c.database
 }
 
-// SetDatabaseName sets the database name.
 func (c *Connection) SetDatabaseName(name string) {
 	c.database = name
 }
 
-// GetDriverName returns the driver name.
 func (c *Connection) GetDriverName() string {
 	return c.driverName
 }
 
-// GetName returns the connection name.
 func (c *Connection) GetName() string {
 	return c.name
 }
 
-// GetConfig returns a configuration value.
 func (c *Connection) GetConfig(key string) any {
 	if c.config == nil {
 		return nil
 	}
+
 	return c.config[key]
 }
 
-// EnableQueryLog enables query logging.
 func (c *Connection) EnableQueryLog() {
 	c.loggingQueries = true
 }
 
-// DisableQueryLog disables query logging.
 func (c *Connection) DisableQueryLog() {
 	c.loggingQueries = false
 }
 
-// IsLogging reports whether query logging is enabled.
 func (c *Connection) IsLogging() bool {
 	return c.loggingQueries
 }
 
-// GetQueryLog returns the query log.
 func (c *Connection) GetQueryLog() []QueryLog {
 	c.mu.RLock()
+
 	defer c.mu.RUnlock()
+
 	log := make([]QueryLog, len(c.queryLog))
 	copy(log, c.queryLog)
+
 	return log
 }
 
-// FlushQueryLog clears the query log.
 func (c *Connection) FlushQueryLog() {
 	c.mu.Lock()
+
 	defer c.mu.Unlock()
+
 	c.queryLog = c.queryLog[:0]
 }
 
-// Pretend runs queries in pretend mode (logging only, no execution).
 func (c *Connection) Pretend(fn func()) []QueryLog {
 	c.pretending = true
 	c.EnableQueryLog()
@@ -271,25 +341,22 @@ func (c *Connection) Pretend(fn func()) []QueryLog {
 	return c.queryLog[initialLen:]
 }
 
-// IsPretending returns true if the connection is in pretend mode.
 func (c *Connection) IsPretending() bool {
 	return c.pretending
 }
 
-// BeforeExecuting registers a callback to run before each query.
 func (c *Connection) BeforeExecuting(fn func(string, []any)) {
 	c.beforeExecuting = append(c.beforeExecuting, fn)
 }
 
-// Disconnect closes the underlying database connection.
 func (c *Connection) Disconnect() error {
 	if c.db != nil {
 		return c.db.Close()
 	}
+
 	return nil
 }
 
-// statement executes a statement and returns success.
 func (c *Connection) statement(ctx context.Context, query string, bindings []any) (bool, error) {
 	_, err := c.run(ctx, query, bindings, func(ctx context.Context, q string, b []any) ([]map[string]any, error) {
 		if c.pretending {
@@ -299,15 +366,17 @@ func (c *Connection) statement(ctx context.Context, query string, bindings []any
 		conn := c.getExecConnection()
 
 		_, err := conn.ExecContext(ctx, q, b...)
+
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrQueryFailed, err)
 		}
+
 		return nil, nil
 	})
+
 	return err == nil, err
 }
 
-// affectingStatement executes a statement and returns affected rows.
 func (c *Connection) affectingStatement(ctx context.Context, query string, bindings []any) (int64, error) {
 	var affected int64
 
@@ -319,17 +388,19 @@ func (c *Connection) affectingStatement(ctx context.Context, query string, bindi
 		conn := c.getExecConnection()
 
 		result, err := conn.ExecContext(ctx, q, b...)
+
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrQueryFailed, err)
 		}
+
 		affected, _ = result.RowsAffected()
+
 		return nil, nil
 	})
 
 	return affected, err
 }
 
-// run executes a query, fires events, and logs the query.
 func (c *Connection) run(ctx context.Context, query string, bindings []any, callback func(context.Context, string, []any) ([]map[string]any, error)) ([]map[string]any, error) {
 	for _, fn := range c.beforeExecuting {
 		fn(query, bindings)
@@ -346,7 +417,6 @@ func (c *Connection) run(ctx context.Context, query string, bindings []any, call
 	return result, err
 }
 
-// logQuery logs a query and dispatches the QueryExecuted event.
 func (c *Connection) logQuery(query string, bindings []any, duration time.Duration) {
 	if c.loggingQueries {
 		c.mu.Lock()
@@ -368,19 +438,12 @@ func (c *Connection) logQuery(query string, bindings []any, duration time.Durati
 	}
 }
 
-type queryConnection interface {
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-}
-
-type execConnection interface {
-	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
-}
-
 // getQueryConnection returns the active query executor (tx or read db).
 func (c *Connection) getQueryConnection() queryConnection {
 	if c.tx != nil {
 		return c.tx
 	}
+
 	return c.GetReadDB()
 }
 
@@ -389,12 +452,14 @@ func (c *Connection) getExecConnection() execConnection {
 	if c.tx != nil {
 		return c.tx
 	}
+
 	return c.db
 }
 
 // scanRows converts *sql.Rows into a slice of maps.
 func scanRows(rows *sql.Rows) ([]map[string]any, error) {
 	columns, err := rows.Columns()
+
 	if err != nil {
 		return nil, err
 	}
@@ -404,6 +469,7 @@ func scanRows(rows *sql.Rows) ([]map[string]any, error) {
 	for rows.Next() {
 		values := make([]any, len(columns))
 		pointers := make([]any, len(columns))
+
 		for i := range values {
 			pointers[i] = &values[i]
 		}
@@ -413,14 +479,17 @@ func scanRows(rows *sql.Rows) ([]map[string]any, error) {
 		}
 
 		row := make(map[string]any, len(columns))
+
 		for i, col := range columns {
 			val := values[i]
+
 			if b, ok := val.([]byte); ok {
 				row[col] = string(b)
 			} else {
 				row[col] = val
 			}
 		}
+
 		results = append(results, row)
 	}
 

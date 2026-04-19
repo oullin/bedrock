@@ -18,6 +18,7 @@ func TestRerankingCanBeFaked(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.RerankingProvider()
+
 	if err != nil {
 		t.Fatalf("RerankingProvider error: %v", err)
 	}
@@ -26,9 +27,11 @@ func TestRerankingCanBeFaked(t *testing.T) {
 		Documents: []string{"doc one", "doc two"},
 		Query:     "relevant query",
 	})
+
 	if rerankErr != nil {
 		t.Fatalf("Rerank error: %v", rerankErr)
 	}
+
 	if result == nil {
 		t.Error("expected non-nil reranking result")
 	}

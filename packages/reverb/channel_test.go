@@ -30,6 +30,7 @@ func TestTypeOf_AllPrefixes(t *testing.T) {
 		t.Run(tc.input, func(t *testing.T) {
 			t.Parallel()
 			got := reverb.TypeOf(tc.input)
+
 			if got != tc.expected {
 				t.Errorf("TypeOf(%q) = %q, want %q", tc.input, got, tc.expected)
 			}
@@ -54,6 +55,7 @@ func TestChannel_Subscribe_Public(t *testing.T) {
 	}
 
 	msgs := conn.SentMessages()
+
 	if len(msgs) == 0 {
 		t.Error("expected at least one message sent (subscription_succeeded)")
 	}
@@ -96,6 +98,7 @@ func TestPrivateChannel_Subscribe_InvalidAuth(t *testing.T) {
 	ctx := context.Background()
 
 	err := ch.Subscribe(ctx, conn, "key-1:invalidsignature", "")
+
 	if err != reverb.ErrUnauthorized {
 		t.Errorf("expected ErrUnauthorized, got %v", err)
 	}
@@ -114,12 +117,14 @@ func TestChannel_Broadcast_ExcludesSender(t *testing.T) {
 	if err := ch.Subscribe(ctx, conn1, "", ""); err != nil {
 		t.Fatalf("Subscribe conn1: %v", err)
 	}
+
 	if err := ch.Subscribe(ctx, conn2, "", ""); err != nil {
 		t.Fatalf("Subscribe conn2: %v", err)
 	}
 
 	event := contractsReverb.Event{Event: "test-event", Data: `{"x":1}`, Channel: "public-test"}
 	excludeID := conn1.SocketID()
+
 	if err := ch.Broadcast(ctx, event, &excludeID); err != nil {
 		t.Fatalf("Broadcast: %v", err)
 	}
@@ -151,11 +156,13 @@ func TestChannel_BroadcastToAll_IncludesSender(t *testing.T) {
 	if err := ch.Subscribe(ctx, conn1, "", ""); err != nil {
 		t.Fatalf("Subscribe conn1: %v", err)
 	}
+
 	if err := ch.Subscribe(ctx, conn2, "", ""); err != nil {
 		t.Fatalf("Subscribe conn2: %v", err)
 	}
 
 	event := contractsReverb.Event{Event: "test-event", Data: `{"x":2}`, Channel: "public-test"}
+
 	if err := ch.BroadcastToAll(ctx, event); err != nil {
 		t.Fatalf("BroadcastToAll: %v", err)
 	}
@@ -166,6 +173,7 @@ func TestChannel_BroadcastToAll_IncludesSender(t *testing.T) {
 	if len(msgs1) != 2 {
 		t.Errorf("conn1 should have 2 messages, got %d", len(msgs1))
 	}
+
 	if len(msgs2) != 2 {
 		t.Errorf("conn2 should have 2 messages, got %d", len(msgs2))
 	}
@@ -191,6 +199,7 @@ func TestChannel_Unsubscribe_RemovesConnection(t *testing.T) {
 	}
 
 	conns := ch.Connections()
+
 	if len(conns) != 0 {
 		t.Errorf("expected Connections() to be empty, got %d", len(conns))
 	}
@@ -203,5 +212,6 @@ func containsBytes(haystack [][]byte, needle []byte) bool {
 			return true
 		}
 	}
+
 	return false
 }

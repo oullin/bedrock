@@ -10,8 +10,6 @@ import (
 	"github.com/bedrock/packages/telescope"
 )
 
-const exceptionContextLines = 10
-
 // ExceptionWatcher monitors application exceptions and records them as
 // Telescope entries. It mirrors Laravel's ExceptionWatcher class.
 //
@@ -20,6 +18,8 @@ const exceptionContextLines = 10
 type ExceptionWatcher struct {
 	telescope.BaseWatcher
 }
+
+const exceptionContextLines = 10
 
 // NewExceptionWatcher creates an ExceptionWatcher with the given options.
 func NewExceptionWatcher(t *telescope.Telescope, options map[string]any) *ExceptionWatcher {
@@ -152,6 +152,7 @@ func filePreview(file string, line int, contextLines int) map[int]string {
 	}
 
 	f, err := os.Open(file)
+
 	if err != nil {
 		return nil
 	}

@@ -19,6 +19,7 @@ func TestEmbeddingsCanBeFaked(t *testing.T) {
 	rec := m.Fake()
 
 	provider, err := m.EmbeddingProvider()
+
 	if err != nil {
 		t.Fatalf("EmbeddingProvider error: %v", err)
 	}
@@ -26,9 +27,11 @@ func TestEmbeddingsCanBeFaked(t *testing.T) {
 	result, genErr := provider.Embeddings(context.Background(), contractsprovider.EmbeddingRequest{
 		Inputs: []string{"hello world"},
 	})
+
 	if genErr != nil {
 		t.Fatalf("Embeddings error: %v", genErr)
 	}
+
 	if len(result.Embeddings) == 0 {
 		t.Error("expected at least one embedding in result")
 	}
@@ -53,15 +56,19 @@ func TestFakeEmbeddingIsUnitVector(t *testing.T) {
 	t.Parallel()
 
 	vec := ai.FakeEmbedding(1536)
+
 	if len(vec) != 1536 {
 		t.Fatalf("expected 1536 dims, got %d", len(vec))
 	}
 
 	var sumSq float64
+
 	for _, v := range vec {
 		sumSq += v * v
 	}
+
 	mag := math.Sqrt(sumSq)
+
 	if math.Abs(mag-1.0) > 1e-6 {
 		t.Errorf("expected unit vector (magnitude 1.0), got %f", mag)
 	}
@@ -72,15 +79,19 @@ func TestFakeEmbeddingSmall(t *testing.T) {
 	t.Parallel()
 
 	vec := ai.FakeEmbedding(3)
+
 	if len(vec) != 3 {
 		t.Fatalf("expected 3 dims, got %d", len(vec))
 	}
 
 	var sumSq float64
+
 	for _, v := range vec {
 		sumSq += v * v
 	}
+
 	mag := math.Sqrt(sumSq)
+
 	if math.Abs(mag-1.0) > 1e-6 {
 		t.Errorf("expected unit vector (magnitude 1.0), got %f", mag)
 	}

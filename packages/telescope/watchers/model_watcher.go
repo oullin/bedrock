@@ -6,13 +6,6 @@ import (
 
 // ModelAction constants mirror the Eloquent lifecycle events recorded by
 // Laravel's ModelWatcher.
-const (
-	ModelActionCreated  = "created"
-	ModelActionUpdated  = "updated"
-	ModelActionDeleted  = "deleted"
-	ModelActionRestored = "restored"
-	ModelActionRetrieved = "retrieved"
-)
 
 // ModelWatcher monitors model lifecycle events and records them as Telescope
 // entries. It mirrors Laravel's ModelWatcher class.
@@ -24,6 +17,14 @@ const (
 type ModelWatcher struct {
 	telescope.BaseWatcher
 }
+
+const (
+	ModelActionCreated   = "created"
+	ModelActionUpdated   = "updated"
+	ModelActionDeleted   = "deleted"
+	ModelActionRestored  = "restored"
+	ModelActionRetrieved = "retrieved"
+)
 
 // NewModelWatcher creates a ModelWatcher with the given options.
 func NewModelWatcher(t *telescope.Telescope, options map[string]any) *ModelWatcher {

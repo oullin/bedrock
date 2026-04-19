@@ -16,6 +16,7 @@ func TestArrAdd(t *testing.T) {
 	}
 
 	result = ArrAdd(m, "name", "Chair")
+
 	if result["name"] != "Desk" {
 		t.Errorf("ArrAdd should not overwrite existing key, got %v", result["name"])
 	}
@@ -36,6 +37,7 @@ func TestArrAddDotNotation(t *testing.T) {
 	}
 
 	ArrAdd(m, "user.name", "Otwell")
+
 	if user["name"] != "Taylor" {
 		t.Errorf("ArrAdd should not overwrite existing nested key, got %v", user["name"])
 	}
@@ -92,6 +94,7 @@ func TestArrSet(t *testing.T) {
 	}
 
 	ArrSet(m, "products.desk.discount", 10)
+
 	if ArrGet(m, "products.desk.discount") != 10 {
 		t.Error("ArrSet should create new nested key")
 	}
@@ -121,9 +124,11 @@ func TestArrHas(t *testing.T) {
 	if !ArrHas(m, "products.desk.price") {
 		t.Error("ArrHas should find nested key")
 	}
+
 	if ArrHas(m, "products.desk.missing") {
 		t.Error("ArrHas should not find missing key")
 	}
+
 	if ArrHas(m) {
 		t.Error("ArrHas with no keys should return false")
 	}
@@ -137,6 +142,7 @@ func TestArrHasMultipleKeys(t *testing.T) {
 	if !ArrHas(m, "name", "age") {
 		t.Error("ArrHas should return true when all keys exist")
 	}
+
 	if ArrHas(m, "name", "missing") {
 		t.Error("ArrHas should return false when any key is missing")
 	}
@@ -156,11 +162,13 @@ func TestArrForget(t *testing.T) {
 	ArrForget(m, "products.desk.price")
 
 	desk := m["products"].(map[string]any)["desk"].(map[string]any)
+
 	if _, ok := desk["price"]; ok {
 		t.Error("ArrForget should remove nested key")
 	}
 
 	ArrForget(m, "name")
+
 	if _, ok := m["name"]; ok {
 		t.Error("ArrForget should remove top-level key")
 	}
@@ -175,9 +183,11 @@ func TestArrForgetMultipleKeys(t *testing.T) {
 	if _, ok := m["a"]; ok {
 		t.Error("ArrForget should remove key 'a'")
 	}
+
 	if _, ok := m["c"]; ok {
 		t.Error("ArrForget should remove key 'c'")
 	}
+
 	if m["b"] != 2 {
 		t.Error("ArrForget should not affect other keys")
 	}
@@ -190,9 +200,11 @@ func TestArrPull(t *testing.T) {
 	m := map[string]any{"name": "Desk", "price": 100}
 
 	name := ArrPull(m, "name")
+
 	if name != "Desk" {
 		t.Errorf("ArrPull should return value, got %v", name)
 	}
+
 	if _, ok := m["name"]; ok {
 		t.Error("ArrPull should remove key after retrieval")
 	}
@@ -204,6 +216,7 @@ func TestArrPullDefault(t *testing.T) {
 	m := map[string]any{"name": "Desk"}
 
 	val := ArrPull(m, "missing", "default")
+
 	if val != "default" {
 		t.Errorf("ArrPull missing key should return default, got %v", val)
 	}
@@ -217,14 +230,17 @@ func TestArrPullDotNotation(t *testing.T) {
 	}
 
 	name := ArrPull(m, "user.name")
+
 	if name != "Taylor" {
 		t.Errorf("ArrPull nested = %v, want Taylor", name)
 	}
 
 	user := m["user"].(map[string]any)
+
 	if _, ok := user["name"]; ok {
 		t.Error("ArrPull should remove nested key")
 	}
+
 	if user["age"] != 30 {
 		t.Error("ArrPull should not affect other nested keys")
 	}
@@ -247,9 +263,11 @@ func TestArrDot(t *testing.T) {
 	if result["user.name"] != "Taylor" {
 		t.Errorf("ArrDot[user.name] = %v, want Taylor", result["user.name"])
 	}
+
 	if result["user.email"] != "taylor@example.com" {
 		t.Errorf("ArrDot[user.email] = %v", result["user.email"])
 	}
+
 	if result["active"] != true {
 		t.Errorf("ArrDot[active] = %v, want true", result["active"])
 	}
@@ -288,6 +306,7 @@ func TestArrOnly(t *testing.T) {
 	if len(result) != 2 {
 		t.Errorf("ArrOnly length = %d, want 2", len(result))
 	}
+
 	if result["name"] != "Taylor" || result["age"] != 30 {
 		t.Errorf("ArrOnly = %v", result)
 	}
@@ -314,6 +333,7 @@ func TestArrDivide(t *testing.T) {
 	if len(keys) != 1 || keys[0] != "name" {
 		t.Errorf("ArrDivide keys = %v, want [name]", keys)
 	}
+
 	if len(values) != 1 || values[0] != "Taylor" {
 		t.Errorf("ArrDivide values = %v, want [Taylor]", values)
 	}
@@ -329,6 +349,7 @@ func TestArrPluck(t *testing.T) {
 	}
 
 	names := ArrPluck(items, "name").([]any)
+
 	if len(names) != 2 || names[0] != "Taylor" || names[1] != "Abigail" {
 		t.Errorf("ArrPluck = %v", names)
 	}
@@ -343,6 +364,7 @@ func TestArrPluckWithKey(t *testing.T) {
 	}
 
 	result := ArrPluck(items, "name", "id").(map[string]any)
+
 	if result["1"] != "Taylor" || result["2"] != "Abigail" {
 		t.Errorf("ArrPluck with key = %v", result)
 	}
@@ -360,6 +382,7 @@ func TestArrSortRecursive(t *testing.T) {
 	result := ArrSortRecursive(m)
 
 	users := result["users"].([]any)
+
 	if users[0] != "Abigail" || users[1] != "Taylor" {
 		t.Errorf("ArrSortRecursive users = %v", users)
 	}
