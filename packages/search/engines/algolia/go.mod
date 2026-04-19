@@ -9,6 +9,6 @@ require (
 )
 
 replace (
-	github.com/bedrock/packages/contracts => ../../../../contracts
-	github.com/bedrock/packages/search => ../../../
+	github.com/bedrock/packages/contracts => ../../../contracts
+	github.com/bedrock/packages/search => ../..
 )
