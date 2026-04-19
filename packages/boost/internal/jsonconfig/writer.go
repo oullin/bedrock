@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"syscall"
 )
 
 // WriteEntry performs a locked, atomic read-modify-write on a JSON config file.
@@ -137,26 +136,4 @@ func atomicWrite(path string, data []byte, perm os.FileMode) error {
 	}
 
 	return os.Rename(tmpName, path)
-}
-
-// lockFile acquires an exclusive advisory lock on the given path (creating it
-// if necessary) and returns an unlock function. This matches the locking
-// pattern used in packages/filesystem/lockable_file.go.
-func lockFile(path string) (unlock func(), err error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o644)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
-		f.Close()
-
-		return nil, err
-	}
-
-	return func() {
-		syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
-		f.Close()
-	}, nil
 }

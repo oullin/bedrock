@@ -210,9 +210,33 @@ func fallback(override, def string) string {
 
 // existsOnDisk reports whether path exists on the filesystem.
 func existsOnDisk(path string) bool {
-	_, err := os.Stat(path)
+	_, err := os.Stat(expandHomeMarker(path))
 
 	return err == nil
+}
+
+func expandHomeMarker(path string) string {
+	if path == "~" {
+		home, err := os.UserHomeDir()
+
+		if err == nil && home != "" {
+			return home
+		}
+
+		return path
+	}
+
+	if !strings.HasPrefix(path, "~/") {
+		return path
+	}
+
+	home, err := os.UserHomeDir()
+
+	if err != nil || home == "" {
+		return path
+	}
+
+	return filepath.Join(home, filepath.FromSlash(path[2:]))
 }
 
 // commandInPath reports whether the binary name is in PATH.

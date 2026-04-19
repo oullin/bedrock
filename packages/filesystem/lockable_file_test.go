@@ -3,6 +3,7 @@ package filesystem_test
 import (
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/bedrock/packages/filesystem"
 )
@@ -219,6 +220,64 @@ func TestLockableFileMultipleSharedLocks(t *testing.T) {
 
 	if err := lf1.Unlock(); err != nil {
 		t.Fatal(err)
+	}
+
+	if err := lf2.Unlock(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLockableFileExclusiveLockWaitsForSharedLockRelease(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "contended.txt")
+
+	writeFile(t, path, "shared content")
+
+	lf1, err := filesystem.NewLockableFile(path, 0o644)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer lf1.Close()
+
+	lf2, err := filesystem.NewLockableFile(path, 0o644)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer lf2.Close()
+
+	if err := lf1.SharedLock(); err != nil {
+		t.Fatal(err)
+	}
+
+	locked := make(chan error, 1)
+
+	go func() {
+		locked <- lf2.ExclusiveLock()
+	}()
+
+	select {
+	case err := <-locked:
+		t.Fatalf("expected exclusive lock to block until shared lock is released, got %v", err)
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	if err := lf1.Unlock(); err != nil {
+		t.Fatal(err)
+	}
+
+	select {
+	case err := <-locked:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed out waiting for exclusive lock after unlock")
 	}
 
 	if err := lf2.Unlock(); err != nil {

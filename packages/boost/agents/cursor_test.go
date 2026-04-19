@@ -1,6 +1,8 @@
 package agents_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bedrock/packages/boost/agents"
@@ -79,5 +81,32 @@ func TestCursorDetectInProject(t *testing.T) {
 
 	if a.DetectInProject(tmp) {
 		t.Error("DetectInProject should be false when .cursor dir absent")
+	}
+}
+
+func TestCursorDetectOnSystemLinuxExpandsHome(t *testing.T) {
+	tmp := t.TempDir()
+
+	t.Setenv("HOME", tmp)
+	t.Setenv("PATH", "")
+
+	a := agents.NewCursor()
+
+	if a.DetectOnSystem(platform.Linux) {
+		t.Error("DetectOnSystem(platform.Linux) should be false when ~/.local/bin/cursor is absent and cursor is not in PATH")
+	}
+
+	cursorPath := filepath.Join(tmp, ".local", "bin", "cursor")
+
+	if err := os.MkdirAll(filepath.Dir(cursorPath), 0755); err != nil {
+		t.Fatalf("MkdirAll(cursor parent): %v", err)
+	}
+
+	if err := os.WriteFile(cursorPath, []byte("#!/bin/sh\n"), 0755); err != nil {
+		t.Fatalf("WriteFile(cursor): %v", err)
+	}
+
+	if !a.DetectOnSystem(platform.Linux) {
+		t.Error("DetectOnSystem(platform.Linux) should be true when ~/.local/bin/cursor exists under HOME")
 	}
 }

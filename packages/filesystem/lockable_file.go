@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"syscall"
 )
 
 // LockableFile provides file operations with advisory locking via flock(2).
@@ -31,7 +30,7 @@ func NewLockableFile(path string, mode fs.FileMode) (*LockableFile, error) {
 
 // SharedLock acquires a shared (read) lock on the file.
 func (lf *LockableFile) SharedLock() error {
-	if err := syscall.Flock(int(lf.file.Fd()), syscall.LOCK_SH); err != nil {
+	if err := lockShared(lf.file); err != nil {
 		return ErrLockFailed
 	}
 
@@ -40,7 +39,7 @@ func (lf *LockableFile) SharedLock() error {
 
 // ExclusiveLock acquires an exclusive (write) lock on the file.
 func (lf *LockableFile) ExclusiveLock() error {
-	if err := syscall.Flock(int(lf.file.Fd()), syscall.LOCK_EX); err != nil {
+	if err := lockExclusive(lf.file); err != nil {
 		return ErrLockFailed
 	}
 
@@ -49,7 +48,7 @@ func (lf *LockableFile) ExclusiveLock() error {
 
 // Unlock releases the advisory lock on the file.
 func (lf *LockableFile) Unlock() error {
-	return syscall.Flock(int(lf.file.Fd()), syscall.LOCK_UN)
+	return unlockFile(lf.file)
 }
 
 // Read reads up to size bytes from the file. If no size is specified, reads
