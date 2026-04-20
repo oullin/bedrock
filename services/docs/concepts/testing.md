@@ -1,5 +1,9 @@
 # Testing
 
+<!-- laravel-docs: testing.md#testing-getting-started -->
+<!-- laravel-docs: testing.md#creating-tests -->
+<!-- laravel-docs: testing.md#running-tests -->
+
 A tour of Bedrock's test doubles and testing patterns.
 
 ## Philosophy

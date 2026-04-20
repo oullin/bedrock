@@ -1,5 +1,10 @@
 # ai/mcp
 
+<!-- laravel-docs: mcp.md#laravel-mcp -->
+<!-- laravel-docs: mcp.md#creating-servers -->
+<!-- laravel-docs: mcp.md#tools -->
+<!-- laravel-docs: mcp.md#resources -->
+
 Model Context Protocol (MCP) server implementation.
 
 ## Overview

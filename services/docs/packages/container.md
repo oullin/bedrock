@@ -1,5 +1,10 @@
 # container
 
+<!-- laravel-docs: container.md#service-container -->
+<!-- laravel-docs: container.md#binding -->
+<!-- laravel-docs: container.md#resolving -->
+<!-- laravel-docs: container.md#container-events -->
+
 IoC service container and application bootstrap.
 
 ## Overview

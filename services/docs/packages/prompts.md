@@ -1,5 +1,9 @@
 # prompts
 
+<!-- laravel-docs: prompts.md#prompts -->
+<!-- laravel-docs: prompts.md#available-prompts -->
+<!-- laravel-docs: prompts.md#testing -->
+
 Beautiful, user-friendly terminal UI forms for Go applications.
 
 ## Overview

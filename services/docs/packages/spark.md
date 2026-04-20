@@ -1,5 +1,10 @@
 # spark
 
+<!-- laravel-docs: billing.md#laravel-cashier-stripe -->
+<!-- laravel-docs: billing.md#subscriptions -->
+<!-- laravel-docs: billing.md#checkout -->
+<!-- laravel-docs: billing.md#customers -->
+
 Subscription billing, checkout, and entitlement management.
 
 ## Overview

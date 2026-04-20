@@ -1,5 +1,10 @@
 # pagination
 
+<!-- laravel-docs: pagination.md#database-pagination -->
+<!-- laravel-docs: pagination.md#basic-usage -->
+<!-- laravel-docs: pagination.md#cursor-pagination -->
+<!-- laravel-docs: pagination.md#displaying-pagination-results -->
+
 Offset-based and cursor-based pagination.
 
 ## Overview

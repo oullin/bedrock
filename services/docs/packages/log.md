@@ -1,5 +1,10 @@
 # log
 
+<!-- laravel-docs: logging.md#logging -->
+<!-- laravel-docs: logging.md#writing-log-messages -->
+<!-- laravel-docs: logging.md#building-log-stacks -->
+<!-- laravel-docs: logging.md#configuration -->
+
 Driver-based structured logging with channels and stack aggregation.
 
 ## Overview

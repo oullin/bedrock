@@ -1,5 +1,12 @@
 # httpx
 
+<!-- laravel-docs: requests.md#http-requests -->
+<!-- laravel-docs: requests.md#files -->
+<!-- laravel-docs: responses.md#http-responses -->
+<!-- laravel-docs: responses.md#redirects -->
+<!-- laravel-docs: http-client.md#http-client -->
+<!-- laravel-docs: http-client.md#making-requests -->
+
 HTTP utilities, middleware, and testing helpers.
 
 ## Overview

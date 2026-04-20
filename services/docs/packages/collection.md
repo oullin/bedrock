@@ -1,5 +1,9 @@
 # collection
 
+<!-- laravel-docs: collections.md#collections -->
+<!-- laravel-docs: collections.md#lazy-collections -->
+<!-- laravel-docs: collections.md#available-methods -->
+
 Fluent, type-safe collection helpers for slices, ordered maps, lazy sequences,
 and one-off array or key-value operations.
 

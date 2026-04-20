@@ -1,5 +1,12 @@
 # routing
 
+<!-- laravel-docs: routing.md#routing -->
+<!-- laravel-docs: routing.md#basic-routing -->
+<!-- laravel-docs: routing.md#named-routes -->
+<!-- laravel-docs: routing.md#route-groups -->
+<!-- laravel-docs: routing.md#route-model-binding -->
+<!-- laravel-docs: routing.md#rate-limiting -->
+
 HTTP routing — a 1:1 Go port of Laravel's routing layer.
 
 ## Overview

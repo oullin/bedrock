@@ -1,5 +1,9 @@
 # socialite
 
+<!-- laravel-docs: socialite.md#laravel-socialite -->
+<!-- laravel-docs: socialite.md#retrieving-user-details -->
+<!-- laravel-docs: socialite.md#authentication -->
+
 OAuth social authentication (GitHub, Google, and more).
 
 ## Overview

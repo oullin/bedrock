@@ -1,5 +1,9 @@
 # support
 
+<!-- laravel-docs: helpers.md#helpers -->
+<!-- laravel-docs: helpers.md#arrays-objects -->
+<!-- laravel-docs: helpers.md#other-utilities -->
+
 General-purpose helpers and types from Bedrock's Laravel support port.
 
 ## Overview

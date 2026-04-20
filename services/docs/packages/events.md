@@ -1,5 +1,11 @@
 # events
 
+<!-- laravel-docs: events.md#events -->
+<!-- laravel-docs: events.md#registering-events-and-listeners -->
+<!-- laravel-docs: events.md#dispatching-events -->
+<!-- laravel-docs: events.md#event-subscribers -->
+<!-- laravel-docs: events.md#queued-event-listeners -->
+
 Event dispatching and listener management.
 
 ## Overview

@@ -1,5 +1,10 @@
 # ai/boost
 
+<!-- laravel-docs: ai.md#laravel-boost -->
+<!-- laravel-docs: boost.md#laravel-boost -->
+<!-- laravel-docs: boost.md#mcp-server -->
+<!-- laravel-docs: boost.md#agent-skills -->
+
 IDE coding-assistant integration for AI agents (Cursor, Claude Code, Copilot, and more).
 
 ## Overview

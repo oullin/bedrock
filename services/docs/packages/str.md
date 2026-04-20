@@ -1,5 +1,9 @@
 # str
 
+<!-- laravel-docs: strings.md#strings -->
+<!-- laravel-docs: strings.md#available-methods -->
+<!-- laravel-docs: strings.md#fluent-strings -->
+
 String helpers split out from the old `support` module.
 
 ## Overview

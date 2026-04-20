@@ -617,6 +617,86 @@ generic_inventory_stats() {
   ' "$ported_file" "$adapted_file" "$excluded_file" "$inventory_file"
 }
 
+pending_plain_inventory_entries() {
+  local inventory_file="$1"
+  local ported_file="$2"
+  local adapted_file="$3"
+  local excluded_file="$4"
+
+  awk '
+    FILENAME == ARGV[1] {
+      ported[$0] = 1
+      next
+    }
+    FILENAME == ARGV[2] {
+      adapted[$0] = 1
+      next
+    }
+    FILENAME == ARGV[3] {
+      excluded[$0] = 1
+      next
+    }
+    /^[[:space:]]*$/ || /^#/ {
+      next
+    }
+    !($0 in ported) && !($0 in adapted) && !($0 in excluded) {
+      print
+    }
+  ' "$ported_file" "$adapted_file" "$excluded_file" "$inventory_file"
+}
+
+docs_pending_by_file_rows() {
+  local rows
+  rows="$(pending_plain_inventory_entries "$DOCS_INVENTORY_FILE" "$1" "$2" "$3" \
+    | awk -F '#' '{ count[$1]++ } END { for (file in count) print count[file] "\t" file }' \
+    | sort -nr \
+    | head -n 20)"
+
+  if [ -z "$rows" ]; then
+    echo "| n/a | 0 |"
+    return 0
+  fi
+
+  printf '%s\n' "$rows" | while IFS=$'\t' read -r count file; do
+    printf '| `%s` | %s |\n' "$file" "$count"
+  done
+}
+
+docs_status_by_file_rows() {
+  local status_file="$1"
+  local label="$2"
+  local rows
+  rows="$(awk -F '#' '{ count[$1]++ } END { for (file in count) print file "\t" count[file] }' "$status_file" | sort)"
+
+  if [ -z "$rows" ]; then
+    return 0
+  fi
+
+  printf '%s\n' "$rows" | while IFS=$'\t' read -r file count; do
+    printf '| `%s` | %s | %s |\n' "$file" "$label" "$count"
+  done
+}
+
+skeleton_status_rows() {
+  local rows
+  rows="$(
+    {
+      pending_plain_inventory_entries "$SKELETON_INVENTORY_FILE" "$1" "$2" "$3" | awk '{ print $0 "\tPending" }'
+      awk '{ print $0 "\tAdapted" }' "$2"
+      awk '{ print $0 "\tExcluded" }' "$3"
+    } | sort
+  )"
+
+  if [ -z "$rows" ]; then
+    echo "| n/a | n/a |"
+    return 0
+  fi
+
+  printf '%s\n' "$rows" | while IFS=$'\t' read -r file status; do
+    printf '| `%s` | %s |\n' "$file" "$status"
+  done
+}
+
 generic_summary_row() {
   local label="$1"
   local inventory_count="$2"
@@ -842,7 +922,7 @@ report() {
 
   local output_file tmp_file
   output_file="${1:-$REPORT_FILE}"
-  tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX")"
+  tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX.md")"
   local status_index_path ported_index adapted_index
   status_index_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-compliance-status.XXXXXX")"
   ported_index="$status_index_path/ported.txt"
@@ -887,6 +967,27 @@ report() {
     echo "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
     echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
     generic_summary_row "laravel/laravel" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    echo
+    echo "## Documentation Detail"
+    echo
+    echo "### Top Pending Documentation Files"
+    echo
+    echo "| Laravel Docs File | Pending Sections |"
+    echo "| --- | ---: |"
+    docs_pending_by_file_rows "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    echo
+    echo "### Classified Documentation Sections"
+    echo
+    echo "| Laravel Docs File | Status | Sections |"
+    echo "| --- | --- | ---: |"
+    docs_status_by_file_rows "$docs_adapted_index" "Adapted"
+    docs_status_by_file_rows "$docs_excluded_index" "Excluded"
+    echo
+    echo "## Skeleton Detail"
+    echo
+    echo "| Laravel Skeleton File | Status |"
+    echo "| --- | --- |"
+    skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
     echo
     echo "## Inventories"
     echo
@@ -1008,6 +1109,8 @@ report() {
       }
     ' "$INVENTORY_FILE"
   } > "$tmp_file"
+
+  format_report_markdown "$tmp_file"
 
   rm -rf "$status_index_path"
   mv "$tmp_file" "$output_file"
@@ -1303,6 +1406,14 @@ check_features() {
 
 normalize_report() {
   sed 's/^Generated: .*/Generated: <normalized>/'
+}
+
+format_report_markdown() {
+  local file="$1"
+
+  if command -v pnpm >/dev/null 2>&1 && [ -f "$ROOT_PATH/package.json" ]; then
+    (cd "$ROOT_PATH" && pnpm exec oxfmt --ignore-path .gitignore "$file" >/dev/null)
+  fi
 }
 
 check_report_current() {
