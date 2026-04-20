@@ -5,6 +5,7 @@ ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPLIANCE_PATH="$ROOT_PATH/services/compliance"
 INVENTORY_FILE="$COMPLIANCE_PATH/inventory.yml"
 DIVERGENCES_FILE="$COMPLIANCE_PATH/divergences.yml"
+FEATURES_FILE="$COMPLIANCE_PATH/features.yml"
 SOURCES_LOCK_FILE="$COMPLIANCE_PATH/sources.lock.json"
 REPORT_FILE="$COMPLIANCE_PATH/report.md"
 RECORD_SEPARATOR=$'\034'
@@ -99,6 +100,75 @@ list_records() {
       emit()
     }
   ' "$INVENTORY_FILE"
+}
+
+list_feature_records() {
+  awk '
+    function trim(value) {
+      gsub(/^[ \t]+|[ \t]+$/, "", value)
+      return value
+    }
+    function clean(value) {
+      value = trim(value)
+      gsub(/^"/, "", value)
+      gsub(/"$/, "", value)
+      return value
+    }
+    function reset_record() {
+      id = ""; source_id = ""; name = ""; laravel = "";
+      bedrock = ""; status = ""; docs = ""; notes = "";
+    }
+    function emit() {
+      if (id != "") {
+        print id "\034" source_id "\034" name "\034" laravel "\034" bedrock "\034" status "\034" docs "\034" notes
+      }
+    }
+    /^  - id:/ {
+      emit()
+      reset_record()
+      sub(/^  - id:[ \t]*/, "")
+      id = clean($0)
+      next
+    }
+    id != "" && /^    source_id:/ {
+      sub(/^    source_id:[ \t]*/, "")
+      source_id = clean($0)
+      next
+    }
+    id != "" && /^    name:/ {
+      sub(/^    name:[ \t]*/, "")
+      name = clean($0)
+      next
+    }
+    id != "" && /^    laravel:/ {
+      sub(/^    laravel:[ \t]*/, "")
+      laravel = clean($0)
+      next
+    }
+    id != "" && /^    bedrock:/ {
+      sub(/^    bedrock:[ \t]*/, "")
+      bedrock = clean($0)
+      next
+    }
+    id != "" && /^    status:/ {
+      sub(/^    status:[ \t]*/, "")
+      status = clean($0)
+      next
+    }
+    id != "" && /^    docs:/ {
+      sub(/^    docs:[ \t]*/, "")
+      docs = clean($0)
+      next
+    }
+    id != "" && /^    notes:/ {
+      sub(/^    notes:[ \t]*/, "")
+      notes = clean($0)
+      next
+    }
+    END {
+      emit()
+    }
+  ' "$FEATURES_FILE"
 }
 
 php_test_methods() {
@@ -395,6 +465,66 @@ inventory_stats() {
   ' "$ported_index" "$adapted_index" "$file"
 }
 
+markdown_cell() {
+  local value="$1"
+  value="${value//|/\\|}"
+  printf '%s' "$value"
+}
+
+docs_file_for() {
+  local bedrock="$1"
+  local docs="$2"
+
+  if [ -n "$docs" ] && [ "$docs" != "null" ]; then
+    case "$docs" in
+      services/docs/*) printf '%s\n' "$ROOT_PATH/$docs" ;;
+      packages/*|basics/*|concepts/*) printf '%s\n' "$ROOT_PATH/services/docs/$docs" ;;
+      *) printf '%s\n' "$ROOT_PATH/services/docs/packages/$docs" ;;
+    esac
+    return 0
+  fi
+
+  [ -n "$bedrock" ] && [ "$bedrock" != "null" ] || return 0
+  printf '%s\n' "$ROOT_PATH/services/docs/packages/$bedrock.md"
+}
+
+docs_display() {
+  local bedrock="$1"
+  local docs="${2:-}"
+
+  if { [ -z "$bedrock" ] || [ "$bedrock" = "null" ]; } && { [ -z "$docs" ] || [ "$docs" = "null" ]; }; then
+    printf 'n/a'
+    return 0
+  fi
+
+  local docs_file
+  docs_file="$(docs_file_for "$bedrock" "$docs")"
+
+  if [ -n "$docs_file" ] && [ -f "$docs_file" ]; then
+    printf '`%s`' "${docs_file#$ROOT_PATH/services/docs/}"
+  else
+    printf 'missing'
+  fi
+}
+
+tests_display() {
+  local inventory="$1"
+  local ported_index="$2"
+  local adapted_index="$3"
+
+  if [ -z "$inventory" ] || [ "$inventory" = "null" ]; then
+    printf 'no inventory'
+    return 0
+  fi
+
+  local file stats total ported adapted missing
+  file="$COMPLIANCE_PATH/$inventory"
+  stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
+  IFS=$'\t' read -r total ported adapted missing <<< "$stats"
+
+  printf '%s/%s ported, %s adapted, %s missing' "$ported" "$total" "$adapted" "$missing"
+}
+
 report() {
   need rg
 
@@ -429,6 +559,63 @@ report() {
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
       printf '| %s | %s | %s | %s | %s |\n' "$rel" "$total" "$ported" "$adapted" "$missing"
+    done
+
+    echo
+    echo "## Framework Coverage"
+    echo
+    echo "| Laravel Source | Bedrock Surface | Port Status | Tests | Docs |"
+    echo "| --- | --- | --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter laravel bedrock; do
+      case "$id" in
+        framework.*) ;;
+        *) continue ;;
+      esac
+
+      local display_bedrock display_tests display_docs
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
+      display_docs="$(docs_display "$bedrock" "")"
+
+      printf '| `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$laravel")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$(markdown_cell "$display_tests")" \
+        "$display_docs"
+    done
+
+    echo
+    echo "## Feature Coverage"
+    echo
+    echo "| Feature | Source | Bedrock Surface | Status | Docs | Notes |"
+    echo "| --- | --- | --- | --- | --- | --- |"
+
+    list_feature_records | while IFS="$RECORD_SEPARATOR" read -r id source_id name laravel bedrock status docs notes; do
+      local display_bedrock display_docs display_notes
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_docs="$(docs_display "$bedrock" "$docs")"
+      display_notes="${notes:-}"
+      [ -n "$display_notes" ] && [ "$display_notes" != "null" ] || display_notes="n/a"
+
+      printf '| %s | `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$name")" \
+        "$(markdown_cell "$source_id")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$display_docs" \
+        "$(markdown_cell "$display_notes")"
     done
 
     echo
@@ -600,11 +787,91 @@ check_inventory_format() {
   return "$failed"
 }
 
+check_features_format() {
+  awk '
+    /^[[:space:]]*$/ || /^#/ { next }
+    /^version:[ \t]*[0-9]+[ \t]*$/ { next }
+    /^features:[ \t]*$/ { next }
+    /^  - id:[ \t]*[^[:space:]].*$/ { next }
+    /^    (source_id|name|laravel|bedrock|status|docs|notes):[ \t]*.*$/ { next }
+    { invalid = 1; print FILENAME ":" FNR ": invalid features entry: " $0 > "/dev/stderr" }
+    END { exit invalid ? 1 : 0 }
+  ' "$FEATURES_FILE"
+}
+
+check_features() {
+  local failed=0 count=0 source_ids feature_ids
+  source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-source-ids.XXXXXX")"
+  feature_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-feature-ids.XXXXXX")"
+
+  list_records | awk -F "$RECORD_SEPARATOR" '{ print $1 }' | sort -u > "$source_ids"
+  : > "$feature_ids"
+
+  check_features_format || failed=1
+
+  while IFS="$RECORD_SEPARATOR" read -r id source_id name laravel bedrock status docs notes; do
+    count=$((count + 1))
+
+    if [ -z "$id" ] || [ -z "$source_id" ] || [ -z "$name" ] || [ -z "$laravel" ] || [ -z "$bedrock" ] || [ -z "$status" ]; then
+      echo "Feature $id is missing a required field." >&2
+      failed=1
+    fi
+
+    case "$status" in
+      ported|partial|missing|excluded) ;;
+      *)
+        echo "Feature $id has invalid status: $status" >&2
+        failed=1
+        ;;
+    esac
+
+    if ! rg -Fxq -- "$source_id" "$source_ids"; then
+      echo "Feature $id references unknown source_id: $source_id" >&2
+      failed=1
+    fi
+
+    if rg -Fxq -- "$id" "$feature_ids"; then
+      echo "Duplicate feature id: $id" >&2
+      failed=1
+    fi
+    printf '%s\n' "$id" >> "$feature_ids"
+
+    if [ -n "$docs" ] && [ "$docs" != "null" ]; then
+      case "$docs" in
+        services/docs/*|packages/*|basics/*|concepts/*) ;;
+        *)
+          echo "Feature $id docs path must be under services/docs: $docs" >&2
+          failed=1
+          ;;
+      esac
+
+      if [ "$status" = "ported" ] || [ "$status" = "partial" ]; then
+        local docs_file
+        docs_file="$(docs_file_for "$bedrock" "$docs")"
+
+        if [ ! -f "$docs_file" ]; then
+          echo "Feature $id docs path does not exist: ${docs_file#$ROOT_PATH/}" >&2
+          failed=1
+        fi
+      fi
+    fi
+  done < <(list_feature_records)
+
+  if [ "$count" -eq 0 ]; then
+    echo "$FEATURES_FILE must define at least one feature." >&2
+    failed=1
+  fi
+
+  rm -f "$source_ids" "$feature_ids"
+  return "$failed"
+}
+
 check() {
   need rg
 
   [ -f "$INVENTORY_FILE" ] || { echo "Missing $INVENTORY_FILE" >&2; return 1; }
   [ -f "$DIVERGENCES_FILE" ] || { echo "Missing $DIVERGENCES_FILE" >&2; return 1; }
+  [ -f "$FEATURES_FILE" ] || { echo "Missing $FEATURES_FILE" >&2; return 1; }
   [ -f "$SOURCES_LOCK_FILE" ] || { echo "Missing $SOURCES_LOCK_FILE" >&2; return 1; }
 
   check_no_package_local_parity
@@ -613,6 +880,7 @@ check() {
   check_no_inline_exclusions
   check_inventory_files_configured
   check_inventory_format
+  check_features
 }
 
 case "${1:-}" in
