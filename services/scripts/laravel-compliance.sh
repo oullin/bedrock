@@ -225,6 +225,29 @@ script_test_methods() {
   ' "$file"
 }
 
+matches_filter() {
+  local base="$1"
+  local filter="$2"
+
+  if [ -z "$filter" ] || [ "$filter" = "null" ]; then
+    return 0
+  fi
+
+  local candidate
+  local -a candidates
+  IFS=',' read -ra candidates <<< "$filter"
+  for candidate in "${candidates[@]}"; do
+    candidate="${candidate#"${candidate%%[![:space:]]*}"}"
+    candidate="${candidate%"${candidate##*[![:space:]]}"}"
+
+    if [ "$base" = "$candidate" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 generate_inventory() {
   local repo="$1"
   local branch="$2"
@@ -258,7 +281,7 @@ generate_inventory() {
       base="$(basename "$php_file")"
       rel="${php_file#$source_path/}"
 
-      if [ -n "$filter" ] && [ "$filter" != "null" ] && [ "$base" != "$filter" ]; then
+      if ! matches_filter "$base" "$filter"; then
         continue
       fi
 
@@ -528,7 +551,8 @@ tests_display() {
 report() {
   need rg
 
-  local tmp_file
+  local output_file tmp_file
+  output_file="${1:-$REPORT_FILE}"
   tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX")"
   local status_index_path ported_index adapted_index
   status_index_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-compliance-status.XXXXXX")"
@@ -660,7 +684,7 @@ report() {
   } > "$tmp_file"
 
   rm -rf "$status_index_path"
-  mv "$tmp_file" "$REPORT_FILE"
+  mv "$tmp_file" "$output_file"
 }
 
 check_no_package_local_parity() {
@@ -690,7 +714,7 @@ check_excluded_not_implemented() {
     case "$id" in
       framework.foundation) candidate="foundation" ;;
       framework.view) candidate="view" ;;
-      framework.collections) candidate="collections" ;;
+      framework.collections) candidate="collection" ;;
       framework.macroable) candidate="macroable" ;;
       framework.reflection) candidate="reflection" ;;
       package.browser_kit_testing) candidate="browser-kit-testing" ;;
@@ -866,6 +890,29 @@ check_features() {
   return "$failed"
 }
 
+normalize_report() {
+  sed 's/^Generated: .*/Generated: <normalized>/'
+}
+
+check_report_current() {
+  local expected actual failed=0
+  expected="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report-expected.XXXXXX")"
+  actual="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report-actual.XXXXXX")"
+
+  report "$expected"
+
+  normalize_report < "$expected" > "$expected.normalized"
+  normalize_report < "$REPORT_FILE" > "$actual"
+
+  if ! diff -u "$expected.normalized" "$actual" >&2; then
+    broadcastclient "services/compliance/report.md is stale; run services/scripts/upstream-compliance.sh report." >&2
+    failed=1
+  fi
+
+  rm -f "$expected" "$expected.normalized" "$actual"
+  return "$failed"
+}
+
 check() {
   need rg
 
@@ -881,6 +928,7 @@ check() {
   check_inventory_files_configured
   check_inventory_format
   check_features
+  check_report_current
 }
 
 case "${1:-}" in
