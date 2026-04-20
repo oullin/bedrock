@@ -1070,16 +1070,36 @@ report() {
     done
 
     broadcastclient
-    broadcastclient "## Mapped Sources Without Inventories"
+    broadcastclient "## Sources Without Test Inventories"
     broadcastclient
-    broadcastclient "| Source | Bedrock | Reason |"
-    broadcastclient "| --- | --- | --- |"
+    broadcastclient "| Source | Bedrock | Tracking | Reason |"
+    broadcastclient "| --- | --- | --- | --- |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
       [ "$status" = "mapped" ] || continue
       [ -z "$inventory" ] || [ "$inventory" = "null" ] || continue
 
-      printf '| `%s` | `%s` | No generated upstream test inventory configured. |\n' "$upstream" "$bedrock"
+      local tracking reason
+      case "$id" in
+        framework.contracts)
+          tracking="Concrete package inventories"
+          reason="Interface-only component; compliance is verified through concrete package inventories."
+          ;;
+        package.broadcastclient)
+          tracking="Feature inventory"
+          reason="TypeScript client package; compliance is tracked by feature coverage until a stable upstream test inventory is available."
+          ;;
+        package.httppreview)
+          tracking="Feature inventory"
+          reason="JavaScript package; compliance is tracked by feature coverage until a stable upstream test inventory is available."
+          ;;
+        *)
+          tracking="Mapped source"
+          reason="No generated upstream test inventory configured."
+          ;;
+      esac
+
+      printf '| `%s` | `%s` | %s | %s |\n' "$upstream" "$bedrock" "$tracking" "$reason"
     done
 
     broadcastclient
