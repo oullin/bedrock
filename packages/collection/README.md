@@ -60,13 +60,13 @@ func main() {
 
 ## 📦 Package Ecosystem
 
-| Package | Purpose | Use when... |
-|:---|:---|:---|
-| **`collection`** | **The Core** | You want the full fluent `Collection[T]` experience for slices. |
-| **`lazy`** | **Lazy Sequences** | You're handling large/infinite streams and want deferred execution. |
-| **`collectible`** | **Key-Value Maps** | You need an ordered `collectible.Collection[K, V]` with a fluent API. |
-| **`arr`** | **Slice Utils** | You need a quick one-off helper (e.g., `Sort`, `Flatten`) on a raw `[]T`. |
-| **`kv`** | **Map Utils** | You need dot-notation access (`"user.profile.name"`) for `map[string]any`. |
+| Package           | Purpose            | Use when...                                                                |
+| :---------------- | :----------------- | :------------------------------------------------------------------------- |
+| **`collection`**  | **The Core**       | You want the full fluent `Collection[T]` experience for slices.            |
+| **`lazy`**        | **Lazy Sequences** | You're handling large/infinite streams and want deferred execution.        |
+| **`collectible`** | **Key-Value Maps** | You need an ordered `collectible.Collection[K, V]` with a fluent API.      |
+| **`arr`**         | **Slice Utils**    | You need a quick one-off helper (e.g., `Sort`, `Flatten`) on a raw `[]T`.  |
+| **`kv`**          | **Map Utils**      | You need dot-notation access (`"user.profile.name"`) for `map[string]any`. |
 
 ---
 

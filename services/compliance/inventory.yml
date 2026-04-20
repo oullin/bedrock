@@ -339,6 +339,11 @@ framework:
     laravel: Illuminate\Collections
     bedrock: collection
     status: mapped
+    repo: laravel/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-collections.txt
+    filter: HigherOrderProxyTest.php,SupportArrTest.php,SupportCollectionTest.php,SupportLazyCollectionIsLazyTest.php,SupportLazyCollectionTest.php
 
   - id: framework.macroable
     laravel: Illuminate\Macroable

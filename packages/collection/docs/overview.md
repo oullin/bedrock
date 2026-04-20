@@ -84,17 +84,23 @@ fmt.Println(lc.All()) // [2, 4, 6, 8, 10]
 ## 🛠️ Key Design Decisions
 
 ### 1. Go Generics
+
 Every collection type is parameterized (`Collection[T]`, `collectible.Collection[K, V]`).
+
 - **No type assertions:** Zero runtime overhead for type checking.
 - **Compile-time safety:** Errors are caught during development, not in production.
 
 ### 2. `iter.Seq` Integration
+
 `lazy.Collection` is built on Go's standard iterator protocol (`iter.Seq[T]`).
+
 - **Native Range Support:** Use `range` directly over `lc.Iter()`.
 - **Deferred Execution:** Computation only happens when results are requested.
 
 ### 3. Immutable Returns
+
 Methods like `.Filter()`, `.Take()`, or `.Flatten()` return **new** collections.
+
 - **Side-effect free:** Original data remains untouched.
 - **Concurrency safe:** Collections can be shared across goroutines for read-only access.
 
@@ -102,13 +108,13 @@ Methods like `.Filter()`, `.Take()`, or `.Flatten()` return **new** collections.
 
 ## 📊 Comparison: Which to Use?
 
-| Type | Best for... |
-|:---|:---|
-| **`Collection[T]`** | Standard slice manipulation with fluent chaining. |
-| **`collectible.Collection[K, V]`** | Key-value data requiring ordered iteration or set operations. |
-| **`lazy.Collection[T]`** | Large datasets or streams where deferred execution is critical. |
-| **`arr.FuncName`** | Single, one-off operations on raw slices. |
-| **`kv.FuncName`** | Nested maps (JSON/Config) using dot-notation paths. |
+| Type                               | Best for...                                                     |
+| :--------------------------------- | :-------------------------------------------------------------- |
+| **`Collection[T]`**                | Standard slice manipulation with fluent chaining.               |
+| **`collectible.Collection[K, V]`** | Key-value data requiring ordered iteration or set operations.   |
+| **`lazy.Collection[T]`**           | Large datasets or streams where deferred execution is critical. |
+| **`arr.FuncName`**                 | Single, one-off operations on raw slices.                       |
+| **`kv.FuncName`**                  | Nested maps (JSON/Config) using dot-notation paths.             |
 
 ---
 

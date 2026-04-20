@@ -6,16 +6,16 @@ The root `collection` package includes a set of general-purpose helper functions
 
 ## 🛠 Available Helpers
 
-| Function | Purpose |
-|:---|:---|
-| [**Value**](#value) | Returns the given value unchanged (no-op). |
-| [**ValueFunc**](#valuefunc) | Calls a callback and returns its result (lazy evaluation). |
-| [**Head**](#head) | Safely returns the first element of a slice. |
-| [**Last**](#last) | Safely returns the last element of a slice. |
-| [**WhenValue**](#whenvalue) | Inline conditional for values. |
-| [**WhenFunc**](#whenfunc) | Inline conditional for callbacks (lazy). |
-| [**Error Types**](#error-types) | Specialized errors for collection operations. |
-| [**Shared Types**](#shared-types) | Common type constraints and structures. |
+| Function                          | Purpose                                                    |
+| :-------------------------------- | :--------------------------------------------------------- |
+| [**Value**](#value)               | Returns the given value unchanged (no-op).                 |
+| [**ValueFunc**](#valuefunc)       | Calls a callback and returns its result (lazy evaluation). |
+| [**Head**](#head)                 | Safely returns the first element of a slice.               |
+| [**Last**](#last)                 | Safely returns the last element of a slice.                |
+| [**WhenValue**](#whenvalue)       | Inline conditional for values.                             |
+| [**WhenFunc**](#whenfunc)         | Inline conditional for callbacks (lazy).                   |
+| [**Error Types**](#error-types)   | Specialized errors for collection operations.              |
+| [**Shared Types**](#shared-types) | Common type constraints and structures.                    |
 
 ---
 
@@ -101,9 +101,11 @@ Like `WhenValue` but accepts callbacks for deferred evaluation. Only the require
 ## 🛡 Error Types
 
 ### ItemNotFoundError
+
 Returned when a requested item is missing (e.g., `FirstOrFail`, `Sole`).
 
 ### MultipleItemsFoundError
+
 Returned by `Sole` when more than one item matches the predicate.
 
 ---
@@ -111,9 +113,11 @@ Returned by `Sole` when more than one item matches the predicate.
 ## 🧩 Shared Types
 
 ### Numeric
+
 A type constraint for numeric types, used by aggregation functions like `Sum` and `Avg`.
 
 ### Pair[K, V]
+
 A generic key-value pair used by `Combine` and `MapCollection`.
 
 ```go
