@@ -339,6 +339,11 @@ framework:
     upstream: Framework\Collections
     bedrock: collection
     status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-collections.txt
+    filter: HigherOrderProxyTest.php,SupportArrTest.php,SupportCollectionTest.php,SupportLazyCollectionIsLazyTest.php,SupportLazyCollectionTest.php
 
   - id: framework.macroable
     upstream: Framework\Macroable
