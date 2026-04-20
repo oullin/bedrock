@@ -3,6 +3,7 @@ package limiters_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -12,8 +13,27 @@ import (
 	"github.com/bedrock/packages/redis/limiters"
 )
 
+type evalKeyRecorder struct {
+	cluster bool
+	keys    [][]string
+}
+
 func newConn() *redis.Connection {
 	return redis.NewConnection("default", mock.New())
+}
+
+func (r *evalKeyRecorder) Eval(_ context.Context, script string, keys []string, args ...any) (any, error) {
+	r.keys = append(r.keys, append([]string(nil), keys...))
+
+	if strings.Contains(script, "RPUSH") {
+		return args[2], nil
+	}
+
+	return int64(1), nil
+}
+
+func (r *evalKeyRecorder) IsCluster() bool {
+	return r.cluster
 }
 
 func TestConcurrencyLimiterAllowsBelowLimit(t *testing.T) {
@@ -92,5 +112,66 @@ func TestConcurrencyLimiterFailureCallback(t *testing.T) {
 
 	if !errors.Is(err, redis.ErrLimiterTimeout) {
 		t.Fatalf("err=%v", err)
+	}
+}
+
+func TestConcurrencyLimiterUsesClusterHashTagsOnClusterConnections(t *testing.T) {
+	t.Parallel()
+
+	conn := &evalKeyRecorder{cluster: true}
+	lim := limiters.NewConcurrencyLimiter(conn, "slow", 1, time.Minute)
+
+	err := lim.Block(context.Background(), time.Second, time.Millisecond, func() error { return nil })
+
+	if err != nil {
+		t.Fatalf("Block err=%v", err)
+	}
+
+	if len(conn.keys) != 2 {
+		t.Fatalf("Eval calls=%d, want acquire and release", len(conn.keys))
+	}
+
+	for _, keys := range conn.keys {
+		if len(keys) != 1 || keys[0] != "limiter:concurrency:{slow}" {
+			t.Fatalf("Eval keys=%v, want [limiter:concurrency:{slow}]", keys)
+		}
+	}
+}
+
+func TestConcurrencyLimiterKeepsExistingHashTags(t *testing.T) {
+	t.Parallel()
+
+	conn := &evalKeyRecorder{cluster: true}
+	lim := limiters.NewConcurrencyLimiter(conn, "{slow}", 1, time.Minute)
+
+	err := lim.Block(context.Background(), time.Second, time.Millisecond, func() error { return nil })
+
+	if err != nil {
+		t.Fatalf("Block err=%v", err)
+	}
+
+	for _, keys := range conn.keys {
+		if len(keys) != 1 || keys[0] != "limiter:concurrency:{slow}" {
+			t.Fatalf("Eval keys=%v, want [limiter:concurrency:{slow}]", keys)
+		}
+	}
+}
+
+func TestConcurrencyLimiterLeavesNonClusterKeysUnchanged(t *testing.T) {
+	t.Parallel()
+
+	conn := &evalKeyRecorder{cluster: false}
+	lim := limiters.NewConcurrencyLimiter(conn, "slow", 1, time.Minute)
+
+	err := lim.Block(context.Background(), time.Second, time.Millisecond, func() error { return nil })
+
+	if err != nil {
+		t.Fatalf("Block err=%v", err)
+	}
+
+	for _, keys := range conn.keys {
+		if len(keys) != 1 || keys[0] != "limiter:concurrency:slow" {
+			t.Fatalf("Eval keys=%v, want [limiter:concurrency:slow]", keys)
+		}
 	}
 }
