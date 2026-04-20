@@ -32,6 +32,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Laravel compliance check
+        run: pnpm compliance
+
       - name: Typecheck
         run: pnpm typecheck
 

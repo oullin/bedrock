@@ -1,0 +1,542 @@
+version: 1
+
+features:
+  - id: framework.auth.guards
+    source_id: framework.auth
+    name: Authentication guards
+    laravel: Illuminate\Auth guard and provider system
+    bedrock: auth
+    status: partial
+    docs: packages/auth.md
+    notes: Session, token, and request guards exist; upstream test inventory is still mostly missing.
+
+  - id: framework.auth.passwords
+    source_id: framework.auth
+    name: Password broker
+    laravel: Illuminate\Auth password reset broker
+    bedrock: auth
+    status: partial
+    docs: packages/auth.md
+    notes: Password management is ported through auth; upstream test parity remains incomplete.
+
+  - id: framework.broadcasting.contracts
+    source_id: framework.broadcasting
+    name: Broadcasting contracts
+    laravel: Illuminate\Broadcasting channel and event contracts
+    bedrock: echo
+    status: missing
+    docs: packages/echo.md
+    notes: Echo and Reverb pieces exist, but no framework broadcasting contract inventory is ported yet.
+
+  - id: framework.bus.dispatch
+    source_id: framework.bus
+    name: Command bus dispatch
+    laravel: Illuminate\Bus command dispatch, chains, and middleware
+    bedrock: bus
+    status: partial
+    docs: packages/bus.md
+    notes: Bus package exists with command dispatch and middleware; upstream test parity is not complete.
+
+  - id: framework.cache.repository
+    source_id: framework.cache
+    name: Cache repository
+    laravel: Illuminate\Cache stores, repositories, tags, and locks
+    bedrock: cache
+    status: partial
+    docs: packages/cache.md
+    notes: Cache abstractions are present, but upstream test parity is still missing.
+
+  - id: framework.concurrency.tasks
+    source_id: framework.concurrency
+    name: Concurrent task execution
+    laravel: Illuminate\Concurrency task drivers
+    bedrock: concurrency
+    status: partial
+    docs: packages/concurrency.md
+    notes: Bedrock has a concurrency package; upstream concurrency tests have not been matched yet.
+
+  - id: framework.conditionable.proxy
+    source_id: framework.conditionable
+    name: Conditional fluent execution
+    laravel: Illuminate\Conditionable when and unless helpers
+    bedrock: conditionable
+    status: partial
+    docs: packages/conditionable.md
+    notes: Go fluent proxy exists; PHP dynamic behaviour is adapted to Go.
+
+  - id: framework.config.repository
+    source_id: framework.config
+    name: Configuration repository
+    laravel: Illuminate\Config repository
+    bedrock: config
+    status: partial
+    docs: packages/config.md
+    notes: Config package exists; upstream test parity is not complete.
+
+  - id: framework.console.commands
+    source_id: framework.console
+    name: Console commands
+    laravel: Illuminate\Console command runtime
+    bedrock: null
+    status: missing
+    docs: null
+    notes: No Bedrock console package exists yet.
+
+  - id: framework.container.bindings
+    source_id: framework.container
+    name: Container bindings
+    laravel: Illuminate\Container bindings, singletons, tags, and contextual resolution
+    bedrock: container
+    status: partial
+    docs: packages/container.md
+    notes: Container package exists; upstream container tests have not been matched yet.
+
+  - id: framework.contracts.interfaces
+    source_id: framework.contracts
+    name: Shared interfaces
+    laravel: Illuminate\Contracts interfaces
+    bedrock: contracts
+    status: ported
+    docs: packages/contracts.md
+    notes: Interface compliance is tracked through concrete package inventories.
+
+  - id: framework.cookie.queueing
+    source_id: framework.cookie
+    name: Cookie handling
+    laravel: Illuminate\Cookie queueing and cookie values
+    bedrock: cookie
+    status: partial
+    docs: packages/cookie.md
+    notes: Cookie package exists; upstream test parity is not complete.
+
+  - id: framework.database.query
+    source_id: framework.database
+    name: Database query builder
+    laravel: Illuminate\Database query builder and SQL grammars
+    bedrock: database
+    status: partial
+    docs: packages/database.md
+    notes: Query, schema, migrations, and Eloquent surfaces exist; broad upstream parity remains incomplete.
+
+  - id: framework.database.eloquent
+    source_id: framework.database
+    name: Eloquent-style ORM
+    laravel: Illuminate\Database\Eloquent models and relations
+    bedrock: database
+    status: partial
+    docs: packages/database.md
+    notes: ORM primitives exist with Go adaptations for attributes, relations, and errors.
+
+  - id: framework.encryption.encrypter
+    source_id: framework.encryption
+    name: Encrypter
+    laravel: Illuminate\Encryption encrypter payloads and ciphers
+    bedrock: encryption
+    status: partial
+    docs: packages/encryption.md
+    notes: CBC and GCM encryption exist; upstream encryption tests are not fully matched.
+
+  - id: framework.events.dispatcher
+    source_id: framework.events
+    name: Event dispatcher
+    laravel: Illuminate\Events dispatcher, listeners, and subscribers
+    bedrock: events
+    status: partial
+    docs: packages/events.md
+    notes: Event dispatching exists; upstream test parity remains incomplete.
+
+  - id: framework.filesystem.local
+    source_id: framework.filesystem
+    name: Local filesystem
+    laravel: Illuminate\Filesystem file operations
+    bedrock: filesystem
+    status: partial
+    docs: packages/filesystem.md
+    notes: Local filesystem operations are implemented; upstream parity tests are not complete.
+
+  - id: framework.foundation.kernel
+    source_id: framework.foundation
+    name: Application foundation
+    laravel: Illuminate\Foundation application kernel
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: Full Laravel application kernel is outside Bedrock product boundaries.
+
+  - id: framework.hashing.drivers
+    source_id: framework.hashing
+    name: Password hashing
+    laravel: Illuminate\Hashing bcrypt and Argon drivers
+    bedrock: hashing
+    status: partial
+    docs: packages/hashing.md
+    notes: Hashing drivers exist; upstream test parity is not complete.
+
+  - id: framework.http.requests
+    source_id: framework.http
+    name: HTTP primitives
+    laravel: Illuminate\Http requests, responses, middleware, client, and resources
+    bedrock: httpx
+    status: partial
+    docs: packages/httpx.md
+    notes: HTTP primitives and test helpers exist; upstream test parity remains incomplete.
+
+  - id: framework.json_schema.builder
+    source_id: framework.json_schema
+    name: JSON schema builder
+    laravel: Illuminate\JsonSchema fluent schema definitions
+    bedrock: jsonx
+    status: partial
+    docs: packages/jsonx.md
+    notes: Fluent JSON schema builder exists; upstream test parity is not complete.
+
+  - id: framework.log.channels
+    source_id: framework.log
+    name: Logging channels
+    laravel: Illuminate\Log channels and stacks
+    bedrock: log
+    status: partial
+    docs: packages/log.md
+    notes: Driver-based structured logging exists; upstream log tests are not matched yet.
+
+  - id: framework.mail.messages
+    source_id: framework.mail
+    name: Mail messages
+    laravel: Illuminate\Mail mailers, messages, transports, and events
+    bedrock: mailx
+    status: partial
+    docs: packages/mailx.md
+    notes: Mail package exists; upstream mail test parity is incomplete.
+
+  - id: framework.notifications.channels
+    source_id: framework.notifications
+    name: Notification channels
+    laravel: Illuminate\Notifications mail, database, broadcast, and custom channels
+    bedrock: notifications
+    status: partial
+    docs: packages/notifications.md
+    notes: Multi-channel notifications exist; upstream parity remains incomplete.
+
+  - id: framework.pagination.paginators
+    source_id: framework.pagination
+    name: Pagination
+    laravel: Illuminate\Pagination offset and cursor paginators
+    bedrock: pagination
+    status: partial
+    docs: packages/pagination.md
+    notes: Offset and cursor paginators exist; upstream parity is incomplete.
+
+  - id: framework.pipeline.pipes
+    source_id: framework.pipeline
+    name: Pipeline
+    laravel: Illuminate\Pipeline pipe and carry flow
+    bedrock: pipeline
+    status: partial
+    docs: packages/pipeline.md
+    notes: Pipeline package exists; upstream test parity is not complete.
+
+  - id: framework.process.runner
+    source_id: framework.process
+    name: Process runner
+    laravel: Illuminate\Process process execution and pools
+    bedrock: null
+    status: missing
+    docs: null
+    notes: No Bedrock process package exists yet.
+
+  - id: framework.queue.workers
+    source_id: framework.queue
+    name: Queue workers and drivers
+    laravel: Illuminate\Queue workers, jobs, failed jobs, and drivers
+    bedrock: queue
+    status: partial
+    docs: packages/queue.md
+    notes: Queue has the strongest upstream test match so far, but missing tests remain.
+
+  - id: framework.redis.commands
+    source_id: framework.redis
+    name: Redis commands
+    laravel: Illuminate\Redis connections, commands, pipelines, and pubsub
+    bedrock: redis
+    status: partial
+    docs: packages/redis.md
+    notes: Redis command surface exists; upstream Redis tests are not matched yet.
+
+  - id: framework.routing.routes
+    source_id: framework.routing
+    name: Routing
+    laravel: Illuminate\Routing routes, middleware, URL generation, and binding
+    bedrock: routing
+    status: partial
+    docs: packages/routing.md
+    notes: Routing package exists; upstream routing tests remain incomplete.
+
+  - id: framework.session.stores
+    source_id: framework.session
+    name: Session stores
+    laravel: Illuminate\Session stores, flash data, and CSRF tokens
+    bedrock: session
+    status: partial
+    docs: packages/session.md
+    notes: Session stores exist; upstream session tests are not matched yet.
+
+  - id: framework.support.helpers
+    source_id: framework.support
+    name: Support helpers
+    laravel: Illuminate\Support helpers, Fluent, MessageBag, Optional, Sleep, and Timebox
+    bedrock: support
+    status: partial
+    docs: packages/support.md
+    notes: Several support helpers are ported; upstream support coverage is still partial.
+
+  - id: framework.support_str.strings
+    source_id: framework.support_str
+    name: String helpers
+    laravel: Illuminate\Support\Str helpers
+    bedrock: str
+    status: partial
+    docs: packages/str.md
+    notes: String helper parity has many ported tests, but missing cases remain.
+
+  - id: framework.support_lottery.lottery
+    source_id: framework.support_lottery
+    name: Lottery helper
+    laravel: Illuminate\Support\Lottery random odds helper
+    bedrock: lottery
+    status: partial
+    docs: packages/lottery.md
+    notes: Lottery package exists; upstream Lottery tests are not matched yet.
+
+  - id: framework.testing.assertions
+    source_id: framework.testing
+    name: Testing utilities
+    laravel: Illuminate\Testing assertions and test response helpers
+    bedrock: null
+    status: missing
+    docs: null
+    notes: No standalone Bedrock testing package exists yet.
+
+  - id: framework.translation.loader
+    source_id: framework.translation
+    name: Translation loader
+    laravel: Illuminate\Translation loaders, selector, and translator
+    bedrock: translation
+    status: partial
+    docs: packages/translation.md
+    notes: Translation has some matched upstream tests; full parity remains incomplete.
+
+  - id: framework.validation.rules
+    source_id: framework.validation
+    name: Validation rules
+    laravel: Illuminate\Validation rule parser, validator, and MessageBag
+    bedrock: validation
+    status: partial
+    docs: packages/validation.md
+    notes: Rule engine and many rules exist; upstream test parity is still broad and incomplete.
+
+  - id: framework.collections.collection
+    source_id: framework.collections
+    name: Collections
+    laravel: Illuminate\Collections collection API
+    bedrock: collection
+    status: partial
+    docs: packages/collection.md
+    notes: Fluent slice, key-value, lazy, arr, and kv packages are imported; legacy support helper cleanup is deferred.
+
+  - id: framework.macroable.runtime
+    source_id: framework.macroable
+    name: Macroable runtime
+    laravel: Illuminate\Macroable dynamic method registration
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: PHP runtime macro behaviour does not map cleanly to Go static method sets.
+
+  - id: framework.reflection.helpers
+    source_id: framework.reflection
+    name: Reflection helpers
+    laravel: Illuminate\Reflection helpers
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: PHP reflection helpers are not a Bedrock product surface.
+
+  - id: framework.view.blade
+    source_id: framework.view
+    name: Blade views
+    laravel: Illuminate\View Blade and view rendering
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: Bedrock does not ship Laravel Blade or the view engine.
+
+  - id: package.ai.sdk
+    source_id: package.ai
+    name: AI SDK
+    laravel: laravel/ai SDK contracts and responses
+    bedrock: ai/sdk
+    status: partial
+    docs: packages/ai/sdk.md
+    notes: Bedrock has an AI SDK package; upstream package parity is not complete.
+
+  - id: package.boost.agent_tools
+    source_id: package.boost
+    name: Agent tooling
+    laravel: laravel/boost agent guidelines, MCP tools, and docs search
+    bedrock: ai/boost
+    status: partial
+    docs: packages/ai/boost.md
+    notes: Boost package exists; upstream package parity remains incomplete.
+
+  - id: package.echo.client
+    source_id: package.echo
+    name: Echo client
+    laravel: laravel/echo JavaScript realtime client
+    bedrock: echo
+    status: partial
+    docs: packages/echo.md
+    notes: Tracked by feature inventory because there is no stable upstream test inventory configured.
+
+  - id: package.fortify.auth_flows
+    source_id: package.fortify
+    name: Fortify auth flows
+    laravel: laravel/fortify authentication scaffolding
+    bedrock: inception
+    status: partial
+    docs: packages/fortify.md
+    notes: Exposed through Inception with Fortify-specific documentation.
+
+  - id: package.jetstream.teams
+    source_id: package.jetstream
+    name: Jetstream teams
+    laravel: laravel/jetstream teams, profile management, and API tokens
+    bedrock: inception
+    status: partial
+    docs: packages/jetstream.md
+    notes: Exposed through Inception with Jetstream-specific documentation.
+
+  - id: package.mcp.server
+    source_id: package.mcp
+    name: MCP server
+    laravel: laravel/mcp server tools and transport
+    bedrock: ai/mcp
+    status: partial
+    docs: packages/ai/mcp.md
+    notes: MCP package exists; upstream package parity remains incomplete.
+
+  - id: package.passport.oauth
+    source_id: package.passport
+    name: OAuth server
+    laravel: laravel/passport OAuth clients, tokens, and grants
+    bedrock: passport
+    status: partial
+    docs: packages/passport.md
+    notes: Passport package and docs exist; upstream package parity is not complete.
+
+  - id: package.pennant.flags
+    source_id: package.pennant
+    name: Feature flags
+    laravel: laravel/pennant feature definitions and stores
+    bedrock: pennant
+    status: partial
+    docs: packages/pennant.md
+    notes: Pennant package exists; upstream package parity remains incomplete.
+
+  - id: package.precognition.client
+    source_id: package.precognition
+    name: Precognition client
+    laravel: laravel/precognition client-side validation helpers
+    bedrock: precognition
+    status: partial
+    docs: packages/precognition.md
+    notes: Tracked by feature inventory because there is no stable upstream test inventory configured.
+
+  - id: package.prompts.cli
+    source_id: package.prompts
+    name: CLI prompts
+    laravel: laravel/prompts interactive terminal prompts
+    bedrock: prompts
+    status: partial
+    docs: packages/prompts.md
+    notes: Prompt package exists with a small number of matched upstream tests.
+
+  - id: package.reverb.websocket
+    source_id: package.reverb
+    name: Reverb websocket server
+    laravel: laravel/reverb websocket server and broadcasting runtime
+    bedrock: reverb
+    status: partial
+    docs: packages/reverb.md
+    notes: Reverb package exists; upstream package parity remains incomplete.
+
+  - id: package.scout.search
+    source_id: package.scout
+    name: Search indexing
+    laravel: laravel/scout search engines and model indexing
+    bedrock: scout
+    status: partial
+    docs: packages/scout.md
+    notes: Scout package exists; upstream package parity remains incomplete.
+
+  - id: package.socialite.oauth
+    source_id: package.socialite
+    name: Social OAuth
+    laravel: laravel/socialite OAuth providers
+    bedrock: socialite
+    status: partial
+    docs: packages/socialite.md
+    notes: Socialite package exists; upstream package parity remains incomplete.
+
+  - id: package.spark.billing
+    source_id: package.spark
+    name: Subscription billing
+    laravel: laravel/spark billing portal, plans, prices, orders, and webhooks
+    bedrock: spark
+    status: partial
+    docs: packages/spark.md
+    notes: Spark is tracked against local Madora billing tests.
+
+  - id: package.telescope.observability
+    source_id: package.telescope
+    name: Telescope observability
+    laravel: laravel/telescope entries, watchers, and storage
+    bedrock: telescope
+    status: partial
+    docs: packages/telescope.md
+    notes: Telescope package exists; upstream package parity remains incomplete.
+
+  - id: package.wayfinder.routes
+    source_id: package.wayfinder
+    name: Wayfinder route helpers
+    laravel: laravel/wayfinder route metadata and client helpers
+    bedrock: wayfinder
+    status: partial
+    docs: packages/wayfinder.md
+    notes: Wayfinder package exists; upstream package parity remains incomplete.
+
+  - id: package.sanctum.tokens
+    source_id: package.sanctum
+    name: Sanctum tokens
+    laravel: laravel/sanctum SPA and token authentication
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: Sanctum is intentionally not part of Bedrock.
+
+  - id: package.horizon.dashboard
+    source_id: package.horizon
+    name: Horizon dashboard
+    laravel: laravel/horizon queue dashboard and monitoring runtime
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: Queue monitoring UI and runtime are outside Bedrock product boundaries.
+
+  - id: package.dusk.browser
+    source_id: package.dusk
+    name: Browser automation
+    laravel: laravel/dusk browser tests
+    bedrock: null
+    status: excluded
+    docs: null
+    notes: Browser automation package is excluded; browser work should use Agent Browser.

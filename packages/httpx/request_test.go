@@ -56,6 +56,21 @@ func TestRequestURL(t *testing.T) {
 	}
 }
 
+func TestRequestRoutingPathSurface(t *testing.T) {
+	t.Parallel()
+
+	raw := httptest.NewRequest(http.MethodGet, "/users/taylor%20otwell?tab=profile", nil)
+	req := httpx.NewRequest(raw)
+
+	if req.PathInfo() != "/users/taylor otwell" {
+		t.Fatalf("expected decoded PathInfo, got %s", req.PathInfo())
+	}
+
+	if req.DecodedPath() != "/users/taylor otwell" {
+		t.Fatalf("expected decoded path, got %s", req.DecodedPath())
+	}
+}
+
 func TestRequestFullURL(t *testing.T) {
 	t.Parallel()
 

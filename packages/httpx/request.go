@@ -109,6 +109,22 @@ func (r *Request) Path() string {
 	return r.raw.URL.Path
 }
 
+// PathInfo returns the request path used by routing validators.
+func (r *Request) PathInfo() string {
+	return r.Path()
+}
+
+// DecodedPath returns the URL-decoded request path used for route parameter binding.
+func (r *Request) DecodedPath() string {
+	path := r.Path()
+
+	if decoded, err := url.PathUnescape(path); err == nil {
+		return decoded
+	}
+
+	return path
+}
+
 // Segment returns the 1-indexed URI segment (split by /). Returns fallback if
 // the index is out of range.
 func (r *Request) Segment(index int, fallback ...string) string {

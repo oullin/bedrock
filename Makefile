@@ -8,7 +8,7 @@ PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
 GO_MODULE_DIRS := $(shell awk 'BEGIN { in_use = 0 } /^use \(/ { in_use = 1; next } in_use && /^\)/ { in_use = 0; next } in_use { gsub(/^\.\//, "", $$1); print $$1 }' go.work)
 
-.PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs go-test go-build go-coverage
+.PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs compliance go-test go-build go-coverage
 
 format: format-start
 	$(PACKAGE_FMT)
@@ -25,33 +25,35 @@ format-stop:
 	@$(GO_FMT_COMPOSE) stop $(GO_FMT_SERVICE)
 
 vet:
-	@for pkg in $(GO_MODULE_DIRS); do \
+	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		echo "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
 	done
 
 tidy:
-	@for pkg in $(GO_MODULE_DIRS); do \
+	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		echo "go mod tidy in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
 	done
 
 go-test:
-	@for pkg in $(GO_MODULE_DIRS); do \
+	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		echo "go test ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go test ./...; \
 	done
 
 go-build:
-	@for pkg in $(GO_MODULE_DIRS); do \
+	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		echo "go build ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go build ./...; \
 	done
 
 go-coverage:
-	@for pkg in $(GO_MODULE_DIRS); do \
-		echo "go test -cover ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go test -cover ./...; \
+	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
+	@set -e; for pkg in $(GO_MODULE_DIRS); do \
+		safe=$$(echo "$$pkg" | tr '/.' '__'); \
+		echo "go test -coverprofile=$(ROOT_PATH)/storage/.cache/coverage/go/$$safe.out ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go test -coverprofile=$(ROOT_PATH)/storage/.cache/coverage/go/$$safe.out ./...; \
 	done
 
 typecheck:
@@ -70,14 +72,17 @@ docs:
 	pnpm install
 	pnpm --filter=@bedrock/docs run dev
 
+compliance:
+	services/scripts/laravel-compliance.sh check
+
 clean:
-	rm -rf $(ROOT_PATH)/service/storage/.cache
-	rm -rf $(ROOT_PATH)/service/storage/.turbo
-	rm -rf $(ROOT_PATH)/service/storage/.bin
-	mkdir -p $(ROOT_PATH)/service/storage/.cache/.pnpm-store
-	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/go
-	mkdir -p $(ROOT_PATH)/service/storage/.cache/coverage/playwright
-	mkdir -p $(ROOT_PATH)/service/storage/.turbo
-	mkdir -p $(ROOT_PATH)/service/storage/.bin
-	touch $(ROOT_PATH)/service/storage/.cache/.gitkeep
-	touch $(ROOT_PATH)/service/storage/.turbo/.gitkeep
+	rm -rf $(ROOT_PATH)/services/storage/.cache
+	rm -rf $(ROOT_PATH)/services/storage/.turbo
+	rm -rf $(ROOT_PATH)/services/storage/.bin
+	rm -rf $(ROOT_PATH)/storage/.cache/coverage
+	mkdir -p $(ROOT_PATH)/services/storage/.cache/.pnpm-store
+	mkdir -p $(ROOT_PATH)/services/storage/.turbo
+	mkdir -p $(ROOT_PATH)/services/storage/.bin
+	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
+	touch $(ROOT_PATH)/services/storage/.cache/.gitkeep
+	touch $(ROOT_PATH)/services/storage/.turbo/.gitkeep

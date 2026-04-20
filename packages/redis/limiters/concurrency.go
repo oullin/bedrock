@@ -19,6 +19,10 @@ type ConnectionLike interface {
 	Eval(ctx context.Context, script string, keys []string, args ...any) (any, error)
 }
 
+type clusterConnection interface {
+	IsCluster() bool
+}
+
 // ConcurrencyLimiter throttles a section of code to N concurrent executions.
 //
 // Parity with Illuminate\Redis\Limiters\ConcurrencyLimiter.
@@ -117,7 +121,15 @@ func (l *ConcurrencyLimiter) release(ctx context.Context, id string) error {
 	return err
 }
 
-func (l *ConcurrencyLimiter) key() string { return "limiter:concurrency:" + l.name }
+func (l *ConcurrencyLimiter) key() string {
+	name := l.name
+
+	if conn, ok := l.conn.(clusterConnection); ok && conn.IsCluster() && name != "" && !redis.HasHashTag(name) {
+		name = "{" + name + "}"
+	}
+
+	return "limiter:concurrency:" + name
+}
 
 // NewConcurrencyBuilder creates a builder bound to the given connection.
 func NewConcurrencyBuilder(conn ConnectionLike, name string) *ConcurrencyBuilder {

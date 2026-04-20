@@ -23,6 +23,16 @@ go get github.com/gocanto/bedrock/packages/redis@latest
 | `cluster`  | Redis Cluster via `DialCluster`   |
 | `sentinel` | Redis Sentinel via `DialSentinel` |
 
+## Redis Cluster Hash Tags
+
+Cluster connections report `conn.IsCluster() == true`. The package also
+exposes `redis.HasHashTag(key)` for Laravel-compatible Redis Cluster hash tag
+detection.
+
+The Redis concurrency limiter uses that cluster flag to wrap limiter names in
+hash tags on cluster connections, keeping limiter Lua operations on the same
+Redis Cluster slot. Non-cluster connections keep the existing key format.
+
 ## Creating a Manager
 
 ```go

@@ -1,0 +1,21 @@
+# Laravel compliance test inventory.
+# Source: https://github.com/laravel/framework/tree/13.x/tests/Hashing
+# Format: <file>::<test method name>
+# Generated: 2026-04-20
+#
+# Every entry below must have a Go counterpart, an adaptation entry, or an
+# explicit missing status in services/compliance/report.md.
+
+HasherTest.php::testEmptyHashedValueReturnsFalse
+HasherTest.php::testNullHashedValueReturnsFalse
+HasherTest.php::testBasicBcryptHashing
+HasherTest.php::testBcryptValueTooLong
+HasherTest.php::testBasicArgon2iHashing
+HasherTest.php::testBasicArgon2idHashing
+HasherTest.php::testBasicBcryptVerification
+HasherTest.php::testBasicArgon2iVerification
+HasherTest.php::testBasicArgon2idVerification
+HasherTest.php::testIsHashedWithNonHashedValue
+HasherTest.php::testBasicBcryptNotSupported
+HasherTest.php::testBasicArgon2iNotSupported
+HasherTest.php::testBasicArgon2idNotSupported
