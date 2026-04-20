@@ -348,19 +348,21 @@ refresh() {
       continue
     fi
 
-    if [ -z "$tests_path" ] || [ "$tests_path" = "null" ] || [ -z "$inventory" ] || [ "$inventory" = "null" ]; then
-      continue
-    fi
-
     local safe_name repo_path source_path output_path
     safe_name="$(printf '%s-%s' "$repo" "$branch" | tr '/:' '--')"
     repo_path="$tmp_path/$safe_name"
-    source_path="$repo_path/$tests_path"
-    output_path="$COMPLIANCE_PATH/$inventory"
 
-    echo "Refreshing $id from $repo@$branch:$tests_path"
     clone_source "$repo" "$branch" "$repo_path"
-    generate_inventory "$repo" "$branch" "$tests_path" "$filter" "$source_path" "$output_path"
+
+    if [ -n "$tests_path" ] && [ "$tests_path" != "null" ] && [ -n "$inventory" ] && [ "$inventory" != "null" ]; then
+      source_path="$repo_path/$tests_path"
+      output_path="$COMPLIANCE_PATH/$inventory"
+
+      echo "Refreshing $id from $repo@$branch:$tests_path"
+      generate_inventory "$repo" "$branch" "$tests_path" "$filter" "$source_path" "$output_path"
+    else
+      echo "Tracking $id from $repo@$branch"
+    fi
 
     local sha
     sha="$(git -C "$repo_path" rev-parse HEAD)"
