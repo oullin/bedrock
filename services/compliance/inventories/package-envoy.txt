@@ -1,0 +1,28 @@
+# Laravel compliance test inventory.
+# Source: https://github.com/laravel/envoy/tree/2.x/tests
+# Format: <file>::<test method name>
+# Generated: 2026-04-20
+#
+# Every entry below must have a Go counterpart, an adaptation entry, or an
+# explicit missing status in services/compliance/report.md.
+
+CompilerTest.php::test_it_compiles_finished_statement
+CompilerTest.php::test_compile_before_statement
+CompilerTest.php::test_it_compiles_server_statement
+CompilerTest.php::test_it_compiles_server_statement_with_setup
+SSHConfigFileTest.php::test_it_removes_leading_and_trailing_whitespace_on_each_line
+SSHConfigFileTest.php::test_it_splits_keywords_and_arguments_by_equal_sign
+SSHConfigFileTest.php::test_it_splits_keywords_and_arguments_by_whitespace
+SSHConfigFileTest.php::test_it_lowercases_keywords_not_arguments
+SSHConfigFileTest.php::test_it_unquotes_arguments_and_reserves_whitespace
+SSHConfigFileTest.php::test_it_ignores_comments_and_empty_lines_outside_host_section
+SSHConfigFileTest.php::test_it_ignores_comments_and_empty_lines_inside_host_section
+SSHConfigFileTest.php::test_it_parses_sections_without_new_lines_between_them
+SSHConfigFileTest.php::test_it_parses_sections_separated_by_new_lines
+SSHConfigFileTest.php::test_it_parses_sections_separated_by_match_keyword
+SSHConfigFileTest.php::test_it_finds_a_matching_host_without_user
+SSHConfigFileTest.php::test_it_finds_a_matching_host_by_hostname
+SSHConfigFileTest.php::test_it_returns_null_if_there_are_no_matching_hosts
+SSHConfigFileTest.php::test_it_finds_a_matching_host_if_user_specified_and_matches_config
+SSHConfigFileTest.php::test_it_returns_null_for_a_matching_host_if_user_specified_and_is_different_from_one_in_config
+SSHConfigFileTest.php::test_it_returns_valid_host_for_multiple_aliased_hosts

@@ -11,10 +11,13 @@ Bedrock is a collection of foundational Go packages for building web application
 | `cache`      | Caching layer with multiple driver support                            |
 | `collection` | Fluent, type-safe collection helpers for slices, maps, and lazy data  |
 | `cookie`     | HTTP cookie handling                                                  |
+| `envoy`      | Remote task planning and command running                              |
 | `fortify`    | Application fortification (rate limiting, two-factor auth, pipelines) |
+| `horizon`    | Queue monitoring snapshots and metrics                                |
 | `httpx`      | HTTP utilities, middleware, and testing helpers                       |
 | `jetstream`  | Team and organization management                                      |
 | `money`      | Monetary values, currencies, formatting, parsing, and exchange        |
+| `pail`       | Log tail parsing and filtering                                        |
 | `queue`      | Background job processing with pluggable drivers                      |
 | `routing`    | HTTP routing                                                          |
 | `session`    | Session management with multiple storage handlers                     |

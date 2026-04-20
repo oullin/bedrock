@@ -502,6 +502,33 @@ packages:
     tests_path: tests
     inventory: inventories/package-telescope.txt
 
+  - id: package.horizon
+    laravel: laravel/horizon
+    bedrock: horizon
+    status: mapped
+    repo: laravel/horizon
+    branch: 5.x
+    tests_path: tests
+    inventory: inventories/package-horizon.txt
+
+  - id: package.pail
+    laravel: laravel/pail
+    bedrock: pail
+    status: mapped
+    repo: laravel/pail
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-pail.txt
+
+  - id: package.envoy
+    laravel: laravel/envoy
+    bedrock: envoy
+    status: mapped
+    repo: laravel/envoy
+    branch: 2.x
+    tests_path: tests
+    inventory: inventories/package-envoy.txt
+
   - id: package.wayfinder
     laravel: laravel/wayfinder
     bedrock: wayfinder
@@ -517,11 +544,6 @@ excluded_permanent:
     status: excluded-permanent
     rationale: Product boundary; Sanctum is intentionally not part of Bedrock.
 
-  - id: package.horizon
-    laravel: laravel/horizon
-    status: excluded-permanent
-    rationale: Product boundary; queue monitoring UI/runtime is intentionally excluded.
-
   - id: package.octane
     laravel: laravel/octane
     status: excluded-permanent
@@ -531,11 +553,6 @@ excluded_permanent:
     laravel: laravel/pulse
     status: excluded-permanent
     rationale: Product boundary; application monitoring dashboard is intentionally excluded.
-
-  - id: package.pail
-    laravel: laravel/pail
-    status: excluded-permanent
-    rationale: Product boundary; log-tail CLI is intentionally excluded.
 
   - id: package.folio
     laravel: laravel/folio
@@ -571,11 +588,6 @@ excluded_permanent:
     laravel: laravel/valet
     status: excluded-permanent
     rationale: Product boundary; macOS local development service management is intentionally excluded.
-
-  - id: package.envoy
-    laravel: laravel/envoy
-    status: excluded-permanent
-    rationale: Product boundary; SSH task runner is intentionally excluded.
 
   - id: package.vite_plugin
     laravel: laravel/vite-plugin

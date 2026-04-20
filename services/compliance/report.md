@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-20T08:40:51Z
+Generated: 2026-04-20T08:51:38Z
 
 Source of truth: services/compliance
 
@@ -8,15 +8,15 @@ Source of truth: services/compliance
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          48 |          12782 |   426 (3.3%) |           12356 (96.7%) |      0 (0.0%) |
+| All inventories       |          51 |          13012 |   426 (3.3%) |           12586 (96.7%) |      0 (0.0%) |
 | Framework inventories |          34 |           8975 |   423 (4.7%) |            8552 (95.3%) |      0 (0.0%) |
-| Package inventories   |          14 |           3807 |     3 (0.1%) |            3804 (99.9%) |      0 (0.0%) |
+| Package inventories   |          17 |           4037 |     3 (0.1%) |            4034 (99.9%) |      0 (0.0%) |
 
 ## Documentation Porting Summary
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Laravel docs |               1 |               875 |     183 (20.9%) |                505 (57.7%) |        10 (1.1%) |       177 (20.2%) |
+| Laravel docs |               1 |               875 |     192 (21.9%) |                513 (58.6%) |        10 (1.1%) |       160 (18.3%) |
 
 ## Laravel Skeleton Demo Summary
 
@@ -61,10 +61,8 @@ Source of truth: services/compliance
 | `testing.md`      | Adapted  |        2 |
 | `blade.md`        | Excluded |       13 |
 | `dusk.md`         | Excluded |       17 |
-| `envoy.md`        | Excluded |        6 |
 | `folio.md`        | Excluded |       17 |
 | `homestead.md`    | Excluded |       11 |
-| `horizon.md`      | Excluded |       11 |
 | `mix.md`          | Excluded |        2 |
 | `octane.md`       | Excluded |       12 |
 | `pint.md`         | Excluded |        6 |
@@ -159,8 +157,11 @@ Source of truth: services/compliance
 | inventories/package-reverb.txt            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
 | inventories/package-scout.txt             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
 | inventories/package-socialite.txt         |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
-| inventories/package-spark.txt             |            163 |     0 (0.0%) |  163 (100.0%) |      0 (0.0%) |
+| inventories/package-spark.txt             |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
 | inventories/package-telescope.txt         |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
+| inventories/package-horizon.txt           |            169 |     0 (0.0%) |  169 (100.0%) |      0 (0.0%) |
+| inventories/package-pail.txt              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
+| inventories/package-envoy.txt             |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
 | inventories/package-wayfinder.txt         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
 
 ## Framework Coverage
@@ -268,8 +269,10 @@ Source of truth: services/compliance
 | Subscription billing         | `package.spark`             | `spark`         | `partial`  | `packages/spark.md`         | Spark is tracked against local Madora billing tests.                                                         |
 | Telescope observability      | `package.telescope`         | `telescope`     | `partial`  | `packages/telescope.md`     | Telescope package exists; upstream package parity remains incomplete.                                        |
 | Wayfinder route helpers      | `package.wayfinder`         | `wayfinder`     | `partial`  | `packages/wayfinder.md`     | Wayfinder package exists; upstream package parity remains incomplete.                                        |
+| Queue monitoring             | `package.horizon`           | `horizon`       | `partial`  | `packages/horizon.md`       | Horizon is tracked as queue monitoring primitives; the browser dashboard is not ported.                      |
+| Log tailing                  | `package.pail`              | `pail`          | `partial`  | `packages/pail.md`          | Pail is tracked as log parsing and filtering primitives for Go readers.                                      |
+| Remote task runner           | `package.envoy`             | `envoy`         | `partial`  | `packages/envoy.md`         | Envoy is tracked as task planning and command execution primitives with injectable runners.                  |
 | Sanctum tokens               | `package.sanctum`           | n/a             | `excluded` | n/a                         | Sanctum is intentionally not part of Bedrock.                                                                |
-| Horizon dashboard            | `package.horizon`           | n/a             | `excluded` | n/a                         | Queue monitoring UI and runtime are outside Bedrock product boundaries.                                      |
 | Browser automation           | `package.dusk`              | n/a             | `excluded` | n/a                         | Browser automation package is excluded; browser work should use Agent Browser.                               |
 
 ## Sources Without Test Inventories
@@ -287,17 +290,14 @@ Source of truth: services/compliance
 - `Illuminate\Reflection` - PHP reflection helpers are not a Bedrock product surface.
 - `Illuminate\View` - Product boundary; Bedrock does not ship Laravel's Blade/view engine.
 - `laravel/sanctum` - Product boundary; Sanctum is intentionally not part of Bedrock.
-- `laravel/horizon` - Product boundary; queue monitoring UI/runtime is intentionally excluded.
 - `laravel/octane` - Product boundary; PHP worker/runtime management does not map to Bedrock.
 - `laravel/pulse` - Product boundary; application monitoring dashboard is intentionally excluded.
-- `laravel/pail` - Product boundary; log-tail CLI is intentionally excluded.
 - `laravel/folio` - Product boundary; page-based PHP routing is intentionally excluded.
 - `laravel/dusk` - Product boundary; browser automation package is excluded. Any future browser work must use Agent Browser.
 - `laravel/browser-kit-testing` - Product boundary; legacy BrowserKit compatibility is intentionally excluded.
 - `laravel/sail` - Product boundary; Docker development environment tooling is intentionally excluded.
 - `laravel/installer` - Product boundary; Laravel application installer tooling is intentionally excluded.
 - `laravel/valet` - Product boundary; macOS local development service management is intentionally excluded.
-- `laravel/envoy` - Product boundary; SSH task runner is intentionally excluded.
 - `laravel/vite-plugin` - Product boundary; Vite integration tooling is intentionally excluded.
 - `starter-kits` - Product boundary; application starter kits are intentionally excluded.
 - `laravel/workos` - Product boundary; WorkOS starter-kit integration is intentionally excluded.
