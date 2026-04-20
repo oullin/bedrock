@@ -7,6 +7,7 @@ INVENTORY_FILE="$COMPLIANCE_PATH/inventory.yml"
 DIVERGENCES_FILE="$COMPLIANCE_PATH/divergences.yml"
 SOURCES_LOCK_FILE="$COMPLIANCE_PATH/sources.lock.json"
 REPORT_FILE="$COMPLIANCE_PATH/report.md"
+RECORD_SEPARATOR=$'\034'
 
 usage() {
   cat <<'USAGE'
@@ -44,7 +45,7 @@ list_records() {
     }
     function emit() {
       if (id != "") {
-        print id "\t" status "\t" repo "\t" branch "\t" tests_path "\t" inventory "\t" filter "\t" upstream "\t" bedrock
+        print id "\034" status "\034" repo "\034" branch "\034" tests_path "\034" inventory "\034" filter "\034" upstream "\034" bedrock
       }
     }
     /^  - id:/ {
@@ -104,8 +105,22 @@ php_test_methods() {
   local file="$1"
 
   perl -ne '
+    sub pest_name {
+      my ($kind, $description) = @_;
+
+      $description = lc $description;
+      $description =~ s/[^a-z0-9]+/_/g;
+      $description =~ s/^_+|_+$//g;
+
+      return $kind . "_" . $description;
+    }
+
     if (/\#\[Test\]/) {
       $pending_test_attribute = 1;
+    }
+
+    if (/^\s*(it|test)\(\s*([\"\x27])(.+?)\2\s*,\s*(?:function|fn)\b/) {
+      print pest_name($1, $3) . "\n";
     }
 
     if (/function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/) {
@@ -116,6 +131,26 @@ php_test_methods() {
       }
 
       $pending_test_attribute = 0;
+    }
+  ' "$file"
+}
+
+script_test_methods() {
+  local file="$1"
+
+  perl -ne '
+    sub test_name {
+      my ($kind, $description) = @_;
+
+      $description = lc $description;
+      $description =~ s/[^a-z0-9]+/_/g;
+      $description =~ s/^_+|_+$//g;
+
+      return $kind . "_" . $description;
+    }
+
+    if (/^\s*(it|test)\(\s*([\"\x27])(.+?)\2\s*,\s*(?:async\s*)?(?:\([^)]*\)\s*=>|function\b)/) {
+      print test_name($1, $3) . "\n";
     }
   ' "$file"
 }
@@ -132,7 +167,11 @@ generate_inventory() {
 
   {
     broadcastclient "# Upstream compliance test inventory."
-    broadcastclient "# Source: https://github.com/$repo/tree/$branch/$tests_path"
+    if [[ "$repo" == local:* ]]; then
+      broadcastclient "# Source: ${repo#local:}/$tests_path"
+    else
+      broadcastclient "# Source: https://github.com/$repo/tree/$branch/$tests_path"
+    fi
     broadcastclient "# Format: <file>::<test method name>"
     broadcastclient "# Generated: $(date -u +%Y-%m-%d)"
     broadcastclient "#"
@@ -144,17 +183,24 @@ generate_inventory() {
       return 0
     fi
 
-    find "$source_path" -type f -name '*Test.php' | sort | while IFS= read -r php_file; do
-      local base
+    find "$source_path" -type f \( -name '*Test.php' -o -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.test.js' -o -name '*.test.jsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' -o -name '*.spec.js' -o -name '*.spec.jsx' \) | sort | while IFS= read -r php_file; do
+      local base rel
       base="$(basename "$php_file")"
+      rel="${php_file#$source_path/}"
 
       if [ -n "$filter" ] && [ "$filter" != "null" ] && [ "$base" != "$filter" ]; then
         continue
       fi
 
-      php_test_methods "$php_file" | while IFS= read -r method; do
+      local methods
+      case "$base" in
+        *.php) methods="$(php_test_methods "$php_file")" ;;
+        *) methods="$(script_test_methods "$php_file")" ;;
+      esac
+
+      printf '%s\n' "$methods" | while IFS= read -r method; do
         [ -n "$method" ] || continue
-        printf '%s::%s\n' "$base" "$method"
+        printf '%s::%s\n' "$rel" "$method"
       done
     done
   } > "$output_path"
@@ -169,6 +215,19 @@ clone_source() {
     return 0
   fi
 
+  if [[ "$repo" == local:* ]]; then
+    local local_path
+    local_path="${repo#local:}"
+
+    if [ ! -d "$local_path" ]; then
+      broadcastclient "upstream-compliance: missing local source path: $local_path" >&2
+      return 1
+    fi
+
+    ln -s "$local_path" "$cache_path"
+    return 0
+  fi
+
   git clone --depth 1 --branch "$branch" "https://github.com/$repo.git" "$cache_path" >/dev/null 2>&1
 }
 
@@ -176,14 +235,16 @@ refresh() {
   need git
   need perl
 
+  REFRESH_TMP_PATH="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-upstream-compliance.XXXXXX")"
+  trap 'rm -rf "$REFRESH_TMP_PATH"' EXIT
+
   local tmp_path
-  tmp_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-upstream-compliance.XXXXXX")"
-  trap 'rm -rf "$tmp_path"' EXIT
+  tmp_path="$REFRESH_TMP_PATH"
 
   local seen_sources="$tmp_path/sources.tsv"
   : > "$seen_sources"
 
-  list_records | while IFS=$'\t' read -r id status repo branch tests_path inventory filter upstream bedrock; do
+  while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
     if [ -z "$repo" ] || [ "$repo" = "null" ] || [ -z "$branch" ] || [ "$branch" = "null" ]; then
       continue
     fi
@@ -205,7 +266,7 @@ refresh() {
     local sha
     sha="$(git -C "$repo_path" rev-parse HEAD)"
     printf '%s\t%s\t%s\t%s\n' "$id" "$repo" "$branch" "$sha" >> "$seen_sources"
-  done
+  done < <(list_records)
 
   write_sources_lock "$seen_sources"
 }
@@ -222,18 +283,34 @@ write_sources_lock() {
     broadcastclient "  \"sources\": ["
 
     awk -F '\t' '!seen[$2 "|" $3]++ { print $2 "\t" $3 "\t" $4 }' "$source_file" | awk -F '\t' '
+      function json(value) {
+        gsub(/\\/, "\\\\", value)
+        gsub(/"/, "\\\"", value)
+        return value
+      }
       BEGIN { first = 1 }
       {
+        repo = json($1)
+        branch = json($2)
+        commit = json($3)
+        url = "https://github.com/" $1 "/tree/" $2
+
+        if ($1 ~ /^local:/) {
+          url = substr($1, 7)
+        }
+
+        url = json(url)
+
         if (!first) {
           print ","
         }
 
         first = 0
         printf "    {\n"
-        printf "      \"repo\": \"%s\",\n", $1
-        printf "      \"branch\": \"%s\",\n", $2
-        printf "      \"commit\": \"%s\",\n", $3
-        printf "      \"url\": \"https://github.com/%s/tree/%s\"\n", $1, $2
+        printf "      \"repo\": \"%s\",\n", repo
+        printf "      \"branch\": \"%s\",\n", branch
+        printf "      \"commit\": \"%s\",\n", commit
+        printf "      \"url\": \"%s\"\n", url
         printf "    }"
       }
       END {
@@ -259,44 +336,63 @@ inventory_entries() {
   ' "$file"
 }
 
-entry_status() {
-  local entry="$1"
-  local php_file="${entry%%::*}"
-  local method="${entry##*::}"
-  local class="${php_file%.php}"
+build_status_index() {
+  local ported_index="$1"
+  local adapted_index="$2"
 
-  if rg -Fq "$class::$method" "$ROOT_PATH/packages" "$ROOT_PATH/services" 2>/dev/null; then
-    broadcastclient "ported"
-    return 0
-  fi
+  {
+    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*Test::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/packages" --glob '*_test.go' 2>/dev/null || true
+  } | sort -u > "$ported_index"
 
-  if rg -Fq "$entry" "$DIVERGENCES_FILE" 2>/dev/null; then
-    broadcastclient "adapted"
-    return 0
-  fi
-
-  broadcastclient "missing"
+  {
+    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*Test::[A-Za-z_][A-Za-z0-9_]*' "$DIVERGENCES_FILE" 2>/dev/null || true
+  } | sort -u > "$adapted_index"
 }
 
 inventory_stats() {
   local file="$1"
-  local total=0
-  local ported=0
-  local adapted=0
-  local missing=0
+  local ported_index="$2"
+  local adapted_index="$3"
 
-  while IFS= read -r entry; do
-    [ -n "$entry" ] || continue
-    total=$((total + 1))
+  awk '
+    FILENAME == ARGV[1] {
+      ported[$0] = 1
+      next
+    }
+    FILENAME == ARGV[2] {
+      adapted[$0] = 1
+      next
+    }
+    /^[[:space:]]*$/ || /^#/ || $0 !~ /::/ {
+      next
+    }
+    {
+      total++
 
-    case "$(entry_status "$entry")" in
-      ported) ported=$((ported + 1)) ;;
-      adapted) adapted=$((adapted + 1)) ;;
-      *) missing=$((missing + 1)) ;;
-    esac
-  done < <(inventory_entries "$file")
+      entry = $0
+      php_file = entry
+      method = entry
+      sub(/::.*/, "", php_file)
+      sub(/.*::/, "", method)
 
-  printf '%s\t%s\t%s\t%s\n' "$total" "$ported" "$adapted" "$missing"
+      class = php_file
+      sub(/^.*\//, "", class)
+      sub(/\.php$/, "", class)
+      sub(/\.(test|spec)\.(ts|tsx|js|jsx)$/, "", class)
+      key = class "::" method
+
+      if (key in ported) {
+        ported_count++
+      } else if (key in adapted) {
+        adapted_count++
+      } else {
+        missing++
+      }
+    }
+    END {
+      printf "%d\t%d\t%d\t%d\n", total + 0, ported_count + 0, adapted_count + 0, missing + 0
+    }
+  ' "$ported_index" "$adapted_index" "$file"
 }
 
 report() {
@@ -304,6 +400,11 @@ report() {
 
   local tmp_file
   tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX")"
+  local status_index_path ported_index adapted_index
+  status_index_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-compliance-status.XXXXXX")"
+  ported_index="$status_index_path/ported.txt"
+  adapted_index="$status_index_path/adapted.txt"
+  build_status_index "$ported_index" "$adapted_index"
 
   {
     broadcastclient "# Upstream Compliance Report"
@@ -317,12 +418,30 @@ report() {
     broadcastclient "| Inventory | Total | Ported | Adapted | Missing |"
     broadcastclient "| --- | ---: | ---: | ---: | ---: |"
 
-    find "$COMPLIANCE_PATH/inventories" -type f -name '*.txt' | sort | while IFS= read -r file; do
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+      local file
+      file="$COMPLIANCE_PATH/$inventory"
+
       local rel stats total ported adapted missing
       rel="${file#$COMPLIANCE_PATH/}"
-      stats="$(inventory_stats "$file")"
+      stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
       printf '| %s | %s | %s | %s | %s |\n' "$rel" "$total" "$ported" "$adapted" "$missing"
+    done
+
+    broadcastclient
+    broadcastclient "## Mapped Sources Without Inventories"
+    broadcastclient
+    broadcastclient "| Source | Bedrock | Reason |"
+    broadcastclient "| --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ "$status" = "mapped" ] || continue
+      [ -z "$inventory" ] || [ "$inventory" = "null" ] || continue
+
+      printf '| `%s` | `%s` | No generated upstream test inventory configured. |\n' "$upstream" "$bedrock"
     done
 
     broadcastclient
@@ -353,6 +472,7 @@ report() {
     ' "$INVENTORY_FILE"
   } > "$tmp_file"
 
+  rm -rf "$status_index_path"
   mv "$tmp_file" "$REPORT_FILE"
 }
 
@@ -377,7 +497,7 @@ check_no_package_local_parity() {
 check_excluded_not_implemented() {
   local failed=0
 
-  while IFS=$'\t' read -r id status repo branch tests_path inventory filter upstream bedrock; do
+  while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
     [ "$status" = "excluded-permanent" ] || continue
 
     case "$id" in
@@ -426,6 +546,61 @@ check_no_inline_exclusions() {
   rm -f /tmp/bedrock-inline-exclusions.$$
 }
 
+check_inventory_files_configured() {
+  local expected actual unexpected missing failed=0
+  expected="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-expected.XXXXXX")"
+  actual="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-actual.XXXXXX")"
+
+  {
+    while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+      printf '%s\n' "$COMPLIANCE_PATH/$inventory"
+    done < <(list_records)
+  } | sort -u > "$expected"
+
+  find "$COMPLIANCE_PATH/inventories" -type f -name '*.txt' | sort -u > "$actual"
+
+  unexpected="$(comm -13 "$expected" "$actual")"
+  missing="$(comm -23 "$expected" "$actual")"
+
+  if [ -n "$unexpected" ]; then
+    broadcastclient "Unconfigured compliance inventory files:" >&2
+    sed "s#^$ROOT_PATH/##" <<< "$unexpected" >&2
+    failed=1
+  fi
+
+  if [ -n "$missing" ]; then
+    broadcastclient "Missing configured compliance inventory files:" >&2
+    sed "s#^$ROOT_PATH/##" <<< "$missing" >&2
+    failed=1
+  fi
+
+  rm -f "$expected" "$actual"
+  return "$failed"
+}
+
+check_inventory_format() {
+  local failed=0
+
+  while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+    [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+    local file
+    file="$COMPLIANCE_PATH/$inventory"
+
+    if ! awk '
+      /^[[:space:]]*$/ || /^#/ { next }
+      /^[^:]+::[A-Za-z_][A-Za-z0-9_]*$/ { next }
+      { invalid = 1; print FILENAME ":" FNR ": invalid inventory entry: " $0 > "/dev/stderr" }
+      END { exit invalid ? 1 : 0 }
+    ' "$file"; then
+      failed=1
+    fi
+  done < <(list_records)
+
+  return "$failed"
+}
+
 check() {
   need rg
 
@@ -437,13 +612,8 @@ check() {
   check_excluded_not_implemented
   check_laravel_test_files_have_source_context
   check_no_inline_exclusions
-
-  find "$COMPLIANCE_PATH/inventories" -type f -name '*.txt' | sort | while IFS= read -r file; do
-    if ! inventory_entries "$file" >/dev/null; then
-      broadcastclient "Invalid inventory file: ${file#$ROOT_PATH/}" >&2
-      return 1
-    fi
-  done
+  check_inventory_files_configured
+  check_inventory_format
 }
 
 case "${1:-}" in

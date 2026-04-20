@@ -1,0 +1,62 @@
+# Upstream compliance test inventory.
+# Source: https://github.com/upstream/framework/tree/13.x/tests/Process
+# Format: <file>::<test method name>
+# Generated: 2026-04-20
+#
+# Every entry below must have a Go counterpart, an adaptation entry, or an
+# explicit missing status in services/compliance/report.md.
+
+ProcessTest.php::testSuccessfulProcess
+ProcessTest.php::testProcessPool
+ProcessTest.php::testProcessPoolFailed
+ProcessTest.php::testInvokedProcessPoolCount
+ProcessTest.php::testProcessPoolCanReceiveOutputForEachProcessViaStartMethod
+ProcessTest.php::testProcessPoolResultsCanBeEvaluatedByName
+ProcessTest.php::testOutputCanBeRetrievedViaStartCallback
+ProcessTest.php::testOutputCanBeRetrievedViaWaitCallback
+ProcessTest.php::testBasicProcessFake
+ProcessTest.php::testBasicProcessFakeWithMultiLineCommand
+ProcessTest.php::testProcessFakeWithMultiLineCommand
+ProcessTest.php::testProcessFakeExitCodes
+ProcessTest.php::testProcessFakeExitCodeShorthand
+ProcessTest.php::testBasicProcessFakeWithCustomOutput
+ProcessTest.php::testProcessFakeWithErrorOutput
+ProcessTest.php::testCustomizedFakesPerCommand
+ProcessTest.php::testProcessFakeSequences
+ProcessTest.php::testProcessFakeSequencesCanReturnEmptyResultsWhenSequenceIsEmpty
+ProcessTest.php::testProcessFakeSequencesCanThrowWhenSequenceIsEmpty
+ProcessTest.php::testStrayProcessesCanBePreventedWithStringCommand
+ProcessTest.php::testStrayProcessesCanBePreventedWithArrayCommand
+ProcessTest.php::testStrayProcessesActuallyRunByDefault
+ProcessTest.php::testProcessFakeThrowShorthand
+ProcessTest.php::testFakeProcessesCanThrow
+ProcessTest.php::testFakeProcessesThrowIfTrue
+ProcessTest.php::testFakeProcessesDontThrowIfFalse
+ProcessTest.php::testRealProcessesCanHaveErrorOutput
+ProcessTest.php::testFakeProcessesCanThrowWithoutOutput
+ProcessTest.php::testRealProcessesCanThrowWithoutOutput
+ProcessTest.php::testFakeProcessesCanThrowWithErrorOutput
+ProcessTest.php::testRealProcessesCanThrowWithErrorOutput
+ProcessTest.php::testFakeProcessesCanThrowWithOutput
+ProcessTest.php::testRealProcessesCanThrowWithOutput
+ProcessTest.php::testRealProcessesCanTimeout
+ProcessTest.php::testATimeoutCanBeSetWithACarbonInterval
+ProcessTest.php::testRealProcessesCanThrowIfTrue
+ProcessTest.php::testRealProcessesDoesntThrowIfFalse
+ProcessTest.php::testRealProcessesCanUseStandardInput
+ProcessTest.php::testProcessPipe
+ProcessTest.php::testProcessPipeFailed
+ProcessTest.php::testProcessSimplePipe
+ProcessTest.php::testProcessSimplePipeFailed
+ProcessTest.php::testFakeInvokedProcessOutputWithLatestOutput
+ProcessTest.php::testFakeInvokedProcessWaitUntil
+ProcessTest.php::testFakeInvokedProcessWaitUntilWithNoCallback
+ProcessTest.php::testFakeInvokedProcessWaitUntilWithErrorOutput
+ProcessTest.php::testFakeInvokedProcessWaitUntilCalledTwice
+ProcessTest.php::testFakeInvokedProcessWaitUntilThatNeverMatches
+ProcessTest.php::testFakeInvokedProcessWaitUntilFollowedByWait
+ProcessTest.php::testFakeInvokedProcessWaitCalledTwice
+ProcessTest.php::testFakeInvokedProcessWaitFollowedByWaitUntil
+ProcessTest.php::testBasicFakeAssertions
+ProcessTest.php::testAssertingThatNothingRan
+ProcessTest.php::testProcessWithMultipleEnvironmentVariablesAndSequences
