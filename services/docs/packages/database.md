@@ -1,5 +1,12 @@
 # database
 
+<!-- laravel-docs: database.md#database-getting-started -->
+<!-- laravel-docs: database.md#running-sql-queries -->
+<!-- laravel-docs: database.md#database-transactions -->
+<!-- laravel-docs: migrations.md#database-migrations -->
+<!-- laravel-docs: queries.md#database-query-builder -->
+<!-- laravel-docs: eloquent.md#eloquent-getting-started -->
+
 Query builder, Eloquent-style ORM, schema management, and migrations.
 
 ## Overview

@@ -1,5 +1,11 @@
 # ai/sdk
 
+<!-- laravel-docs: ai-sdk.md#laravel-ai-sdk -->
+<!-- laravel-docs: ai-sdk.md#agents -->
+<!-- laravel-docs: ai-sdk.md#embeddings -->
+<!-- laravel-docs: ai-sdk.md#events -->
+<!-- laravel-docs: ai-sdk.md#testing -->
+
 Unified API for interacting with AI providers (OpenAI, Anthropic, Gemini, and more).
 
 ## Overview

@@ -1,5 +1,12 @@
 # validation
 
+<!-- laravel-docs: validation.md#validation -->
+<!-- laravel-docs: validation.md#validation-quickstart -->
+<!-- laravel-docs: validation.md#manually-creating-validators -->
+<!-- laravel-docs: validation.md#custom-validation-rules -->
+<!-- laravel-docs: validation.md#working-with-error-messages -->
+<!-- laravel-docs: validation.md#available-validation-rules -->
+
 Rule-based input validation — a 1:1 Go port of Laravel's validator.
 
 ## Overview

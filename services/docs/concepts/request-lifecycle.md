@@ -1,5 +1,9 @@
 # Request Lifecycle
 
+<!-- laravel-docs: lifecycle.md#request-lifecycle -->
+<!-- laravel-docs: lifecycle.md#lifecycle-overview -->
+<!-- laravel-docs: lifecycle.md#focus-on-service-providers -->
+
 How an HTTP request flows through a Bedrock application — from the first byte
 on the wire to the response headers going back out.
 

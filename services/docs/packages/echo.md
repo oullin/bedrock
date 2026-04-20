@@ -1,5 +1,9 @@
 # echo
 
+<!-- laravel-docs: broadcasting.md#receiving-broadcasts -->
+<!-- laravel-docs: broadcasting.md#presence-channels -->
+<!-- laravel-docs: broadcasting.md#client-events -->
+
 Real-time event broadcasting client (Go port of Laravel Echo).
 
 ## Overview

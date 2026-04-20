@@ -120,6 +120,7 @@ export default defineUserConfig({
             { text: 'events', link: '/packages/events' },
             { text: 'bus', link: '/packages/bus' },
             { text: 'queue', link: '/packages/queue' },
+            { text: 'horizon', link: '/packages/horizon' },
             { text: 'pipeline', link: '/packages/pipeline' },
           ],
         },
@@ -176,6 +177,8 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'prompts', link: '/packages/prompts' },
+            { text: 'pail', link: '/packages/pail' },
+            { text: 'envoy', link: '/packages/envoy' },
             { text: 'telescope', link: '/packages/telescope' },
           ],
         },

@@ -1,5 +1,10 @@
 # telescope
 
+<!-- laravel-docs: telescope.md#laravel-telescope -->
+<!-- laravel-docs: telescope.md#available-watchers -->
+<!-- laravel-docs: telescope.md#filtering -->
+<!-- laravel-docs: telescope.md#tagging -->
+
 Debugging and introspection tool for Bedrock applications.
 
 ## Overview

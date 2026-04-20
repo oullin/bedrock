@@ -1,5 +1,10 @@
 # cache
 
+<!-- laravel-docs: cache.md#cache -->
+<!-- laravel-docs: cache.md#cache-tags -->
+<!-- laravel-docs: cache.md#atomic-locks -->
+<!-- laravel-docs: cache.md#adding-custom-cache-drivers -->
+
 Caching layer with multiple driver support.
 
 ## Overview

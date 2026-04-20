@@ -1,5 +1,8 @@
 # inception
 
+<!-- laravel-docs: fortify.md#laravel-fortify -->
+<!-- laravel-docs: fortify.md#two-factor-authentication -->
+
 Unified authentication scaffolding — Laravel Fortify + Jetstream, ported.
 
 ## Overview

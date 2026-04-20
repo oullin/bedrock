@@ -1,5 +1,8 @@
 # config
 
+<!-- laravel-docs: configuration.md#configuration -->
+<!-- laravel-docs: configuration.md#accessing-configuration-values -->
+
 Configuration repository with dot-notation access.
 
 ## Overview

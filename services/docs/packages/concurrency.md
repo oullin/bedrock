@@ -1,5 +1,9 @@
 # concurrency
 
+<!-- laravel-docs: concurrency.md#concurrency -->
+<!-- laravel-docs: concurrency.md#running-concurrent-tasks -->
+<!-- laravel-docs: concurrency.md#deferring-concurrent-tasks -->
+
 Concurrent task execution with pluggable drivers.
 
 ## Overview

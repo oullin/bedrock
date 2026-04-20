@@ -1,5 +1,11 @@
 # Middleware
 
+<!-- laravel-docs: middleware.md#middleware -->
+<!-- laravel-docs: middleware.md#defining-middleware -->
+<!-- laravel-docs: middleware.md#registering-middleware -->
+<!-- laravel-docs: middleware.md#middleware-parameters -->
+<!-- laravel-docs: middleware.md#terminable-middleware -->
+
 Middleware runs on the request-response path, wrapping the handler with
 cross-cutting concerns — authentication, logging, throttling, CORS, and so on.
 

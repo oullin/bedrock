@@ -1,5 +1,7 @@
 # jsonx
 
+<!-- laravel-docs: validation.md#validating-arrays -->
+
 Fluent JSON Schema builder.
 
 ## Overview

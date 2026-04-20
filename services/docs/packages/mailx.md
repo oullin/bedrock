@@ -1,5 +1,10 @@
 # mailx
 
+<!-- laravel-docs: mail.md#mail -->
+<!-- laravel-docs: mail.md#custom-transports -->
+<!-- laravel-docs: mail.md#sending-mail -->
+<!-- laravel-docs: mail.md#testing -->
+
 Driver-based email sending.
 
 ## Overview

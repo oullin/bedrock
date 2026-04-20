@@ -1,5 +1,9 @@
 # reverb
 
+<!-- laravel-docs: reverb.md#laravel-reverb -->
+<!-- laravel-docs: reverb.md#events -->
+<!-- laravel-docs: reverb.md#running-the-server -->
+
 WebSocket server implementing the Pusher protocol.
 
 ## Overview

@@ -1,5 +1,9 @@
 # scout
 
+<!-- laravel-docs: scout.md#laravel-scout -->
+<!-- laravel-docs: scout.md#custom-engines -->
+<!-- laravel-docs: scout.md#searching -->
+
 Full-text search with pluggable engine backends.
 
 ## Overview

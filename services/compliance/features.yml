@@ -514,6 +514,33 @@ features:
     docs: packages/wayfinder.md
     notes: Wayfinder package exists; upstream package parity remains incomplete.
 
+  - id: package.horizon.monitoring
+    source_id: package.horizon
+    name: Queue monitoring
+    laravel: laravel/horizon queue dashboard, metrics, and worker monitoring
+    bedrock: horizon
+    status: partial
+    docs: packages/horizon.md
+    notes: Horizon is tracked as queue monitoring primitives; the browser dashboard is not ported.
+
+  - id: package.pail.logs
+    source_id: package.pail
+    name: Log tailing
+    laravel: laravel/pail log tailing and filtering
+    bedrock: pail
+    status: partial
+    docs: packages/pail.md
+    notes: Pail is tracked as log parsing and filtering primitives for Go readers.
+
+  - id: package.envoy.tasks
+    source_id: package.envoy
+    name: Remote task runner
+    laravel: laravel/envoy SSH task runner
+    bedrock: envoy
+    status: partial
+    docs: packages/envoy.md
+    notes: Envoy is tracked as task planning and command execution primitives with injectable runners.
+
   - id: package.sanctum.tokens
     source_id: package.sanctum
     name: Sanctum tokens
@@ -522,15 +549,6 @@ features:
     status: excluded
     docs: null
     notes: Sanctum is intentionally not part of Bedrock.
-
-  - id: package.horizon.dashboard
-    source_id: package.horizon
-    name: Horizon dashboard
-    laravel: laravel/horizon queue dashboard and monitoring runtime
-    bedrock: null
-    status: excluded
-    docs: null
-    notes: Queue monitoring UI and runtime are outside Bedrock product boundaries.
 
   - id: package.dusk.browser
     source_id: package.dusk

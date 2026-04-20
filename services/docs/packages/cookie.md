@@ -1,5 +1,8 @@
 # cookie
 
+<!-- laravel-docs: requests.md#interacting-with-the-request -->
+<!-- laravel-docs: responses.md#creating-responses -->
+
 HTTP cookie handling.
 
 ## Overview

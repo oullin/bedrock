@@ -1,5 +1,10 @@
 # hashing
 
+<!-- laravel-docs: hashing.md#hashing -->
+<!-- laravel-docs: hashing.md#basic-usage -->
+<!-- laravel-docs: hashing.md#configuration -->
+<!-- laravel-docs: hashing.md#hash-algorithm-verification -->
+
 Driver-based password hashing with bcrypt and Argon2.
 
 ## Overview

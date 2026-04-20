@@ -1,5 +1,10 @@
 # redis
 
+<!-- laravel-docs: redis.md#redis -->
+<!-- laravel-docs: redis.md#interacting-with-redis -->
+<!-- laravel-docs: redis.md#pub-sub -->
+<!-- laravel-docs: redis.md#configuration -->
+
 Full Redis command surface with pipeline, transactions, and pub/sub.
 
 ## Overview

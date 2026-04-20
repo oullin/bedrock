@@ -1,5 +1,9 @@
 # precognition
 
+<!-- laravel-docs: precognition.md#precognition -->
+<!-- laravel-docs: precognition.md#live-validation -->
+<!-- laravel-docs: precognition.md#testing -->
+
 Live, real-time form validation without duplicating backend rules in the frontend.
 
 ## Overview
