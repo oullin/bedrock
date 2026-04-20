@@ -1,0 +1,595 @@
+version: 1
+baseline:
+  name: Upstream 13.x
+  primary_repo: upstream/framework
+  primary_branch: 13.x
+
+rules:
+  statuses:
+    - included
+    - mapped
+    - excluded-permanent
+    - excluded-temporary
+    - missing
+  source_of_truth: services/compliance
+  package_local_parity_docs_allowed: false
+  package_local_inventory_files_allowed: false
+
+framework:
+  - id: framework.auth
+    upstream: Framework\Auth
+    bedrock: auth
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Auth
+    inventory: inventories/framework-auth.txt
+
+  - id: framework.broadcasting
+    upstream: Framework\Broadcasting
+    bedrock: broadcastclient
+    status: missing
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Broadcasting
+    inventory: inventories/framework-broadcasting.txt
+    rationale: Bedrock has BroadcastClient/WebSockets integration pieces, but no formal framework broadcasting contract inventory yet.
+
+  - id: framework.bus
+    upstream: Framework\Bus
+    bedrock: bus
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Bus
+    inventory: inventories/framework-bus.txt
+
+  - id: framework.cache
+    upstream: Framework\Cache
+    bedrock: cache
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Cache
+    inventory: inventories/framework-cache.txt
+
+  - id: framework.concurrency
+    upstream: Framework\Concurrency
+    bedrock: concurrency
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Integration/Concurrency
+    inventory: inventories/framework-concurrency.txt
+
+  - id: framework.conditionable
+    upstream: Framework\Conditionable
+    bedrock: conditionable
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Conditionable
+    inventory: inventories/framework-conditionable.txt
+
+  - id: framework.config
+    upstream: Framework\Config
+    bedrock: config
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Config
+    inventory: inventories/framework-config.txt
+
+  - id: framework.console
+    upstream: Framework\Console
+    bedrock: null
+    status: missing
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Console
+    inventory: inventories/framework-console.txt
+    rationale: No Bedrock console package exists yet.
+
+  - id: framework.container
+    upstream: Framework\Container
+    bedrock: container
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Container
+    inventory: inventories/framework-container.txt
+
+  - id: framework.contracts
+    upstream: Framework\Contracts
+    bedrock: contracts
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: null
+    inventory: null
+    rationale: Interface-only component; compliance is verified through concrete package inventories.
+
+  - id: framework.cookie
+    upstream: Framework\Cookie
+    bedrock: cookie
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Cookie
+    inventory: inventories/framework-cookie.txt
+
+  - id: framework.database
+    upstream: Framework\Database
+    bedrock: database
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Database
+    inventory: inventories/framework-database.txt
+
+  - id: framework.encryption
+    upstream: Framework\Encryption
+    bedrock: encryption
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Encryption
+    inventory: inventories/framework-encryption.txt
+
+  - id: framework.events
+    upstream: Framework\Events
+    bedrock: events
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Events
+    inventory: inventories/framework-events.txt
+
+  - id: framework.filesystem
+    upstream: Framework\Filesystem
+    bedrock: filesystem
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Filesystem
+    inventory: inventories/framework-filesystem.txt
+
+  - id: framework.foundation
+    upstream: Framework\Foundation
+    bedrock: null
+    status: excluded-permanent
+    rationale: Product boundary; Bedrock does not ship Upstream's full application kernel/Foundation layer.
+
+  - id: framework.hashing
+    upstream: Framework\Hashing
+    bedrock: hashing
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Hashing
+    inventory: inventories/framework-hashing.txt
+
+  - id: framework.http
+    upstream: Framework\Http
+    bedrock: httpx
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Http
+    inventory: inventories/framework-http.txt
+
+  - id: framework.json_schema
+    upstream: Framework\JsonSchema
+    bedrock: jsonx
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/JsonSchema
+    inventory: inventories/framework-json-schema.txt
+
+  - id: framework.log
+    upstream: Framework\Log
+    bedrock: log
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Log
+    inventory: inventories/framework-log.txt
+
+  - id: framework.mail
+    upstream: Framework\Mail
+    bedrock: mailx
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Mail
+    inventory: inventories/framework-mail.txt
+
+  - id: framework.notifications
+    upstream: Framework\Notifications
+    bedrock: notifications
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Notifications
+    inventory: inventories/framework-notifications.txt
+
+  - id: framework.pagination
+    upstream: Framework\Pagination
+    bedrock: pagination
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Pagination
+    inventory: inventories/framework-pagination.txt
+
+  - id: framework.pipeline
+    upstream: Framework\Pipeline
+    bedrock: pipeline
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Pipeline
+    inventory: inventories/framework-pipeline.txt
+
+  - id: framework.process
+    upstream: Framework\Process
+    bedrock: null
+    status: missing
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Process
+    inventory: inventories/framework-process.txt
+    rationale: No Bedrock process package exists yet.
+
+  - id: framework.queue
+    upstream: Framework\Queue
+    bedrock: queue
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Queue
+    inventory: inventories/framework-queue.txt
+
+  - id: framework.redis
+    upstream: Framework\Redis
+    bedrock: redis
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Redis
+    inventory: inventories/framework-redis.txt
+
+  - id: framework.routing
+    upstream: Framework\Routing
+    bedrock: routing
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Routing
+    inventory: inventories/framework-routing.txt
+
+  - id: framework.session
+    upstream: Framework\Session
+    bedrock: session
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Session
+    inventory: inventories/framework-session.txt
+
+  - id: framework.support
+    upstream: Framework\Support
+    bedrock: support
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-support.txt
+
+  - id: framework.support_str
+    upstream: Framework\Support\Str
+    bedrock: str
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-support-str.txt
+    filter: SupportStrTest.php
+
+  - id: framework.support_lottery
+    upstream: Framework\Support\Lottery
+    bedrock: lottery
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-support-lottery.txt
+    filter: LotteryTest.php
+
+  - id: framework.testing
+    upstream: Framework\Testing
+    bedrock: null
+    status: missing
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Testing
+    inventory: inventories/framework-testing.txt
+    rationale: No Bedrock testing package exists yet.
+
+  - id: framework.translation
+    upstream: Framework\Translation
+    bedrock: translation
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Translation
+    inventory: inventories/framework-translation.txt
+
+  - id: framework.validation
+    upstream: Framework\Validation
+    bedrock: validation
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Validation
+    inventory: inventories/framework-validation.txt
+
+  - id: framework.collections
+    upstream: Framework\Collections
+    bedrock: collection
+    status: mapped
+    repo: upstream/framework
+    branch: 13.x
+    tests_path: tests/Support
+    inventory: inventories/framework-collections.txt
+    filter: HigherOrderProxyTest.php,SupportArrTest.php,SupportCollectionTest.php,SupportLazyCollectionIsLazyTest.php,SupportLazyCollectionTest.php
+
+  - id: framework.macroable
+    upstream: Framework\Macroable
+    bedrock: null
+    status: excluded-permanent
+    rationale: PHP runtime macro behaviour does not map cleanly to Go's static method set.
+
+  - id: framework.reflection
+    upstream: Framework\Reflection
+    bedrock: null
+    status: excluded-permanent
+    rationale: PHP reflection helpers are not a Bedrock product surface.
+
+  - id: framework.view
+    upstream: Framework\View
+    bedrock: null
+    status: excluded-permanent
+    rationale: Product boundary; Bedrock does not ship Upstream's Template/view engine.
+
+packages:
+  - id: package.ai
+    upstream: upstream/ai
+    bedrock: ai/sdk
+    status: mapped
+    repo: upstream/ai
+    branch: 0.x
+    tests_path: tests
+    inventory: inventories/package-ai.txt
+
+  - id: package.boost
+    upstream: upstream/boost
+    bedrock: ai/boost
+    status: mapped
+    repo: upstream/boost
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-boost.txt
+
+  - id: package.broadcastclient
+    upstream: upstream/broadcastclient
+    bedrock: broadcastclient
+    status: mapped
+    repo: upstream/broadcastclient
+    branch: 2.x
+    tests_path: null
+    inventory: null
+    rationale: TypeScript client package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+
+  - id: package.authflows
+    upstream: upstream/authflows
+    bedrock: inception
+    status: mapped
+    repo: upstream/authflows
+    branch: 1.x
+    tests_path: tests
+    inventory: inventories/package-authflows.txt
+
+  - id: package.authkit
+    upstream: upstream/authkit
+    bedrock: inception
+    status: mapped
+    repo: upstream/authkit
+    branch: 5.x
+    tests_path: tests
+    inventory: inventories/package-authkit.txt
+
+  - id: package.mcp
+    upstream: upstream/mcp
+    bedrock: ai/mcp
+    status: mapped
+    repo: upstream/mcp
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-mcp.txt
+
+  - id: package.oauthserver
+    upstream: upstream/oauthserver
+    bedrock: oauthserver
+    status: mapped
+    repo: upstream/oauthserver
+    branch: 13.x
+    tests_path: tests
+    inventory: inventories/package-oauthserver.txt
+
+  - id: package.featureflags
+    upstream: upstream/featureflags
+    bedrock: featureflags
+    status: mapped
+    repo: upstream/featureflags
+    branch: 1.x
+    tests_path: tests
+    inventory: inventories/package-featureflags.txt
+
+  - id: package.httppreview
+    upstream: upstream/httppreview
+    bedrock: httppreview
+    status: mapped
+    repo: upstream/httppreview
+    branch: 2.x
+    tests_path: null
+    inventory: null
+    rationale: JavaScript package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+
+  - id: package.prompts
+    upstream: upstream/prompts
+    bedrock: prompts
+    status: mapped
+    repo: upstream/prompts
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-prompts.txt
+
+  - id: package.websockets
+    upstream: upstream/websockets
+    bedrock: websockets
+    status: mapped
+    repo: upstream/websockets
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-websockets.txt
+
+  - id: package.search
+    upstream: upstream/search
+    bedrock: search
+    status: mapped
+    repo: upstream/search
+    branch: 11.x
+    tests_path: tests
+    inventory: inventories/package-search.txt
+
+  - id: package.socialauth
+    upstream: upstream/socialauth
+    bedrock: socialauth
+    status: mapped
+    repo: upstream/socialauth
+    branch: 5.x
+    tests_path: tests
+    inventory: inventories/package-socialauth.txt
+
+  - id: package.billing
+    upstream: upstream/billing
+    bedrock: billing
+    status: mapped
+    repo: local:/Users/gocanto/Sites/madora
+    branch: local
+    tests_path: tests/Feature/Billing
+    inventory: inventories/package-billing.txt
+    rationale: Billing is distributed through the local madora checkout; use the available billing/Billing integration tests as the local Billing compliance inventory.
+
+  - id: package.debugbar
+    upstream: upstream/debugbar
+    bedrock: debugbar
+    status: mapped
+    repo: upstream/debugbar
+    branch: 5.x
+    tests_path: tests
+    inventory: inventories/package-debugbar.txt
+
+  - id: package.routegen
+    upstream: upstream/routegen
+    bedrock: routegen
+    status: mapped
+    repo: upstream/routegen
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-routegen.txt
+
+excluded_permanent:
+  - id: package.tokens
+    upstream: upstream/tokens
+    status: excluded-permanent
+    rationale: Product boundary; Tokens is intentionally not part of Bedrock.
+
+  - id: package.jobqueue
+    upstream: upstream/jobqueue
+    status: excluded-permanent
+    rationale: Product boundary; queue monitoring UI/runtime is intentionally excluded.
+
+  - id: package.octane
+    upstream: upstream/octane
+    status: excluded-permanent
+    rationale: Product boundary; PHP worker/runtime management does not map to Bedrock.
+
+  - id: package.pulse
+    upstream: upstream/pulse
+    status: excluded-permanent
+    rationale: Product boundary; application monitoring dashboard is intentionally excluded.
+
+  - id: package.logtail
+    upstream: upstream/logtail
+    status: excluded-permanent
+    rationale: Product boundary; log-tail CLI is intentionally excluded.
+
+  - id: package.folio
+    upstream: upstream/folio
+    status: excluded-permanent
+    rationale: Product boundary; page-based PHP routing is intentionally excluded.
+
+  - id: package.dusk
+    upstream: upstream/dusk
+    status: excluded-permanent
+    rationale: Product boundary; browser automation package is excluded. Any future browser work must use Agent Browser.
+
+  - id: package.browser_kit_testing
+    upstream: upstream/browser-kit-testing
+    status: excluded-permanent
+    aliases:
+      - browser-kit
+      - broswer-kit
+    rationale: Product boundary; legacy BrowserKit compatibility is intentionally excluded.
+
+  - id: package.sail
+    upstream: upstream/sail
+    status: excluded-permanent
+    rationale: Product boundary; Docker development environment tooling is intentionally excluded.
+
+  - id: package.installer
+    upstream: upstream/installer
+    status: excluded-permanent
+    aliases:
+      - intaller
+    rationale: Product boundary; Upstream application installer tooling is intentionally excluded.
+
+  - id: package.valet
+    upstream: upstream/valet
+    status: excluded-permanent
+    rationale: Product boundary; macOS local development service management is intentionally excluded.
+
+  - id: package.remotetasks
+    upstream: upstream/remotetasks
+    status: excluded-permanent
+    rationale: Product boundary; SSH task runner is intentionally excluded.
+
+  - id: package.vite_plugin
+    upstream: upstream/vite-plugin
+    status: excluded-permanent
+    rationale: Product boundary; Vite integration tooling is intentionally excluded.
+
+  - id: package.starter_kits
+    upstream: starter-kits
+    status: excluded-permanent
+    aliases:
+      - stater-kits
+    rationale: Product boundary; application starter kits are intentionally excluded.
+
+  - id: package.workos
+    upstream: upstream/workos
+    status: excluded-permanent
+    rationale: Product boundary; WorkOS starter-kit integration is intentionally excluded.
