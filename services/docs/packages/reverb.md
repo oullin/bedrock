@@ -1,5 +1,9 @@
 # websockets
 
+<!-- upstream-docs: websockets.md#upstream-websockets -->
+<!-- upstream-docs: websockets.md#events -->
+<!-- upstream-docs: websockets.md#running-the-server -->
+
 WebSocket server implementing the Pusher protocol.
 
 ## Overview

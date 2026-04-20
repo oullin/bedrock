@@ -1,5 +1,12 @@
 # database
 
+<!-- upstream-docs: database.md#database-getting-started -->
+<!-- upstream-docs: database.md#running-sql-queries -->
+<!-- upstream-docs: database.md#database-transactions -->
+<!-- upstream-docs: migrations.md#database-migrations -->
+<!-- upstream-docs: queries.md#database-query-builder -->
+<!-- upstream-docs: orm.md#orm-getting-started -->
+
 Query builder, Orm-style ORM, schema management, and migrations.
 
 ## Overview

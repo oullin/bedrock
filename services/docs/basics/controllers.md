@@ -1,5 +1,11 @@
 # Controllers
 
+<!-- upstream-docs: controllers.md#controllers -->
+<!-- upstream-docs: controllers.md#writing-controllers -->
+<!-- upstream-docs: controllers.md#resource-controllers -->
+<!-- upstream-docs: controllers.md#controller-middleware -->
+<!-- upstream-docs: controllers.md#dependency-injection-and-controllers -->
+
 Controllers group related handler logic into types instead of free functions.
 Bedrock's `routing/controllers` sub-package provides a base `Controller` type
 plus interfaces for declaring middleware and route-model binding.

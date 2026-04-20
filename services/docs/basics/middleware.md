@@ -1,5 +1,11 @@
 # Middleware
 
+<!-- upstream-docs: middleware.md#middleware -->
+<!-- upstream-docs: middleware.md#defining-middleware -->
+<!-- upstream-docs: middleware.md#registering-middleware -->
+<!-- upstream-docs: middleware.md#middleware-parameters -->
+<!-- upstream-docs: middleware.md#terminable-middleware -->
+
 Middleware runs on the request-response path, wrapping the handler with
 cross-cutting concerns — authentication, logging, throttling, CORS, and so on.
 

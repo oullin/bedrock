@@ -1,5 +1,10 @@
 # container
 
+<!-- upstream-docs: container.md#service-container -->
+<!-- upstream-docs: container.md#binding -->
+<!-- upstream-docs: container.md#resolving -->
+<!-- upstream-docs: container.md#container-events -->
+
 IoC service container and application bootstrap.
 
 ## Overview

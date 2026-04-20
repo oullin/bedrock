@@ -1,5 +1,10 @@
 # mailx
 
+<!-- upstream-docs: mail.md#mail -->
+<!-- upstream-docs: mail.md#custom-transports -->
+<!-- upstream-docs: mail.md#sending-mail -->
+<!-- upstream-docs: mail.md#testing -->
+
 Driver-based email sending.
 
 ## Overview

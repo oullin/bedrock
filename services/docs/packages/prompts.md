@@ -1,5 +1,9 @@
 # prompts
 
+<!-- upstream-docs: prompts.md#prompts -->
+<!-- upstream-docs: prompts.md#available-prompts -->
+<!-- upstream-docs: prompts.md#testing -->
+
 Beautiful, user-friendly terminal UI forms for Go applications.
 
 ## Overview

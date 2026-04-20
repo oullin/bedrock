@@ -1,5 +1,9 @@
 # Testing
 
+<!-- upstream-docs: testing.md#testing-getting-started -->
+<!-- upstream-docs: testing.md#creating-tests -->
+<!-- upstream-docs: testing.md#running-tests -->
+
 A tour of Bedrock's test doubles and testing patterns.
 
 ## Philosophy
