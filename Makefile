@@ -81,8 +81,6 @@ clean:
 	rm -rf $(ROOT_PATH)/services/storage/.bin
 	rm -rf $(ROOT_PATH)/storage/.cache/coverage
 	mkdir -p $(ROOT_PATH)/services/storage/.cache/.pnpm-store
-	mkdir -p $(ROOT_PATH)/services/storage/.cache/coverage/go
-	mkdir -p $(ROOT_PATH)/services/storage/.cache/coverage/playwright
 	mkdir -p $(ROOT_PATH)/services/storage/.turbo
 	mkdir -p $(ROOT_PATH)/services/storage/.bin
 	mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
