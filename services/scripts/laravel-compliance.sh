@@ -922,8 +922,10 @@ report() {
 
   local output_file tmp_file
   output_file="${1:-$REPORT_FILE}"
-  tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX.md")"
-  local status_index_path ported_index adapted_index
+  tmp_file="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-report.XXXXXX")"
+  mv "$tmp_file" "$tmp_file.md"
+  tmp_file="$tmp_file.md"
+  local status_index_path ported_index adapted_index docs_ported_index docs_adapted_index docs_excluded_index skeleton_ported_index skeleton_adapted_index skeleton_excluded_index
   status_index_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-compliance-status.XXXXXX")"
   ported_index="$status_index_path/ported.txt"
   adapted_index="$status_index_path/adapted.txt"
