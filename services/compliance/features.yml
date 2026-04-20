@@ -338,10 +338,10 @@ features:
     source_id: framework.collections
     name: Collections
     upstream: Framework\Collections collection API
-    bedrock: null
-    status: excluded
-    docs: null
-    notes: Collections are not a standalone Bedrock package target.
+    bedrock: collection
+    status: partial
+    docs: packages/collection.md
+    notes: Fluent slice, key-value, lazy, arr, and kv packages are imported; legacy support helper cleanup is deferred.
 
   - id: framework.macroable.runtime
     source_id: framework.macroable
