@@ -4,19 +4,21 @@ Bedrock is a collection of foundational Go packages for building web application
 
 ## Packages
 
-| Package     | Description                                                           |
-| ----------- | --------------------------------------------------------------------- |
-| `auth`      | Authentication, authorization, and password management                |
-| `bus`       | Command and event bus with pipeline support                           |
-| `cache`     | Caching layer with multiple driver support                            |
-| `cookie`    | HTTP cookie handling                                                  |
-| `fortify`   | Application fortification (rate limiting, two-factor auth, pipelines) |
-| `httpx`     | HTTP utilities, middleware, and testing helpers                       |
-| `jetstream` | Team and organization management                                      |
-| `queue`     | Background job processing with pluggable drivers                      |
-| `routing`   | HTTP routing                                                          |
-| `session`   | Session management with multiple storage handlers                     |
-| `spark`     | Subscription billing, checkout, and entitlement management            |
+| Package      | Description                                                           |
+| ------------ | --------------------------------------------------------------------- |
+| `auth`       | Authentication, authorization, and password management                |
+| `bus`        | Command and event bus with pipeline support                           |
+| `cache`      | Caching layer with multiple driver support                            |
+| `collection` | Fluent, type-safe collection helpers for slices, maps, and lazy data  |
+| `cookie`     | HTTP cookie handling                                                  |
+| `fortify`    | Application fortification (rate limiting, two-factor auth, pipelines) |
+| `httpx`      | HTTP utilities, middleware, and testing helpers                       |
+| `jetstream`  | Team and organization management                                      |
+| `money`      | Monetary values, currencies, formatting, parsing, and exchange        |
+| `queue`      | Background job processing with pluggable drivers                      |
+| `routing`    | HTTP routing                                                          |
+| `session`    | Session management with multiple storage handlers                     |
+| `spark`      | Subscription billing, checkout, and entitlement management            |
 
 ## Project Structure
 

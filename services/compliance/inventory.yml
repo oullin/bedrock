@@ -337,9 +337,8 @@ framework:
 
   - id: framework.collections
     laravel: Illuminate\Collections
-    bedrock: null
-    status: excluded-permanent
-    rationale: Product boundary; collection behaviour is not a standalone Bedrock package target.
+    bedrock: collection
+    status: mapped
 
   - id: framework.macroable
     laravel: Illuminate\Macroable

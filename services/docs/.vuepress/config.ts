@@ -159,6 +159,7 @@ export default defineUserConfig({
           text: 'Support & Utilities',
           collapsible: true,
           children: [
+            { text: 'collection', link: '/packages/collection' },
             { text: 'support', link: '/packages/support' },
             { text: 'log', link: '/packages/log' },
             { text: 'translation', link: '/packages/translation' },

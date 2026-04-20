@@ -45,6 +45,8 @@ features:
     details: Local filesystem operations — reads, writes, copy, move, delete, directory management, MIME detection, file hashing, and locked file access.
   - title: pagination
     details: Offset-based and cursor-based pagination with generic item slices. URL windows, JSON serialization, and Laravel-compatible API.
+  - title: collection
+    details: Fluent, type-safe collection helpers for slices, ordered maps, lazy sequences, and one-off array or key-value operations.
   - title: support
     details: Global helpers, Fluent dynamic bags, Optional[T], MessageBag, string builders, Lottery, Sleep, Timebox — a Go port of Illuminate/Support.
   - title: log

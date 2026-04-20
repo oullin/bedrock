@@ -110,6 +110,7 @@ pnpm run build --filter=@bedrock/docs
 
 | Package                                  | Purpose                                          |
 | ---------------------------------------- | ------------------------------------------------ |
+| [collection](/packages/collection)       | Fluent collection helpers for slices and maps    |
 | [support](/packages/support)             | Helpers, Fluent, Optional, MessageBag, strings   |
 | [log](/packages/log)                     | Driver-based structured logging with channels    |
 | [translation](/packages/translation)     | Localisation and i18n with CLDR pluralisation    |
