@@ -341,7 +341,7 @@ build_status_index() {
   local adapted_index="$2"
 
   {
-    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*Test::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/packages" --glob '*_test.go' 2>/dev/null || true
+    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*Test::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/packages" -g '*_test.go' 2>/dev/null || true
   } | sort -u > "$ported_index"
 
   {
@@ -536,14 +536,13 @@ check_laravel_test_files_have_source_context() {
 }
 
 check_no_inline_exclusions() {
-  if rg -n '^[[:space:]]*// Excluded:' "$ROOT_PATH/packages" -g '*_test.go' >/tmp/bedrock-inline-exclusions.$$ 2>/dev/null; then
+  local inline_exclusions
+
+  if inline_exclusions="$(rg -n '^[[:space:]]*// Excluded:' "$ROOT_PATH/packages" -g '*_test.go' 2>/dev/null)"; then
     broadcastclient "Inline test exclusions are not allowed; put exclusions in services/compliance:" >&2
-    cat /tmp/bedrock-inline-exclusions.$$ >&2
-    rm -f /tmp/bedrock-inline-exclusions.$$
+    printf '%s\n' "$inline_exclusions" >&2
     return 1
   fi
-
-  rm -f /tmp/bedrock-inline-exclusions.$$
 }
 
 check_inventory_files_configured() {
