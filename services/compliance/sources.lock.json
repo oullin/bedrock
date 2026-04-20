@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-04-20T07:53:17Z",
+  "generated_at": "2026-04-20T08:50:52Z",
   "sources": [
     {
       "repo": "upstream/framework",
@@ -97,6 +97,24 @@
       "branch": "5.x",
       "commit": "74224f82d1e67a04029e6edc75c0ee36a4cd71e8",
       "url": "https://github.com/upstream/debugbar/tree/5.x"
+    },
+    {
+      "repo": "upstream/jobqueue",
+      "branch": "5.x",
+      "commit": "b2bce62044081b871a863589ca3b76a2afcc7d83",
+      "url": "https://github.com/upstream/jobqueue/tree/5.x"
+    },
+    {
+      "repo": "upstream/logtail",
+      "branch": "main",
+      "commit": "f0877ae481fc3364ec699772b7175bb3984cf5b0",
+      "url": "https://github.com/upstream/logtail/tree/main"
+    },
+    {
+      "repo": "upstream/remotetasks",
+      "branch": "2.x",
+      "commit": "2a15159d50e0d0a631ed6ff059196855a3ef9e3a",
+      "url": "https://github.com/upstream/remotetasks/tree/2.x"
     },
     {
       "repo": "upstream/routegen",

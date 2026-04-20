@@ -120,6 +120,7 @@ export default defineUserConfig({
             { text: 'events', link: '/packages/events' },
             { text: 'bus', link: '/packages/bus' },
             { text: 'queue', link: '/packages/queue' },
+            { text: 'jobqueue', link: '/packages/jobqueue' },
             { text: 'pipeline', link: '/packages/pipeline' },
           ],
         },
@@ -176,6 +177,8 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'prompts', link: '/packages/prompts' },
+            { text: 'logtail', link: '/packages/logtail' },
+            { text: 'remotetasks', link: '/packages/remotetasks' },
             { text: 'debugbar', link: '/packages/debugbar' },
           ],
         },
