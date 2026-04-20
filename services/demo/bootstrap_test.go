@@ -2,11 +2,28 @@ package demo_test
 
 import (
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/bedrock/packages/container"
 	"github.com/bedrock/services/demo/api"
 )
+
+func standardOptions(t *testing.T) api.Options {
+	t.Helper()
+
+	return api.Options{
+		BasePath:      t.TempDir(),
+		StoragePath:   filepath.Join(t.TempDir(), "storage"),
+		DatabaseURL:   "sqlite:///:memory:",
+		RunMigrations: ptr(true),
+		Seed:          ptr(true),
+	}
+}
+
+func ptr(value bool) *bool {
+	return &value
+}
 
 func assertStandardBindings(t *testing.T, application *container.Application) {
 	t.Helper()
@@ -14,7 +31,7 @@ func assertStandardBindings(t *testing.T, application *container.Application) {
 	standardKeys := []string{
 		"events", "hash", "files", "cookie", "validator", "concurrency",
 		"cache", "session", "queue", "log", "auth",
-		"bus", "notifications", "router",
+		"bus", "notifications", "db", "router",
 	}
 
 	for _, key := range standardKeys {
@@ -35,7 +52,7 @@ func assertStandardBindings(t *testing.T, application *container.Application) {
 func TestNewApplication_RegistersAndBootsAllStandardProviders(t *testing.T) {
 	t.Parallel()
 
-	application := api.NewApplication()
+	application := api.NewApplication(standardOptions(t))
 
 	if !application.Booted() {
 		t.Fatal("expected app to be booted")
@@ -61,7 +78,7 @@ func TestStandardProviders_ManualCompositionBootsAllStandardProviders(t *testing
 func TestNewApplication_EncryptionSkippedWithoutKey(t *testing.T) {
 	t.Parallel()
 
-	application := api.NewApplication()
+	application := api.NewApplication(standardOptions(t))
 
 	_, err := application.Make("encrypter")
 
@@ -73,9 +90,10 @@ func TestNewApplication_EncryptionSkippedWithoutKey(t *testing.T) {
 func TestNewApplication_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 	t.Parallel()
 
-	application := api.NewApplication(api.Options{
-		EncryptionKey: make([]byte, 32),
-	})
+	opts := standardOptions(t)
+	opts.EncryptionKey = make([]byte, 32)
+
+	application := api.NewApplication(opts)
 
 	v, err := application.Make("encrypter")
 
@@ -91,9 +109,10 @@ func TestNewApplication_EncryptionRegisteredWhenKeyProvided(t *testing.T) {
 func TestNewApplication_OptionsOverrideDefaults(t *testing.T) {
 	t.Parallel()
 
-	application := api.NewApplication(api.Options{
-		CacheDefaultDriver: "redis",
-	})
+	opts := standardOptions(t)
+	opts.CacheDefaultDriver = "redis"
+
+	application := api.NewApplication(opts)
 
 	type defaultDriverGetter interface{ GetDefaultDriver() string }
 
