@@ -101,7 +101,6 @@ func TestModelObserverSavedSkipsWhenIndexShouldNotUpdate(t *testing.T) {
 }
 
 func TestModelObserverSavedSyncingDisabled(t *testing.T) {
-	t.Parallel()
 	engine := &fakeEngine{}
 	manager := scout.NewEngineManager()
 	manager.Register("null", engine)

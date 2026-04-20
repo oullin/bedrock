@@ -1,0 +1,114 @@
+version: 1
+
+adaptation_rules:
+  database:
+    source: Illuminate\Database
+    rules:
+      - laravel: Traits such as HasAttributes
+        bedrock: Embedded structs
+      - laravel: Magic __get and __set access
+        bedrock: GetAttribute and SetAttribute methods
+      - laravel: Static model methods such as User::find(1)
+        bedrock: Instance builders such as userBuilder.Find(ctx, 1)
+      - laravel: DB and Schema facades
+        bedrock: Container resolution via app.Make("db")
+      - laravel: Closures in transactions
+        bedrock: Transaction(ctx, func(tx Connection) error)
+      - laravel: PHP exceptions
+        bedrock: Explicit error returns
+      - laravel: SQL Server support
+        bedrock: Not implemented; MySQL, MariaDB, PostgreSQL, and SQLite are the supported SQL dialects
+
+  queue:
+    source: Illuminate\Queue
+    rules:
+      - laravel: IoC container and App::make
+        bedrock: HandlerRegistry keyed by name
+      - laravel: Eloquent model serialization via SerializesModels
+        bedrock: Out of scope; jobs carry plain structs or maps
+      - laravel: Serializable closures
+        bedrock: Registered handler names
+      - laravel: PHP queue attributes such as Tries, Backoff, Timeout, and Queue
+        bedrock: Go struct tags parsed by options.go
+      - laravel: config('queue.*') helpers
+        bedrock: Explicit config maps passed to Manager.SetConfig
+      - laravel: Event::fake and Bus::fake
+        bedrock: Package-local test helpers
+      - laravel: Real service dependencies in unit tests
+        bedrock: Fakes or build-tagged integration tests where an external service is required
+      - laravel: PHPUnit exception expectations
+        bedrock: errors.Is and errors.As
+
+  translation:
+    source: Illuminate\Translation
+    rules:
+      - laravel: PHP arrays returned from .php language files
+        bedrock: JSON files with equivalent key/value structure
+      - laravel: Filesystem mocks via Mockery
+        bedrock: Real files under t.TempDir
+      - laravel: Countable interface
+        bedrock: translation.Countable with Len() int
+      - laravel: BackedEnum and UnitEnum
+        bedrock: fmt.Stringer or Translator.Stringable registrations
+      - laravel: MessageSelector::getPluralIndex integer parameter
+        bedrock: float64 input to preserve float pluralization behaviour
+      - laravel: config('app.locale') and config('app.fallback_locale')
+        bedrock: NewTranslator(loader, locale, fallback)
+
+  validation:
+    source: Illuminate\Validation
+    rules:
+      - laravel: IoC container
+        bedrock: Plain rule functions and validation interfaces
+      - laravel: Eloquent exists and unique rules
+        bedrock: PresenceVerifier interface with fakes in tests
+      - laravel: PHP exceptions
+        bedrock: ValidationException error value wrapping MessageBag
+      - laravel: Closure-based rules
+        bedrock: ValidationRule interface or RuleFunc
+      - laravel: PHP enum validation
+        bedrock: Not implemented; Go has no runtime enum equivalent
+      - laravel: Password breach check
+        bedrock: Not implemented by default because it requires an external HTTP call
+      - laravel: ActiveUrl via checkdnsrr
+        bedrock: net.LookupHost
+
+semantic_divergences:
+  - surface: database
+    divergence: No static methods
+    rationale: Go does not support PHP-style static methods.
+  - surface: database
+    divergence: Explicit context.Context on I/O methods
+    rationale: Go uses explicit request cancellation and deadline propagation.
+  - surface: database
+    divergence: Error returns instead of exceptions
+    rationale: Go error values are the idiomatic failure channel.
+  - surface: database
+    divergence: No SQL Server dialect
+    rationale: Bedrock currently targets MySQL, MariaDB, PostgreSQL, and SQLite.
+  - surface: queue
+    divergence: No default global transaction-aware dispatch
+    rationale: Go has no global DB facade analogous to Laravel's DB::transaction.
+  - surface: queue
+    divergence: Worker memory limits are advisory
+    rationale: Go's garbage collector makes PHP-style hard memory caps meaningless.
+  - surface: queue
+    divergence: Unique jobs use a CacheLock interface
+    rationale: Avoids a hard dependency on a specific cache backend.
+  - surface: translation
+    divergence: Invalid locale returns ErrInvalidLocale
+    rationale: Go returns errors instead of throwing InvalidArgumentException.
+  - surface: translation
+    divergence: Translator is constructed directly
+    rationale: Bedrock avoids global container lookup for translation.
+  - surface: translation
+    divergence: Tag replacements use func(string) string
+    rationale: PHP HtmlString-wrapping callables map to plain Go functions.
+  - surface: validation
+    divergence: PHP enum validation is not implemented
+    rationale: Go has named constants but no PHP-style runtime enum type.
+  - surface: validation
+    divergence: Password uncompromised breach check is not wired by default
+    rationale: The check requires external HTTP and should be caller-controlled.
+
+test_status_overrides: []

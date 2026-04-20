@@ -63,7 +63,6 @@ func TestSearchWithCallback(t *testing.T) {
 }
 
 func TestSearchSyncingToggle(t *testing.T) {
-	t.Parallel()
 	model := newTestModel(1, "posts")
 
 	if !scout.IsSearchSyncingEnabled(model) {
@@ -84,7 +83,6 @@ func TestSearchSyncingToggle(t *testing.T) {
 }
 
 func TestWithoutSyncingToSearch(t *testing.T) {
-	t.Parallel()
 	model := newTestModel(42, "articles")
 
 	if !scout.IsSearchSyncingEnabled(model) {
