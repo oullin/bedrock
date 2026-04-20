@@ -1,5 +1,9 @@
 # collection
 
+<!-- upstream-docs: collections.md#collections -->
+<!-- upstream-docs: collections.md#lazy-collections -->
+<!-- upstream-docs: collections.md#available-methods -->
+
 Fluent, type-safe collection helpers for slices, ordered maps, lazy sequences,
 and one-off array or key-value operations.
 

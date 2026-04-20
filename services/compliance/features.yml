@@ -514,6 +514,33 @@ features:
     docs: packages/routegen.md
     notes: RouteGen package exists; upstream package parity remains incomplete.
 
+  - id: package.jobqueue.monitoring
+    source_id: package.jobqueue
+    name: Queue monitoring
+    upstream: upstream/jobqueue queue dashboard, metrics, and worker monitoring
+    bedrock: jobqueue
+    status: partial
+    docs: packages/jobqueue.md
+    notes: JobQueue is tracked as queue monitoring primitives; the browser dashboard is not ported.
+
+  - id: package.logtail.logs
+    source_id: package.logtail
+    name: Log tailing
+    upstream: upstream/logtail log tailing and filtering
+    bedrock: logtail
+    status: partial
+    docs: packages/logtail.md
+    notes: LogTail is tracked as log parsing and filtering primitives for Go readers.
+
+  - id: package.remotetasks.tasks
+    source_id: package.remotetasks
+    name: Remote task runner
+    upstream: upstream/remotetasks SSH task runner
+    bedrock: remotetasks
+    status: partial
+    docs: packages/remotetasks.md
+    notes: RemoteTasks is tracked as task planning and command execution primitives with injectable runners.
+
   - id: package.tokens.tokens
     source_id: package.tokens
     name: Tokens tokens
@@ -522,15 +549,6 @@ features:
     status: excluded
     docs: null
     notes: Tokens is intentionally not part of Bedrock.
-
-  - id: package.jobqueue.dashboard
-    source_id: package.jobqueue
-    name: JobQueue dashboard
-    upstream: upstream/jobqueue queue dashboard and monitoring runtime
-    bedrock: null
-    status: excluded
-    docs: null
-    notes: Queue monitoring UI and runtime are outside Bedrock product boundaries.
 
   - id: package.dusk.browser
     source_id: package.dusk
