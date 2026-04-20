@@ -1,5 +1,11 @@
 # notifications
 
+<!-- laravel-docs: notifications.md#notifications -->
+<!-- laravel-docs: notifications.md#sending-notifications -->
+<!-- laravel-docs: notifications.md#database-notifications -->
+<!-- laravel-docs: notifications.md#custom-channels -->
+<!-- laravel-docs: notifications.md#testing -->
+
 Multi-channel notification delivery.
 
 ## Overview

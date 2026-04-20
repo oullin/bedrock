@@ -1,5 +1,12 @@
 # queue
 
+<!-- laravel-docs: queues.md#queues -->
+<!-- laravel-docs: queues.md#dispatching-jobs -->
+<!-- laravel-docs: queues.md#running-the-queue-worker -->
+<!-- laravel-docs: queues.md#dealing-with-failed-jobs -->
+<!-- laravel-docs: queues.md#job-events -->
+<!-- laravel-docs: queues.md#testing -->
+
 Background job processing with pluggable drivers.
 
 ## Overview

@@ -1,5 +1,9 @@
 # URL Generation
 
+<!-- laravel-docs: urls.md#url-generation -->
+<!-- laravel-docs: urls.md#urls-for-named-routes -->
+<!-- laravel-docs: urls.md#default-values -->
+
 Generating URLs for routes is a first-class feature of the router. Prefer
 named-route lookups over hand-rolled string concatenation — renaming a path
 in one place should not break every link in your templates.

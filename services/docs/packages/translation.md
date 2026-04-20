@@ -1,5 +1,9 @@
 # translation
 
+<!-- laravel-docs: localization.md#localization -->
+<!-- laravel-docs: localization.md#defining-translation-strings -->
+<!-- laravel-docs: localization.md#retrieving-translation-strings -->
+
 Localisation and i18n support.
 
 ## Overview

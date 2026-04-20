@@ -1,5 +1,9 @@
 # encryption
 
+<!-- laravel-docs: encryption.md#encryption -->
+<!-- laravel-docs: encryption.md#using-the-encrypter -->
+<!-- laravel-docs: encryption.md#configuration -->
+
 AES encryption with CBC and GCM mode support.
 
 ## Overview

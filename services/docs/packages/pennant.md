@@ -1,5 +1,9 @@
 # pennant
 
+<!-- laravel-docs: pennant.md#laravel-pennant -->
+<!-- laravel-docs: pennant.md#checking-features -->
+<!-- laravel-docs: pennant.md#defining-features -->
+
 Feature flag management with pluggable storage backends.
 
 ## Overview

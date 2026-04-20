@@ -1,5 +1,10 @@
 # contracts
 
+<!-- laravel-docs: contracts.md#contracts -->
+<!-- laravel-docs: contracts.md#how-to-use-contracts -->
+<!-- laravel-docs: contracts.md#when-to-use-contracts -->
+<!-- laravel-docs: contracts.md#contract-reference -->
+
 Shared interface definitions for every Bedrock package.
 
 ## Overview

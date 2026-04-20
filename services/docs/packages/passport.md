@@ -1,5 +1,10 @@
 # passport
 
+<!-- laravel-docs: passport.md#laravel-passport -->
+<!-- laravel-docs: passport.md#authorization-code-grant -->
+<!-- laravel-docs: passport.md#client-credentials-grant -->
+<!-- laravel-docs: passport.md#token-scopes -->
+
 OAuth 1 and OAuth 2 server abstractions.
 
 ## Overview

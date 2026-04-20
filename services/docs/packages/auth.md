@@ -1,5 +1,12 @@
 # auth
 
+<!-- laravel-docs: authentication.md#authentication -->
+<!-- laravel-docs: authentication.md#adding-custom-guards -->
+<!-- laravel-docs: authentication.md#adding-custom-user-providers -->
+<!-- laravel-docs: authentication.md#password-confirmation -->
+<!-- laravel-docs: authorization.md#authorization -->
+<!-- laravel-docs: authorization.md#gates -->
+
 Authentication, authorization, and password management.
 
 ## Overview

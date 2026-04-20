@@ -1,5 +1,12 @@
 # filesystem
 
+<!-- laravel-docs: filesystem.md#file-storage -->
+<!-- laravel-docs: filesystem.md#retrieving-files -->
+<!-- laravel-docs: filesystem.md#storing-files -->
+<!-- laravel-docs: filesystem.md#deleting-files -->
+<!-- laravel-docs: filesystem.md#directories -->
+<!-- laravel-docs: filesystem.md#custom-filesystems -->
+
 Local filesystem operations.
 
 ## Overview

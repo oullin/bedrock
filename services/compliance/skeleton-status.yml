@@ -23,18 +23,33 @@ ported:
   - tests/Unit/ExampleTest.php
 
 adapted:
+  - .github/workflows/tests.yml
+  - .gitignore
+  - .npmrc
   - .env.example
+  - README.md
   - config/auth.php
   - config/mail.php
   - config/services.php
+  - bootstrap/providers.php
   - routes/console.php
 
 excluded:
+  - .editorconfig
+  - .gitattributes
+  - .github/workflows/issues.yml
+  - .github/workflows/pull-requests.yml
+  - .github/workflows/update-changelog.yml
+  - .styleci.yml
+  - CHANGELOG.md
+  - app/Http/Controllers/Controller.php
   - artisan
   - composer.json
   - package.json
   - phpunit.xml
   - public/.htaccess
+  - public/favicon.ico
+  - public/robots.txt
   - resources/css/app.css
   - resources/js/app.js
   - resources/views/welcome.blade.php
