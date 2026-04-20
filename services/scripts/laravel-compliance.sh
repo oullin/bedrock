@@ -488,6 +488,78 @@ inventory_stats() {
   ' "$ported_index" "$adapted_index" "$file"
 }
 
+percent_display() {
+  local count="$1"
+  local total="$2"
+
+  if [ "$total" -eq 0 ]; then
+    printf 'n/a'
+    return 0
+  fi
+
+  awk -v count="$count" -v total="$total" 'BEGIN { printf "%.1f%%", (count / total) * 100 }'
+}
+
+count_percent_display() {
+  local count="$1"
+  local total="$2"
+
+  printf '%s (%s)' "$count" "$(percent_display "$count" "$total")"
+}
+
+inventory_summary_stats() {
+  local scope="$1"
+  local ported_index="$2"
+  local adapted_index="$3"
+  local inventory_count=0 total_count=0 ported_count=0 adapted_count=0 missing_count=0
+  local id status repo branch tests_path inventory filter upstream bedrock
+
+  while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+    [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+    case "$scope" in
+      all) ;;
+      framework) [[ "$id" == framework.* ]] || continue ;;
+      package) [[ "$id" == package.* ]] || continue ;;
+      *)
+        broadcastclient "upstream-compliance: unknown inventory summary scope: $scope" >&2
+        return 1
+        ;;
+    esac
+
+    local stats total ported adapted missing
+    stats="$(inventory_stats "$COMPLIANCE_PATH/$inventory" "$ported_index" "$adapted_index")"
+    IFS=$'\t' read -r total ported adapted missing <<< "$stats"
+
+    inventory_count=$((inventory_count + 1))
+    total_count=$((total_count + total))
+    ported_count=$((ported_count + ported))
+    adapted_count=$((adapted_count + adapted))
+    missing_count=$((missing_count + missing))
+  done < <(list_records)
+
+  printf '%d\t%d\t%d\t%d\t%d\n' "$inventory_count" "$total_count" "$ported_count" "$adapted_count" "$missing_count"
+}
+
+inventory_summary_row() {
+  local label="$1"
+  local scope="$2"
+  local ported_index="$3"
+  local adapted_index="$4"
+  local stats inventory_count total ported adapted missing
+
+  stats="$(inventory_summary_stats "$scope" "$ported_index" "$adapted_index")"
+  IFS=$'\t' read -r inventory_count total ported adapted missing <<< "$stats"
+
+  printf '| %s | %s | %s | %s | %s | %s |\n' \
+    "$label" \
+    "$inventory_count" \
+    "$total" \
+    "$(count_percent_display "$ported" "$total")" \
+    "$(count_percent_display "$missing" "$total")" \
+    "$(count_percent_display "$adapted" "$total")"
+}
+
 markdown_cell() {
   local value="$1"
   value="${value//|/\\|}"
@@ -545,7 +617,14 @@ tests_display() {
   stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
   IFS=$'\t' read -r total ported adapted missing <<< "$stats"
 
-  printf '%s/%s ported, %s adapted, %s missing' "$ported" "$total" "$adapted" "$missing"
+  printf 'Ported tests: %s / %s (%s); Missing tests: %s (%s); Adapted tests: %s (%s)' \
+    "$ported" \
+    "$total" \
+    "$(percent_display "$ported" "$total")" \
+    "$missing" \
+    "$(percent_display "$missing" "$total")" \
+    "$adapted" \
+    "$(percent_display "$adapted" "$total")"
 }
 
 report() {
@@ -567,9 +646,17 @@ report() {
     broadcastclient
     broadcastclient "Source of truth: services/compliance"
     broadcastclient
+    broadcastclient "## Test Porting Summary"
+    broadcastclient
+    broadcastclient "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: |"
+    inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
+    inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
+    inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
+    broadcastclient
     broadcastclient "## Inventories"
     broadcastclient
-    broadcastclient "| Inventory | Total | Ported | Adapted | Missing |"
+    broadcastclient "| Inventory | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
     broadcastclient "| --- | ---: | ---: | ---: | ---: |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
@@ -582,7 +669,12 @@ report() {
       rel="${file#$COMPLIANCE_PATH/}"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
-      printf '| %s | %s | %s | %s | %s |\n' "$rel" "$total" "$ported" "$adapted" "$missing"
+      printf '| %s | %s | %s | %s | %s |\n' \
+        "$rel" \
+        "$total" \
+        "$(count_percent_display "$ported" "$total")" \
+        "$(count_percent_display "$missing" "$total")" \
+        "$(count_percent_display "$adapted" "$total")"
     done
 
     broadcastclient
