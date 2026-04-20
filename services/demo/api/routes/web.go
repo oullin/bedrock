@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"github.com/bedrock/packages/container"
+	"github.com/bedrock/packages/routing"
 	democonfig "github.com/bedrock/services/demo/api/config"
 )
 
 // RegisterWeb mounts the Laravel skeleton web and health routes.
-func RegisterWeb(mux *http.ServeMux, application *container.Application) {
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+func RegisterWeb(router *routing.Router, application *container.Application) {
+	router.Get("/", func() any {
 		app := democonfig.DefaultApp("", "")
 
 		if raw, err := application.Make("demo.config.app"); err == nil {
@@ -19,12 +20,18 @@ func RegisterWeb(mux *http.ServeMux, application *container.Application) {
 			}
 		}
 
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_, _ = fmt.Fprintf(w, "<!doctype html><html><head><title>%s</title></head><body><main><h1>%s</h1><p>Laravel skeleton port running on Bedrock.</p></main></body></html>\n", app.Name, app.Name)
+		return &routing.HTTPResponse{
+			Body:    fmt.Sprintf("<!doctype html><html><head><title>%s</title></head><body><main><h1>%s</h1><p>Laravel skeleton port running on Bedrock.</p></main></body></html>\n", app.Name, app.Name),
+			Status:  http.StatusOK,
+			Headers: map[string][]string{"Content-Type": {"text/html; charset=utf-8"}},
+		}
 	})
 
-	mux.HandleFunc("GET /up", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = w.Write([]byte("OK\n"))
+	router.Get("/up", func() any {
+		return &routing.HTTPResponse{
+			Body:    "OK\n",
+			Status:  http.StatusOK,
+			Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
+		}
 	})
 }

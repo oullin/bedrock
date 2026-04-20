@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
 	democonfig "github.com/bedrock/services/demo/api/config"
 	"github.com/bedrock/services/demo/api/routes"
 )
@@ -23,10 +25,21 @@ func NewHandler(opts ...Options) (http.Handler, error) {
 
 	application.Container.Instance("demo.config.app", democonfig.DefaultApp(o.Env, o.AppKey))
 
-	mux := http.NewServeMux()
-	routes.RegisterWeb(mux, application)
+	rawRouter, err := application.Make("router")
 
-	return mux, nil
+	if err != nil {
+		return nil, fmt.Errorf("demo: resolve router: %w", err)
+	}
+
+	router, ok := rawRouter.(*routing.Router)
+
+	if !ok {
+		return nil, fmt.Errorf("demo: router binding has type %T", rawRouter)
+	}
+
+	routes.RegisterWeb(router, application)
+
+	return routingx.NewHandler(router), nil
 }
 
 // Run starts the skeleton demo app and shuts it down when ctx is cancelled.

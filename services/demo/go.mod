@@ -16,6 +16,7 @@ require (
 	github.com/bedrock/packages/events v0.0.0
 	github.com/bedrock/packages/filesystem v0.0.0
 	github.com/bedrock/packages/hashing v0.0.0
+	github.com/bedrock/packages/httpx v0.0.0
 	github.com/bedrock/packages/log v0.0.0
 	github.com/bedrock/packages/notifications v0.0.0
 	github.com/bedrock/packages/queue v0.0.0
@@ -70,6 +71,7 @@ replace (
 	github.com/bedrock/packages/events => ../../packages/events
 	github.com/bedrock/packages/filesystem => ../../packages/filesystem
 	github.com/bedrock/packages/hashing => ../../packages/hashing
+	github.com/bedrock/packages/httpx => ../../packages/httpx
 	github.com/bedrock/packages/log => ../../packages/log
 	github.com/bedrock/packages/notifications => ../../packages/notifications
 	github.com/bedrock/packages/pipeline => ../../packages/pipeline
