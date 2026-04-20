@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-20T04:44:19Z
+Generated: 2026-04-20T05:02:48Z
 
 Source of truth: services/compliance
 
@@ -55,6 +55,115 @@ Source of truth: services/compliance
 | inventories/package-billing.txt | 160 | 0 | 0 | 160 |
 | inventories/package-debugbar.txt | 113 | 0 | 0 | 113 |
 | inventories/package-routegen.txt | 103 | 0 | 0 | 103 |
+
+## Framework Coverage
+
+| Upstream Source | Bedrock Surface | Port Status | Tests | Docs |
+| --- | --- | --- | --- | --- |
+| `Framework\Auth` | `auth` | `mapped` | 0/257 ported, 0 adapted, 257 missing | `packages/auth.md` |
+| `Framework\Broadcasting` | `broadcastclient` | `missing` | 0/55 ported, 0 adapted, 55 missing | `packages/broadcastclient.md` |
+| `Framework\Bus` | `bus` | `mapped` | 0/66 ported, 0 adapted, 66 missing | `packages/bus.md` |
+| `Framework\Cache` | `cache` | `mapped` | 0/313 ported, 0 adapted, 313 missing | `packages/cache.md` |
+| `Framework\Concurrency` | `concurrency` | `mapped` | 0/12 ported, 0 adapted, 12 missing | `packages/concurrency.md` |
+| `Framework\Conditionable` | `conditionable` | `mapped` | 0/2 ported, 0 adapted, 2 missing | `packages/conditionable.md` |
+| `Framework\Config` | `config` | `mapped` | 0/33 ported, 0 adapted, 33 missing | `packages/config.md` |
+| `Framework\Console` | n/a | `missing` | 0/156 ported, 0 adapted, 156 missing | n/a |
+| `Framework\Container` | `container` | `mapped` | 0/193 ported, 0 adapted, 193 missing | `packages/container.md` |
+| `Framework\Contracts` | `contracts` | `mapped` | no inventory | `packages/contracts.md` |
+| `Framework\Cookie` | `cookie` | `mapped` | 0/26 ported, 0 adapted, 26 missing | `packages/cookie.md` |
+| `Framework\Database` | `database` | `mapped` | 0/2626 ported, 0 adapted, 2626 missing | `packages/database.md` |
+| `Framework\Encryption` | `encryption` | `mapped` | 0/27 ported, 0 adapted, 27 missing | `packages/encryption.md` |
+| `Framework\Events` | `events` | `mapped` | 0/76 ported, 0 adapted, 76 missing | `packages/events.md` |
+| `Framework\Filesystem` | `filesystem` | `mapped` | 0/134 ported, 0 adapted, 134 missing | `packages/filesystem.md` |
+| `Framework\Foundation` | n/a | `excluded-permanent` | no inventory | n/a |
+| `Framework\Hashing` | `hashing` | `mapped` | 0/13 ported, 0 adapted, 13 missing | `packages/hashing.md` |
+| `Framework\Http` | `httpx` | `mapped` | 0/472 ported, 0 adapted, 472 missing | `packages/httpx.md` |
+| `Framework\JsonSchema` | `jsonx` | `mapped` | 0/47 ported, 0 adapted, 47 missing | `packages/jsonx.md` |
+| `Framework\Log` | `log` | `mapped` | 0/85 ported, 0 adapted, 85 missing | `packages/log.md` |
+| `Framework\Mail` | `mailx` | `mapped` | 0/130 ported, 0 adapted, 130 missing | `packages/mailx.md` |
+| `Framework\Notifications` | `notifications` | `mapped` | 0/71 ported, 0 adapted, 71 missing | `packages/notifications.md` |
+| `Framework\Pagination` | `pagination` | `mapped` | 0/48 ported, 0 adapted, 48 missing | `packages/pagination.md` |
+| `Framework\Pipeline` | `pipeline` | `mapped` | 0/22 ported, 0 adapted, 22 missing | `packages/pipeline.md` |
+| `Framework\Process` | n/a | `missing` | 0/54 ported, 0 adapted, 54 missing | n/a |
+| `Framework\Queue` | `queue` | `mapped` | 161/204 ported, 0 adapted, 43 missing | `packages/queue.md` |
+| `Framework\Redis` | `redis` | `mapped` | 0/103 ported, 0 adapted, 103 missing | `packages/redis.md` |
+| `Framework\Routing` | `routing` | `mapped` | 0/315 ported, 0 adapted, 315 missing | `packages/routing.md` |
+| `Framework\Session` | `session` | `mapped` | 0/93 ported, 0 adapted, 93 missing | `packages/session.md` |
+| `Framework\Support` | `support` | `mapped` | 129/1554 ported, 0 adapted, 1425 missing | `packages/support.md` |
+| `Framework\Support\Str` | `str` | `mapped` | 69/115 ported, 0 adapted, 46 missing | `packages/str.md` |
+| `Framework\Support\Lottery` | `lottery` | `mapped` | 0/14 ported, 0 adapted, 14 missing | `packages/lottery.md` |
+| `Framework\Testing` | n/a | `missing` | 0/381 ported, 0 adapted, 381 missing | n/a |
+| `Framework\Translation` | `translation` | `mapped` | 9/52 ported, 0 adapted, 43 missing | `packages/translation.md` |
+| `Framework\Validation` | `validation` | `mapped` | 34/597 ported, 0 adapted, 563 missing | `packages/validation.md` |
+| `Framework\Collections` | n/a | `excluded-permanent` | no inventory | n/a |
+| `Framework\Macroable` | n/a | `excluded-permanent` | no inventory | n/a |
+| `Framework\Reflection` | n/a | `excluded-permanent` | no inventory | n/a |
+| `Framework\View` | n/a | `excluded-permanent` | no inventory | n/a |
+
+## Feature Coverage
+
+| Feature | Source | Bedrock Surface | Status | Docs | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Authentication guards | `framework.auth` | `auth` | `partial` | `packages/auth.md` | Session, token, and request guards exist; upstream test inventory is still mostly missing. |
+| Password broker | `framework.auth` | `auth` | `partial` | `packages/auth.md` | Password management is ported through auth; upstream test parity remains incomplete. |
+| Broadcasting contracts | `framework.broadcasting` | `broadcastclient` | `missing` | `packages/broadcastclient.md` | BroadcastClient and WebSockets pieces exist, but no framework broadcasting contract inventory is ported yet. |
+| Command bus dispatch | `framework.bus` | `bus` | `partial` | `packages/bus.md` | Bus package exists with command dispatch and middleware; upstream test parity is not complete. |
+| Cache repository | `framework.cache` | `cache` | `partial` | `packages/cache.md` | Cache abstractions are present, but upstream test parity is still missing. |
+| Concurrent task execution | `framework.concurrency` | `concurrency` | `partial` | `packages/concurrency.md` | Bedrock has a concurrency package; upstream concurrency tests have not been matched yet. |
+| Conditional fluent execution | `framework.conditionable` | `conditionable` | `partial` | `packages/conditionable.md` | Go fluent proxy exists; PHP dynamic behaviour is adapted to Go. |
+| Configuration repository | `framework.config` | `config` | `partial` | `packages/config.md` | Config package exists; upstream test parity is not complete. |
+| Console commands | `framework.console` | n/a | `missing` | n/a | No Bedrock console package exists yet. |
+| Container bindings | `framework.container` | `container` | `partial` | `packages/container.md` | Container package exists; upstream container tests have not been matched yet. |
+| Shared interfaces | `framework.contracts` | `contracts` | `ported` | `packages/contracts.md` | Interface compliance is tracked through concrete package inventories. |
+| Cookie handling | `framework.cookie` | `cookie` | `partial` | `packages/cookie.md` | Cookie package exists; upstream test parity is not complete. |
+| Database query builder | `framework.database` | `database` | `partial` | `packages/database.md` | Query, schema, migrations, and Orm surfaces exist; broad upstream parity remains incomplete. |
+| Orm-style ORM | `framework.database` | `database` | `partial` | `packages/database.md` | ORM primitives exist with Go adaptations for attributes, relations, and errors. |
+| Encrypter | `framework.encryption` | `encryption` | `partial` | `packages/encryption.md` | CBC and GCM encryption exist; upstream encryption tests are not fully matched. |
+| Event dispatcher | `framework.events` | `events` | `partial` | `packages/events.md` | Event dispatching exists; upstream test parity remains incomplete. |
+| Local filesystem | `framework.filesystem` | `filesystem` | `partial` | `packages/filesystem.md` | Local filesystem operations are implemented; upstream parity tests are not complete. |
+| Application foundation | `framework.foundation` | n/a | `excluded` | n/a | Full Upstream application kernel is outside Bedrock product boundaries. |
+| Password hashing | `framework.hashing` | `hashing` | `partial` | `packages/hashing.md` | Hashing drivers exist; upstream test parity is not complete. |
+| HTTP primitives | `framework.http` | `httpx` | `partial` | `packages/httpx.md` | HTTP primitives and test helpers exist; upstream test parity remains incomplete. |
+| JSON schema builder | `framework.json_schema` | `jsonx` | `partial` | `packages/jsonx.md` | Fluent JSON schema builder exists; upstream test parity is not complete. |
+| Logging channels | `framework.log` | `log` | `partial` | `packages/log.md` | Driver-based structured logging exists; upstream log tests are not matched yet. |
+| Mail messages | `framework.mail` | `mailx` | `partial` | `packages/mailx.md` | Mail package exists; upstream mail test parity is incomplete. |
+| Notification channels | `framework.notifications` | `notifications` | `partial` | `packages/notifications.md` | Multi-channel notifications exist; upstream parity remains incomplete. |
+| Pagination | `framework.pagination` | `pagination` | `partial` | `packages/pagination.md` | Offset and cursor paginators exist; upstream parity is incomplete. |
+| Pipeline | `framework.pipeline` | `pipeline` | `partial` | `packages/pipeline.md` | Pipeline package exists; upstream test parity is not complete. |
+| Process runner | `framework.process` | n/a | `missing` | n/a | No Bedrock process package exists yet. |
+| Queue workers and drivers | `framework.queue` | `queue` | `partial` | `packages/queue.md` | Queue has the strongest upstream test match so far, but missing tests remain. |
+| Redis commands | `framework.redis` | `redis` | `partial` | `packages/redis.md` | Redis command surface exists; upstream Redis tests are not matched yet. |
+| Routing | `framework.routing` | `routing` | `partial` | `packages/routing.md` | Routing package exists; upstream routing tests remain incomplete. |
+| Session stores | `framework.session` | `session` | `partial` | `packages/session.md` | Session stores exist; upstream session tests are not matched yet. |
+| Support helpers | `framework.support` | `support` | `partial` | `packages/support.md` | Several support helpers are ported; upstream support coverage is still partial. |
+| String helpers | `framework.support_str` | `str` | `partial` | `packages/str.md` | String helper parity has many ported tests, but missing cases remain. |
+| Lottery helper | `framework.support_lottery` | `lottery` | `partial` | `packages/lottery.md` | Lottery package exists; upstream Lottery tests are not matched yet. |
+| Testing utilities | `framework.testing` | n/a | `missing` | n/a | No standalone Bedrock testing package exists yet. |
+| Translation loader | `framework.translation` | `translation` | `partial` | `packages/translation.md` | Translation has some matched upstream tests; full parity remains incomplete. |
+| Validation rules | `framework.validation` | `validation` | `partial` | `packages/validation.md` | Rule engine and many rules exist; upstream test parity is still broad and incomplete. |
+| Collections | `framework.collections` | n/a | `excluded` | n/a | Collections are not a standalone Bedrock package target. |
+| Macroable runtime | `framework.macroable` | n/a | `excluded` | n/a | PHP runtime macro behaviour does not map cleanly to Go static method sets. |
+| Reflection helpers | `framework.reflection` | n/a | `excluded` | n/a | PHP reflection helpers are not a Bedrock product surface. |
+| Template views | `framework.view` | n/a | `excluded` | n/a | Bedrock does not ship Upstream Template or the view engine. |
+| AI SDK | `package.ai` | `ai/sdk` | `partial` | `packages/ai/sdk.md` | Bedrock has an AI SDK package; upstream package parity is not complete. |
+| Agent tooling | `package.boost` | `ai/boost` | `partial` | `packages/ai/boost.md` | Boost package exists; upstream package parity remains incomplete. |
+| BroadcastClient client | `package.broadcastclient` | `broadcastclient` | `partial` | `packages/broadcastclient.md` | Tracked by feature inventory because there is no stable upstream test inventory configured. |
+| AuthFlows auth flows | `package.authflows` | `inception` | `partial` | `packages/authflows.md` | Exposed through Inception with AuthFlows-specific documentation. |
+| AuthKit teams | `package.authkit` | `inception` | `partial` | `packages/authkit.md` | Exposed through Inception with AuthKit-specific documentation. |
+| MCP server | `package.mcp` | `ai/mcp` | `partial` | `packages/ai/mcp.md` | MCP package exists; upstream package parity remains incomplete. |
+| OAuth server | `package.oauthserver` | `oauthserver` | `partial` | `packages/oauthserver.md` | OAuthServer package and docs exist; upstream package parity is not complete. |
+| Feature flags | `package.featureflags` | `featureflags` | `partial` | `packages/featureflags.md` | FeatureFlags package exists; upstream package parity remains incomplete. |
+| HTTPPreview client | `package.httppreview` | `httppreview` | `partial` | `packages/httppreview.md` | Tracked by feature inventory because there is no stable upstream test inventory configured. |
+| CLI prompts | `package.prompts` | `prompts` | `partial` | `packages/prompts.md` | Prompt package exists with a small number of matched upstream tests. |
+| WebSockets websocket server | `package.websockets` | `websockets` | `partial` | `packages/websockets.md` | WebSockets package exists; upstream package parity remains incomplete. |
+| Search indexing | `package.search` | `search` | `partial` | `packages/search.md` | Search package exists; upstream package parity remains incomplete. |
+| Social OAuth | `package.socialauth` | `socialauth` | `partial` | `packages/socialauth.md` | SocialAuth package exists; upstream package parity remains incomplete. |
+| Subscription billing | `package.billing` | `billing` | `partial` | `packages/billing.md` | Billing is tracked against local Madora billing tests. |
+| DebugBar observability | `package.debugbar` | `debugbar` | `partial` | `packages/debugbar.md` | DebugBar package exists; upstream package parity remains incomplete. |
+| RouteGen route helpers | `package.routegen` | `routegen` | `partial` | `packages/routegen.md` | RouteGen package exists; upstream package parity remains incomplete. |
+| Tokens tokens | `package.tokens` | n/a | `excluded` | n/a | Tokens is intentionally not part of Bedrock. |
+| JobQueue dashboard | `package.jobqueue` | n/a | `excluded` | n/a | Queue monitoring UI and runtime are outside Bedrock product boundaries. |
+| Browser automation | `package.dusk` | n/a | `excluded` | n/a | Browser automation package is excluded; browser work should use Agent Browser. |
 
 ## Mapped Sources Without Inventories
 
