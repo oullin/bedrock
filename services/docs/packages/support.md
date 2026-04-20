@@ -1,5 +1,9 @@
 # support
 
+<!-- upstream-docs: helpers.md#helpers -->
+<!-- upstream-docs: helpers.md#arrays-objects -->
+<!-- upstream-docs: helpers.md#other-utilities -->
+
 General-purpose helpers and types from Bedrock's Upstream support port.
 
 ## Overview

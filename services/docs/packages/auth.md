@@ -1,5 +1,12 @@
 # auth
 
+<!-- upstream-docs: authentication.md#authentication -->
+<!-- upstream-docs: authentication.md#adding-custom-guards -->
+<!-- upstream-docs: authentication.md#adding-custom-user-providers -->
+<!-- upstream-docs: authentication.md#password-confirmation -->
+<!-- upstream-docs: authorization.md#authorization -->
+<!-- upstream-docs: authorization.md#gates -->
+
 Authentication, authorization, and password management.
 
 ## Overview

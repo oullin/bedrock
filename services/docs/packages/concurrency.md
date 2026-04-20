@@ -1,5 +1,9 @@
 # concurrency
 
+<!-- upstream-docs: concurrency.md#concurrency -->
+<!-- upstream-docs: concurrency.md#running-concurrent-tasks -->
+<!-- upstream-docs: concurrency.md#deferring-concurrent-tasks -->
+
 Concurrent task execution with pluggable drivers.
 
 ## Overview

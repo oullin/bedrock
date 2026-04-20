@@ -1,5 +1,10 @@
 # debugbar
 
+<!-- upstream-docs: debugbar.md#upstream-debugbar -->
+<!-- upstream-docs: debugbar.md#available-watchers -->
+<!-- upstream-docs: debugbar.md#filtering -->
+<!-- upstream-docs: debugbar.md#tagging -->
+
 Debugging and introspection tool for Bedrock applications.
 
 ## Overview

@@ -1,5 +1,12 @@
 # queue
 
+<!-- upstream-docs: queues.md#queues -->
+<!-- upstream-docs: queues.md#dispatching-jobs -->
+<!-- upstream-docs: queues.md#running-the-queue-worker -->
+<!-- upstream-docs: queues.md#dealing-with-failed-jobs -->
+<!-- upstream-docs: queues.md#job-events -->
+<!-- upstream-docs: queues.md#testing -->
+
 Background job processing with pluggable drivers.
 
 ## Overview
