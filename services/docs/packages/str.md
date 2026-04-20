@@ -1,5 +1,9 @@
 # str
 
+<!-- upstream-docs: strings.md#strings -->
+<!-- upstream-docs: strings.md#available-methods -->
+<!-- upstream-docs: strings.md#fluent-strings -->
+
 String helpers split out from the old `support` module.
 
 ## Overview

@@ -1,5 +1,9 @@
 # broadcastclient
 
+<!-- upstream-docs: broadcasting.md#receiving-broadcasts -->
+<!-- upstream-docs: broadcasting.md#presence-channels -->
+<!-- upstream-docs: broadcasting.md#client-events -->
+
 Real-time event broadcasting client (Go port of Upstream BroadcastClient).
 
 ## Overview

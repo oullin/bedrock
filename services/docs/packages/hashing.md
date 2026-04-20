@@ -1,5 +1,10 @@
 # hashing
 
+<!-- upstream-docs: hashing.md#hashing -->
+<!-- upstream-docs: hashing.md#basic-usage -->
+<!-- upstream-docs: hashing.md#configuration -->
+<!-- upstream-docs: hashing.md#hash-algorithm-verification -->
+
 Driver-based password hashing with bcrypt and Argon2.
 
 ## Overview

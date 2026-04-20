@@ -1,5 +1,11 @@
 # ai/sdk
 
+<!-- upstream-docs: ai-sdk.md#upstream-ai-sdk -->
+<!-- upstream-docs: ai-sdk.md#agents -->
+<!-- upstream-docs: ai-sdk.md#embeddings -->
+<!-- upstream-docs: ai-sdk.md#events -->
+<!-- upstream-docs: ai-sdk.md#testing -->
+
 Unified API for interacting with AI providers (OpenAI, Anthropic, Gemini, and more).
 
 ## Overview

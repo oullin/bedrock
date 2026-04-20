@@ -1,5 +1,9 @@
 # Request Lifecycle
 
+<!-- upstream-docs: lifecycle.md#request-lifecycle -->
+<!-- upstream-docs: lifecycle.md#lifecycle-overview -->
+<!-- upstream-docs: lifecycle.md#focus-on-service-providers -->
+
 How an HTTP request flows through a Bedrock application — from the first byte
 on the wire to the response headers going back out.
 

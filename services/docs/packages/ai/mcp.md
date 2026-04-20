@@ -1,5 +1,10 @@
 # ai/mcp
 
+<!-- upstream-docs: mcp.md#upstream-mcp -->
+<!-- upstream-docs: mcp.md#creating-servers -->
+<!-- upstream-docs: mcp.md#tools -->
+<!-- upstream-docs: mcp.md#resources -->
+
 Model Context Protocol (MCP) server implementation.
 
 ## Overview

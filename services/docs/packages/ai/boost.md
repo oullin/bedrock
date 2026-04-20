@@ -1,5 +1,10 @@
 # ai/boost
 
+<!-- upstream-docs: ai.md#upstream-boost -->
+<!-- upstream-docs: boost.md#upstream-boost -->
+<!-- upstream-docs: boost.md#mcp-server -->
+<!-- upstream-docs: boost.md#agent-skills -->
+
 IDE coding-assistant integration for AI agents (Cursor, Claude Code, Copilot, and more).
 
 ## Overview

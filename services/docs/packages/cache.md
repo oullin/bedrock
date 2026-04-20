@@ -1,5 +1,10 @@
 # cache
 
+<!-- upstream-docs: cache.md#cache -->
+<!-- upstream-docs: cache.md#cache-tags -->
+<!-- upstream-docs: cache.md#atomic-locks -->
+<!-- upstream-docs: cache.md#adding-custom-cache-drivers -->
+
 Caching layer with multiple driver support.
 
 ## Overview
