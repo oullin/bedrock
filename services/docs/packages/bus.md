@@ -1,5 +1,7 @@
 # bus
 
+<!-- upstream-docs: queues.md#job-middleware -->
+
 Command and event bus with pipeline support.
 
 ## Overview

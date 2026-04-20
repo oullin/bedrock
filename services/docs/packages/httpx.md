@@ -1,5 +1,12 @@
 # httpx
 
+<!-- upstream-docs: requests.md#http-requests -->
+<!-- upstream-docs: requests.md#files -->
+<!-- upstream-docs: responses.md#http-responses -->
+<!-- upstream-docs: responses.md#redirects -->
+<!-- upstream-docs: http-client.md#http-client -->
+<!-- upstream-docs: http-client.md#making-requests -->
+
 HTTP utilities, middleware, and testing helpers.
 
 ## Overview

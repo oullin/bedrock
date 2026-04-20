@@ -1,5 +1,12 @@
 # routing
 
+<!-- upstream-docs: routing.md#routing -->
+<!-- upstream-docs: routing.md#basic-routing -->
+<!-- upstream-docs: routing.md#named-routes -->
+<!-- upstream-docs: routing.md#route-groups -->
+<!-- upstream-docs: routing.md#route-model-binding -->
+<!-- upstream-docs: routing.md#rate-limiting -->
+
 HTTP routing — a 1:1 Go port of Upstream's routing layer.
 
 ## Overview

@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-20T07:53:35Z
+Generated: 2026-04-20T08:31:21Z
 
 Source of truth: services/compliance
 
@@ -16,13 +16,99 @@ Source of truth: services/compliance
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Upstream docs |               1 |               875 |        0 (0.0%) |               875 (100.0%) |         0 (0.0%) |          0 (0.0%) |
+| Upstream docs |               1 |               875 |     183 (20.9%) |                505 (57.7%) |        10 (1.1%) |       177 (20.2%) |
 
 ## Upstream Skeleton Demo Summary
 
 | Scope           | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |
 | --------------- | -------------------: | -------------: | -----------: | ----------------------: | ------------: | -------------: |
-| upstream/upstream |                    1 |             49 |   20 (40.8%) |              15 (30.6%) |     5 (10.2%) |      9 (18.4%) |
+| upstream/upstream |                    1 |             49 |   20 (40.8%) |                0 (0.0%) |    10 (20.4%) |     19 (38.8%) |
+
+## Documentation Detail
+
+### Top Pending Documentation Files
+
+| Upstream Docs File           | Pending Sections |
+| --------------------------- | ---------------: |
+| `orm.md`               |               20 |
+| `queries.md`                |               16 |
+| `oauthserver.md`               |               16 |
+| `cashier-paddle.md`         |               15 |
+| `prompts.md`                |               14 |
+| `billing.md`                |               14 |
+| `featureflags.md`                |               11 |
+| `broadcasting.md`           |               11 |
+| `notifications.md`          |               10 |
+| `migrations.md`             |               10 |
+| `mcp.md`                    |               10 |
+| `orm-relationships.md` |               10 |
+| `contributions.md`          |               10 |
+| `boost.md`                  |               10 |
+| `cli.md`                |               10 |
+| `mail.md`                   |                9 |
+| `http-tests.md`             |                9 |
+| `deployment.md`             |                9 |
+| `ai-sdk.md`                 |                9 |
+| `queues.md`                 |                8 |
+
+### Classified Documentation Sections
+
+| Upstream Docs File | Status   | Sections |
+| ----------------- | -------- | -------: |
+| `installation.md` | Adapted  |        4 |
+| `lifecycle.md`    | Adapted  |        1 |
+| `structure.md`    | Adapted  |        3 |
+| `testing.md`      | Adapted  |        2 |
+| `template.md`        | Excluded |       13 |
+| `dusk.md`         | Excluded |       17 |
+| `remotetasks.md`        | Excluded |        6 |
+| `folio.md`        | Excluded |       17 |
+| `homestead.md`    | Excluded |       11 |
+| `jobqueue.md`      | Excluded |       11 |
+| `mix.md`          | Excluded |        2 |
+| `octane.md`       | Excluded |       12 |
+| `pint.md`         | Excluded |        6 |
+| `pulse.md`        | Excluded |        7 |
+| `sail.md`         | Excluded |       25 |
+| `tokens.md`      | Excluded |        8 |
+| `starter-kits.md` | Excluded |        8 |
+| `valet.md`        | Excluded |       12 |
+| `views.md`        | Excluded |        6 |
+| `vite.md`         | Excluded |       16 |
+
+## Skeleton Detail
+
+| Upstream Skeleton File                    | Status   |
+| ---------------------------------------- | -------- |
+| `.editorconfig`                          | Excluded |
+| `.env.example`                           | Adapted  |
+| `.gitattributes`                         | Excluded |
+| `.github/workflows/issues.yml`           | Excluded |
+| `.github/workflows/pull-requests.yml`    | Excluded |
+| `.github/workflows/tests.yml`            | Adapted  |
+| `.github/workflows/update-changelog.yml` | Excluded |
+| `.gitignore`                             | Adapted  |
+| `.npmrc`                                 | Adapted  |
+| `.styleci.yml`                           | Excluded |
+| `CHANGELOG.md`                           | Excluded |
+| `README.md`                              | Adapted  |
+| `app/Http/Controllers/Controller.php`    | Excluded |
+| `cli`                                | Excluded |
+| `bootstrap/providers.php`                | Adapted  |
+| `composer.json`                          | Excluded |
+| `config/auth.php`                        | Adapted  |
+| `config/mail.php`                        | Adapted  |
+| `config/services.php`                    | Adapted  |
+| `package.json`                           | Excluded |
+| `phpunit.xml`                            | Excluded |
+| `public/.htaccess`                       | Excluded |
+| `public/favicon.ico`                     | Excluded |
+| `public/robots.txt`                      | Excluded |
+| `resources/css/app.css`                  | Excluded |
+| `resources/js/app.js`                    | Excluded |
+| `resources/views/welcome.template.php`      | Excluded |
+| `routes/console.php`                     | Adapted  |
+| `vite.config.js`                         | Excluded |
 
 ## Inventories
 

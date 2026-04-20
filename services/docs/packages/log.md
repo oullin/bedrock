@@ -1,5 +1,10 @@
 # log
 
+<!-- upstream-docs: logging.md#logging -->
+<!-- upstream-docs: logging.md#writing-log-messages -->
+<!-- upstream-docs: logging.md#building-log-stacks -->
+<!-- upstream-docs: logging.md#configuration -->
+
 Driver-based structured logging with channels and stack aggregation.
 
 ## Overview

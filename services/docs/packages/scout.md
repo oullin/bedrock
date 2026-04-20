@@ -1,5 +1,9 @@
 # search
 
+<!-- upstream-docs: search.md#upstream-search -->
+<!-- upstream-docs: search.md#custom-engines -->
+<!-- upstream-docs: search.md#searching -->
+
 Full-text search with pluggable engine backends.
 
 ## Overview

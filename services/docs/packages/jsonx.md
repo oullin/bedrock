@@ -1,5 +1,7 @@
 # jsonx
 
+<!-- upstream-docs: validation.md#validating-arrays -->
+
 Fluent JSON Schema builder.
 
 ## Overview
