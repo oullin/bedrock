@@ -59,7 +59,7 @@ framework:
     status: mapped
     repo: upstream/framework
     branch: 13.x
-    tests_path: tests/Concurrency
+    tests_path: tests/Integration/Concurrency
     inventory: inventories/framework-concurrency.txt
 
   - id: framework.conditionable
@@ -483,10 +483,11 @@ packages:
     upstream: upstream/billing
     bedrock: billing
     status: mapped
-    repo: upstream/billing
-    branch: 5.0
-    tests_path: tests
+    repo: local:/Users/gocanto/Sites/madora
+    branch: local
+    tests_path: tests/Feature/Billing
     inventory: inventories/package-billing.txt
+    rationale: Billing is distributed through the local madora checkout; use the available billing/Billing integration tests as the local Billing compliance inventory.
 
   - id: package.debugbar
     upstream: upstream/debugbar
