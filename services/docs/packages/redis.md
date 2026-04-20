@@ -1,5 +1,10 @@
 # redis
 
+<!-- upstream-docs: redis.md#redis -->
+<!-- upstream-docs: redis.md#interacting-with-redis -->
+<!-- upstream-docs: redis.md#pub-sub -->
+<!-- upstream-docs: redis.md#configuration -->
+
 Full Redis command surface with pipeline, transactions, and pub/sub.
 
 ## Overview

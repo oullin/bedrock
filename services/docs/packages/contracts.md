@@ -1,5 +1,10 @@
 # contracts
 
+<!-- upstream-docs: contracts.md#contracts -->
+<!-- upstream-docs: contracts.md#how-to-use-contracts -->
+<!-- upstream-docs: contracts.md#when-to-use-contracts -->
+<!-- upstream-docs: contracts.md#contract-reference -->
+
 Shared interface definitions for every Bedrock package.
 
 ## Overview

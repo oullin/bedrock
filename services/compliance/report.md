@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-20T07:53:35Z
+Generated: 2026-04-20T08:51:38Z
 
 Source of truth: services/compliance
 
@@ -8,21 +8,105 @@ Source of truth: services/compliance
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          48 |          12782 |   426 (3.3%) |           12356 (96.7%) |      0 (0.0%) |
+| All inventories       |          51 |          13012 |   426 (3.3%) |           12586 (96.7%) |      0 (0.0%) |
 | Framework inventories |          34 |           8975 |   423 (4.7%) |            8552 (95.3%) |      0 (0.0%) |
-| Package inventories   |          14 |           3807 |     3 (0.1%) |            3804 (99.9%) |      0 (0.0%) |
+| Package inventories   |          17 |           4037 |     3 (0.1%) |            4034 (99.9%) |      0 (0.0%) |
 
 ## Documentation Porting Summary
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Upstream docs |               1 |               875 |        0 (0.0%) |               875 (100.0%) |         0 (0.0%) |          0 (0.0%) |
+| Upstream docs |               1 |               875 |     192 (21.9%) |                513 (58.6%) |        10 (1.1%) |       160 (18.3%) |
 
 ## Upstream Skeleton Demo Summary
 
 | Scope           | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |
 | --------------- | -------------------: | -------------: | -----------: | ----------------------: | ------------: | -------------: |
-| upstream/upstream |                    1 |             49 |   20 (40.8%) |              15 (30.6%) |     5 (10.2%) |      9 (18.4%) |
+| upstream/upstream |                    1 |             49 |   20 (40.8%) |                0 (0.0%) |    10 (20.4%) |     19 (38.8%) |
+
+## Documentation Detail
+
+### Top Pending Documentation Files
+
+| Upstream Docs File           | Pending Sections |
+| --------------------------- | ---------------: |
+| `orm.md`               |               20 |
+| `queries.md`                |               16 |
+| `oauthserver.md`               |               16 |
+| `cashier-paddle.md`         |               15 |
+| `prompts.md`                |               14 |
+| `billing.md`                |               14 |
+| `featureflags.md`                |               11 |
+| `broadcasting.md`           |               11 |
+| `notifications.md`          |               10 |
+| `migrations.md`             |               10 |
+| `mcp.md`                    |               10 |
+| `orm-relationships.md` |               10 |
+| `contributions.md`          |               10 |
+| `boost.md`                  |               10 |
+| `cli.md`                |               10 |
+| `mail.md`                   |                9 |
+| `http-tests.md`             |                9 |
+| `deployment.md`             |                9 |
+| `ai-sdk.md`                 |                9 |
+| `queues.md`                 |                8 |
+
+### Classified Documentation Sections
+
+| Upstream Docs File | Status   | Sections |
+| ----------------- | -------- | -------: |
+| `installation.md` | Adapted  |        4 |
+| `lifecycle.md`    | Adapted  |        1 |
+| `structure.md`    | Adapted  |        3 |
+| `testing.md`      | Adapted  |        2 |
+| `template.md`        | Excluded |       13 |
+| `dusk.md`         | Excluded |       17 |
+| `folio.md`        | Excluded |       17 |
+| `homestead.md`    | Excluded |       11 |
+| `mix.md`          | Excluded |        2 |
+| `octane.md`       | Excluded |       12 |
+| `pint.md`         | Excluded |        6 |
+| `pulse.md`        | Excluded |        7 |
+| `sail.md`         | Excluded |       25 |
+| `tokens.md`      | Excluded |        8 |
+| `starter-kits.md` | Excluded |        8 |
+| `valet.md`        | Excluded |       12 |
+| `views.md`        | Excluded |        6 |
+| `vite.md`         | Excluded |       16 |
+
+## Skeleton Detail
+
+| Upstream Skeleton File                    | Status   |
+| ---------------------------------------- | -------- |
+| `.editorconfig`                          | Excluded |
+| `.env.example`                           | Adapted  |
+| `.gitattributes`                         | Excluded |
+| `.github/workflows/issues.yml`           | Excluded |
+| `.github/workflows/pull-requests.yml`    | Excluded |
+| `.github/workflows/tests.yml`            | Adapted  |
+| `.github/workflows/update-changelog.yml` | Excluded |
+| `.gitignore`                             | Adapted  |
+| `.npmrc`                                 | Adapted  |
+| `.styleci.yml`                           | Excluded |
+| `CHANGELOG.md`                           | Excluded |
+| `README.md`                              | Adapted  |
+| `app/Http/Controllers/Controller.php`    | Excluded |
+| `cli`                                | Excluded |
+| `bootstrap/providers.php`                | Adapted  |
+| `composer.json`                          | Excluded |
+| `config/auth.php`                        | Adapted  |
+| `config/mail.php`                        | Adapted  |
+| `config/services.php`                    | Adapted  |
+| `package.json`                           | Excluded |
+| `phpunit.xml`                            | Excluded |
+| `public/.htaccess`                       | Excluded |
+| `public/favicon.ico`                     | Excluded |
+| `public/robots.txt`                      | Excluded |
+| `resources/css/app.css`                  | Excluded |
+| `resources/js/app.js`                    | Excluded |
+| `resources/views/welcome.template.php`      | Excluded |
+| `routes/console.php`                     | Adapted  |
+| `vite.config.js`                         | Excluded |
 
 ## Inventories
 
@@ -73,8 +157,11 @@ Source of truth: services/compliance
 | inventories/package-websockets.txt            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
 | inventories/package-search.txt             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
 | inventories/package-socialauth.txt         |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
-| inventories/package-billing.txt             |            163 |     0 (0.0%) |  163 (100.0%) |      0 (0.0%) |
+| inventories/package-billing.txt             |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
 | inventories/package-debugbar.txt         |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
+| inventories/package-jobqueue.txt           |            169 |     0 (0.0%) |  169 (100.0%) |      0 (0.0%) |
+| inventories/package-logtail.txt              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
+| inventories/package-remotetasks.txt             |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
 | inventories/package-routegen.txt         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
 
 ## Framework Coverage
@@ -182,17 +269,19 @@ Source of truth: services/compliance
 | Subscription billing         | `package.billing`             | `billing`         | `partial`  | `packages/billing.md`         | Billing is tracked against local Madora billing tests.                                                         |
 | DebugBar observability      | `package.debugbar`         | `debugbar`     | `partial`  | `packages/debugbar.md`     | DebugBar package exists; upstream package parity remains incomplete.                                        |
 | RouteGen route helpers      | `package.routegen`         | `routegen`     | `partial`  | `packages/routegen.md`     | RouteGen package exists; upstream package parity remains incomplete.                                        |
+| Queue monitoring             | `package.jobqueue`           | `jobqueue`       | `partial`  | `packages/jobqueue.md`       | JobQueue is tracked as queue monitoring primitives; the browser dashboard is not ported.                      |
+| Log tailing                  | `package.logtail`              | `logtail`          | `partial`  | `packages/logtail.md`          | LogTail is tracked as log parsing and filtering primitives for Go readers.                                      |
+| Remote task runner           | `package.remotetasks`             | `remotetasks`         | `partial`  | `packages/remotetasks.md`         | RemoteTasks is tracked as task planning and command execution primitives with injectable runners.                  |
 | Tokens tokens               | `package.tokens`           | n/a             | `excluded` | n/a                         | Tokens is intentionally not part of Bedrock.                                                                |
-| JobQueue dashboard            | `package.jobqueue`           | n/a             | `excluded` | n/a                         | Queue monitoring UI and runtime are outside Bedrock product boundaries.                                      |
 | Browser automation           | `package.dusk`              | n/a             | `excluded` | n/a                         | Browser automation package is excluded; browser work should use Agent Browser.                               |
 
-## Mapped Sources Without Inventories
+## Sources Without Test Inventories
 
-| Source                 | Bedrock        | Reason                                           |
-| ---------------------- | -------------- | ------------------------------------------------ |
-| `Framework\Contracts` | `contracts`    | No generated upstream test inventory configured. |
-| `upstream/broadcastclient`         | `broadcastclient`         | No generated upstream test inventory configured. |
-| `upstream/httppreview` | `httppreview` | No generated upstream test inventory configured. |
+| Source                 | Bedrock        | Tracking                     | Reason                                                                                                                    |
+| ---------------------- | -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Framework\Contracts` | `contracts`    | Concrete package inventories | Interface-only component; compliance is verified through concrete package inventories.                                    |
+| `upstream/broadcastclient`         | `broadcastclient`         | Feature inventory            | TypeScript client package; compliance is tracked by feature coverage until a stable upstream test inventory is available. |
+| `upstream/httppreview` | `httppreview` | Feature inventory            | JavaScript package; compliance is tracked by feature coverage until a stable upstream test inventory is available.        |
 
 ## Permanent Exclusions
 
@@ -201,17 +290,14 @@ Source of truth: services/compliance
 - `Framework\Reflection` - PHP reflection helpers are not a Bedrock product surface.
 - `Framework\View` - Product boundary; Bedrock does not ship Upstream's Template/view engine.
 - `upstream/tokens` - Product boundary; Tokens is intentionally not part of Bedrock.
-- `upstream/jobqueue` - Product boundary; queue monitoring UI/runtime is intentionally excluded.
 - `upstream/octane` - Product boundary; PHP worker/runtime management does not map to Bedrock.
 - `upstream/pulse` - Product boundary; application monitoring dashboard is intentionally excluded.
-- `upstream/logtail` - Product boundary; log-tail CLI is intentionally excluded.
 - `upstream/folio` - Product boundary; page-based PHP routing is intentionally excluded.
 - `upstream/dusk` - Product boundary; browser automation package is excluded. Any future browser work must use Agent Browser.
 - `upstream/browser-kit-testing` - Product boundary; legacy BrowserKit compatibility is intentionally excluded.
 - `upstream/sail` - Product boundary; Docker development environment tooling is intentionally excluded.
 - `upstream/installer` - Product boundary; Upstream application installer tooling is intentionally excluded.
 - `upstream/valet` - Product boundary; macOS local development service management is intentionally excluded.
-- `upstream/remotetasks` - Product boundary; SSH task runner is intentionally excluded.
 - `upstream/vite-plugin` - Product boundary; Vite integration tooling is intentionally excluded.
 - `starter-kits` - Product boundary; application starter kits are intentionally excluded.
 - `upstream/workos` - Product boundary; WorkOS starter-kit integration is intentionally excluded.

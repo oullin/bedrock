@@ -1,5 +1,8 @@
 # inception
 
+<!-- upstream-docs: authflows.md#upstream-authflows -->
+<!-- upstream-docs: authflows.md#two-factor-authentication -->
+
 Unified authentication scaffolding — Upstream AuthFlows + AuthKit, ported.
 
 ## Overview

@@ -1,5 +1,8 @@
 # config
 
+<!-- upstream-docs: configuration.md#configuration -->
+<!-- upstream-docs: configuration.md#accessing-configuration-values -->
+
 Configuration repository with dot-notation access.
 
 ## Overview

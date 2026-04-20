@@ -1,5 +1,9 @@
 # translation
 
+<!-- upstream-docs: localization.md#localization -->
+<!-- upstream-docs: localization.md#defining-translation-strings -->
+<!-- upstream-docs: localization.md#retrieving-translation-strings -->
+
 Localisation and i18n support.
 
 ## Overview

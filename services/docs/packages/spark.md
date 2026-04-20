@@ -1,5 +1,10 @@
 # billing
 
+<!-- upstream-docs: billing.md#upstream-cashier-stripe -->
+<!-- upstream-docs: billing.md#subscriptions -->
+<!-- upstream-docs: billing.md#checkout -->
+<!-- upstream-docs: billing.md#customers -->
+
 Subscription billing, checkout, and entitlement management.
 
 ## Overview
