@@ -97,6 +97,7 @@ pnpm run build --filter=@bedrock/docs
 | [events](/packages/events)     | Event dispatching and listener management        |
 | [bus](/packages/bus)           | Command and event bus with pipeline support      |
 | [queue](/packages/queue)       | Background job processing with pluggable drivers |
+| [jobqueue](/packages/jobqueue)   | Queue monitoring snapshots and metrics           |
 | [pipeline](/packages/pipeline) | Middleware-style pipe-and-filter chains          |
 
 ### Communication
@@ -117,6 +118,15 @@ pnpm run build --filter=@bedrock/docs
 | [concurrency](/packages/concurrency)     | Concurrent task execution with pluggable drivers |
 | [conditionable](/packages/conditionable) | Conditional method execution with a fluent proxy |
 | [jsonx](/packages/jsonx)                 | Fluent JSON Schema builder                       |
+
+### Developer Tools
+
+| Package                          | Purpose                                  |
+| -------------------------------- | ---------------------------------------- |
+| [prompts](/packages/prompts)     | Interactive terminal prompt components   |
+| [logtail](/packages/logtail)           | Log tail parsing and filtering           |
+| [remotetasks](/packages/remotetasks)         | Remote task planning and command running |
+| [debugbar](/packages/debugbar) | Application introspection and watchers   |
 
 ### Products
 

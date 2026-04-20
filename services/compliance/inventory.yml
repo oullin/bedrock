@@ -502,6 +502,33 @@ packages:
     tests_path: tests
     inventory: inventories/package-debugbar.txt
 
+  - id: package.jobqueue
+    upstream: upstream/jobqueue
+    bedrock: jobqueue
+    status: mapped
+    repo: upstream/jobqueue
+    branch: 5.x
+    tests_path: tests
+    inventory: inventories/package-jobqueue.txt
+
+  - id: package.logtail
+    upstream: upstream/logtail
+    bedrock: logtail
+    status: mapped
+    repo: upstream/logtail
+    branch: main
+    tests_path: tests
+    inventory: inventories/package-logtail.txt
+
+  - id: package.remotetasks
+    upstream: upstream/remotetasks
+    bedrock: remotetasks
+    status: mapped
+    repo: upstream/remotetasks
+    branch: 2.x
+    tests_path: tests
+    inventory: inventories/package-remotetasks.txt
+
   - id: package.routegen
     upstream: upstream/routegen
     bedrock: routegen
@@ -517,11 +544,6 @@ excluded_permanent:
     status: excluded-permanent
     rationale: Product boundary; Tokens is intentionally not part of Bedrock.
 
-  - id: package.jobqueue
-    upstream: upstream/jobqueue
-    status: excluded-permanent
-    rationale: Product boundary; queue monitoring UI/runtime is intentionally excluded.
-
   - id: package.octane
     upstream: upstream/octane
     status: excluded-permanent
@@ -531,11 +553,6 @@ excluded_permanent:
     upstream: upstream/pulse
     status: excluded-permanent
     rationale: Product boundary; application monitoring dashboard is intentionally excluded.
-
-  - id: package.logtail
-    upstream: upstream/logtail
-    status: excluded-permanent
-    rationale: Product boundary; log-tail CLI is intentionally excluded.
 
   - id: package.folio
     upstream: upstream/folio
@@ -571,11 +588,6 @@ excluded_permanent:
     upstream: upstream/valet
     status: excluded-permanent
     rationale: Product boundary; macOS local development service management is intentionally excluded.
-
-  - id: package.remotetasks
-    upstream: upstream/remotetasks
-    status: excluded-permanent
-    rationale: Product boundary; SSH task runner is intentionally excluded.
 
   - id: package.vite_plugin
     upstream: upstream/vite-plugin
