@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-20T08:31:21Z
+Generated: 2026-04-20T08:40:51Z
 
 Source of truth: services/compliance
 
@@ -272,13 +272,13 @@ Source of truth: services/compliance
 | Horizon dashboard            | `package.horizon`           | n/a             | `excluded` | n/a                         | Queue monitoring UI and runtime are outside Bedrock product boundaries.                                      |
 | Browser automation           | `package.dusk`              | n/a             | `excluded` | n/a                         | Browser automation package is excluded; browser work should use Agent Browser.                               |
 
-## Mapped Sources Without Inventories
+## Sources Without Test Inventories
 
-| Source                 | Bedrock        | Reason                                           |
-| ---------------------- | -------------- | ------------------------------------------------ |
-| `Illuminate\Contracts` | `contracts`    | No generated upstream test inventory configured. |
-| `laravel/echo`         | `echo`         | No generated upstream test inventory configured. |
-| `laravel/precognition` | `precognition` | No generated upstream test inventory configured. |
+| Source                 | Bedrock        | Tracking                     | Reason                                                                                                                    |
+| ---------------------- | -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Illuminate\Contracts` | `contracts`    | Concrete package inventories | Interface-only component; compliance is verified through concrete package inventories.                                    |
+| `laravel/echo`         | `echo`         | Feature inventory            | TypeScript client package; compliance is tracked by feature coverage until a stable upstream test inventory is available. |
+| `laravel/precognition` | `precognition` | Feature inventory            | JavaScript package; compliance is tracked by feature coverage until a stable upstream test inventory is available.        |
 
 ## Permanent Exclusions
 

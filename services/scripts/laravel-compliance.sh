@@ -1070,16 +1070,36 @@ report() {
     done
 
     echo
-    echo "## Mapped Sources Without Inventories"
+    echo "## Sources Without Test Inventories"
     echo
-    echo "| Source | Bedrock | Reason |"
-    echo "| --- | --- | --- |"
+    echo "| Source | Bedrock | Tracking | Reason |"
+    echo "| --- | --- | --- | --- |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter laravel bedrock; do
       [ "$status" = "mapped" ] || continue
       [ -z "$inventory" ] || [ "$inventory" = "null" ] || continue
 
-      printf '| `%s` | `%s` | No generated upstream test inventory configured. |\n' "$laravel" "$bedrock"
+      local tracking reason
+      case "$id" in
+        framework.contracts)
+          tracking="Concrete package inventories"
+          reason="Interface-only component; compliance is verified through concrete package inventories."
+          ;;
+        package.echo)
+          tracking="Feature inventory"
+          reason="TypeScript client package; compliance is tracked by feature coverage until a stable upstream test inventory is available."
+          ;;
+        package.precognition)
+          tracking="Feature inventory"
+          reason="JavaScript package; compliance is tracked by feature coverage until a stable upstream test inventory is available."
+          ;;
+        *)
+          tracking="Mapped source"
+          reason="No generated upstream test inventory configured."
+          ;;
+      esac
+
+      printf '| `%s` | `%s` | %s | %s |\n' "$laravel" "$bedrock" "$tracking" "$reason"
     done
 
     echo
