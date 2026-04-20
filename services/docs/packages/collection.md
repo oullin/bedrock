@@ -11,13 +11,13 @@ go get github.com/bedrock/packages/collection@latest
 
 ## Packages
 
-| Package | Purpose |
-| ------- | ------- |
-| `collection` | Fluent `Collection[T]` wrapper for slices |
-| `lazy` | Deferred `iter.Seq[T]` pipelines for large or streamed data |
-| `collectible` | Ordered key-value collection with a fluent API |
-| `arr` | Standalone generic slice helpers |
-| `kv` | `map[string]any` helpers with dot-notation access |
+| Package       | Purpose                                                     |
+| ------------- | ----------------------------------------------------------- |
+| `collection`  | Fluent `Collection[T]` wrapper for slices                   |
+| `lazy`        | Deferred `iter.Seq[T]` pipelines for large or streamed data |
+| `collectible` | Ordered key-value collection with a fluent API              |
+| `arr`         | Standalone generic slice helpers                            |
+| `kv`          | `map[string]any` helpers with dot-notation access           |
 
 ## Collection
 
