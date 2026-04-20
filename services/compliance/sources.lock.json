@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-04-20T06:26:03Z",
+  "generated_at": "2026-04-20T07:20:52Z",
   "sources": [
     {
       "repo": "upstream/framework",
@@ -91,6 +91,18 @@
       "branch": "main",
       "commit": "4531f3d5b217207b6f6b049344838a6c3fa61b12",
       "url": "https://github.com/upstream/routegen/tree/main"
+    },
+    {
+      "repo": "upstream/docs",
+      "branch": "13.x",
+      "commit": "0c28388c5674293f7fc63549240f30184e150d27",
+      "url": "https://github.com/upstream/docs/tree/13.x"
+    },
+    {
+      "repo": "upstream/upstream",
+      "branch": "13.x",
+      "commit": "8ad7826f56d9e044cc3117d82d61c0e2282ce839",
+      "url": "https://github.com/upstream/upstream/tree/13.x"
     }
   ]
 }

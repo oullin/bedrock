@@ -8,6 +8,12 @@ DIVERGENCES_FILE="$COMPLIANCE_PATH/divergences.yml"
 FEATURES_FILE="$COMPLIANCE_PATH/features.yml"
 SOURCES_LOCK_FILE="$COMPLIANCE_PATH/sources.lock.json"
 REPORT_FILE="$COMPLIANCE_PATH/report.md"
+DOCS_STATUS_FILE="$COMPLIANCE_PATH/docs-status.yml"
+DOCS_INVENTORY_DIR="$COMPLIANCE_PATH/docs-inventories"
+DOCS_INVENTORY_FILE="$DOCS_INVENTORY_DIR/upstream-docs.txt"
+SKELETON_STATUS_FILE="$COMPLIANCE_PATH/skeleton-status.yml"
+SKELETON_INVENTORY_DIR="$COMPLIANCE_PATH/skeleton-inventories"
+SKELETON_INVENTORY_FILE="$SKELETON_INVENTORY_DIR/upstream-skeleton.txt"
 RECORD_SEPARATOR=$'\034'
 
 usage() {
@@ -361,7 +367,106 @@ refresh() {
     printf '%s\t%s\t%s\t%s\n' "$id" "$repo" "$branch" "$sha" >> "$seen_sources"
   done < <(list_records)
 
+  refresh_docs_inventory "$tmp_path" "$seen_sources"
+  refresh_skeleton_inventory "$tmp_path" "$seen_sources"
+
   write_sources_lock "$seen_sources"
+}
+
+refresh_docs_inventory() {
+  local tmp_path="$1"
+  local seen_sources="$2"
+  local repo="upstream/docs"
+  local branch="13.x"
+  local repo_path="$tmp_path/upstream-docs-13.x"
+
+  broadcastclient "Refreshing docs from $repo@$branch"
+  clone_source "$repo" "$branch" "$repo_path"
+  generate_docs_inventory "$repo_path" "$DOCS_INVENTORY_FILE"
+
+  local sha
+  sha="$(git -C "$repo_path" rev-parse HEAD)"
+  printf '%s\t%s\t%s\t%s\n' "docs.upstream" "$repo" "$branch" "$sha" >> "$seen_sources"
+}
+
+refresh_skeleton_inventory() {
+  local tmp_path="$1"
+  local seen_sources="$2"
+  local repo="upstream/upstream"
+  local branch="13.x"
+  local repo_path="$tmp_path/upstream-upstream-13.x"
+
+  broadcastclient "Refreshing skeleton from $repo@$branch"
+  clone_source "$repo" "$branch" "$repo_path"
+  generate_skeleton_inventory "$repo_path" "$SKELETON_INVENTORY_FILE"
+
+  local sha
+  sha="$(git -C "$repo_path" rev-parse HEAD)"
+  printf '%s\t%s\t%s\t%s\n' "skeleton.upstream" "$repo" "$branch" "$sha" >> "$seen_sources"
+}
+
+generate_docs_inventory() {
+  local source_path="$1"
+  local output_path="$2"
+
+  mkdir -p "$(dirname "$output_path")"
+
+  {
+    broadcastclient "# Upstream documentation inventory."
+    broadcastclient "# Source: https://github.com/upstream/docs/tree/13.x"
+    broadcastclient "# Format: <markdown file>#<heading slug>"
+    broadcastclient "# Generated: $(date -u +%Y-%m-%d)"
+    broadcastclient "#"
+    broadcastclient "# Bedrock docs mark ported sections with:"
+    broadcastclient "# <!-- upstream-docs: <markdown file>#<heading slug> -->"
+    broadcastclient
+
+    find "$source_path" -maxdepth 1 -type f -name '*.md' | sort | while IFS= read -r doc_file; do
+      local rel
+      rel="${doc_file#$source_path/}"
+
+      ARGV_DOC="$rel" perl -ne '
+        sub slugify {
+          my ($value) = @_;
+          $value = lc $value;
+          $value =~ s/`([^`]+)`/$1/g;
+          $value =~ s/<[^>]+>//g;
+          $value =~ s/&[a-z0-9#]+;//g;
+          $value =~ s/[^a-z0-9]+/-/g;
+          $value =~ s/^-+|-+$//g;
+          return $value;
+        }
+
+        if (/^(#{1,2})\s+(.+?)\s*#*\s*$/) {
+          my $slug = slugify($2);
+          print "$ENV{ARGV_DOC}#$slug\n" if $slug ne "";
+        }
+      ' "$doc_file"
+    done | sort -u
+  } > "$output_path"
+}
+
+generate_skeleton_inventory() {
+  local source_path="$1"
+  local output_path="$2"
+
+  mkdir -p "$(dirname "$output_path")"
+
+  {
+    broadcastclient "# Upstream skeleton inventory."
+    broadcastclient "# Source: https://github.com/upstream/upstream/tree/13.x"
+    broadcastclient "# Format: <repository path>"
+    broadcastclient "# Generated: $(date -u +%Y-%m-%d)"
+    broadcastclient
+
+    find "$source_path" -type f \
+      ! -path '*/.git/*' \
+      ! -path '*/bootstrap/cache/.gitignore' \
+      ! -path '*/storage/*/.gitignore' \
+      ! -path '*/database/.gitignore' \
+      | sed "s#^$source_path/##" \
+      | sort
+  } > "$output_path"
 }
 
 write_sources_lock() {
@@ -427,6 +532,109 @@ inventory_entries() {
     /^#/ { next }
     /::/ { print }
   ' "$file"
+}
+
+plain_inventory_entries() {
+  local file="$1"
+  awk '
+    /^[[:space:]]*$/ { next }
+    /^#/ { next }
+    { print }
+  ' "$file"
+}
+
+status_entries() {
+  local file="$1"
+  local status="$2"
+
+  [ -f "$file" ] || return 0
+
+  awk -v wanted="$status" '
+    /^[a-zA-Z_][a-zA-Z0-9_-]*:[[:space:]]*$/ {
+      current = $0
+      sub(/:.*/, "", current)
+      next
+    }
+    /^[a-zA-Z_][a-zA-Z0-9_-]*:[[:space:]]*\[\][[:space:]]*$/ {
+      current = ""
+      next
+    }
+    current == wanted && /^[[:space:]]*-[[:space:]]+/ {
+      value = $0
+      sub(/^[[:space:]]*-[[:space:]]+/, "", value)
+      gsub(/^"|"$/, "", value)
+      print value
+    }
+  ' "$file"
+}
+
+docs_marker_entries() {
+  rg -o --no-filename '<!--[[:space:]]*upstream-docs:[[:space:]]*[^[:space:]]+[[:space:]]*-->' "$ROOT_PATH/services/docs" -g '*.md' 2>/dev/null \
+    | sed -E 's/^<!--[[:space:]]*upstream-docs:[[:space:]]*//; s/[[:space:]]*-->$//' \
+    | sort -u || true
+}
+
+generic_inventory_stats() {
+  local inventory_file="$1"
+  local ported_file="$2"
+  local adapted_file="$3"
+  local excluded_file="$4"
+
+  awk '
+    FILENAME == ARGV[1] {
+      ported[$0] = 1
+      next
+    }
+    FILENAME == ARGV[2] {
+      adapted[$0] = 1
+      next
+    }
+    FILENAME == ARGV[3] {
+      excluded[$0] = 1
+      next
+    }
+    /^[[:space:]]*$/ || /^#/ {
+      next
+    }
+    {
+      total++
+
+      if ($0 in ported) {
+        ported_count++
+      } else if ($0 in adapted) {
+        adapted_count++
+      } else if ($0 in excluded) {
+        excluded_count++
+      } else {
+        missing_count++
+      }
+    }
+    END {
+      printf "%d\t%d\t%d\t%d\t%d\n", total + 0, ported_count + 0, adapted_count + 0, excluded_count + 0, missing_count + 0
+    }
+  ' "$ported_file" "$adapted_file" "$excluded_file" "$inventory_file"
+}
+
+generic_summary_row() {
+  local label="$1"
+  local inventory_count="$2"
+  local inventory_file="$3"
+  local ported_file="$4"
+  local adapted_file="$5"
+  local excluded_file="$6"
+  local stats total ported adapted excluded missing
+
+  stats="$(generic_inventory_stats "$inventory_file" "$ported_file" "$adapted_file" "$excluded_file")"
+  IFS=$'\t' read -r total ported adapted excluded missing <<< "$stats"
+
+  printf '| %s | %s | %s | %s | %s | %s | %s |\n' \
+    "$label" \
+    "$inventory_count" \
+    "$total" \
+    "$(count_percent_display "$ported" "$total")" \
+    "$(count_percent_display "$missing" "$total")" \
+    "$(count_percent_display "$adapted" "$total")" \
+    "$(count_percent_display "$excluded" "$total")"
 }
 
 build_status_index() {
@@ -637,7 +845,19 @@ report() {
   status_index_path="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-compliance-status.XXXXXX")"
   ported_index="$status_index_path/ported.txt"
   adapted_index="$status_index_path/adapted.txt"
+  docs_ported_index="$status_index_path/docs-ported.txt"
+  docs_adapted_index="$status_index_path/docs-adapted.txt"
+  docs_excluded_index="$status_index_path/docs-excluded.txt"
+  skeleton_ported_index="$status_index_path/skeleton-ported.txt"
+  skeleton_adapted_index="$status_index_path/skeleton-adapted.txt"
+  skeleton_excluded_index="$status_index_path/skeleton-excluded.txt"
   build_status_index "$ported_index" "$adapted_index"
+  docs_marker_entries > "$docs_ported_index"
+  status_entries "$DOCS_STATUS_FILE" adapted | sort -u > "$docs_adapted_index"
+  status_entries "$DOCS_STATUS_FILE" excluded | sort -u > "$docs_excluded_index"
+  status_entries "$SKELETON_STATUS_FILE" ported | sort -u > "$skeleton_ported_index"
+  status_entries "$SKELETON_STATUS_FILE" adapted | sort -u > "$skeleton_adapted_index"
+  status_entries "$SKELETON_STATUS_FILE" excluded | sort -u > "$skeleton_excluded_index"
 
   {
     broadcastclient "# Upstream Compliance Report"
@@ -653,6 +873,18 @@ report() {
     inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
     inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
     inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
+    broadcastclient
+    broadcastclient "## Documentation Porting Summary"
+    broadcastclient
+    broadcastclient "| Scope | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "Upstream docs" "1" "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    broadcastclient
+    broadcastclient "## Upstream Skeleton Demo Summary"
+    broadcastclient
+    broadcastclient "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "upstream/upstream" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
     broadcastclient
     broadcastclient "## Inventories"
     broadcastclient
@@ -903,6 +1135,91 @@ check_inventory_format() {
   return "$failed"
 }
 
+check_plain_inventory_format() {
+  local file="$1"
+  local label="$2"
+
+  if [ ! -f "$file" ]; then
+    broadcastclient "Missing $label inventory file: ${file#$ROOT_PATH/}" >&2
+    return 1
+  fi
+
+  awk '
+    /^[[:space:]]*$/ || /^#/ { next }
+    /^[^[:space:]]+$/ { next }
+    { invalid = 1; print FILENAME ":" FNR ": invalid inventory entry: " $0 > "/dev/stderr" }
+    END { exit invalid ? 1 : 0 }
+  ' "$file"
+}
+
+check_status_entries_known() {
+  local status_file="$1"
+  local inventory_file="$2"
+  local label="$3"
+  local failed=0 entries known unknown
+
+  entries="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-status-entries.XXXXXX")"
+  known="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-known-entries.XXXXXX")"
+
+  {
+    status_entries "$status_file" ported
+    status_entries "$status_file" adapted
+    status_entries "$status_file" excluded
+  } | sort -u > "$entries"
+
+  plain_inventory_entries "$inventory_file" | sort -u > "$known"
+
+  unknown="$(comm -23 "$entries" "$known")"
+
+  if [ -n "$unknown" ]; then
+    broadcastclient "$label status file references unknown inventory entries:" >&2
+    printf '%s\n' "$unknown" >&2
+    failed=1
+  fi
+
+  rm -f "$entries" "$known"
+  return "$failed"
+}
+
+check_docs_markers_known() {
+  local failed=0 markers known unknown
+
+  markers="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-doc-markers.XXXXXX")"
+  known="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-doc-known.XXXXXX")"
+
+  docs_marker_entries > "$markers"
+  plain_inventory_entries "$DOCS_INVENTORY_FILE" | sort -u > "$known"
+
+  unknown="$(comm -23 "$markers" "$known")"
+
+  if [ -n "$unknown" ]; then
+    broadcastclient "Documentation markers reference unknown Upstream docs inventory entries:" >&2
+    printf '%s\n' "$unknown" >&2
+    failed=1
+  fi
+
+  rm -f "$markers" "$known"
+  return "$failed"
+}
+
+check_docs_and_skeleton_tracking() {
+  local failed=0
+
+  [ -f "$DOCS_STATUS_FILE" ] || { broadcastclient "Missing $DOCS_STATUS_FILE" >&2; failed=1; }
+  [ -f "$SKELETON_STATUS_FILE" ] || { broadcastclient "Missing $SKELETON_STATUS_FILE" >&2; failed=1; }
+
+  check_plain_inventory_format "$DOCS_INVENTORY_FILE" "docs" || failed=1
+  check_plain_inventory_format "$SKELETON_INVENTORY_FILE" "skeleton" || failed=1
+
+  if [ "$failed" -eq 0 ]; then
+    check_status_entries_known "$DOCS_STATUS_FILE" "$DOCS_INVENTORY_FILE" "Docs" || failed=1
+    check_status_entries_known "$SKELETON_STATUS_FILE" "$SKELETON_INVENTORY_FILE" "Skeleton" || failed=1
+    check_docs_markers_known || failed=1
+  fi
+
+  return "$failed"
+}
+
 check_features_format() {
   awk '
     /^[[:space:]]*$/ || /^#/ { next }
@@ -1012,6 +1329,8 @@ check() {
   [ -f "$DIVERGENCES_FILE" ] || { broadcastclient "Missing $DIVERGENCES_FILE" >&2; return 1; }
   [ -f "$FEATURES_FILE" ] || { broadcastclient "Missing $FEATURES_FILE" >&2; return 1; }
   [ -f "$SOURCES_LOCK_FILE" ] || { broadcastclient "Missing $SOURCES_LOCK_FILE" >&2; return 1; }
+  [ -f "$DOCS_STATUS_FILE" ] || { broadcastclient "Missing $DOCS_STATUS_FILE" >&2; return 1; }
+  [ -f "$SKELETON_STATUS_FILE" ] || { broadcastclient "Missing $SKELETON_STATUS_FILE" >&2; return 1; }
 
   check_no_package_local_parity
   check_excluded_not_implemented
@@ -1019,6 +1338,7 @@ check() {
   check_no_inline_exclusions
   check_inventory_files_configured
   check_inventory_format
+  check_docs_and_skeleton_tracking
   check_features
   check_report_current
 }
