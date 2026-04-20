@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-20T08:31:21Z
+Generated: 2026-04-20T08:40:51Z
 
 Source of truth: services/compliance
 
@@ -272,13 +272,13 @@ Source of truth: services/compliance
 | JobQueue dashboard            | `package.jobqueue`           | n/a             | `excluded` | n/a                         | Queue monitoring UI and runtime are outside Bedrock product boundaries.                                      |
 | Browser automation           | `package.dusk`              | n/a             | `excluded` | n/a                         | Browser automation package is excluded; browser work should use Agent Browser.                               |
 
-## Mapped Sources Without Inventories
+## Sources Without Test Inventories
 
-| Source                 | Bedrock        | Reason                                           |
-| ---------------------- | -------------- | ------------------------------------------------ |
-| `Framework\Contracts` | `contracts`    | No generated upstream test inventory configured. |
-| `upstream/broadcastclient`         | `broadcastclient`         | No generated upstream test inventory configured. |
-| `upstream/httppreview` | `httppreview` | No generated upstream test inventory configured. |
+| Source                 | Bedrock        | Tracking                     | Reason                                                                                                                    |
+| ---------------------- | -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Framework\Contracts` | `contracts`    | Concrete package inventories | Interface-only component; compliance is verified through concrete package inventories.                                    |
+| `upstream/broadcastclient`         | `broadcastclient`         | Feature inventory            | TypeScript client package; compliance is tracked by feature coverage until a stable upstream test inventory is available. |
+| `upstream/httppreview` | `httppreview` | Feature inventory            | JavaScript package; compliance is tracked by feature coverage until a stable upstream test inventory is available.        |
 
 ## Permanent Exclusions
 
