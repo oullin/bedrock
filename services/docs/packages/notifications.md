@@ -1,5 +1,11 @@
 # notifications
 
+<!-- upstream-docs: notifications.md#notifications -->
+<!-- upstream-docs: notifications.md#sending-notifications -->
+<!-- upstream-docs: notifications.md#database-notifications -->
+<!-- upstream-docs: notifications.md#custom-channels -->
+<!-- upstream-docs: notifications.md#testing -->
+
 Multi-channel notification delivery.
 
 ## Overview

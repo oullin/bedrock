@@ -1,5 +1,9 @@
 # socialauth
 
+<!-- upstream-docs: socialauth.md#upstream-socialauth -->
+<!-- upstream-docs: socialauth.md#retrieving-user-details -->
+<!-- upstream-docs: socialauth.md#authentication -->
+
 OAuth social authentication (GitHub, Google, and more).
 
 ## Overview

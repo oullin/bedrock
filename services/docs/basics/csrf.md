@@ -1,5 +1,10 @@
 # CSRF Protection
 
+<!-- upstream-docs: csrf.md#csrf-protection -->
+<!-- upstream-docs: csrf.md#preventing-csrf-requests -->
+<!-- upstream-docs: csrf.md#x-csrf-token -->
+<!-- upstream-docs: csrf.md#x-xsrf-token -->
+
 Bedrock protects against Cross-Site Request Forgery using per-session tokens
 stored in the session and verified on state-changing requests.
 

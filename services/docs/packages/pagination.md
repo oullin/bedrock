@@ -1,5 +1,10 @@
 # pagination
 
+<!-- upstream-docs: pagination.md#database-pagination -->
+<!-- upstream-docs: pagination.md#basic-usage -->
+<!-- upstream-docs: pagination.md#cursor-pagination -->
+<!-- upstream-docs: pagination.md#displaying-pagination-results -->
+
 Offset-based and cursor-based pagination.
 
 ## Overview

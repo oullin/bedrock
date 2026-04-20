@@ -1,5 +1,11 @@
 # events
 
+<!-- upstream-docs: events.md#events -->
+<!-- upstream-docs: events.md#registering-events-and-listeners -->
+<!-- upstream-docs: events.md#dispatching-events -->
+<!-- upstream-docs: events.md#event-subscribers -->
+<!-- upstream-docs: events.md#queued-event-listeners -->
+
 Event dispatching and listener management.
 
 ## Overview

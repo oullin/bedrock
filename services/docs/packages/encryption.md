@@ -1,5 +1,9 @@
 # encryption
 
+<!-- upstream-docs: encryption.md#encryption -->
+<!-- upstream-docs: encryption.md#using-the-encrypter -->
+<!-- upstream-docs: encryption.md#configuration -->
+
 AES encryption with CBC and GCM mode support.
 
 ## Overview

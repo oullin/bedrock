@@ -1,5 +1,12 @@
 # filesystem
 
+<!-- upstream-docs: filesystem.md#file-storage -->
+<!-- upstream-docs: filesystem.md#retrieving-files -->
+<!-- upstream-docs: filesystem.md#storing-files -->
+<!-- upstream-docs: filesystem.md#deleting-files -->
+<!-- upstream-docs: filesystem.md#directories -->
+<!-- upstream-docs: filesystem.md#custom-filesystems -->
+
 Local filesystem operations.
 
 ## Overview
