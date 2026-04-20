@@ -9,11 +9,12 @@
   },
   "scripts": {
     "preinstall": "sh services/scripts/enforce-pnpm.sh",
-    "build": "turbo run build",
+    "build": "turbo run build && make go-build",
+    "compliance": "services/scripts/upstream-compliance.sh check",
     "dev": "turbo run dev",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "test:coverage": "turbo run test:coverage",
+    "typecheck": "turbo run typecheck && make vet",
+    "test": "turbo run test && make go-test && pnpm run compliance",
+    "test:coverage": "turbo run test:coverage && make go-coverage && pnpm run compliance",
     "fmt": "turbo run fmt",
     "fmt:check": "turbo run fmt:check"
   },
