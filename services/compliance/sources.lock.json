@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-04-20T07:20:52Z",
+  "generated_at": "2026-04-20T07:53:17Z",
   "sources": [
     {
       "repo": "upstream/framework",
@@ -19,6 +19,12 @@
       "branch": "main",
       "commit": "83789c51d4f2f1d25a66694edcaa62ec3f4bf76c",
       "url": "https://github.com/upstream/boost/tree/main"
+    },
+    {
+      "repo": "upstream/broadcastclient",
+      "branch": "2.x",
+      "commit": "77aacf8c4f23a7131060a7162d092c96e679e0c9",
+      "url": "https://github.com/upstream/broadcastclient/tree/2.x"
     },
     {
       "repo": "upstream/authflows",
@@ -49,6 +55,12 @@
       "branch": "1.x",
       "commit": "77e7beda8dcea62b1a27c625c04a2cd2623de1d5",
       "url": "https://github.com/upstream/featureflags/tree/1.x"
+    },
+    {
+      "repo": "upstream/httppreview",
+      "branch": "2.x",
+      "commit": "f30d98029531db0193545a870da3758320819dbc",
+      "url": "https://github.com/upstream/httppreview/tree/2.x"
     },
     {
       "repo": "upstream/prompts",

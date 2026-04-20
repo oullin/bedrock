@@ -308,3 +308,31 @@ func TestConnectionExecuteRaw(t *testing.T) {
 		t.Fatalf("got %q", v)
 	}
 }
+
+func TestHasHashTag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		key  string
+		want bool
+	}{
+		{name: "plain key", key: "queues:default", want: false},
+		{name: "queue key with tag", key: "queues:{default}", want: true},
+		{name: "tagged queue derivative", key: "queues:{default}:reserved", want: true},
+		{name: "empty tag", key: "queues:{}", want: false},
+		{name: "missing close brace", key: "queues:{default", want: false},
+		{name: "missing open brace", key: "queues:default}", want: false},
+		{name: "empty first tag disables hash tag", key: "queues:{}:{default}", want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := redis.HasHashTag(tt.key); got != tt.want {
+				t.Fatalf("HasHashTag(%q)=%v, want %v", tt.key, got, tt.want)
+			}
+		})
+	}
+}
