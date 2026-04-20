@@ -175,3 +175,58 @@ body,
 [vp-content] .custom-container-title {
   @apply font-semibold mb-2 text-slate-900 dark:text-white;
 }
+
+/* ─── Bedrock landing page — scoped design tokens ──────────────────────────
+   Only active on the new home layout (HomeLayout.vue wraps content in
+   .bedrock-home). Inner documentation layout is untouched.
+──────────────────────────────────────────────────────────────────────────── */
+
+.bedrock-home {
+  color-scheme: dark;
+  --bg: #07090d;
+  --bg-2: #0b0f16;
+  --panel: #0e141d;
+  --panel-2: #111824;
+  --line: #1a2433;
+  --line-2: #223147;
+  --ink: #e6edf7;
+  --ink-2: #a8b4c6;
+  --ink-3: #6b7a93;
+  --accent: #f472b6;
+  --accent-2: #db2777;
+  --accent-ink: #1f0514;
+  --max: 1200px;
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+.bedrock-home .mono,
+.bedrock-home code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.bedrock-home .serif {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.bedrock-home a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bedrock-home *,
+.bedrock-home *::before,
+.bedrock-home *::after {
+  box-sizing: border-box;
+}
+
+.bedrock-home button {
+  font-family: inherit;
+}
