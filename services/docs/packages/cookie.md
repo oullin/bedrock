@@ -1,5 +1,8 @@
 # cookie
 
+<!-- upstream-docs: requests.md#interacting-with-the-request -->
+<!-- upstream-docs: responses.md#creating-responses -->
+
 HTTP cookie handling.
 
 ## Overview

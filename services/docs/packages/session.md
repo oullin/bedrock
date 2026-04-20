@@ -1,5 +1,10 @@
 # session
 
+<!-- upstream-docs: session.md#http-session -->
+<!-- upstream-docs: session.md#interacting-with-the-session -->
+<!-- upstream-docs: session.md#adding-custom-session-drivers -->
+<!-- upstream-docs: session.md#session-cache -->
+
 Session management with multiple storage handlers.
 
 ## Overview

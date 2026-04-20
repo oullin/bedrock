@@ -1,5 +1,9 @@
 # httppreview
 
+<!-- upstream-docs: httppreview.md#httppreview -->
+<!-- upstream-docs: httppreview.md#live-validation -->
+<!-- upstream-docs: httppreview.md#testing -->
+
 Live, real-time form validation without duplicating backend rules in the frontend.
 
 ## Overview

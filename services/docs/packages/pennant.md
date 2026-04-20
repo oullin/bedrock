@@ -1,5 +1,9 @@
 # featureflags
 
+<!-- upstream-docs: featureflags.md#upstream-featureflags -->
+<!-- upstream-docs: featureflags.md#checking-features -->
+<!-- upstream-docs: featureflags.md#defining-features -->
+
 Feature flag management with pluggable storage backends.
 
 ## Overview

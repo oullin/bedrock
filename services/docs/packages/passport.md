@@ -1,5 +1,10 @@
 # oauthserver
 
+<!-- upstream-docs: oauthserver.md#upstream-oauthserver -->
+<!-- upstream-docs: oauthserver.md#authorization-code-grant -->
+<!-- upstream-docs: oauthserver.md#client-credentials-grant -->
+<!-- upstream-docs: oauthserver.md#token-scopes -->
+
 OAuth 1 and OAuth 2 server abstractions.
 
 ## Overview

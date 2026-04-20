@@ -1,5 +1,12 @@
 # validation
 
+<!-- upstream-docs: validation.md#validation -->
+<!-- upstream-docs: validation.md#validation-quickstart -->
+<!-- upstream-docs: validation.md#manually-creating-validators -->
+<!-- upstream-docs: validation.md#custom-validation-rules -->
+<!-- upstream-docs: validation.md#working-with-error-messages -->
+<!-- upstream-docs: validation.md#available-validation-rules -->
+
 Rule-based input validation — a 1:1 Go port of Upstream's validator.
 
 ## Overview
