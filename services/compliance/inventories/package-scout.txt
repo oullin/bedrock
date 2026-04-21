@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/search/tree/11.x/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.

@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/jobqueue/tree/5.x/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -130,6 +130,17 @@ Feature/RedisPayloadTest.php::test_it_determines_if_job_is_silenced_correctly
 Feature/RedisPayloadTest.php::test_it_determines_if_job_is_silenced_correctly_for_mailable
 Feature/RedisPayloadTest.php::test_it_determines_if_job_is_silenced_correctly_by_tags
 Feature/RedisPrefixTest.php::test_prefix_can_be_configured
+Feature/RedisPrefixTest.php::test_cluster_connection_uses_hash_tagged_prefix
+Feature/RedisPrefixTest.php::test_cluster_prefix_is_not_double_tagged
+Feature/RedisPrefixTest.php::test_standalone_connection_prefix_is_unchanged
+Feature/RedisPrefixTest.php::test_cluster_connection_uses_fallback_prefix
+Feature/RedisPrefixTest.php::test_cluster_connection_preserves_nodes
+Feature/RedisPrefixTest.php::test_use_throws_for_unknown_connection
+Feature/RedisPrefixTest.php::test_cluster_connection_falls_back_to_standalone_when_unsupported
+Feature/RedisPrefixTest.php::test_cluster_connection_registers_under_clusters_not_standalone
+Feature/RedisPrefixTest.php::test_standalone_connection_does_not_register_under_clusters
+Feature/RedisPrefixTest.php::test_cluster_connection_preserves_existing_options
+Feature/RedisPrefixTest.php::test_cluster_takes_precedence_over_standalone_with_same_name
 Feature/RetryJobTest.php::test_nothing_happens_for_failed_job_that_doesnt_exist
 Feature/RetryJobTest.php::test_failed_job_can_be_retried_successfully_with_a_fresh_id
 Feature/RetryJobTest.php::test_status_is_updated_for_double_failing_jobs
