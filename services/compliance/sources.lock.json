@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-04-21T08:06:03Z",
+  "generated_at": "2026-04-21T08:27:03Z",
   "sources": [
     {
       "repo": "upstream/framework",
@@ -89,7 +89,7 @@
     {
       "repo": "local:/Users/gocanto/Sites/madora",
       "branch": "local",
-      "commit": "597342f559b3a2858fdd0a6daa33b9bdd43fe4d6",
+      "commit": "0a14a966da09776366e3fe03918f6bc95d5f9ac8",
       "url": "/Users/gocanto/Sites/madora"
     },
     {

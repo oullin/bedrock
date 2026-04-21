@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-21T08:06:13Z
+Generated: 2026-04-21T08:27:14Z
 
 Source of truth: services/compliance
 
@@ -13,59 +13,59 @@ Source of truth: services/compliance
 
 ## Inventories
 
-| Inventory                                 | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |
-| ----------------------------------------- | -------------: | -----------: | ------------: | ------------: |
-| inventories/framework-auth.txt            |            257 |   54 (21.0%) |      0 (0.0%) |   203 (79.0%) |
-| inventories/framework-broadcasting.txt    |             55 |  55 (100.0%) |      0 (0.0%) |      0 (0.0%) |
-| inventories/framework-bus.txt             |             66 |     0 (0.0%) |   66 (100.0%) |      0 (0.0%) |
-| inventories/framework-cache.txt           |            313 |     0 (0.0%) |  313 (100.0%) |      0 (0.0%) |
-| inventories/framework-concurrency.txt     |             12 |     0 (0.0%) |   12 (100.0%) |      0 (0.0%) |
-| inventories/framework-conditionable.txt   |              2 |     0 (0.0%) |    2 (100.0%) |      0 (0.0%) |
-| inventories/framework-config.txt          |             33 |     0 (0.0%) |   33 (100.0%) |      0 (0.0%) |
-| inventories/framework-console.txt         |            156 |     0 (0.0%) |  156 (100.0%) |      0 (0.0%) |
-| inventories/framework-container.txt       |            193 |     0 (0.0%) |  193 (100.0%) |      0 (0.0%) |
-| inventories/framework-cookie.txt          |             26 |     0 (0.0%) |   26 (100.0%) |      0 (0.0%) |
-| inventories/framework-database.txt        |           2626 |     0 (0.0%) | 2626 (100.0%) |      0 (0.0%) |
-| inventories/framework-encryption.txt      |             27 |     0 (0.0%) |   27 (100.0%) |      0 (0.0%) |
-| inventories/framework-events.txt          |             76 |     0 (0.0%) |   76 (100.0%) |      0 (0.0%) |
-| inventories/framework-filesystem.txt      |            134 |     0 (0.0%) |  134 (100.0%) |      0 (0.0%) |
-| inventories/framework-hashing.txt         |             13 |     0 (0.0%) |   13 (100.0%) |      0 (0.0%) |
-| inventories/framework-http.txt            |            488 |     0 (0.0%) |  488 (100.0%) |      0 (0.0%) |
-| inventories/framework-json-schema.txt     |             47 |     0 (0.0%) |   47 (100.0%) |      0 (0.0%) |
-| inventories/framework-log.txt             |             98 |     0 (0.0%) |   98 (100.0%) |      0 (0.0%) |
-| inventories/framework-mail.txt            |            135 |     0 (0.0%) |  135 (100.0%) |      0 (0.0%) |
-| inventories/framework-notifications.txt   |             71 |     0 (0.0%) |   71 (100.0%) |      0 (0.0%) |
-| inventories/framework-pagination.txt      |             48 |     0 (0.0%) |   48 (100.0%) |      0 (0.0%) |
-| inventories/framework-pipeline.txt        |             22 |     0 (0.0%) |   22 (100.0%) |      0 (0.0%) |
-| inventories/framework-process.txt         |             54 |     0 (0.0%) |   54 (100.0%) |      0 (0.0%) |
-| inventories/framework-queue.txt           |            204 |  161 (78.9%) |    43 (21.1%) |      0 (0.0%) |
-| inventories/framework-redis.txt           |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
-| inventories/framework-routing.txt         |            315 |     0 (0.0%) |  315 (100.0%) |      0 (0.0%) |
-| inventories/framework-session.txt         |             93 |     0 (0.0%) |   93 (100.0%) |      0 (0.0%) |
-| inventories/framework-support.txt         |           1554 |   129 (8.3%) |  1425 (91.7%) |      0 (0.0%) |
-| inventories/framework-support-str.txt     |            115 |   69 (60.0%) |    46 (40.0%) |      0 (0.0%) |
-| inventories/framework-support-lottery.txt |             14 |     0 (0.0%) |   14 (100.0%) |      0 (0.0%) |
-| inventories/framework-testing.txt         |            381 |     0 (0.0%) |  381 (100.0%) |      0 (0.0%) |
-| inventories/framework-translation.txt     |             52 |    9 (17.3%) |    43 (82.7%) |      0 (0.0%) |
-| inventories/framework-validation.txt      |            597 |    34 (5.7%) |   563 (94.3%) |      0 (0.0%) |
-| inventories/framework-collections.txt     |            629 |    21 (3.3%) |   608 (96.7%) |      0 (0.0%) |
-| inventories/package-ai.txt                |            774 |     0 (0.0%) |  774 (100.0%) |      0 (0.0%) |
-| inventories/package-boost.txt             |            671 |     0 (0.0%) |  671 (100.0%) |      0 (0.0%) |
-| inventories/package-authflows.txt           |             91 |     0 (0.0%) |   91 (100.0%) |      0 (0.0%) |
-| inventories/package-authkit.txt         |             43 |     0 (0.0%) |   43 (100.0%) |      0 (0.0%) |
-| inventories/package-mcp.txt               |            624 |     0 (0.0%) |  624 (100.0%) |      0 (0.0%) |
-| inventories/package-oauthserver.txt          |            211 |     0 (0.0%) |  211 (100.0%) |      0 (0.0%) |
-| inventories/package-featureflags.txt           |            186 |     0 (0.0%) |  186 (100.0%) |      0 (0.0%) |
-| inventories/package-prompts.txt           |            313 |     3 (1.0%) |   310 (99.0%) |      0 (0.0%) |
-| inventories/package-websockets.txt            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
-| inventories/package-search.txt             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
-| inventories/package-socialauth.txt         |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
-| inventories/package-billing.txt             |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
-| inventories/package-debugbar.txt         |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
-| inventories/package-jobqueue.txt           |            180 |     0 (0.0%) |  180 (100.0%) |      0 (0.0%) |
-| inventories/package-logtail.txt              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
-| inventories/package-remotetasks.txt             |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
-| inventories/package-routegen.txt         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
+| Inventory                                 | Count Context                                                                                                                                                                                                              | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------: | -----------: | ------------: | ------------: |
+| inventories/framework-auth.txt            | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Auth`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                    |            257 |   54 (21.0%) |      0 (0.0%) |   203 (79.0%) |
+| inventories/framework-broadcasting.txt    | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Broadcasting`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.            |             55 |  55 (100.0%) |      0 (0.0%) |      0 (0.0%) |
+| inventories/framework-bus.txt             | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Bus`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                     |             66 |     0 (0.0%) |   66 (100.0%) |      0 (0.0%) |
+| inventories/framework-cache.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Cache`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                   |            313 |     0 (0.0%) |  313 (100.0%) |      0 (0.0%) |
+| inventories/framework-concurrency.txt     | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Integration/Concurrency`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`. |             12 |     0 (0.0%) |   12 (100.0%) |      0 (0.0%) |
+| inventories/framework-conditionable.txt   | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Conditionable`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.           |              2 |     0 (0.0%) |    2 (100.0%) |      0 (0.0%) |
+| inventories/framework-config.txt          | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Config`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                  |             33 |     0 (0.0%) |   33 (100.0%) |      0 (0.0%) |
+| inventories/framework-console.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Console`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |            156 |     0 (0.0%) |  156 (100.0%) |      0 (0.0%) |
+| inventories/framework-container.txt       | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Container`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.               |            193 |     0 (0.0%) |  193 (100.0%) |      0 (0.0%) |
+| inventories/framework-cookie.txt          | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Cookie`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                  |             26 |     0 (0.0%) |   26 (100.0%) |      0 (0.0%) |
+| inventories/framework-database.txt        | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Database`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                |           2626 |     0 (0.0%) | 2626 (100.0%) |      0 (0.0%) |
+| inventories/framework-encryption.txt      | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Encryption`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.              |             27 |     0 (0.0%) |   27 (100.0%) |      0 (0.0%) |
+| inventories/framework-events.txt          | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Events`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                  |             76 |     0 (0.0%) |   76 (100.0%) |      0 (0.0%) |
+| inventories/framework-filesystem.txt      | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Filesystem`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.              |            134 |     0 (0.0%) |  134 (100.0%) |      0 (0.0%) |
+| inventories/framework-hashing.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Hashing`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |             13 |     0 (0.0%) |   13 (100.0%) |      0 (0.0%) |
+| inventories/framework-http.txt            | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Http`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                    |            488 |     0 (0.0%) |  488 (100.0%) |      0 (0.0%) |
+| inventories/framework-json-schema.txt     | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/JsonSchema`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.              |             47 |     0 (0.0%) |   47 (100.0%) |      0 (0.0%) |
+| inventories/framework-log.txt             | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Log`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                     |             98 |     0 (0.0%) |   98 (100.0%) |      0 (0.0%) |
+| inventories/framework-mail.txt            | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Mail`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                    |            135 |     0 (0.0%) |  135 (100.0%) |      0 (0.0%) |
+| inventories/framework-notifications.txt   | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Notifications`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.           |             71 |     0 (0.0%) |   71 (100.0%) |      0 (0.0%) |
+| inventories/framework-pagination.txt      | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Pagination`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.              |             48 |     0 (0.0%) |   48 (100.0%) |      0 (0.0%) |
+| inventories/framework-pipeline.txt        | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Pipeline`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                |             22 |     0 (0.0%) |   22 (100.0%) |      0 (0.0%) |
+| inventories/framework-process.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Process`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |             54 |     0 (0.0%) |   54 (100.0%) |      0 (0.0%) |
+| inventories/framework-queue.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Queue`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                   |            204 |  161 (78.9%) |    43 (21.1%) |      0 (0.0%) |
+| inventories/framework-redis.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Redis`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                   |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
+| inventories/framework-routing.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Routing`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |            315 |     0 (0.0%) |  315 (100.0%) |      0 (0.0%) |
+| inventories/framework-session.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Session`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |             93 |     0 (0.0%) |   93 (100.0%) |      0 (0.0%) |
+| inventories/framework-support.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Support`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |           1554 |   129 (8.3%) |  1425 (91.7%) |      0 (0.0%) |
+| inventories/framework-support-str.txt     | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Support`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |            115 |   69 (60.0%) |    46 (40.0%) |      0 (0.0%) |
+| inventories/framework-support-lottery.txt | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Support`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |             14 |     0 (0.0%) |   14 (100.0%) |      0 (0.0%) |
+| inventories/framework-testing.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Testing`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |            381 |     0 (0.0%) |  381 (100.0%) |      0 (0.0%) |
+| inventories/framework-translation.txt     | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Translation`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.             |             52 |    9 (17.3%) |    43 (82.7%) |      0 (0.0%) |
+| inventories/framework-validation.txt      | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Validation`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.              |            597 |    34 (5.7%) |   563 (94.3%) |      0 (0.0%) |
+| inventories/framework-collections.txt     | Upstream tests are non-comment entries from `https://github.com/upstream/framework/tree/13.x/tests/Support`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                 |            629 |    21 (3.3%) |   608 (96.7%) |      0 (0.0%) |
+| inventories/package-ai.txt                | Upstream tests are non-comment entries from `https://github.com/upstream/ai/tree/0.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                                 |            774 |     0 (0.0%) |  774 (100.0%) |      0 (0.0%) |
+| inventories/package-boost.txt             | Upstream tests are non-comment entries from `https://github.com/upstream/boost/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                             |            671 |     0 (0.0%) |  671 (100.0%) |      0 (0.0%) |
+| inventories/package-authflows.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/authflows/tree/1.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                            |             91 |     0 (0.0%) |   91 (100.0%) |      0 (0.0%) |
+| inventories/package-authkit.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/authkit/tree/5.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                          |             43 |     0 (0.0%) |   43 (100.0%) |      0 (0.0%) |
+| inventories/package-mcp.txt               | Upstream tests are non-comment entries from `https://github.com/upstream/mcp/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                               |            624 |     0 (0.0%) |  624 (100.0%) |      0 (0.0%) |
+| inventories/package-oauthserver.txt          | Upstream tests are non-comment entries from `https://github.com/upstream/oauthserver/tree/13.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                          |            211 |     0 (0.0%) |  211 (100.0%) |      0 (0.0%) |
+| inventories/package-featureflags.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/featureflags/tree/1.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                            |            186 |     0 (0.0%) |  186 (100.0%) |      0 (0.0%) |
+| inventories/package-prompts.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/prompts/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                           |            313 |     3 (1.0%) |   310 (99.0%) |      0 (0.0%) |
+| inventories/package-websockets.txt            | Upstream tests are non-comment entries from `https://github.com/upstream/websockets/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
+| inventories/package-search.txt             | Upstream tests are non-comment entries from `https://github.com/upstream/search/tree/11.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
+| inventories/package-socialauth.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/socialauth/tree/5.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                          |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
+| inventories/package-billing.txt             | Upstream tests are non-comment entries from `/Users/gocanto/Sites/madora/tests/Feature/Billing`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                            |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
+| inventories/package-debugbar.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/debugbar/tree/5.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                          |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
+| inventories/package-jobqueue.txt           | Upstream tests are non-comment entries from `https://github.com/upstream/jobqueue/tree/5.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                            |            180 |     0 (0.0%) |  180 (100.0%) |      0 (0.0%) |
+| inventories/package-logtail.txt              | Upstream tests are non-comment entries from `https://github.com/upstream/logtail/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
+| inventories/package-remotetasks.txt             | Upstream tests are non-comment entries from `https://github.com/upstream/remotetasks/tree/2.x/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                              |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
+| inventories/package-routegen.txt         | Upstream tests are non-comment entries from `https://github.com/upstream/routegen/tree/main/tests`; ported tests match Go test markers; adapted tests match `services/compliance/divergences.yml`.                         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
 
 ## Framework Coverage
 
