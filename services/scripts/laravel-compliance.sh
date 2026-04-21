@@ -797,7 +797,17 @@ count_percent_display() {
   printf '%s (%s)' "$count" "$(percent_display "$count" "$total")"
 }
 
-inventory_count_context_display() {
+compliance_status() {
+  local missing="$1"
+
+  if [ "$missing" -eq 0 ]; then
+    printf 'Complete'
+  else
+    printf 'Not compliant'
+  fi
+}
+
+inventory_source_display() {
   local file="$1"
   local repo="$2"
   local branch="$3"
@@ -813,17 +823,162 @@ inventory_count_context_display() {
   ' "$file")"
 
   if [ -n "$source" ]; then
-    printf 'Upstream tests are non-comment entries from `%s`; ported tests match Go test markers; adapted tests match `%s`.' \
-      "$source" \
-      "${DIVERGENCES_FILE#$ROOT_PATH/}"
+    if [[ "$source" =~ ^https://github.com/([^/]+/[^/]+)/tree/([^/]+)/(.+)$ ]]; then
+      printf '%s@%s:%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
+    else
+      printf '%s' "$source"
+    fi
     return 0
   fi
 
-  printf 'Upstream tests are non-comment entries from `%s@%s:%s`; ported tests match Go test markers; adapted tests match `%s`.' \
-    "$repo" \
-    "$branch" \
-    "$tests_path" \
-    "${DIVERGENCES_FILE#$ROOT_PATH/}"
+  printf '%s@%s:%s' "$repo" "$branch" "$tests_path"
+}
+
+feature_summary_stats() {
+  local ported=0 partial=0 missing=0 excluded=0 classified=0
+  local id source_id name upstream bedrock status docs notes
+
+  while IFS="$RECORD_SEPARATOR" read -r id source_id name upstream bedrock status docs notes; do
+    case "$status" in
+      ported) ported=$((ported + 1)); classified=$((classified + 1)) ;;
+      partial) partial=$((partial + 1)); classified=$((classified + 1)) ;;
+      excluded) excluded=$((excluded + 1)); classified=$((classified + 1)) ;;
+      missing) missing=$((missing + 1)) ;;
+    esac
+  done < <(list_feature_records)
+
+  printf '%d\t%d\t%d\t%d\t%d\n' "$classified" "$missing" "$ported" "$partial" "$excluded"
+}
+
+command_center_rows() {
+  local ported_index="$1"
+  local adapted_index="$2"
+  local docs_ported_index="$3"
+  local docs_adapted_index="$4"
+  local docs_excluded_index="$5"
+  local skeleton_ported_index="$6"
+  local skeleton_adapted_index="$7"
+  local skeleton_excluded_index="$8"
+
+  local stats inventory_count total ported adapted missing classified
+  local overall_classified=0 overall_missing=0 overall_total=0
+
+  stats="$(inventory_summary_stats "all" "$ported_index" "$adapted_index")"
+  IFS=$'\t' read -r inventory_count total ported adapted missing <<< "$stats"
+  classified=$((ported + adapted))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + missing))
+  overall_total=$((overall_total + total))
+  printf '| Tests | %s / %s | %s | %s | Port executable equivalents or add divergence overrides for Go adaptations. |\n' \
+    "$classified" "$total" "$missing" "$(compliance_status "$missing")"
+
+  stats="$(generic_inventory_stats "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index")"
+  local docs_total docs_ported docs_adapted docs_excluded docs_missing
+  IFS=$'\t' read -r docs_total docs_ported docs_adapted docs_excluded docs_missing <<< "$stats"
+  classified=$((docs_ported + docs_adapted + docs_excluded))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + docs_missing))
+  overall_total=$((overall_total + docs_total))
+  printf '| Documentation | %s / %s | %s | %s | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |\n' \
+    "$classified" "$docs_total" "$docs_missing" "$(compliance_status "$docs_missing")"
+
+  stats="$(generic_inventory_stats "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index")"
+  local skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing
+  IFS=$'\t' read -r skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing <<< "$stats"
+  classified=$((skeleton_ported + skeleton_adapted + skeleton_excluded))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + skeleton_missing))
+  overall_total=$((overall_total + skeleton_total))
+  printf '| Upstream skeleton demo | %s / %s | %s | %s | Keep complete while upstream skeleton changes. |\n' \
+    "$classified" "$skeleton_total" "$skeleton_missing" "$(compliance_status "$skeleton_missing")"
+
+  stats="$(feature_summary_stats)"
+  local feature_classified feature_missing feature_ported feature_partial feature_excluded
+  IFS=$'\t' read -r feature_classified feature_missing feature_ported feature_partial feature_excluded <<< "$stats"
+  local feature_total=$((feature_classified + feature_missing))
+  overall_classified=$((overall_classified + feature_classified))
+  overall_missing=$((overall_missing + feature_missing))
+  overall_total=$((overall_total + feature_total))
+  printf '| Feature audits | %s / %s | %s | %s | Add audits for missing surfaces, then move partial surfaces to ported as parity closes. |\n' \
+    "$feature_classified" "$feature_total" "$feature_missing" "$(compliance_status "$feature_missing")"
+
+  printf '| Overall | %s / %s | %s | %s | Start with the Critical Path below; close the largest missing surfaces first. |\n' \
+    "$overall_classified" "$overall_total" "$overall_missing" "$(compliance_status "$overall_missing")"
+}
+
+critical_path_rows() {
+  local ported_index="$1"
+  local adapted_index="$2"
+  local docs_ported_index="$3"
+  local docs_adapted_index="$4"
+  local docs_excluded_index="$5"
+  local skeleton_ported_index="$6"
+  local skeleton_adapted_index="$7"
+  local skeleton_excluded_index="$8"
+  local rows rank=0
+
+  rows="$(
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+      local stats total ported adapted missing classified surface action
+      stats="$(inventory_stats "$COMPLIANCE_PATH/$inventory" "$ported_index" "$adapted_index")"
+      IFS=$'\t' read -r total ported adapted missing <<< "$stats"
+      [ "$missing" -gt 0 ] || continue
+
+      classified=$((ported + adapted))
+      surface="\`$upstream\`"
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        surface="$surface -> \`$bedrock\`"
+      fi
+
+      if [ "$status" = "missing" ] || [ -z "$bedrock" ] || [ "$bedrock" = "null" ]; then
+        action="Implement the surface or convert it to a permanent exclusion."
+      else
+        action="Port executable equivalents or add divergence overrides for Go adaptations."
+      fi
+
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' "$missing" "$surface" "$classified" "$total" "$(compliance_status "$missing")" "$action"
+    done
+
+    local docs_stats docs_total docs_ported docs_adapted docs_excluded docs_missing docs_classified
+    docs_stats="$(generic_inventory_stats "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index")"
+    IFS=$'\t' read -r docs_total docs_ported docs_adapted docs_excluded docs_missing <<< "$docs_stats"
+    if [ "$docs_missing" -gt 0 ]; then
+      docs_classified=$((docs_ported + docs_adapted + docs_excluded))
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' \
+        "$docs_missing" \
+        "Upstream documentation" \
+        "$docs_classified" \
+        "$docs_total" \
+        "$(compliance_status "$docs_missing")" \
+        "Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections."
+    fi
+
+    local skeleton_stats skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing skeleton_classified
+    skeleton_stats="$(generic_inventory_stats "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index")"
+    IFS=$'\t' read -r skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing <<< "$skeleton_stats"
+    if [ "$skeleton_missing" -gt 0 ]; then
+      skeleton_classified=$((skeleton_ported + skeleton_adapted + skeleton_excluded))
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' \
+        "$skeleton_missing" \
+        "Upstream skeleton demo" \
+        "$skeleton_classified" \
+        "$skeleton_total" \
+        "$(compliance_status "$skeleton_missing")" \
+        "Port, adapt, or exclude remaining skeleton files."
+    fi
+  )"
+
+  if [ -z "$rows" ]; then
+    broadcastclient "| 1 | n/a | 0 | Complete | Complete | Nothing missing. |"
+    return 0
+  fi
+
+  printf '%s\n' "$rows" | sort -t $'\t' -k1,1nr | head -n 15 | while IFS=$'\t' read -r missing surface classified status action; do
+    rank=$((rank + 1))
+    printf '| %s | %s | %s | %s | %s | %s |\n' "$rank" "$surface" "$missing" "$classified" "$status" "$action"
+  done
 }
 
 inventory_summary_stats() {
@@ -986,10 +1141,31 @@ report() {
     broadcastclient "- Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in \`services/compliance/divergences.yml\`."
     broadcastclient "- \`services/compliance/features.yml\` must contain feature audit coverage for every mapped Bedrock surface."
     broadcastclient
+    broadcastclient "## Compliance Command Center"
+    broadcastclient
+    broadcastclient "Compliance target: classified parity. An upstream item is compliant when it is ported, adapted with a divergence rationale, or excluded at an approved product boundary."
+    broadcastclient
+    broadcastclient "| Area | Classified | Missing | Compliance Status | Fastest Next Move |"
+    broadcastclient "| --- | ---: | ---: | --- | --- |"
+    command_center_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    broadcastclient
+    broadcastclient "## Critical Path"
+    broadcastclient
+    broadcastclient "| Rank | Surface | Missing | Classified | Status | Next Action |"
+    broadcastclient "| ---: | --- | ---: | ---: | --- | --- |"
+    critical_path_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    broadcastclient
+    broadcastclient "## Counting Rules"
+    broadcastclient
+    broadcastclient "- Upstream tests: non-comment entries in generated inventory files."
+    broadcastclient "- Ported tests: Go Upstream test markers found in \`*_laravel_test.go\`."
+    broadcastclient "- Adapted tests: entries in \`services/compliance/divergences.yml\`."
+    broadcastclient "- Missing tests: upstream entries not yet ported or adapted."
+    broadcastclient
     broadcastclient "## Inventories"
     broadcastclient
-    broadcastclient "| Inventory | Count Context | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
-    broadcastclient "| --- | --- | ---: | ---: | ---: | ---: |"
+    broadcastclient "| Inventory | Source | Counting Rule | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
+    broadcastclient "| --- | --- | --- | ---: | ---: | ---: | ---: |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
       [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
@@ -997,14 +1173,14 @@ report() {
       local file
       file="$COMPLIANCE_PATH/$inventory"
 
-      local rel context stats total ported adapted missing
+      local rel source stats total ported adapted missing
       rel="${file#$COMPLIANCE_PATH/}"
-      context="$(inventory_count_context_display "$file" "$repo" "$branch" "$tests_path")"
+      source="$(inventory_source_display "$file" "$repo" "$branch" "$tests_path")"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
-      printf '| %s | %s | %s | %s | %s | %s |\n' \
+      printf '| %s | `%s` | upstream entries -> Go markers / divergences | %s | %s | %s | %s |\n' \
         "$rel" \
-        "$(markdown_cell "$context")" \
+        "$(markdown_cell "$source")" \
         "$total" \
         "$(count_percent_display "$ported" "$total")" \
         "$(count_percent_display "$missing" "$total")" \
