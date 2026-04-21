@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-21T05:08:32Z
+Generated: 2026-04-21T08:06:13Z
 
 Source of truth: services/compliance
 
@@ -11,13 +11,149 @@ Source of truth: services/compliance
 - Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in `services/compliance/divergences.yml`.
 - `services/compliance/features.yml` must contain feature audit coverage for every mapped Bedrock surface.
 
+## Inventories
+
+| Inventory                                 | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |
+| ----------------------------------------- | -------------: | -----------: | ------------: | ------------: |
+| inventories/framework-auth.txt            |            257 |   54 (21.0%) |      0 (0.0%) |   203 (79.0%) |
+| inventories/framework-broadcasting.txt    |             55 |  55 (100.0%) |      0 (0.0%) |      0 (0.0%) |
+| inventories/framework-bus.txt             |             66 |     0 (0.0%) |   66 (100.0%) |      0 (0.0%) |
+| inventories/framework-cache.txt           |            313 |     0 (0.0%) |  313 (100.0%) |      0 (0.0%) |
+| inventories/framework-concurrency.txt     |             12 |     0 (0.0%) |   12 (100.0%) |      0 (0.0%) |
+| inventories/framework-conditionable.txt   |              2 |     0 (0.0%) |    2 (100.0%) |      0 (0.0%) |
+| inventories/framework-config.txt          |             33 |     0 (0.0%) |   33 (100.0%) |      0 (0.0%) |
+| inventories/framework-console.txt         |            156 |     0 (0.0%) |  156 (100.0%) |      0 (0.0%) |
+| inventories/framework-container.txt       |            193 |     0 (0.0%) |  193 (100.0%) |      0 (0.0%) |
+| inventories/framework-cookie.txt          |             26 |     0 (0.0%) |   26 (100.0%) |      0 (0.0%) |
+| inventories/framework-database.txt        |           2626 |     0 (0.0%) | 2626 (100.0%) |      0 (0.0%) |
+| inventories/framework-encryption.txt      |             27 |     0 (0.0%) |   27 (100.0%) |      0 (0.0%) |
+| inventories/framework-events.txt          |             76 |     0 (0.0%) |   76 (100.0%) |      0 (0.0%) |
+| inventories/framework-filesystem.txt      |            134 |     0 (0.0%) |  134 (100.0%) |      0 (0.0%) |
+| inventories/framework-hashing.txt         |             13 |     0 (0.0%) |   13 (100.0%) |      0 (0.0%) |
+| inventories/framework-http.txt            |            488 |     0 (0.0%) |  488 (100.0%) |      0 (0.0%) |
+| inventories/framework-json-schema.txt     |             47 |     0 (0.0%) |   47 (100.0%) |      0 (0.0%) |
+| inventories/framework-log.txt             |             98 |     0 (0.0%) |   98 (100.0%) |      0 (0.0%) |
+| inventories/framework-mail.txt            |            135 |     0 (0.0%) |  135 (100.0%) |      0 (0.0%) |
+| inventories/framework-notifications.txt   |             71 |     0 (0.0%) |   71 (100.0%) |      0 (0.0%) |
+| inventories/framework-pagination.txt      |             48 |     0 (0.0%) |   48 (100.0%) |      0 (0.0%) |
+| inventories/framework-pipeline.txt        |             22 |     0 (0.0%) |   22 (100.0%) |      0 (0.0%) |
+| inventories/framework-process.txt         |             54 |     0 (0.0%) |   54 (100.0%) |      0 (0.0%) |
+| inventories/framework-queue.txt           |            204 |  161 (78.9%) |    43 (21.1%) |      0 (0.0%) |
+| inventories/framework-redis.txt           |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
+| inventories/framework-routing.txt         |            315 |     0 (0.0%) |  315 (100.0%) |      0 (0.0%) |
+| inventories/framework-session.txt         |             93 |     0 (0.0%) |   93 (100.0%) |      0 (0.0%) |
+| inventories/framework-support.txt         |           1554 |   129 (8.3%) |  1425 (91.7%) |      0 (0.0%) |
+| inventories/framework-support-str.txt     |            115 |   69 (60.0%) |    46 (40.0%) |      0 (0.0%) |
+| inventories/framework-support-lottery.txt |             14 |     0 (0.0%) |   14 (100.0%) |      0 (0.0%) |
+| inventories/framework-testing.txt         |            381 |     0 (0.0%) |  381 (100.0%) |      0 (0.0%) |
+| inventories/framework-translation.txt     |             52 |    9 (17.3%) |    43 (82.7%) |      0 (0.0%) |
+| inventories/framework-validation.txt      |            597 |    34 (5.7%) |   563 (94.3%) |      0 (0.0%) |
+| inventories/framework-collections.txt     |            629 |    21 (3.3%) |   608 (96.7%) |      0 (0.0%) |
+| inventories/package-ai.txt                |            774 |     0 (0.0%) |  774 (100.0%) |      0 (0.0%) |
+| inventories/package-boost.txt             |            671 |     0 (0.0%) |  671 (100.0%) |      0 (0.0%) |
+| inventories/package-authflows.txt           |             91 |     0 (0.0%) |   91 (100.0%) |      0 (0.0%) |
+| inventories/package-authkit.txt         |             43 |     0 (0.0%) |   43 (100.0%) |      0 (0.0%) |
+| inventories/package-mcp.txt               |            624 |     0 (0.0%) |  624 (100.0%) |      0 (0.0%) |
+| inventories/package-oauthserver.txt          |            211 |     0 (0.0%) |  211 (100.0%) |      0 (0.0%) |
+| inventories/package-featureflags.txt           |            186 |     0 (0.0%) |  186 (100.0%) |      0 (0.0%) |
+| inventories/package-prompts.txt           |            313 |     3 (1.0%) |   310 (99.0%) |      0 (0.0%) |
+| inventories/package-websockets.txt            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
+| inventories/package-search.txt             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
+| inventories/package-socialauth.txt         |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
+| inventories/package-billing.txt             |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
+| inventories/package-debugbar.txt         |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
+| inventories/package-jobqueue.txt           |            180 |     0 (0.0%) |  180 (100.0%) |      0 (0.0%) |
+| inventories/package-logtail.txt              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
+| inventories/package-remotetasks.txt             |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
+| inventories/package-routegen.txt         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
+
+## Framework Coverage
+
+| Upstream Source               | Bedrock Surface | Port Status          | Tests                                                                                 | Docs                        |
+| ---------------------------- | --------------- | -------------------- | ------------------------------------------------------------------------------------- | --------------------------- |
+| `Framework\Auth`            | `auth`          | `mapped`             | Ported tests: 54 / 257 (21.0%); Missing tests: 0 (0.0%); Adapted tests: 203 (79.0%)   | `packages/auth.md`          |
+| `Framework\Broadcasting`    | `broadcasting`  | `mapped`             | Ported tests: 55 / 55 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/broadcasting.md`  |
+| `Framework\Bus`             | `bus`           | `mapped`             | Ported tests: 0 / 66 (0.0%); Missing tests: 66 (100.0%); Adapted tests: 0 (0.0%)      | `packages/bus.md`           |
+| `Framework\Cache`           | `cache`         | `mapped`             | Ported tests: 0 / 313 (0.0%); Missing tests: 313 (100.0%); Adapted tests: 0 (0.0%)    | `packages/cache.md`         |
+| `Framework\Concurrency`     | `concurrency`   | `mapped`             | Ported tests: 0 / 12 (0.0%); Missing tests: 12 (100.0%); Adapted tests: 0 (0.0%)      | `packages/concurrency.md`   |
+| `Framework\Conditionable`   | `conditionable` | `mapped`             | Ported tests: 0 / 2 (0.0%); Missing tests: 2 (100.0%); Adapted tests: 0 (0.0%)        | `packages/conditionable.md` |
+| `Framework\Config`          | `config`        | `mapped`             | Ported tests: 0 / 33 (0.0%); Missing tests: 33 (100.0%); Adapted tests: 0 (0.0%)      | `packages/config.md`        |
+| `Framework\Console`         | n/a             | `missing`            | Ported tests: 0 / 156 (0.0%); Missing tests: 156 (100.0%); Adapted tests: 0 (0.0%)    | n/a                         |
+| `Framework\Container`       | `container`     | `mapped`             | Ported tests: 0 / 193 (0.0%); Missing tests: 193 (100.0%); Adapted tests: 0 (0.0%)    | `packages/container.md`     |
+| `Framework\Contracts`       | `contracts`     | `mapped`             | no inventory                                                                          | `packages/contracts.md`     |
+| `Framework\Cookie`          | `cookie`        | `mapped`             | Ported tests: 0 / 26 (0.0%); Missing tests: 26 (100.0%); Adapted tests: 0 (0.0%)      | `packages/cookie.md`        |
+| `Framework\Database`        | `database`      | `mapped`             | Ported tests: 0 / 2626 (0.0%); Missing tests: 2626 (100.0%); Adapted tests: 0 (0.0%)  | `packages/database.md`      |
+| `Framework\Encryption`      | `encryption`    | `mapped`             | Ported tests: 0 / 27 (0.0%); Missing tests: 27 (100.0%); Adapted tests: 0 (0.0%)      | `packages/encryption.md`    |
+| `Framework\Events`          | `events`        | `mapped`             | Ported tests: 0 / 76 (0.0%); Missing tests: 76 (100.0%); Adapted tests: 0 (0.0%)      | `packages/events.md`        |
+| `Framework\Filesystem`      | `filesystem`    | `mapped`             | Ported tests: 0 / 134 (0.0%); Missing tests: 134 (100.0%); Adapted tests: 0 (0.0%)    | `packages/filesystem.md`    |
+| `Framework\Foundation`      | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
+| `Framework\Hashing`         | `hashing`       | `mapped`             | Ported tests: 0 / 13 (0.0%); Missing tests: 13 (100.0%); Adapted tests: 0 (0.0%)      | `packages/hashing.md`       |
+| `Framework\Http`            | `httpx`         | `mapped`             | Ported tests: 0 / 488 (0.0%); Missing tests: 488 (100.0%); Adapted tests: 0 (0.0%)    | `packages/httpx.md`         |
+| `Framework\JsonSchema`      | `jsonx`         | `mapped`             | Ported tests: 0 / 47 (0.0%); Missing tests: 47 (100.0%); Adapted tests: 0 (0.0%)      | `packages/jsonx.md`         |
+| `Framework\Log`             | `log`           | `mapped`             | Ported tests: 0 / 98 (0.0%); Missing tests: 98 (100.0%); Adapted tests: 0 (0.0%)      | `packages/log.md`           |
+| `Framework\Mail`            | `mailx`         | `mapped`             | Ported tests: 0 / 135 (0.0%); Missing tests: 135 (100.0%); Adapted tests: 0 (0.0%)    | `packages/mailx.md`         |
+| `Framework\Notifications`   | `notifications` | `mapped`             | Ported tests: 0 / 71 (0.0%); Missing tests: 71 (100.0%); Adapted tests: 0 (0.0%)      | `packages/notifications.md` |
+| `Framework\Pagination`      | `pagination`    | `mapped`             | Ported tests: 0 / 48 (0.0%); Missing tests: 48 (100.0%); Adapted tests: 0 (0.0%)      | `packages/pagination.md`    |
+| `Framework\Pipeline`        | `pipeline`      | `mapped`             | Ported tests: 0 / 22 (0.0%); Missing tests: 22 (100.0%); Adapted tests: 0 (0.0%)      | `packages/pipeline.md`      |
+| `Framework\Process`         | n/a             | `missing`            | Ported tests: 0 / 54 (0.0%); Missing tests: 54 (100.0%); Adapted tests: 0 (0.0%)      | n/a                         |
+| `Framework\Queue`           | `queue`         | `mapped`             | Ported tests: 161 / 204 (78.9%); Missing tests: 43 (21.1%); Adapted tests: 0 (0.0%)   | `packages/queue.md`         |
+| `Framework\Redis`           | `redis`         | `mapped`             | Ported tests: 0 / 103 (0.0%); Missing tests: 103 (100.0%); Adapted tests: 0 (0.0%)    | `packages/redis.md`         |
+| `Framework\Routing`         | `routing`       | `mapped`             | Ported tests: 0 / 315 (0.0%); Missing tests: 315 (100.0%); Adapted tests: 0 (0.0%)    | `packages/routing.md`       |
+| `Framework\Session`         | `session`       | `mapped`             | Ported tests: 0 / 93 (0.0%); Missing tests: 93 (100.0%); Adapted tests: 0 (0.0%)      | `packages/session.md`       |
+| `Framework\Support`         | `support`       | `mapped`             | Ported tests: 129 / 1554 (8.3%); Missing tests: 1425 (91.7%); Adapted tests: 0 (0.0%) | `packages/support.md`       |
+| `Framework\Support\Str`     | `str`           | `mapped`             | Ported tests: 69 / 115 (60.0%); Missing tests: 46 (40.0%); Adapted tests: 0 (0.0%)    | `packages/str.md`           |
+| `Framework\Support\Lottery` | `lottery`       | `mapped`             | Ported tests: 0 / 14 (0.0%); Missing tests: 14 (100.0%); Adapted tests: 0 (0.0%)      | `packages/lottery.md`       |
+| `Framework\Testing`         | n/a             | `missing`            | Ported tests: 0 / 381 (0.0%); Missing tests: 381 (100.0%); Adapted tests: 0 (0.0%)    | n/a                         |
+| `Framework\Translation`     | `translation`   | `mapped`             | Ported tests: 9 / 52 (17.3%); Missing tests: 43 (82.7%); Adapted tests: 0 (0.0%)      | `packages/translation.md`   |
+| `Framework\Validation`      | `validation`    | `mapped`             | Ported tests: 34 / 597 (5.7%); Missing tests: 563 (94.3%); Adapted tests: 0 (0.0%)    | `packages/validation.md`    |
+| `Framework\Collections`     | `collection`    | `mapped`             | Ported tests: 21 / 629 (3.3%); Missing tests: 608 (96.7%); Adapted tests: 0 (0.0%)    | `packages/collection.md`    |
+| `Framework\Macroable`       | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
+| `Framework\Reflection`      | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
+| `Framework\View`            | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
+
+## Package Coverage
+
+| Upstream Package               | Bedrock Surface | Port Status          | Tests                                                                              | Docs                       |
+| ----------------------------- | --------------- | -------------------- | ---------------------------------------------------------------------------------- | -------------------------- |
+| `upstream/ai`                  | `ai/sdk`        | `mapped`             | Ported tests: 0 / 774 (0.0%); Missing tests: 774 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/sdk.md`       |
+| `upstream/boost`               | `ai/boost`      | `mapped`             | Ported tests: 0 / 671 (0.0%); Missing tests: 671 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/boost.md`     |
+| `upstream/broadcastclient`                | `broadcastclient`          | `mapped`             | no inventory                                                                       | `packages/broadcastclient.md`         |
+| `upstream/authflows`             | `inception`     | `mapped`             | Ported tests: 0 / 91 (0.0%); Missing tests: 91 (100.0%); Adapted tests: 0 (0.0%)   | `packages/inception.md`    |
+| `upstream/authkit`           | `inception`     | `mapped`             | Ported tests: 0 / 43 (0.0%); Missing tests: 43 (100.0%); Adapted tests: 0 (0.0%)   | `packages/inception.md`    |
+| `upstream/mcp`                 | `ai/mcp`        | `mapped`             | Ported tests: 0 / 624 (0.0%); Missing tests: 624 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/mcp.md`       |
+| `upstream/oauthserver`            | `oauthserver`      | `mapped`             | Ported tests: 0 / 211 (0.0%); Missing tests: 211 (100.0%); Adapted tests: 0 (0.0%) | `packages/oauthserver.md`     |
+| `upstream/featureflags`             | `featureflags`       | `mapped`             | Ported tests: 0 / 186 (0.0%); Missing tests: 186 (100.0%); Adapted tests: 0 (0.0%) | `packages/featureflags.md`      |
+| `upstream/httppreview`        | `httppreview`  | `mapped`             | no inventory                                                                       | `packages/httppreview.md` |
+| `upstream/prompts`             | `prompts`       | `mapped`             | Ported tests: 3 / 313 (1.0%); Missing tests: 310 (99.0%); Adapted tests: 0 (0.0%)  | `packages/prompts.md`      |
+| `upstream/websockets`              | `websockets`        | `mapped`             | Ported tests: 0 / 232 (0.0%); Missing tests: 232 (100.0%); Adapted tests: 0 (0.0%) | `packages/websockets.md`       |
+| `upstream/search`               | `search`         | `mapped`             | Ported tests: 0 / 252 (0.0%); Missing tests: 252 (100.0%); Adapted tests: 0 (0.0%) | `packages/search.md`        |
+| `upstream/socialauth`           | `socialauth`     | `mapped`             | Ported tests: 0 / 40 (0.0%); Missing tests: 40 (100.0%); Adapted tests: 0 (0.0%)   | `packages/socialauth.md`    |
+| `upstream/billing`               | `billing`         | `mapped`             | Ported tests: 0 / 166 (0.0%); Missing tests: 166 (100.0%); Adapted tests: 0 (0.0%) | `packages/billing.md`        |
+| `upstream/debugbar`           | `debugbar`     | `mapped`             | Ported tests: 0 / 113 (0.0%); Missing tests: 113 (100.0%); Adapted tests: 0 (0.0%) | `packages/debugbar.md`    |
+| `upstream/jobqueue`             | `jobqueue`       | `mapped`             | Ported tests: 0 / 180 (0.0%); Missing tests: 180 (100.0%); Adapted tests: 0 (0.0%) | `packages/jobqueue.md`      |
+| `upstream/logtail`                | `logtail`          | `mapped`             | Ported tests: 0 / 38 (0.0%); Missing tests: 38 (100.0%); Adapted tests: 0 (0.0%)   | `packages/logtail.md`         |
+| `upstream/remotetasks`               | `remotetasks`         | `mapped`             | Ported tests: 0 / 20 (0.0%); Missing tests: 20 (100.0%); Adapted tests: 0 (0.0%)   | `packages/remotetasks.md`        |
+| `upstream/routegen`           | `routegen`     | `mapped`             | Ported tests: 0 / 103 (0.0%); Missing tests: 103 (100.0%); Adapted tests: 0 (0.0%) | `packages/routegen.md`    |
+| `upstream/tokens`             | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/octane`              | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/pulse`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/folio`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/dusk`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/browser-kit-testing` | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/sail`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/installer`           | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/valet`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/vite-plugin`         | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `starter-kits`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| `upstream/workos`              | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+
 ## Test Porting Summary
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13012 |   535 (4.1%) |           12274 (94.3%) |    203 (1.6%) |
-| Framework inventories |          34 |           8975 |   532 (5.9%) |            8240 (91.8%) |    203 (2.3%) |
-| Package inventories   |          17 |           4037 |     3 (0.1%) |            4034 (99.9%) |      0 (0.0%) |
+| All inventories       |          51 |          13066 |   535 (4.1%) |           12328 (94.4%) |    203 (1.6%) |
+| Framework inventories |          34 |           9009 |   532 (5.9%) |            8274 (91.8%) |    203 (2.3%) |
+| Package inventories   |          17 |           4057 |     3 (0.1%) |            4054 (99.9%) |      0 (0.0%) |
 
 ## Documentation Porting Summary
 
@@ -114,106 +250,6 @@ Source of truth: services/compliance
 | `resources/views/welcome.template.php`      | Excluded |
 | `routes/console.php`                     | Adapted  |
 | `vite.config.js`                         | Excluded |
-
-## Inventories
-
-| Inventory                                 | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |
-| ----------------------------------------- | -------------: | -----------: | ------------: | ------------: |
-| inventories/framework-auth.txt            |            257 |   54 (21.0%) |      0 (0.0%) |   203 (79.0%) |
-| inventories/framework-broadcasting.txt    |             55 |  55 (100.0%) |      0 (0.0%) |      0 (0.0%) |
-| inventories/framework-bus.txt             |             66 |     0 (0.0%) |   66 (100.0%) |      0 (0.0%) |
-| inventories/framework-cache.txt           |            313 |     0 (0.0%) |  313 (100.0%) |      0 (0.0%) |
-| inventories/framework-concurrency.txt     |             12 |     0 (0.0%) |   12 (100.0%) |      0 (0.0%) |
-| inventories/framework-conditionable.txt   |              2 |     0 (0.0%) |    2 (100.0%) |      0 (0.0%) |
-| inventories/framework-config.txt          |             33 |     0 (0.0%) |   33 (100.0%) |      0 (0.0%) |
-| inventories/framework-console.txt         |            156 |     0 (0.0%) |  156 (100.0%) |      0 (0.0%) |
-| inventories/framework-container.txt       |            193 |     0 (0.0%) |  193 (100.0%) |      0 (0.0%) |
-| inventories/framework-cookie.txt          |             26 |     0 (0.0%) |   26 (100.0%) |      0 (0.0%) |
-| inventories/framework-database.txt        |           2626 |     0 (0.0%) | 2626 (100.0%) |      0 (0.0%) |
-| inventories/framework-encryption.txt      |             27 |     0 (0.0%) |   27 (100.0%) |      0 (0.0%) |
-| inventories/framework-events.txt          |             76 |     0 (0.0%) |   76 (100.0%) |      0 (0.0%) |
-| inventories/framework-filesystem.txt      |            134 |     0 (0.0%) |  134 (100.0%) |      0 (0.0%) |
-| inventories/framework-hashing.txt         |             13 |     0 (0.0%) |   13 (100.0%) |      0 (0.0%) |
-| inventories/framework-http.txt            |            472 |     0 (0.0%) |  472 (100.0%) |      0 (0.0%) |
-| inventories/framework-json-schema.txt     |             47 |     0 (0.0%) |   47 (100.0%) |      0 (0.0%) |
-| inventories/framework-log.txt             |             85 |     0 (0.0%) |   85 (100.0%) |      0 (0.0%) |
-| inventories/framework-mail.txt            |            130 |     0 (0.0%) |  130 (100.0%) |      0 (0.0%) |
-| inventories/framework-notifications.txt   |             71 |     0 (0.0%) |   71 (100.0%) |      0 (0.0%) |
-| inventories/framework-pagination.txt      |             48 |     0 (0.0%) |   48 (100.0%) |      0 (0.0%) |
-| inventories/framework-pipeline.txt        |             22 |     0 (0.0%) |   22 (100.0%) |      0 (0.0%) |
-| inventories/framework-process.txt         |             54 |     0 (0.0%) |   54 (100.0%) |      0 (0.0%) |
-| inventories/framework-queue.txt           |            204 |  161 (78.9%) |    43 (21.1%) |      0 (0.0%) |
-| inventories/framework-redis.txt           |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
-| inventories/framework-routing.txt         |            315 |     0 (0.0%) |  315 (100.0%) |      0 (0.0%) |
-| inventories/framework-session.txt         |             93 |     0 (0.0%) |   93 (100.0%) |      0 (0.0%) |
-| inventories/framework-support.txt         |           1554 |   129 (8.3%) |  1425 (91.7%) |      0 (0.0%) |
-| inventories/framework-support-str.txt     |            115 |   69 (60.0%) |    46 (40.0%) |      0 (0.0%) |
-| inventories/framework-support-lottery.txt |             14 |     0 (0.0%) |   14 (100.0%) |      0 (0.0%) |
-| inventories/framework-testing.txt         |            381 |     0 (0.0%) |  381 (100.0%) |      0 (0.0%) |
-| inventories/framework-translation.txt     |             52 |    9 (17.3%) |    43 (82.7%) |      0 (0.0%) |
-| inventories/framework-validation.txt      |            597 |    34 (5.7%) |   563 (94.3%) |      0 (0.0%) |
-| inventories/framework-collections.txt     |            629 |    21 (3.3%) |   608 (96.7%) |      0 (0.0%) |
-| inventories/package-ai.txt                |            770 |     0 (0.0%) |  770 (100.0%) |      0 (0.0%) |
-| inventories/package-boost.txt             |            671 |     0 (0.0%) |  671 (100.0%) |      0 (0.0%) |
-| inventories/package-authflows.txt           |             91 |     0 (0.0%) |   91 (100.0%) |      0 (0.0%) |
-| inventories/package-authkit.txt         |             43 |     0 (0.0%) |   43 (100.0%) |      0 (0.0%) |
-| inventories/package-mcp.txt               |            624 |     0 (0.0%) |  624 (100.0%) |      0 (0.0%) |
-| inventories/package-oauthserver.txt          |            211 |     0 (0.0%) |  211 (100.0%) |      0 (0.0%) |
-| inventories/package-featureflags.txt           |            186 |     0 (0.0%) |  186 (100.0%) |      0 (0.0%) |
-| inventories/package-prompts.txt           |            308 |     3 (1.0%) |   305 (99.0%) |      0 (0.0%) |
-| inventories/package-websockets.txt            |            232 |     0 (0.0%) |  232 (100.0%) |      0 (0.0%) |
-| inventories/package-search.txt             |            252 |     0 (0.0%) |  252 (100.0%) |      0 (0.0%) |
-| inventories/package-socialauth.txt         |             40 |     0 (0.0%) |   40 (100.0%) |      0 (0.0%) |
-| inventories/package-billing.txt             |            166 |     0 (0.0%) |  166 (100.0%) |      0 (0.0%) |
-| inventories/package-debugbar.txt         |            113 |     0 (0.0%) |  113 (100.0%) |      0 (0.0%) |
-| inventories/package-jobqueue.txt           |            169 |     0 (0.0%) |  169 (100.0%) |      0 (0.0%) |
-| inventories/package-logtail.txt              |             38 |     0 (0.0%) |   38 (100.0%) |      0 (0.0%) |
-| inventories/package-remotetasks.txt             |             20 |     0 (0.0%) |   20 (100.0%) |      0 (0.0%) |
-| inventories/package-routegen.txt         |            103 |     0 (0.0%) |  103 (100.0%) |      0 (0.0%) |
-
-## Framework Coverage
-
-| Upstream Source               | Bedrock Surface | Port Status          | Tests                                                                                 | Docs                        |
-| ---------------------------- | --------------- | -------------------- | ------------------------------------------------------------------------------------- | --------------------------- |
-| `Framework\Auth`            | `auth`          | `mapped`             | Ported tests: 54 / 257 (21.0%); Missing tests: 0 (0.0%); Adapted tests: 203 (79.0%)   | `packages/auth.md`          |
-| `Framework\Broadcasting`    | `broadcasting`  | `mapped`             | Ported tests: 55 / 55 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/broadcasting.md`  |
-| `Framework\Bus`             | `bus`           | `mapped`             | Ported tests: 0 / 66 (0.0%); Missing tests: 66 (100.0%); Adapted tests: 0 (0.0%)      | `packages/bus.md`           |
-| `Framework\Cache`           | `cache`         | `mapped`             | Ported tests: 0 / 313 (0.0%); Missing tests: 313 (100.0%); Adapted tests: 0 (0.0%)    | `packages/cache.md`         |
-| `Framework\Concurrency`     | `concurrency`   | `mapped`             | Ported tests: 0 / 12 (0.0%); Missing tests: 12 (100.0%); Adapted tests: 0 (0.0%)      | `packages/concurrency.md`   |
-| `Framework\Conditionable`   | `conditionable` | `mapped`             | Ported tests: 0 / 2 (0.0%); Missing tests: 2 (100.0%); Adapted tests: 0 (0.0%)        | `packages/conditionable.md` |
-| `Framework\Config`          | `config`        | `mapped`             | Ported tests: 0 / 33 (0.0%); Missing tests: 33 (100.0%); Adapted tests: 0 (0.0%)      | `packages/config.md`        |
-| `Framework\Console`         | n/a             | `missing`            | Ported tests: 0 / 156 (0.0%); Missing tests: 156 (100.0%); Adapted tests: 0 (0.0%)    | n/a                         |
-| `Framework\Container`       | `container`     | `mapped`             | Ported tests: 0 / 193 (0.0%); Missing tests: 193 (100.0%); Adapted tests: 0 (0.0%)    | `packages/container.md`     |
-| `Framework\Contracts`       | `contracts`     | `mapped`             | no inventory                                                                          | `packages/contracts.md`     |
-| `Framework\Cookie`          | `cookie`        | `mapped`             | Ported tests: 0 / 26 (0.0%); Missing tests: 26 (100.0%); Adapted tests: 0 (0.0%)      | `packages/cookie.md`        |
-| `Framework\Database`        | `database`      | `mapped`             | Ported tests: 0 / 2626 (0.0%); Missing tests: 2626 (100.0%); Adapted tests: 0 (0.0%)  | `packages/database.md`      |
-| `Framework\Encryption`      | `encryption`    | `mapped`             | Ported tests: 0 / 27 (0.0%); Missing tests: 27 (100.0%); Adapted tests: 0 (0.0%)      | `packages/encryption.md`    |
-| `Framework\Events`          | `events`        | `mapped`             | Ported tests: 0 / 76 (0.0%); Missing tests: 76 (100.0%); Adapted tests: 0 (0.0%)      | `packages/events.md`        |
-| `Framework\Filesystem`      | `filesystem`    | `mapped`             | Ported tests: 0 / 134 (0.0%); Missing tests: 134 (100.0%); Adapted tests: 0 (0.0%)    | `packages/filesystem.md`    |
-| `Framework\Foundation`      | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
-| `Framework\Hashing`         | `hashing`       | `mapped`             | Ported tests: 0 / 13 (0.0%); Missing tests: 13 (100.0%); Adapted tests: 0 (0.0%)      | `packages/hashing.md`       |
-| `Framework\Http`            | `httpx`         | `mapped`             | Ported tests: 0 / 472 (0.0%); Missing tests: 472 (100.0%); Adapted tests: 0 (0.0%)    | `packages/httpx.md`         |
-| `Framework\JsonSchema`      | `jsonx`         | `mapped`             | Ported tests: 0 / 47 (0.0%); Missing tests: 47 (100.0%); Adapted tests: 0 (0.0%)      | `packages/jsonx.md`         |
-| `Framework\Log`             | `log`           | `mapped`             | Ported tests: 0 / 85 (0.0%); Missing tests: 85 (100.0%); Adapted tests: 0 (0.0%)      | `packages/log.md`           |
-| `Framework\Mail`            | `mailx`         | `mapped`             | Ported tests: 0 / 130 (0.0%); Missing tests: 130 (100.0%); Adapted tests: 0 (0.0%)    | `packages/mailx.md`         |
-| `Framework\Notifications`   | `notifications` | `mapped`             | Ported tests: 0 / 71 (0.0%); Missing tests: 71 (100.0%); Adapted tests: 0 (0.0%)      | `packages/notifications.md` |
-| `Framework\Pagination`      | `pagination`    | `mapped`             | Ported tests: 0 / 48 (0.0%); Missing tests: 48 (100.0%); Adapted tests: 0 (0.0%)      | `packages/pagination.md`    |
-| `Framework\Pipeline`        | `pipeline`      | `mapped`             | Ported tests: 0 / 22 (0.0%); Missing tests: 22 (100.0%); Adapted tests: 0 (0.0%)      | `packages/pipeline.md`      |
-| `Framework\Process`         | n/a             | `missing`            | Ported tests: 0 / 54 (0.0%); Missing tests: 54 (100.0%); Adapted tests: 0 (0.0%)      | n/a                         |
-| `Framework\Queue`           | `queue`         | `mapped`             | Ported tests: 161 / 204 (78.9%); Missing tests: 43 (21.1%); Adapted tests: 0 (0.0%)   | `packages/queue.md`         |
-| `Framework\Redis`           | `redis`         | `mapped`             | Ported tests: 0 / 103 (0.0%); Missing tests: 103 (100.0%); Adapted tests: 0 (0.0%)    | `packages/redis.md`         |
-| `Framework\Routing`         | `routing`       | `mapped`             | Ported tests: 0 / 315 (0.0%); Missing tests: 315 (100.0%); Adapted tests: 0 (0.0%)    | `packages/routing.md`       |
-| `Framework\Session`         | `session`       | `mapped`             | Ported tests: 0 / 93 (0.0%); Missing tests: 93 (100.0%); Adapted tests: 0 (0.0%)      | `packages/session.md`       |
-| `Framework\Support`         | `support`       | `mapped`             | Ported tests: 129 / 1554 (8.3%); Missing tests: 1425 (91.7%); Adapted tests: 0 (0.0%) | `packages/support.md`       |
-| `Framework\Support\Str`     | `str`           | `mapped`             | Ported tests: 69 / 115 (60.0%); Missing tests: 46 (40.0%); Adapted tests: 0 (0.0%)    | `packages/str.md`           |
-| `Framework\Support\Lottery` | `lottery`       | `mapped`             | Ported tests: 0 / 14 (0.0%); Missing tests: 14 (100.0%); Adapted tests: 0 (0.0%)      | `packages/lottery.md`       |
-| `Framework\Testing`         | n/a             | `missing`            | Ported tests: 0 / 381 (0.0%); Missing tests: 381 (100.0%); Adapted tests: 0 (0.0%)    | n/a                         |
-| `Framework\Translation`     | `translation`   | `mapped`             | Ported tests: 9 / 52 (17.3%); Missing tests: 43 (82.7%); Adapted tests: 0 (0.0%)      | `packages/translation.md`   |
-| `Framework\Validation`      | `validation`    | `mapped`             | Ported tests: 34 / 597 (5.7%); Missing tests: 563 (94.3%); Adapted tests: 0 (0.0%)    | `packages/validation.md`    |
-| `Framework\Collections`     | `collection`    | `mapped`             | Ported tests: 21 / 629 (3.3%); Missing tests: 608 (96.7%); Adapted tests: 0 (0.0%)    | `packages/collection.md`    |
-| `Framework\Macroable`       | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
-| `Framework\Reflection`      | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
-| `Framework\View`            | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                         |
 
 ## Feature Coverage
 

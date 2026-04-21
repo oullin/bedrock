@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Http
 # Format: <file>::<test method name>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -429,6 +429,22 @@ Middleware/CacheTest.php::testLastModifiedUnixTime
 Middleware/CacheTest.php::testLastModifiedStringDate
 Middleware/CacheTest.php::testTrailingDelimiterIgnored
 Middleware/CacheTest.php::testItDoesNotSetEtagHeadersForBinaryContent
+Middleware/PrefersJsonResponsesTest.php::testItRewritesMissingAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItRewritesEmptyAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItRewritesStarSlashStarAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItDoesNotRewriteBareStarAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItRewritesApplicationWildcardAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItRewritesBroadAcceptHeaderWithQualityParameter
+Middleware/PrefersJsonResponsesTest.php::testItRewritesMultipleBroadMarkers
+Middleware/PrefersJsonResponsesTest.php::testItInvokesNextAndReturnsItsResponse
+Middleware/PrefersJsonResponsesTest.php::testItLeavesExplicitHtmlAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItLeavesExplicitXmlAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItLeavesExplicitPlainTextAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItLeavesMultiValueExplicitAcceptList
+Middleware/PrefersJsonResponsesTest.php::testItLeavesMixedBroadAndExplicitAcceptList
+Middleware/PrefersJsonResponsesTest.php::testItLeavesWildcardFirstMixedAcceptList
+Middleware/PrefersJsonResponsesTest.php::testItLeavesExplicitJsonAcceptHeader
+Middleware/PrefersJsonResponsesTest.php::testItDoesNotMutateBodyMethodUriQueryOrOtherHeaders
 Middleware/PreventRequestForgeryTest.php::test_same_origin_header_passes
 Middleware/PreventRequestForgeryTest.php::test_same_site_header_rejected_by_default
 Middleware/PreventRequestForgeryTest.php::test_same_site_header_passes_when_allowed

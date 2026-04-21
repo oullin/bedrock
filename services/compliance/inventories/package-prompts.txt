@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/prompts/tree/main/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -276,6 +276,11 @@ Feature/TaskTest.php::it_receives_messages_through_the_socket_protocol
 Feature/TaskTest.php::it_handles_partial_messages_through_the_socket_protocol
 Feature/TaskTest.php::it_strips_cursor_reset_control_sequences_from_log_lines
 Feature/TaskTest.php::it_updates_the_label_through_the_socket_protocol
+Feature/TaskTest.php::it_does_not_keep_the_summary_by_default
+Feature/TaskTest.php::it_renders_the_label_and_stable_messages_when_finished_with_retain_enabled
+Feature/TaskTest.php::it_renders_nothing_special_when_finished_with_no_stable_messages
+Feature/TaskTest.php::it_shrinks_the_stable_message_budget_when_a_sub_label_appears_mid_task
+Feature/TaskTest.php::it_does_not_take_the_retain_branch_when_keepsummary_is_disabled
 Feature/TextPromptTest.php::it_returns_the_input
 Feature/TextPromptTest.php::it_accepts_a_default_value
 Feature/TextPromptTest.php::it_transforms_values
