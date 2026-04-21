@@ -834,6 +834,20 @@ inventory_source_display() {
   printf '%s@%s:%s' "$repo" "$branch" "$tests_path"
 }
 
+inventory_next_action() {
+  local status="$1"
+  local bedrock="$2"
+  local missing="$3"
+
+  if [ "$missing" -eq 0 ]; then
+    printf 'No action; every upstream entry is classified as ported or adapted.'
+  elif [ "$status" = "missing" ] || [ -z "$bedrock" ] || [ "$bedrock" = "null" ]; then
+    printf 'Implement the surface or convert it to a permanent exclusion.'
+  else
+    printf 'Port executable equivalents or add divergence overrides for Go adaptations.'
+  fi
+}
+
 feature_summary_stats() {
   local ported=0 partial=0 missing=0 excluded=0 classified=0
   local id source_id name upstream bedrock status docs notes
@@ -1155,17 +1169,12 @@ report() {
     broadcastclient "| ---: | --- | ---: | ---: | --- | --- |"
     critical_path_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
     broadcastclient
-    broadcastclient "## Counting Rules"
+    broadcastclient "## Inventory Compliance Ledger"
     broadcastclient
-    broadcastclient "- Upstream tests: non-comment entries in generated inventory files."
-    broadcastclient "- Ported tests: Go Upstream test markers found in \`*_laravel_test.go\`."
-    broadcastclient "- Adapted tests: entries in \`services/compliance/divergences.yml\`."
-    broadcastclient "- Missing tests: upstream entries not yet ported or adapted."
+    broadcastclient "These inventory paths are tracking files, not compliant code paths. A row is compliant only when \`Missing Tests\` is 0."
     broadcastclient
-    broadcastclient "## Inventories"
-    broadcastclient
-    broadcastclient "| Inventory | Source | Counting Rule | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
-    broadcastclient "| --- | --- | --- | ---: | ---: | ---: | ---: |"
+    broadcastclient "| Inventory Path | What This Path Is | Source | Classified | Missing Tests | Compliance Status | Next Action |"
+    broadcastclient "| --- | --- | --- | ---: | ---: | --- | --- |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
       [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
@@ -1173,18 +1182,21 @@ report() {
       local file
       file="$COMPLIANCE_PATH/$inventory"
 
-      local rel source stats total ported adapted missing
+      local rel source stats total ported adapted missing classified action
       rel="${file#$COMPLIANCE_PATH/}"
       source="$(inventory_source_display "$file" "$repo" "$branch" "$tests_path")"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
-      printf '| %s | `%s` | upstream entries -> Go markers / divergences | %s | %s | %s | %s |\n' \
+      classified=$((ported + adapted))
+      action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      printf '| %s | Tracking file for upstream tests, not a compliant path | `%s` | %s / %s | %s | %s | %s |\n' \
         "$rel" \
         "$(markdown_cell "$source")" \
+        "$classified" \
         "$total" \
-        "$(count_percent_display "$ported" "$total")" \
-        "$(count_percent_display "$missing" "$total")" \
-        "$(count_percent_display "$adapted" "$total")"
+        "$missing" \
+        "$(compliance_status "$missing")" \
+        "$action"
     done
 
     broadcastclient
