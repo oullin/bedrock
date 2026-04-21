@@ -6,7 +6,15 @@ GO_FMT_BIN := /usr/local/bin/go-fmt
 GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
 PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
-GO_MODULE_DIRS := $(shell awk 'BEGIN { in_use = 0 } /^use \(/ { in_use = 1; next } in_use && /^\)/ { in_use = 0; next } in_use { gsub(/^\.\//, "", $$1); print $$1 }' go.work)
+GO_MODULE_DIRS := $(shell git ls-files 'packages/**/go.mod' 'services/**/go.mod' | sed 's|/go.mod$$||')
+
+define require-go-modules
+	@if [ -z "$(strip $(GO_MODULE_DIRS))" ]; then \
+		broadcastclient "No tracked Go modules found under packages/ or services/." >&2; \
+		broadcastclient "Expected tracked go.mod files discoverable with git ls-files." >&2; \
+		exit 1; \
+	fi
+endef
 
 .PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs compliance go-test go-build go-coverage
 
@@ -25,30 +33,35 @@ format-stop:
 	@$(GO_FMT_COMPOSE) stop $(GO_FMT_SERVICE)
 
 vet:
+	$(require-go-modules)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
 	done
 
 tidy:
+	$(require-go-modules)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go mod tidy in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
 	done
 
 go-test:
+	$(require-go-modules)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go test ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go test ./...; \
 	done
 
 go-build:
+	$(require-go-modules)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go build ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && go build ./...; \
 	done
 
 go-coverage:
+	$(require-go-modules)
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
