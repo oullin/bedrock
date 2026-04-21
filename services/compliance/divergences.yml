@@ -87,6 +87,18 @@ adaptation_rules:
       - upstream: Redirect response status codes from password broker workflows
         bedrock: Explicit error returns from broker methods
 
+  broadcasting:
+    source: Framework\Broadcasting
+    rules:
+      - upstream: PHP channel callbacks and class-based join methods
+        bedrock: Explicit ChannelHandler functions or ChannelJoiner implementations
+      - upstream: PHP reflection and container route binding
+        bedrock: Explicit named BindingFunc registrations
+      - upstream: Request user lookup with optional guard names
+        bedrock: AuthRequest with a UserResolver and ordered guard lookup
+      - upstream: PHP exceptions for denied channel auth and backend failures
+        bedrock: ErrAccessDenied and ErrBroadcast error values
+
 semantic_divergences:
   - surface: database
     divergence: No static methods
@@ -124,6 +136,12 @@ semantic_divergences:
   - surface: validation
     divergence: Password uncompromised breach check is not wired by default
     rationale: The check requires external HTTP and should be caller-controlled.
+  - surface: broadcasting
+    divergence: Channel parameter binding is explicit
+    rationale: Go does not have PHP's runtime reflection, container resolution, or Orm route binding model.
+  - surface: broadcasting
+    divergence: Provider SDKs are injected through small interfaces
+    rationale: Unit tests should not require live Pusher, Redis, or Ably services.
 
 test_status_overrides:
   # Framework\Auth entries without a direct executable Go analogue are counted
