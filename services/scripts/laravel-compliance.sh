@@ -957,47 +957,6 @@ report() {
     broadcastclient "- Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in \`services/compliance/divergences.yml\`."
     broadcastclient "- \`services/compliance/features.yml\` must contain feature audit coverage for every mapped Bedrock surface."
     broadcastclient
-    broadcastclient "## Test Porting Summary"
-    broadcastclient
-    broadcastclient "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
-    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: |"
-    inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
-    inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
-    inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
-    broadcastclient
-    broadcastclient "## Documentation Porting Summary"
-    broadcastclient
-    broadcastclient "| Scope | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |"
-    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-    generic_summary_row "Upstream docs" "1" "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
-    broadcastclient
-    broadcastclient "## Upstream Skeleton Demo Summary"
-    broadcastclient
-    broadcastclient "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
-    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-    generic_summary_row "upstream/upstream" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
-    broadcastclient
-    broadcastclient "## Documentation Detail"
-    broadcastclient
-    broadcastclient "### Top Pending Documentation Files"
-    broadcastclient
-    broadcastclient "| Upstream Docs File | Pending Sections |"
-    broadcastclient "| --- | ---: |"
-    docs_pending_by_file_rows "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
-    broadcastclient
-    broadcastclient "### Classified Documentation Sections"
-    broadcastclient
-    broadcastclient "| Upstream Docs File | Status | Sections |"
-    broadcastclient "| --- | --- | ---: |"
-    docs_status_by_file_rows "$docs_adapted_index" "Adapted"
-    docs_status_by_file_rows "$docs_excluded_index" "Excluded"
-    broadcastclient
-    broadcastclient "## Skeleton Detail"
-    broadcastclient
-    broadcastclient "| Upstream Skeleton File | Status |"
-    broadcastclient "| --- | --- |"
-    skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
-    broadcastclient
     broadcastclient "## Inventories"
     broadcastclient
     broadcastclient "| Inventory | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
@@ -1051,6 +1010,77 @@ report() {
         "$display_docs"
     done
 
+    broadcastclient
+    broadcastclient "## Package Coverage"
+    broadcastclient
+    broadcastclient "| Upstream Package | Bedrock Surface | Port Status | Tests | Docs |"
+    broadcastclient "| --- | --- | --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      case "$id" in
+        package.*) ;;
+        *) continue ;;
+      esac
+
+      local display_bedrock display_tests display_docs
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
+      display_docs="$(docs_display "$bedrock" "")"
+
+      printf '| `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$upstream")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$(markdown_cell "$display_tests")" \
+        "$display_docs"
+    done
+
+    broadcastclient
+    broadcastclient "## Test Porting Summary"
+    broadcastclient
+    broadcastclient "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: |"
+    inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
+    inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
+    inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
+    broadcastclient
+    broadcastclient "## Documentation Porting Summary"
+    broadcastclient
+    broadcastclient "| Scope | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "Upstream docs" "1" "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    broadcastclient
+    broadcastclient "## Upstream Skeleton Demo Summary"
+    broadcastclient
+    broadcastclient "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
+    broadcastclient "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "upstream/upstream" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    broadcastclient
+    broadcastclient "## Documentation Detail"
+    broadcastclient
+    broadcastclient "### Top Pending Documentation Files"
+    broadcastclient
+    broadcastclient "| Upstream Docs File | Pending Sections |"
+    broadcastclient "| --- | ---: |"
+    docs_pending_by_file_rows "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    broadcastclient
+    broadcastclient "### Classified Documentation Sections"
+    broadcastclient
+    broadcastclient "| Upstream Docs File | Status | Sections |"
+    broadcastclient "| --- | --- | ---: |"
+    docs_status_by_file_rows "$docs_adapted_index" "Adapted"
+    docs_status_by_file_rows "$docs_excluded_index" "Excluded"
+    broadcastclient
+    broadcastclient "## Skeleton Detail"
+    broadcastclient
+    broadcastclient "| Upstream Skeleton File | Status |"
+    broadcastclient "| --- | --- |"
+    skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
     broadcastclient
     broadcastclient "## Feature Coverage"
     broadcastclient

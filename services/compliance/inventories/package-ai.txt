@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/ai/tree/0.x/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -92,6 +92,10 @@ Feature/FileFakeTest.php::test_files_can_be_faked_with_a_closure
 Feature/FileFakeTest.php::test_files_can_prevent_stray_operations
 Feature/FileFakeTest.php::test_can_assert_file_was_stored
 Feature/FileFakeTest.php::test_can_assert_no_files_were_stored
+Feature/FileFakeTest.php::test_can_override_the_filename_when_storing_files_from_each_document_constructor
+Feature/FileFakeTest.php::test_can_override_the_filename_when_storing_an_existing_storable_file
+Feature/FileFakeTest.php::test_can_override_the_filename_when_storing_files_from_a_local_path
+Feature/FileFakeTest.php::test_can_override_the_filename_when_storing_files_from_a_storage_disk
 Feature/FileFakeTest.php::test_can_assert_file_was_deleted
 Feature/FileFakeTest.php::test_can_assert_no_files_were_deleted
 Feature/ImageFakeTest.php::test_images_can_be_faked
