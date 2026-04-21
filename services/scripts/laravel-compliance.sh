@@ -797,6 +797,35 @@ count_percent_display() {
   printf '%s (%s)' "$count" "$(percent_display "$count" "$total")"
 }
 
+inventory_count_context_display() {
+  local file="$1"
+  local repo="$2"
+  local branch="$3"
+  local tests_path="$4"
+  local source
+
+  source="$(awk '
+    /^# Source:/ {
+      sub(/^# Source:[[:space:]]*/, "")
+      print
+      exit
+    }
+  ' "$file")"
+
+  if [ -n "$source" ]; then
+    printf 'Upstream tests are non-comment entries from `%s`; ported tests match Go test markers; adapted tests match `%s`.' \
+      "$source" \
+      "${DIVERGENCES_FILE#$ROOT_PATH/}"
+    return 0
+  fi
+
+  printf 'Upstream tests are non-comment entries from `%s@%s:%s`; ported tests match Go test markers; adapted tests match `%s`.' \
+    "$repo" \
+    "$branch" \
+    "$tests_path" \
+    "${DIVERGENCES_FILE#$ROOT_PATH/}"
+}
+
 inventory_summary_stats() {
   local scope="$1"
   local ported_index="$2"
@@ -959,8 +988,8 @@ report() {
     broadcastclient
     broadcastclient "## Inventories"
     broadcastclient
-    broadcastclient "| Inventory | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
-    broadcastclient "| --- | ---: | ---: | ---: | ---: |"
+    broadcastclient "| Inventory | Count Context | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
+    broadcastclient "| --- | --- | ---: | ---: | ---: | ---: |"
 
     list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
       [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
@@ -968,12 +997,14 @@ report() {
       local file
       file="$COMPLIANCE_PATH/$inventory"
 
-      local rel stats total ported adapted missing
+      local rel context stats total ported adapted missing
       rel="${file#$COMPLIANCE_PATH/}"
+      context="$(inventory_count_context_display "$file" "$repo" "$branch" "$tests_path")"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
-      printf '| %s | %s | %s | %s | %s |\n' \
+      printf '| %s | %s | %s | %s | %s | %s |\n' \
         "$rel" \
+        "$(markdown_cell "$context")" \
         "$total" \
         "$(count_percent_display "$ported" "$total")" \
         "$(count_percent_display "$missing" "$total")" \
