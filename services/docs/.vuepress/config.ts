@@ -139,6 +139,7 @@ export default defineUserConfig({
           text: 'Real-time',
           collapsible: true,
           children: [
+            { text: 'broadcasting', link: '/packages/broadcasting' },
             { text: 'broadcastclient', link: '/packages/broadcastclient' },
             { text: 'websockets', link: '/packages/websockets' },
           ],
