@@ -1,5 +1,7 @@
 # Bedrock
 
+[![codecov](https://codecov.io/gh/oullin/bedrock/branch/main/graph/badge.svg)](https://codecov.io/gh/oullin/bedrock)
+
 Bedrock is a collection of foundational Go packages for building web applications. It provides reusable, well-tested libraries for common concerns such as authentication, caching, routing, session management, and more.
 
 ## Packages
