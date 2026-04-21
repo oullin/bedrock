@@ -52,8 +52,10 @@ go-coverage:
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		safe=$$(echo "$$pkg" | tr '/.' '__'); \
-		echo "go test -coverprofile=$(ROOT_PATH)/storage/.cache/coverage/go/$$safe.out ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go test -coverprofile=$(ROOT_PATH)/storage/.cache/coverage/go/$$safe.out ./...; \
+		report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
+		mkdir -p "$$report_dir"; \
+		echo "go test -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && go test -coverprofile=$$report_dir/coverage.out ./...; \
 	done
 
 typecheck:
