@@ -26,12 +26,12 @@ server.
 
 ## Features
 
-| Feature | Description |
-| --- | --- |
-| Channel auth | Register channel patterns and authorize private or presence subscriptions |
+| Feature          | Description                                                                     |
+| ---------------- | ------------------------------------------------------------------------------- |
+| Channel auth     | Register channel patterns and authorize private or presence subscriptions       |
 | Broadcast events | Resolve event names, channels, payloads, sockets, middleware, and failure hooks |
-| Backends | Pusher/WebSockets, Redis, and Ably broadcaster implementations |
-| Conventions | Pusher-style `private-`, `private-encrypted-`, and `presence-` channel names |
+| Backends         | Pusher/WebSockets, Redis, and Ably broadcaster implementations                      |
+| Conventions      | Pusher-style `private-`, `private-encrypted-`, and `presence-` channel names    |
 
 ## Channel Authorization
 
