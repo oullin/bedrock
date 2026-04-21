@@ -51,6 +51,22 @@ jobs:
       - name: Test with coverage
         run: pnpm test:coverage
 
+      - name: Verify coverage reports
+        run: |
+          set -euo pipefail
+
+          find storage/.cache/coverage -type f | sort
+
+          if ! find storage/.cache/coverage -type f \( \
+            -name 'coverage.out' -o \
+            -name 'lcov.info' -o \
+            -name 'coverage-summary.json' -o \
+            -name '*.lcov' \
+          \) | grep -q .; then
+            broadcastclient "No recognizable coverage reports found in storage/.cache/coverage" >&2
+            exit 1
+          fi
+
       - name: Build
         run: pnpm build
 
@@ -58,4 +74,5 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           directory: storage/.cache/coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
