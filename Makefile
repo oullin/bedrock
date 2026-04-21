@@ -7,6 +7,9 @@ GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
 PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
 GO_MODULE_DIRS := $(shell git ls-files 'packages/**/go.mod' 'services/**/go.mod' | sed 's|/go.mod$$||')
+GO_MODULE_ABS_DIRS := $(addprefix $(ROOT_PATH)/,$(GO_MODULE_DIRS))
+GO_WORK_FILE := $(ROOT_PATH)/storage/.cache/go.work
+GO_CMD := GOWORK=$(GO_WORK_FILE) go
 
 define require-go-modules
 	@if [ -z "$(strip $(GO_MODULE_DIRS))" ]; then \
@@ -14,6 +17,12 @@ define require-go-modules
 		broadcastclient "Expected tracked go.mod files discoverable with git ls-files." >&2; \
 		exit 1; \
 	fi
+endef
+
+define prepare-go-workspace
+	@mkdir -p $(dir $(GO_WORK_FILE))
+	@rm -f $(GO_WORK_FILE) $(GO_WORK_FILE).sum
+	@cd $(dir $(GO_WORK_FILE)) && GOWORK=off go work init $(GO_MODULE_ABS_DIRS)
 endef
 
 .PHONY: format format-start format-stop vet tidy typecheck test coverage build clean docs compliance go-test go-build go-coverage
@@ -34,41 +43,46 @@ format-stop:
 
 vet:
 	$(require-go-modules)
+	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go vet ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go vet ./...; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) vet ./...; \
 	done
 
 tidy:
 	$(require-go-modules)
+	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go mod tidy in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go mod tidy; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) mod tidy; \
 	done
 
 go-test:
 	$(require-go-modules)
+	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go test ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go test ./...; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test ./...; \
 	done
 
 go-build:
 	$(require-go-modules)
+	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		broadcastclient "go build ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go build ./...; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) build ./...; \
 	done
 
 go-coverage:
 	$(require-go-modules)
+	$(prepare-go-workspace)
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
 		safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
 		report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
 		mkdir -p "$$report_dir"; \
 		broadcastclient "go test -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && go test -coverprofile=$$report_dir/coverage.out ./...; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -coverprofile=$$report_dir/coverage.out ./...; \
 	done
 
 typecheck:
