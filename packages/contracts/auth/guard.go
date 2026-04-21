@@ -26,6 +26,13 @@ type StatefulGuard interface {
 	Logout(ctx context.Context) error
 }
 
+// SupportsBasicAuth is implemented by guards that can authenticate HTTP Basic
+// credentials.
+type SupportsBasicAuth interface {
+	Basic(ctx context.Context, field string, extraConditions map[string]string) bool
+	OnceBasic(ctx context.Context, field string, extraConditions map[string]string) bool
+}
+
 // HTTPGuard provides HTTP-aware authentication for web frameworks.
 type HTTPGuard interface {
 	Name() string

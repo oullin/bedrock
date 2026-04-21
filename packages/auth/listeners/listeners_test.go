@@ -7,6 +7,7 @@ import (
 
 	"github.com/bedrock/packages/auth/events"
 	"github.com/bedrock/packages/auth/listeners"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
 // stubUser implements Authenticatable but not MustVerifyEmail.
@@ -38,11 +39,14 @@ func (u *verifiableUser) MarkEmailAsUnverified()             { u.verified = fals
 func (u *verifiableUser) GetEmailForVerification() string    { return "test@example.com" }
 func (u *verifiableUser) SendEmailVerificationNotification() { u.notificationSent = true }
 
+// Port of Framework\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testWillExecuted
 func TestSendEmailVerificationNotification_UnverifiedUser(t *testing.T) {
 	user := &verifiableUser{
 		stubUser: stubUser{id: "1"},
 		verified: false,
 	}
+
+	var _ cauth.EmailVerificationNotificationSender = user
 
 	listener := &listeners.SendEmailVerificationNotification{}
 	listener.Handle(context.Background(), events.Registered{User: user})
@@ -52,6 +56,7 @@ func TestSendEmailVerificationNotification_UnverifiedUser(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testHasVerifiedEmailAsTrue
 func TestSendEmailVerificationNotification_AlreadyVerified(t *testing.T) {
 	user := &verifiableUser{
 		stubUser: stubUser{id: "1"},
@@ -66,6 +71,7 @@ func TestSendEmailVerificationNotification_AlreadyVerified(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testUserIsNotInstanceOfMustVerifyEmail
 func TestSendEmailVerificationNotification_NonVerifiableUser(t *testing.T) {
 	user := &stubUser{id: "1"}
 
