@@ -21,6 +21,12 @@ func (u *GenericUser) GetAuthIdentifier() string {
 	return ""
 }
 
+// GetAuthIdentifierForBroadcasting returns the identifier used for private
+// broadcast channel authorization.
+func (u *GenericUser) GetAuthIdentifierForBroadcasting() string {
+	return u.GetAuthIdentifier()
+}
+
 func (u *GenericUser) GetAuthPasswordName() string { return "password" }
 
 func (u *GenericUser) GetAuthPassword() string {

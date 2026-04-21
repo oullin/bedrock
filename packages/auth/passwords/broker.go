@@ -7,7 +7,9 @@ import (
 	"errors"
 	"time"
 
+	authevents "github.com/bedrock/packages/auth/events"
 	cauth "github.com/bedrock/packages/contracts/auth"
+	cevents "github.com/bedrock/packages/contracts/events"
 )
 
 // TokenRepository stores and validates password reset tokens.
@@ -22,14 +24,26 @@ type TokenRepository interface {
 	DeleteExpired(ctx context.Context) error
 }
 
+// RecentTokenRepository can report whether a token was created recently enough
+// to throttle repeated reset-link requests.
+type RecentTokenRepository interface {
+	RecentlyCreated(ctx context.Context, email string, within time.Duration) bool
+}
+
 // ResetCallback is called with the user and plain-text token to perform the reset.
 type ResetCallback func(ctx context.Context, user cauth.CanResetPassword, token, password string) error
 
+// ResetLinkCallback is called after a reset token is created to customize how
+// the reset link notification is sent.
+type ResetLinkCallback func(ctx context.Context, user cauth.CanResetPassword, token string) error
+
 // Broker orchestrates the password reset flow.
 type Broker struct {
-	users  cauth.UserProvider
-	tokens TokenRepository
-	expiry time.Duration
+	users    cauth.UserProvider
+	tokens   TokenRepository
+	expiry   time.Duration
+	throttle time.Duration
+	events   cevents.Dispatcher
 }
 
 // NewBroker creates a Broker. expiry is the token lifetime.
@@ -37,21 +51,67 @@ func NewBroker(users cauth.UserProvider, tokens TokenRepository, expiry time.Dur
 	return &Broker{users: users, tokens: tokens, expiry: expiry}
 }
 
+// WithThrottle configures how long reset-link creation should be throttled for
+// a user after a token has already been created.
+func (b *Broker) WithThrottle(throttle time.Duration) *Broker {
+	b.throttle = throttle
+
+	return b
+}
+
+// WithEventDispatcher configures the broker's auth event dispatcher.
+func (b *Broker) WithEventDispatcher(dispatcher cevents.Dispatcher) *Broker {
+	b.events = dispatcher
+
+	return b
+}
+
+// SetEventDispatcher configures the broker's auth event dispatcher.
+func (b *Broker) SetEventDispatcher(dispatcher cevents.Dispatcher) {
+	b.events = dispatcher
+}
+
+func (b *Broker) dispatch(ctx context.Context, event any) {
+	if b.events != nil {
+		_, _ = b.events.Dispatch(ctx, event)
+	}
+}
+
 // SendResetLink finds the user by email and sends them a password reset notification.
 func (b *Broker) SendResetLink(ctx context.Context, email string) error {
+	return b.SendResetLinkUsing(ctx, email, nil)
+}
+
+// SendResetLinkUsing finds the user by email, creates a reset token, and lets
+// the callback customize how the notification is sent.
+func (b *Broker) SendResetLinkUsing(ctx context.Context, email string, callback ResetLinkCallback) error {
 	user, err := b.getUser(ctx, email)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = b.tokens.Create(ctx, email)
+	if b.throttle > 0 {
+		if recent, ok := b.tokens.(RecentTokenRepository); ok && recent.RecentlyCreated(ctx, email, b.throttle) {
+			return errors.New("passwords: token recently created")
+		}
+	}
+
+	token, err := b.tokens.Create(ctx, email)
 
 	if err != nil {
 		return err
 	}
 
-	_ = user
+	if callback != nil {
+		return callback(ctx, user, token)
+	}
+
+	if sender, ok := user.(cauth.PasswordResetNotificationSender); ok {
+		sender.SendPasswordResetNotification(token)
+	}
+
+	b.dispatch(ctx, authevents.PasswordResetLinkSent{User: user})
 
 	return nil
 }
