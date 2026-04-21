@@ -23,10 +23,10 @@ features:
     source_id: framework.broadcasting
     name: Broadcasting contracts
     upstream: Framework\Broadcasting channel and event contracts
-    bedrock: broadcastclient
-    status: missing
-    docs: packages/broadcastclient.md
-    notes: BroadcastClient and WebSockets pieces exist, but no framework broadcasting contract inventory is ported yet.
+    bedrock: broadcasting
+    status: ported
+    docs: packages/broadcasting.md
+    notes: Server-side channel auth, broadcast event payload handling, Pusher/Redis/Ably broadcaster responses, and Pusher channel conventions are ported; BroadcastClient remains the client receiver package.
 
   - id: framework.bus.dispatch
     source_id: framework.bus
