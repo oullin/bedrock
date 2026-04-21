@@ -73,6 +73,20 @@ adaptation_rules:
       - laravel: ActiveUrl via checkdnsrr
         bedrock: net.LookupHost
 
+  auth:
+    source: Illuminate\Auth
+    rules:
+      - laravel: PHP callback forms, container-bound policy callbacks, and Macroable methods
+        bedrock: Explicit Go functions, interfaces, and method registration
+      - laravel: BackedEnum and UnitEnum ability or guard names
+        bedrock: String ability and guard identifiers
+      - laravel: Middleware definition strings and route parameter model binding
+        bedrock: net/http middleware closures with explicit guard and model values
+      - laravel: Eloquent model creation and query-handler registration
+        bedrock: Injected provider interfaces and caller-owned ORM/query implementations
+      - laravel: Redirect response status codes from password broker workflows
+        bedrock: Explicit error returns from broker methods
+
 semantic_divergences:
   - surface: database
     divergence: No static methods
@@ -111,4 +125,209 @@ semantic_divergences:
     divergence: Password uncompromised breach check is not wired by default
     rationale: The check requires external HTTP and should be caller-controlled.
 
-test_status_overrides: []
+test_status_overrides:
+  # Illuminate\Auth entries without a direct executable Go analogue are counted
+  # as adapted. Executable parity tests live under packages/auth.
+  - AuthAccessGateTest::testBasicClosuresCanBeDefined
+  - AuthAccessGateTest::testBeforeCanTakeAnArrayCallbackAsObject
+  - AuthAccessGateTest::testBeforeCanTakeAnArrayCallbackAsObjectStatic
+  - AuthAccessGateTest::testBeforeCanTakeAnArrayCallbackWithStaticMethod
+  - AuthAccessGateTest::testBeforeCanAllowGuests
+  - AuthAccessGateTest::testAfterCanAllowGuests
+  - AuthAccessGateTest::testClosuresCanAllowGuestUsers
+  - AuthAccessGateTest::testPoliciesCanAllowGuests
+  - AuthAccessGateTest::testPolicyBeforeNotCalledWithGuestsIfItDoesntAllowThem
+  - AuthAccessGateTest::testBeforeAndAfterCallbacksCanAllowGuests
+  - AuthAccessGateTest::testResourceGatesCanBeDefined
+  - AuthAccessGateTest::testCustomResourceGatesCanBeDefined
+  - AuthAccessGateTest::testBeforeCallbacksCanOverrideResultIfNecessary
+  - AuthAccessGateTest::testBeforeCallbacksDontInterruptGateCheckIfNoValueIsReturned
+  - AuthAccessGateTest::testAfterCallbacksAreCalledWithResult
+  - AuthAccessGateTest::testAfterCallbacksCanAllowIfNull
+  - AuthAccessGateTest::testAfterCallbacksDoNotOverridePreviousResult
+  - AuthAccessGateTest::testAfterCallbacksDoNotOverrideEachOther
+  - AuthAccessGateTest::testCanDefineGatesUsingBackedEnum
+  - AuthAccessGateTest::testBackedEnumInAllows
+  - AuthAccessGateTest::testBackedEnumInDenies
+  - AuthAccessGateTest::testArrayAbilitiesInAllows
+  - AuthAccessGateTest::testArrayAbilitiesInDenies
+  - AuthAccessGateTest::testCurrentUserThatIsOnGateAlwaysInjectedIntoClosureCallbacks
+  - AuthAccessGateTest::testASingleArgumentCanBePassedWhenCheckingAbilities
+  - AuthAccessGateTest::testMultipleArgumentsCanBePassedWhenCheckingAbilities
+  - AuthAccessGateTest::testClassesCanBeDefinedAsCallbacksUsingAtNotation
+  - AuthAccessGateTest::testInvokableClassesCanBeDefined
+  - AuthAccessGateTest::testGatesCanBeDefinedUsingAnArrayCallback
+  - AuthAccessGateTest::testGatesCanBeDefinedUsingAnArrayCallbackWithStaticMethod
+  - AuthAccessGateTest::testPolicyClassesCanBeDefinedToHandleChecksForGivenType
+  - AuthAccessGateTest::testPolicyClassesHandleChecksForAllSubtypes
+  - AuthAccessGateTest::testPolicyClassesHandleChecksForInterfaces
+  - AuthAccessGateTest::testPolicyConvertsDashToCamel
+  - AuthAccessGateTest::testPolicyDefaultToFalseIfMethodDoesNotExistAndGateDoesNotExist
+  - AuthAccessGateTest::testPolicyClassesCanBeDefinedToHandleChecksForGivenClassName
+  - AuthAccessGateTest::testPoliciesMayHaveBeforeMethodsToOverrideChecks
+  - AuthAccessGateTest::testPoliciesAlwaysOverrideClosuresWithSameName
+  - AuthAccessGateTest::testPoliciesDeferToGatesIfMethodDoesNotExist
+  - AuthAccessGateTest::testForUserMethodAttachesANewUserToANewGateInstance
+  - AuthAccessGateTest::testForUserMethodAttachesANewUserToANewGateInstanceWithGuessCallback
+  - AuthAccessGateTest::testDefineSecondParameterShouldBeStringOrCallable
+  - AuthAccessGateTest::testAuthorizeThrowsUnauthorizedException
+  - AuthAccessGateTest::testAuthorizeThrowsUnauthorizedExceptionWithCustomStatusCode
+  - AuthAccessGateTest::testAuthorizeWithPolicyThatReturnsDeniedResponseObjectThrowsException
+  - AuthAccessGateTest::testPolicyThatThrowsAuthorizationExceptionIsCaughtInInspect
+  - AuthAccessGateTest::testAuthorizeReturnsAllowedResponse
+  - AuthAccessGateTest::testResponseReturnsResponseWhenAbilityGranted
+  - AuthAccessGateTest::testResponseReturnsResponseWhenAbilityDenied
+  - AuthAccessGateTest::testAuthorizeReturnsAnAllowedResponseForATruthyReturn
+  - AuthAccessGateTest::testAllowIfAuthorizesTrue
+  - AuthAccessGateTest::testAllowIfAuthorizesTruthy
+  - AuthAccessGateTest::testAllowIfAuthorizesIfGuest
+  - AuthAccessGateTest::testAllowIfAuthorizesCallbackTrue
+  - AuthAccessGateTest::testAllowIfAuthorizesResponseAllowed
+  - AuthAccessGateTest::testAllowIfAuthorizesCallbackResponseAllowed
+  - AuthAccessGateTest::testAllowsIfCallbackAcceptsGuestsWhenAuthenticated
+  - AuthAccessGateTest::testAllowIfCallbackAcceptsGuestsWhenUnauthenticated
+  - AuthAccessGateTest::testAllowIfThrowsExceptionWhenFalse
+  - AuthAccessGateTest::testAllowIfThrowsExceptionWhenCallbackFalse
+  - AuthAccessGateTest::testAllowIfThrowsExceptionWhenResponseDenied
+  - AuthAccessGateTest::testAllowIfThrowsExceptionWhenCallbackResponseDenied
+  - AuthAccessGateTest::testAllowIfThrowsExceptionIfUnauthenticated
+  - AuthAccessGateTest::testAllowIfThrowsExceptionIfAuthUserExpectedWhenGuest
+  - AuthAccessGateTest::testDenyIfAuthorizesFalse
+  - AuthAccessGateTest::testDenyIfAuthorizesFalsy
+  - AuthAccessGateTest::testDenyIfAuthorizesIfGuest
+  - AuthAccessGateTest::testDenyIfAuthorizesCallbackFalse
+  - AuthAccessGateTest::testDenyIfAuthorizesResponseAllowed
+  - AuthAccessGateTest::testDenyIfAuthorizesCallbackResponseAllowed
+  - AuthAccessGateTest::testDenyIfCallbackAcceptsGuestsWhenAuthenticated
+  - AuthAccessGateTest::testDenyIfCallbackAcceptsGuestsWhenUnauthenticated
+  - AuthAccessGateTest::testDenyIfThrowsExceptionWhenTrue
+  - AuthAccessGateTest::testDenyIfThrowsExceptionWhenCallbackTrue
+  - AuthAccessGateTest::testDenyIfThrowsExceptionWhenResponseDenied
+  - AuthAccessGateTest::testDenyIfThrowsExceptionWhenCallbackResponseDenied
+  - AuthAccessGateTest::testDenyIfThrowsExceptionIfUnauthenticated
+  - AuthAccessGateTest::testDenyIfThrowsExceptionIfAuthUserExpectedWhenGuest
+  - AuthAccessGateTest::testAnyAbilityCheckPassesIfAllPass
+  - AuthAccessGateTest::testAnyAbilityCheckPassesIfAtLeastOnePasses
+  - AuthAccessGateTest::testAnyAbilityCheckFailsIfNonePass
+  - AuthAccessGateTest::testNoneAbilityCheckPassesIfAllFail
+  - AuthAccessGateTest::testEveryAbilityCheckPassesIfAllPass
+  - AuthAccessGateTest::testEveryAbilityCheckFailsIfAtLeastOneFails
+  - AuthAccessGateTest::testEveryAbilityCheckFailsIfNonePass
+  - AuthAccessGateTest::testAnyAbilitiesCheckUsingBackedEnum
+  - AuthAccessGateTest::testNoneAbilitiesCheckUsingBackedEnum
+  - AuthAccessGateTest::testAbilitiesCheckUsingBackedEnum
+  - AuthAccessGateTest::testHasAbilities
+  - AuthAccessGateTest::testClassesCanBeDefinedAsCallbacksUsingAtNotationForGuests
+  - AuthAccessGateTest::testCanSetDenialResponseInConstructor
+  - AuthAccessGateTest::testCanSetDenialResponse
+  - AuthDatabaseUserProviderTest::testRetrieveByCredentialsAcceptsCallback
+  - AuthEloquentUserProviderTest::testRetrieveByCredentialsAcceptsCallback
+  - AuthEloquentUserProviderTest::testModelsCanBeCreated
+  - AuthEloquentUserProviderTest::testRegistersQueryHandler
+  - AuthGuardTest::testBasicReturnsNullOnValidAttempt
+  - AuthGuardTest::testBasicReturnsNullWhenAlreadyLoggedIn
+  - AuthGuardTest::testBasicReturnsResponseOnFailure
+  - AuthGuardTest::testBasicWithExtraArrayConditions
+  - AuthGuardTest::testAttemptCallsRetrieveByCredentials
+  - AuthGuardTest::testAttemptReturnsUserInterface
+  - AuthGuardTest::testAttemptReturnsFalseIfUserNotGiven
+  - AuthGuardTest::testAttemptAndWithCallbacks
+  - AuthGuardTest::testAttemptRehashesPasswordWhenRequired
+  - AuthGuardTest::testAttemptDoesntRehashPasswordWhenDisabled
+  - AuthGuardTest::testLoginStoresIdentifierInSession
+  - AuthGuardTest::testSessionGuardIsMacroable
+  - AuthGuardTest::testLoginFiresLoginAndAuthenticatedEvents
+  - AuthGuardTest::testFailedAttemptFiresFailedEvent
+  - AuthGuardTest::testAuthenticateReturnsUserWhenUserIsNotNull
+  - AuthGuardTest::testSetUserFiresAuthenticatedEvent
+  - AuthGuardTest::testAuthenticateThrowsWhenUserIsNull
+  - AuthGuardTest::testHasUserReturnsTrueWhenUserIsNotNull
+  - AuthGuardTest::testHasUserReturnsFalseWhenUserIsNull
+  - AuthGuardTest::testIsAuthedReturnsTrueWhenUserIsNotNull
+  - AuthGuardTest::testIsAuthedReturnsFalseWhenUserIsNull
+  - AuthGuardTest::testUserMethodReturnsCachedUser
+  - AuthGuardTest::testNullIsReturnedForUserIfNoUserFound
+  - AuthGuardTest::testUserIsSetToRetrievedUser
+  - AuthGuardTest::testLogoutRemovesSessionTokenAndRememberMeCookie
+  - AuthGuardTest::testLogoutDoesNotEnqueueRememberMeCookieForDeletionIfCookieDoesntExist
+  - AuthGuardTest::testLogoutFiresLogoutEvent
+  - AuthGuardTest::testLogoutDoesNotSetRememberTokenIfNotPreviouslySet
+  - AuthGuardTest::testLogoutCurrentDeviceRemovesRememberMeCookie
+  - AuthGuardTest::testLogoutCurrentDeviceDoesNotEnqueueRememberMeCookieForDeletionIfCookieDoesntExist
+  - AuthGuardTest::testLogoutCurrentDeviceFiresLogoutEvent
+  - AuthGuardTest::testLoginMethodQueuesCookieWhenRemembering
+  - AuthGuardTest::testLoginMethodQueuesCookieWhenRememberingAndAllowsOverride
+  - AuthGuardTest::testLoginMethodCreatesRememberTokenIfOneDoesntExist
+  - AuthGuardTest::testLoginUsingIdLogsInWithUser
+  - AuthGuardTest::testLoginUsingIdFailure
+  - AuthGuardTest::testOnceUsingIdSetsUser
+  - AuthGuardTest::testOnceUsingIdFailure
+  - AuthGuardTest::testUserUsesRememberCookieIfItExists
+  - AuthGuardTest::testLoginOnceSetsUser
+  - AuthGuardTest::testLoginOnceFailure
+  - AuthGuardTest::testForgetUserSetsUserToNull
+  - AuthHandlesAuthorizationTest::testAllowMethod
+  - AuthHandlesAuthorizationTest::testDenyMethod
+  - AuthHandlesAuthorizationTest::testDenyHasNullStatus
+  - AuthHandlesAuthorizationTest::testItCanDenyWithStatus
+  - AuthHandlesAuthorizationTest::testItCanDenyAsNotFound
+  - AuthPasswordBrokerManagerTest::testBrokerCanResolveBackedEnum
+  - AuthPasswordBrokerManagerTest::testSetDefaultDriverAcceptsBackedEnum
+  - AuthPasswordBrokerTest::testIfUserIsNotFoundErrorRedirectIsReturned
+  - AuthPasswordBrokerTest::testGetUserThrowsExceptionIfUserDoesntImplementCanResetPassword
+  - AuthPasswordBrokerTest::testUserIsRetrievedByCredentials
+  - AuthPasswordBrokerTest::testRedirectReturnedByRemindWhenRecordDoesntExistInTable
+  - AuthTokenGuardTest::testUserCanBeRetrievedByQueryStringVariable
+  - AuthTokenGuardTest::testTokenCanBeHashed
+  - AuthTokenGuardTest::testUserCanBeRetrievedByAuthHeaders
+  - AuthTokenGuardTest::testUserCanBeRetrievedByBearerToken
+  - AuthTokenGuardTest::testValidateCanDetermineIfCredentialsAreValid
+  - AuthTokenGuardTest::testValidateCanDetermineIfCredentialsAreInvalid
+  - AuthTokenGuardTest::testValidateIfApiTokenIsEmpty
+  - AuthTokenGuardTest::testItAllowsToPassCustomRequestInSetterAndUseItForValidation
+  - AuthTokenGuardTest::testUserCanBeRetrievedByBearerTokenWithCustomKey
+  - AuthTokenGuardTest::testUserCanBeRetrievedByQueryStringVariableWithCustomKey
+  - AuthTokenGuardTest::testUserCanBeRetrievedByAuthHeadersWithCustomField
+  - AuthTokenGuardTest::testValidateCanDetermineIfCredentialsAreValidWithCustomKey
+  - AuthTokenGuardTest::testValidateCanDetermineIfCredentialsAreInvalidWithCustomKey
+  - AuthTokenGuardTest::testValidateIfApiTokenIsEmptyWithCustomKey
+  - AuthenticatableTest::testItReturnsSameRememberTokenForString
+  - AuthenticatableTest::testItReturnsStringAsRememberTokenWhenItWasSetToTrue
+  - AuthenticatableTest::testItReturnsNullWhenRememberTokenNameWasSetToEmpty
+  - AuthenticateMiddlewareTest::testItCanGenerateDefinitionViaStaticMethod
+  - AuthenticateMiddlewareTest::testItCanGenerateDefinitionViaStaticMethodForBasic
+  - AuthenticateMiddlewareTest::testDefaultUnauthenticatedThrows
+  - AuthenticateMiddlewareTest::testDefaultUnauthenticatedThrowsWithGuards
+  - AuthenticateMiddlewareTest::testDefaultAuthenticatedKeepsDefaultDriver
+  - AuthenticateMiddlewareTest::testSecondaryAuthenticatedUpdatesDefaultDriver
+  - AuthenticateMiddlewareTest::testMultipleDriversUnauthenticatedThrows
+  - AuthenticateMiddlewareTest::testMultipleDriversUnauthenticatedThrowsWithGuards
+  - AuthenticateMiddlewareTest::testMultipleDriversAuthenticatedUpdatesDefault
+  - AuthenticateMiddlewareTest::testCustomDriverClosureBoundObjectIsAuthManager
+  - AuthenticateMiddlewareTest::testCustomDriverStatic
+  - AuthenticateMiddlewareTest::testCustomInvokableDriver
+  - AuthenticateMiddlewareTest::testAuthManagerCanResolveBackedEnumGuard
+  - AuthenticateMiddlewareTest::testShouldUseAcceptsBackedEnum
+  - AuthenticateMiddlewareTest::testSetDefaultDriverAcceptsBackedEnum
+  - AuthorizeMiddlewareTest::testItCanGenerateDefinitionViaStaticMethod
+  - AuthorizeMiddlewareTest::testSimpleAbilityUnauthorized
+  - AuthorizeMiddlewareTest::testSimpleAbilityAuthorized
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithStringParameter
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithBackedEnumParameter
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithNullParameter
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithOptionalParameter
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithStringParameterFromRouteParameter
+  - AuthorizeMiddlewareTest::testSimpleAbilityWithStringParameter0FromRouteParameter
+  - AuthorizeMiddlewareTest::testModelTypeUnauthorized
+  - AuthorizeMiddlewareTest::testModelTypeAuthorized
+  - AuthorizeMiddlewareTest::testModelUnauthorized
+  - AuthorizeMiddlewareTest::testModelAuthorized
+  - AuthorizeMiddlewareTest::testModelInstanceAsParameter
+  - AuthorizesResourcesTest::testCreateMethod
+  - AuthorizesResourcesTest::testStoreMethod
+  - AuthorizesResourcesTest::testShowMethod
+  - AuthorizesResourcesTest::testEditMethod
+  - AuthorizesResourcesTest::testUpdateMethod
+  - AuthorizesResourcesTest::testDestroyMethod
+  - EnsureEmailIsVerifiedTest::testItCanGenerateDefinitionViaStaticMethod
+  - RedirectIfAuthenticatedMiddlewareTest::testItCanGenerateDefinitionViaStaticMethod

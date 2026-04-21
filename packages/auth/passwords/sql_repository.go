@@ -81,6 +81,21 @@ func (r *SQLRepository) Exists(ctx context.Context, email, token string) bool {
 	return storedToken == token
 }
 
+func (r *SQLRepository) RecentlyCreated(ctx context.Context, email string, within time.Duration) bool {
+	row := r.db.QueryRow(ctx,
+		"SELECT created_at FROM "+r.table+" WHERE email = $1 LIMIT 1",
+		email,
+	)
+
+	var createdAt time.Time
+
+	if err := row.Scan(&createdAt); err != nil {
+		return false
+	}
+
+	return time.Since(createdAt) <= within
+}
+
 func (r *SQLRepository) Delete(ctx context.Context, email string) error {
 	return r.db.Exec(ctx, "DELETE FROM "+r.table+" WHERE email = $1", email)
 }

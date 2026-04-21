@@ -950,6 +950,13 @@ report() {
     echo
     echo "Source of truth: services/compliance"
     echo
+    echo "## Compliance Workflow Requirements"
+    echo
+    echo "- Every mapped Bedrock package compliance pass must include an upstream feature audit: \`make sure we also have all the upstream features for <package>\`."
+    echo "- The audit compares upstream source contracts, public APIs, middleware, events, and runtime behavior against the Bedrock surface."
+    echo "- Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in \`services/compliance/divergences.yml\`."
+    echo "- \`services/compliance/features.yml\` must contain feature audit coverage for every mapped Bedrock surface."
+    echo
     echo "## Test Porting Summary"
     echo
     echo "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
@@ -1360,12 +1367,16 @@ check_features_format() {
 }
 
 check_features() {
-  local failed=0 count=0 source_ids feature_ids
+  local failed=0 count=0 source_ids feature_ids required_source_ids audited_source_ids missing_audits
   source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-source-ids.XXXXXX")"
   feature_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-feature-ids.XXXXXX")"
+  required_source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-required-feature-audits.XXXXXX")"
+  audited_source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-audited-sources.XXXXXX")"
 
   list_records | awk -F "$RECORD_SEPARATOR" '{ print $1 }' | sort -u > "$source_ids"
+  list_records | awk -F "$RECORD_SEPARATOR" '$2 == "mapped" && $9 != "" && $9 != "null" { print $1 }' | sort -u > "$required_source_ids"
   : > "$feature_ids"
+  : > "$audited_source_ids"
 
   check_features_format || failed=1
 
@@ -1389,6 +1400,7 @@ check_features() {
       echo "Feature $id references unknown source_id: $source_id" >&2
       failed=1
     fi
+    printf '%s\n' "$source_id" >> "$audited_source_ids"
 
     if rg -Fxq -- "$id" "$feature_ids"; then
       echo "Duplicate feature id: $id" >&2
@@ -1417,12 +1429,21 @@ check_features() {
     fi
   done < <(list_feature_records)
 
+  sort -u -o "$audited_source_ids" "$audited_source_ids"
+  missing_audits="$(comm -23 "$required_source_ids" "$audited_source_ids")"
+
+  if [ -n "$missing_audits" ]; then
+    echo "Mapped Bedrock sources missing upstream feature audit coverage in $FEATURES_FILE:" >&2
+    printf '%s\n' "$missing_audits" >&2
+    failed=1
+  fi
+
   if [ "$count" -eq 0 ]; then
     echo "$FEATURES_FILE must define at least one feature." >&2
     failed=1
   fi
 
-  rm -f "$source_ids" "$feature_ids"
+  rm -f "$source_ids" "$feature_ids" "$required_source_ids" "$audited_source_ids"
   return "$failed"
 }
 

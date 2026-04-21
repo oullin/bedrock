@@ -8,7 +8,7 @@ features:
     bedrock: auth
     status: partial
     docs: packages/auth.md
-    notes: Session, token, and request guards exist; upstream test inventory is still mostly missing.
+    notes: Session, token, request, basic-auth, provider, and event surfaces exist with a current upstream feature audit; remaining gaps are PHP-specific mechanics or broader test parity.
 
   - id: framework.auth.passwords
     source_id: framework.auth
@@ -17,7 +17,7 @@ features:
     bedrock: auth
     status: partial
     docs: packages/auth.md
-    notes: Password management is ported through auth; upstream test parity remains incomplete.
+    notes: Password reset tokens, throttling, callback notification override, notification sender hook, and reset-link events exist; manager/config wiring remains adapted to Go.
 
   - id: framework.broadcasting.contracts
     source_id: framework.broadcasting
