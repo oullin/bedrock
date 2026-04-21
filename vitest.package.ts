@@ -29,6 +29,7 @@ export default defineConfig({
       reportsDirectory: path.join(
         repoRoot,
         "storage",
+        ".cache",
         "coverage",
         normalizedPackagePath,
       ),
