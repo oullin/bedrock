@@ -957,47 +957,6 @@ report() {
     echo "- Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in \`services/compliance/divergences.yml\`."
     echo "- \`services/compliance/features.yml\` must contain feature audit coverage for every mapped Bedrock surface."
     echo
-    echo "## Test Porting Summary"
-    echo
-    echo "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
-    echo "| --- | ---: | ---: | ---: | ---: | ---: |"
-    inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
-    inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
-    inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
-    echo
-    echo "## Documentation Porting Summary"
-    echo
-    echo "| Scope | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |"
-    echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-    generic_summary_row "Laravel docs" "1" "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
-    echo
-    echo "## Laravel Skeleton Demo Summary"
-    echo
-    echo "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
-    echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
-    generic_summary_row "laravel/laravel" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
-    echo
-    echo "## Documentation Detail"
-    echo
-    echo "### Top Pending Documentation Files"
-    echo
-    echo "| Laravel Docs File | Pending Sections |"
-    echo "| --- | ---: |"
-    docs_pending_by_file_rows "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
-    echo
-    echo "### Classified Documentation Sections"
-    echo
-    echo "| Laravel Docs File | Status | Sections |"
-    echo "| --- | --- | ---: |"
-    docs_status_by_file_rows "$docs_adapted_index" "Adapted"
-    docs_status_by_file_rows "$docs_excluded_index" "Excluded"
-    echo
-    echo "## Skeleton Detail"
-    echo
-    echo "| Laravel Skeleton File | Status |"
-    echo "| --- | --- |"
-    skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
-    echo
     echo "## Inventories"
     echo
     echo "| Inventory | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
@@ -1051,6 +1010,77 @@ report() {
         "$display_docs"
     done
 
+    echo
+    echo "## Package Coverage"
+    echo
+    echo "| Laravel Package | Bedrock Surface | Port Status | Tests | Docs |"
+    echo "| --- | --- | --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter laravel bedrock; do
+      case "$id" in
+        package.*) ;;
+        *) continue ;;
+      esac
+
+      local display_bedrock display_tests display_docs
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
+      display_docs="$(docs_display "$bedrock" "")"
+
+      printf '| `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$laravel")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$(markdown_cell "$display_tests")" \
+        "$display_docs"
+    done
+
+    echo
+    echo "## Test Porting Summary"
+    echo
+    echo "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
+    echo "| --- | ---: | ---: | ---: | ---: | ---: |"
+    inventory_summary_row "All inventories" "all" "$ported_index" "$adapted_index"
+    inventory_summary_row "Framework inventories" "framework" "$ported_index" "$adapted_index"
+    inventory_summary_row "Package inventories" "package" "$ported_index" "$adapted_index"
+    echo
+    echo "## Documentation Porting Summary"
+    echo
+    echo "| Scope | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |"
+    echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "Laravel docs" "1" "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    echo
+    echo "## Laravel Skeleton Demo Summary"
+    echo
+    echo "| Scope | Skeleton Inventories | Upstream Files | Ported Files | Pending / Missing Files | Adapted Files | Excluded Files |"
+    echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+    generic_summary_row "laravel/laravel" "1" "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    echo
+    echo "## Documentation Detail"
+    echo
+    echo "### Top Pending Documentation Files"
+    echo
+    echo "| Laravel Docs File | Pending Sections |"
+    echo "| --- | ---: |"
+    docs_pending_by_file_rows "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index"
+    echo
+    echo "### Classified Documentation Sections"
+    echo
+    echo "| Laravel Docs File | Status | Sections |"
+    echo "| --- | --- | ---: |"
+    docs_status_by_file_rows "$docs_adapted_index" "Adapted"
+    docs_status_by_file_rows "$docs_excluded_index" "Excluded"
+    echo
+    echo "## Skeleton Detail"
+    echo
+    echo "| Laravel Skeleton File | Status |"
+    echo "| --- | --- |"
+    skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
     echo
     echo "## Feature Coverage"
     echo
