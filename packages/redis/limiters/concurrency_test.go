@@ -13,6 +13,14 @@ import (
 	"github.com/bedrock/packages/redis/limiters"
 )
 
+// ConcurrencyLimiterTest::testAcquireUsesPlainKeysOnNonClusterConnection
+// ConcurrencyLimiterTest::testReleaseKeyMatchesAcquireKeyOnCluster
+// ConcurrencyLimiterTest::testAcquireDoesNotDoubleWrapPreExistingHashTags
+// ConcurrentLimiterTest::testItLocksTasksWhenNoSlotAvailable
+// ConcurrentLimiterTest::testItFailsImmediatelyOrRetriesForAWhileBasedOnAGivenTimeout
+// ConcurrentLimiterTest::testItFailsAfterRetryTimeout
+// ConcurrentLimiterTest::testItReleasesIfErrorIsThrown
+
 type evalKeyRecorder struct {
 	cluster bool
 	keys    [][]string

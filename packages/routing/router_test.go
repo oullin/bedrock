@@ -7,6 +7,21 @@ import (
 
 // Translation of the dispatcher half of upstream/framework
 // tests/Routing/RoutingRouteTest.php — the parts that need a Router instance.
+// RouteRegistrarTest::testCanRegisterGetRouteWithClosureAction
+// RouteRegistrarTest::testCanRegisterPostRouteWithClosureAction
+// RouteRegistrarTest::testCanRegisterAnyRouteWithClosureAction
+// RouteRegistrarTest::testCanRegisterMatchRouteWithClosureAction
+// RouteRegistrarTest::testFallbackRoute
+// RouteRegistrarTest::testSetFallbackRoute
+// RouteRegistrarTest::testCanRegisterGroupWithPrefix
+// RouteRegistrarTest::testCanRegisterGroupWithNamePrefix
+// RouteRegistrarTest::testCanRegisterGroupWithDomain
+// RouteRegistrarTest::testPushMiddlewareToGroup
+// RouteRegistrarTest::testCanRemoveMiddlewareFromGroup
+// RoutingRouteTest::testBasicDispatchingOfRoutes
+// RoutingRouteTest::testRouterPatternSetting
+// RoutingRouteTest::testMiddlewarePrioritySorting
+// RoutingRouteTest::testGroupMerging
 
 func TestRouter_Registration(t *testing.T) {
 	t.Run("test_get_post_put_patch_delete", func(t *testing.T) {

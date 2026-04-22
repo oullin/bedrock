@@ -6,6 +6,9 @@ import (
 )
 
 // Port of Framework\Tests\Support\SupportStrTest::testStringCanBeLimitedByWords
+// SupportStrTest::testStringCanBeLimitedByWordsNonAscii
+// SupportStrTest::testStringTrimmedOnlyWhereNecessary
+// SupportStrTest::testStringWithoutWordsDoesntProduceError
 func TestStrWords(t *testing.T) {
 	t.Parallel()
 
@@ -19,6 +22,22 @@ func TestStrWords(t *testing.T) {
 
 	if got := StrWords("This is a sentence", 10); got != "This is a sentence" {
 		t.Errorf("StrWords(10) = %q", got)
+	}
+
+	if got := StrWords("这是 段中文", 1); got != "这是..." {
+		t.Errorf("StrWords non-ascii = %q", got)
+	}
+
+	if got := StrWords(" Taylor Otwell ", 1); got != " Taylor..." {
+		t.Errorf("StrWords preserves leading trim = %q", got)
+	}
+
+	if got := StrWords("   ", 100); got != "   " {
+		t.Errorf("StrWords whitespace = %q", got)
+	}
+
+	if got := StrWords("\t\t\t", 100); got != "\t\t\t" {
+		t.Errorf("StrWords tabs = %q", got)
 	}
 }
 
@@ -50,6 +69,7 @@ func TestStrHeadline(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testStartsWith
+// SupportStrTest::testDoesntStartWith
 func TestStrStartsWith(t *testing.T) {
 	t.Parallel()
 
@@ -71,6 +91,7 @@ func TestStrStartsWith(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testEndsWith
+// SupportStrTest::testDoesntEndWith
 func TestStrEndsWith(t *testing.T) {
 	t.Parallel()
 
@@ -92,6 +113,7 @@ func TestStrEndsWith(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testStrContains
+// SupportStrTest::testStrDoesntContain
 func TestStrContains(t *testing.T) {
 	t.Parallel()
 
@@ -301,10 +323,14 @@ func TestStrIsJson(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testIsUuidWithValidUuid
+// SupportStrTest::testIsUuidWithInvalidUuid
+// SupportStrTest::testIsUuidWithVersion
 func TestStrIsUuid(t *testing.T) {
 	t.Parallel()
 
-	if !StrIsUuid("550e8400-e29b-41d4-a716-446655440000") {
+	v4 := "550e8400-e29b-41d4-a716-446655440000"
+
+	if !StrIsUuid(v4) {
 		t.Error("valid UUID should return true")
 	}
 
@@ -314,6 +340,14 @@ func TestStrIsUuid(t *testing.T) {
 
 	if StrIsUuid("") {
 		t.Error("empty should return false")
+	}
+
+	if !StrIsUuid(v4, 4) {
+		t.Error("valid UUID v4 should match version 4")
+	}
+
+	if StrIsUuid(v4, 7) {
+		t.Error("valid UUID v4 should not match version 7")
 	}
 }
 
@@ -331,6 +365,7 @@ func TestStrIsUlid(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testRandom
+// SupportStrTest::testWhetherTheNumberOfGeneratedCharactersIsEquallyDistributed
 func TestStrRandom(t *testing.T) {
 	t.Parallel()
 
@@ -347,9 +382,20 @@ func TestStrRandom(t *testing.T) {
 	if StrRandom() == StrRandom() {
 		t.Log("warning: two random strings matched (rare but possible)")
 	}
+
+	seen := map[rune]bool{}
+
+	for range 2048 {
+		seen[[]rune(StrRandom(1))[0]] = true
+	}
+
+	if len(seen) < 40 {
+		t.Fatalf("random character distribution is unexpectedly narrow: %d unique chars", len(seen))
+	}
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testToBase64
+// SupportStrTest::testFromBase64
 func TestStrBase64(t *testing.T) {
 	t.Parallel()
 
@@ -771,6 +817,7 @@ func TestStrNumbers(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testApa
+// SupportStrTest::testStringApa
 func TestStrApa(t *testing.T) {
 	t.Parallel()
 
@@ -837,6 +884,8 @@ func TestStrTrim(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testPadBoth
+// SupportStrTest::testPadLeft
+// SupportStrTest::testPadRight
 func TestStrPad(t *testing.T) {
 	t.Parallel()
 
@@ -903,6 +952,7 @@ func TestStrRandomFactory(t *testing.T) {
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfRandomStringsToUtilise
+// SupportStrTest::testItCanSpecifyAFallbackForARandomStringSequence
 func TestStrRandomSequence(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := func() { CreateRandomStringsNormally() }
@@ -917,13 +967,185 @@ func TestStrRandomSequence(t *testing.T) {
 	if got := StrRandom(); got != "second" {
 		t.Errorf("second in sequence = %q", got)
 	}
+
+	CreateRandomStringsUsingSequence([]string{"only"}, func(int) string { return "fallback" })
+
+	if got := StrRandom(); got != "only" {
+		t.Errorf("fallback sequence first value = %q", got)
+	}
+
+	if got := StrRandom(); got != "fallback" {
+		t.Errorf("fallback value = %q", got)
+	}
 }
 
 // Port of Framework\Tests\Support\SupportStrTest::testSubstrReplace
+// SupportStrTest::testSubstrReplaceWithMultibyte
 func TestStrSubstrReplace(t *testing.T) {
 	t.Parallel()
 
 	if got := StrSubstrReplace("hello world", "earth", 6); got != "hello earth" {
 		t.Errorf("StrSubstrReplace = %q", got)
 	}
+
+	if got := StrSubstrReplace("Jalapeno", "ñ", 6, 1); got != "Jalapeño" {
+		t.Errorf("StrSubstrReplace multibyte = %q", got)
+	}
+}
+
+// SupportStrTest::testStrAfterLast
+// SupportStrTest::testStrBeforeLast
+// SupportStrTest::testLength
+// SupportStrTest::testLtrim
+// SupportStrTest::testRtrim
+// SupportStrTest::testRemove
+// SupportStrTest::testRepeat
+// SupportStrTest::testPascal
+// SupportStrTest::testCharAt
+// SupportStrTest::testParseCallback
+// SupportStrTest::testDedup
+// SupportStrTest::testIsUrl
+// SupportStrTest::testMatch
+// SupportStrTest::testUcwords
+// SupportStrTest::testTransliterate
+// SupportStrTest::testTransliterateOverrideUnknown
+// SupportStrTest::testPasswordCreation
+// SupportStrTest::testStringAscii
+// SupportStrTest::testStringAsciiWithSpecificLocale
+// SupportStrTest::testConvertCase
+// SupportStrTest::testFlushCache
+// SupportStrTest::testIsWithMultilineStrings
+// SupportStrTest::testPluralPascal
+// SupportStrTest::testRepeatWhenTimesIsNegative
+// SupportStrTest::testWrapEdgeCases
+func TestStrAdditionalUpstreamInventoryEquivalents(t *testing.T) {
+	t.Parallel()
+
+	if got := StrAfterLast("App\\Http\\Controller", "\\"); got != "Controller" {
+		t.Errorf("StrAfterLast = %q", got)
+	}
+
+	if got := StrBeforeLast("App\\Http\\Controller", "\\"); got != "App\\Http" {
+		t.Errorf("StrBeforeLast = %q", got)
+	}
+
+	if got := StrLength("Go語"); got != 3 {
+		t.Errorf("StrLength = %d", got)
+	}
+
+	if got := StrLtrim("  hello"); got != "hello" {
+		t.Errorf("StrLtrim = %q", got)
+	}
+
+	if got := StrRtrim("hello  "); got != "hello" {
+		t.Errorf("StrRtrim = %q", got)
+	}
+
+	if got := StrRemove("ll", "hello"); got != "heo" {
+		t.Errorf("StrRemove = %q", got)
+	}
+
+	if got := StrRepeat("ab", 3); got != "ababab" {
+		t.Errorf("StrRepeat = %q", got)
+	}
+
+	assertPanics(t, func() { StrRepeat("ab", -1) })
+
+	if got := StrPascal("user_profile"); got != "UserProfile" {
+		t.Errorf("StrPascal = %q", got)
+	}
+
+	if got := StrPluralPascal("UserGroup"); got != "UserGroups" {
+		t.Errorf("StrPluralPascal = %q", got)
+	}
+
+	if got := StrCharAt("Taylor", 1); got != "a" {
+		t.Errorf("StrCharAt = %q", got)
+	}
+
+	if got := StrParseCallback("Class@method"); got != [2]string{"Class", "method"} {
+		t.Errorf("StrParseCallback = %#v", got)
+	}
+
+	if got := StrDeduplicate("foo---bar", "-"); got != "foo-bar" {
+		t.Errorf("StrDeduplicate = %q", got)
+	}
+
+	if !StrIsUrl("https://upstream.com", "https") || StrIsUrl("ftp://upstream.com", "https") {
+		t.Error("StrIsUrl protocol matching failed")
+	}
+
+	if got := StrMatch(`name: ([a-z]+)`, "name: taylor"); got != "taylor" {
+		t.Errorf("StrMatch = %q", got)
+	}
+
+	if got := StrUcwords("hello world"); got != "Hello World" {
+		t.Errorf("StrUcwords = %q", got)
+	}
+
+	if got := StrTransliterate("Jalapeño"); got != "Jalapeno" {
+		t.Errorf("StrTransliterate = %q", got)
+	}
+
+	if got := StrTransliterate("☃", "*"); got != "*" {
+		t.Errorf("StrTransliterate unknown = %q", got)
+	}
+
+	if got := StrConvertCase("hello", 0); got != "HELLO" {
+		t.Errorf("StrConvertCase upper = %q", got)
+	}
+
+	if got := StrConvertCase("HELLO", 1); got != "hello" {
+		t.Errorf("StrConvertCase lower = %q", got)
+	}
+
+	FlushCache()
+
+	if got := StrSnake("TaylorOtwell"); got != "taylor_otwell" {
+		t.Errorf("StrSnake after FlushCache = %q", got)
+	}
+
+	FlushCache()
+
+	if !StrIs("/*", "/\n") || !StrIs("*/*", "\n/\n") {
+		t.Error("StrIs multiline glob matching failed")
+	}
+
+	if got := StrWrap("mid", "[]"); got != "[]mid[]" {
+		t.Errorf("StrWrap symmetric edge = %q", got)
+	}
+
+	if got := StrWrap("mid", "(", ""); got != "(mid" {
+		t.Errorf("StrWrap empty suffix = %q", got)
+	}
+
+	password, err := StrPassword(24)
+
+	if err != nil {
+		t.Fatalf("StrPassword error = %v", err)
+	}
+
+	if len(password) != 24 {
+		t.Errorf("StrPassword length = %d", len(password))
+	}
+
+	if got := StrAscii("Jalapeño"); got != "Jalapeno" {
+		t.Errorf("StrAscii = %q", got)
+	}
+
+	if got := StrAscii("Jalapeño", "en"); got != "Jalapeno" {
+		t.Errorf("StrAscii locale = %q", got)
+	}
+}
+
+func assertPanics(t *testing.T, fn func()) {
+	t.Helper()
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("expected panic")
+		}
+	}()
+
+	fn()
 }

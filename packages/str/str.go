@@ -720,9 +720,9 @@ func globToRegex(pattern string) string {
 	for _, r := range pattern {
 		switch r {
 		case '*':
-			sb.WriteString(".*")
+			sb.WriteString(`[\s\S]*`)
 		case '?':
-			sb.WriteString(".")
+			sb.WriteString(`[\s\S]`)
 		case '.', '+', '(', ')', '[', ']', '{', '}', '^', '$', '|', '\\':
 			sb.WriteRune('\\')
 			sb.WriteRune(r)
@@ -792,10 +792,22 @@ func StrIsUrl(value string, protocols ...string) bool {
 	return true
 }
 
-func StrIsUuid(value string) bool {
+func StrIsUuid(value string, version ...int) bool {
 	re := regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
-	return re.MatchString(value)
+	if !re.MatchString(value) {
+		return false
+	}
+
+	if len(version) == 0 {
+		return true
+	}
+
+	if version[0] < 1 || version[0] > 8 {
+		return false
+	}
+
+	return int(value[14]-'0') == version[0]
 }
 
 func StrIsUlid(value string) bool {
@@ -835,13 +847,25 @@ func StrWords(value string, words int, end ...string) string {
 		suffix = end[0]
 	}
 
-	wordList := regexp.MustCompile(`\s+`).Split(strings.TrimSpace(value), -1)
+	if words <= 0 {
+		return value
+	}
+
+	trimmed := strings.TrimSpace(value)
+
+	if trimmed == "" {
+		return value
+	}
+
+	wordList := regexp.MustCompile(`\s+`).Split(trimmed, -1)
 
 	if len(wordList) <= words {
 		return value
 	}
 
-	return strings.Join(wordList[:words], " ") + suffix
+	leading := regexp.MustCompile(`^\s*`).FindString(value)
+
+	return leading + strings.Join(wordList[:words], " ") + suffix
 }
 
 func StrLower(value string) string {
@@ -1658,7 +1682,9 @@ func StrRandom(length ...int) string {
 		return val
 	}
 
-	_ = fallback
+	if fallback != nil {
+		return fallback(l)
+	}
 
 	return generateRandom(l)
 }
