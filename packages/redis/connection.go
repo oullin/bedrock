@@ -37,6 +37,9 @@ type Connection struct {
 // Listen registers a CommandExecuted listener and ensures events are
 // enabled (parity with Upstream ->listen()).
 
+// ListenForFailures registers a CommandFailed listener and ensures events
+// are enabled (parity with Upstream ->listenForFailures()).
+
 // Close releases the underlying client.
 
 // Command is the generic dispatcher. It executes a raw Redis command and
@@ -65,6 +68,10 @@ type Connection struct {
 // Del removes one or more keys. Returns the count of deleted keys.
 
 // Exists returns the count of keys that exist.
+
+// Rename renames a key.
+
+// Persist removes a key's TTL.
 
 // Incr increments key by 1.
 
@@ -145,8 +152,25 @@ type ZMember struct {
 
 // ZRangeByScore returns elements with scores between min and max (inclusive).
 
+// ZRevRange returns the elements in the specified index range in reverse
+// score order.
+
 // ZRevRangeByScore returns elements with scores between max and min
 // (inclusive), in descending order.
+
+// ZCard returns the number of members in the sorted set.
+
+// ZIncrBy increments a member's score.
+
+// ZRank returns the index of the member in ascending score order.
+
+// ZScore returns a member's score.
+
+// ZRem removes one or more members from a sorted set.
+
+// ZRemRangeByScore removes members within a score range.
+
+// ZRemRangeByRank removes members within an index range.
 
 // ZInterStore computes the intersection of sorted sets.
 
@@ -185,6 +209,11 @@ func (c *Connection) Listen(fn func(CommandExecuted)) {
 	c.events.Enable()
 }
 
+func (c *Connection) ListenForFailures(fn func(CommandFailed)) {
+	c.events.ListenForFailures(fn)
+	c.events.Enable()
+}
+
 func (c *Connection) Close() error {
 	if c.client == nil {
 		return ErrClosed
@@ -202,12 +231,21 @@ func (c *Connection) Command(ctx context.Context, name string, args ...any) (any
 	res, err := c.client.Do(ctx, argv...)
 
 	if c.events.Enabled() {
-		c.events.Dispatch(CommandExecuted{
-			Command:        strings.ToLower(name),
-			Parameters:     args,
-			Time:           time.Since(start),
-			ConnectionName: c.name,
-		})
+		if err != nil {
+			c.events.DispatchFailed(CommandFailed{
+				Command:        strings.ToLower(name),
+				Parameters:     args,
+				Exception:      err,
+				ConnectionName: c.name,
+			})
+		} else {
+			c.events.DispatchExecuted(CommandExecuted{
+				Command:        strings.ToLower(name),
+				Parameters:     args,
+				Time:           time.Since(start),
+				ConnectionName: c.name,
+			})
+		}
 	}
 
 	return res, err
@@ -301,6 +339,24 @@ func (c *Connection) Exists(ctx context.Context, keys ...string) (int64, error) 
 	}
 
 	return toInt64(v)
+}
+
+func (c *Connection) Rename(ctx context.Context, key, newKey string) error {
+	_, err := c.Command(ctx, "RENAME", key, newKey)
+
+	return err
+}
+
+func (c *Connection) Persist(ctx context.Context, key string) (bool, error) {
+	v, err := c.Command(ctx, "PERSIST", key)
+
+	if err != nil {
+		return false, err
+	}
+
+	n, _ := toInt64(v)
+
+	return n == 1, nil
 }
 
 func (c *Connection) Incr(ctx context.Context, key string) (int64, error) {
@@ -604,6 +660,16 @@ func (c *Connection) ZRangeByScore(ctx context.Context, key, min, max string) ([
 	return toStringSlice(v)
 }
 
+func (c *Connection) ZRevRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
+	v, err := c.Command(ctx, "ZREVRANGE", key, start, stop)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return toStringSlice(v)
+}
+
 func (c *Connection) ZRevRangeByScore(ctx context.Context, key, max, min string) ([]string, error) {
 	v, err := c.Command(ctx, "ZREVRANGEBYSCORE", key, max, min)
 
@@ -612,6 +678,76 @@ func (c *Connection) ZRevRangeByScore(ctx context.Context, key, max, min string)
 	}
 
 	return toStringSlice(v)
+}
+
+func (c *Connection) ZCard(ctx context.Context, key string) (int64, error) {
+	v, err := c.Command(ctx, "ZCARD", key)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toInt64(v)
+}
+
+func (c *Connection) ZIncrBy(ctx context.Context, key string, increment float64, member any) (float64, error) {
+	v, err := c.Command(ctx, "ZINCRBY", key, increment, member)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toFloat64(v)
+}
+
+func (c *Connection) ZRank(ctx context.Context, key string, member any) (int64, error) {
+	v, err := c.Command(ctx, "ZRANK", key, member)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toInt64(v)
+}
+
+func (c *Connection) ZScore(ctx context.Context, key string, member any) (float64, error) {
+	v, err := c.Command(ctx, "ZSCORE", key, member)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toFloat64(v)
+}
+
+func (c *Connection) ZRem(ctx context.Context, key string, members ...any) (int64, error) {
+	v, err := c.Command(ctx, "ZREM", append([]any{key}, members...)...)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toInt64(v)
+}
+
+func (c *Connection) ZRemRangeByScore(ctx context.Context, key, min, max string) (int64, error) {
+	v, err := c.Command(ctx, "ZREMRANGEBYSCORE", key, min, max)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toInt64(v)
+}
+
+func (c *Connection) ZRemRangeByRank(ctx context.Context, key string, start, stop int64) (int64, error) {
+	v, err := c.Command(ctx, "ZREMRANGEBYRANK", key, start, stop)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return toInt64(v)
 }
 
 func (c *Connection) ZInterStore(ctx context.Context, dest string, keys ...string) (int64, error) {
@@ -711,6 +847,18 @@ func (c *Connection) doScan(ctx context.Context, cmd string, cursor uint64, matc
 // FlushDB flushes the current database.
 func (c *Connection) FlushDB(ctx context.Context) error {
 	_, err := c.Command(ctx, "FLUSHDB")
+
+	return err
+}
+
+func (c *Connection) FlushAll(ctx context.Context) error {
+	_, err := c.Command(ctx, "FLUSHALL")
+
+	return err
+}
+
+func (c *Connection) FlushAllAsync(ctx context.Context) error {
+	_, err := c.Command(ctx, "FLUSHALL", "ASYNC")
 
 	return err
 }

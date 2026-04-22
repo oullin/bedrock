@@ -28,13 +28,15 @@ func NewPendingSingletonResourceRegistration(rr *ResourceRegistrar, name, contro
 // Only restricts the singleton to the named actions.
 func (p *PendingSingletonResourceRegistration) Only(actions ...string) *PendingSingletonResourceRegistration {
 	p.options["only"] = actions
+	delete(p.options, "except")
 
 	return p
 }
 
 // Except removes the named actions.
 func (p *PendingSingletonResourceRegistration) Except(actions ...string) *PendingSingletonResourceRegistration {
-	p.options["except"] = actions
+	existing, _ := p.options["except"].([]string)
+	p.options["except"] = appendUniqueStrings(existing, actions...)
 
 	return p
 }

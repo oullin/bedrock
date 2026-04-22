@@ -84,6 +84,7 @@ func TestCompliance_FrameworkRedis(t *testing.T) {
 
 		var n int
 
+		_ = c.Set(ctx, "k", "v", 0)
 		c.Listen(func(redis.CommandExecuted) { n++ })
 		_, _ = c.Get(ctx, "k")
 
