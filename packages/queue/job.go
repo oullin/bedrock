@@ -73,6 +73,7 @@ type JobOptions struct {
 	Queue                   string
 	Connection              string
 	Delay                   time.Duration
+	BatchID                 string
 	MaxTries                int
 	MaxExceptions           int
 	Timeout                 time.Duration
@@ -84,3 +85,11 @@ type JobOptions struct {
 }
 
 func (f HandlerFunc) Handle(ctx context.Context, job Job) error { return f(ctx, job) }
+
+// WithoutDelay returns a copy of opts with its dispatch delay cleared.
+// It is the typed Go equivalent of Laravel's withoutDelay helper.
+func (o JobOptions) WithoutDelay() JobOptions {
+	o.Delay = 0
+
+	return o
+}

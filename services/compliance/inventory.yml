@@ -90,13 +90,12 @@ framework:
 
   - id: framework.console
     laravel: Illuminate\Console
-    bedrock: null
-    status: missing
+    bedrock: console
+    status: mapped
     repo: laravel/framework
     branch: 13.x
     tests_path: tests/Console
     inventory: inventories/framework-console.txt
-    rationale: No Bedrock console package exists yet.
 
   - id: framework.container
     laravel: Illuminate\Container

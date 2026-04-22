@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bedrock/packages/queue"
@@ -69,11 +70,20 @@ type InspectedJob struct {
 	ReservedAt *time.Time
 }
 
+// DatabasePopLockProvider resolves the mutex/lock object used to guard
+// database popping. The concrete lock type is owned by the caller.
+type DatabasePopLockProvider interface {
+	LockForPopping(ctx context.Context, table string) (any, error)
+}
+
 // DatabaseDriver stores jobs in a SQL table.
 type DatabaseDriver struct {
 	db         DBExecer
 	table      string
 	connection string
+	lockMu     sync.Mutex
+	lock       any
+	locker     DatabasePopLockProvider
 }
 
 // NewDatabaseDriver creates a DatabaseDriver.
@@ -90,11 +100,42 @@ func NewDatabaseDriver(db DBExecer, table, connection string) *DatabaseDriver {
 	return &DatabaseDriver{db: db, table: table, connection: connection}
 }
 
+func (d *DatabaseDriver) SetPopLockProvider(provider DatabasePopLockProvider) *DatabaseDriver {
+	d.lockMu.Lock()
+
+	defer d.lockMu.Unlock()
+
+	d.locker = provider
+	d.lock = nil
+
+	return d
+}
+
+func (d *DatabaseDriver) GetLockForPopping(ctx context.Context) (any, error) {
+	d.lockMu.Lock()
+
+	defer d.lockMu.Unlock()
+
+	if d.lock != nil || d.locker == nil {
+		return d.lock, nil
+	}
+
+	lock, err := d.locker.LockForPopping(ctx, d.table)
+
+	if err != nil {
+		return nil, err
+	}
+
+	d.lock = lock
+
+	return d.lock, nil
+}
+
 func (d *DatabaseDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
 	now := time.Now().Unix()
 	err := d.db.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (queue, payload, attempts, reserved_at, available_at, created_at) VALUES ($1,$2,0,NULL,$3,$4)", d.table),
-		queueName, string(payload), now, now,
+		fmt.Sprintf("INSERT INTO %s (queue, attempts, reserved_at, available_at, created_at, payload) VALUES ($1,0,NULL,$2,$3,$4)", d.table),
+		queueName, now, now, string(payload),
 	)
 
 	return "", err
@@ -104,8 +145,8 @@ func (d *DatabaseDriver) PushDelayed(ctx context.Context, queueName string, payl
 	now := time.Now()
 	availAt := now.Add(delay).Unix()
 	err := d.db.Exec(ctx,
-		fmt.Sprintf("INSERT INTO %s (queue, payload, attempts, reserved_at, available_at, created_at) VALUES ($1,$2,0,NULL,$3,$4)", d.table),
-		queueName, string(payload), availAt, now.Unix(),
+		fmt.Sprintf("INSERT INTO %s (queue, attempts, reserved_at, available_at, created_at, payload) VALUES ($1,0,NULL,$2,$3,$4)", d.table),
+		queueName, availAt, now.Unix(), string(payload),
 	)
 
 	return "", err
@@ -249,7 +290,7 @@ func (d *DatabaseDriver) Bulk(ctx context.Context, queueName string, payloads []
 
 	var sb strings.Builder
 
-	fmt.Fprintf(&sb, "INSERT INTO %s (queue, payload, attempts, reserved_at, available_at, created_at) VALUES ", d.table)
+	fmt.Fprintf(&sb, "INSERT INTO %s (queue, attempts, reserved_at, available_at, created_at, payload) VALUES ", d.table)
 
 	args := make([]any, 0, 4*len(payloads))
 
@@ -260,9 +301,9 @@ func (d *DatabaseDriver) Bulk(ctx context.Context, queueName string, payloads []
 
 		base := i * 4
 
-		fmt.Fprintf(&sb, "($%d,$%d,0,NULL,$%d,$%d)", base+1, base+2, base+3, base+4)
+		fmt.Fprintf(&sb, "($%d,0,NULL,$%d,$%d,$%d)", base+1, base+2, base+3, base+4)
 
-		args = append(args, queueName, string(p), now, now)
+		args = append(args, queueName, now, now, string(p))
 	}
 
 	return d.db.Exec(ctx, sb.String(), args...)

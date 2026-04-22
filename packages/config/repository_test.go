@@ -382,6 +382,31 @@ func TestAll(t *testing.T) {
 	}
 }
 
+func TestAllDeepMergesExplicitNestedItems(t *testing.T) {
+	t.Parallel()
+
+	v := viper.New()
+	v.Set("app.env", "local")
+
+	repo := config.NewFromViper(v)
+	repo.Set("app.name", "val")
+
+	all := repo.All()
+	app, ok := all["app"].(map[string]any)
+
+	if !ok {
+		t.Fatalf("expected app to be a map, got %T", all["app"])
+	}
+
+	if app["env"] != "local" {
+		t.Fatalf("expected app.env=local, got %v", app["env"])
+	}
+
+	if app["name"] != "val" {
+		t.Fatalf("expected app.name=val, got %v", app["name"])
+	}
+}
+
 // ---------------------------------------------------------------------------
 // String
 // ---------------------------------------------------------------------------
