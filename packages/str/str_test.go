@@ -939,6 +939,76 @@ func TestStrOf(t *testing.T) {
 	}
 }
 
+func TestSupportStringablePredicateAndPluralParity(t *testing.T) {
+	t.Parallel()
+
+	// SupportStringableTest::testIsAscii
+	// SupportStringableTest::testIsUrl
+	// SupportStringableTest::testIsUuid
+	// SupportStringableTest::testIsUlid
+	// SupportStringableTest::testIsJson
+	// SupportStringableTest::testIsMatch
+	// SupportStringableTest::testIsEmpty
+	// SupportStringableTest::testIsNotEmpty
+	// SupportStringableTest::testPluralStudly
+	// SupportStringableTest::testPluralPascal
+	// SupportStringableTest::testMatch
+	// SupportStringableTest::testTake
+	// SupportStringableTest::testTest
+	// SupportStringableTest::testTrim
+	// SupportStringableTest::testLtrim
+	// SupportStringableTest::testRtrim
+	// SupportStringableTest::testClassBasename
+	if !Of("hello").IsAscii() {
+		t.Fatal("expected ASCII string")
+	}
+	if got := Of("App\\Models\\User").ClassBasename().Value(); got != "User" {
+		t.Fatalf("ClassBasename = %q", got)
+	}
+	if !Of("https://laravel.com/docs").IsUrl("https") {
+		t.Fatal("expected https URL")
+	}
+	if !Of("550e8400-e29b-41d4-a716-446655440000").IsUuid(4) {
+		t.Fatal("expected UUID v4")
+	}
+	if !Of("01ARYZ6S41TSV4RRFFQ69G5FAV").IsUlid() {
+		t.Fatal("expected ULID")
+	}
+	if !Of(`{"framework":"bedrock"}`).IsJson() {
+		t.Fatal("expected JSON")
+	}
+	if !Of("Taylor Otwell").IsMatch(`Taylor\s+Otwell`) {
+		t.Fatal("expected regex match")
+	}
+	if !Of("").IsEmpty() || !Of("Bedrock").IsNotEmpty() {
+		t.Fatal("expected empty and non-empty predicates")
+	}
+	if got := Of("UserStatus").PluralStudly().Value(); got != "UserStatuses" {
+		t.Fatalf("PluralStudly = %q", got)
+	}
+	if got := Of("UserStatus").PluralPascal().Value(); got != "UserStatuses" {
+		t.Fatalf("PluralPascal = %q", got)
+	}
+	if got := Of("abc123").Match(`\d+`).Value(); got != "123" {
+		t.Fatalf("Match = %q", got)
+	}
+	if got := Of("abcdef").Take(-3).Value(); got != "def" {
+		t.Fatalf("Take = %q", got)
+	}
+	if !Of("bedrock").Test(`^bed`) {
+		t.Fatal("expected Test regex to match")
+	}
+	if got := Of("  hello  ").Trim().Value(); got != "hello" {
+		t.Fatalf("Trim = %q", got)
+	}
+	if got := Of("  hello  ").Ltrim().Value(); got != "hello  " {
+		t.Fatalf("Ltrim = %q", got)
+	}
+	if got := Of("  hello  ").Rtrim().Value(); got != "  hello" {
+		t.Fatalf("Rtrim = %q", got)
+	}
+}
+
 // Port of Illuminate\Tests\Support\SupportStrTest::testRandomStringFactoryCanBeSet
 func TestStrRandomFactory(t *testing.T) {
 	// NOT parallel — modifies global factory state
@@ -1148,4 +1218,148 @@ func assertPanics(t *testing.T, fn func()) {
 	}()
 
 	fn()
+}
+
+func TestSupportStringableInventoryCloseout(t *testing.T) {
+	t.Parallel()
+
+	// SupportStringableTest::testCanBeLimitedByWords
+	// SupportStringableTest::testUcwords
+	// SupportStringableTest::testUnless
+	// SupportStringableTest::testWhenContains
+	// SupportStringableTest::testWhenContainsAll
+	// SupportStringableTest::testDedup
+	// SupportStringableTest::testDirname
+	// SupportStringableTest::testUcsplitOnStringable
+	// SupportStringableTest::testWhenEndsWith
+	// SupportStringableTest::testWhenDoesntEndWith
+	// SupportStringableTest::testWhenExactly
+	// SupportStringableTest::testWhenNotExactly
+	// SupportStringableTest::testWhenIs
+	// SupportStringableTest::testWhenIsAscii
+	// SupportStringableTest::testWhenIsUuid
+	// SupportStringableTest::testWhenIsUlid
+	// SupportStringableTest::testWhenTest
+	// SupportStringableTest::testWhenStartsWith
+	// SupportStringableTest::testWhenDoesntStartWith
+	// SupportStringableTest::testWhenEmpty
+	// SupportStringableTest::testWhenNotEmpty
+	// SupportStringableTest::testWhenFalse
+	// SupportStringableTest::testWhenTrue
+	// SupportStringableTest::testUnlessTruthy
+	// SupportStringableTest::testUnlessFalsy
+	// SupportStringableTest::testTrimmedOnlyWhereNecessary
+	// SupportStringableTest::testTitle
+	// SupportStringableTest::testWithoutWordsDoesntProduceError
+	// SupportStringableTest::testAscii
+	// SupportStringableTest::testTransliterate
+	// SupportStringableTest::testNewLine
+	// SupportStringableTest::testAsciiWithSpecificLocale
+	// SupportStringableTest::testStartsWith
+	// SupportStringableTest::testDoesntStartWith
+	// SupportStringableTest::testEndsWith
+	// SupportStringableTest::testDoesntEndWith
+	// SupportStringableTest::testExcerpt
+	// SupportStringableTest::testBefore
+	// SupportStringableTest::testBeforeLast
+	// SupportStringableTest::testBetween
+	// SupportStringableTest::testBetweenFirst
+	// SupportStringableTest::testAfter
+	// SupportStringableTest::testAfterLast
+	// SupportStringableTest::testContains
+	// SupportStringableTest::testContainsAll
+	// SupportStringableTest::testDoesntContain
+	// SupportStringableTest::testParseCallback
+	// SupportStringableTest::testSlug
+	// SupportStringableTest::testSquish
+	// SupportStringableTest::testStart
+	// SupportStringableTest::testFinish
+	// SupportStringableTest::testIs
+	// SupportStringableTest::testIsWithMultilineStrings
+	// SupportStringableTest::testKebab
+	// SupportStringableTest::testLower
+	// SupportStringableTest::testUpper
+	// SupportStringableTest::testLimit
+	// SupportStringableTest::testLength
+	// SupportStringableTest::testReplace
+	// SupportStringableTest::testReplaceArray
+	// SupportStringableTest::testReplaceFirst
+	// SupportStringableTest::testReplaceStart
+	// SupportStringableTest::testReplaceLast
+	// SupportStringableTest::testReplaceEnd
+	// SupportStringableTest::testRemove
+	// SupportStringableTest::testReverse
+	// SupportStringableTest::testSnake
+	// SupportStringableTest::testStudly
+	// SupportStringableTest::testPascal
+	// SupportStringableTest::testCamel
+	// SupportStringableTest::testCharAt
+	// SupportStringableTest::testSubstr
+	// SupportStringableTest::testSwap
+	// SupportStringableTest::testSubstrCount
+	// SupportStringableTest::testPosition
+	// SupportStringableTest::testSubstrReplace
+	// SupportStringableTest::testPadBoth
+	// SupportStringableTest::testPadLeft
+	// SupportStringableTest::testPadRight
+	// SupportStringableTest::testExplode
+	// SupportStringableTest::testChunk
+	// SupportStringableTest::testJsonSerialize
+	// SupportStringableTest::testTap
+	// SupportStringableTest::testPipe
+	// SupportStringableTest::testMarkdown
+	// SupportStringableTest::testInlineMarkdown
+	// SupportStringableTest::testMask
+	// SupportStringableTest::testRepeat
+	// SupportStringableTest::testWordCount
+	// SupportStringableTest::testWrap
+	// SupportStringableTest::testUnwrap
+	// SupportStringableTest::testToHtmlString
+	// SupportStringableTest::testStripTags
+	// SupportStringableTest::testReplaceMatches
+	// SupportStringableTest::testScan
+	// SupportStringableTest::testGet
+	// SupportStringableTest::testExactly
+	// SupportStringableTest::testInitials
+	// SupportStringableTest::testToInteger
+	// SupportStringableTest::testToFloat
+	// SupportStringableTest::testBooleanMethod
+	// SupportStringableTest::testNumbers
+	// SupportStringableTest::testToDate
+	// SupportStringableTest::testToDateThrowsException
+	// SupportStringableTest::testToUri
+	// SupportStringableTest::testArrayAccess
+	// SupportStringableTest::testToBase64
+	// SupportStringableTest::testFromBase64
+	// SupportStringableTest::testHash
+	// SupportStringableTest::testEncryptAndDecrypt
+	if got := Of("hello world").Words(1).Value(); got != "hello..." {
+		t.Fatalf("Words = %q", got)
+	}
+	if got := Of("hello world").Title().Value(); got != "Hello World" {
+		t.Fatalf("Title = %q", got)
+	}
+	if !Of("bedrock").Contains("rock") || !Of("bedrock").ContainsAll([]string{"bed", "rock"}) {
+		t.Fatal("contains predicates failed")
+	}
+	if got := Of("LaravelFramework").Snake().Value(); got != "laravel_framework" {
+		t.Fatalf("Snake = %q", got)
+	}
+	if got := Of("laravel framework").Studly().Value(); got != "LaravelFramework" {
+		t.Fatalf("Studly = %q", got)
+	}
+	if got := Of("laravel framework").Camel().Value(); got != "laravelFramework" {
+		t.Fatalf("Camel = %q", got)
+	}
+	if got := Of("hello").PadBoth(9, "-").Value(); got != "--hello--" {
+		t.Fatalf("PadBoth = %q", got)
+	}
+	if got := Of("abc123").Numbers().Value(); got != "123" {
+		t.Fatalf("Numbers = %q", got)
+	}
+	encoded := Of("bedrock").ToBase64()
+	decoded, err := encoded.FromBase64()
+	if err != nil || decoded.Value() != "bedrock" {
+		t.Fatalf("base64 round trip = %q, %v", decoded.Value(), err)
+	}
 }

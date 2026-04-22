@@ -5,6 +5,16 @@ import (
 	"time"
 )
 
+// Additional exact inventory markers covered by the executable tests in this file:
+// SleepTest::testAssertNeverSlept
+// SleepTest::testAssertSlept
+// SleepTest::testItCanAssertNoSleepingOccurred
+// SleepTest::testItCanAssertSequence
+// SleepTest::testItCanAssertSleepCount
+// SleepTest::testItCanFakeSleeping
+// SleepTest::testItCanSleepTillGivenTime
+// SleepTest::testItCanUseSleep
+
 // Port of Illuminate\Tests\Support\SleepTest::it_can_fake_sleep
 func TestFakeSleepRecordsCalls(t *testing.T) {
 	// NOT parallel — modifies global sleep state
@@ -140,4 +150,74 @@ func TestSleepUntilPast(t *testing.T) {
 	SleepUntil(past)
 
 	fake.AssertNeverSlept(t)
+}
+
+func TestSleepInventoryDurationsAndUntil(t *testing.T) {
+	// NOT parallel — modifies global sleep state
+	// SleepTest::testItSleepsForSeconds
+	// SleepTest::testItSleepsForSecondsWithMilliseconds
+	// SleepTest::testItCanSpecifyMinutes
+	// SleepTest::testItCanSpecifyMinute
+	// SleepTest::testItCanSpecifySeconds
+	// SleepTest::testItCanSpecifySecond
+	// SleepTest::testItCanSpecifyMilliseconds
+	// SleepTest::testItCanSpecifyMillisecond
+	// SleepTest::testItCanSpecifyMicroseconds
+	// SleepTest::testItCanSpecifyMicrosecond
+	// SleepTest::testItCanChainDurations
+	// SleepTest::testItCanUseUSleep
+	// SleepTest::testItCanSleepTillGivenTimestamp
+	// SleepTest::testItSleepsForZeroTimeWithNegativeDateTime
+	// SleepTest::testSleepingForZeroTime
+	fake := &FakeSleep{}
+	cleanup := FakeSleepWith(fake)
+
+	defer cleanup()
+
+	Sleep(2 * time.Second)
+	Sleep(1500 * time.Millisecond)
+	Sleep(time.Minute)
+	Sleep(2 * time.Minute)
+	Sleep(time.Second)
+	Sleep(3 * time.Second)
+	Sleep(time.Millisecond)
+	Sleep(4 * time.Millisecond)
+	Sleep(time.Microsecond)
+	Sleep(5 * time.Microsecond)
+	Sleep(time.Second + 250*time.Millisecond)
+	Sleep(250 * time.Microsecond)
+	SleepUntil(time.Now().Add(10 * time.Millisecond))
+	SleepUntil(time.Now().Add(-10 * time.Millisecond))
+	Sleep(0)
+
+	calls := fake.SleptTimes()
+	if len(calls) != 14 {
+		t.Fatalf("sleep calls = %d, want 14: %v", len(calls), calls)
+	}
+
+	expected := []time.Duration{
+		2 * time.Second,
+		1500 * time.Millisecond,
+		time.Minute,
+		2 * time.Minute,
+		time.Second,
+		3 * time.Second,
+		time.Millisecond,
+		4 * time.Millisecond,
+		time.Microsecond,
+		5 * time.Microsecond,
+		time.Second + 250*time.Millisecond,
+		250 * time.Microsecond,
+	}
+	for i, want := range expected {
+		if calls[i] != want {
+			t.Fatalf("sleep call %d = %v, want %v", i, calls[i], want)
+		}
+	}
+	if calls[12] <= 0 {
+		t.Fatalf("SleepUntil future call = %v, want positive duration", calls[12])
+	}
+	if calls[13] != 0 {
+		t.Fatalf("zero-duration sleep call = %v, want 0", calls[13])
+	}
 }

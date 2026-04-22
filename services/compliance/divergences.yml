@@ -115,17 +115,161 @@ adaptation_rules:
       - laravel: Closure-based rules
         bedrock: ValidationRule interface or RuleFunc
       - laravel: PHP enum validation
-        bedrock: Not implemented; Go has no runtime enum equivalent
+        bedrock: Runtime PHP enum object validation is not implemented; Bedrock relies on explicit Go values instead
       - laravel: Password breach check
-        bedrock: Not implemented by default because it requires an external HTTP call
+        bedrock: The uncompromised breach lookup is caller-controlled and is not bundled with a default HTTP dependency
       - laravel: ActiveUrl via checkdnsrr
         bedrock: net.LookupHost
+
+  redis:
+    source: Illuminate\Redis
+    rules:
+      - laravel: phpredis extension context arrays, stream wrappers, password tuple formatting, and backoff constants
+        bedrock: Native Go Redis clients use typed options and do not expose PHP extension connection arrays.
+      - laravel: Macroable runtime method registration
+        bedrock: Explicit Go methods and interfaces.
+      - laravel: Cluster async flush and no-node phpredis exception modes
+        bedrock: Cluster behavior is represented by explicit master iteration with deterministic fakes.
+
+  routing:
+    source: Illuminate\Routing
+    rules:
+      - laravel: PHP serialized closures in route actions and cached route dumps
+        bedrock: Route actions are explicit Go callables or controller strings; serialized closures are intentionally unsupported.
+      - laravel: Controller middleware attributes discovered through reflection
+        bedrock: Middleware is registered explicitly in Go controller and route setup.
+      - laravel: Namespace auto-resolution for controller strings
+        bedrock: Controller names are explicit strings; group controller prefixes are merged directly by the router.
+
+  pennant:
+    source: Laravel\Pennant
+    rules:
+      - laravel: Blade feature directives
+        bedrock: Go HTTP/templates compose feature checks through explicit functions rather than Laravel's Blade compiler.
+      - laravel: Macroable runtime method registration
+        bedrock: Explicit Go methods and interfaces.
+      - laravel: PHP attributes and feature-class name properties
+        bedrock: Feature names are registered explicitly or through typed Go values; PHP attribute reflection is not part of the runtime.
+      - laravel: Eloquent model and morph-map scope serialization
+        bedrock: Scopes serialize through Pennant's explicit ScopeIdentifier contract and caller-owned model adapters.
+      - laravel: Feature-class auto-registration, implicit resolve methods, parameterless or nullable feature constructors, and callable-array feature names
+        bedrock: Go feature registration is explicit and typed; Pennant does not reflect PHP class metadata or support callable-array feature declarations.
+      - laravel: Helper functions and directives such as feature(), whenFeature(), and @feature / @features
+        bedrock: Feature checks live in Go code and middleware, not Blade directives or global helper shims.
+      - laravel: Artisan purge command behavior and CLI option parsing
+        bedrock: Feature purging is an explicit package API; command wiring belongs to the host application.
+      - laravel: Before-hook interception and dynamic feature-class dependency invalidation
+        bedrock: Pennant resolves through explicit Go resolvers and cache layers; there is no PHP before hook or class-dependency graph.
+      - laravel: Eloquent morph-map resolution and framework connection configuration indirection
+        bedrock: The Go driver accepts explicit DB executors and scope serializers, not Eloquent morph maps or Laravel connection names.
+      - laravel: Feature helper trait parity such as HasFeature
+        bedrock: Go exposes direct feature interactions instead of a model trait.
+
+  telescope:
+    source: Laravel\Telescope
+    rules:
+      - laravel: Dashboard authorization, named routes, and middleware through Laravel's application kernel
+        bedrock: Telescope exposes watcher and repository primitives; application routing and auth composition belong to the host Go app.
+      - laravel: PHP reflection hooks such as formatForTelescope, subscriber discovery, eval failures, and serialized Eloquent model restoration
+        bedrock: Go watcher payloads are explicit typed values; there is no PHP magic method, eval, or Eloquent serialization runtime.
+      - laravel: Mailable and Collection tag extraction conventions
+        bedrock: Tags are explicit strings or typed tag providers rather than PHP collection and mailable introspection.
+
+  scout:
+    source: Laravel\Scout
+    rules:
+      - laravel: Macroable runtime method registration
+        bedrock: Explicit Go methods and interfaces; runtime method injection is not part of the Go contract.
+      - laravel: Queue job model deserialization without database access
+        bedrock: Search jobs carry explicit model collections and keys instead of rehydrating serialized Eloquent models.
+
+  horizon:
+    source: Laravel\Horizon
+    rules:
+      - laravel: Dashboard HTTP controllers and auth middleware
+        bedrock: Horizon exposes queue monitoring primitives; the dashboard transport layer, request auth, and browser UI are not part of the Go package surface.
+      - laravel: Artisan command integration
+        bedrock: Command wiring belongs to Bedrock's explicit console package rather than Laravel's Artisan runtime.
+      - laravel: Redis connection manager container wiring, PHP payload reflection, and locale-sensitive microsecond serialization
+        bedrock: Horizon uses explicit Redis connection metadata and payload inputs; the Go package does not model PHP object introspection or Redis job serialization details.
+      - laravel: Supervisor process lifecycle, worker restarts, orphan detection, and signal handling
+        bedrock: Bedrock keeps the Horizon package to deterministic monitoring and balancing primitives; OS process control belongs outside the package.
+
+  fortify:
+    source: Laravel\Fortify
+    rules:
+      - laravel: View factory, Responsable responses, intended-url session redirects, and service-provider scoped container lifecycle
+        bedrock: Fortify behavior is exercised through explicit Go handlers and Inception services; host applications own views, routing, and container lifecycles.
+      - laravel: Two-factor confirmation state stored through Laravel session old input helpers
+        bedrock: Two-factor state is explicit handler/service state rather than PHP session old-input conventions.
+      - laravel: Password rehash-on-login provider mechanics
+        bedrock: Password hash upgrade policy belongs to the injected auth provider rather than the Fortify handler contract.
+      - laravel: Eloquent model encrypter access for two-factor secrets
+        bedrock: Two-factor secrets are read through explicit Go interfaces; Eloquent model encryption hooks are not part of the runtime.
+
+  passport:
+    source: Laravel\Passport
+    rules:
+      - laravel: Artisan key generation command
+        bedrock: Key material is an explicit input; command wiring belongs to the console package and host app.
+      - laravel: PHP attributes for controller middleware decoration
+        bedrock: Middleware is registered explicitly in Go route setup.
+      - laravel: Encrypted API token cookies and CSRF/XSRF headers
+        bedrock: Cookie and CSRF composition is handled by host HTTP middleware using Bedrock cookie/session packages; Passport's fresh-token response path stays host-owned.
+
+  jetstream:
+    source: Laravel\Jetstream
+    rules:
+      - laravel: PHP user-agent parser/browser detection
+        bedrock: User-agent parsing is not part of the Jetstream package contract.
+      - laravel: Eloquent team model traits and relationship helpers
+        bedrock: Team membership and role behavior is exposed through explicit Go contracts and application-owned models.
+      - laravel: Inertia profile-page two-factor UI reload state
+        bedrock: Two-factor state is exposed through explicit handlers; browser page reload behavior belongs to the host UI.
+
+  support:
+    source: Illuminate\Support
+    rules:
+      - laravel: Macroable runtime method registration and closure rebinding
+        bedrock: Go exposes explicit methods and interfaces; dynamic method injection is not part of the language runtime.
+      - laravel: PHP Arrayable, ArrayObject, Carbon object keys, references, and preserved associative random keys
+        bedrock: Go uses explicit slices, maps, typed values, and normal reference semantics instead of PHP's runtime array/object interface mechanics.
+      - laravel: ICU locale-specific number formatting and spellout helpers
+        bedrock: Support number helpers intentionally provide deterministic English/ASCII formatting; app-specific locale formatting belongs in host i18n packages.
+      - laravel: PHP reflection self, parent, union type, and attribute metadata
+        bedrock: Go reflection exposes concrete type/interface metadata but not PHP's class-string, parent-class, union-type, or attribute model.
+
+  testing:
+    source: Illuminate\Testing
+    rules:
+      - laravel: Fluent JSON closure shorthand and PHP callable overloads
+        bedrock: Go exposes explicit Scope, FirstScope, EachScope, and predicate callback methods instead of PHP's runtime argument overloading.
+      - laravel: Parallel console output process isolation
+        bedrock: Console output is asserted through deterministic writer fakes; Laravel's parallel process output wrapper is PHP test-runner infrastructure.
 
   auth:
     source: Illuminate\Auth
     rules:
       - laravel: PHP callback forms, container-bound policy callbacks, and Macroable methods
         bedrock: Explicit Go functions, interfaces, and method registration
+
+  reverb:
+    source: Laravel\Reverb
+    rules:
+      - laravel: ChannelController projections for occupied, unoccupied, cache, and presence attributes
+        bedrock: HTTP channel info currently returns subscription counts only; attribute projection and unoccupied summaries are not exposed
+      - laravel: ChannelUsersController user projection and unique-user aggregation endpoints
+        bedrock: Presence membership is exposed through channel subscriptions, not a separate channel-users controller
+      - laravel: ChannelsController filtered metrics and gathered occupancy summaries
+        bedrock: Reverb channel listing is a simple in-memory snapshot without filtered or gathered variants
+      - laravel: EventsBatchController per-event report rows and gathered result variants
+        bedrock: Batch event triggers return a simple acknowledgement payload
+      - laravel: HealthCheckController
+        bedrock: No dedicated health-check endpoint is implemented in the Go package
+      - laravel: UsersTerminateController
+        bedrock: User termination across active connections is not part of the package surface
+      - laravel: ServerTest control-frame preference toggles and powered-by header toggles
+        bedrock: The websocket server accepts pusher ping and pong flows but does not expose Laravel's control-frame preference or X-Powered-By toggle
       - laravel: BackedEnum and UnitEnum ability or guard names
         bedrock: String ability and guard identifiers
       - laravel: Middleware definition strings and route parameter model binding
@@ -273,11 +417,17 @@ semantic_divergences:
     divergence: Tag replacements use func(string) string
     rationale: PHP HtmlString-wrapping callables map to plain Go functions.
   - surface: validation
-    divergence: PHP enum validation is not implemented
-    rationale: Go has named constants but no PHP-style runtime enum type.
+    divergence: Runtime PHP enum validation is not implemented
+    rationale: Bedrock uses explicit Go values and does not mirror PHP enum objects or coercion at runtime.
   - surface: validation
-    divergence: Password uncompromised breach check is not wired by default
-    rationale: The check requires external HTTP and should be caller-controlled.
+    divergence: Password uncompromised breach lookup is not wired by default
+    rationale: The check requires external HTTP and stays caller-controlled rather than being embedded in the package runtime.
+  - surface: redis
+    divergence: No phpredis extension connector surface
+    rationale: Bedrock Redis is built on native Go client abstractions with typed options instead of PHP extension arrays, stream contexts, backoff constants, and macro registration.
+  - surface: support
+    divergence: No Macroable runtime method injection
+    rationale: Go method sets are static; extension points use explicit functions, interfaces, or package APIs instead of rebinding closures into objects or static classes.
   - surface: broadcasting
     divergence: Channel parameter binding is explicit
     rationale: Go does not have PHP's runtime reflection, container resolution, or Eloquent route binding model.
@@ -341,14 +491,144 @@ semantic_divergences:
   - surface: envoy
     divergence: PHP Envoy compiler directives are not exposed
     rationale: Bedrock Envoy uses explicit Go Task planning and Runner execution instead of compiling PHP Blade-style @before, @finished, @setup, and @servers directives.
+  - surface: package.boost
+    divergence: No Artisan-style boot gating or browser-log channel wiring
+    rationale: Bedrock binds the boost manager singleton directly and exercises the underlying Go install/status flows; host applications own environment checks, debug gating, and browser-log channel composition.
+  - surface: package.boost
+    divergence: No Artisan command wrapper layer for install and update flows
+    rationale: Bedrock exercises the underlying Go APIs for agents, guidelines, skills, MCP config writing, and database tools instead of Laravel's command façade and command-wrapper layer.
 
 test_status_overrides:
   # Cookie, encryption, and database PHP runtime mechanics counted as adapted.
+  # Prompts package: fallback, collection, and advanced terminal behaviors not modeled by the Go API.
+  - AutoCompletePromptTest::it_cycles_through_suggestions_with_arrow_keys
+  - AutoCompletePromptTest::it_cycles_through_suggestions_wrapping_around
+  - AutoCompletePromptTest::it_resets_highlighted_index_when_typing
+  - AutoCompletePromptTest::it_tab_requests_suggestions_when_no_ghost_text_is_showing
+  - AutoCompletePromptTest::it_can_fall_back
+  - AutoCompletePromptTest::it_accepts_a_collection
+  - ConfirmPromptTest::it_can_fall_back
+  - DataTablePromptTest::it_renders_a_table_with_headers_and_search_line
+  - DataTablePromptTest::it_returns_the_key_for_associative_arrays
+  - DataTablePromptTest::it_returns_the_original_key_after_filtering_a_list_array
+  - DataTablePromptTest::it_cancels_search_with_escape
+  - DataTablePromptTest::it_shows_no_results_message_when_search_matches_nothing
+  - DataTablePromptTest::it_renders_column_aware_borders
+  - DataTablePromptTest::it_shows_simple_borders_when_no_results
+  - DataTablePromptTest::it_shows_viewing_info_only_when_scrolling_is_needed
+  - DataTablePromptTest::it_shows_viewing_info_when_there_are_more_rows_than_scroll
+  - DataTablePromptTest::it_handles_multiline_cells
+  - DataTablePromptTest::it_keeps_highlighted_multiline_row_fully_visible
+  - DataTablePromptTest::it_uses_comfortable_width_and_does_not_stretch_to_terminal
+  - DataTablePromptTest::it_handles_outlier_column_widths_gracefully
+  - DataTablePromptTest::it_renders_cancel_state_with_strikethrough_data
+  - DataTablePromptTest::it_renders_submit_state_with_selected_row
+  - DataTablePromptTest::it_scrolls_and_shows_scrollbar_when_needed
+  - DataTablePromptTest::it_dims_rows_during_search
+  - DataTablePromptTest::it_handles_blank_cells_in_width_calculation
+  - DataTablePromptTest::it_renders_search_line_in_cancel_state_to_prevent_layout_shift
+  - DataTablePromptTest::it_maintains_fixed_visual_height
+  - MultiSearchPromptTest::it_can_fall_back
+  - MultiSearchPromptTest::it_transforms_values
+  - MultiSelectPromptTest::it_accepts_collections
+  - MultiSelectPromptTest::it_transforms_values
+  - MultiSelectPromptTest::it_can_fall_back
+  - NoteTest::it_can_fall_back
+  - NumberPromptTest::it_can_fall_back
+  - NumberPromptTest::it_returns_an_empty_string_when_non_interactive
+  - NumberPromptTest::it_allows_customizing_the_cancellation
+  - PasswordPromptTest::it_can_fall_back
+  - PausePromptTest::it_can_fall_back
+  - ProgressTest::it_returns_a_manual_progress_bar_when_no_callback_is_supplied
+  - ProgressTest::it_can_update_the_label_and_hint_in_manual_mode
+  - SearchPromptTest::it_can_fall_back
+  - SelectPromptTest::it_accepts_a_collection
+  - SelectPromptTest::it_can_fall_back
+  - SelectPromptTest::it_fails_when_there_is_no_default_in_non_interactive_mode
+  - SuggestPromptTest::it_accepts_a_collection
+  - SuggestPromptTest::it_accepts_a_callback_returning_a_collection
+  - SuggestPromptTest::it_can_fall_back
+  - TaskTest::it_receives_log_lines_into_the_ring_buffer
+  - TaskTest::it_wraps_long_lines_and_respects_the_limit
+  - TaskTest::it_replaces_partial_lines_on_each_update
+  - TaskTest::it_commits_partial_lines_so_they_become_permanent
+  - TaskTest::it_clears_logs_when_a_stable_message_is_received
+  - TaskTest::it_trims_stable_messages_to_maxstablemessages
+  - TaskTest::it_receives_messages_through_the_socket_protocol
+  - TaskTest::it_handles_partial_messages_through_the_socket_protocol
+  - TaskTest::it_strips_cursor_reset_control_sequences_from_log_lines
+  - TaskTest::it_updates_the_label_through_the_socket_protocol
+  - TaskTest::it_does_not_keep_the_summary_by_default
+  - TaskTest::it_renders_the_label_and_stable_messages_when_finished_with_retain_enabled
+  - TaskTest::it_renders_nothing_special_when_finished_with_no_stable_messages
+  - TaskTest::it_shrinks_the_stable_message_budget_when_a_sub_label_appears_mid_task
+  - TaskTest::it_does_not_take_the_retain_branch_when_keepsummary_is_disabled
+  - TextPromptTest::it_can_fall_back
+  - TextareaPromptTest::it_can_fall_back
   - CookieTest::testQueuedCookiesWithInvalidParameter
   - CookieTest::testCookieJarIsMacroable
   - EncrypterTest::testEncryptedReturnsFalseForNonString
+  - BoostServiceProviderTest::it_does_not_boot_boost_when_disabled
+  - BoostServiceProviderTest::it_boots_boost_when_enabled_in_local_environment
+  - BoostServiceProviderTest::it_does_not_override_an_existing_browser_log_channel
+  - BoostServiceProviderTest::it_does_not_boot_boost_in_production_even_when_enabled
+  - BoostServiceProviderTest::it_does_not_boot_boost_when_debug_is_false
+  - BoostServiceProviderTest::it_does_not_boot_boost_when_debug_is_true
+  - AssertTest::testScopeShorthand
+  - AssertTest::testScopeShorthandWithoutCount
+  - AssertTest::testScopeShorthandFailsWhenAssertingZeroItems
+  - AssertTest::testScopeShorthandFailsWhenAssertingEmptyArray
+  - AssertTest::testScopeShorthandFailsWhenAssertingEmptyArrayWithoutCount
+  - AssertTest::testScopeShorthandFailsWhenSecondArgumentUnsupportedType
+  - ParallelConsoleOutputTest::testWrite
   - SupportStrTest::testAsciiNull
   - SupportStrTest::testTransliterateStrict
+  - SupportNumberTest::testFormatWithDifferentLocale
+  - SupportNumberTest::testFormatWithAppLocale
+  - SupportNumberTest::testSpelloutWithLocale
+  - SupportNumberTest::testToCurrencyWithDifferentLocale
+  - SupportReflectorTest::testSelfClassName
+  - SupportReflectorTest::testParentClassName
+  - SupportReflectorTest::testUnionTypeName
+  - SupportReflectorTest::testGetClassAttributes
+  - SupportReflectorTest::testGetClassAttribute
+  - SupportUriTest::test_macroable
+  - SupportJsTest::testScalars
+  - SupportJsTest::testArrays
+  - SupportJsTest::testObjects
+  - SupportJsTest::testJsonSerializable
+  - SupportJsTest::testJsonable
+  - SupportJsTest::testArrayable
+  - SupportJsTest::testHtmlable
+  - SupportJsTest::testBackedEnums
+  - SupportMacroableTest::testNonStaticCallOfStaticClosure
+  - SupportMaintenanceModeTest::testExtends
+  - SupportOptionalTest::testGetExistItemOnArray
+  - SupportOptionalTest::testGetNotExistItemOnArray
+  - SupportOptionalTest::testIssetExistItemOnArray
+  - SupportOptionalTest::testIssetNotExistItemOnArray
+  - SupportPluralizerTest::testPluralSupportsArrays
+  - SupportPluralizerTest::testPluralSupportsCollections
+  - SupportPluralizerTest::testPluralStudlySupportsArrays
+  - SupportPluralizerTest::testPluralStudlySupportsCollections
+  - SupportReflectsClosuresTest::testReflectsClosures
+  - SupportReflectsClosuresTest::testItReturnsTheFirstParameterType
+  - SupportReflectsClosuresTest::testItThrowsWhenNoParameters
+  - SupportReflectsClosuresTest::testItThrowsWhenNoFirstParameterType
+  - SupportReflectsClosuresTest::testItWorksWithUnionTypes
+  - SupportReflectsClosuresTest::testItWorksWithUnionTypesWithNoTypeHints
+  - SupportReflectsClosuresTest::testItWorksWithUnionTypesWithNoArguments
+  - SupportServiceProviderTest::testPublishableServiceProviders
+  - SupportServiceProviderTest::testPublishableGroups
+  - SupportServiceProviderTest::testSimpleAssetsArePublishedCorrectly
+  - SupportServiceProviderTest::testMultipleAssetsArePublishedCorrectly
+  - SupportServiceProviderTest::testSimpleTaggedAssetsArePublishedCorrectly
+  - SupportServiceProviderTest::testMultipleTaggedAssetsArePublishedCorrectly
+  - SupportServiceProviderTest::testMultipleTaggedAssetsAreMergedCorrectly
+  - SupportServiceProviderTest::testPublishesMigrations
+  - SupportServiceProviderTest::testLoadTranslationsFromWithoutNamespace
+  - SupportServiceProviderTest::testLoadTranslationsFromWithNamespace
+  - SupportServiceProviderTest::test_can_remove_provider
   - CompilerTest::test_it_compiles_finished_statement
   - CompilerTest::test_compile_before_statement
   - CompilerTest::test_it_compiles_server_statement
@@ -381,6 +661,788 @@ test_status_overrides:
   - SessionStoreTest::testValidationErrorsCanBeSerializedAsJson
   - SessionStoreTest::testValidationErrorsCanBeReadAsJson
   - SessionStoreTest::testItIsMacroable
+  - PhpRedisClusterConnectionTest::testItFlushesAllMasterNodesAsync
+  - PhpRedisClusterConnectionTest::testItThrowsExceptionWithoutNodes
+  - PhpRedisConnectorTest::testNormalizeContext
+  - PhpRedisConnectorTest::testNormalizeContextWrapsFlatArrayInStream
+  - PhpRedisConnectorTest::testNormalizeContextConvertsSslKeyToStream
+  - PhpRedisConnectorTest::testNormalizeContextPassesThroughStreamKey
+  - PhpRedisConnectorTest::testNormalizeContextSslKeyTakesPrecedenceOverFlatKeys
+  - PhpRedisConnectorTest::testNormalizeClusterContext
+  - PhpRedisConnectorTest::testNormalizeClusterContextUnwrapsSslKey
+  - PhpRedisConnectorTest::testNormalizeClusterContextUnwrapsStreamKey
+  - PhpRedisConnectorTest::testNormalizeClusterContextPassesThroughFlatArray
+  - PhpRedisConnectorTest::testNormalizeClusterContextSslKeyTakesPrecedenceOverFlatKeys
+  - PhpRedisConnectorTest::testFormatClusterPassword
+  - PhpRedisConnectorTest::testFormatClusterPasswordReturnsArrayWhenUsernameAndPasswordProvided
+  - PhpRedisConnectorTest::testFormatClusterPasswordReturnsPlainPasswordWithoutUsername
+  - PhpRedisConnectorTest::testFormatClusterPasswordReturnsNullWhenNoPasswordProvided
+  - PhpRedisConnectorTest::testFormatClusterPasswordReturnsPlainPasswordWhenUsernameIsEmpty
+  - PhpRedisConnectorTest::testFormatClusterPasswordReturnsPlainPasswordWhenPasswordIsNotString
+  - PhpRedisConnectorTest::testParseBackoffAlgorithm
+  - PhpRedisConnectorTest::testParseBackoffAlgorithmReturnsIntegerAsIs
+  - PhpRedisConnectorTest::testParseBackoffAlgorithmParsesValidNames
+  - PhpRedisConnectorTest::testParseBackoffAlgorithmThrowsForInvalidName
+  - RedisConnectionTest::testMacroable
+  - RedisConnectorTest::testPhpRedisTcpKeepalive
+  - ArrayDriverTest::test_it_can_register_feature_via_class_with_name_attribute
+  - ArrayDriverTest::test_name_attribute_takes_precedence_over_name_property
+  - DatabaseDriverTest::test_it_serializes_eloquent_models
+  - DatabaseDriverTest::test_it_can_use_eloquent_morph_map_for_scope_serialization
+  - DatabaseDriverTest::test_it_can_use_unregistered_class_features_with_name_attribute
+  - DatabaseDriverTest::test_it_can_delete_unregistered_class_features_with_name_attribute
+  - DatabaseDriverTest::test_it_can_activate_unregistered_class_features_with_name_attribute
+  - DatabaseDriverTest::test_name_attribute_takes_precedence_over_name_property
+  - FeatureDirectiveTest::test_it_renders_active_features
+  - FeatureDirectiveTest::test_it_checks_feature_value
+  - FeatureDirectiveTest::test_it_checks_features_against_default_scope_by_default
+  - FeatureDirectiveTest::test_it_renders_any_active_features
+  - FeatureManagerTest::test_it_can_apply_macros
+  - AuthorizationTest::test_clean_telescope_installation_denies_access_by_default
+  - AuthorizationTest::test_clean_telescope_installation_denies_access_by_default_for_any_auth_user
+  - AuthorizationTest::test_guests_gets_unauthorized_by_gate
+  - AuthorizationTest::test_authenticated_user_gets_authorized_by_gate
+  - AuthorizationTest::test_guests_can_be_authorized
+  - AuthorizationTest::test_unauthorized_requests
+  - AuthorizationTest::test_authorized_requests
+  - RouteTest::test_route
+  - RouteTest::test_simple_list_of_entries
+  - RouteTest::test_named_route
+  - ProcessPendingUpdatesTest::test_pending_updates
+  - ProcessPendingUpdatesTest::test_pending_updates_may_stay_pending
+  - ProcessPendingUpdatesTest::test_pending_updates_may_stay_pending_only_three_times
+  - ExtractTagTest::test_extract_tag_from_array_containing_flat_collection
+  - ExtractTagTest::test_extract_tag_from_array_containing_deep_collection
+  - ExtractTagTest::test_extract_tag_from_mailable
+  - EventWatcherTest::test_event_watcher_with_object_property_calls_format_for_telescope_method_if_it_exists
+  - EventWatcherTest::test_event_watcher_registers_events_and_stores_payloads_with_subscriber_methods
+  - EventWatcherTest::test_event_watcher_registers_events_and_stores_payloads_with_subscriber_classes
+  - ExceptionWatcherTest::test_exception_watcher_register_entries_when_eval_failed
+  - GateWatcherTest::test_gate_watcher_calls_format_for_telescope_method_if_it_exists
+  - JobWatcherTest::test_job_can_handle_deleted_serialized_model
+  - MailNotificationTest::test_mail_watcher_registers_valid_html
+  - RequestWatchersTest::test_request_watcher_calls_format_for_telescope_method_if_it_exists
+  - BuilderTest::test_macroable
+  - BuilderTest::test_hard_delete_doesnt_set_wheres
+  - BuilderTest::test_soft_delete_sets_wheres
+  - DatabaseEngineTest::test_it_can_paginate_using_a_custom_page_name
+  - DatabaseEngineTest::test_it_can_simple_paginate_using_a_custom_page_name
+  - DatabaseEngineTest::test_tap_is_applied
+  - MakeSearchableTest::test_job_properties_are_not_set_without_config
+  - MakeSearchableTest::test_job_properties_are_set_from_config
+  - MakeSearchableTest::test_subclass_job_properties_are_not_overridden_by_config
+  - RemoveFromSearchTest::test_models_are_deserialized_without_the_database
+  - RemoveFromSearchTest::test_models_are_deserialized_without_the_database_using_custom_scout_key
+  - RemoveFromSearchTest::test_job_properties_are_not_set_without_config
+  - RemoveFromSearchTest::test_job_properties_are_set_from_config
+  - RemoveFromSearchTest::test_subclass_job_properties_are_not_overridden_by_config
+  - SearchableTest::test_it_queries_searchable_models_by_their_ids_with_integer_key_type
+  - SearchableTest::test_it_queries_searchable_models_by_their_ids_with_string_key_type
+  - SearchableTest::test_make_all_searchable_uses_order_by
+  - SearchableTest::test_overridden_make_searchable_is_dispatched
+  - SearchableTest::test_overridden_remove_from_search_is_dispatched
+  - BatchesControllerTest::test_batches_can_be_searched_by_name
+  - BatchesControllerTest::test_batches_can_be_searched_by_id
+  - BatchesControllerTest::test_search_escapes_like_wildcards
+  - BatchesControllerTest::test_search_supports_cursor_pagination
+  - MasterSupervisorControllerTest::test_master_supervisor_listing_without_supervisors
+  - MasterSupervisorControllerTest::test_master_supervisor_listing_with_supervisors
+  - MasterSupervisorControllerTest::test_master_supervisor_with_custom_name_listing_with_supervisors
+  - MonitoringControllerTest::test_monitored_tags_and_job_counts_are_returned
+  - MonitoringControllerTest::test_monitored_jobs_can_be_paginated_by_tag
+  - MonitoringControllerTest::test_can_paginate_where_jobs_dont_exist
+  - MonitoringControllerTest::test_can_start_monitoring_tags
+  - MonitoringControllerTest::test_can_stop_monitoring_tags
+  - AuthTest::test_authentication_callback_works
+  - AuthTest::test_authentication_middleware_can_pass
+  - AuthTest::test_authentication_middleware_throws_on_failure
+  - AddSupervisorTest::test_add_supervisor_command_creates_new_supervisor_on_master_process
+  - ListenCommandTest::test_listen_command_requires_watch_configuration
+  - ListenCommandTest::test_listen_command_requires_watch_configuration_to_be_set
+  - ListenCommandTest::test_listen_command_requires_watch_configuration_key_to_exist
+  - SupervisorCommandTest::test_supervisor_command_can_start_supervisor_monitoring
+  - SupervisorCommandTest::test_supervisor_command_can_start_paused_supervisors
+  - SupervisorCommandTest::test_supervisor_command_can_set_process_niceness
+  - ScaleCommandTest::test_scale_command_tells_supervisor_to_scale
+  - MasterSupervisorTest::test_master_process_information_is_persisted
+  - MasterSupervisorTest::test_master_process_loop_processes_pending_commands
+  - MasterSupervisorTest::test_master_process_marks_clean_exits_as_dead_and_removes_them
+  - MasterSupervisorTest::test_master_process_marks_duplicates_as_dead_and_removes_them
+  - MasterSupervisorTest::test_master_process_restarts_processes_that_never_started
+  - MasterSupervisorTest::test_master_process_restarts_unexpected_exits
+  - MasterSupervisorTest::test_master_process_should_not_allow_duplicate_master_process_on_same_machine
+  - MasterSupervisorTest::test_master_process_starts_unstarted_processes_when_unpaused
+  - MasterSupervisorTest::test_names_can_be_customized
+  - MasterSupervisorTest::test_supervisor_continues_termination_if_supervisors_take_too_long
+  - MasterSupervisorTest::test_supervisor_process_terminates_all_workers_and_exits_on_full_termination
+  - MasterSupervisorTest::test_supervisor_repository_returns_null_if_no_supervisor_exists_with_given_name
+  - MonitorMasterSupervisorMemoryTest::test_supervisor_is_not_terminated_when_using_low_memory
+  - MonitorMasterSupervisorMemoryTest::test_supervisor_is_terminated_when_using_too_much_memory
+  - MonitorSupervisorMemoryTest::test_supervisor_is_not_terminated_when_using_low_memory
+  - MonitorSupervisorMemoryTest::test_supervisor_is_terminated_when_using_too_much_memory
+  - MonitorWaitTimesTest::test_monitor_wait_times_executes_once_when_called_twice
+  - MonitorWaitTimesTest::test_monitor_wait_times_skips_when_lock_is_not_acquired
+  - MonitorWaitTimesTest::test_monitor_wait_times_skips_when_not_due_to_monitor
+  - MonitorWaitTimesTest::test_monitor_wait_times_skips_when_not_due_to_monitor_and_executes_after_2_minutes
+  - MonitorWaitTimesTest::test_queue_ignores_long_waits
+  - MonitorWaitTimesTest::test_queues_with_long_waits_are_found
+  - NotificationOverridesTest::test_custom_notifications_are_sent_if_specified
+  - NotificationOverridesTest::test_normal_notifications_are_sent_if_not_specified
+  - ProcessInspectorTest::test_finds_orphaned_process_ids
+  - ProcessRepositoryTest::test_expired_orphans_can_be_found
+  - ProcessRepositoryTest::test_orphans_can_be_deleted
+  - ProvisioningPlanTest::test_backoff_is_translated_to_string_form
+  - ProvisioningPlanTest::test_plan_is_converted_into_array_of_supervisor_options
+  - ProvisioningPlanTest::test_supervisors_are_added
+  - ProvisioningPlanTest::test_supervisors_are_added_as_fallback_for_wildcard_environments
+  - ProvisioningPlanTest::test_supervisors_are_added_by_wildcard
+  - RetryJobTest::test_failed_job_can_be_retried_successfully_with_a_fresh_id
+  - RetryJobTest::test_nothing_happens_for_failed_job_that_doesnt_exist
+  - RetryJobTest::test_retrying_failed_job_with_retry_until_and_without_pushed_at
+  - RetryJobTest::test_status_is_updated_for_double_failing_jobs
+  - SupervisorTest::test_auto_scaler_is_called_on_loop_when_auto_scaling
+  - SupervisorTest::test_auto_scaler_is_not_called_on_loop_during_cooldown
+  - SupervisorTest::test_dead_processes_are_not_restarted_when_paused
+  - SupervisorTest::test_exceptions_are_caught_and_handled_during_loop
+  - SupervisorTest::test_processes_can_be_paused_and_continued
+  - SupervisorTest::test_processes_can_be_scaled_down
+  - SupervisorTest::test_processes_can_be_scaled_up
+  - SupervisorTest::test_recent_jobs_are_correctly_maintained
+  - SupervisorTest::test_supervisor_can_prune_terminating_processes_and_return_total_process_count
+  - SupervisorTest::test_supervisor_can_restart_processes
+  - SupervisorTest::test_supervisor_can_start_worker_process_with_given_options
+  - SupervisorTest::test_supervisor_does_not_start_workers_until_looped_and_active
+  - SupervisorTest::test_supervisor_information_is_persisted
+  - SupervisorTest::test_supervisor_loop_processes_pending_supervisor_commands
+  - SupervisorTest::test_supervisor_monitors_worker_processes
+  - SupervisorTest::test_supervisor_process_terminates_all_workers_and_exits_on_full_termination
+  - SupervisorTest::test_supervisor_processes_can_be_counted_externally
+  - SupervisorTest::test_supervisor_processes_can_be_terminated
+  - SupervisorTest::test_supervisor_repository_returns_null_if_no_supervisor_exists_with_given_name
+  - SupervisorTest::test_supervisor_should_start_paused_workers_when_paused_and_scaling
+  - SupervisorTest::test_supervisor_starts_multiple_pools_when_balancing
+  - SupervisorTest::test_supervisor_starts_pools_with_queues_when_balancing_is_off
+  - SupervisorTest::test_supervisor_with_duplicate_name_cant_be_started
+  - SupervisorTest::test_terminating_processes_that_are_stuck_are_hard_stopped
+  - TrimMonitoredJobsTest::test_trimmer_has_a_cooldown_period
+  - TrimRecentJobsTest::test_trimmer_has_a_cooldown_period
+  - WorkerProcessTest::test_process_is_not_restarted_during_cooldown_period
+  - WorkerProcessTest::test_process_is_restarted_after_cooldown_period
+  - WorkerProcessTest::test_worker_process_fires_event_if_stopped_process_cant_be_restarted
+  - AuthenticatedSessionControllerTest::test_the_login_view_is_returned
+  - AuthenticatedSessionControllerWithTwoFactorTest::test_rehash_user_password_when_redirecting_to_two_factor_challenge_if_rehashing_on_login_is_enabled
+  - AuthenticatedSessionControllerWithTwoFactorTest::test_does_not_rehash_user_password_when_redirecting_to_two_factor_challenge_if_rehashing_on_login_is_disabled
+  - ConfirmablePasswordControllerTest::test_the_confirm_password_view_is_returned
+  - ConfirmablePasswordControllerTest::test_password_confirmation_can_be_customized
+  - ConfirmablePasswordControllerTest::test_password_confirmation_can_be_customized_and_fail_without_password
+  - EmailVerificationNotificationControllerTest::test_user_is_redirect_to_intended_url_if_already_verified
+  - EmailVerificationPromptControllerTest::test_the_email_verification_prompt_view_is_returned
+  - EmailVerificationPromptControllerTest::test_user_is_redirect_to_intended_url_if_already_verified
+  - FortifyServiceProviderTest::test_views_can_be_customized
+  - FortifyServiceProviderTest::test_customized_views_can_return_their_own_responsable
+  - FortifyServiceProviderTest::test_redirect_if_two_factor_authenticatable_is_resolved_fresh_after_flushing_scoped_instances
+  - FortifyServiceProviderTest::test_redirect_if_two_factor_authenticatable_receives_fresh_guard_after_flushing_scoped_instances
+  - FortifyServiceProviderTest::test_custom_redirect_if_two_factor_authenticatable_is_resolved_fresh_after_flushing_scoped_instances
+  - InteractsWithTwoFactorStateTest::test_validation_is_skipped_when_confirm_feature_is_disabled
+  - InteractsWithTwoFactorStateTest::test_sets_empty_at_session_when_two_factor_is_disabled
+  - InteractsWithTwoFactorStateTest::test_sets_empty_at_when_two_factor_not_fully_enabled
+  - InteractsWithTwoFactorStateTest::test_sets_confirming_at_when_user_begins_confirmation_process
+  - InteractsWithTwoFactorStateTest::test_does_not_set_confirming_at_when_conditions_not_met
+  - InteractsWithTwoFactorStateTest::test_disables_two_factor_when_confirmation_is_abandoned
+  - InteractsWithTwoFactorStateTest::test_disabled_to_confirming_to_abandoned_state
+  - InteractsWithTwoFactorStateTest::test_does_not_disable_when_code_in_old_input_is_present
+  - InteractsWithTwoFactorStateTest::test_confirming_at_timestamp_is_current_time
+  - NewPasswordControllerTest::test_the_new_password_view_is_returned
+  - PasswordResetLinkRequestControllerTest::test_the_reset_link_request_view_is_returned
+  - RegisteredUserControllerTest::test_the_register_view_is_returned
+  - RegisteredUserControllerTest::test_users_can_be_created_and_redirected_to_intended_url
+  - TwoFactorAuthenticationControllerTest::test_two_factor_authentication_secret_key_can_be_retrieved_with_model_encrypter
+  - KeysCommandTest::testPrivateAndPublicKeysAreGenerated
+  - KeysCommandTest::testPrivateAndPublicKeysShouldNotBeGeneratedTwice
+  - PassportServiceProviderTest::test_can_use_crypto_keys_from_config
+  - PassportServiceProviderTest::test_can_use_crypto_keys_from_local_disk
+  - AuthorizeTokenTest::testItAppliesCheckTokenMiddleware
+  - AuthorizeTokenTest::testItAppliesCheckTokenForAnyScopeMiddleware
+  - ApiTokenCookieFactoryTest::test_cookie_can_be_successfully_created
+  - ApiTokenCookieFactoryTest::test_cookie_can_be_successfully_created_when_using_a_custom_encryption_key
+  - CreateFreshApiTokenTest::testShouldReceiveAFreshToken
+  - CreateFreshApiTokenTest::testShouldNotReceiveAFreshTokenForOtherHttpVerbs
+  - CreateFreshApiTokenTest::testShouldNotReceiveAFreshTokenForAnInvalidUser
+  - CreateFreshApiTokenTest::testShouldNotReceiveAFreshTokenForResponseThatAlreadyHasToken
+  - TokenGuardTest::test_users_may_be_retrieved_from_cookies_with_csrf_token_header
+  - TokenGuardTest::test_users_may_be_retrieved_from_cookies_with_xsrf_token_header
+  - TokenGuardTest::test_cookie_xsrf_is_verified_against_csrf_token_header
+  - TokenGuardTest::test_cookie_xsrf_is_verified_against_xsrf_token_header
+  - TokenGuardTest::test_users_may_be_retrieved_from_cookies_with_xsrf_token_header_when_using_a_custom_encryption_key
+  - TokenGuardTest::test_users_may_be_retrieved_from_cookies_without_encryption
+  - TokenGuardTest::test_xsrf_token_cookie_without_a_token_header_is_not_accepted
+  - TokenGuardTest::test_expired_cookies_may_not_be_used
+  - TokenGuardTest::test_csrf_check_can_be_disabled
+  - AgentTest::testOperatingSystems
+  - AgentTest::testBrowsers
+  - AgentTest::testDesktopDevices
+  - HasTeamsTest::test_teamRole_returns_an_OwnerRole_for_the_team_owner
+  - HasTeamsTest::test_teamRole_returns_the_matching_role
+  - HasTeamsTest::test_teamRole_returns_null_if_the_user_does_not_belong_to_the_team
+  - HasTeamsTest::test_teamRole_returns_null_if_the_user_does_not_have_a_role_on_the_site
+  - HasTeamsTest::test_teamPermissions_returns_all_for_team_owners
+  - HasTeamsTest::test_teamPermissions_returns_empty_for_non_members
+  - HasTeamsTest::test_teamPermissions_returns_permissions_for_the_users_role
+  - HasTeamsTest::test_teamPermissions_returns_empty_permissions_for_members_without_a_defined_role
+  - TeamBehaviorTest::test_team_relationship_methods
+  - UserProfileControllerTest::test_empty_two_factor_state_is_noted
+  - UserProfileControllerTest::test_two_factor_is_not_disabled_if_was_previously_empty_and_currently_confirming
+  - UserProfileControllerTest::test_two_factor_is_disabled_if_was_previously_confirming_and_page_is_reloaded
+  - Concerns/InteractsWithDatabaseTest::testCastToJsonSqlServer
+  - DateFacadeTest::testMacro
+  - SleepTest::testItCanCreateMacrosViaMacroable
+  - SupportBenchmarkTest::testMacroable
+  - SupportCarbonTest::testCarbonIsMacroableWhenNotCalledStatically
+  - SupportCarbonTest::testCarbonIsMacroableWhenCalledStatically
+  - SupportCarbonTest::testCarbonRaisesExceptionWhenStaticMacroIsNotFound
+  - SupportCarbonTest::testCarbonRaisesExceptionWhenMacroIsNotFound
+  - SupportCollectionTest::testMacroable
+  - SupportArrTest::testArrayable
+  - SupportArrTest::testFirstWorksWithArrayObject
+  - SupportArrTest::testPluckWithCarbonKeys
+  - SupportArrTest::testArrayPluckWithArrayAndObjectValues
+  - SupportArrTest::testMapByReference
+  - SupportArrTest::testRandomNotIncrementingKeys
+  - SupportFluentTest::testMacroable
+  - SupportFluentTest::testCollectMethod
+  - SupportFluentTest::testToCollection
+  - SupportFluentTest::testArrayAccessToAttributes
+  - SupportFluentTest::testMagicMethodsCanBeUsedToSetAttributes
+  - SupportFluentTest::testIssetMagicMethod
+  - SupportHelpersTest::testOptionalIsMacroable
+  - SupportMacroableTest::testRegisterMacro
+  - SupportMacroableTest::testHasMacro
+  - SupportMacroableTest::testRegisterMacroAndCallWithoutStatic
+  - SupportMacroableTest::testWhenCallingMacroClosureIsBoundToObject
+  - SupportMacroableTest::testClassBasedMacros
+  - SupportMacroableTest::testClassBasedMacrosNoReplace
+  - SupportMacroableTest::testFlushMacros
+  - SupportMacroableTest::testFlushMacrosStatic
+  - SupportMacroableTest::testMacroWithArguments
+  - SupportMacroableTest::testMacroWithDefaultArguments
+  - SupportMacroableTest::testCallingUndefinedMacroThrowsException
+  - SupportMacroableTest::testMethodConflictDoesNotThrowException
+  - SupportMacroableTest::testStaticCallOfNonStaticClosure
+  - SupportMacroableTest::testNonStaticCallOfNonStaticClosure
+  - SupportMacroableTest::testStaticCallOfStaticClosure
+  # SupportMailTest markers rely on PHP mailable runtime mechanics and runtime proxy behaviors
+  # that are not represented in Bedrock's typed Go helper layer.
+  - SupportMailTest::testItRegisterAndCallMacros
+  - SupportMailTest::testItRegisterAndCallMacrosWhenFaked
+  - SupportViewErrorBagTest::testDynamicCallToDefaultMessageBag
+  - SupportViewErrorBagTest::testDynamicallyGetBag
+  - SupportViewErrorBagTest::testDynamicallyPutBag
+  - OnceTest::testUsageOfThis
+  - OnceTest::testFirstClassCallableSyntax
+  - OnceTest::testMemoizationWithinEvals
+  - OnceTest::testExtendedStaticClassOnceCalls
+  - DateFacadeTest::testUseClosure
+  - DateFacadeTest::testUseClassName
+  - DateFacadeTest::testCarbonImmutable
+  - DateFacadeTest::testUseInvalidHandler
+  - ForwardsCallsTest::testForwardsCalls
+  - ForwardsCallsTest::testNestedForwardCalls
+  - ForwardsCallsTest::testMissingForwardedCallThrowsCorrectError
+  - ForwardsCallsTest::testMissingAlphanumericForwardedCallThrowsCorrectError
+  - ForwardsCallsTest::testNonForwardedErrorIsNotTamperedWith
+  - ForwardsCallsTest::testThrowBadMethodCallException
+  - HigherOrderProxyTest::test_get_proxies_property_access_to_items
+  - HigherOrderProxyTest::test_call_proxies_method_call_to_items
+  - HigherOrderProxyTest::test_call_forwards_and_returns_target
+  - OnceTest::testNotMemoizedWhenObjectIsGarbageCollected
+  - OnceTest::testInvokables
+  - OnceTest::testFirstClassCallableSyntaxWithArraySyntax
+  - OnceTest::testMemoizationOnSameLine
+  - OnceTest::testResultIsMemoizedWhenCalledFromMethodsWithSameName
+  - SleepTest::testCallbacksMayBeExecutedUsingThen
+  - SleepTest::testSleepRespectsWhile
+  - SleepTest::testItCanUseDateInterval
+  - SleepTest::testItThrowsForUnknownTimeUnit
+  - SleepTest::testItFailsSequenceAssertion
+  - SleepTest::testItCanSleepTillGivenTimestampAsString
+  - SleepTest::testItCanSleepTillGivenTimestampAsStringWithMilliseconds
+  - SleepTest::testItFailsWhenSequenceContainsTooManySleeps
+  - SleepTest::testSilentlySetsDurationToZeroForNegativeValues
+  - SleepTest::testItDoesntCaptureAssertionInstances
+  - SleepTest::testAssertNeverAgainstZeroSecondSleep
+  - SleepTest::testItCanReplacePreviouslyDefinedDurations
+  - SleepTest::testItCanSleepConditionallyWhen
+  - SleepTest::testItCanRegisterCallbacksToRunInTests
+  - SleepTest::testItDoesntRunCallbacksWhenNotFaking
+  - SleepTest::testItDoesNotSyncCarbon
+  - SleepTest::testItCanSyncCarbon
+  - SleepTest::testFakeCanSetSyncWithCarbon
+  - SleepTest::testFakeDoesNotNeedToSyncWithCarbon
+  - StorageFacadeTest::testFake_whenDiskNotConfigured_doesNotThrowExceptionOnError
+  - StorageFacadeTest::testFake_whenThrowSetToDisk_throwsExceptionOnError
+  - StorageFacadeTest::testFake_whenThrowOverwritten_usesOverwrite
+  - StorageFacadeTest::testPersistentFake_whenDiskNotConfigured_doesNotThrowExceptionOnError
+  - StorageFacadeTest::testPersistentFake_whenThrowSetToDisk_throwsExceptionOnError
+  - StorageFacadeTest::testPersistentFake_whenThrowOverwritten_usesOverwrite
+  - StorageFacadeTest::testStorageFakeMethodsWithEnums
+  - SupportCapsuleManagerTraitTest::testSetupContainerForCapsule
+  - SupportCapsuleManagerTraitTest::testSetupContainerForCapsuleWhenConfigIsBound
+  - SupportCarbonTest::testInstance
+  - SupportCarbonTest::testCarbonAllowsCustomSerializer
+  - SupportCarbonTest::testCarbonCanSerializeToJson
+  - SupportCarbonTest::testSetStateReturnsCorrectType
+  - SupportCarbonTest::testDeserializationOccursCorrectly
+  - SupportCarbonTest::testSetTestNowWillPersistBetweenImmutableAndMutableInstance
+  - SupportCarbonTest::testCarbonIsConditionable
+  - SupportCarbonTest::testCreateFromUid
+  - SupportCarbonTest::testPlus
+  - SupportCarbonTest::testMinus
+  - SupportCollectionTest::testGetArrayableItems
+  - SupportCollectionTest::testToArrayCallsToArrayOnEachItemInCollection
+  - SupportCollectionTest::testJsonSerializeCallsToArrayOrJsonSerializeOnEachItemInCollection
+  - SupportCollectionTest::testOffsetAccess
+  - SupportCollectionTest::testBehavesLikeAnArrayWithArrayAccess
+  - SupportCollectionTest::testArrayAccessOffsetGet
+  - SupportCollectionTest::testArrayAccessOffsetSet
+  - SupportCollectionTest::testArrayAccessOffsetUnset
+  - SupportCollectionTest::testCachingIterator
+  - SupportCollectionTest::testHigherOrderKeyBy
+  - SupportCollectionTest::testHigherOrderUnique
+  - SupportCollectionTest::testHigherOrderFilter
+  - SupportCollectionTest::testValueUsingEnum
+  - SupportCollectionTest::testConstructMethodFromWeakMap
+  - SupportCollectionTest::testGetPluckValueWithAccessors
+  - SupportCollectionTest::testMapIntoWithIntBackedEnums
+  - SupportCollectionTest::testMapIntoWithStringBackedEnums
+  - SupportCollectionTest::testGroupByAttributeWithStringableKey
+  - SupportCollectionTest::testGroupByAttributeWithEnumKey
+  - SupportCollectionTest::testGroupByAttributeWithBackedEnumKey
+  - SupportCollectionTest::testCollectionFromEnum
+  - SupportCollectionTest::testCollectionFromBackedEnum
+  - SupportCollectionTest::testFirstWhereUsingEnum
+  - SupportCollectionTest::testWhereInstanceOf
+  - SupportCollectionTest::testValueWithNegativeValue
+  - SupportCollectionTest::testValueWithObjects
+  - SupportCollectionTest::testSortByString
+  - SupportCollectionTest::testSortByCallableString
+  - SupportCollectionTest::testSortByCallableStringDesc
+  - SupportCollectionTest::testNaturalSortByManyWithNull
+  - SupportCollectionTest::testPluckWithArrayAccessValues
+  - SupportCollectionTest::testPluckWithDotNotation
+  - SupportCollectionTest::testPluckWithClosure
+  - SupportCollectionTest::testPluckDuplicateKeysExist
+  - SupportCollectionTest::testImplodeModels
+  - SupportCollectionTest::testTakeUntilCanBeProxied
+  - SupportCollectionTest::testTakeWhileCanBeProxied
+  - SupportCollectionTest::testCanAddMethodsToProxy
+  - SupportCollectionTest::testHigherOrderCollectionGroupBy
+  - SupportCollectionTest::testHigherOrderCollectionMap
+  - SupportCollectionTest::testHigherOrderCollectionMapFromArrays
+  - SupportCollectionTest::testHigherOrderCollectionStaticCall
+  - SupportCollectionTest::testHigherOrderPartition
+  - SupportCollectionTest::testHigherOrderWhenAndUnless
+  - SupportCollectionTest::testHigherOrderWhenAndUnlessWithProxy
+  - SupportCollectionTest::testItThrowsExceptionWhenTryingToAccessNoProxyProperty
+  - SupportCollectionTest::testNewInstanceIsUsedByCollectionMethods
+  - SupportCollectionTest::testStaticFactoryMethodsForwardExtraArguments
+  - SupportCollectionTest::testForgetCollectionOfKeys
+  - SupportCollectionTest::testChunkPreservingKeys
+  - SupportCollectionTest::testChunkWhilePreservingStringKeys
+  - SupportCollectionTest::testExceptSelf
+  - SupportCollectionTest::testMakeMethod
+  - SupportCollectionTest::testMakeMethodFromNull
+  - SupportCollectionTest::testMakeMethodFromCollection
+  - SupportCollectionTest::testMakeMethodFromArray
+  - SupportCollectionTest::testWrapWithArrayable
+  - SupportCollectionTest::testWrapWithJsonable
+  - SupportCollectionTest::testWrapWithJsonSerialize
+  - SupportCollectionTest::testWrapWithCollectionSubclass
+  - SupportCollectionTest::testFromJson
+  - SupportCollectionTest::testFromJsonWithDepth
+  - SupportCollectionTest::testFromJsonWithFlags
+  - SupportCollectionTest::testConstructMakeFromObject
+  - SupportCollectionTest::testConstructMethod
+  - SupportCollectionTest::testConstructMethodFromCollection
+  - SupportCollectionTest::testConstructMethodFromArray
+  - SupportCollectionTest::testConstructMethodFromObject
+  - SupportCollectionTest::testValueRetrieverAcceptsDotNotation
+  - SupportCollectionTest::testSelectWithArrays
+  - SupportCollectionTest::testSelectWithArrayAccess
+  - SupportCollectionTest::testSelectWithObjects
+  - SupportCollectionTest::testCollectionFromTraversable
+  - SupportCollectionTest::testCollectionFromTraversableWithKeys
+  - SupportCollectionTest::testPartitionPreservesKeys
+  - SupportCollectionTest::testKeyByObject
+  - SupportCollectionTest::testBeforeInStrictMode
+  - SupportCollectionTest::testAfterInStrictMode
+  # Collections: PHP associative-key preservation, exception contracts, and
+  # lazy map/ArrayAccess wrappers are adapted to typed Go slices/maps.
+  - SupportCollectionTest::testSortByAlwaysReturnsAssoc
+  - SupportCollectionTest::testRandomOnEmptyCollection
+  - SupportCollectionTest::testGroupByAttributePreservingKeys
+  - SupportCollectionTest::testGroupByClosureWhereItemsHaveSingleGroupPreservingKeys
+  - SupportCollectionTest::testGroupByClosureWhereItemsHaveMultipleGroupsPreservingKeys
+  - SupportCollectionTest::testGroupByMultiLevelAndClosurePreservingKeys
+  - SupportCollectionTest::testRandomThrowsAnExceptionUsingAmountBiggerThanCollectionSize
+  - SupportLazyCollectionIsLazyTest::testIntersectByKeysIsLazy
+  - SupportLazyCollectionIsLazyTest::testJsonSerializeEnumeratesOnce
+  - SupportLazyCollectionIsLazyTest::testKeyByIsLazy
+  - SupportLazyCollectionIsLazyTest::testKeysIsLazy
+  - SupportLazyCollectionIsLazyTest::testMapIntoIsLazy
+  - SupportLazyCollectionIsLazyTest::testMapSpreadIsLazy
+  - SupportLazyCollectionIsLazyTest::testMapToDictionaryIsLazy
+  - SupportLazyCollectionIsLazyTest::testMapToGroupsIsLazy
+  - SupportLazyCollectionIsLazyTest::testMapWithKeysIsLazy
+  - SupportLazyCollectionIsLazyTest::testMedianEnumeratesOnce
+  - SupportLazyCollectionIsLazyTest::testMergeIsLazy
+  - SupportLazyCollectionIsLazyTest::testMergeRecursiveIsLazy
+  - SupportLazyCollectionIsLazyTest::testModeEnumeratesOnce
+  - SupportLazyCollectionIsLazyTest::testOnlyIsLazy
+  - SupportLazyCollectionIsLazyTest::testPartitionEnumeratesOnce
+  - SupportLazyCollectionIsLazyTest::testPipeDoesNotEnumerate
+  - SupportLazyCollectionIsLazyTest::testReduceSpreadIsLazy
+  - SupportLazyCollectionIsLazyTest::testReplaceIsLazy
+  - SupportLazyCollectionIsLazyTest::testReplaceRecursiveIsLazy
+  - SupportLazyCollectionIsLazyTest::testSortKeysIsLazy
+  - SupportLazyCollectionIsLazyTest::testSortKeysDescIsLazy
+  - SupportLazyCollectionIsLazyTest::testSplitIsLazy
+  - SupportLazyCollectionIsLazyTest::testToJsonEnumeratesOnce
+  - SupportLazyCollectionIsLazyTest::testUnionIsLazy
+  - SupportLazyCollectionIsLazyTest::testUniqueStrictIsLazy
+  - SupportLazyCollectionIsLazyTest::testUnlessEmptyIsLazy
+  - SupportLazyCollectionIsLazyTest::testUnlessNotEmptyIsLazy
+  - SupportLazyCollectionIsLazyTest::testUnwrapEnumeratesOne
+  - SupportLazyCollectionIsLazyTest::testWhenEmptyIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhenNotEmptyIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereBetweenIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereInIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereInstanceOfIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereInStrictIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereNotBetweenIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereNotInIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereNotInStrictIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereNotNullIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereNullIsLazy
+  - SupportLazyCollectionIsLazyTest::testWhereStrictIsLazy
+  - SupportLazyCollectionIsLazyTest::testWithHeartbeatIsLazy
+  - SupportLazyCollectionIsLazyTest::testWrapIsLazy
+  - SupportLazyCollectionIsLazyTest::testZipIsLazy
+  - SupportLazyCollectionTest::testCanCreateCollectionFromArrayable
+  # Support testing fakes: Laravel exposes Bus/Event/Mail/Notification/Queue
+  # facade fakes with PHP closure, mailable, notifiable, and chain assertions.
+  # Bedrock keeps fakes package-local and typed, so these framework-support
+  # facade contracts are adapted by the concrete bus/event/mail/queue packages.
+  - SupportTestingBusFakeTest::testItUsesCustomBusRepository
+  - SupportTestingBusFakeTest::testAssertDispatched
+  - SupportTestingBusFakeTest::testAssertDispatchedWithClosure
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponse
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponseClosure
+  - SupportTestingBusFakeTest::testAssertDispatchedSync
+  - SupportTestingBusFakeTest::testAssertDispatchedSyncClosure
+  - SupportTestingBusFakeTest::testAssertDispatchedNow
+  - SupportTestingBusFakeTest::testAssertDispatchedWithCallbackInt
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponseWithCallbackInt
+  - SupportTestingBusFakeTest::testAssertDispatchedSyncWithCallbackInt
+  - SupportTestingBusFakeTest::testAssertDispatchedWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponseWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponseTimesWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertDispatchedSyncWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertDispatchedOnce
+  - SupportTestingBusFakeTest::testAssertDispatchedTimes
+  - SupportTestingBusFakeTest::testAssertDispatchedTimesWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertDispatchedAfterResponseTimes
+  - SupportTestingBusFakeTest::testAssertDispatchedSyncTimes
+  - SupportTestingBusFakeTest::testAssertDispatchedSyncTimesWithCallbackFunction
+  - SupportTestingBusFakeTest::testAssertNotDispatched
+  - SupportTestingBusFakeTest::testAssertNotDispatchedWithClosure
+  - SupportTestingBusFakeTest::testAssertNotDispatchedAfterResponse
+  - SupportTestingBusFakeTest::testAssertNotDispatchedAfterResponseClosure
+  - SupportTestingBusFakeTest::testAssertNotDispatchedSync
+  - SupportTestingBusFakeTest::testAssertNotDispatchedSyncClosure
+  - SupportTestingBusFakeTest::testAssertNothingDispatched
+  - SupportTestingBusFakeTest::testAssertNothingDispatchedWithSyncDispatch
+  - SupportTestingBusFakeTest::testAssertNothingDispatchedWithAfterResponseDispatch
+  - SupportTestingBusFakeTest::testAssertChained
+  - SupportTestingBusFakeTest::testAssertNothingChained
+  - SupportTestingBusFakeTest::testAssertNothingChainedFails
+  - SupportTestingBusFakeTest::testAssertDispatchedWithIgnoreClass
+  - SupportTestingBusFakeTest::testDispatchedFakingOnlyGivenJobs
+  - SupportTestingBusFakeTest::testAssertDispatchedWithIgnoreCallback
+  - SupportTestingBusFakeTest::testAssertNothingBatched
+  - SupportTestingBusFakeTest::testAssertNothingPlacedPasses
+  - SupportTestingBusFakeTest::testAssertNothingPlacedWhenJobBatched
+  - SupportTestingBusFakeTest::testAssertNothingPlacedWhenJobDispatched
+  - SupportTestingBusFakeTest::testAssertNothingPlacedWhenJobChained
+  - SupportTestingBusFakeTest::testAssertNothingPlacedWhenJobDispatchedNow
+  - SupportTestingBusFakeTest::testFindBatch
+  - SupportTestingBusFakeTest::testBatchesCanBeCancelled
+  - SupportTestingBusFakeTest::testDispatchFakeBatch
+  - SupportTestingBusFakeTest::testIncrementFailedJobsInFakeBatch
+  - SupportTestingBusFakeTest::testDecrementPendingJobsInFakeBatch
+  - SupportTestingBusFakeTest::testCanSerializeAndRestoreCommands
+  - SupportTestingBusFakeTest::testCanSerializeAndRestoreCommandsInBatch
+  - SupportTestingBusFakeTest::testDispatchAfterResponseWithHandler
+  - SupportTestingBusFakeTest::testCanAssertJobsOnPendingBatchFake
+  - SupportTestingBusFakeTest::testCanAssertJobsOnPendingBatchFakeWithClosures
+  - SupportTestingEventFakeTest::testAssertDispatched
+  - SupportTestingEventFakeTest::testAssertDispatchedWithClosure
+  - SupportTestingEventFakeTest::testAssertListening
+  - SupportTestingEventFakeTest::testAssertDispatchedWithCallbackInt
+  - SupportTestingEventFakeTest::testAssertDispatchedOnce
+  - SupportTestingEventFakeTest::testAssertDispatchedTimes
+  - SupportTestingEventFakeTest::testAssertNotDispatched
+  - SupportTestingEventFakeTest::testAssertNotDispatchedWithClosure
+  - SupportTestingEventFakeTest::testAssertDispatchedWithIgnore
+  - SupportTestingEventFakeTest::testAssertNothingDispatched
+  - SupportTestingMailFakeTest::testAssertSent
+  - SupportTestingMailFakeTest::testAssertSentTo
+  - SupportTestingMailFakeTest::testAssertSentToMultiple
+  - SupportTestingMailFakeTest::testAssertSentWhenRecipientHasPreferredLocale
+  - SupportTestingMailFakeTest::testAssertTo
+  - SupportTestingMailFakeTest::testAssertCc
+  - SupportTestingMailFakeTest::testAssertBcc
+  - SupportTestingMailFakeTest::testAssertNotSent
+  - SupportTestingMailFakeTest::testAssertNotSentWithClosure
+  - SupportTestingMailFakeTest::testAssertNotSentWithString
+  - SupportTestingMailFakeTest::testAssertNotSentWithArray
+  - SupportTestingMailFakeTest::testAssertSentTimes
+  - SupportTestingMailFakeTest::testAssertSentCount
+  - SupportTestingMailFakeTest::testAssertQueued
+  - SupportTestingMailFakeTest::testAssertQueuedTo
+  - SupportTestingMailFakeTest::testAssertQueuedToMultiple
+  - SupportTestingMailFakeTest::testAssertQueuedTimes
+  - SupportTestingMailFakeTest::testAssertNotQueuedWithString
+  - SupportTestingMailFakeTest::testAssertNotQueuedWithArray
+  - SupportTestingMailFakeTest::testAssertQueuedCount
+  - SupportTestingMailFakeTest::testSendQueuesAMailableThatShouldBeQueued
+  - SupportTestingMailFakeTest::testAssertNothingSent
+  - SupportTestingMailFakeTest::testAssertNothingQueued
+  - SupportTestingMailFakeTest::testAssertOutgoingCount
+  - SupportTestingMailFakeTest::testAssertQueuedWithClosure
+  - SupportTestingMailFakeTest::testAssertSentWithClosure
+  - SupportTestingMailFakeTest::testMissingMethodsAreForwarded
+  - SupportTestingMailFakeTest::testAssertMailer
+  - SupportTestingMailFakeTest::testDriverMethod
+  - SupportTestingNotificationFakeTest::testAssertSentTo
+  - SupportTestingNotificationFakeTest::testAssertSentToClosure
+  - SupportTestingNotificationFakeTest::testAssertSentOnDemand
+  - SupportTestingNotificationFakeTest::testAssertSentOnDemandClosure
+  - SupportTestingNotificationFakeTest::testAssertNotSentTo
+  - SupportTestingNotificationFakeTest::testAssertNotSentToClosure
+  - SupportTestingNotificationFakeTest::testAssertNothingSent
+  - SupportTestingNotificationFakeTest::testAssertNothingSentTo
+  - SupportTestingNotificationFakeTest::testAssertSentToFailsForEmptyArray
+  - SupportTestingNotificationFakeTest::testAssertSentToFailsForEmptyCollection
+  - SupportTestingNotificationFakeTest::testResettingNotificationId
+  - SupportTestingNotificationFakeTest::testAssertSentTimes
+  - SupportTestingNotificationFakeTest::testAssertSentToTimes
+  - SupportTestingNotificationFakeTest::testAssertSentOnDemandTimes
+  - SupportTestingNotificationFakeTest::testAssertSentToWhenNotifiableHasPreferredLocale
+  - SupportTestingNotificationFakeTest::testAssertSentToWhenNotifiableHasFalsyShouldSend
+  - SupportTestingNotificationFakeTest::testAssertItCanSerializeAndRestoreNotifications
+  - SupportTestingQueueFakeTest::testAssertPushed
+  - SupportTestingQueueFakeTest::testItCanAssertAgainstDataWithPush
+  - SupportTestingQueueFakeTest::testAssertPushedWithIgnore
+  - SupportTestingQueueFakeTest::testAssertPushedWithClosure
+  - SupportTestingQueueFakeTest::testQueueSize
+  - SupportTestingQueueFakeTest::testAssertNotPushed
+  - SupportTestingQueueFakeTest::testAssertNotPushedWithClosure
+  - SupportTestingQueueFakeTest::testAssertPushedOn
+  - SupportTestingQueueFakeTest::testAssertPushedOnWithClosure
+  - SupportTestingQueueFakeTest::testAssertPushedTimes
+  - SupportTestingQueueFakeTest::testAssertCount
+  - SupportTestingQueueFakeTest::testAssertNothingPushed
+  - SupportTestingQueueFakeTest::testAssertPushedUsingBulk
+  - SupportTestingQueueFakeTest::testAssertPushedWithChainUsingClassesOrObjectsArray
+  - SupportTestingQueueFakeTest::testAssertPushedWithoutChain
+  - SupportTestingQueueFakeTest::testAssertPushedWithChainSameJobDifferentChains
+  - SupportTestingQueueFakeTest::testAssertPushedWithChainUsingCallback
+  - SupportTestingQueueFakeTest::testAssertPushedWithChainErrorHandling
+  - SupportTestingQueueFakeTest::testCallUndefinedMethodErrorHandling
+  - SupportTestingQueueFakeTest::testAssertClosurePushed
+  - SupportTestingQueueFakeTest::testAssertClosurePushedWithTimes
+  - SupportTestingQueueFakeTest::testAssertClosureNotPushed
+  - SupportTestingQueueFakeTest::testItDoesntFakeJobsPassedViaExcept
+  - SupportTestingQueueFakeTest::testItCanSerializeAndRestoreJobs
+  - SupportTestingQueueFakeTest::testItCanFakePushedJobsWithClassAndPayload
+  - SupportTestingQueueFakeTest::testAssertChainUsingClassesOrObjectsArray
+  - SupportTestingQueueFakeTest::testAssertNoChain
+  - SupportTestingQueueFakeTest::testAssertChainErrorHandling
+  - SupportTestingQueueFakeTest::testPendingJobs
+  - SupportTestingQueueFakeTest::testGetRawPushes
+  - SupportTestingQueueFakeTest::testPushedRaw
+  - SupportComposerTest::testDumpAutoloadRunsTheCorrectCommand
+  - SupportComposerTest::testDumpAutoloadRunsTheCorrectCommandWhenCustomComposerPharIsPresent
+  - SupportComposerTest::testDumpAutoloadRunsTheCorrectCommandWithExtraArguments
+  - SupportComposerTest::testDumpOptimizedTheCorrectCommand
+  - SupportComposerTest::testRequirePackagesRunsTheCorrectCommand
+  - SupportComposerTest::testRemovePackagesRunsTheCorrectCommand
+  - SupportConditionableTest::testWhenProxy
+  - SupportConditionableTest::testUnlessProxy
+  - ConfigurationUrlParserTest::testDatabaseUrlsAreParsed
+  - ConfigurationUrlParserTest::testDriversAliases
+  - SupportEnumValueFunctionTest::test_it_can_handle_enum_value
+  - SupportEnumValueFunctionTest::test_it_can_fallback_to_use_default_if_value_is_null
+  - SupportFacadeTest::testFacadeCallsUnderlyingApplication
+  - SupportFacadeTest::testShouldReceiveReturnsAMockeryMock
+  - SupportFacadeTest::testSpyReturnsAMockerySpy
+  - SupportFacadeTest::testShouldReceiveCanBeCalledTwice
+  - SupportFacadeTest::testCanBeMockedWithoutUnderlyingInstance
+  - SupportFacadeTest::testExpectsReturnsAMockeryMockWithExpectationRequired
+  - SupportFacadeTest::testFacadeResolvesAgainAfterClearingSpecific
+  - SupportFacadeTest::testFacadeResolvesAgainAfterClearingAll
+  - SupportFacadesEventTest::testFakeFor
+  - SupportFacadesEventTest::testFakeForSwapsDispatchers
+  - SupportFacadesEventTest::testFakeSwapsDispatchersInResolvedCacheRepositories
+  - SupportFacadesEventTest::testCacheFlushDispatchesEvent
+  - SupportFacadesEventTest::testCacheFlushLocksDispatchesEvent
+  - SupportFacadesHttpTest::testFacadeRootIsNotSharedByDefault
+  - SupportFacadesHttpTest::testFacadeRootIsSharedWhenFaked
+  - SupportFacadesHttpTest::testFacadeRootIsSharedWhenFakedWithSequence
+  - SupportFacadesHttpTest::testFacadeRootIsSharedWhenStubbingUrls
+  - SupportFacadesHttpTest::testFacadeRootIsSharedWhenEnforcingFaking
+  - SupportFacadesHttpTest::testFacadeRootIsSharedWhenEnforcingFakingWithAllowedUrls
+  - SupportFacadesHttpTest::test_can_set_prevents_to_prevents_stray_requests
+  - SupportFacadesQueueTest::testFakeFor
+  - SupportFacadesQueueTest::testFakeForSwapsQueueManager
+  - SupportFacadesQueueTest::testFakeExcept
+  - SupportFacadesQueueTest::testFakeExceptFor
+  - SupportFacadesQueueTest::testFakeExceptForSwapsQueueManager
+  - SupportFacadesQueueTest::testFakeExceptForReturnValue
+  - SupportFacadesQueueTest::testFakeForReturnValue
+  - SupportFluentTest::testDateMethod
+  - SupportFluentTest::testDateMethodExceptionWhenValueInvalid
+  - SupportFluentTest::testDateMethodExceptionWhenFormatInvalid
+  - SupportFluentTest::testEnumMethod
+  - SupportFluentTest::testEnumsMethod
+  # SupportHelpersTest deltas left here are PHP-runtime-only mismatches
+  # (lazy object/proxy behavior, reflection/trait introspection, and env/config mutation).
+  - SupportHelpersTest::testEWithInvalidCodePoints
+  - SupportHelpersTest::testEWithEnums
+  - SupportHelpersTest::testBlankDoesntJsonSerializeModels
+  - SupportHelpersTest::testObjectGet
+  - SupportHelpersTest::testObjectGetDefaultValue
+  - SupportHelpersTest::testObjectGetWhenKeyIsNullOrEmpty
+  - SupportHelpersTest::testDataHas
+  - SupportHelpersTest::testDataGet
+  - SupportHelpersTest::testDataGetWithNestedArrays
+  - SupportHelpersTest::testDataGetWithDoubleNestedArraysCollapsesResult
+  - SupportHelpersTest::testDataGetFirstLastDirectives
+  - SupportHelpersTest::testDataGetFirstLastDirectivesOnArrayAccessIterable
+  - SupportHelpersTest::testDataGetFirstLastDirectivesOnKeyedArrays
+  - SupportHelpersTest::testDataGetEscapedSegmentKeys
+  - SupportHelpersTest::testDataGetStar
+  - SupportHelpersTest::testDataGetNullKey
+  - SupportHelpersTest::testDataFill
+  - SupportHelpersTest::testDataFillWithStar
+  - SupportHelpersTest::testDataFillWithDoubleStar
+  - SupportHelpersTest::testDataSet
+  - SupportHelpersTest::testDataSetWithStar
+  - SupportHelpersTest::testDataSetWithDoubleStar
+  - SupportHelpersTest::testDataRemove
+  - SupportHelpersTest::testDataRemoveWithStar
+  - SupportHelpersTest::testDataRemoveWithDoubleStar
+  - SupportHelpersTest::testClassUsesRecursiveShouldReturnTraitsOnParentClasses
+  - SupportHelpersTest::testClassUsesRecursiveAcceptsObject
+  - SupportHelpersTest::testClassUsesRecursiveReturnParentTraitsFirst
+  - SupportHelpersTest::testTraitUsesRecursive
+  - SupportHelpersTest::testOptionalWithArray
+  - SupportHelpersTest::testOptionalReturnsObjectPropertyOrNull
+  - SupportHelpersTest::testOptionalDeterminesWhetherKeyIsSet
+  - SupportHelpersTest::testOptionalAllowsToSetKey
+  - SupportHelpersTest::testOptionalAllowToUnsetKey
+  - SupportHelpersTest::testRetryWithCarbonIntervalSleep
+  - SupportHelpersTest::testRetryWithAThrowableBase
+  - SupportHelpersTest::testAppendConfig
+  - SupportHelpersTest::testWriteArrayOfEnvVariablesToFile
+  - SupportHelpersTest::testWriteArrayOfEnvVariablesToFileAndOverwrite
+  - SupportHelpersTest::testWillNotOverwriteArrayOfVariables
+  - SupportHelpersTest::testWriteVariableToFile
+  - SupportHelpersTest::testWillNotOverwriteVariable
+  - SupportHelpersTest::testWriteVariableToFileAndOverwrite
+  - SupportHelpersTest::testWillThrowAnExceptionIfFileIsMissingWhenTryingToWriteVariables
+  - SupportHelpersTest::testGetFromSERVERFirst
+  - SupportHelpersTest::testRequiredEnvVariableThrowsAnExceptionWhenNotFound
+  - SupportHelpersTest::testLazy
+  - SupportHelpersTest::testLazyCanAcceptShortClosure
+  - SupportHelpersTest::testLazyThrowsExceptionWhenConstructorIsNotCalled
+  - SupportHelpersTest::testLazyCanAcceptHashForProperties
+  - SupportHelpersTest::testLazyCanAcceptListForProperties
+  - SupportHelpersTest::testLazyCanAcceptSingleValueForConstructor
+  - SupportHelpersTest::testLazySupportsPositionAndNamedArguments
+  - SupportHelpersTest::testLazyThrowsWhenPositionalArgumentsComeAfterNamedArguments
+  - SupportHelpersTest::testLazyCanReturnInitializedObject
+  - SupportHelpersTest::testLazyMustInitilizeObject
+  - SupportHelpersTest::testLazyCanEagerlySetProperties
+  - SupportHelpersTest::testClosureOnlyLazy
+  - SupportHelpersTest::testClosureOnlyLazyCanAcceptShortClosure
+  - SupportHelpersTest::testClosureOnlyLazyThrowsExceptionWhenConstructorIsNotCalled
+  - SupportHelpersTest::testClosureOnlyLazyThrowsWhenNotClassSpecifiedInClosure
+  - SupportHelpersTest::testClosureOnlyLazyCanAcceptHashForProperties
+  - SupportHelpersTest::testClosureOnlyLazyCanAcceptListForProperties
+  - SupportHelpersTest::testClousureOnlyLazyCanAcceptSingleValueForConstructor
+  - SupportHelpersTest::testClosureOnlyLazySupportsPositionAndNamedArguments
+  - SupportHelpersTest::testClosureOnlyLazyThrowsWhenPositionalArgumentsComeAfterNamedArguments
+  - SupportHelpersTest::testClosureOnlyLazyCanReturnInitializedObject
+  - SupportHelpersTest::testClosureOnlyLazyMustInitilizeObject
+  - SupportHelpersTest::testProxy
+  - SupportHelpersTest::testProxyCanEagerlySetProperties
+  - SupportHelpersTest::testProxyCanEagerlySetPropertiesAndThenAlsoSetThemOnActualObject
+  - SupportHelpersTest::testProxyCanAcceptShortClosure
+  - SupportHelpersTest::testProxyThrowsExceptionWhenObjectIsNotReturned
+  - SupportHelpersTest::testProxyMustNotInitilizeProxy
+  - SupportHelpersTest::testClosureOnlyProxy
+  - SupportHelpersTest::testClosureOnlyProxyCanAcceptShortClosure
+  - SupportHelpersTest::testClosureOnlyProxyThrowsExceptionWhenObjectIsNotReturned
+  - SupportHelpersTest::testClosureOnlyProxyThrowsWhenNotClassSpecifiedInClosure
+  - SupportHelpersTest::testClosureOnlyProxyMustNotInitilizeProxy
+  - SupportHelpersTest::testProxyCanUseClosureReturnTypeForClassDetection
+  - SupportMailTest::testEmailSent
+  - ValidatedInputTest::test_date_method
+  - ValidatedInputTest::test_enum_method
+  - ValidatedInputTest::test_enums_method
+  - ValidatedInputTest::test_file_method
+  - ValidatedInputTest::test_collect_method
+  - Fluent/AssertTest::testAssertWhereUsingBackedEnum
+  - Fluent/AssertTest::testAssertWhereFailsUsingBackedEnum
+  - Fluent/AssertTest::testAssertWhereContainsUsingBackedEnum
+  - Fluent/AssertTest::testAssertWhereContainsFailsUsingBackedEnum
+  - Fluent/AssertTest::testAssertNestedWhereUsingBackedEnum
+  - Fluent/AssertTest::testAssertNestedWhereFailsUsingBackedEnum
+  - Fluent/AssertTest::testAssertWhereNotUsingBackedEnum
+  - Fluent/AssertTest::testAssertWhereNotFailsUsingBackedEnum
+  - Fluent/AssertTest::testMacroable
+  - TestResponseTest::testMacroable
+  - TestResponseTest::testAssertJsonPathWithEnum
+  - TestResponseTest::testAssertJsonPathWithEnumCanFail
+  - TestResponseTest::testGetEncryptedCookie
+  - TestResponseTest::testGetDecryptedCookie
+  - ValidationEnumRuleTest::testValidationPassesWhenPassingCorrectEnum
+  - ValidationEnumRuleTest::testValidationPassesWhenPassingInstanceOfEnum
+  - ValidationEnumRuleTest::testValidationPassesWhenPassingInstanceOfPureEnum
+  - ValidationEnumRuleTest::testValidationFailsWhenProvidingNoExistingCases
+  - ValidationEnumRuleTest::testValidationPassesForAllCasesUntilEitherOnlyOrExceptIsPassed
+  - ValidationEnumRuleTest::testValidationPassesWhenOnlyCasesProvided
+  - ValidationEnumRuleTest::testValidationPassesWhenExceptCasesProvided
+  - ValidationEnumRuleTest::testOnlyHasHigherOrderThanExcept
+  - ValidationEnumRuleTest::testValidationFailsWhenProvidingDifferentType
+  - ValidationEnumRuleTest::testValidationPassesWhenProvidingDifferentTypeThatIsCastableToTheEnumType
+  - ValidationEnumRuleTest::testValidationFailsWhenProvidingNull
+  - ValidationEnumRuleTest::testValidationPassesWhenProvidingNullButTheFieldIsNullable
+  - ValidationEnumRuleTest::testValidationFailsOnPureEnum
+  - ValidationEnumRuleTest::testValidationFailsWhenProvidingStringToIntegerType
+  - ValidationEnumRuleTest::testValidationFailsWhenUsingDifferentCase
+  - ValidationEnumRuleTest::testCustomMessageUsingDotNotationAndFqcnWorks
+  - ValidationEnumRuleTest::testEnumRuleIsStringable
+  - ValidationEnumRuleTest::testEnumRuleStringableWithOnly
+  - ValidationEnumRuleTest::testEnumRuleStringableWithExcept
+  - ValidationPasswordRuleTest::testUncompromised
+  - ValidationExcludeUnlessRuleTest::testBooleanConditionTrue
+  - ValidationExcludeUnlessRuleTest::testBooleanConditionFalse
+  - ValidationExcludeUnlessRuleTest::testClosureConditionTrue
+  - ValidationExcludeUnlessRuleTest::testClosureConditionFalse
+  - ValidationExcludeUnlessRuleTest::testInvalidConditionThrows
   - DatabaseAbstractSchemaGrammarTest::testCreateDatabase
   - DatabaseAbstractSchemaGrammarTest::testDropDatabaseIfExists
   - DatabaseConcernsBuildsQueriesTraitTest::testTapCallbackInstance
@@ -3558,6 +4620,114 @@ test_status_overrides:
   - FilesystemTest::testRequireOnceThrowsExceptionNonexisitingFile
   - JoinPathsHelperTest::testItCanMergePathsForUnix
   - JoinPathsHelperTest::testItCanMergePathsForWindows
+
+  # package-mcp PHP/Laravel-only transport and request-class behavior.
+  - CustomRequestTest::it_can_use_the_custom_request_class_on_prompts
+  - CustomRequestTest::it_can_use_the_custom_request_class_on_tools
+  - CustomRequestTest::it_can_use_the_custom_request_class_on_resources
+  - HttpTransportStreamTest::it_does_not_double_emit_when_stream_callback_echoes_directly
+  - HttpTransportStreamTest::it_streams_generator_responses_returned_from_the_stream_callback
+  - HttpTransportStreamTest::it_streams_generator_responses_when_octane_is_flagged
+  - HttpTransportStreamTest::it_streams_iterable_responses_returned_from_the_stream_callback
+  - StartCommandTest::it_can_stream_a_tool_response_over_http
+  - StartCommandTest::it_can_stream_a_tool_response_over_stdio
+  - StartCommandTest::it_does_not_add_www_authenticate_header_when_response_is_not_401
+  - StartCommandTest::it_returns_oauth_www_authenticate_header_for_nested_mcp_paths
+  - StartCommandTest::it_returns_oauth_www_authenticate_header_when_oauth_routes_are_enabled_and_response_is_401
+  - StartCommandTest::it_returns_sanctum_www_authenticate_header_when_oauth_routes_are_not_enabled_and_response_is_401
+
+  # package-ai provider store behavior is PHP-specific where the Go provider
+  # does not expose an equivalent store surface.
+  - StoreGatewayTest::test_get_store_sends_correct_request
+  - StoreGatewayTest::test_get_store_normalizes_id_with_prefix
+  - StoreGatewayTest::test_create_store_sends_correct_request
+  - StoreGatewayTest::test_create_store_with_file_ids_adds_files
+  - StoreGatewayTest::test_add_file_sends_correct_request
+  - StoreGatewayTest::test_add_file_with_metadata_formats_correctly
+  - StoreGatewayTest::test_remove_file_sends_correct_request
+  - StoreGatewayTest::test_remove_file_normalizes_document_id_with_files_prefix
+  - StoreGatewayTest::test_remove_file_normalizes_document_id_with_documents_prefix
+  - StoreGatewayTest::test_remove_file_accepts_full_document_path
+  - StoreGatewayTest::test_delete_store_sends_correct_request
+  - StoreGatewayTest::test_store_gateway_uses_custom_base_url
+
+  # package-spark billing flows that depend on Laravel controllers, seeded
+  # persistence helpers, or job/command orchestration that Bedrock does not
+  # currently model are intentionally left as PHP-only divergences.
+  - AgreementControllerTest::test_index_loads_deferred_billing_summary_for_paddle_subscription
+  - AgreementControllerTest::test_index_loads_null_deferred_billing_summary_without_paddle_subscription_id
+  - AgreementControllerTest::test_index_returns_null_deferred_billing_summary_when_paddle_request_fails
+  - AgreementControllerTest::test_index_shares_grace_period_subscription_state_and_display_timezone
+  - AgreementControllerTest::test_index_hides_invoice_download_action_for_hiring_managers_without_invoice_permission
+  - AgreementControllerTest::test_index_returns_503_when_invoice_permission_evaluation_is_unavailable
+  - AgreementControllerTest::test_invoice_download_returns_403_without_billing_permission
+  - BillingLifecycleTest::test_starter_trial_creation_fails_when_team_is_deleted_before_locking
+  - BillingLifecycleTest::test_pending_subscription_creation_fails_when_team_is_deleted_before_locking
+  - BillingLifecycleTest::test_plan_seeder_ensure_persisted_is_idempotent
+  - BillingLifecycleTest::test_plan_seeder_ensure_persisted_rolls_back_when_marketing_features_cannot_be_encoded
+  - BillingLifecycleTest::test_plan_seeder_ensure_persisted_prunes_stale_plan_periods
+  - BillingLifecycleTest::test_starter_plan_has_limited_entitlements
+  - BillingLifecycleTest::test_enterprise_plan_has_unlimited_role_capacity
+  - BillingLifecycleTest::test_start_creates_a_fresh_pending_subscription_when_latest_same_plan_subscription_is_live_like
+  - BillingLifecycleTest::test_begin_checkout_creates_a_fresh_payment_ready_subscription_when_latest_same_plan_subscription_is_live_like
+  - BillingLifecycleTest::test_unique_constraint_prevents_duplicate_pending_like_subscriptions
+  - BillingLifecycleTest::test_unique_constraint_prevents_duplicate_live_like_subscriptions
+  - BillingLifecycleTest::test_unique_constraint_allows_new_subscription_after_terminal_status
+  - BillingLifecycleTest::test_expired_awaiting_payment_subscription_is_replaced_on_retry
+  - BillingLifecycleTest::test_starter_trial_is_rejected_when_team_has_active_paid_subscription
+  - BillingLifecycleTest::test_starter_trial_is_rejected_when_team_has_canceled_paid_subscription_in_grace_period
+  - BillingLifecycleTest::test_starter_trial_is_allowed_when_team_has_canceled_paid_subscription_past_grace_period
+  - CurrencyForeignKeysRestrictDeleteTest::test_referenced_currencies_cannot_be_deleted_from_required_or_nullable_currency_columns
+  - CustomPlanInquiryTest::test_successful_inquiry_sends_admin_notification_mail
+  - CustomPlanInquiryTest::test_successful_inquiry_sends_user_confirmation_mail
+  - CustomPlanInquiryTest::test_successful_inquiry_returns_flash_message
+  - CustomPlanInquiryTest::test_successful_inquiry_flash_message_does_not_include_user_controlled_name
+  - CustomPlanInquiryTest::test_validation_requires_name_email_and_message
+  - CustomPlanInquiryTest::test_company_field_is_optional
+  - CustomPlanInquiryTest::test_production_inquiry_falls_back_to_default_contact_email_when_configured_email_is_blank
+  - CustomPlanInquiryTest::test_production_inquiry_falls_back_to_default_contact_email_when_configured_email_is_placeholder
+  - ExpirePendingSubscriptionsCommandTest::test_command_expires_and_removes_stale_pending_subscriptions
+  - ExpirePendingSubscriptionsCommandTest::test_command_does_not_remove_pending_subscriptions_with_future_expiry
+  - ExpirePendingSubscriptionsCommandTest::test_command_does_not_remove_active_subscriptions
+  - ExpirePendingSubscriptionsCommandTest::test_command_expires_and_removes_stale_starter_trials
+  - FrontendStateTest::test_frontend_state_is_bound_as_app_override
+  - FrontendStateTest::test_empty_spark_plan_list_skips_paddle_price_preview
+  - FrontendStateTest::test_non_empty_spark_plan_list_uses_paddle_price_preview
+  - ReconcileSubscriptionAfterCheckoutTest::test_old_subscription_and_features_are_soft_deleted
+  - ReconcileSubscriptionAfterCheckoutTest::test_entitlements_provisioned_on_new_subscription
+  - ReconcileSubscriptionAfterCheckoutTest::test_reconciles_checkout_when_the_remote_price_is_unmapped
+  - ReconcileSubscriptionsCommandTest::test_command_description_documents_that_it_mutates_local_state
+  - ReconcileSubscriptionsCommandTest::test_command_cancels_when_confirmation_is_declined
+  - ReconcileSubscriptionsCommandTest::test_command_runs_when_confirmation_is_accepted
+  - ReconcileSubscriptionsCommandTest::test_force_option_skips_confirmation_and_runs_reconciliation
+  - ReconcileSubscriptionsJobTest::test_reconciles_pending_subscription_with_matching_cashier_subscription
+  - ReconcileSubscriptionsJobTest::test_noop_when_no_pending_subscriptions_exist
+  - ReconcileSubscriptionsJobTest::test_noop_when_pending_subscription_has_no_matching_cashier_subscription
+  - ReconcileSubscriptionsJobTest::test_reconciles_awaiting_payment_subscription
+  - ReconcileSubscriptionsJobTest::test_handles_multiple_teams_independently
+  - ReconcileSubscriptionsJobTest::test_reconciles_local_cashier_subscription_when_the_pending_price_snapshot_is_missing
+  - ReconcileSubscriptionsJobTest::test_fetches_subscription_and_transactions_from_paddle_when_no_local_cashier_subscription
+  - ReconcileSubscriptionsJobTest::test_paddle_fetch_noops_when_multiple_remote_subscriptions_exist_without_an_exact_price_match
+  - ReconcileSubscriptionsJobTest::test_paddle_fetch_selects_the_unique_matching_plan_period_when_price_snapshot_is_missing
+  - ReconcileSubscriptionsJobTest::test_paddle_fetch_fails_when_transaction_payload_is_invalid
+  - ReconcileSubscriptionsJobTest::test_paddle_fetch_rolls_back_subscription_on_transaction_sync_failure
+  - RecoverExplicitSubscriptionCommandTest::test_command_recovers_the_requested_remote_subscription
+  - RecoverExplicitSubscriptionCommandTest::test_command_fails_when_transaction_payload_is_invalid
+  - ReferenceDataSeederTest::test_reference_data_seeder_restores_default_currency_before_plan_prices
+  - ResolvesBillableFromUuidTest::test_uuid_resolves_to_numeric_id
+  - ResolvesBillableFromUuidTest::test_numeric_id_returns_not_found
+  - ResolvesBillableFromUuidTest::test_non_existent_uuid_returns_404
+  - ResolvesBillableFromUuidTest::test_invalid_non_uuid_string_returns_404
+  - ResolvesBillableFromUuidTest::test_missing_id_parameter_passes_through
+  - SparkPlanRegistrarTest::test_it_reports_and_clears_plans_when_catalog_resolution_fails
+  - SparkPlanRegistrarTest::test_provider_boot_delegates_to_registrar
+  - SparkPortalTest::test_published_spark_view_includes_paddle_checkout_auto_close
+  - SparkPortalTest::test_portal_shell_renders_without_app_owned_spark_chrome
+  - SubscriptionPersisterTest::test_create_if_missing_rejects_invalid_subscription_ids
+  - SubscriptionPersisterTest::test_create_or_retrieve_rejects_invalid_subscription_ids
+  - SubscriptionPersisterTest::test_create_or_retrieve_does_not_match_a_legacy_blank_paddle_id_row
+  - SubscriptionPersisterTest::test_create_or_retrieve_skips_duplicate_transaction_ids_within_one_batch
+  - SubscriptionPersisterTest::test_create_or_retrieve_sets_plan_metadata_from_a_recognised_price
 
   # Illuminate\Hashing accepts null at runtime; Bedrock's Go hashing contract
   # accepts strings, so null input is rejected at compile time.

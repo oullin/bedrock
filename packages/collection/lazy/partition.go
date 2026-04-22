@@ -171,6 +171,50 @@ func (lc *Collection[T]) ChunkWhile(callback func(T, int, []T) bool) [][]T {
 	return result
 }
 
+// Sliding returns a lazy collection of sliding windows with the given size and optional step.
+func Sliding[T any](lc *Collection[T], size int, steps ...int) *Collection[[]T] {
+	step := 1
+	if len(steps) > 0 {
+		step = steps[0]
+	}
+
+	return New(func(yield func([]T) bool) {
+		if size <= 0 || step <= 0 {
+			return
+		}
+
+		window := make([]T, 0, size)
+		skip := 0
+		lc.source(func(item T) bool {
+			if skip > 0 {
+				skip--
+
+				return true
+			}
+
+			window = append(window, item)
+			if len(window) < size {
+				return true
+			}
+
+			out := make([]T, len(window))
+			copy(out, window)
+			if !yield(out) {
+				return false
+			}
+
+			if step >= len(window) {
+				skip = step - len(window)
+				window = window[:0]
+			} else {
+				window = append([]T{}, window[step:]...)
+			}
+
+			return true
+		})
+	})
+}
+
 // Nth returns every step-th element, starting from an optional offset.
 func (lc *Collection[T]) Nth(step int, offsets ...int) *Collection[T] {
 	offset := 0

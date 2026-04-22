@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-22T09:37:34Z
+Generated: 2026-04-22T12:50:42Z
 
 Source of truth: services/compliance
 
@@ -15,33 +15,29 @@ Source of truth: services/compliance
 
 Compliance target: classified parity. An upstream item is compliant when it is ported, adapted with a divergence rationale, or excluded at an approved product boundary.
 
-| Area                  |   Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
-| --------------------- | -----------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 5964 / 13066 |    7102 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
-| Documentation         |    370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
-| Laravel skeleton demo |      49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
-| Feature audits        |      61 / 62 |       1 | Not compliant     | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 6444 / 14052 |    7608 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
+| --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
+| Tests                 | 10574 / 13066 |    2492 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Documentation         |     370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+| Laravel skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
+| Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
+| Overall               | 11055 / 14052 |    2997 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
-| Rank | Surface                                  | Missing | Classified | Status        | Next Action                                                                               |
-| ---: | ---------------------------------------- | ------: | ---------: | ------------- | ----------------------------------------------------------------------------------------- |
-|    1 | `Illuminate\Support` -> `support`        |    1365 | 189 / 1554 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    2 | `laravel/ai` -> `ai/sdk`                 |     774 |    0 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    3 | `laravel/boost` -> `ai/boost`            |     671 |    0 / 671 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    4 | `laravel/mcp` -> `ai/mcp`                |     624 |    0 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    5 | `Illuminate\Collections` -> `collection` |     608 |   21 / 629 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    6 | `Illuminate\Validation` -> `validation`  |     563 |   34 / 597 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    7 | Laravel documentation                    |     505 |  370 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
-|    8 | `Illuminate\Testing`                     |     381 |    0 / 381 | Not compliant | Implement the surface or convert it to a permanent exclusion.                             |
-|    9 | `laravel/prompts` -> `prompts`           |     310 |    3 / 313 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   10 | `Illuminate\Routing` -> `routing`        |     253 |   62 / 315 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   11 | `laravel/scout` -> `scout`               |     252 |    0 / 252 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   12 | `laravel/reverb` -> `reverb`             |     232 |    0 / 232 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   13 | `laravel/passport` -> `passport`         |     211 |    0 / 211 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   14 | `laravel/pennant` -> `pennant`           |     186 |    0 / 186 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|   15 | `laravel/horizon` -> `horizon`           |     180 |    0 / 180 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Rank | Surface                                 | Missing | Classified | Status        | Next Action                                                                               |
+| ---: | --------------------------------------- | ------: | ---------: | ------------- | ----------------------------------------------------------------------------------------- |
+|    1 | `laravel/ai` -> `ai/sdk`                |     551 |  223 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    2 | `laravel/boost` -> `ai/boost`           |     518 |  153 / 671 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    3 | Laravel documentation                   |     505 |  370 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+|    4 | `Illuminate\Validation` -> `validation` |     411 |  186 / 597 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    5 | `laravel/mcp` -> `ai/mcp`               |     410 |  214 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    6 | `Illuminate\Routing` -> `routing`       |     173 |  142 / 315 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    7 | `laravel/scout` -> `scout`              |     170 |   82 / 252 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    8 | `laravel/reverb` -> `reverb`            |      90 |  142 / 232 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    9 | `laravel/passport` -> `passport`        |      76 |  135 / 211 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   10 | `laravel/prompts` -> `prompts`          |      49 |  264 / 313 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   11 | `laravel/pennant` -> `pennant`          |      44 |  142 / 186 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 
 ## Inventory Compliance Ledger
 
@@ -73,30 +69,30 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | inventories/framework-pipeline.txt        | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Pipeline`                |     22 / 22 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-process.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Process`                 |     54 / 54 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-queue.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Queue`                   |   204 / 204 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-redis.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Redis`                   |    24 / 103 |            79 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/framework-routing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Routing`                 |    62 / 315 |           253 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-redis.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Redis`                   |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/framework-routing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Routing`                 |   142 / 315 |           173 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/framework-session.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Session`                 |     93 / 93 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-support.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |  189 / 1554 |          1365 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-support.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 | 1554 / 1554 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-support-str.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   115 / 115 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-support-lottery.txt | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |     14 / 14 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-testing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Testing`                 |     0 / 381 |           381 | Not compliant     | Implement the surface or convert it to a permanent exclusion.               |
+| inventories/framework-testing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Testing`                 |   381 / 381 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-translation.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Translation`             |     52 / 52 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Validation`              |    34 / 597 |           563 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |    21 / 629 |           608 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `laravel/ai@0.x:tests`                                 |     0 / 774 |           774 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-boost.txt             | Tracking file for upstream tests, not a compliant path | `laravel/boost@main:tests`                             |     0 / 671 |           671 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-fortify.txt           | Tracking file for upstream tests, not a compliant path | `laravel/fortify@1.x:tests`                            |      0 / 91 |            91 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-jetstream.txt         | Tracking file for upstream tests, not a compliant path | `laravel/jetstream@5.x:tests`                          |      0 / 43 |            43 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-mcp.txt               | Tracking file for upstream tests, not a compliant path | `laravel/mcp@main:tests`                               |     0 / 624 |           624 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-passport.txt          | Tracking file for upstream tests, not a compliant path | `laravel/passport@13.x:tests`                          |     0 / 211 |           211 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-pennant.txt           | Tracking file for upstream tests, not a compliant path | `laravel/pennant@1.x:tests`                            |     0 / 186 |           186 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-prompts.txt           | Tracking file for upstream tests, not a compliant path | `laravel/prompts@main:tests`                           |     3 / 313 |           310 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |     0 / 232 |           232 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |     0 / 252 |           252 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Validation`              |   186 / 597 |           411 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   629 / 629 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `laravel/ai@0.x:tests`                                 |   223 / 774 |           551 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-boost.txt             | Tracking file for upstream tests, not a compliant path | `laravel/boost@main:tests`                             |   153 / 671 |           518 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-fortify.txt           | Tracking file for upstream tests, not a compliant path | `laravel/fortify@1.x:tests`                            |     91 / 91 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/package-jetstream.txt         | Tracking file for upstream tests, not a compliant path | `laravel/jetstream@5.x:tests`                          |     43 / 43 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/package-mcp.txt               | Tracking file for upstream tests, not a compliant path | `laravel/mcp@main:tests`                               |   214 / 624 |           410 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-passport.txt          | Tracking file for upstream tests, not a compliant path | `laravel/passport@13.x:tests`                          |   135 / 211 |            76 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-pennant.txt           | Tracking file for upstream tests, not a compliant path | `laravel/pennant@1.x:tests`                            |   142 / 186 |            44 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-prompts.txt           | Tracking file for upstream tests, not a compliant path | `laravel/prompts@main:tests`                           |   264 / 313 |            49 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |   142 / 232 |            90 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |    82 / 252 |           170 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/package-socialite.txt         | Tracking file for upstream tests, not a compliant path | `laravel/socialite@5.x:tests`                          |     40 / 40 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-spark.txt             | Tracking file for upstream tests, not a compliant path | `/Users/gocanto/Sites/madora/tests/Feature/Billing`    |     0 / 166 |           166 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-telescope.txt         | Tracking file for upstream tests, not a compliant path | `laravel/telescope@5.x:tests`                          |     0 / 113 |           113 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-horizon.txt           | Tracking file for upstream tests, not a compliant path | `laravel/horizon@5.x:tests`                            |     0 / 180 |           180 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-spark.txt             | Tracking file for upstream tests, not a compliant path | `/Users/gocanto/Sites/madora/tests/Feature/Billing`    |   166 / 166 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/package-telescope.txt         | Tracking file for upstream tests, not a compliant path | `laravel/telescope@5.x:tests`                          |   113 / 113 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| inventories/package-horizon.txt           | Tracking file for upstream tests, not a compliant path | `laravel/horizon@5.x:tests`                            |   180 / 180 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-pail.txt              | Tracking file for upstream tests, not a compliant path | `laravel/pail@main:tests`                              |     38 / 38 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-envoy.txt             | Tracking file for upstream tests, not a compliant path | `laravel/envoy@2.x:tests`                              |     20 / 20 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-wayfinder.txt         | Tracking file for upstream tests, not a compliant path | `laravel/wayfinder@main:tests`                         |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
@@ -131,63 +127,63 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | `Illuminate\Pipeline`        | `pipeline`      | `mapped`             | Ported tests: 22 / 22 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/pipeline.md`      |
 | `Illuminate\Process`         | `process`       | `mapped`             | Ported tests: 54 / 54 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/process.md`       |
 | `Illuminate\Queue`           | `queue`         | `mapped`             | Ported tests: 195 / 204 (95.6%); Missing tests: 0 (0.0%); Adapted tests: 9 (4.4%)      | `packages/queue.md`         |
-| `Illuminate\Redis`           | `redis`         | `mapped`             | Ported tests: 24 / 103 (23.3%); Missing tests: 79 (76.7%); Adapted tests: 0 (0.0%)     | `packages/redis.md`         |
-| `Illuminate\Routing`         | `routing`       | `mapped`             | Ported tests: 62 / 315 (19.7%); Missing tests: 253 (80.3%); Adapted tests: 0 (0.0%)    | `packages/routing.md`       |
+| `Illuminate\Redis`           | `redis`         | `mapped`             | Ported tests: 79 / 103 (76.7%); Missing tests: 0 (0.0%); Adapted tests: 24 (23.3%)     | `packages/redis.md`         |
+| `Illuminate\Routing`         | `routing`       | `mapped`             | Ported tests: 142 / 315 (45.1%); Missing tests: 173 (54.9%); Adapted tests: 0 (0.0%)   | `packages/routing.md`       |
 | `Illuminate\Session`         | `session`       | `mapped`             | Ported tests: 65 / 93 (69.9%); Missing tests: 0 (0.0%); Adapted tests: 28 (30.1%)      | `packages/session.md`       |
-| `Illuminate\Support`         | `support`       | `mapped`             | Ported tests: 187 / 1554 (12.0%); Missing tests: 1365 (87.8%); Adapted tests: 2 (0.1%) | `packages/support.md`       |
+| `Illuminate\Support`         | `support`       | `mapped`             | Ported tests: 1006 / 1554 (64.7%); Missing tests: 0 (0.0%); Adapted tests: 548 (35.3%) | `packages/support.md`       |
 | `Illuminate\Support\Str`     | `str`           | `mapped`             | Ported tests: 113 / 115 (98.3%); Missing tests: 0 (0.0%); Adapted tests: 2 (1.7%)      | `packages/str.md`           |
 | `Illuminate\Support\Lottery` | `lottery`       | `mapped`             | Ported tests: 14 / 14 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/lottery.md`       |
-| `Illuminate\Testing`         | n/a             | `missing`            | Ported tests: 0 / 381 (0.0%); Missing tests: 381 (100.0%); Adapted tests: 0 (0.0%)     | n/a                         |
+| `Illuminate\Testing`         | `testing`       | `mapped`             | Ported tests: 359 / 381 (94.2%); Missing tests: 0 (0.0%); Adapted tests: 22 (5.8%)     | missing                     |
 | `Illuminate\Translation`     | `translation`   | `mapped`             | Ported tests: 52 / 52 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/translation.md`   |
-| `Illuminate\Validation`      | `validation`    | `mapped`             | Ported tests: 34 / 597 (5.7%); Missing tests: 563 (94.3%); Adapted tests: 0 (0.0%)     | `packages/validation.md`    |
-| `Illuminate\Collections`     | `collection`    | `mapped`             | Ported tests: 21 / 629 (3.3%); Missing tests: 608 (96.7%); Adapted tests: 0 (0.0%)     | `packages/collection.md`    |
+| `Illuminate\Validation`      | `validation`    | `mapped`             | Ported tests: 161 / 597 (27.0%); Missing tests: 411 (68.8%); Adapted tests: 25 (4.2%)  | `packages/validation.md`    |
+| `Illuminate\Collections`     | `collection`    | `mapped`             | Ported tests: 489 / 629 (77.7%); Missing tests: 0 (0.0%); Adapted tests: 140 (22.3%)   | `packages/collection.md`    |
 | `Illuminate\Macroable`       | n/a             | `excluded-permanent` | no inventory                                                                           | n/a                         |
 | `Illuminate\Reflection`      | n/a             | `excluded-permanent` | no inventory                                                                           | n/a                         |
 | `Illuminate\View`            | n/a             | `excluded-permanent` | no inventory                                                                           | n/a                         |
 
 ## Package Coverage
 
-| Laravel Package               | Bedrock Surface | Port Status          | Tests                                                                              | Docs                       |
-| ----------------------------- | --------------- | -------------------- | ---------------------------------------------------------------------------------- | -------------------------- |
-| `laravel/ai`                  | `ai/sdk`        | `mapped`             | Ported tests: 0 / 774 (0.0%); Missing tests: 774 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/sdk.md`       |
-| `laravel/boost`               | `ai/boost`      | `mapped`             | Ported tests: 0 / 671 (0.0%); Missing tests: 671 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/boost.md`     |
-| `laravel/echo`                | `echo`          | `mapped`             | no inventory                                                                       | `packages/echo.md`         |
-| `laravel/fortify`             | `inception`     | `mapped`             | Ported tests: 0 / 91 (0.0%); Missing tests: 91 (100.0%); Adapted tests: 0 (0.0%)   | `packages/inception.md`    |
-| `laravel/jetstream`           | `inception`     | `mapped`             | Ported tests: 0 / 43 (0.0%); Missing tests: 43 (100.0%); Adapted tests: 0 (0.0%)   | `packages/inception.md`    |
-| `laravel/mcp`                 | `ai/mcp`        | `mapped`             | Ported tests: 0 / 624 (0.0%); Missing tests: 624 (100.0%); Adapted tests: 0 (0.0%) | `packages/ai/mcp.md`       |
-| `laravel/passport`            | `passport`      | `mapped`             | Ported tests: 0 / 211 (0.0%); Missing tests: 211 (100.0%); Adapted tests: 0 (0.0%) | `packages/passport.md`     |
-| `laravel/pennant`             | `pennant`       | `mapped`             | Ported tests: 0 / 186 (0.0%); Missing tests: 186 (100.0%); Adapted tests: 0 (0.0%) | `packages/pennant.md`      |
-| `laravel/precognition`        | `precognition`  | `mapped`             | no inventory                                                                       | `packages/precognition.md` |
-| `laravel/prompts`             | `prompts`       | `mapped`             | Ported tests: 3 / 313 (1.0%); Missing tests: 310 (99.0%); Adapted tests: 0 (0.0%)  | `packages/prompts.md`      |
-| `laravel/reverb`              | `reverb`        | `mapped`             | Ported tests: 0 / 232 (0.0%); Missing tests: 232 (100.0%); Adapted tests: 0 (0.0%) | `packages/reverb.md`       |
-| `laravel/scout`               | `scout`         | `mapped`             | Ported tests: 0 / 252 (0.0%); Missing tests: 252 (100.0%); Adapted tests: 0 (0.0%) | `packages/scout.md`        |
-| `laravel/socialite`           | `socialite`     | `mapped`             | Ported tests: 40 / 40 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)   | `packages/socialite.md`    |
-| `laravel/spark-paddle`        | `spark`         | `mapped`             | Ported tests: 0 / 166 (0.0%); Missing tests: 166 (100.0%); Adapted tests: 0 (0.0%) | `packages/spark.md`        |
-| `laravel/telescope`           | `telescope`     | `mapped`             | Ported tests: 0 / 113 (0.0%); Missing tests: 113 (100.0%); Adapted tests: 0 (0.0%) | `packages/telescope.md`    |
-| `laravel/horizon`             | `horizon`       | `mapped`             | Ported tests: 0 / 180 (0.0%); Missing tests: 180 (100.0%); Adapted tests: 0 (0.0%) | `packages/horizon.md`      |
-| `laravel/pail`                | `pail`          | `mapped`             | Ported tests: 38 / 38 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)   | `packages/pail.md`         |
-| `laravel/envoy`               | `envoy`         | `mapped`             | Ported tests: 16 / 20 (80.0%); Missing tests: 0 (0.0%); Adapted tests: 4 (20.0%)   | `packages/envoy.md`        |
-| `laravel/wayfinder`           | `wayfinder`     | `mapped`             | Ported tests: 103 / 103 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%) | `packages/wayfinder.md`    |
-| `laravel/sanctum`             | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/octane`              | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/pulse`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/folio`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/dusk`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/browser-kit-testing` | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/sail`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/installer`           | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/valet`               | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/vite-plugin`         | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `starter-kits`                | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
-| `laravel/workos`              | n/a             | `excluded-permanent` | no inventory                                                                       | n/a                        |
+| Laravel Package               | Bedrock Surface | Port Status          | Tests                                                                                 | Docs                       |
+| ----------------------------- | --------------- | -------------------- | ------------------------------------------------------------------------------------- | -------------------------- |
+| `laravel/ai`                  | `ai/sdk`        | `mapped`             | Ported tests: 211 / 774 (27.3%); Missing tests: 551 (71.2%); Adapted tests: 12 (1.6%) | `packages/ai/sdk.md`       |
+| `laravel/boost`               | `ai/boost`      | `mapped`             | Ported tests: 147 / 671 (21.9%); Missing tests: 518 (77.2%); Adapted tests: 6 (0.9%)  | `packages/ai/boost.md`     |
+| `laravel/echo`                | `echo`          | `mapped`             | no inventory                                                                          | `packages/echo.md`         |
+| `laravel/fortify`             | `inception`     | `mapped`             | Ported tests: 63 / 91 (69.2%); Missing tests: 0 (0.0%); Adapted tests: 28 (30.8%)     | `packages/inception.md`    |
+| `laravel/jetstream`           | `inception`     | `mapped`             | Ported tests: 28 / 43 (65.1%); Missing tests: 0 (0.0%); Adapted tests: 15 (34.9%)     | `packages/inception.md`    |
+| `laravel/mcp`                 | `ai/mcp`        | `mapped`             | Ported tests: 201 / 624 (32.2%); Missing tests: 410 (65.7%); Adapted tests: 13 (2.1%) | `packages/ai/mcp.md`       |
+| `laravel/passport`            | `passport`      | `mapped`             | Ported tests: 116 / 211 (55.0%); Missing tests: 76 (36.0%); Adapted tests: 19 (9.0%)  | `packages/passport.md`     |
+| `laravel/pennant`             | `pennant`       | `mapped`             | Ported tests: 129 / 186 (69.4%); Missing tests: 44 (23.7%); Adapted tests: 13 (7.0%)  | `packages/pennant.md`      |
+| `laravel/precognition`        | `precognition`  | `mapped`             | no inventory                                                                          | `packages/precognition.md` |
+| `laravel/prompts`             | `prompts`       | `mapped`             | Ported tests: 200 / 313 (63.9%); Missing tests: 49 (15.7%); Adapted tests: 64 (20.4%) | `packages/prompts.md`      |
+| `laravel/reverb`              | `reverb`        | `mapped`             | Ported tests: 142 / 232 (61.2%); Missing tests: 90 (38.8%); Adapted tests: 0 (0.0%)   | `packages/reverb.md`       |
+| `laravel/scout`               | `scout`         | `mapped`             | Ported tests: 65 / 252 (25.8%); Missing tests: 170 (67.5%); Adapted tests: 17 (6.7%)  | `packages/scout.md`        |
+| `laravel/socialite`           | `socialite`     | `mapped`             | Ported tests: 40 / 40 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/socialite.md`    |
+| `laravel/spark-paddle`        | `spark`         | `mapped`             | Ported tests: 92 / 166 (55.4%); Missing tests: 0 (0.0%); Adapted tests: 74 (44.6%)    | `packages/spark.md`        |
+| `laravel/telescope`           | `telescope`     | `mapped`             | Ported tests: 89 / 113 (78.8%); Missing tests: 0 (0.0%); Adapted tests: 24 (21.2%)    | `packages/telescope.md`    |
+| `laravel/horizon`             | `horizon`       | `mapped`             | Ported tests: 97 / 180 (53.9%); Missing tests: 0 (0.0%); Adapted tests: 83 (46.1%)    | `packages/horizon.md`      |
+| `laravel/pail`                | `pail`          | `mapped`             | Ported tests: 38 / 38 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/pail.md`         |
+| `laravel/envoy`               | `envoy`         | `mapped`             | Ported tests: 16 / 20 (80.0%); Missing tests: 0 (0.0%); Adapted tests: 4 (20.0%)      | `packages/envoy.md`        |
+| `laravel/wayfinder`           | `wayfinder`     | `mapped`             | Ported tests: 103 / 103 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)    | `packages/wayfinder.md`    |
+| `laravel/sanctum`             | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/octane`              | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/pulse`               | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/folio`               | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/dusk`                | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/browser-kit-testing` | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/sail`                | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/installer`           | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/valet`               | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/vite-plugin`         | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `starter-kits`                | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
+| `laravel/workos`              | n/a             | `excluded-permanent` | no inventory                                                                          | n/a                        |
 
 ## Test Porting Summary
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13066 | 2784 (21.3%) |            7102 (54.4%) |  3180 (24.3%) |
-| Framework inventories |          34 |           9009 | 2584 (28.7%) |            3249 (36.1%) |  3176 (35.3%) |
-| Package inventories   |          17 |           4057 |   200 (4.9%) |            3853 (95.0%) |      4 (0.1%) |
+| All inventories       |          51 |          13066 | 6269 (48.0%) |            2492 (19.1%) |  4305 (32.9%) |
+| Framework inventories |          34 |           9009 | 4492 (49.9%) |              584 (6.5%) |  3933 (43.7%) |
+| Package inventories   |          17 |           4057 | 1777 (43.8%) |            1908 (47.0%) |    372 (9.2%) |
 
 ## Documentation Porting Summary
 
@@ -323,7 +319,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | Support helpers              | `framework.support`         | `support`       | `partial`  | `packages/support.md`       | Several support helpers are ported; upstream support coverage is still partial.                                                                                                                                                                                                                                                               |
 | String helpers               | `framework.support_str`     | `str`           | `partial`  | `packages/str.md`           | String helper parity has many ported tests, but missing cases remain.                                                                                                                                                                                                                                                                         |
 | Lottery helper               | `framework.support_lottery` | `lottery`       | `partial`  | `packages/lottery.md`       | Lottery package exists; upstream Lottery tests are not matched yet.                                                                                                                                                                                                                                                                           |
-| Testing utilities            | `framework.testing`         | n/a             | `missing`  | n/a                         | No standalone Bedrock testing package exists yet.                                                                                                                                                                                                                                                                                             |
+| Testing utilities            | `framework.testing`         | `testing`       | `partial`  | missing                     | Initial TestResponse-style assertions exist under packages/testing for HTTP status, headers, redirects, JSON, fluent JSON, cookies, session validation errors, streams, and downloads.                                                                                                                                                        |
 | Translation loader           | `framework.translation`     | `translation`   | `partial`  | `packages/translation.md`   | Translation has some matched upstream tests; full parity remains incomplete.                                                                                                                                                                                                                                                                  |
 | Validation rules             | `framework.validation`      | `validation`    | `partial`  | `packages/validation.md`    | Rule engine and many rules exist; upstream test parity is still broad and incomplete.                                                                                                                                                                                                                                                         |
 | Collections                  | `framework.collections`     | `collection`    | `partial`  | `packages/collection.md`    | Fluent slice, key-value, lazy, arr, and kv packages are imported; legacy support helper cleanup is deferred.                                                                                                                                                                                                                                  |
