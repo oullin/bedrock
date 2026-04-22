@@ -53,6 +53,11 @@ func (h *CacheBasedHandler) GC(_ context.Context, _ int) error {
 	return nil
 }
 
+// GetCache exposes the underlying cache store for tests and integration code.
+func (h *CacheBasedHandler) GetCache() CacheStore {
+	return h.cache
+}
+
 func (h *CacheBasedHandler) key(id string) string {
 	return "session:" + id
 }

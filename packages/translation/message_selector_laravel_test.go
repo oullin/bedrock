@@ -9,6 +9,7 @@ import (
 	"github.com/bedrock/packages/translation"
 )
 
+// Port of Framework\Tests\Translation\TranslationMessageSelectorTest::testChoose
 func TestMessageSelectorChoose(t *testing.T) {
 	t.Parallel()
 
@@ -81,6 +82,7 @@ func TestMessageSelectorChoose(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationMessageSelectorTest::testChoosePluralizesFloats
 func TestMessageSelectorChoosePluralizesFloats(t *testing.T) {
 	t.Parallel()
 
@@ -94,6 +96,7 @@ func TestMessageSelectorChoosePluralizesFloats(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationMessageSelectorTest::testChooseWithFloatDoesNotTriggerDeprecation
 func TestMessageSelectorChooseWithFloatDoesNotPanic(t *testing.T) {
 	t.Parallel()
 

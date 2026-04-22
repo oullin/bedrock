@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bedrock/packages/container"
+	"github.com/bedrock/packages/lottery"
 	"github.com/bedrock/packages/routing"
 	democonfig "github.com/bedrock/services/demo/api/config"
 )
@@ -30,6 +31,18 @@ func RegisterWeb(router *routing.Router, application *container.Application) {
 	router.Get("/up", func() any {
 		return &routing.HTTPResponse{
 			Body:    "OK\n",
+			Status:  http.StatusOK,
+			Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
+		}
+	})
+
+	router.Get("/lottery", func() any {
+		result := lottery.NewLottery(1, 1).
+			Winner(func(...any) any { return "winner" }).
+			Choose()
+
+		return &routing.HTTPResponse{
+			Body:    fmt.Sprintf("%v\n", result),
 			Status:  http.StatusOK,
 			Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
 		}
