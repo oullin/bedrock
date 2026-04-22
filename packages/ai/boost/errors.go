@@ -1,6 +1,10 @@
 package boost
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/bedrock/packages/ai/boost/internal/boosterr"
+)
 
 var (
 	// ErrAgentAlreadyRegistered is returned by RegisterAgent when the given key
@@ -8,7 +12,7 @@ var (
 	ErrAgentAlreadyRegistered = errors.New("boost: agent key already registered")
 
 	// ErrNoMcpConfigPath is returned when an agent's McpConfigPath is empty.
-	ErrNoMcpConfigPath = errors.New("boost: agent has no MCP config path")
+	ErrNoMcpConfigPath = boosterr.ErrNoMcpConfigPath
 
 	// ErrMcpInstallFailed is returned when an MCP installation attempt fails.
 	ErrMcpInstallFailed = errors.New("boost: MCP installation failed")

@@ -5,12 +5,19 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"time"
 
 	authevents "github.com/bedrock/packages/auth/events"
 	cauth "github.com/bedrock/packages/contracts/auth"
 	cevents "github.com/bedrock/packages/contracts/events"
+	clog "github.com/bedrock/packages/contracts/log"
 )
+
+// ErrResetLinkThrottled is returned when a reset link was requested too recently.
+
+// ErrThrottleRepositoryUnsupported is returned when reset-link throttling
+// is configured with a token repository that cannot report recent tokens.
 
 // TokenRepository stores and validates password reset tokens.
 type TokenRepository interface {
@@ -44,7 +51,14 @@ type Broker struct {
 	expiry   time.Duration
 	throttle time.Duration
 	events   cevents.Dispatcher
+	logger   clog.Logger
 }
+
+var (
+	ErrResetLinkThrottled = errors.New("passwords: token recently created")
+
+	ErrThrottleRepositoryUnsupported = errors.New("passwords: throttle requires RecentTokenRepository")
+)
 
 // NewBroker creates a Broker. expiry is the token lifetime.
 func NewBroker(users cauth.UserProvider, tokens TokenRepository, expiry time.Duration) *Broker {
@@ -66,15 +80,38 @@ func (b *Broker) WithEventDispatcher(dispatcher cevents.Dispatcher) *Broker {
 	return b
 }
 
+// WithLogger configures the broker's diagnostic logger.
+func (b *Broker) WithLogger(logger clog.Logger) *Broker {
+	b.logger = logger
+
+	return b
+}
+
 // SetEventDispatcher configures the broker's auth event dispatcher.
 func (b *Broker) SetEventDispatcher(dispatcher cevents.Dispatcher) {
 	b.events = dispatcher
+}
+
+// SetLogger configures the broker's diagnostic logger.
+func (b *Broker) SetLogger(logger clog.Logger) {
+	b.logger = logger
 }
 
 func (b *Broker) dispatch(ctx context.Context, event any) {
 	if b.events != nil {
 		_, _ = b.events.Dispatch(ctx, event)
 	}
+}
+
+func (b *Broker) warnUnsupportedThrottle() {
+	if b.logger == nil {
+		return
+	}
+
+	b.logger.Warning("Password reset throttling requires RecentTokenRepository", map[string]any{
+		"repository": fmt.Sprintf("%T", b.tokens),
+		"throttle":   b.throttle.String(),
+	})
 }
 
 // SendResetLink finds the user by email and sends them a password reset notification.
@@ -92,8 +129,16 @@ func (b *Broker) SendResetLinkUsing(ctx context.Context, email string, callback 
 	}
 
 	if b.throttle > 0 {
-		if recent, ok := b.tokens.(RecentTokenRepository); ok && recent.RecentlyCreated(ctx, email, b.throttle) {
-			return errors.New("passwords: token recently created")
+		recent, ok := b.tokens.(RecentTokenRepository)
+
+		if !ok {
+			b.warnUnsupportedThrottle()
+
+			return ErrThrottleRepositoryUnsupported
+		}
+
+		if recent.RecentlyCreated(ctx, email, b.throttle) {
+			return ErrResetLinkThrottled
 		}
 	}
 
@@ -108,7 +153,7 @@ func (b *Broker) SendResetLinkUsing(ctx context.Context, email string, callback 
 	}
 
 	if sender, ok := user.(cauth.PasswordResetNotificationSender); ok {
-		sender.SendPasswordResetNotification(token)
+		sender.SendPasswordResetNotification(ctx, token)
 	}
 
 	b.dispatch(ctx, authevents.PasswordResetLinkSent{User: user})
@@ -164,7 +209,7 @@ func (b *Broker) GetRepository() TokenRepository {
 	return b.tokens
 }
 
-func (b *Broker) getUser(ctx context.Context, email string) (cauth.CanResetPassword, error) {
+func (b *Broker) getUser(ctx context.Context, email string) (cauth.ResettableAuthenticatable, error) {
 	u, err := b.users.RetrieveByCredentials(ctx, map[string]string{"email": email})
 
 	if err != nil {
@@ -175,7 +220,7 @@ func (b *Broker) getUser(ctx context.Context, email string) (cauth.CanResetPassw
 		return nil, errors.New("passwords: user not found")
 	}
 
-	crp, ok := u.(cauth.CanResetPassword)
+	crp, ok := u.(cauth.ResettableAuthenticatable)
 
 	if !ok {
 		return nil, errors.New("passwords: user does not implement CanResetPassword")

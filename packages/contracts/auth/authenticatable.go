@@ -1,6 +1,9 @@
 package auth
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // Authenticatable is any entity that can be authenticated.
 type Authenticatable interface {
@@ -33,7 +36,7 @@ type MustVerifyEmail interface {
 // their own email verification notification.
 type EmailVerificationNotificationSender interface {
 	MustVerifyEmail
-	SendEmailVerificationNotification()
+	SendEmailVerificationNotification(ctx context.Context)
 }
 
 // CanResetPassword is implemented by users that support password resets.
@@ -41,11 +44,18 @@ type CanResetPassword interface {
 	GetEmailForPasswordReset() string
 }
 
+// ResettableAuthenticatable is implemented by authenticated users that support
+// password resets.
+type ResettableAuthenticatable interface {
+	Authenticatable
+	CanResetPassword
+}
+
 // PasswordResetNotificationSender is implemented by users that can send their
 // own password reset notification.
 type PasswordResetNotificationSender interface {
 	CanResetPassword
-	SendPasswordResetNotification(token string)
+	SendPasswordResetNotification(ctx context.Context, token string)
 }
 
 // TwoFactorAuthenticatable is implemented by users that support 2FA.
