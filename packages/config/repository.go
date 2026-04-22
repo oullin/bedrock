@@ -2,7 +2,10 @@ package config
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
+	collection "github.com/bedrock/packages/collection/collection"
 	"github.com/spf13/viper"
 )
 
@@ -14,7 +17,8 @@ import (
 // Repository is not safe for concurrent use. If concurrent access is needed,
 // callers must synchronise externally.
 type Repository struct {
-	v *viper.Viper
+	v     *viper.Viper
+	items map[string]any
 }
 
 // New creates a Repository pre-loaded with the given key-value pairs. The map
@@ -26,14 +30,14 @@ func New(items map[string]any) *Repository {
 		v.Set(key, value)
 	}
 
-	return &Repository{v: v}
+	return &Repository{v: v, items: cloneMap(items)}
 }
 
 // NewFromViper wraps an already-configured Viper instance. Use this when you
 // have set up config file paths, environment prefixes, or other Viper options
 // before creating the repository.
 func NewFromViper(v *viper.Viper) *Repository {
-	return &Repository{v: v}
+	return &Repository{v: v, items: map[string]any{}}
 }
 
 // NewWithDefaults creates a Repository with the given key-value pairs registered
@@ -45,7 +49,7 @@ func NewWithDefaults(defaults map[string]any) *Repository {
 		v.SetDefault(key, value)
 	}
 
-	return &Repository{v: v}
+	return &Repository{v: v, items: map[string]any{}}
 }
 
 // Viper returns the underlying Viper instance so consumers can configure file
@@ -56,29 +60,45 @@ func (r *Repository) Viper() *viper.Viper {
 
 // Has reports whether the given key is set in any configuration source.
 func (r *Repository) Has(key string) bool {
+	if _, ok := r.lookupExplicit(key); ok {
+		return true
+	}
+
 	return r.v.IsSet(key)
 }
 
 // Get returns the value for key. If the key is not set, the first fallback
 // value is returned (or nil when no fallback is provided).
 func (r *Repository) Get(key string, fallback ...any) any {
-	if !r.v.IsSet(key) {
-		if len(fallback) > 0 {
-			return fallback[0]
-		}
-
-		return nil
+	if value, ok := r.lookupExplicit(key); ok {
+		return value
 	}
 
-	return r.v.Get(key)
+	if r.v.IsSet(key) {
+		return r.v.Get(key)
+	}
+
+	if len(fallback) > 0 {
+		return fallback[0]
+	}
+
+	return nil
 }
 
-// GetMany returns a map of values for the given keys. Keys that are not set
-// map to nil.
-func (r *Repository) GetMany(keys []string) map[string]any {
+// GetMany returns a map of values for the given keys. Keys that are not set map
+// to nil unless an optional per-key fallback map is provided.
+func (r *Repository) GetMany(keys []string, defaults ...map[string]any) map[string]any {
 	result := make(map[string]any, len(keys))
 
 	for _, key := range keys {
+		if !r.Has(key) && len(defaults) > 0 {
+			if fallback, ok := defaults[0][key]; ok {
+				result[key] = fallback
+
+				continue
+			}
+		}
+
 		result[key] = r.Get(key)
 	}
 
@@ -87,14 +107,33 @@ func (r *Repository) GetMany(keys []string) map[string]any {
 
 // Set stores a value at the given dot-notation key.
 func (r *Repository) Set(key string, value any) {
+	if r.items == nil {
+		r.items = map[string]any{}
+	}
+
+	if _, ok := r.items[key]; ok || !strings.Contains(key, ".") {
+		r.items[key] = value
+		r.v.Set(key, value)
+
+		return
+	}
+
+	setDot(r.items, key, value)
 	r.v.Set(key, value)
 }
 
 // SetMany stores multiple key-value pairs at once.
 func (r *Repository) SetMany(values map[string]any) {
 	for key, value := range values {
-		r.v.Set(key, value)
+		r.Set(key, value)
 	}
+}
+
+// Unset marks a key as explicitly present with a nil value. This mirrors
+// Upstream's repository offset unset behavior while preserving Go's explicit
+// method surface.
+func (r *Repository) Unset(key string) {
+	r.Set(key, nil)
 }
 
 // Prepend inserts value at the beginning of the slice stored at key. If the
@@ -125,22 +164,33 @@ func (r *Repository) Push(key string, value any) {
 
 // All returns every configuration item as a flat map.
 func (r *Repository) All() map[string]any {
-	return r.v.AllSettings()
+	all := cloneMap(r.v.AllSettings())
+
+	for key, value := range r.items {
+		all[key] = cloneValue(value)
+	}
+
+	return all
 }
 
 // String returns the string value for key. If the key is not set, the first
 // fallback is returned. An error wrapping ErrInvalidType is returned when the
 // stored value is not a string.
 func (r *Repository) String(key string, fallback ...string) (string, error) {
-	if !r.v.IsSet(key) {
+	value, ok := r.lookupExplicit(key)
+
+	if !ok && r.v.IsSet(key) {
+		value = r.v.Get(key)
+		ok = true
+	}
+
+	if !ok {
 		if len(fallback) > 0 {
 			return fallback[0], nil
 		}
 
 		return "", nil
 	}
-
-	value := r.v.Get(key)
 
 	s, ok := value.(string)
 
@@ -155,15 +205,20 @@ func (r *Repository) String(key string, fallback ...string) (string, error) {
 // fallback is returned. An error wrapping ErrInvalidType is returned when the
 // stored value is not an int.
 func (r *Repository) Integer(key string, fallback ...int) (int, error) {
-	if !r.v.IsSet(key) {
+	value, ok := r.lookupExplicit(key)
+
+	if !ok && r.v.IsSet(key) {
+		value = r.v.Get(key)
+		ok = true
+	}
+
+	if !ok {
 		if len(fallback) > 0 {
 			return fallback[0], nil
 		}
 
 		return 0, nil
 	}
-
-	value := r.v.Get(key)
 
 	i, ok := value.(int)
 
@@ -178,15 +233,20 @@ func (r *Repository) Integer(key string, fallback ...int) (int, error) {
 // fallback is returned. An error wrapping ErrInvalidType is returned when the
 // stored value is not a float64.
 func (r *Repository) Float(key string, fallback ...float64) (float64, error) {
-	if !r.v.IsSet(key) {
+	value, ok := r.lookupExplicit(key)
+
+	if !ok && r.v.IsSet(key) {
+		value = r.v.Get(key)
+		ok = true
+	}
+
+	if !ok {
 		if len(fallback) > 0 {
 			return fallback[0], nil
 		}
 
 		return 0, nil
 	}
-
-	value := r.v.Get(key)
 
 	f, ok := value.(float64)
 
@@ -201,15 +261,20 @@ func (r *Repository) Float(key string, fallback ...float64) (float64, error) {
 // fallback is returned. An error wrapping ErrInvalidType is returned when the
 // stored value is not a bool.
 func (r *Repository) Boolean(key string, fallback ...bool) (bool, error) {
-	if !r.v.IsSet(key) {
+	value, ok := r.lookupExplicit(key)
+
+	if !ok && r.v.IsSet(key) {
+		value = r.v.Get(key)
+		ok = true
+	}
+
+	if !ok {
 		if len(fallback) > 0 {
 			return fallback[0], nil
 		}
 
 		return false, nil
 	}
-
-	value := r.v.Get(key)
 
 	b, ok := value.(bool)
 
@@ -224,15 +289,20 @@ func (r *Repository) Boolean(key string, fallback ...bool) (bool, error) {
 // fallback is returned. An error wrapping ErrInvalidType is returned when the
 // stored value is not a []any.
 func (r *Repository) Array(key string, fallback ...[]any) ([]any, error) {
-	if !r.v.IsSet(key) {
+	value, ok := r.lookupExplicit(key)
+
+	if !ok && r.v.IsSet(key) {
+		value = r.v.Get(key)
+		ok = true
+	}
+
+	if !ok {
 		if len(fallback) > 0 {
 			return fallback[0], nil
 		}
 
 		return nil, nil
 	}
-
-	value := r.v.Get(key)
 
 	a, ok := value.([]any)
 
@@ -241,4 +311,119 @@ func (r *Repository) Array(key string, fallback ...[]any) ([]any, error) {
 	}
 
 	return a, nil
+}
+
+// Collection returns the value for key wrapped in Bedrock's slice collection.
+// An error wrapping ErrInvalidType is returned when the stored value is not a
+// []any.
+func (r *Repository) Collection(key string, fallback ...[]any) (*collection.Collection[any], error) {
+	items, err := r.Array(key, fallback...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return collection.Collect(items), nil
+}
+
+func (r *Repository) lookupExplicit(key string) (any, bool) {
+	if r.items == nil {
+		return nil, false
+	}
+
+	if value, ok := r.items[key]; ok {
+		return value, true
+	}
+
+	return lookupDot(r.items, key)
+}
+
+func lookupDot(items map[string]any, key string) (any, bool) {
+	if key == "." || key == "" || strings.Contains(key, "..") {
+		return nil, false
+	}
+
+	parts := strings.Split(key, ".")
+
+	var current any = items
+
+	for _, part := range parts {
+		if part == "" {
+			return nil, false
+		}
+
+		switch typed := current.(type) {
+		case map[string]any:
+			value, ok := typed[part]
+
+			if !ok {
+				return nil, false
+			}
+
+			current = value
+		case []any:
+			index, err := strconv.Atoi(part)
+
+			if err != nil || index < 0 || index >= len(typed) {
+				return nil, false
+			}
+
+			current = typed[index]
+		default:
+			return nil, false
+		}
+	}
+
+	return current, true
+}
+
+func setDot(items map[string]any, key string, value any) {
+	if key == "." || key == "" || strings.Contains(key, "..") {
+		items[key] = value
+
+		return
+	}
+
+	parts := strings.Split(key, ".")
+	current := items
+
+	for _, part := range parts[:len(parts)-1] {
+		next, ok := current[part].(map[string]any)
+
+		if !ok {
+			next = map[string]any{}
+			current[part] = next
+		}
+
+		current = next
+	}
+
+	current[parts[len(parts)-1]] = value
+}
+
+func cloneMap(items map[string]any) map[string]any {
+	cloned := make(map[string]any, len(items))
+
+	for key, value := range items {
+		cloned[key] = cloneValue(value)
+	}
+
+	return cloned
+}
+
+func cloneValue(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		return cloneMap(typed)
+	case []any:
+		cloned := make([]any, len(typed))
+
+		for i, item := range typed {
+			cloned[i] = cloneValue(item)
+		}
+
+		return cloned
+	default:
+		return typed
+	}
 }
