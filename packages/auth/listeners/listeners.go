@@ -17,7 +17,7 @@ type EmailVerificationSender = cauth.EmailVerificationNotificationSender
 type SendEmailVerificationNotification struct{}
 
 // Handle processes a Registered event.
-func (l *SendEmailVerificationNotification) Handle(_ context.Context, event events.Registered) {
+func (l *SendEmailVerificationNotification) Handle(ctx context.Context, event events.Registered) {
 	mv, ok := event.User.(cauth.EmailVerificationNotificationSender)
 
 	if !ok {
@@ -28,5 +28,5 @@ func (l *SendEmailVerificationNotification) Handle(_ context.Context, event even
 		return
 	}
 
-	mv.SendEmailVerificationNotification()
+	mv.SendEmailVerificationNotification(ctx)
 }
