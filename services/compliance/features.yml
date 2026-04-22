@@ -490,11 +490,11 @@ features:
   - id: package.billing.billing
     source_id: package.billing
     name: Subscription billing
-    upstream: upstream/billing billing portal, plans, prices, orders, and webhooks
+    upstream: upstream/billing-paddle billing portal, plans, prices, orders, and webhooks
     bedrock: billing
     status: partial
     docs: packages/billing.md
-    notes: Billing is tracked against local Madora billing tests.
+    notes: Local Madora composer resolution of upstream/billing-paddle:^6.0 from https://billing.upstream.com at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle; upstream/cashier-paddle is its dependency, and the Billing tests in tests/Feature/Billing provide the local product integration coverage.
 
   - id: package.debugbar.observability
     source_id: package.debugbar

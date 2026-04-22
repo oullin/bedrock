@@ -490,14 +490,14 @@ packages:
     inventory: inventories/package-socialauth.txt
 
   - id: package.billing
-    upstream: upstream/billing
+    upstream: upstream/billing-paddle
     bedrock: billing
     status: mapped
     repo: local:/Users/gocanto/Sites/madora
     branch: local
     tests_path: tests/Feature/Billing
     inventory: inventories/package-billing.txt
-    rationale: Billing is distributed through the local madora checkout; use the available billing/Billing integration tests as the local Billing compliance inventory.
+    rationale: Local Madora composer resolution of upstream/billing-paddle:^6.0 from https://billing.upstream.com at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle; upstream/cashier-paddle is its dependency, and tests/Feature/Billing remains the local product integration inventory.
 
   - id: package.debugbar
     upstream: upstream/debugbar

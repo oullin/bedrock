@@ -320,12 +320,20 @@ semantic_divergences:
   - surface: container
     divergence: Explicit container contracts instead of PHP runtime auto-wiring
     rationale: Bedrock's Go container intentionally uses factories, typed callbacks, string keys, and explicit parameter maps instead of PHP reflection, attributes, callable strings, ArrayAccess, and environment-specific runtime selectors.
+  - surface: str
+    divergence: Null string inputs are compile-time invalid
+    rationale: Go string helpers accept string values, so Upstream's null-to-empty-string assertions are represented by compile-time type safety instead of runtime coercion.
+  - surface: str
+    divergence: Strict transliteration flag is not exposed
+    rationale: Bedrock transliteration exposes explicit replacement text for unknown runes and does not mirror Upstream's PHP boolean strict-mode flag.
 
 test_status_overrides:
   # Cookie, encryption, and database PHP runtime mechanics counted as adapted.
   - CookieTest::testQueuedCookiesWithInvalidParameter
   - CookieTest::testCookieJarIsMacroable
   - EncrypterTest::testEncryptedReturnsFalseForNonString
+  - SupportStrTest::testAsciiNull
+  - SupportStrTest::testTransliterateStrict
   - DatabaseAbstractSchemaGrammarTest::testCreateDatabase
   - DatabaseAbstractSchemaGrammarTest::testDropDatabaseIfExists
   - DatabaseConcernsBuildsQueriesTraitTest::testTapCallbackInstance
