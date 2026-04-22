@@ -32,13 +32,15 @@ func NewPendingResourceRegistration(rr *ResourceRegistrar, name, controller stri
 // Only restricts the resource to the named actions.
 func (p *PendingResourceRegistration) Only(actions ...string) *PendingResourceRegistration {
 	p.options["only"] = actions
+	delete(p.options, "except")
 
 	return p
 }
 
 // Except removes the named actions from the resource.
 func (p *PendingResourceRegistration) Except(actions ...string) *PendingResourceRegistration {
-	p.options["except"] = actions
+	existing, _ := p.options["except"].([]string)
+	p.options["except"] = appendUniqueStrings(existing, actions...)
 
 	return p
 }

@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"reflect"
 	"strings"
 
 	contract "github.com/bedrock/packages/contracts/validation"
@@ -30,6 +31,8 @@ type ruleBuilder struct{}
 
 // Password creates a PasswordRule for fluent password validation.
 
+// Array creates an ArrayRule that validates allowed keys for associative arrays.
+
 // ─── InRule ────────────────────────────────────────────────────────────────────
 
 // InRule validates that the value is in a fixed set.
@@ -42,6 +45,14 @@ type InRule struct {
 // NotInRule validates that the value is NOT in a fixed set.
 type NotInRule struct {
 	values []string
+}
+
+// ─── ArrayRule ────────────────────────────────────────────────────────────────
+
+// ArrayRule validates that the value is an array and, when configured, that a
+// map contains only the listed keys.
+type ArrayRule struct {
+	keys []string
 }
 
 // ─── ConditionalRule ───────────────────────────────────────────────────────────
@@ -113,6 +124,16 @@ func (ruleBuilder) NotIn(values ...any) *NotInRule {
 	return &NotInRule{values: strs}
 }
 
+func (ruleBuilder) Array(keys ...any) *ArrayRule {
+	strs := make([]string, 0, len(keys))
+
+	for _, k := range keys {
+		strs = append(strs, stringify(k))
+	}
+
+	return &ArrayRule{keys: strs}
+}
+
 func (ruleBuilder) When(condition bool, trueRules any, falseRules ...any) *ConditionalRule {
 	var defRules any
 
@@ -173,6 +194,76 @@ func (r *NotInRule) Validate(attribute string, value any, fail func(message stri
 			return
 		}
 	}
+}
+
+func (r *NotInRule) String() string {
+	return "not_in:" + strings.Join(r.values, ",")
+}
+
+func (r *ArrayRule) Validate(attribute string, value any, fail func(message string)) {
+	if value == nil {
+		fail("The " + attribute + " field must be an array.")
+
+		return
+	}
+
+	rv := reflect.ValueOf(value)
+
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Map {
+		if _, ok := value.([]any); !ok {
+			if _, ok := value.(map[string]any); !ok {
+				fail("The " + attribute + " field must be an array.")
+
+				return
+			}
+		}
+	}
+
+	if len(r.keys) > 0 {
+		m, ok := value.(map[string]any)
+
+		if !ok {
+			return
+		}
+
+		for k := range m {
+			allowed := false
+
+			for _, key := range r.keys {
+				if key == k {
+					allowed = true
+
+					break
+				}
+			}
+
+			if !allowed {
+				fail("The " + attribute + " field must be an array.")
+
+				return
+			}
+		}
+	}
+
+	if rv.Kind() == reflect.Map || rv.Kind() == reflect.Slice {
+		return
+	}
+
+	if _, ok := value.([]any); ok {
+		return
+	}
+
+	if _, ok := value.(map[string]any); ok {
+		return
+	}
+
+	if len(r.keys) == 0 {
+		fail("The " + attribute + " field must be an array.")
+	}
+}
+
+func (r *ArrayRule) String() string {
+	return "array:" + strings.Join(r.keys, ",")
 }
 
 func (r *ConditionalRule) ActiveRules() []ParsedRule {

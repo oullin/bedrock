@@ -271,6 +271,40 @@ func TestValidateRequiredWithout(t *testing.T) {
 	assertPasses(t, v2)
 }
 
+// ValidationValidatorTest::testValidateRequiredAcceptedIf
+func TestValidateRequiredAcceptedIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "yes", "email": ""},
+		map[string]any{"email": "required_if_accepted:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "no", "email": ""},
+		map[string]any{"email": "required_if_accepted:notify"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateRequiredIfDeclined
+func TestValidateRequiredIfDeclined(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "no", "email": ""},
+		map[string]any{"email": "required_if_declined:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "yes", "email": ""},
+		map[string]any{"email": "required_if_declined:notify"},
+	)
+	assertPasses(t, v2)
+}
+
 func TestValidatePresent(t *testing.T) {
 	t.Parallel()
 
@@ -279,6 +313,142 @@ func TestValidatePresent(t *testing.T) {
 
 	v2 := makeValidator(map[string]any{}, map[string]any{"field": "present"})
 	assertFails(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentIf
+func TestValidatePresentIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin"},
+		map[string]any{"token": "present_if:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "user"},
+		map[string]any{"token": "present_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentUnless
+func TestValidatePresentUnless(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin"},
+		map[string]any{"token": "present_unless:type,guest"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "guest"},
+		map[string]any{"token": "present_unless:type,guest"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentWith
+func TestValidatePresentWith(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor"},
+		map[string]any{"token": "present_with:name"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{},
+		map[string]any{"token": "present_with:name"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentWithAll
+func TestValidatePresentWithAll(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "email": "user@example.com"},
+		map[string]any{"token": "present_with_all:name,email"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"name": "Taylor"},
+		map[string]any{"token": "present_with_all:name,email"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingIf
+func TestValidateMissingIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin", "token": "present"},
+		map[string]any{"token": "missing_if:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "user", "token": "present"},
+		map[string]any{"token": "missing_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingUnless
+func TestValidateMissingUnless(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "user", "token": "present"},
+		map[string]any{"token": "missing_unless:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "admin", "token": "present"},
+		map[string]any{"token": "missing_unless:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingWith
+func TestValidateMissingWith(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "token": "present"},
+		map[string]any{"token": "missing_with:name"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"token": "present"},
+		map[string]any{"token": "missing_with:name"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingWithAll
+func TestValidateMissingWithAll(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "email": "user@example.com", "token": "present"},
+		map[string]any{"token": "missing_with_all:name,email"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"name": "Taylor", "token": "present"},
+		map[string]any{"token": "missing_with_all:name,email"},
+	)
+	assertPasses(t, v2)
 }
 
 func TestValidateFilled(t *testing.T) {
@@ -329,6 +499,23 @@ func TestValidateProhibitedIf(t *testing.T) {
 	v2 := makeValidator(
 		map[string]any{"type": "user", "secret": "s3cr3t"},
 		map[string]any{"secret": "prohibited_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateProhibitedDeclinedIf
+func TestValidateProhibitedDeclinedIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "no", "secret": "s3cr3t"},
+		map[string]any{"secret": "prohibited_if_declined:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "yes", "secret": "s3cr3t"},
+		map[string]any{"secret": "prohibited_if_declined:notify"},
 	)
 	assertPasses(t, v2)
 }
@@ -707,6 +894,40 @@ func TestValidateArray(t *testing.T) {
 	assertPasses(t, v)
 
 	v2 := makeValidator(map[string]any{"items": "not-an-array"}, map[string]any{"items": "array"})
+	assertFails(t, v2)
+}
+
+// ValidationValidatorTest::testValidateList
+func TestValidateList(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"items": []any{"a", "b", "c"}},
+		map[string]any{"items": "list"},
+	)
+	assertPasses(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"items": map[string]any{"0": "a", "1": "b"}},
+		map[string]any{"items": "list"},
+	)
+	assertFails(t, v2)
+}
+
+// ValidationValidatorTest::testValidateArrayKeys
+func TestValidateArrayKeys(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"profile": map[string]any{"name": "Taylor", "email": "user@example.com"}},
+		map[string]any{"profile": "array:name,email"},
+	)
+	assertPasses(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"profile": map[string]any{"name": "Taylor", "email": "user@example.com", "admin": true}},
+		map[string]any{"profile": "array:name,email"},
+	)
 	assertFails(t, v2)
 }
 

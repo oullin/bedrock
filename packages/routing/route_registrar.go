@@ -47,7 +47,18 @@ func (t routeRegistrarTarget) Where(name, expression string) *Route {
 // Middleware adds middleware to the registrar's accumulated attributes.
 func (r *RouteRegistrar) Middleware(middleware ...any) *RouteRegistrar {
 	existing, _ := r.attributes["middleware"].([]any)
-	r.attributes["middleware"] = append(existing, middleware...)
+	for _, m := range middleware {
+		if m == nil {
+			continue
+		}
+
+		existing = append(existing, m)
+	}
+	if len(existing) == 0 {
+		delete(r.attributes, "middleware")
+	} else {
+		r.attributes["middleware"] = existing
+	}
 
 	return r
 }
@@ -56,7 +67,18 @@ func (r *RouteRegistrar) Middleware(middleware ...any) *RouteRegistrar {
 // resulting routes.
 func (r *RouteRegistrar) WithoutMiddleware(middleware ...any) *RouteRegistrar {
 	existing, _ := r.attributes["excluded_middleware"].([]any)
-	r.attributes["excluded_middleware"] = append(existing, middleware...)
+	for _, m := range middleware {
+		if m == nil {
+			continue
+		}
+
+		existing = append(existing, m)
+	}
+	if len(existing) == 0 {
+		delete(r.attributes, "excluded_middleware")
+	} else {
+		r.attributes["excluded_middleware"] = existing
+	}
 
 	return r
 }
