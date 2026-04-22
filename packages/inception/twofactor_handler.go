@@ -80,6 +80,12 @@ func (h *EnableTwoFactorHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if tfa.IsTwoFactorEnabled() && tfa.GetTwoFactorSecret() != "" && !RequestBool(r, "force") {
+		h.app.responder.TwoFactorEnabledResponse(w, r)
+
+		return
+	}
+
 	secret, err := twofactor.GenerateSecret(0)
 
 	if err != nil {

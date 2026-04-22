@@ -3,6 +3,9 @@ package state
 
 import (
 	"context"
+	"math"
+	"strings"
+	"time"
 
 	"github.com/bedrock/packages/billing"
 )
@@ -26,6 +29,12 @@ func NewFrontendState(mgr *billing.Manager, cfg *billing.Config, subs billing.Su
 
 // Current returns the full frontend state for the billing portal.
 func (f *FrontendState) Current(ctx context.Context, billableType string, billable billing.Billable) (map[string]any, error) {
+	return f.CurrentAt(ctx, billableType, billable, time.Now())
+}
+
+// CurrentAt returns the full frontend state using an explicit clock. It is
+// useful for billing DTOs that expose relative pending-window values.
+func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, billable billing.Billable, now time.Time) (map[string]any, error) {
 	sub, _ := f.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
 
 	plans := f.manager.Plans(billableType)
@@ -45,36 +54,55 @@ func (f *FrontendState) Current(ctx context.Context, billableType string, billab
 		}
 	}
 
-	var activePlan *billing.Plan
-
-	if sub != nil && (sub.Active() || sub.PastDue()) {
-		for _, p := range plans {
-			if sub.HasPrice(p.ID) {
-				activePlan = p
-
-				break
-			}
-		}
-	}
+	activePlan := planForSubscription(plans, sub)
 
 	state := resolveState(sub)
+	subscription := f.subscriptionState(sub, activePlan)
+	cta := f.ctaState(sub, activePlan, now)
 
 	data := map[string]any{
-		"billableId":   billable.BillableID(),
-		"billableName": billable.BillableName(),
-		"billableType": billableType,
-		"brandColor":   f.brandColor(),
-		"dashboardUrl": f.dashboardURL(),
-		"monthlyPlans": monthlyPlans,
-		"yearlyPlans":  yearlyPlans,
-		"plan":         activePlan,
-		"seatName":     f.manager.SeatName(billableType),
-		"sparkPath":    f.config.Path,
-		"state":        state,
-		"termsUrl":     f.config.TermsURL,
+		"billableId":      billable.BillableID(),
+		"billableName":    billable.BillableName(),
+		"billableType":    billableType,
+		"brandColor":      f.brandColor(),
+		"dashboardUrl":    f.dashboardURL(),
+		"defaultInterval": f.defaultInterval(billableType),
+		"monthlyPlans":    monthlyPlans,
+		"yearlyPlans":     yearlyPlans,
+		"plan":            activePlan,
+		"seatName":        f.manager.SeatName(billableType),
+		"sparkPath":       f.config.Path,
+		"state":           state,
+		"subscription":    subscription,
+		"cta":             cta,
+		"termsUrl":        f.config.TermsURL,
 	}
 
 	return data, nil
+}
+
+func planForSubscription(plans []*billing.Plan, sub *billing.Subscription) *billing.Plan {
+	if sub == nil {
+		return nil
+	}
+
+	for _, p := range plans {
+		if sub.HasPrice(p.ID) {
+			return p
+		}
+	}
+
+	for _, p := range plans {
+		if slug, _ := p.Options["slug"].(string); slug != "" && slug == sub.Plan {
+			return p
+		}
+
+		if p.Name == sub.Plan {
+			return p
+		}
+	}
+
+	return nil
 }
 
 func resolveState(sub *billing.Subscription) string {
@@ -86,7 +114,7 @@ func resolveState(sub *billing.Subscription) string {
 		return "onGracePeriod"
 	}
 
-	if sub.Active() {
+	if sub.Active() || sub.OnTrial() {
 		return "active"
 	}
 
@@ -111,4 +139,98 @@ func (f *FrontendState) dashboardURL() string {
 	}
 
 	return "/"
+}
+
+func (f *FrontendState) defaultInterval(billableType string) string {
+	if f.config.Billables != nil {
+		if cfg, ok := f.config.Billables[billableType]; ok && cfg.DefaultInterval != "" {
+			return cfg.DefaultInterval
+		}
+	}
+
+	return "monthly"
+}
+
+func (f *FrontendState) subscriptionState(sub *billing.Subscription, plan *billing.Plan) map[string]any {
+	state := map[string]any{
+		"status":             "",
+		"plan_code":          "",
+		"plan_name":          "",
+		"pending_expires_at": (*time.Time)(nil),
+		"payment_ready_at":   (*time.Time)(nil),
+		"portal_url":         "",
+		"pay_now":            false,
+	}
+
+	if sub == nil {
+		return state
+	}
+
+	state["status"] = string(sub.Status)
+	state["plan_code"] = sub.Plan
+	if plan != nil {
+		state["plan_name"] = plan.Name
+	}
+	state["pending_expires_at"] = sub.PendingExpiresAt
+	state["payment_ready_at"] = sub.PaymentReadyAt
+
+	portalURL := f.portalURL(sub, plan)
+	state["portal_url"] = portalURL
+	state["pay_now"] = sub.Status == billing.StatusAwaitingPayment && portalURL != ""
+
+	return state
+}
+
+func (f *FrontendState) ctaState(sub *billing.Subscription, plan *billing.Plan, now time.Time) map[string]any {
+	cta := map[string]any{
+		"visible":        false,
+		"label":          "",
+		"remaining_days": 0,
+	}
+
+	if sub == nil || plan == nil || sub.Status != billing.StatusAwaitingPayment {
+		return cta
+	}
+
+	portalURL := f.portalURL(sub, plan)
+	if portalURL == "" {
+		return cta
+	}
+
+	cta["visible"] = true
+	cta["label"] = "Complete Subscription"
+	cta["remaining_days"] = remainingDays(now, sub.PendingExpiresAt)
+
+	return cta
+}
+
+func (f *FrontendState) portalURL(sub *billing.Subscription, plan *billing.Plan) string {
+	if sub == nil || plan == nil {
+		return ""
+	}
+
+	switch sub.Status {
+	case billing.StatusAwaitingPayment:
+		if !sub.HasPrice(plan.ID) {
+			return ""
+		}
+	case billing.StatusActive, billing.StatusPastDue, billing.StatusPaused:
+	default:
+		return ""
+	}
+
+	path := strings.Trim(f.config.Path, "/")
+	if path == "" {
+		return "/"
+	}
+
+	return "/" + path
+}
+
+func remainingDays(now time.Time, expiresAt *time.Time) int {
+	if expiresAt == nil || !expiresAt.After(now) {
+		return 0
+	}
+
+	return int(math.Ceil(expiresAt.Sub(now).Hours() / 24))
 }
