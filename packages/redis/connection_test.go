@@ -18,6 +18,11 @@ func newConn(t *testing.T) (*redis.Connection, *mock.Client) {
 }
 
 // ---- strings ---------------------------------------------------------
+// RedisConnectionTest::testItSetsValuesWithExpiry
+// RedisConnectionTest::testItDeletesKeys
+// RedisConnectionTest::testItChecksForExistence
+// RedisConnectionTest::testItExpiresKeys
+// RedisConnectionTest::testItSetsKeyIfNotExists
 
 func TestConnectionGetSet(t *testing.T) {
 	t.Parallel()
@@ -144,6 +149,9 @@ func TestConnectionDelExists(t *testing.T) {
 }
 
 // ---- hashes ----------------------------------------------------------
+// RedisConnectionTest::testItSetsMultipleHashFields
+// RedisConnectionTest::testItGetsMultipleHashFields
+// RedisConnectionTest::testItSetsHashFieldIfNotExists
 
 func TestConnectionHashRoundTrip(t *testing.T) {
 	t.Parallel()
@@ -251,6 +259,8 @@ func TestConnectionSetRoundTrip(t *testing.T) {
 }
 
 // ---- sorted sets -----------------------------------------------------
+// RedisConnectionTest::testItAddsMembersToSortedSet
+// RedisConnectionTest::testItReturnsRangeInSortedSet
 
 func TestConnectionZAddRange(t *testing.T) {
 	t.Parallel()
@@ -269,6 +279,8 @@ func TestConnectionZAddRange(t *testing.T) {
 }
 
 // ---- server + raw ----------------------------------------------------
+// RedisConnectionTest::testItFlushes
+// RedisConnectionTest::testItRunsRawCommand
 
 func TestConnectionPingFlushDB(t *testing.T) {
 	t.Parallel()

@@ -10,6 +10,16 @@ import (
 // Byte-level signed URL parity with Laravel cannot be asserted here without a
 // PHP runtime to dump fixtures. The tests below verify the round-trip
 // invariants (Sign → HasValidSignature) and the canonical encoding rules.
+// RoutingUrlGeneratorTest::testBasicGeneration
+// RoutingUrlGeneratorTest::testForceHttps
+// RoutingUrlGeneratorTest::testBasicRouteGeneration
+// RoutingUrlGeneratorTest::testFluentRouteNameDefinitions
+// RoutingUrlGeneratorTest::testSignedUrl
+// RoutingUrlGeneratorTest::testTemporarySignedRoute
+// RoutingUrlGeneratorTest::testSignedUrlParameterCannotBeNamedSignature
+// RoutingUrlGeneratorTest::testSignedUrlParameterCannotBeNamedExpires
+// RoutingUrlGeneratorTest::testSignedUrlWithKeyResolver
+// RoutingUrlGeneratorTest::testMissingNamedRouteResolution
 
 // fakeURLRequest implements [URLRequest] for tests.
 type fakeURLRequest struct {

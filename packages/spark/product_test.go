@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/spark"
 )
 
-// Mirrors BillingServiceTest::test_product_returns_correct_price_id_for_stripe
+// BillingServiceTest::test_product_returns_correct_price_id_for_stripe
 func TestProduct_PriceIDForProvider_Stripe(t *testing.T) {
 	product := &spark.Product{
 		StripePriceID: "price_stripe_123",
@@ -20,7 +20,7 @@ func TestProduct_PriceIDForProvider_Stripe(t *testing.T) {
 	}
 }
 
-// Mirrors BillingServiceTest::test_product_returns_correct_price_id_for_paddle
+// BillingServiceTest::test_product_returns_correct_price_id_for_paddle
 func TestProduct_PriceIDForProvider_Paddle(t *testing.T) {
 	product := &spark.Product{
 		StripePriceID: "price_stripe_123",
@@ -34,7 +34,7 @@ func TestProduct_PriceIDForProvider_Paddle(t *testing.T) {
 	}
 }
 
-// Mirrors BillingServiceTest::test_product_returns_null_for_unknown_provider
+// BillingServiceTest::test_product_returns_null_for_unknown_provider
 func TestProduct_PriceIDForProvider_Unknown(t *testing.T) {
 	product := &spark.Product{
 		StripePriceID: "price_stripe_123",
@@ -48,7 +48,7 @@ func TestProduct_PriceIDForProvider_Unknown(t *testing.T) {
 	}
 }
 
-// Mirrors BillingServiceTest::test_product_scopes_filter_correctly
+// BillingServiceTest::test_product_scopes_filter_correctly
 func TestProduct_TypeChecksAndScopes(t *testing.T) {
 	sub := &spark.Product{Type: spark.ProductTypeSubscription, Active: true}
 	oneTime := &spark.Product{Type: spark.ProductTypeOneTime, Active: true}

@@ -9,6 +9,7 @@ import (
 
 // Translation of the test cases in laravel/framework
 // tests/Routing/ImplicitRouteBindingTest.php that don't depend on Eloquent.
+// ImplicitRouteBindingTest::test_it_can_resolve_the_implicit_model_route_bindings_for_the_given_route
 
 // fakeUser is a UrlRoutable used by the implicit-binding tests.
 type fakeUser struct {

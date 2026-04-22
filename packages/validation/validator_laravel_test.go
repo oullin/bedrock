@@ -14,55 +14,55 @@ import (
 	"github.com/bedrock/packages/validation"
 )
 
-// Port of ValidationValidatorTest::testPassesReturnsTrueIfNoFailingRules
+// ValidationValidatorTest::testPassesReturnsTrueIfNoFailingRules
 
-// Port of ValidationValidatorTest::testFailsReturnsFalseIfFailingRules
+// ValidationValidatorTest::testFailsReturnsFalseIfFailingRules
 
-// Port of ValidationValidatorTest::testHasFailedRules
+// ValidationValidatorTest::testHasFailedRules
 
-// Port of ValidationValidatorTest::testValidateRequired
+// ValidationValidatorTest::testValidateRequired
 
-// Port of ValidationValidatorTest::testValidateRequiredIf
+// ValidationValidatorTest::testValidateRequiredIf
 
 // required_if:other,value — field is required when other == value
 
-// Port of ValidationValidatorTest::testValidateRequiredUnless
+// ValidationValidatorTest::testValidateRequiredUnless
 
 // required_unless:other,value — required unless other is one of the values
 
-// Port of ValidationValidatorTest::testValidateRequiredWith
+// ValidationValidatorTest::testValidateRequiredWith
 
 // required_with:other — required when 'other' is present and not empty
 
-// Port of ValidationValidatorTest::testValidateRequiredWithout
+// ValidationValidatorTest::testValidateRequiredWithout
 
 // required_without:other — required when 'other' is absent/empty
 
-// Port of ValidationValidatorTest::testValidatePresent
+// ValidationValidatorTest::testValidatePresent
 
 // present — field must exist even if blank
 
-// Port of ValidationValidatorTest::testValidateFilled
+// ValidationValidatorTest::testValidateFilled
 
 // filled — if present, must not be blank
 
 // absent field is OK for filled
 
-// Port of ValidationValidatorTest::testValidateMissing
+// ValidationValidatorTest::testValidateMissing
 
-// Port of ValidationValidatorTest::testValidateProhibited
+// ValidationValidatorTest::testValidateProhibited
 
-// Port of ValidationValidatorTest::testValidateProhibitedIf
+// ValidationValidatorTest::testValidateProhibitedIf
 
 // prohibited_if:other,value
 
-// Port of ValidationValidatorTest::testValidateAccepted
+// ValidationValidatorTest::testValidateAccepted
 
-// Port of ValidationValidatorTest::testValidateIn
+// ValidationValidatorTest::testValidateIn
 
-// Port of ValidationValidatorTest::testValidateNotIn
+// ValidationValidatorTest::testValidateNotIn
 
-// Port of ValidationValidatorTest::testValidateMin
+// ValidationValidatorTest::testValidateMin
 
 // string: min characters
 
@@ -70,59 +70,59 @@ import (
 
 // array: min items
 
-// Port of ValidationValidatorTest::testValidateMax
+// ValidationValidatorTest::testValidateMax
 
-// Port of ValidationValidatorTest::testValidateBetween
+// ValidationValidatorTest::testValidateBetween
 
-// Port of ValidationValidatorTest::testValidateSize
+// ValidationValidatorTest::testValidateSize
 
-// Port of ValidationValidatorTest::testValidateEmail
+// ValidationValidatorTest::testValidateEmail
 
-// Port of ValidationValidatorTest::testValidateUrl
+// ValidationValidatorTest::testValidateUrl
 
-// Port of ValidationValidatorTest::testValidateIp
+// ValidationValidatorTest::testValidateIp
 
-// Port of ValidationValidatorTest::testValidateAlpha
+// ValidationValidatorTest::testValidateAlpha
 
-// Port of ValidationValidatorTest::testValidateAlphaDash
+// ValidationValidatorTest::testValidateAlphaDash
 
-// Port of ValidationValidatorTest::testValidateAlphaNum
+// ValidationValidatorTest::testValidateAlphaNum
 
-// Port of ValidationValidatorTest::testValidateNumeric
+// ValidationValidatorTest::testValidateNumeric
 
-// Port of ValidationValidatorTest::testValidateInteger
+// ValidationValidatorTest::testValidateInteger
 
-// Port of ValidationValidatorTest::testValidateBoolean
+// ValidationValidatorTest::testValidateBoolean
 
-// Port of ValidationValidatorTest::testValidateDate
+// ValidationValidatorTest::testValidateDate
 
-// Port of ValidationValidatorTest::testValidateDateFormat
+// ValidationValidatorTest::testValidateDateFormat
 
-// Port of ValidationValidatorTest::testValidateBefore
+// ValidationValidatorTest::testValidateBefore
 
-// Port of ValidationValidatorTest::testValidateAfter
+// ValidationValidatorTest::testValidateAfter
 
-// Port of ValidationValidatorTest::testValidateSame
+// ValidationValidatorTest::testValidateSame
 
-// Port of ValidationValidatorTest::testValidateDifferent
+// ValidationValidatorTest::testValidateDifferent
 
-// Port of ValidationValidatorTest::testValidateConfirmed
+// ValidationValidatorTest::testValidateConfirmed
 
-// Port of ValidationValidatorTest::testValidateDistinct
+// ValidationValidatorTest::testValidateDistinct
 
-// Port of ValidationValidatorTest::testValidateArray
+// ValidationValidatorTest::testValidateArray
 
-// Port of ValidationValidatorTest::testValidateBail
+// ValidationValidatorTest::testValidateBail
 
 // With bail: only 1 error per field should appear
 
-// Port of ValidationValidatorTest::testValidateNullable
+// ValidationValidatorTest::testValidateNullable
 
 // nil value with nullable passes other rules
 
 // non-nil value still validated
 
-// Port of ValidationValidatorTest::testSometimesWorksOnNestedArrays
+// ValidationValidatorTest::testSometimesWorksOnNestedArrays
 
 // "sometimes" means: only validate if the field is present in the data
 
@@ -130,7 +130,7 @@ import (
 
 // name is present but blank → fails required
 
-// Port of ValidationValidatorTest::testCustomValidationRules
+// ValidationValidatorTest::testCustomValidationRules
 
 // ValidationRule object that rejects the value "forbidden"
 
@@ -787,7 +787,7 @@ func (r *rejectForbiddenRule) Validate(attribute string, value any, fail func(st
 	}
 }
 
-// Port of ValidationValidatorTest::testWildcardNestedRules
+// ValidationValidatorTest::testWildcardNestedRules
 func TestWildcardNestedRules(t *testing.T) {
 	t.Parallel()
 
@@ -824,7 +824,7 @@ func TestWildcardNestedRules(t *testing.T) {
 	assertPasses(t, v2)
 }
 
-// Port of ValidationValidatorTest::testConditionalRules
+// ValidationValidatorTest::testConditionalRules
 func TestConditionalRules(t *testing.T) {
 	t.Parallel()
 
@@ -855,7 +855,7 @@ func TestConditionalRules(t *testing.T) {
 	_ = v
 }
 
-// Port of ValidationValidatorTest::testValidateRegex
+// ValidationValidatorTest::testValidateRegex
 func TestValidateRegex(t *testing.T) {
 	t.Parallel()
 
@@ -872,7 +872,7 @@ func TestValidateRegex(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateUUID
+// ValidationValidatorTest::testValidateUUID
 func TestValidateUUID(t *testing.T) {
 	t.Parallel()
 
@@ -889,7 +889,7 @@ func TestValidateUUID(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateJson
+// ValidationValidatorTest::testValidateJson
 func TestValidateJson(t *testing.T) {
 	t.Parallel()
 
@@ -906,7 +906,7 @@ func TestValidateJson(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateStartsWith
+// ValidationValidatorTest::testValidateStartsWith
 func TestValidateStartsWith(t *testing.T) {
 	t.Parallel()
 
@@ -923,7 +923,7 @@ func TestValidateStartsWith(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateEndsWith
+// ValidationValidatorTest::testValidateEndsWith
 func TestValidateEndsWith(t *testing.T) {
 	t.Parallel()
 
@@ -940,7 +940,7 @@ func TestValidateEndsWith(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateInArray
+// ValidationValidatorTest::testValidateInArray
 func TestValidateInArray(t *testing.T) {
 	t.Parallel()
 
@@ -957,7 +957,7 @@ func TestValidateInArray(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateHexColor
+// ValidationValidatorTest::testValidateHexColor
 func TestValidateHexColor(t *testing.T) {
 	t.Parallel()
 
@@ -978,7 +978,7 @@ func TestValidateHexColor(t *testing.T) {
 	}
 }
 
-// Port of ValidationValidatorTest::testValidateTimezone
+// ValidationValidatorTest::testValidateTimezone
 func TestValidateTimezone(t *testing.T) {
 	t.Parallel()
 

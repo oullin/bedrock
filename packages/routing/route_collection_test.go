@@ -6,6 +6,16 @@ import (
 )
 
 // Translation of laravel/framework tests/Routing/RouteCollectionTest.php.
+// RouteCollectionTest::testRouteCollectionCanAddRoute
+// RouteCollectionTest::testRouteCollectionAddReturnsTheRoute
+// RouteCollectionTest::testRouteCollectionCanRetrieveByName
+// RouteCollectionTest::testRouteCollectionCanRetrieveByAction
+// RouteCollectionTest::testRouteCollectionCanRetrieveByMethod
+// RouteCollectionTest::testRouteCollectionCanGetAllRoutes
+// RouteCollectionTest::testRouteCollectionCanRefreshNameLookups
+// RouteCollectionTest::testCannotCacheDuplicateRouteNames
+// RouteCollectionTest::testRouteCollectionRequestMethodNotAllowed
+// RouteCollectionTest::testOverlappingRoutesMatchesFirstRoute
 
 func TestRouteCollection_Add(t *testing.T) {
 	t.Run("test_add_returns_route", func(t *testing.T) {

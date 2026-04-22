@@ -4,6 +4,7 @@ import "testing"
 
 // Translation of laravel/framework tests/Routing/RouteUriTest.php.
 // Each subtest preserves the upstream PHP method name for grep-ability.
+// RouteUriTest::testRouteUrisAreProperlyParsed
 func TestRouteUri(t *testing.T) {
 	t.Run("test_parsing_uri_with_no_binding_fields", func(t *testing.T) {
 		ru := ParseRouteUri("/users/{user}")

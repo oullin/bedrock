@@ -490,11 +490,11 @@ features:
   - id: package.spark.billing
     source_id: package.spark
     name: Subscription billing
-    laravel: laravel/spark billing portal, plans, prices, orders, and webhooks
+    laravel: laravel/spark-paddle billing portal, plans, prices, orders, and webhooks
     bedrock: spark
     status: partial
     docs: packages/spark.md
-    notes: Spark is tracked against local Madora billing tests.
+    notes: Local Madora composer resolution of laravel/spark-paddle:^6.0 from https://spark.laravel.com at /Users/gocanto/Sites/madora/vendor/laravel/spark-paddle; laravel/cashier-paddle is its dependency, and the Billing tests in tests/Feature/Billing provide the local product integration coverage.
 
   - id: package.telescope.observability
     source_id: package.telescope
