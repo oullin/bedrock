@@ -14,6 +14,7 @@ type FailoverStore struct {
 }
 
 var _ Store = (*FailoverStore)(nil)
+var _ LockFlusher = (*FailoverStore)(nil)
 
 // NewFailoverStore creates a FailoverStore with the given stores in priority order.
 func NewFailoverStore(stores ...Store) *FailoverStore {
@@ -143,6 +144,25 @@ func (s *FailoverStore) Flush(ctx context.Context) error {
 
 	for _, store := range s.stores {
 		if err := store.Flush(ctx); err != nil {
+			lastErr = err
+		}
+	}
+
+	return lastErr
+}
+
+// FlushLocks removes locks from every backing store that supports lock flushing.
+func (s *FailoverStore) FlushLocks(ctx context.Context) error {
+	var lastErr error
+
+	for _, store := range s.stores {
+		flusher, ok := store.(LockFlusher)
+
+		if !ok {
+			continue
+		}
+
+		if err := flusher.FlushLocks(ctx); err != nil {
 			lastErr = err
 		}
 	}
