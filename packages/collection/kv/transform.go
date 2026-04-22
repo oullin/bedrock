@@ -15,6 +15,20 @@ func Dot(items map[string]any, prepend ...string) map[string]any {
 	return result
 }
 
+// DotWithDepth flattens a nested map until depth reaches zero.
+func DotWithDepth(items map[string]any, depth int, prepend ...string) map[string]any {
+	prefix := ""
+
+	if len(prepend) > 0 {
+		prefix = prepend[0]
+	}
+
+	result := make(map[string]any)
+	dotDepthRecursive(items, prefix, depth, result)
+
+	return result
+}
+
 func dotRecursive(items map[string]any, prefix string, result map[string]any) {
 	for key, value := range items {
 		fullKey := key
@@ -25,6 +39,22 @@ func dotRecursive(items map[string]any, prefix string, result map[string]any) {
 
 		if nested, ok := value.(map[string]any); ok {
 			dotRecursive(nested, fullKey, result)
+		} else {
+			result[fullKey] = value
+		}
+	}
+}
+
+func dotDepthRecursive(items map[string]any, prefix string, depth int, result map[string]any) {
+	for key, value := range items {
+		fullKey := key
+
+		if prefix != "" {
+			fullKey = prefix + "." + key
+		}
+
+		if nested, ok := value.(map[string]any); ok && depth > 0 {
+			dotDepthRecursive(nested, fullKey, depth-1, result)
 		} else {
 			result[fullKey] = value
 		}
