@@ -61,6 +61,7 @@ func (s *stubProductStore) ActiveSubscriptions(_ context.Context) ([]billing.Pro
 func (s *stubProductStore) ActiveOneTime(_ context.Context) ([]billing.Product, error) { return nil, nil }
 
 // BillingServiceTest::test_get_active_subscription_returns_null_when_no_subscription
+// BillingLifecycleTest::test_accessible_subscription_returns_null_object_without_subscription
 func TestBillingService_GetActiveSubscription_ReturnsNilWhenNone(t *testing.T) {
 	svc := service.NewBillingService(
 		&stubSubscriptionStore{subs: nil},

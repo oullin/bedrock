@@ -281,6 +281,41 @@ func (s *MemoryClientStore) FindActive(ctx context.Context, id string) (*Client,
 	return c, nil
 }
 
+// FindForUser returns an active client when it belongs to the given user.
+func (s *MemoryClientStore) FindForUser(ctx context.Context, id, userID string) (*Client, error) {
+	c, err := s.FindActive(ctx, id)
+
+	if err != nil || c == nil {
+		return nil, err
+	}
+
+	if c.UserID != userID {
+		return nil, nil
+	}
+
+	return c, nil
+}
+
+// ForUser returns active clients owned by a user.
+func (s *MemoryClientStore) ForUser(_ context.Context, userID string) ([]*Client, error) {
+	s.mu.RLock()
+
+	defer s.mu.RUnlock()
+
+	out := make([]*Client, 0)
+
+	for _, c := range s.clients {
+		if c.UserID != userID || c.Revoked {
+			continue
+		}
+
+		copy := *c
+		out = append(out, &copy)
+	}
+
+	return out, nil
+}
+
 func (s *MemoryClientStore) PersonalAccessClient(_ context.Context) (*Client, error) {
 	s.mu.RLock()
 
@@ -310,6 +345,11 @@ func (s *MemoryClientStore) Create(_ context.Context, client *Client) error {
 	s.clients[client.ID] = &copy
 
 	return nil
+}
+
+// Update stores a replacement client record.
+func (s *MemoryClientStore) Update(ctx context.Context, client *Client) error {
+	return s.Create(ctx, client)
 }
 
 func (s *MemoryClientStore) Delete(_ context.Context, id string) error {

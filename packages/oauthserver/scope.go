@@ -1,6 +1,7 @@
 package oauthserver
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 )
@@ -10,6 +11,18 @@ import (
 type Scope struct {
 	ID          string
 	Description string
+}
+
+// ScopeRepository validates requested OAuth scopes against registered OAuthServer
+// scopes and optional client-level restrictions.
+type ScopeRepository struct {
+	oauthserver *OAuthServer
+	clients  ClientStore
+}
+
+// NewScopeRepository creates a scope repository.
+func NewScopeRepository(p *OAuthServer, clients ClientStore) *ScopeRepository {
+	return &ScopeRepository{oauthserver: p, clients: clients}
 }
 
 // ToArray returns the scope as a plain map, matching Upstream's toArray().
@@ -23,6 +36,52 @@ func (s Scope) ToArray() map[string]string {
 // MarshalJSON encodes the scope as a JSON object with id and description fields.
 func (s Scope) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.ToArray())
+}
+
+// FinalizeScopes filters invalid scopes and scopes disallowed for the client.
+// The wildcard scope is only accepted for the personal access grant.
+func (r *ScopeRepository) FinalizeScopes(ctx context.Context, requested []string, grantType, clientID string) ([]Scope, error) {
+	if r == nil || r.oauthserver == nil {
+		return nil, nil
+	}
+
+	var client *Client
+	if r.clients != nil && clientID != "" {
+		var err error
+		client, err = r.clients.Find(ctx, clientID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	out := make([]Scope, 0, len(requested))
+
+	for _, id := range requested {
+		scope := r.scopeForGrant(id, grantType)
+		if scope == nil {
+			continue
+		}
+
+		if client != nil && len(client.Scopes) > 0 && !scopeExistsIn(id, client.Scopes, r.oauthserver.InheritedScopesEnabled()) {
+			continue
+		}
+
+		out = append(out, *scope)
+	}
+
+	return out, nil
+}
+
+func (r *ScopeRepository) scopeForGrant(id, grantType string) *Scope {
+	if id == "*" {
+		if grantType != GrantPersonalAccess {
+			return nil
+		}
+
+		return &Scope{ID: "*", Description: "All scopes"}
+	}
+
+	return r.oauthserver.FindScope(id)
 }
 
 // resolveInheritedScopes expands a scope identifier into all ancestor scopes.
