@@ -51,27 +51,27 @@ features:
     name: Concurrent task execution
     laravel: Illuminate\Concurrency task drivers
     bedrock: concurrency
-    status: partial
+    status: ported
     docs: packages/concurrency.md
-    notes: Bedrock has a concurrency package; upstream concurrency tests have not been matched yet.
+    notes: Executable Go equivalents cover distributed task execution, error propagation, typed error inspection, and result ordering; PHP process and serialized-closure mechanics are adapted to explicit Go tasks, goroutines, error returns, and panic recovery.
 
   - id: framework.conditionable.proxy
     source_id: framework.conditionable
     name: Conditional fluent execution
     laravel: Illuminate\Conditionable when and unless helpers
     bedrock: conditionable
-    status: partial
+    status: ported
     docs: packages/conditionable.md
-    notes: Go fluent proxy exists; PHP dynamic behaviour is adapted to Go.
+    notes: Executable Go equivalents cover when and unless; PHP dynamic no-argument and magic behavior is represented through explicit Go proxy constructors.
 
   - id: framework.config.repository
     source_id: framework.config
     name: Configuration repository
     laravel: Illuminate\Config repository
     bedrock: config
-    status: partial
+    status: ported
     docs: packages/config.md
-    notes: Config package exists; upstream test parity is not complete.
+    notes: Dot-notation reads, literal-dot key precedence, explicit nil values, write helpers, typed getters, collection wrapping, and explicit Go offset adaptations are complete under classified parity; PHP Macroable runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.console.commands
     source_id: framework.console

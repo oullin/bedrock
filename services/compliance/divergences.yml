@@ -115,6 +115,40 @@ adaptation_rules:
       - laravel: PHP exceptions for denied channel auth and backend failures
         bedrock: ErrAccessDenied and ErrBroadcast error values
 
+  cache:
+    source: Illuminate\Cache
+    rules:
+      - laravel: APC and Memcached concrete store tests
+        bedrock: Not implemented; Bedrock cache backends are exposed through Store implementations for array, file, database, Redis, DynamoDB, session, null, failover, memoized, and tagged caches
+      - laravel: Artisan cache clear commands and real-time facade clearing
+        bedrock: Out of scope until Bedrock ships an Artisan-compatible console layer
+      - laravel: PHP closures, invokable objects, callable strings, Macroable methods, and enums
+        bedrock: Explicit Go functions, interfaces, and string identifiers
+      - laravel: PHP serialization, incomplete class handling, and copy-on-write reference behavior
+        bedrock: Native Go values, error returns, and normal Go reference semantics
+      - laravel: Driver-specific SQL assertions for PostgreSQL and SQLite
+        bedrock: DatabaseStore is tested through the injected DBConnection contract; dialect details live in the database package
+      - laravel: Filesystem permission and lock-directory exception assertions
+        bedrock: FileStore uses Go filesystem primitives and explicit lock directory configuration without Laravel's PHP-specific permission contract
+
+  config:
+    source: Illuminate\Config
+    rules:
+      - laravel: Macroable runtime method registration
+        bedrock: Explicit Go methods and compile-time APIs
+
+  concurrency:
+    source: Illuminate\Concurrency
+    rules:
+      - laravel: Serializable closures dispatched to child PHP processes
+        bedrock: Explicit Go Task functions executed by sync or goroutine drivers
+      - laravel: Hidden Artisan invoke-serialized-closure command
+        bedrock: No console command is required; callers pass typed Go tasks directly
+      - laravel: Process exit codes and serialized exception rehydration
+        bedrock: Task failures are explicit error returns or recovered panics
+      - laravel: Associative array input preserves string keys in output
+        bedrock: Task slices return ordered results by task index
+
 semantic_divergences:
   - surface: database
     divergence: No static methods
@@ -170,8 +204,144 @@ semantic_divergences:
   - surface: broadcasting
     divergence: Provider SDKs are injected through small interfaces
     rationale: Unit tests should not require live Pusher, Redis, or Ably services.
+  - surface: cache
+    divergence: APC and Memcached stores are not shipped
+    rationale: Bedrock exposes cache behavior through portable Go store contracts and currently ships other concrete stores.
+  - surface: cache
+    divergence: Cache console commands are not shipped
+    rationale: Bedrock does not currently include Laravel's Artisan-compatible console surface.
+  - surface: cache
+    divergence: Dynamic PHP runtime APIs are explicit Go APIs
+    rationale: Go uses typed functions, interfaces, and string identifiers instead of PHP closure binding, callable strings, Macroable methods, and enums.
+  - surface: cache
+    divergence: Cache payloads use Go value semantics
+    rationale: Go has different reference and serialization behavior than PHP's copy-on-write object model.
+  - surface: concurrency
+    divergence: No serialized closure process transport
+    rationale: Go closures are not serialized across process boundaries; Bedrock runs explicit Task functions with sync or goroutine drivers.
+  - surface: concurrency
+    divergence: Error returns instead of serialized PHP exceptions
+    rationale: Go preserves failure identity through error values, errors.Is, errors.As, and recovered panics.
+  - surface: concurrency
+    divergence: Ordered slice results instead of associative array keys
+    rationale: Bedrock Task input is a typed slice, so result order is preserved by index rather than PHP string keys.
+  - surface: config
+    divergence: No runtime macro registration
+    rationale: Go does not support PHP-style dynamic method registration; Bedrock exposes explicit methods instead.
 
 test_status_overrides:
+  # Illuminate\Cache entries without a direct executable Go analogue are counted
+  # as adapted. Executable parity tests live under packages/cache.
+  - CacheApcStoreTest::testGetReturnsNullWhenNotFound
+  - CacheApcStoreTest::testAPCValueIsReturned
+  - CacheApcStoreTest::testAPCFalseValueIsReturned
+  - CacheApcStoreTest::testGetMultipleReturnsNullWhenNotFoundAndValueWhenFound
+  - CacheApcStoreTest::testSetMethodProperlyCallsAPC
+  - CacheApcStoreTest::testSetMultipleMethodProperlyCallsAPC
+  - CacheApcStoreTest::testIncrementMethodProperlyCallsAPC
+  - CacheApcStoreTest::testDecrementMethodProperlyCallsAPC
+  - CacheApcStoreTest::testStoreItemForeverProperlyCallsAPC
+  - CacheApcStoreTest::testForgetMethodProperlyCallsAPC
+  - CacheApcStoreTest::testTouchMethodProperlyCallsAPC
+  - CacheApcStoreTest::testFlushesCached
+  - CacheArrayStoreTest::testValuesAreNotStoredByReference
+  - CacheArrayStoreTest::testValuesAreStoredByReferenceIfSerializationIsDisabled
+  - CacheDatabaseStoreTest::testValueIsReturnedOnPostgres
+  - CacheDatabaseStoreTest::testValueIsReturnedOnSqlite
+  - CacheDatabaseStoreTest::testValueIsUpsertedOnPostgres
+  - CacheDatabaseStoreTest::testValueIsUpsertedOnSqlite
+  - CacheDatabaseStoreTest::testTouchExtendsTtlOnPostgres
+  - CacheDatabaseStoreTest::testTouchExtendsTtlOnSqlite
+  - CacheFileStoreTest::testStoreItemProperlySetsPermissions
+  - CacheFileStoreTest::testStoreItemDirectoryProperlySetsPermissions
+  - CacheFileStoreTest::testFlushFailsDirectoryClean
+  - CacheFileStoreTest::testFlushingLocksFailsDirectoryClean
+  - CacheFileStoreTest::testHasSeparateLockStoreReturnsTrueWhenLockDirectoryDiffers
+  - CacheFileStoreTest::testHasSeparateLockStoreReturnsFalseWhenLockDirectoryIsSame
+  - CacheFileStoreTest::testHasSeparateLockStoreReturnsFalseWhenLockDirectoryIsNull
+  - CacheFileStoreTest::testFlushLocksThrowsExceptionWhenLockDirectoryIsSame
+  - CacheManagerTest::testCustomDriverClosureBoundObjectIsCacheManager
+  - CacheManagerTest::testCustomDriverStaticClosure
+  - CacheManagerTest::testInvokableObjectDriverClosure
+  - CacheManagerTest::testItMakesRepositoryWhenContainerHasNoDispatcher
+  - CacheManagerTest::testItRefreshesDispatcherOnAllStores
+  - CacheManagerTest::testEnumStoreCanBeResolved
+  - CacheManagerTest::testEnumDriverCanBeResolved
+  - CacheManagerTest::testForgetDriverAcceptsEnum
+  - CacheManagerTest::testPurgeAcceptsEnum
+  - CacheManagerTest::testSetDefaultDriverAcceptsEnum
+  - CacheMemcachedConnectorTest::testServersAreAddedCorrectly
+  - CacheMemcachedConnectorTest::testServersAreAddedCorrectlyWithPersistentConnection
+  - CacheMemcachedConnectorTest::testServersAreAddedCorrectlyWithValidOptions
+  - CacheMemcachedConnectorTest::testServersAreAddedCorrectlyWithSaslCredentials
+  - CacheMemcachedStoreTest::testGetReturnsNullWhenNotFound
+  - CacheMemcachedStoreTest::testMemcacheValueIsReturned
+  - CacheMemcachedStoreTest::testMemcacheGetMultiValuesAreReturnedWithCorrectKeys
+  - CacheMemcachedStoreTest::testSetMethodProperlyCallsMemcache
+  - CacheMemcachedStoreTest::testTouchMethodProperlyCallsMemcache
+  - CacheMemcachedStoreTest::testIncrementMethodProperlyCallsMemcache
+  - CacheMemcachedStoreTest::testDecrementMethodProperlyCallsMemcache
+  - CacheMemcachedStoreTest::testStoreItemForeverProperlyCallsMemcached
+  - CacheMemcachedStoreTest::testForgetMethodProperlyCallsMemcache
+  - CacheMemcachedStoreTest::testFlushesCached
+  - CacheMemcachedStoreTest::testGetAndSetPrefix
+  - CacheRepositoryTest::testSettingMultipleItemsInCacheIterator
+  - CacheRepositoryTest::testPutWithDatetimeInPastOrZeroSecondsRemovesOldItem
+  - CacheRepositoryTest::testAddWithStoreFailureReturnsFalse
+  - CacheRepositoryTest::testAddMethodCanAcceptDateIntervals
+  - CacheRepositoryTest::testAddMethodCanAcceptDateTimeInterface
+  - CacheRepositoryTest::testAddWithNullTTLRemembersItemForever
+  - CacheRepositoryTest::testAddWithDatetimeInPastOrZeroSecondsReturnsImmediately
+  - CacheRepositoryTest::testGetSeconds
+  - CacheRepositoryTest::testRegisterMacroWithNonStaticCall
+  - CacheRepositoryTest::testRemovingMultipleKeysFailsIfOneFails
+  - CacheRepositoryTest::testPossibleInputTypesToTags
+  - CacheRepositoryTest::testTaggedCacheWorksWithEnumKey
+  - CacheRepositoryTest::testGetReturnsIncompleteClassWhenNoHandlerRegistered
+  - CacheRepositoryTest::testGetCallsHandlerWithKeyAndClassForIncompleteClass
+  - CacheRepositoryTest::testManyCallsHandlerForEachIncompleteClass
+  - CacheRepositoryTest::testItGetsAsStringWithDefault
+  - CacheRepositoryTest::testItGetsAsIntegerWithDefault
+  - CacheRepositoryTest::testItGetsAsIntegerFromNumericString
+  - CacheRepositoryTest::testItThrowsExceptionWhenGettingFloatStringAsInteger
+  - CacheRepositoryTest::testItGetsAsFloatWithDefault
+  - CacheRepositoryTest::testItGetsAsFloatFromNumericString
+  - CacheRepositoryTest::testItGetsAsBooleanWithDefault
+  - CacheRepositoryTest::testItGetsAsArrayWithDefault
+  - CacheSessionStoreTest::testValuesAreStoredByReference
+  - CacheSpyMemoTest::test_cache_spy_works_with_memoized_cache
+  - CacheSpyMemoTest::test_cache_spy_tracks_remember_on_memoized_cache_as_described_in_issue
+  - CacheSpyMemoTest::test_cache_spy_tracks_remember_calls_on_memoized_cache
+  - CacheSpyMemoTest::test_cache_spy_memo_returns_spied_repository
+  - ClearCommandTest::testClearWithNoStoreArgument
+  - ClearCommandTest::testClearWithStoreArgument
+  - ClearCommandTest::testClearWithInvalidStoreArgument
+  - ClearCommandTest::testClearWithTagsOption
+  - ClearCommandTest::testClearWithStoreArgumentAndTagsOption
+  - ClearCommandTest::testClearWillClearRealTimeFacades
+  - ClearCommandTest::testClearWillNotClearRealTimeFacadesIfCacheDirectoryDoesntExist
+  - ClearCommandTest::testClearLocksWithNoStoreArgument
+  - ClearCommandTest::testClearLocksWithStoreArgument
+  - ClearCommandTest::testClearLocksCannotBeUsedWithTags
+  - ClearCommandTest::testClearLocksWillFailWhenNotSupportedByStore
+  - ClearCommandTest::testClearLocksWillFailWhenFlushLocksFails
+  - ConcurrencyLimiterTest::testFunnelMethodAcceptsBackedEnum
+  - ConcurrencyLimiterTest::testFunnelMethodAcceptsUnitEnum
+  - ConcurrencyLimiterTest::testFunnelBackedEnumSharesKeyWithStringEquivalent
+
+  # Illuminate\Config PHP Macroable behavior has no direct Go analogue.
+  - RepositoryTest::testItIsMacroable
+
+  # Illuminate\Concurrency process and serialized-closure mechanics are counted
+  # as adapted. Executable Go parity lives under packages/concurrency/*_laravel_test.go.
+  - ConcurrencyTest::testRunHandlerProcessErrorCode
+  - ConcurrencyTest::testOutputIsMappedToArrayInput
+  - InvokeSerializedClosureCommandTest::testItCanInvokeSerializedClosureFromArgument
+  - InvokeSerializedClosureCommandTest::testItCanInvokeSerializedClosureFromEnvironment
+  - InvokeSerializedClosureCommandTest::testItReturnsNullWhenNoClosureIsProvided
+  - InvokeSerializedClosureCommandTest::testItHandlesExceptionsGracefully
+  - InvokeSerializedClosureCommandTest::testItHandlesCustomExceptionWithParameters
+
   # Illuminate\Auth entries without a direct executable Go analogue are counted
   # as adapted. Executable parity tests live under packages/auth.
   - AuthAccessGateTest::testBasicClosuresCanBeDefined
