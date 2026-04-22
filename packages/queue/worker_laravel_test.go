@@ -1185,3 +1185,76 @@ func TestWorkerStoppingIsDispatched(t *testing.T) {
 		t.Errorf("WorkerStopping.WorkerName: got %q, want stop-worker", stopping.WorkerName)
 	}
 }
+
+// Port of Framework\Tests\Queue\QueueWorkerTest::testWorkerPicksJobUsingCustomCallbacks
+func TestWorkerPicksJobUsingCustomCallbacks(t *testing.T) {
+	t.Parallel()
+
+	job := &workerUpstreamJob{connection: "default", queueName: "custom"}
+	q := &workerFakeQueue{connection: "default"}
+	rec := &workerEventRecorder{}
+
+	var called bool
+
+	w := queue.NewWorker(q, passthroughHandler(), rec, queue.WorkerOptions{})
+	w.PopUsing("custom", func(_ context.Context, _ queue.Queue, queueName string) (queue.Job, error) {
+		called = true
+
+		if queueName != "custom" {
+			t.Fatalf("queueName: got %q, want custom", queueName)
+		}
+
+		return job, nil
+	})
+
+	if err := w.RunNextJob(context.Background(), "custom"); err != nil {
+		t.Fatalf("RunNextJob: %v", err)
+	}
+
+	if !called {
+		t.Fatal("custom pop callback was not called")
+	}
+
+	if !job.fired.Load() {
+		t.Fatal("job returned from custom callback should fire")
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueWorkerTest::testWorkerStopsWithLostConnectionReason
+func TestWorkerStopsWithLostConnectionReason(t *testing.T) {
+	t.Parallel()
+
+	q := &brokenPopQueue{err: errors.New("lost connection to queue backend"), connection: "default"}
+	rec := &workerEventRecorder{}
+	w := queue.NewWorker(q, passthroughHandler(), rec, queue.WorkerOptions{Sleep: time.Millisecond})
+	w.SleepFunc = func(context.Context, time.Duration) {}
+
+	if err := w.Run(context.Background(), "queue"); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if w.LastStopReason() != queue.WorkerStopReasonLostConnection {
+		t.Fatalf("LastStopReason: got %d, want %d", w.LastStopReason(), queue.WorkerStopReasonLostConnection)
+	}
+
+	var stopping *queue.WorkerStopping
+
+	rec.mu.Lock()
+
+	for _, e := range rec.events {
+		if s, ok := e.(queue.WorkerStopping); ok {
+			copy := s
+			stopping = &copy
+		}
+	}
+
+	rec.mu.Unlock()
+
+	if stopping == nil {
+		t.Fatal("expected WorkerStopping")
+	}
+
+	if stopping.Status != int(queue.WorkerStopReasonLostConnection) {
+		t.Fatalf("WorkerStopping.Status: got %d, want %d", stopping.Status, queue.WorkerStopReasonLostConnection)
+	}
+}

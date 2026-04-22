@@ -267,15 +267,6 @@ func (tc *eventTaggedCache) PutMany(ctx context.Context, values map[string]any, 
 }
 
 func (tc *eventTaggedCache) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
-	tc.dispatch(ctx, RetrievingKey{StoreName: tc.storeName, Key: key, Tags: tc.tags})
-
-	if existing, err := tc.TaggedCache.Get(ctx, key); err == nil {
-		tc.dispatch(ctx, CacheHit{StoreName: tc.storeName, Key: key, Value: existing, Tags: tc.tags})
-
-		return false, nil
-	}
-
-	tc.dispatch(ctx, CacheMissed{StoreName: tc.storeName, Key: key, Tags: tc.tags})
 	tc.dispatch(ctx, WritingKey{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
 
 	ok, err := tc.TaggedCache.Add(ctx, key, value, ttl)
@@ -285,10 +276,15 @@ func (tc *eventTaggedCache) Add(ctx context.Context, key string, value any, ttl 
 	}
 
 	if ok {
+		tc.dispatch(ctx, CacheMissed{StoreName: tc.storeName, Key: key, Tags: tc.tags})
 		tc.dispatch(ctx, KeyWritten{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+
+		return true, nil
 	}
 
-	return ok, nil
+	tc.dispatch(ctx, CacheHit{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+	return false, nil
 }
 
 func (tc *eventTaggedCache) Forever(ctx context.Context, key string, value any) error {

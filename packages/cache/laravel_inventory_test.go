@@ -374,7 +374,7 @@ func TestUpstreamCacheEventInventoryEquivalents(t *testing.T) {
 	_ = tagged.Forget(ctx, "baz")
 
 	expectEvents(t, dispatcher, map[string]int{
-		"RetrievingKey":      7,
+		"RetrievingKey":      6,
 		"RetrievingManyKeys": 0,
 		"CacheHit":           3,
 		"CacheMissed":        4,

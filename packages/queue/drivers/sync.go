@@ -30,9 +30,16 @@ type SyncDriver struct {
 	connection string
 	handler    queue.Handler
 	emitter    queue.EventEmitter
+	tx         TransactionCallbackRegistrar
 }
 
 type syncJob struct{ BaseJob }
+
+// TransactionCallbackRegistrar is the small transaction hook SyncDriver
+// needs to mirror Upstream's after-commit dispatch registration.
+type TransactionCallbackRegistrar interface {
+	AddCallback(func())
+}
 
 // NewSyncDriver creates a SyncDriver. handler is called synchronously
 // for every Push. The emitter is nil until SetEmitter is called.
@@ -48,10 +55,30 @@ func (d *SyncDriver) SetEmitter(e queue.EventEmitter) *SyncDriver {
 	return d
 }
 
+func (d *SyncDriver) SetTransactionManager(tx TransactionCallbackRegistrar) *SyncDriver {
+	d.tx = tx
+
+	return d
+}
+
 func (d *SyncDriver) Push(ctx context.Context, queueName string, payload []byte) (string, error) {
+	return d.PushJob(ctx, queueName, nil, payload, nil)
+}
+
+// PushJob dispatches payload with the original job value and connection
+// config available for after-commit precedence checks.
+func (d *SyncDriver) PushJob(ctx context.Context, queueName string, jobValue any, payload []byte, config map[string]any) (string, error) {
 	job := &syncJob{BaseJob: BaseJob{payload: payload, queue: queueName, connection: d.connection}}
 	job.fireFunc = func(ctx context.Context) error {
 		return d.handler.Handle(ctx, job)
+	}
+
+	if d.tx != nil && queue.ShouldDispatchAfterCommit(jobValue, config) {
+		d.tx.AddCallback(func() {
+			_ = d.executeJob(ctx, job)
+		})
+
+		return "", nil
 	}
 
 	return "", d.executeJob(ctx, job)
