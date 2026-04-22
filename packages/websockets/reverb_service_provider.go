@@ -122,6 +122,12 @@ func (p *WebSocketsServiceProvider) Register() {
 			return nil, err
 		}
 
+		connsRaw, err := c.Make("websockets.conns")
+
+		if err != nil {
+			return nil, err
+		}
+
 		channelsRaw, err := c.Make("websockets.channels")
 
 		if err != nil {
@@ -136,6 +142,7 @@ func (p *WebSocketsServiceProvider) Register() {
 
 		return NewHTTPHandler(
 			appsRaw.(*AppManager),
+			connsRaw.(*ConnectionManager),
 			channelsRaw.(*ChannelManager),
 			dispatcherRaw.(contractsWebSockets.Dispatcher),
 		), nil

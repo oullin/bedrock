@@ -12,6 +12,7 @@ import (
 func TestPromptsListReturnsAllPrompts(t *testing.T) {
 	t.Parallel()
 
+	// ListPromptsTest::it_returns_a_valid_list_prompts_response
 	srv := mcp.NewServer("srv", "1.0.0")
 	srv.AddPrompt(writingPrompt()).AddPrompt(codePrompt())
 
@@ -44,6 +45,8 @@ func TestPromptsListIncludesArguments(t *testing.T) {
 func TestPromptsGetInvokesPromptWithArguments(t *testing.T) {
 	t.Parallel()
 
+	// GetPromptTest::it_returns_a_valid_get_prompt_response
+	// GetPromptTest::it_passes_arguments_to_prompt_handler
 	srv := mcp.NewServer("srv", "1.0.0")
 	srv.AddPrompt(writingPrompt())
 
@@ -57,14 +60,43 @@ func TestPromptsGetInvokesPromptWithArguments(t *testing.T) {
 func TestPromptsGetNotFoundReturnsError(t *testing.T) {
 	t.Parallel()
 
+	// GetPromptTest::it_throws_exception_when_prompt_not_found
 	srv := mcp.NewServer("srv", "1.0.0")
 	result := srv.Test(t).GetPrompt("nonexistent", nil)
 	result.AssertHasErrors()
 }
 
+func TestPromptsListReturnsEmptyWhenNothingRegistered(t *testing.T) {
+	t.Parallel()
+
+	// ListPromptsTest::it_returns_empty_list_when_no_prompts_registered
+	srv := mcp.NewServer("srv", "1.0.0")
+
+	resp := sendRaw(t, srv, "prompts/list", nil)
+	result := mustResult(t, resp)
+	prompts, _ := result["prompts"].([]any)
+
+	if len(prompts) != 0 {
+		t.Fatalf("expected empty prompt list, got %d entries", len(prompts))
+	}
+}
+
+func TestPromptsGetMissingNameReturnsError(t *testing.T) {
+	t.Parallel()
+
+	// GetPromptTest::it_throws_exception_when_name_parameter_is_missing
+	srv := mcp.NewServer("srv", "1.0.0")
+
+	resp := sendRaw(t, srv, "prompts/get", map[string]any{})
+	if _, ok := resp["error"].(map[string]any); !ok {
+		t.Fatalf("expected missing prompt name to return an error, got %#v", resp)
+	}
+}
+
 func TestPromptsGetReturnsMessagesArray(t *testing.T) {
 	t.Parallel()
 
+	// GetPromptTest::it_returns_a_valid_get_prompt_response
 	srv := mcp.NewServer("srv", "1.0.0")
 	srv.AddPrompt(writingPrompt())
 

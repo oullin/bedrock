@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/config"
 )
 
-// TestGuidelineConfigDefaults mirrors GuidelineConfigTest::test_default_values.
+// GuidelineConfigTest::test_default_values
 func TestGuidelineConfigDefaults(t *testing.T) {
 	t.Parallel()
 

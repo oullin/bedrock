@@ -48,7 +48,7 @@ func (g *AudioGateway) GenerateAudio(ctx context.Context, req contractsgw.AudioG
 		Text:         req.Text,
 		Voice:        req.Voice,
 		Instructions: req.Instructions,
-		Timeout:      req.Timeout,
+		Timeout:      timeoutOrDefault(req.Timeout, DefaultMediaTimeout),
 	}
 
 	if req.Model != "" {
