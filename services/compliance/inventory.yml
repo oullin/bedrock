@@ -90,13 +90,12 @@ framework:
 
   - id: framework.console
     upstream: Framework\Console
-    bedrock: null
-    status: missing
+    bedrock: console
+    status: mapped
     repo: upstream/framework
     branch: 13.x
     tests_path: tests/Console
     inventory: inventories/framework-console.txt
-    rationale: No Bedrock console package exists yet.
 
   - id: framework.container
     upstream: Framework\Container

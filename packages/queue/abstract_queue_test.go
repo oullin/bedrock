@@ -266,3 +266,82 @@ func TestShouldDispatchAfterCommitPrecedence(t *testing.T) {
 		})
 	}
 }
+
+// Port of Framework\Tests\Queue\BeforeCommitContractTest::testJobWithContractDefaultsToAfterCommit
+// Port of Framework\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndAfterCommitFalseRespectsBeforeCommit
+// Port of Framework\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndExplicitAfterCommitTrueStillSchedulesAfterCommit
+// Port of Framework\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsAfterCommit
+// Port of Framework\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsBeforeCommit
+func TestBeforeCommitContractDispatchPrecedence(t *testing.T) {
+	t.Parallel()
+
+	if !queue.ShouldDispatchAfterCommit(afterCommitJob{}, nil) {
+		t.Fatal("after-commit marker should dispatch after commit by default")
+	}
+
+	if queue.ShouldDispatchAfterCommit(beforeCommitJob{}, map[string]any{"after_commit": true}) {
+		t.Fatal("before-commit marker should override after_commit=true config")
+	}
+
+	if !queue.ShouldDispatchAfterCommit(afterCommitJob{}, map[string]any{"after_commit": false}) {
+		t.Fatal("after-commit marker should override after_commit=false config")
+	}
+
+	if !queue.ShouldDispatchAfterCommit(sampleJob{}, map[string]any{"after_commit": true}) {
+		t.Fatal("plain job should respect after_commit=true config")
+	}
+
+	if queue.ShouldDispatchAfterCommit(sampleJob{}, map[string]any{"after_commit": false}) {
+		t.Fatal("plain job should respect after_commit=false config")
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueDelayTest::test_queue_delay
+// Port of Framework\Tests\Queue\QueueDelayTest::test_queue_without_delay
+// Port of Framework\Tests\Queue\QueueDelayTest::test_pending_dispatch_without_delay
+func TestQueueDelayAndWithoutDelayOptions(t *testing.T) {
+	t.Parallel()
+
+	opts := queue.JobOptions{Delay: 60 * time.Second}
+
+	if opts.Delay != 60*time.Second {
+		t.Fatalf("Delay: got %s, want 60s", opts.Delay)
+	}
+
+	withoutDelay := opts.WithoutDelay()
+
+	if withoutDelay.Delay != 0 {
+		t.Errorf("WithoutDelay: got %s, want 0", withoutDelay.Delay)
+	}
+
+	if opts.Delay != 60*time.Second {
+		t.Errorf("original Delay changed: got %s, want 60s", opts.Delay)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testPushIncludesBatchIdInPayloadForBatchableJob
+func TestCreatePayloadForIncludesBatchID(t *testing.T) {
+	t.Parallel()
+
+	p, raw, err := queue.CreatePayloadFor("database", "default", sampleJob{}, nil, queue.JobOptions{BatchID: "batch-123"})
+
+	if err != nil {
+		t.Fatalf("CreatePayloadFor: %v", err)
+	}
+
+	if p.Data["batchId"] != "batch-123" {
+		t.Fatalf("payload data: got %+v, want batchId", p.Data)
+	}
+
+	var decoded struct {
+		Data map[string]any `json:"data"`
+	}
+
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("raw JSON: %v", err)
+	}
+
+	if decoded.Data["batchId"] != "batch-123" {
+		t.Errorf("raw batchId: got %v, want batch-123", decoded.Data["batchId"])
+	}
+}

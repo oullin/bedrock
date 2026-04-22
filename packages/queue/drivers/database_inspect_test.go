@@ -99,21 +99,21 @@ func TestBulkBatchPushesOntoDatabase(t *testing.T) {
 		t.Fatalf("args len: got %d, want 8", len(call.Args))
 	}
 
-	// Row 1: queue, payload-foo, availableAt, createdAt.
+	// Row 1: queue, availableAt, createdAt, payload-foo.
 	if q, _ := call.Args[0].(string); q != "queue" {
 		t.Errorf("row1 queue: got %q, want queue", q)
 	}
 
-	if p, _ := call.Args[1].(string); p != string(fooPayload) {
+	if p, _ := call.Args[3].(string); p != string(fooPayload) {
 		t.Errorf("row1 payload: got %q, want %q", p, string(fooPayload))
 	}
 
-	// Row 2: queue, payload-bar, availableAt, createdAt.
+	// Row 2: queue, availableAt, createdAt, payload-bar.
 	if q, _ := call.Args[4].(string); q != "queue" {
 		t.Errorf("row2 queue: got %q, want queue", q)
 	}
 
-	if p, _ := call.Args[5].(string); p != string(barPayload) {
+	if p, _ := call.Args[7].(string); p != string(barPayload) {
 		t.Errorf("row2 payload: got %q, want %q", p, string(barPayload))
 	}
 }

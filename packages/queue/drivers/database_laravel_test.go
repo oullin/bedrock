@@ -57,6 +57,17 @@ import (
 // the port asserts on.
 type DatabaseUpstreamTestJob struct{}
 
+type recordingDatabasePopLockProvider struct {
+	calls int
+	lock  any
+}
+
+func (p *recordingDatabasePopLockProvider) LockForPopping(context.Context, string) (any, error) {
+	p.calls++
+
+	return p.lock, nil
+}
+
 func extractInsert(t *testing.T, db *mockDBExecer) (queueArg, payloadJSON string, availableAt, createdAt int64) {
 	t.Helper()
 
@@ -71,7 +82,7 @@ func extractInsert(t *testing.T, db *mockDBExecer) (queueArg, payloadJSON string
 	}
 
 	if len(call.Args) != 4 {
-		t.Fatalf("exec args: got %d, want 4 (queue, payload, available_at, created_at)", len(call.Args))
+		t.Fatalf("exec args: got %d, want 4 (queue, available_at, created_at, payload)", len(call.Args))
 	}
 
 	var ok bool
@@ -80,16 +91,16 @@ func extractInsert(t *testing.T, db *mockDBExecer) (queueArg, payloadJSON string
 		t.Fatalf("args[0] queue: got %T, want string", call.Args[0])
 	}
 
-	if payloadJSON, ok = call.Args[1].(string); !ok {
-		t.Fatalf("args[1] payload: got %T, want string", call.Args[1])
+	if availableAt, ok = call.Args[1].(int64); !ok {
+		t.Fatalf("args[1] available_at: got %T (%v), want int64", call.Args[1], call.Args[1])
 	}
 
-	if availableAt, ok = call.Args[2].(int64); !ok {
-		t.Fatalf("args[2] available_at: got %T (%v), want int64", call.Args[2], call.Args[2])
+	if createdAt, ok = call.Args[2].(int64); !ok {
+		t.Fatalf("args[2] created_at: got %T (%v), want int64", call.Args[2], call.Args[2])
 	}
 
-	if createdAt, ok = call.Args[3].(int64); !ok {
-		t.Fatalf("args[3] created_at: got %T (%v), want int64", call.Args[3], call.Args[3])
+	if payloadJSON, ok = call.Args[3].(string); !ok {
+		t.Fatalf("args[3] payload: got %T, want string", call.Args[3])
 	}
 
 	return queueArg, payloadJSON, availableAt, createdAt
@@ -118,6 +129,63 @@ func assertPayloadFields(t *testing.T, payloadJSON, wantDisplayContains string) 
 
 	if !strings.Contains(jobName, wantDisplayContains) {
 		t.Errorf("payload.job: got %q, want substring %q", jobName, wantDisplayContains)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testBuildDatabaseRecordWithPayloadAtTheEnd
+func TestBuildDatabaseRecordWithPayloadAtTheEnd(t *testing.T) {
+	t.Parallel()
+
+	db := newMockDBExecer()
+	drv := drivers.NewDatabaseDriver(db, "jobs", "database")
+
+	if _, err := drv.Push(context.Background(), "default", []byte(`{"job":"foo"}`)); err != nil {
+		t.Fatalf("Push: %v", err)
+	}
+
+	if len(db.execCalls) != 1 {
+		t.Fatalf("exec calls: got %d, want 1", len(db.execCalls))
+	}
+
+	query := db.execCalls[0].Query
+	wantColumns := "(queue, attempts, reserved_at, available_at, created_at, payload)"
+
+	if !strings.Contains(query, wantColumns) {
+		t.Fatalf("query: got %q, want columns %s", query, wantColumns)
+	}
+
+	if payload, _ := db.execCalls[0].Args[3].(string); payload != `{"job":"foo"}` {
+		t.Fatalf("payload arg: got %q, want final payload arg", payload)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testGetLockForPoppingIsCached
+func TestGetLockForPoppingIsCached(t *testing.T) {
+	t.Parallel()
+
+	lock := &struct{ name string }{name: "jobs-lock"}
+	provider := &recordingDatabasePopLockProvider{lock: lock}
+	drv := drivers.NewDatabaseDriver(newMockDBExecer(), "jobs", "database").
+		SetPopLockProvider(provider)
+
+	first, err := drv.GetLockForPopping(context.Background())
+
+	if err != nil {
+		t.Fatalf("GetLockForPopping first: %v", err)
+	}
+
+	second, err := drv.GetLockForPopping(context.Background())
+
+	if err != nil {
+		t.Fatalf("GetLockForPopping second: %v", err)
+	}
+
+	if first != second || first != lock {
+		t.Fatalf("lock not cached: first=%p second=%p want=%p", first, second, lock)
+	}
+
+	if provider.calls != 1 {
+		t.Fatalf("provider calls: got %d, want 1", provider.calls)
 	}
 }
 

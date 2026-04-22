@@ -162,13 +162,10 @@ func (r *Repository) Push(key string, value any) {
 	}
 }
 
-// All returns every configuration item as a flat map.
+// All returns every configuration item as a nested map.
 func (r *Repository) All() map[string]any {
 	all := cloneMap(r.v.AllSettings())
-
-	for key, value := range r.items {
-		all[key] = cloneValue(value)
-	}
+	mergeMap(all, r.items)
 
 	return all
 }
@@ -399,6 +396,21 @@ func setDot(items map[string]any, key string, value any) {
 	}
 
 	current[parts[len(parts)-1]] = value
+}
+
+func mergeMap(target map[string]any, source map[string]any) {
+	for key, value := range source {
+		sourceMap, sourceIsMap := value.(map[string]any)
+		targetMap, targetIsMap := target[key].(map[string]any)
+
+		if sourceIsMap && targetIsMap {
+			mergeMap(targetMap, sourceMap)
+
+			continue
+		}
+
+		target[key] = cloneValue(value)
+	}
 }
 
 func cloneMap(items map[string]any) map[string]any {

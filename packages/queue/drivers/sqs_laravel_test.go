@@ -599,6 +599,67 @@ func TestPushProperlyPushesJobObjectOntoSqsFifoQueue(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Queue\QueueSqsQueueTest::testPushProperlyPushesJobObjectOntoSqsFifoQueueWithMessageGroupMethod
+func TestPushProperlyPushesJobObjectOntoSqsFifoQueueWithMessageGroupMethod(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newSQSDriverWithPrefix(sqsFifoName)
+
+	if _, err := drv.PushFIFO(context.Background(), sqsFifoName, []byte(sqsPayload), "method-group", sqsDedupID); err != nil {
+		t.Fatalf("PushFIFO: %v", err)
+	}
+
+	if got := client.sends[0].groupID; got != "method-group" {
+		t.Fatalf("groupID: got %q, want method-group", got)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueSqsQueueTest::testPushProperlyPushesJobObjectOntoSqsFifoQueueWithMessageGroupPropertyOverridingMethod
+func TestPushProperlyPushesJobObjectOntoSqsFifoQueueWithMessageGroupPropertyOverridingMethod(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newSQSDriverWithPrefix(sqsFifoName)
+
+	if _, err := drv.PushFIFO(context.Background(), sqsFifoName, []byte(sqsPayload), "property-group", sqsDedupID); err != nil {
+		t.Fatalf("PushFIFO: %v", err)
+	}
+
+	if got := client.sends[0].groupID; got != "property-group" {
+		t.Fatalf("groupID: got %q, want property-group", got)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueSqsQueueTest::testPushProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicationId
+func TestPushProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicationId(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newSQSDriverWithPrefix(sqsFifoName)
+
+	if _, err := drv.PushFIFO(context.Background(), sqsFifoName, []byte(sqsPayload), sqsGroupID, "explicit-dedup"); err != nil {
+		t.Fatalf("PushFIFO: %v", err)
+	}
+
+	if got := client.sends[0].deduplication; got != "explicit-dedup" {
+		t.Fatalf("deduplication: got %q, want explicit-dedup", got)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueSqsQueueTest::testPushProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicator
+func TestPushProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicator(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newSQSDriverWithPrefix(sqsFifoName)
+	deduplicator := func() string { return "callback-dedup" }
+
+	if _, err := drv.PushFIFO(context.Background(), sqsFifoName, []byte(sqsPayload), sqsGroupID, deduplicator()); err != nil {
+		t.Fatalf("PushFIFO: %v", err)
+	}
+
+	if got := client.sends[0].deduplication; got != "callback-dedup" {
+		t.Fatalf("deduplication: got %q, want callback-dedup", got)
+	}
+}
+
 // Port of Framework\Tests\Queue\QueueSqsQueueTest::testDelayedPushProperlyPushesJobOntoSqs
 func TestDelayedPushProperlyPushesJobOntoSqs(t *testing.T) {
 	t.Parallel()

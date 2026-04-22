@@ -27,6 +27,11 @@ type RedisClient interface {
 	ZCard(ctx context.Context, key string) (int64, error)
 }
 
+// RedisDeleter is the optional Redis capability needed by ClearQueue.
+type RedisDeleter interface {
+	Del(ctx context.Context, keys ...string) (int64, error)
+}
+
 // RedisClusterAware is implemented by RedisClient fakes/drivers that know
 // whether their underlying connection is a Redis Cluster. The Redis driver
 // uses this to decide whether to wrap queue names in cluster hash tags so
@@ -212,6 +217,18 @@ func (d *RedisDriver) Pop(ctx context.Context, queueName string) (queue.Job, err
 
 func (d *RedisDriver) Size(ctx context.Context, queueName string) (int64, error) {
 	return d.client.LLen(ctx, d.queueKey(queueName))
+}
+
+func (d *RedisDriver) ClearQueue(ctx context.Context, queueName string) error {
+	deleter, ok := d.client.(RedisDeleter)
+
+	if !ok {
+		return nil
+	}
+
+	_, err := deleter.Del(ctx, d.queueKey(queueName), d.delayedKey(queueName), d.failedKey(queueName))
+
+	return err
 }
 
 func (d *RedisDriver) PendingSize(ctx context.Context, queueName string) (int64, error) {
