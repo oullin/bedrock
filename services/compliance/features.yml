@@ -141,18 +141,18 @@ features:
     name: Event dispatcher
     upstream: Framework\Events dispatcher, listeners, and subscribers
     bedrock: events
-    status: partial
+    status: ported
     docs: packages/events.md
-    notes: Event dispatching exists; upstream test parity remains incomplete.
+    notes: Dispatch, defer, pushed events, wildcards, subscribers, queued listener options, and broadcast event integration are complete under classified parity; PHP container, interface, enum, named-argument, and unique-lock mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.filesystem.local
     source_id: framework.filesystem
     name: Local filesystem
     upstream: Framework\Filesystem file operations
     bedrock: filesystem
-    status: partial
+    status: ported
     docs: packages/filesystem.md
-    notes: Local filesystem operations are implemented; upstream parity tests are not complete.
+    notes: Local file reads, writes, metadata, directory operations, hashing, globbing, and locking-oriented reads are complete under classified parity; Flysystem adapter/manager, PHP include, runtime macro, and helper mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.foundation.kernel
     source_id: framework.foundation
@@ -168,9 +168,9 @@ features:
     name: Password hashing
     upstream: Framework\Hashing bcrypt and Argon drivers
     bedrock: hashing
-    status: partial
+    status: ported
     docs: packages/hashing.md
-    notes: Hashing drivers exist; upstream test parity is not complete.
+    notes: Bcrypt, Argon2i, Argon2id, verification, hash detection, long-password rejection, and algorithm mismatch behavior are complete under classified parity; PHP null input is covered by Go adaptation rules in divergences.yml.
 
   - id: framework.http.requests
     source_id: framework.http
