@@ -369,6 +369,12 @@ func (v *Validator) validateAttributeRules(attribute string, parsedRuleList []Pa
 
 	for _, rule := range parsedRuleList {
 		if rule.IsObject() {
+			if excludeRule, ok := rule.Object.(interface{ ShouldExclude() bool }); ok && excludeRule.ShouldExclude() {
+				v.excludedAttrs[attribute] = true
+
+				return
+			}
+
 			v.validateRuleObject(attribute, value, rule)
 
 			if bail && v.errs.Has(attribute) {
@@ -404,6 +410,8 @@ func (v *Validator) validateAttributeRules(attribute string, parsedRuleList []Pa
 
 			if rules.ShouldExclude(attribute, name, rule.Parameters, ctx) {
 				v.excludedAttrs[attribute] = true
+
+				return
 			}
 
 			continue

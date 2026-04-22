@@ -135,6 +135,21 @@ func TestNewHandler_SkeletonRoutes(t *testing.T) {
 		}
 	})
 
+	t.Run("validation composition", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/features/validation", nil)
+		rec := httptest.NewRecorder()
+
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("GET /features/validation status = %d", rec.Code)
+		}
+
+		if rec.Body.String() != "Hello Taylor Otwell <taylor@example.com>\n" {
+			t.Fatalf("GET /features/validation body = %q", rec.Body.String())
+		}
+	})
+
 	t.Run("missing", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/missing", nil)
 		rec := httptest.NewRecorder()
