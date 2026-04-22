@@ -29,6 +29,14 @@ type SearchableMixin struct {
 
 var syncingDisabled sync.Map
 
+type wasSearchableBeforeUpdate interface {
+	WasSearchableBeforeUpdate() bool
+}
+
+type wasSearchableBeforeDelete interface {
+	WasSearchableBeforeDelete() bool
+}
+
 // SetScoutPrefix sets the index name prefix.
 func (s *SearchableMixin) SetScoutPrefix(prefix string) {
 	s.scoutPrefix = prefix
@@ -152,6 +160,26 @@ func RemoveFromSearch(ctx context.Context, models []contract.Searchable, engine 
 	}
 
 	return engine.Delete(ctx, models)
+}
+
+// WasSearchableBeforeUpdate reports whether the model was indexed before its
+// latest update. Models can override this to preserve previous searchable state.
+func WasSearchableBeforeUpdate(model contract.Searchable) bool {
+	if model, ok := model.(wasSearchableBeforeUpdate); ok {
+		return model.WasSearchableBeforeUpdate()
+	}
+
+	return true
+}
+
+// WasSearchableBeforeDelete reports whether the model was indexed before it was
+// deleted. Models can override this to avoid removing records that were absent.
+func WasSearchableBeforeDelete(model contract.Searchable) bool {
+	if model, ok := model.(wasSearchableBeforeDelete); ok {
+		return model.WasSearchableBeforeDelete()
+	}
+
+	return true
 }
 
 // EnableSearchSyncing enables automatic search syncing for the given model type.

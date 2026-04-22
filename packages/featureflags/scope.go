@@ -3,6 +3,7 @@ package featureflags
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 // Scopeable is implemented by types that control their own scope identifier.
@@ -64,6 +65,10 @@ func SerializeScope(scope any) (string, error) {
 		return fmt.Sprintf("%d", v), nil
 	case uint64:
 		return fmt.Sprintf("%d", v), nil
+	case float32:
+		return strconv.FormatFloat(float64(v), 'f', -1, 32), nil
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64), nil
 	case Scopeable:
 		return v.FeatureScopeIdentifier(), nil
 	case fmt.Stringer:
