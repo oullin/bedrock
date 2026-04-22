@@ -2,7 +2,12 @@ module github.com/bedrock/packages/config
 
 go 1.26.0
 
-require github.com/spf13/viper v1.20.1
+require (
+	github.com/bedrock/packages/collection v0.0.0
+	github.com/spf13/viper v1.20.1
+)
+
+replace github.com/bedrock/packages/collection => ../collection
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect

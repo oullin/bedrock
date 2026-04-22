@@ -224,8 +224,20 @@ func (d *mockEventDispatcher) count(eventType string) int {
 			if eventType == "CacheMissed" {
 				n++
 			}
+		case cache.RetrievingKey:
+			if eventType == "RetrievingKey" {
+				n++
+			}
+		case cache.RetrievingManyKeys:
+			if eventType == "RetrievingManyKeys" {
+				n++
+			}
 		case cache.WritingKey:
 			if eventType == "WritingKey" {
+				n++
+			}
+		case cache.WritingManyKeys:
+			if eventType == "WritingManyKeys" {
 				n++
 			}
 		case cache.KeyWritten:
@@ -240,12 +252,32 @@ func (d *mockEventDispatcher) count(eventType string) int {
 			if eventType == "KeyForgotten" {
 				n++
 			}
+		case cache.KeyForgetFailed:
+			if eventType == "KeyForgetFailed" {
+				n++
+			}
 		case cache.CacheFlushing:
 			if eventType == "CacheFlushing" {
 				n++
 			}
 		case cache.CacheFlushed:
 			if eventType == "CacheFlushed" {
+				n++
+			}
+		case cache.CacheFlushFailed:
+			if eventType == "CacheFlushFailed" {
+				n++
+			}
+		case cache.CacheLocksFlushing:
+			if eventType == "CacheLocksFlushing" {
+				n++
+			}
+		case cache.CacheLocksFlushed:
+			if eventType == "CacheLocksFlushed" {
+				n++
+			}
+		case cache.CacheLocksFlushFailed:
+			if eventType == "CacheLocksFlushFailed" {
 				n++
 			}
 		}

@@ -28,13 +28,19 @@ go get github.com/gocanto/bedrock/packages/concurrency@latest
 ## Creating a Manager
 
 ```go
+import "github.com/bedrock/packages/concurrency"
+
 manager := concurrency.NewManager()
 
 // Register drivers
-manager.Register("goroutine", concurrency.GoroutineDriverCreator)
-manager.Register("sync", concurrency.SyncDriverCreator)
+manager.Register("goroutine", func(map[string]any) (concurrency.Driver, error) {
+    return concurrency.NewGoroutineDriver(0), nil
+})
+manager.Register("sync", func(map[string]any) (concurrency.Driver, error) {
+    return concurrency.NewSyncDriver(), nil
+})
 
-manager.SetConfig("goroutine", map[string]any{})
+manager.SetConfig("goroutine", map[string]any{"driver": "goroutine"})
 ```
 
 ## Running Tasks
@@ -42,11 +48,11 @@ manager.SetConfig("goroutine", map[string]any{})
 ```go
 driver, err := manager.Driver("goroutine")
 
-results, err := driver.Run(
+results, err := driver.Run(context.Background(), []concurrency.Task{
     func() (any, error) { return fetchUsers() },
     func() (any, error) { return fetchOrders() },
     func() (any, error) { return fetchProducts() },
-)
+})
 
 users    := results[0].([]User)
 orders   := results[1].([]Order)
@@ -58,11 +64,13 @@ products := results[2].([]Product)
 `DeferredCallback` wraps a task so its result is resolved lazily:
 
 ```go
-deferred := concurrency.NewDeferredCallback(func() (any, error) {
-    return expensiveComputation(), nil
+driver := concurrency.NewSyncDriver()
+deferred := concurrency.NewDeferredCallback(driver, []concurrency.Task{
+    func() (any, error) { return expensiveComputation(), nil },
 })
 
-value, err := deferred.Resolve() // blocks until complete
+results, err := deferred.Flush(context.Background())
+value := results[0]
 ```
 
 ## Testing with SyncDriver
@@ -70,5 +78,7 @@ value, err := deferred.Resolve() // blocks until complete
 Swap the driver in tests to make concurrent code deterministic:
 
 ```go
-manager.Register("goroutine", concurrency.SyncDriverCreator) // replaces goroutine driver
+manager.Register("goroutine", func(map[string]any) (concurrency.Driver, error) {
+    return concurrency.NewSyncDriver(), nil
+}) // replaces goroutine driver
 ```
