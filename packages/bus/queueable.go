@@ -38,6 +38,8 @@ type Queueable struct {
 
 // GetConnection returns the connection name.
 
+// GetDelay returns the queue delay.
+
 // AllOnConnection sets the connection on this job and all chain jobs
 // that support the OnConnection method.
 
@@ -102,8 +104,11 @@ func (q *Queueable) GetQueue() string { return q.Queue }
 
 func (q *Queueable) GetConnection() string { return q.Connection }
 
+func (q *Queueable) GetDelay() time.Duration { return q.Delay }
+
 func (q *Queueable) AllOnConnection(connection string) *Queueable {
 	q.Connection = connection
+	q.ChainConnection = connection
 
 	for _, job := range q.ChainJobs {
 		if c, ok := job.(interface{ OnConnection(string) *Queueable }); ok {
@@ -116,6 +121,7 @@ func (q *Queueable) AllOnConnection(connection string) *Queueable {
 
 func (q *Queueable) AllOnQueue(queue string) *Queueable {
 	q.Queue = queue
+	q.ChainQueue = queue
 
 	for _, job := range q.ChainJobs {
 		if c, ok := job.(interface{ OnQueue(string) *Queueable }); ok {

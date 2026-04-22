@@ -128,7 +128,7 @@ func TestBatchRecordSuccessfulJobWithRepo(t *testing.T) {
 }
 
 func TestBatchRecordFailedJobWithoutRepo(t *testing.T) {
-	b := &bus.Batch{PendingJobs: 3, FailedJobs: 0}
+	b := &bus.Batch{PendingJobs: 3, FailedJobs: 0, Options: map[string]any{"allowFailures": true}}
 	counts, err := b.RecordFailedJob(context.Background(), "job-42", errTestFailure)
 
 	if err != nil {
@@ -153,6 +153,7 @@ func TestBatchRecordFailedJobWithRepo(t *testing.T) {
 	repo.incrementFailedResult = &bus.UpdatedBatchJobCounts{PendingJobs: 2, FailedJobs: 3}
 
 	b := bus.NewBatchWithRepo("batch-1", repo)
+	b.Options["allowFailures"] = true
 	counts, err := b.RecordFailedJob(context.Background(), "job-7", errTestFailure)
 
 	if err != nil {

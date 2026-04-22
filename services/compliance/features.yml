@@ -33,9 +33,9 @@ features:
     name: Command bus dispatch
     upstream: Framework\Bus command dispatch, chains, and middleware
     bedrock: bus
-    status: partial
+    status: ported
     docs: packages/bus.md
-    notes: Bus package exists with command dispatch and middleware; upstream test parity is not complete.
+    notes: Command dispatch, queue routing, after-response dispatch, chains, batches, lifecycle events, and typed failure callbacks are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.cache.repository
     source_id: framework.cache
