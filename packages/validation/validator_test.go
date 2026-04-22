@@ -234,6 +234,7 @@ func TestValidator_SetData(t *testing.T) {
 	assertPasses(t, v)
 }
 
+// ValidationValidatorTest::testInlineValidationMessagesAreRespected
 func TestValidator_CustomMessages(t *testing.T) {
 	t.Parallel()
 
@@ -253,6 +254,7 @@ func TestValidator_CustomMessages(t *testing.T) {
 	}
 }
 
+// ValidationValidatorTest::testAttributeNamesAreReplaced
 func TestValidator_AttributeNames(t *testing.T) {
 	t.Parallel()
 

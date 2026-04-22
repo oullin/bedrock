@@ -3,6 +3,9 @@ package routing
 import "testing"
 
 // Translation of upstream/framework tests/Routing/RouteActionTest.php.
+// RouteActionTest::test_it_can_detect_a_serialized_closure
+// RoutingRouteTest::testRouteGetControllerClass
+// RoutingRouteTest::testRouteFlushController
 func TestRouteAction(t *testing.T) {
 	t.Run("test_parse_action_with_callable", func(t *testing.T) {
 		called := false
@@ -66,6 +69,30 @@ func TestRouteAction(t *testing.T) {
 		}
 	})
 
+	// RoutingRouteTest::testRouteGetControllerClass
+	t.Run("test_route_get_controller_class", func(t *testing.T) {
+		route := NewRoute("GET", "/users/{user}", "App\\Http\\Controllers\\UserController@show")
+
+		if got := route.GetControllerClass(); got != "App\\Http\\Controllers\\UserController" {
+			t.Errorf("controller class = %q", got)
+		}
+
+		if got := route.GetActionMethod(); got != "show" {
+			t.Errorf("action method = %q", got)
+		}
+	})
+
+	// RoutingRouteTest::testRouteFlushController
+	t.Run("test_route_flush_controller", func(t *testing.T) {
+		route := NewRoute("GET", "/users/{user}", "UserController@show")
+		route.Controller = &userController{}
+		route.FlushController()
+
+		if route.Controller != nil {
+			t.Errorf("controller = %v, want nil", route.Controller)
+		}
+	})
+
 	t.Run("test_parse_action_with_map", func(t *testing.T) {
 		a, err := ParseAction("/x", map[string]any{
 			"uses":       func() {},
@@ -84,6 +111,13 @@ func TestRouteAction(t *testing.T) {
 
 		if len(a.Middleware) != 1 || a.Middleware[0] != "auth" {
 			t.Errorf("middleware = %v", a.Middleware)
+		}
+	})
+
+	// RouteActionTest::test_it_can_detect_a_serialized_closure
+	t.Run("test_contains_serialized_closure_is_false", func(t *testing.T) {
+		if ContainsSerializedClosure(&Action{}) {
+			t.Error("ContainsSerializedClosure should always return false")
 		}
 	})
 }

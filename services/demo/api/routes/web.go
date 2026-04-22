@@ -7,6 +7,8 @@ import (
 	"github.com/bedrock/packages/container"
 	"github.com/bedrock/packages/lottery"
 	"github.com/bedrock/packages/routing"
+	"github.com/bedrock/packages/support"
+	"github.com/bedrock/packages/validation"
 	democonfig "github.com/bedrock/services/demo/api/config"
 )
 
@@ -43,6 +45,32 @@ func RegisterWeb(router *routing.Router, application *container.Application) {
 
 		return &routing.HTTPResponse{
 			Body:    fmt.Sprintf("%v\n", result),
+			Status:  http.StatusOK,
+			Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
+		}
+	})
+
+	router.Get("/features/validation", func() any {
+		input := map[string]any{
+			"email": "taylor@example.com",
+			"name":  "Taylor Otwell",
+		}
+
+		validated, err := validation.NewFactory().Validate(input, map[string]any{
+			"email": "required|email",
+			"name":  "required|string",
+		}, nil, nil)
+
+		if err != nil {
+			return &routing.HTTPResponse{
+				Body:    "validation failed\n",
+				Status:  http.StatusUnprocessableEntity,
+				Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
+			}
+		}
+
+		return &routing.HTTPResponse{
+			Body:    fmt.Sprintf("Hello %s <%s>\n", support.ArrString(validated, "name"), support.ArrString(validated, "email")),
 			Status:  http.StatusOK,
 			Headers: map[string][]string{"Content-Type": {"text/plain; charset=utf-8"}},
 		}

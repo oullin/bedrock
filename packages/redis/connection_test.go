@@ -71,6 +71,7 @@ func TestConnectionSetWithExpiration(t *testing.T) {
 	}
 }
 
+// RedisConnectionTest::testItSetsKeyIfNotExists
 func TestConnectionSetNX(t *testing.T) {
 	t.Parallel()
 	c, _ := newConn(t)
@@ -89,6 +90,7 @@ func TestConnectionSetNX(t *testing.T) {
 	}
 }
 
+// RedisConnectionTest::testItGetsMultipleKeys
 func TestConnectionMGet(t *testing.T) {
 	t.Parallel()
 	c, _ := newConn(t)
@@ -260,7 +262,19 @@ func TestConnectionSetRoundTrip(t *testing.T) {
 
 // ---- sorted sets -----------------------------------------------------
 // RedisConnectionTest::testItAddsMembersToSortedSet
+// RedisConnectionTest::testItCountsMembersInSortedSet
+// RedisConnectionTest::testItIncrementsScoreOfSortedSet
 // RedisConnectionTest::testItReturnsRangeInSortedSet
+// RedisConnectionTest::testItReturnsRevRangeInSortedSet
+// RedisConnectionTest::testItReturnsRangeByScoreInSortedSet
+// RedisConnectionTest::testItReturnsRevRangeByScoreInSortedSet
+// RedisConnectionTest::testItReturnsRankInSortedSet
+// RedisConnectionTest::testItReturnsScoreInSortedSet
+// RedisConnectionTest::testItCalculatesIntersectionOfSortedSetsAndStores
+// RedisConnectionTest::testItCalculatesUnionOfSortedSetsAndStores
+// RedisConnectionTest::testItRemovesMembersInSortedSet
+// RedisConnectionTest::testItRemovesMembersByScoreInSortedSet
+// RedisConnectionTest::testItRemovesMembersByRankInSortedSet
 
 func TestConnectionZAddRange(t *testing.T) {
 	t.Parallel()
@@ -276,10 +290,115 @@ func TestConnectionZAddRange(t *testing.T) {
 	if len(vals) != 3 || vals[0] != "a" || vals[2] != "c" {
 		t.Fatalf("ZRange %+v", vals)
 	}
+
+	if n, _ := c.ZCard(ctx, "z"); n != 3 {
+		t.Fatalf("ZCard want 3 got %d", n)
+	}
+
+	if score, _ := c.ZIncrBy(ctx, "z", 3, "a"); score != 4 {
+		t.Fatalf("ZIncrBy want 4 got %v", score)
+	}
+
+	rev, _ := c.ZRevRange(ctx, "z", 0, -1)
+
+	if len(rev) != 3 || rev[0] != "a" || rev[2] != "b" {
+		t.Fatalf("ZRevRange %+v", rev)
+	}
+}
+
+func TestConnectionZSetMutators(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+	ctx := context.Background()
+
+	_, _ = c.ZAdd(ctx, "z",
+		redis.ZMember{Score: 1, Member: "a"},
+		redis.ZMember{Score: 2, Member: "b"},
+		redis.ZMember{Score: 3, Member: "c"},
+	)
+
+	rank, err := c.ZRank(ctx, "z", "b")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if rank != 1 {
+		t.Fatalf("ZRank want 1 got %d", rank)
+	}
+
+	score, err := c.ZScore(ctx, "z", "c")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if score != 3 {
+		t.Fatalf("ZScore want 3 got %v", score)
+	}
+
+	if n, _ := c.ZRem(ctx, "z", "a"); n != 1 {
+		t.Fatalf("ZRem want 1 got %d", n)
+	}
+
+	if n, _ := c.ZRemRangeByScore(ctx, "z", "2", "2"); n != 1 {
+		t.Fatalf("ZRemRangeByScore want 1 got %d", n)
+	}
+
+	_, _ = c.ZAdd(ctx, "z",
+		redis.ZMember{Score: 1, Member: "a"},
+		redis.ZMember{Score: 2, Member: "b"},
+		redis.ZMember{Score: 3, Member: "c"},
+	)
+
+	if n, _ := c.ZRemRangeByRank(ctx, "z", 0, 1); n != 2 {
+		t.Fatalf("ZRemRangeByRank want 2 got %d", n)
+	}
+
+	if vals, _ := c.ZRange(ctx, "z", 0, -1); len(vals) != 1 || vals[0] != "c" {
+		t.Fatalf("ZRange after removals %+v", vals)
+	}
+}
+
+func TestConnectionZRangeByScoreAndStore(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+	ctx := context.Background()
+
+	_, _ = c.ZAdd(ctx, "src",
+		redis.ZMember{Score: 1, Member: "a"},
+		redis.ZMember{Score: 2, Member: "b"},
+		redis.ZMember{Score: 3, Member: "c"},
+	)
+
+	ranged, err := c.ZRangeByScore(ctx, "src", "2", "3")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(ranged) != 2 || ranged[0] != "b" || ranged[1] != "c" {
+		t.Fatalf("ZRangeByScore %+v", ranged)
+	}
+
+	rev, err := c.ZRevRangeByScore(ctx, "src", "3", "2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(rev) != 2 || rev[0] != "c" || rev[1] != "b" {
+		t.Fatalf("ZRevRangeByScore %+v", rev)
+	}
+
+	if n, err := c.ZInterStore(ctx, "dest-inter", "src"); err != nil || n != 3 {
+		t.Fatalf("ZInterStore n=%d err=%v", n, err)
+	}
+
+	if n, err := c.ZUnionStore(ctx, "dest-union", "src"); err != nil || n != 3 {
+		t.Fatalf("ZUnionStore n=%d err=%v", n, err)
+	}
 }
 
 // ---- server + raw ----------------------------------------------------
 // RedisConnectionTest::testItFlushes
+// RedisConnectionTest::testItFlushesAsynchronous
 // RedisConnectionTest::testItRunsRawCommand
 
 func TestConnectionPingFlushDB(t *testing.T) {
@@ -302,6 +421,10 @@ func TestConnectionPingFlushDB(t *testing.T) {
 	if n != 0 {
 		t.Fatalf("expected empty after FlushDB, got Exists=%d", n)
 	}
+
+	if err := c.FlushAllAsync(ctx); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestConnectionExecuteRaw(t *testing.T) {
@@ -318,6 +441,108 @@ func TestConnectionExecuteRaw(t *testing.T) {
 
 	if v != "v" {
 		t.Fatalf("got %q", v)
+	}
+}
+
+// RedisConnectionTest::testItSPopsForKeys
+// RedisConnectionTest::testItScansForKeys
+// RedisConnectionTest::testItHscansForKeys
+// RedisConnectionTest::testItSscansForKeys
+// RedisConnectionTest::testItZscansForKeys
+// RedisConnectionTest::testPhpRedisScanOption
+func TestConnectionPopAndScanFamilies(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+	ctx := context.Background()
+
+	_, _ = c.SAdd(ctx, "set", "a", "b", "c")
+	popped, err := c.SPop(ctx, "set", 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(popped) != 2 {
+		t.Fatalf("SPop %+v", popped)
+	}
+
+	_ = c.Set(ctx, "user:1", "a", 0)
+	_ = c.Set(ctx, "user:2", "b", 0)
+	scanned, err := c.Scan(ctx, 0, "user:*", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if scanned.Cursor != 0 || len(scanned.Values) != 2 {
+		t.Fatalf("Scan %+v", scanned)
+	}
+
+	_, _ = c.HSet(ctx, "hash", "f1", "v1", "f2", "v2")
+	hscan, err := c.HScan(ctx, "hash", 0, "*", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hscan.Cursor != 0 || len(hscan.Values) != 4 {
+		t.Fatalf("HScan %+v", hscan)
+	}
+
+	_, _ = c.SAdd(ctx, "scan-set", "x", "y")
+	sscan, err := c.SScan(ctx, "scan-set", 0, "*", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sscan.Cursor != 0 || len(sscan.Values) != 2 {
+		t.Fatalf("SScan %+v", sscan)
+	}
+
+	_, _ = c.ZAdd(ctx, "scan-zset", redis.ZMember{Score: 1, Member: "m1"}, redis.ZMember{Score: 2, Member: "m2"})
+	zscan, err := c.ZScan(ctx, "scan-zset", 0, "*", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if zscan.Cursor != 0 || len(zscan.Values) != 4 {
+		t.Fatalf("ZScan %+v", zscan)
+	}
+}
+
+// RedisConnectionTest::testItRenamesKeys
+// RedisConnectionTest::testItPersistsConnection
+func TestConnectionRenameAndPersist(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+	ctx := context.Background()
+
+	_ = c.Set(ctx, "old", "v", time.Second)
+
+	if err := c.Rename(ctx, "old", "new"); err != nil {
+		t.Fatal(err)
+	}
+
+	v, err := c.Get(ctx, "new")
+	if err != nil || v != "v" {
+		t.Fatalf("Rename result=%q err=%v", v, err)
+	}
+
+	ok, err := c.Persist(ctx, "new")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !ok {
+		t.Fatal("Persist should report a removed TTL")
+	}
+}
+
+// RedisConnectionTest::testItRunsEval
+func TestConnectionEvalReturnsValue(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+	ctx := context.Background()
+
+	v, err := c.Eval(ctx, "return 1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if n, ok := v.(int64); !ok || n != 1 {
+		t.Fatalf("Eval=%T %#v", v, v)
 	}
 }
 

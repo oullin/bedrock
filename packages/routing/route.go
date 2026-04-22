@@ -751,6 +751,28 @@ func (r *Route) GetActionName() string {
 	return "Closure"
 }
 
+// GetControllerClass returns the class portion of a controller action.
+func (r *Route) GetControllerClass() string {
+	name := r.GetActionName()
+
+	if name == "Closure" {
+		return ""
+	}
+
+	if idx := strings.Index(name, "@"); idx >= 0 {
+		return name[:idx]
+	}
+
+	return name
+}
+
+// FlushController clears any cached controller instance.
+func (r *Route) FlushController() *Route {
+	r.Controller = nil
+
+	return r
+}
+
 // GetActionMethod returns the method portion of "Class@method", or "" for
 // closures.
 func (r *Route) GetActionMethod() string {

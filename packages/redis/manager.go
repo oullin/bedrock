@@ -121,7 +121,7 @@ func (m *Manager) Resolve(name string) (*Connection, error) {
 	if m.events.Enabled() {
 		conn.Events().Enable()
 		// Fan out dispatcher listeners to the connection.
-		conn.Events().Listen(func(e CommandExecuted) { m.events.Dispatch(e) })
+		conn.Events().Listen(func(e CommandExecuted) { m.events.DispatchExecuted(e) })
 	}
 
 	m.connections[name] = conn

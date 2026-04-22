@@ -9,6 +9,7 @@ import (
 	"github.com/bedrock/packages/redis/internal/mock"
 )
 
+// RedisManagerExtensionTest::testUsingCustomRedisConnectorWithSingleRedisInstance
 func TestManagerExtendAndConnection(t *testing.T) {
 	t.Parallel()
 
@@ -44,6 +45,34 @@ func TestManagerExtendAndConnection(t *testing.T) {
 
 	if c == c3 {
 		t.Fatal("expected new connection after Purge")
+	}
+}
+
+// RedisManagerExtensionTest::testUsingCustomRedisConnectorWithRedisClusterInstance
+// RedisManagerExtensionTest::testParseConnectionConfigurationForCluster
+func TestManagerClusterConnection(t *testing.T) {
+	t.Parallel()
+
+	m := redis.NewManager("primary", map[string]redis.ConnectionConfig{
+		"clustered": {
+			Name: "clustered",
+			Cluster: &redis.ClusterConfig{
+				Addrs: []string{"127.0.0.1:6379"},
+			},
+		},
+	})
+
+	m.Extend("cluster", func(cfg redis.ConnectionConfig) (redis.Client, error) {
+		return mock.New(), nil
+	})
+
+	c, err := m.Connection("clustered")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !c.IsCluster() {
+		t.Fatal("expected cluster connection")
 	}
 }
 
