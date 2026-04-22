@@ -3392,3 +3392,112 @@ test_status_overrides:
   - AuthorizesResourcesTest::testDestroyMethod
   - EnsureEmailIsVerifiedTest::testItCanGenerateDefinitionViaStaticMethod
   - RedirectIfAuthenticatedMiddlewareTest::testItCanGenerateDefinitionViaStaticMethod
+
+  # Illuminate\Events entries whose Laravel behavior depends on PHP container
+  # resolution, interface listener discovery, named arguments, enum queue names,
+  # or unique-lock repository internals are counted as adapted. Executable Go
+  # parity lives under packages/events and packages/broadcasting.
+  - EventsDispatcherTest::testReturningFalsyValuesContinuesPropagation
+  - EventsDispatcherTest::testContainerResolutionOfEventHandlers
+  - EventsDispatcherTest::testContainerResolutionOfEventHandlersWithDefaultMethods
+  - EventsDispatcherTest::testEventPassedFirstToWildcards
+  - EventsDispatcherTest::testInterfacesWork
+  - EventsDispatcherTest::testBothClassesAndInterfacesWork
+  - EventsDispatcherTest::testListenersObjectsCreationOrder
+  - EventsDispatcherTest::testEventDispatchesUsingNamedArguments
+  - QueuedEventsTest::testDispatchesOnQueueDefinedWithEnum
+  - QueuedEventsTest::testUniqueListenerNotQueuedWhenLockNotAcquired
+  - QueuedEventsTest::testUniqueLockKeyUsesListenerClassName
+  - QueuedEventsTest::testUniqueLockIsAcquiredWithListenerClassName
+  - QueuedEventsTest::testUniqueViaUsesListenerCacheRepository
+  - QueuedEventsTest::testUniqueLockIsReleasedOnProcessingWithListenerClassName
+  - QueuedEventsTest::testUniqueUntilProcessingLockIsReleasedBeforeHandling
+
+  # Illuminate\Filesystem entries for Flysystem adapters, storage-manager
+  # construction, PHP include/require behavior, runtime macros, and standalone
+  # path helpers are counted as adapted. Executable local filesystem parity
+  # lives under packages/filesystem.
+  - FilesystemAdapterTest::testResponse
+  - FilesystemAdapterTest::testMimeTypeIsNotCalledAlreadyProvidedToResponse
+  - FilesystemAdapterTest::testSizeIsNotCalledAlreadyProvidedToResponse
+  - FilesystemAdapterTest::testFallbackNameCalledAlreadyProvidedToResponse
+  - FilesystemAdapterTest::testDownload
+  - FilesystemAdapterTest::testDownloadNonAsciiFilename
+  - FilesystemAdapterTest::testDownloadNonAsciiEmptyFilename
+  - FilesystemAdapterTest::testDownloadPercentInFilename
+  - FilesystemAdapterTest::testExists
+  - FilesystemAdapterTest::testMissing
+  - FilesystemAdapterTest::testDirectoryExists
+  - FilesystemAdapterTest::testDirectoryMissing
+  - FilesystemAdapterTest::testPath
+  - FilesystemAdapterTest::testGet
+  - FilesystemAdapterTest::testGetFileNotFound
+  - FilesystemAdapterTest::testJsonReturnsDecodedJsonData
+  - FilesystemAdapterTest::testJsonReturnsNullIfJsonDataIsInvalid
+  - FilesystemAdapterTest::testMimeTypeNotDetected
+  - FilesystemAdapterTest::testPut
+  - FilesystemAdapterTest::testPrepend
+  - FilesystemAdapterTest::testAppend
+  - FilesystemAdapterTest::testDelete
+  - FilesystemAdapterTest::testDeleteReturnsTrueWhenFileNotFound
+  - FilesystemAdapterTest::testCopy
+  - FilesystemAdapterTest::testMove
+  - FilesystemAdapterTest::testStream
+  - FilesystemAdapterTest::testStreamBetweenFilesystems
+  - FilesystemAdapterTest::testStreamToExistingFileOverwrites
+  - FilesystemAdapterTest::testReadStreamNonExistentFileReturnsNull
+  - FilesystemAdapterTest::testStreamInvalidResourceThrows
+  - FilesystemAdapterTest::testPutWithStreamInterface
+  - FilesystemAdapterTest::testPutFileAs
+  - FilesystemAdapterTest::testPutFileAsWithAbsoluteFilePath
+  - FilesystemAdapterTest::testPutFileAsWithoutPath
+  - FilesystemAdapterTest::testPutFile
+  - FilesystemAdapterTest::testPutFileWithAbsoluteFilePath
+  - FilesystemAdapterTest::testPutFileWithoutPath
+  - FilesystemAdapterTest::testCreateFtpDriver
+  - FilesystemAdapterTest::testMacroable
+  - FilesystemAdapterTest::testTemporaryUrlWithCustomCallback
+  - FilesystemAdapterTest::testThrowExceptionsForGet
+  - FilesystemAdapterTest::testThrowExceptionsForReadStream
+  - FilesystemAdapterTest::testThrowExceptionsForPut
+  - FilesystemAdapterTest::testThrowExceptionsForMimeType
+  - FilesystemAdapterTest::testReportExceptionsForGet
+  - FilesystemAdapterTest::testReportExceptionsForReadStream
+  - FilesystemAdapterTest::testReportExceptionsForPut
+  - FilesystemAdapterTest::testReportExceptionsForMimeType
+  - FilesystemAdapterTest::testGetAllFiles
+  - FilesystemAdapterTest::testProvidesTemporaryUrls
+  - FilesystemAdapterTest::testProvidesTemporaryUrlsWithCustomCallback
+  - FilesystemAdapterTest::testProvidesTemporaryUrlsForS3Adapter
+  - FilesystemAdapterTest::testUsesRightSeperatorForS3Adapter
+  - FilesystemAdapterTest::testProvidesTemporaryUrlsForAdapterWithoutTemporaryUrlSupport
+  - FilesystemAdapterTest::testPrefixesUrls
+  - FilesystemAdapterTest::testGetChecksum
+  - FilesystemAdapterTest::testUsesRightSeperatorForS3AdapterWithoutDoublePrefixing
+  - FilesystemAdapterTest::testTemporaryUploadUrlWithCustomCallback
+  - FilesystemAdapterTest::testProvidesTemporaryUploadUrls
+  - FilesystemAdapterTest::testProvidesTemporaryUploadUrlsWithCustomCallback
+  - FilesystemAdapterTest::testProvidesTemporaryUploadUrlsForAdapterWithoutTemporaryUploadUrlSupport
+  - FilesystemManagerTest::testExceptionThrownOnUnsupportedDriver
+  - FilesystemManagerTest::testCanBuildOnDemandDisk
+  - FilesystemManagerTest::testCanBuildReadOnlyDisks
+  - FilesystemManagerTest::testCanBuildScopedDisks
+  - FilesystemManagerTest::testCanBuildScopedDiskFromScopedDisk
+  - FilesystemManagerTest::testCanBuildScopedDisksWithVisibility
+  - FilesystemManagerTest::testCanBuildScopedDisksWithThrow
+  - FilesystemManagerTest::testCanBuildInlineScopedDisks
+  - FilesystemManagerTest::testCustomDriverClosureBoundObjectIsFilesystemManager
+  - FilesystemManagerTest::testCustomDriverStaticClosure
+  - FilesystemManagerTest::testInvokableObjectDriverClosure
+  - FilesystemManagerTest::testKeepTrackOfAdapterDecoration
+  - FilesystemTest::testMacro
+  - FilesystemTest::testGetRequireReturnsProperly
+  - FilesystemTest::testGetRequireThrowsExceptionNonExistingFile
+  - FilesystemTest::testRequireOnceRequiresFileProperly
+  - FilesystemTest::testRequireOnceThrowsExceptionNonexisitingFile
+  - JoinPathsHelperTest::testItCanMergePathsForUnix
+  - JoinPathsHelperTest::testItCanMergePathsForWindows
+
+  # Illuminate\Hashing accepts null at runtime; Bedrock's Go hashing contract
+  # accepts strings, so null input is rejected at compile time.
+  - HasherTest::testNullHashedValueReturnsFalse
