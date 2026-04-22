@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-22T02:04:07Z
+Generated: 2026-04-22T02:29:35Z
 
 Source of truth: services/compliance
 
@@ -17,11 +17,11 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |   Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | -----------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 |  738 / 13066 |   12328 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Tests                 |  804 / 13066 |   12262 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
 | Documentation         |    367 / 875 |     508 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Laravel skeleton demo |      49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |      59 / 62 |       3 | Not compliant     | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 1213 / 14052 |   12839 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 1279 / 14052 |   12773 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
@@ -51,7 +51,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | ----------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------ | ---------: | ------------: | ----------------- | --------------------------------------------------------------------------- |
 | inventories/framework-auth.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Auth`                    |  257 / 257 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-broadcasting.txt    | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Broadcasting`            |    55 / 55 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-bus.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Bus`                     |     0 / 66 |            66 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-bus.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Bus`                     |    66 / 66 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-cache.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Cache`                   |    0 / 313 |           313 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/framework-concurrency.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Integration/Concurrency` |     0 / 12 |            12 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/framework-conditionable.txt   | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Conditionable`           |      0 / 2 |             2 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
@@ -107,7 +107,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | ---------------------------- | --------------- | -------------------- | ------------------------------------------------------------------------------------- | --------------------------- |
 | `Illuminate\Auth`            | `auth`          | `mapped`             | Ported tests: 54 / 257 (21.0%); Missing tests: 0 (0.0%); Adapted tests: 203 (79.0%)   | `packages/auth.md`          |
 | `Illuminate\Broadcasting`    | `broadcasting`  | `mapped`             | Ported tests: 55 / 55 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/broadcasting.md`  |
-| `Illuminate\Bus`             | `bus`           | `mapped`             | Ported tests: 0 / 66 (0.0%); Missing tests: 66 (100.0%); Adapted tests: 0 (0.0%)      | `packages/bus.md`           |
+| `Illuminate\Bus`             | `bus`           | `mapped`             | Ported tests: 54 / 66 (81.8%); Missing tests: 0 (0.0%); Adapted tests: 12 (18.2%)     | `packages/bus.md`           |
 | `Illuminate\Cache`           | `cache`         | `mapped`             | Ported tests: 0 / 313 (0.0%); Missing tests: 313 (100.0%); Adapted tests: 0 (0.0%)    | `packages/cache.md`         |
 | `Illuminate\Concurrency`     | `concurrency`   | `mapped`             | Ported tests: 0 / 12 (0.0%); Missing tests: 12 (100.0%); Adapted tests: 0 (0.0%)      | `packages/concurrency.md`   |
 | `Illuminate\Conditionable`   | `conditionable` | `mapped`             | Ported tests: 0 / 2 (0.0%); Missing tests: 2 (100.0%); Adapted tests: 0 (0.0%)        | `packages/conditionable.md` |
@@ -185,8 +185,8 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13066 |   535 (4.1%) |           12328 (94.4%) |    203 (1.6%) |
-| Framework inventories |          34 |           9009 |   532 (5.9%) |            8274 (91.8%) |    203 (2.3%) |
+| All inventories       |          51 |          13066 |   589 (4.5%) |           12262 (93.8%) |    215 (1.6%) |
+| Framework inventories |          34 |           9009 |   586 (6.5%) |            8208 (91.1%) |    215 (2.4%) |
 | Package inventories   |          17 |           4057 |     3 (0.1%) |            4054 (99.9%) |      0 (0.0%) |
 
 ## Documentation Porting Summary
@@ -292,7 +292,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | Authentication guards        | `framework.auth`            | `auth`          | `ported`   | `packages/auth.md`          | Session, token, request, basic-auth, provider, and event surfaces are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.                                                         |
 | Password broker              | `framework.auth`            | `auth`          | `ported`   | `packages/auth.md`          | Password reset tokens, throttling, callback notification override, notification sender hook, and reset-link events are complete under classified parity; PHP manager/config mechanics are covered by Go adaptation rules in divergences.yml. |
 | Broadcasting contracts       | `framework.broadcasting`    | `broadcasting`  | `ported`   | `packages/broadcasting.md`  | Server-side channel auth, broadcast event payload handling, Pusher/Redis/Ably broadcaster responses, and Pusher channel conventions are ported; Echo remains the client receiver package.                                                    |
-| Command bus dispatch         | `framework.bus`             | `bus`           | `partial`  | `packages/bus.md`           | Bus package exists with command dispatch and middleware; upstream test parity is not complete.                                                                                                                                               |
+| Command bus dispatch         | `framework.bus`             | `bus`           | `ported`   | `packages/bus.md`           | Command dispatch, queue routing, after-response dispatch, chains, batches, lifecycle events, and typed failure callbacks are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.  |
 | Cache repository             | `framework.cache`           | `cache`         | `partial`  | `packages/cache.md`         | Cache abstractions are present, but upstream test parity is still missing.                                                                                                                                                                   |
 | Concurrent task execution    | `framework.concurrency`     | `concurrency`   | `partial`  | `packages/concurrency.md`   | Bedrock has a concurrency package; upstream concurrency tests have not been matched yet.                                                                                                                                                     |
 | Conditional fluent execution | `framework.conditionable`   | `conditionable` | `partial`  | `packages/conditionable.md` | Go fluent proxy exists; PHP dynamic behaviour is adapted to Go.                                                                                                                                                                              |

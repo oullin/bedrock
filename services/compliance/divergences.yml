@@ -39,6 +39,22 @@ adaptation_rules:
       - laravel: PHPUnit exception expectations
         bedrock: errors.Is and errors.As
 
+  bus:
+    source: Illuminate\Bus
+    rules:
+      - laravel: PendingBatch accepts PHP iterables, collections, closures, and filters falsy values
+        bedrock: PendingBatch accepts explicit Go job slices; callers filter nil or invalid jobs before dispatch when needed
+      - laravel: Batchable trait validation rejects jobs without the trait at construction time
+        bedrock: Batch membership is opt-in through small Go methods such as WithBatchID; non-batchable jobs may still be dispatched
+      - laravel: allowFailures accepts booleans, closures, callable strings, arrays, and filters invalid runtime callables
+        bedrock: AllowFailures, DisallowFailures, and OnFailure expose typed Go callbacks
+      - laravel: Serializable closures and facade-driven chained closure dispatch
+        bedrock: Chains and batches carry concrete Go jobs or registered handlers
+      - laravel: Postgres batch options use PHP serialize and base64 compatibility
+        bedrock: Batch repository options are stored as JSON consistently across supported SQL drivers
+      - laravel: PendingDispatch dynamically proxies unknown methods to the wrapped job
+        bedrock: Queueable exposes explicit typed fluent methods
+
   translation:
     source: Illuminate\Translation
     rules:
@@ -121,6 +137,18 @@ semantic_divergences:
   - surface: queue
     divergence: Unique jobs use a CacheLock interface
     rationale: Avoids a hard dependency on a specific cache backend.
+  - surface: bus
+    divergence: Pending batches use explicit Go job slices
+    rationale: Go has no PHP-style truthiness or collection/iterable runtime conversion.
+  - surface: bus
+    divergence: Batchable behavior is structural
+    rationale: Go uses explicit method-based contracts instead of traits.
+  - surface: bus
+    divergence: Failure callbacks are typed
+    rationale: Go has no safe equivalent for PHP runtime callable-string filtering.
+  - surface: bus
+    divergence: Batch options are JSON encoded
+    rationale: Bedrock avoids PHP serialize and keeps repository payloads portable.
   - surface: translation
     divergence: Invalid locale returns ErrInvalidLocale
     rationale: Go returns errors instead of throwing InvalidArgumentException.
@@ -258,6 +286,22 @@ test_status_overrides:
   - AuthGuardTest::testFailedAttemptFiresFailedEvent
   - AuthGuardTest::testAuthenticateReturnsUserWhenUserIsNotNull
   - AuthGuardTest::testSetUserFiresAuthenticatedEvent
+
+  # Illuminate\Bus entries whose Laravel behavior depends on PHP runtime
+  # mechanics are counted as adapted. Executable Go parity lives under
+  # packages/bus/*_laravel_test.go.
+  - BusBatchTest::test_jobs_can_be_added_to_pending_batch
+  - BusBatchTest::test_jobs_can_be_added_to_the_pending_batch_from_iterable
+  - BusBatchTest::test_pending_batch_filters_out_falsy_jobs
+  - BusBatchTest::test_chained_closure_after_multiple_batches_is_properly_dispatched
+  - BusBatchTest::test_options_serialization_on_postgres
+  - BusBatchTest::test_options_unserialize_on_postgres
+  - BusPendingBatchTest::test_it_throws_exception_if_batched_job_is_not_batchable
+  - BusPendingBatchTest::test_it_throws_an_exception_if_batched_job_contains_batch_with_nonbatchable_job
+  - BusPendingBatchTest::test_it_can_batch_a_closure
+  - BusPendingBatchTest::test_allow_failures_with_single_callable_registers_callback
+  - BusPendingBatchTest::test_allow_failures_registers_only_valid_callbacks
+  - BusPendingDispatchTest::testDynamicallyProxyMethods
   - AuthGuardTest::testAuthenticateThrowsWhenUserIsNull
   - AuthGuardTest::testHasUserReturnsTrueWhenUserIsNotNull
   - AuthGuardTest::testHasUserReturnsFalseWhenUserIsNull
