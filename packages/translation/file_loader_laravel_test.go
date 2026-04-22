@@ -56,6 +56,7 @@ func writeFlatJSON(t *testing.T, dir, locale string, content map[string]any) {
 
 // ── tests ─────────────────────────────────────────────────────────────────
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodWithoutNamespacesProperlyCallsLoader
 func TestFileLoaderLoadMethodProperlyLoadsFiles(t *testing.T) {
 	t.Parallel()
 
@@ -70,6 +71,7 @@ func TestFileLoaderLoadMethodProperlyLoadsFiles(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodWithoutNamespacesProperlyCallsLoaderWithMultiplePaths
 func TestFileLoaderLoadMethodProperlyLoadsFilesFromMultiplePaths(t *testing.T) {
 	t.Parallel()
 
@@ -94,6 +96,7 @@ func TestFileLoaderLoadMethodProperlyLoadsFilesFromMultiplePaths(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testEmptyArraysReturnedWhenFilesDontExist
 func TestFileLoaderLoadMethodSetsAnEmptyArrayWhenFileDoesntExist(t *testing.T) {
 	t.Parallel()
 
@@ -127,6 +130,7 @@ func TestFileLoaderLoadMethodSetsAnEmptyArrayWhenFileIsEmpty(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodWithNamespacesProperlyCallsLoader
 func TestFileLoaderLoadNamespacedFiles(t *testing.T) {
 	t.Parallel()
 
@@ -144,6 +148,7 @@ func TestFileLoaderLoadNamespacedFiles(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodWithNamespacesProperlyCallsLoaderAndLoadsLocalOverrides
 func TestFileLoaderLoadNamespacedFilesWithOverride(t *testing.T) {
 	t.Parallel()
 
@@ -180,6 +185,7 @@ func TestFileLoaderLoadNamespacedFilesWithOverride(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodForJSONProperlyCallsLoader
 func TestFileLoaderAddJsonPath(t *testing.T) {
 	t.Parallel()
 
@@ -196,6 +202,7 @@ func TestFileLoaderAddJsonPath(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodForJSONProperlyCallsLoaderForMultiplePaths
 func TestFileLoaderLoadFromMultipleJsonPaths(t *testing.T) {
 	t.Parallel()
 
@@ -244,6 +251,7 @@ func TestFileLoaderMalformedJsonFileReturnsError(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testLoadMethodThrowExceptionWhenProvideInvalidJSON
 func TestFileLoaderMalformedJsonReturnsWrappedError(t *testing.T) {
 	t.Parallel()
 
@@ -264,6 +272,7 @@ func TestFileLoaderMalformedJsonReturnsWrappedError(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testAllRegisteredNamespaceReturnProperly
 func TestFileLoaderNamespacesMethod(t *testing.T) {
 	t.Parallel()
 
@@ -278,6 +287,7 @@ func TestFileLoaderNamespacesMethod(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testAllAddedPathsReturnProperly
 func TestFileLoaderPathsMethod(t *testing.T) {
 	t.Parallel()
 
@@ -291,6 +301,7 @@ func TestFileLoaderPathsMethod(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Translation\TranslationFileLoaderTest::testAllAddedJsonPathsReturnProperly
 func TestFileLoaderJsonPathsMethod(t *testing.T) {
 	t.Parallel()
 
