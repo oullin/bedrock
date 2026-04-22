@@ -130,7 +130,8 @@ func CheckClientCredentials(guard *TokenGuard, scopes ...string) func(http.Handl
 			}
 
 			for _, scope := range scopes {
-				if !client.HasScope(scope) {
+				ok, err := clientCredentialHasScope(r.Context(), guard, client, scope)
+				if err != nil || !ok {
 					writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
 
 					return
@@ -140,6 +141,52 @@ func CheckClientCredentials(guard *TokenGuard, scopes ...string) func(http.Handl
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// CheckClientCredentialsForAnyScope builds middleware that validates client
+// credentials tokens and requires at least one listed scope to be present.
+func CheckClientCredentialsForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			client, err := guard.Client(r.Context())
+
+			if err != nil || client == nil {
+				writeJSON(w, http.StatusUnauthorized, "Unauthenticated.")
+
+				return
+			}
+
+			if len(scopes) == 0 {
+				next.ServeHTTP(w, r)
+
+				return
+			}
+
+			for _, scope := range scopes {
+				ok, err := clientCredentialHasScope(r.Context(), guard, client, scope)
+				if err == nil && ok {
+					next.ServeHTTP(w, r)
+
+					return
+				}
+			}
+
+			writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
+		})
+	}
+}
+
+func clientCredentialHasScope(ctx context.Context, guard *TokenGuard, client *Client, scope string) (bool, error) {
+	token, err := guard.Token(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if token != nil {
+		return token.Can(scope), nil
+	}
+
+	return client.HasScope(scope), nil
 }
 
 // CreateFreshApiToken builds middleware that issues a fresh encrypted cookie

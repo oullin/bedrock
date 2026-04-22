@@ -24,6 +24,7 @@ type TokenGuard struct {
 	request  *http.Request
 	user     cauth.Authenticatable // cached *UserWithTokens
 	token    *Token                // cached access token
+	client   *Client               // cached client
 }
 
 // NewTokenGuard creates a TokenGuard.
@@ -51,6 +52,7 @@ func (g *TokenGuard) SetRequest(r *http.Request) {
 	g.request = r
 	g.user = nil
 	g.token = nil
+	g.client = nil
 }
 
 // User returns the authenticated user for the current request.
@@ -78,28 +80,15 @@ func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 		return g.user, nil
 	}
 
-	// 3. Resolve from request.
-	bearer := g.bearerToken()
+	token := g.token
+	if token == nil {
+		var err error
+		token, err = g.resolveToken(ctx)
+		if err != nil || token == nil {
+			return nil, err
+		}
 
-	if bearer == "" {
-		return nil, nil
-	}
-
-	token, err := g.tokens.Find(ctx, bearer)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil || token.IsRevoked() {
-		return nil, nil
-	}
-
-	// Attach passport config for inherited scope resolution.
-	token = token.WithPassport(g.passport)
-
-	if !token.ExpiresAt.IsZero() && token.ExpiresAt.Before(time.Now()) {
-		return nil, nil
+		g.token = token
 	}
 
 	// Machine-to-machine tokens (client credentials) have no user.
@@ -128,15 +117,82 @@ func (g *TokenGuard) Client(ctx context.Context) (*Client, error) {
 	defer g.mu.Unlock()
 
 	// Test override: return acting-as client.
-	if _, _, actingClient, _, ok := g.passport.actingAsState(); ok && actingClient != nil {
-		return actingClient, nil
+	if _, _, actingClient, scopes, ok := g.passport.actingAsState(); ok && actingClient != nil {
+		client := *actingClient
+		if len(scopes) > 0 {
+			client.Scopes = scopes
+		}
+
+		return &client, nil
+	}
+
+	if g.client != nil {
+		return g.client, nil
 	}
 
 	if g.token == nil {
+		token, err := g.resolveToken(ctx)
+		if err != nil || token == nil {
+			return nil, err
+		}
+
+		g.token = token
+	}
+
+	client, err := g.clients.FindActive(ctx, g.token.ClientID)
+	if err != nil || client == nil {
+		return nil, err
+	}
+
+	g.client = client
+
+	return g.client, nil
+}
+
+// Token returns the current request's bearer token, if one is present and valid.
+func (g *TokenGuard) Token(ctx context.Context) (*Token, error) {
+	g.mu.Lock()
+
+	defer g.mu.Unlock()
+
+	if g.token == nil {
+		token, err := g.resolveToken(ctx)
+		if err != nil || token == nil {
+			return nil, err
+		}
+
+		g.token = token
+	}
+
+	copy := *g.token
+
+	return &copy, nil
+}
+
+func (g *TokenGuard) resolveToken(ctx context.Context) (*Token, error) {
+	bearer := g.bearerToken()
+
+	if bearer == "" {
 		return nil, nil
 	}
 
-	return g.clients.FindActive(ctx, g.token.ClientID)
+	token, err := g.tokens.Find(ctx, bearer)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if token == nil || token.IsRevoked() {
+		return nil, nil
+	}
+
+	token = token.WithPassport(g.passport)
+
+	if !token.ExpiresAt.IsZero() && token.ExpiresAt.Before(time.Now()) {
+		return nil, nil
+	}
+
+	return token, nil
 }
 
 // Check reports whether the request is authenticated.

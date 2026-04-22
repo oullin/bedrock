@@ -92,6 +92,14 @@ func (h *VerifyEmailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user, err := h.app.guard.AuthenticateRequest(ctx, w, r); err == nil && user != nil {
+		if verifiable, ok := user.(cauth.MustVerifyEmail); ok && verifiable.HasVerifiedEmail() {
+			w.WriteHeader(http.StatusNoContent)
+
+			return
+		}
+	}
+
 	if err := h.app.verifier.Verify(ctx, id, hash); err != nil {
 		http.Error(w, err.Error(), http.StatusForbidden)
 

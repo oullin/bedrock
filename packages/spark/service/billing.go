@@ -55,13 +55,21 @@ func (s *BillingService) GetActiveSubscription(ctx context.Context, billableType
 	for _, sub := range subs {
 		if sub.Valid() {
 			return &ActiveSubscription{
-				Provider:     "stripe", // provider determined by subscription source
+				Provider:     providerForSubscription(sub),
 				Subscription: sub,
 			}, nil
 		}
 	}
 
 	return nil, nil
+}
+
+func providerForSubscription(sub *spark.Subscription) string {
+	if sub.PaddleID != "" {
+		return "paddle"
+	}
+
+	return "stripe"
 }
 
 // IsSubscribedToAnyProvider reports whether the billable has any valid
@@ -89,9 +97,9 @@ func (s *BillingService) CancelSubscription(ctx context.Context, billableType st
 	}
 
 	now := time.Now()
-	active.Subscription.Status = spark.StatusCanceled
-	active.Subscription.EndsAt = &now
-	active.Subscription.UpdatedAt = now
+	if !active.Subscription.Cancel(now) {
+		return nil
+	}
 
 	return s.subscriptions.Save(ctx, active.Subscription)
 }
@@ -109,13 +117,9 @@ func (s *BillingService) ResumeSubscription(ctx context.Context, billableType st
 		return spark.ErrNotSubscribed
 	}
 
-	if !active.Subscription.OnGracePeriod() {
+	if !active.Subscription.Resume(time.Now()) {
 		return spark.ErrNotSubscribed
 	}
-
-	active.Subscription.Status = spark.StatusActive
-	active.Subscription.EndsAt = nil
-	active.Subscription.UpdatedAt = time.Now()
 
 	return s.subscriptions.Save(ctx, active.Subscription)
 }
