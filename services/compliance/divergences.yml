@@ -157,6 +157,22 @@ adaptation_rules:
       - laravel: Macroable methods, magic calls, closures, and callable strings
         bedrock: Not implemented; extension points use typed Go functions, interfaces, and method sets
 
+  container:
+    source: Illuminate\Container
+    rules:
+      - laravel: PHP attributes for singleton, scoped, contextual, config, route, auth, cache, database, log, storage, and tag injection
+        bedrock: Explicit Bind, Singleton, Scoped, When, Give, GiveConfig, GiveTagged, Instance, and service-provider registration
+      - laravel: PHP callable strings, at-sign class references, array callbacks, invokable objects, and global function names
+        bedrock: Explicit MethodCallable functions and named method bindings registered through BindMethod
+      - laravel: Reflection auto-wiring for class constructors, methods, interfaces, nullable defaults, variadics, and primitive parameters
+        bedrock: Explicit Factory functions, string-keyed abstracts, and MakeWith parameter maps
+      - laravel: ArrayAccess mutation and dynamic container utility helpers
+        bedrock: Explicit methods such as Instance, Bound, Has, ForgetInstance, ForgetInstances, FactoryFunc, and GetAlias
+      - laravel: Environment-specific contextual binding selectors
+        bedrock: Environment selection belongs in caller-owned configuration or provider wiring before registration
+      - laravel: RewindableGenerator tagged dependency mechanics
+        bedrock: Tagged returns a repeatable []any resolved from registered tag entries
+
   concurrency:
     source: Illuminate\Concurrency
     rules:
@@ -263,8 +279,105 @@ semantic_divergences:
   - surface: console
     divergence: No PHP attribute, Macroable, or callable-string runtime
     rationale: Go uses explicit registration, typed functions, interfaces, and method sets instead of PHP attributes, magic methods, dynamic macros, closures, and callable strings.
+  - surface: container
+    divergence: Explicit container contracts instead of PHP runtime auto-wiring
+    rationale: Bedrock's Go container intentionally uses factories, typed callbacks, string keys, and explicit parameter maps instead of PHP reflection, attributes, callable strings, ArrayAccess, and environment-specific runtime selectors.
 
 test_status_overrides:
+  # Illuminate\Container PHP runtime mechanics are counted as adapted.
+  # Executable Go parity lives under packages/container/laravel_inventory_test.go.
+  - AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterDependencyResolutionWithAttribute
+  - AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithAttributeIsResolved
+  - AfterResolvingAttributeCallbackTest::testCallbackIsCalledAfterClassWithConstructorAndAttributeIsResolved
+  - AfterResolvingAttributeCallbackTest::testCallbackIsCalledOnAppCall
+  - ContainerCallTest::testCallWithAtSignBasedClassReferencesWithoutMethodThrowsException
+  - ContainerCallTest::testCallWithAtSignBasedClassReferences
+  - ContainerCallTest::testCallWithCallableArray
+  - ContainerCallTest::testCallWithStaticMethodNameString
+  - ContainerCallTest::testCallWithGlobalMethodName
+  - ContainerCallTest::testBindMethodAcceptsAnArray
+  - ContainerCallTest::testCallWithVariadicDependency
+  - ContainerCallTest::testCallWithCallableObject
+  - ContainerCallTest::testCallWithCallableClassString
+  - ContainerCallTest::testCallWithoutRequiredParamsThrowsException
+  - ContainerCallTest::testCallWithUnnamedParametersThrowsException
+  - ContainerCallTest::testCallWithoutRequiredParamsOnClosureThrowsException
+  - ContainerCallTest::testCallWithNullableClassParameterDefaultValue
+  - ContainerCallTest::testCallWithNullableClassParameterDefaultValueWithBinding
+  - ContainerResolveNonInstantiableTest::testResolvingNonInstantiableWithDefaultRemovesWiths
+  - ContainerResolveNonInstantiableTest::testResolvingNonInstantiableWithVariadicRemovesWiths
+  - ContainerResolveNonInstantiableTest::testResolveVariadicPrimitive
+  - ContainerTest::testAbstractCanBeBoundFromConcreteReturnType
+  - ContainerTest::testAutoConcreteResolution
+  - ContainerTest::testBindFailsLoudlyWithInvalidArgument
+  - ContainerTest::testArrayAccess
+  - ContainerTest::testBoundInstanceAndAliasCheckViaArrayAccess
+  - ContainerTest::testResolutionOfDefaultParameters
+  - ContainerTest::testResolutionOfClassWithDefaultParameters
+  - ContainerTest::testResolutionOfClassWithDefaultParametersAndContextualBindings
+  - ContainerTest::testInternalClassWithDefaultParameters
+  - ContainerTest::testBindingResolutionExceptionMessageWhenClassDoesNotExist
+  - ContainerTest::testResolvingWithUsingAnInterface
+  - ContainerTest::testCanBuildWithoutParameterStackWithNoConstructors
+  - ContainerTest::testCanBuildWithoutParameterStackWithConstructors
+  - ContainerTest::testContainerCanResolveClasses
+  - ContainerTest::testContainerSingletonAttribute
+  - ContainerTest::testContainerScopedAttribute
+  - ContainerTest::testBindInterfaceToSingleton
+  - ContainerTest::testBindInterfaceToScoped
+  - ContainerTest::testWildcardBindingButNoEnvironmentResolveSetThrowsBindingResolutionException
+  - ContainerTest::testChecksForMoreSpecificEnvironmentBeforeFallingBackToDefault
+  - ContainerTest::testCanPassAStringForEnvironmentEnvironment
+  - ContainerTest::testAnEmptyEnvironmentListThrowsAnException
+  - ContainerTest::testContainerBindingsTakePrecedence
+  - ContainerTest::testFlushResetsEnvironmentResolverAndCheckedBindings
+  - ContainerTest::testNoMatchingEnvironmentAndNoWildcardThrowsBindingResolutionException
+  - ContextualAttributeBindingTest::testDependencyCanBeResolvedFromAttributeBinding
+  - ContextualAttributeBindingTest::testSimpleDependencyCanBeResolvedCorrectlyFromGiveAttributeBinding
+  - ContextualAttributeBindingTest::testComplexDependencyCanBeResolvedCorrectlyFromGiveAttributeBinding
+  - ContextualAttributeBindingTest::testScalarDependencyCanBeResolvedFromAttributeBinding
+  - ContextualAttributeBindingTest::testScalarDependencyCanBeResolvedFromAttributeResolveMethod
+  - ContextualAttributeBindingTest::testDependencyWithAfterCallbackAttributeCanBeResolved
+  - ContextualAttributeBindingTest::testAuthedAttribute
+  - ContextualAttributeBindingTest::testCacheAttribute
+  - ContextualAttributeBindingTest::testConfigAttribute
+  - ContextualAttributeBindingTest::testDatabaseAttribute
+  - ContextualAttributeBindingTest::testAuthAttribute
+  - ContextualAttributeBindingTest::testLogAttribute
+  - ContextualAttributeBindingTest::testRouteParameterAttribute
+  - ContextualAttributeBindingTest::testContextAttribute
+  - ContextualAttributeBindingTest::testContextAttributeInteractingWithHidden
+  - ContextualAttributeBindingTest::testStorageAttribute
+  - ContextualAttributeBindingTest::testInjectionWithAttributeOnAppCall
+  - ContextualAttributeBindingTest::testAttributeOnAppCall
+  - ContextualAttributeBindingTest::testNestedAttributeOnAppCall
+  - ContextualAttributeBindingTest::testTagAttribute
+  - ContextualBindingTest::testContextualBindingWorksForNestedOptionalDependencies
+  - ContextualBindingTest::testContextualBindingWorksForVariadicDependencies
+  - ContextualBindingTest::testContextualBindingWorksForVariadicDependenciesWithNothingBound
+  - ContextualBindingTest::testContextualBindingWorksForVariadicAfterNonVariadicDependencies
+  - ContextualBindingTest::testContextualBindingWorksForVariadicAfterNonVariadicDependenciesWithNothingBound
+  - ContextualBindingTest::testContextualBindingWorksForVariadicDependenciesWithoutFactory
+  - ContextualBindingTest::testContextualBindingGivesTagsForVariadicWithNoTagsDefined
+  - ContextualBindingTest::testContextualBindingGivesTagsForVariadic
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledForType
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledOnceForImplementation
+  - ResolvingCallbackTest::testGlobalResolvingCallbacksAreCalledOnceForImplementation
+  - ResolvingCallbackTest::testResolvingCallbacksAreCanceledWhenInterfaceGetsBoundToSomeOtherConcrete
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledOnceForStringAbstractions
+  - ResolvingCallbackTest::testResolvingCallbacksForConcretesAreCalledOnceForStringAbstractions
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledOnceForImplementation2
+  - ResolvingCallbackTest::testParametersPassedIntoResolvingCallbacks
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledForInterfaces
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledForConcretesWhenAttachedOnInterface
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledForConcretesWithNoBinding
+  - ResolvingCallbackTest::testResolvingCallbacksAreCalledForInterFacesWithNoBinding
+  - RewindableGeneratorTest::testCountUsesProvidedValue
+  - RewindableGeneratorTest::testCountUsesProvidedValueAsCallback
+  - UtilTest::testUnwrapIfClosure
+  - UtilTest::testArrayWrap
+  - UtilTest::testGetParameterClassName
+
   # Illuminate\Cache entries without a direct executable Go analogue are counted
   # as adapted. Executable parity tests live under packages/cache.
   - CacheApcStoreTest::testGetReturnsNullWhenNotFound
