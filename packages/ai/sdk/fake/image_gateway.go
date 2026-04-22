@@ -49,7 +49,7 @@ func (g *ImageGateway) GenerateImage(ctx context.Context, req contractsgw.ImageG
 		Prompt:  req.Prompt,
 		Size:    req.Size,
 		Quality: req.Quality,
-		Timeout: req.Timeout,
+		Timeout: timeoutOrDefault(req.Timeout, DefaultMediaTimeout),
 	}
 
 	if req.Model != "" {

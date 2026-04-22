@@ -12,6 +12,7 @@ type mockSkillsPathAgent struct{ base string }
 
 func (m *mockSkillsPathAgent) SkillsPath() string { return m.base }
 
+// SkillWriterTest::it_writes_skill_to_a_target_directory
 func TestInstallSkillWriterCreatesFiles(t *testing.T) {
 	t.Parallel()
 
@@ -45,6 +46,21 @@ func TestInstallSkillWriterEmptyPathErrors(t *testing.T) {
 
 	if err := w.Write(agent, []install.Skill{&install.SkillEntry{Name: "x", Content: "y"}}); err == nil {
 		t.Error("expected error for empty skills path")
+	}
+}
+
+// SkillWriterTest::it_throws_an_exception_for_path_traversal_in_skill_name
+func TestInstallSkillWriterRejectsPathTraversal(t *testing.T) {
+	t.Parallel()
+
+	tmp := t.TempDir()
+	agent := &mockSkillsPathAgent{base: filepath.Join(tmp, ".claude", "skills")}
+	w := &install.SkillWriter{}
+
+	if err := w.Write(agent, []install.Skill{
+		&install.SkillEntry{Name: "../escape", Content: "# Escape\n"},
+	}); err == nil {
+		t.Fatal("expected path traversal to fail")
 	}
 }
 
