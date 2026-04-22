@@ -16,7 +16,7 @@ func (m *mockGuidelinesAgent) GuidelinesPath() string               { return m.p
 func (m *mockGuidelinesAgent) Frontmatter() bool                    { return false }
 func (m *mockGuidelinesAgent) TransformGuidelines(md string) string { return md }
 
-// TestGuidelineWriterCreatesFile verifies the writer creates the file.
+// GuidelineWriterTest::test_it_writes_guidelines_to_new_file
 func TestGuidelineWriterCreatesFile(t *testing.T) {
 	t.Parallel()
 
@@ -42,7 +42,7 @@ func TestGuidelineWriterCreatesFile(t *testing.T) {
 	}
 }
 
-// TestGuidelineWriterCreatesParentDirs verifies parent directories are created.
+// GuidelineWriterTest::test_it_creates_directory_when_it_does_not_exist
 func TestGuidelineWriterCreatesParentDirs(t *testing.T) {
 	t.Parallel()
 
@@ -58,5 +58,24 @@ func TestGuidelineWriterCreatesParentDirs(t *testing.T) {
 
 	if _, err := os.Stat(dest); err != nil {
 		t.Errorf("expected file at %s: %v", dest, err)
+	}
+}
+
+// GuidelineWriterTest::test_it_throws_exception_when_directory_creation_fails
+func TestGuidelineWriterDirectoryCreationFails(t *testing.T) {
+	t.Parallel()
+
+	tmp := t.TempDir()
+	blocker := filepath.Join(tmp, "blocked")
+
+	if err := os.WriteFile(blocker, []byte("file"), 0o644); err != nil {
+		t.Fatalf("write blocker file: %v", err)
+	}
+
+	agent := &mockGuidelinesAgent{path: filepath.Join(blocker, "AGENTS.md")}
+	w := guidelines.NewGuidelineWriter()
+
+	if err := w.Write(agent, "content"); err == nil {
+		t.Fatal("expected error when parent directory cannot be created")
 	}
 }

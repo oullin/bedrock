@@ -122,6 +122,12 @@ func (p *ReverbServiceProvider) Register() {
 			return nil, err
 		}
 
+		connsRaw, err := c.Make("reverb.conns")
+
+		if err != nil {
+			return nil, err
+		}
+
 		channelsRaw, err := c.Make("reverb.channels")
 
 		if err != nil {
@@ -136,6 +142,7 @@ func (p *ReverbServiceProvider) Register() {
 
 		return NewHTTPHandler(
 			appsRaw.(*AppManager),
+			connsRaw.(*ConnectionManager),
 			channelsRaw.(*ChannelManager),
 			dispatcherRaw.(contractsReverb.Dispatcher),
 		), nil

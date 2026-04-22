@@ -1,4 +1,7 @@
-// Port of Laravel\Ai\Tests\Feature\RerankingFakeTest
+// RerankingFakeTest::test_can_fake_reranking
+// RerankingFakeTest::test_can_assert_reranked
+// RerankingFakeTest::test_can_assert_nothing_reranked
+// RerankingFakeTest::test_prompt_records_limit
 package ai_test
 
 import (

@@ -50,3 +50,48 @@ func TestNotifyOptionsSetter(t *testing.T) {
 		t.Errorf("expected icon %q, got %q", "icon.png", cfg.icon)
 	}
 }
+
+// NotifyPromptTest::it_builds_the_correct_macos_command
+func TestMacOSNotificationScript(t *testing.T) {
+	t.Parallel()
+
+	got := macOSNotificationScript("Deploy", &notifyConfig{body: "Done"})
+	want := `display notification "Done" with title "Deploy"`
+
+	if got != want {
+		t.Fatalf("macOS script = %q, want %q", got, want)
+	}
+}
+
+// NotifyPromptTest::it_includes_subtitle_and_sound_in_macos_command
+func TestMacOSNotificationScriptIncludesSubtitleAndSound(t *testing.T) {
+	t.Parallel()
+
+	got := macOSNotificationScript("Deploy", &notifyConfig{
+		body:     "Done",
+		subtitle: "Release",
+		sound:    "Basso",
+	})
+
+	if got != `display notification "Done" with title "Deploy" subtitle "Release" sound name "Basso"` {
+		t.Fatalf("macOS script = %q", got)
+	}
+}
+
+// NotifyPromptTest::it_sets_linux_options
+func TestLinuxNotificationArgs(t *testing.T) {
+	t.Parallel()
+
+	got := linuxNotificationArgs("Deploy", &notifyConfig{body: "Done", icon: "app.png"})
+	want := []string{"-i", "app.png", "Deploy", "Done"}
+
+	if len(got) != len(want) {
+		t.Fatalf("linux args = %#v, want %#v", got, want)
+	}
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("linux args = %#v, want %#v", got, want)
+		}
+	}
+}

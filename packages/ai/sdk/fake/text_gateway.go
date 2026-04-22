@@ -173,7 +173,7 @@ var ErrStrayCall = fmt.Errorf("ai: unexpected call to faked text gateway (stray 
 func promptFromRequest(req contractsgw.TextGenerateRequest) *prompts.AgentPrompt {
 	p := &prompts.AgentPrompt{
 		Text:    req.Text,
-		Timeout: req.Timeout,
+		Timeout: timeoutOrDefault(req.Timeout, DefaultTextTimeout),
 	}
 
 	if req.Model != "" {

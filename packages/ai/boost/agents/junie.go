@@ -38,6 +38,16 @@ func (a *Junie) SkillsPath() string {
 	return fallback(a.opts.SkillsPath, ".junie/skills")
 }
 
+func (a *Junie) UseAbsolutePathForMcp() bool { return true }
+
+func (a *Junie) GoBinaryPath(bool) string {
+	return a.BaseAgent.GoBinaryPath(true)
+}
+
+func (a *Junie) EntryPointPath(bool) string {
+	return a.BaseAgent.EntryPointPath(true)
+}
+
 // DetectOnSystem checks for a .junie directory on the system.
 func (a *Junie) DetectOnSystem(p platform.Platform) bool {
 	switch p {
