@@ -151,6 +151,8 @@ func (d *DatabaseDriver) Get(ctx context.Context, feature string, scope any) (an
 		return nil, err
 	}
 
+	value = resolveFeatureValue(value)
+
 	if setErr := d.Set(ctx, feature, scope, value); setErr != nil {
 		return nil, setErr
 	}

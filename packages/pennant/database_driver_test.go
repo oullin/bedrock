@@ -56,9 +56,11 @@ type mockResult struct{}
 // ---------------------------------------------------------------------------
 
 type dbRow struct {
-	name  string
-	scope string
-	value string // JSON-encoded
+	name      string
+	scope     string
+	value     string // JSON-encoded
+	createdAt any
+	updatedAt any
 }
 
 // inMemoryDB simulates the features SQL table entirely in memory.
@@ -69,6 +71,9 @@ type inMemoryDB struct {
 	shouldConflict bool
 	conflictCount  int
 	conflictsSeen  int
+	execCount      int
+	queryCount     int
+	rowQueryCount  int
 }
 
 func init() {
@@ -174,6 +179,8 @@ func (m *inMemoryDB) ExecContext(_ context.Context, query string, args ...any) (
 
 	defer m.mu.Unlock()
 
+	m.execCount++
+
 	upper := strings.ToUpper(strings.TrimSpace(query))
 
 	switch {
@@ -202,6 +209,10 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 	name := fmt.Sprintf("%v", args[0])
 	scope := fmt.Sprintf("%v", args[1])
 	value := fmt.Sprintf("%v", args[2])
+	var timestamp any
+	if len(args) > 3 {
+		timestamp = args[3]
+	}
 
 	isUpsert := strings.Contains(strings.ToUpper(query), "ON CONFLICT")
 
@@ -209,6 +220,7 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 		if r.name == name && r.scope == scope {
 			if isUpsert {
 				m.rows[i].value = value
+				m.rows[i].updatedAt = timestamp
 
 				return mockResult{}, nil
 			}
@@ -217,7 +229,7 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 		}
 	}
 
-	m.rows = append(m.rows, dbRow{name: name, scope: scope, value: value})
+	m.rows = append(m.rows, dbRow{name: name, scope: scope, value: value, createdAt: timestamp, updatedAt: timestamp})
 
 	return mockResult{}, nil
 }
@@ -229,12 +241,13 @@ func (m *inMemoryDB) handleUpdate(args ...any) (sql.Result, error) {
 	}
 
 	value := fmt.Sprintf("%v", args[0])
-	// args[1] is updated_at — ignored by mock
+	updatedAt := args[1]
 	name := fmt.Sprintf("%v", args[2])
 
 	for i, r := range m.rows {
 		if r.name == name {
 			m.rows[i].value = value
+			m.rows[i].updatedAt = updatedAt
 		}
 	}
 
@@ -299,6 +312,8 @@ func (m *inMemoryDB) QueryContext(_ context.Context, query string, _ ...any) (*s
 
 	defer m.mu.Unlock()
 
+	m.queryCount++
+
 	upper := strings.ToUpper(strings.TrimSpace(query))
 
 	if !strings.Contains(upper, "SELECT DISTINCT NAME") {
@@ -324,6 +339,8 @@ func (m *inMemoryDB) QueryRowContext(_ context.Context, _ string, args ...any) *
 	m.mu.Lock()
 
 	defer m.mu.Unlock()
+
+	m.rowQueryCount++
 
 	if len(args) < 2 {
 		return fakeEmptyRow()

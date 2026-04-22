@@ -1,8 +1,13 @@
 package watchers
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -53,6 +58,9 @@ func (w *ClientRequestWatcher) Record(
 
 	maskedHeaders := maskHeaders(requestHeaders, scope.HiddenRequestHeaders())
 	maskedPayload := parseClientBody(requestBody, requestHeaders.Get("Content-Type"))
+	if payload, ok := maskedPayload.(map[string]any); ok {
+		maskedPayload = maskMap(payload, scope.HiddenRequestParameters())
+	}
 
 	content := map[string]any{
 		"method":   strings.ToUpper(method),
@@ -104,5 +112,81 @@ func parseClientBody(body []byte, contentType string) any {
 		}
 	}
 
+	if strings.Contains(contentType, "application/x-www-form-urlencoded") {
+		values, err := url.ParseQuery(string(body))
+		if err == nil {
+			m := make(map[string]any, len(values))
+
+			for k, v := range values {
+				if len(v) == 1 {
+					m[k] = v[0]
+				} else {
+					m[k] = v
+				}
+			}
+
+			return m
+		}
+	}
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		if payload, ok := parseMultipartBody(body, contentType); ok {
+			return payload
+		}
+	}
+
 	return string(body)
+}
+
+func parseMultipartBody(body []byte, contentType string) (map[string]any, bool) {
+	_, params, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return nil, false
+	}
+
+	boundary := params["boundary"]
+	if boundary == "" {
+		return nil, false
+	}
+
+	reader := multipart.NewReader(bytes.NewReader(body), boundary)
+	form, err := reader.ReadForm(int64(len(body)))
+	if err != nil {
+		return nil, false
+	}
+	defer form.RemoveAll() //nolint:errcheck
+
+	payload := make(map[string]any, len(form.Value)+len(form.File))
+	for key, values := range form.Value {
+		if len(values) == 1 {
+			payload[key] = values[0]
+		} else {
+			payload[key] = values
+		}
+	}
+
+	for key, files := range form.File {
+		filePayload := make([]map[string]any, 0, len(files))
+		for _, header := range files {
+			size := header.Size
+			if size == 0 {
+				if file, err := header.Open(); err == nil {
+					n, _ := io.Copy(io.Discard, file)
+					_ = file.Close()
+					size = n
+				}
+			}
+			filePayload = append(filePayload, map[string]any{
+				"name": header.Filename,
+				"size": size,
+			})
+		}
+		if len(filePayload) == 1 {
+			payload[key] = filePayload[0]
+		} else {
+			payload[key] = filePayload
+		}
+	}
+
+	return payload, true
 }

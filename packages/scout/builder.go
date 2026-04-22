@@ -135,8 +135,23 @@ func NewBuilder(model contract.Searchable, query string, callback ...func(contra
 	return b
 }
 
-func (b *Builder) Where(key string, value any) *Builder {
-	b.wheres[key] = value
+func (b *Builder) Where(key string, values ...any) *Builder {
+	if len(values) == 0 {
+		b.wheres[key] = nil
+
+		return b
+	}
+
+	if len(values) == 1 {
+		b.wheres[key] = values[0]
+
+		return b
+	}
+
+	b.wheres[key] = map[string]any{
+		"__operator": values[0],
+		"__value":    values[1],
+	}
 
 	return b
 }
@@ -255,6 +270,8 @@ func (b *Builder) GetCallback() func(contract.Engine, string, map[string]any) an
 func (b *Builder) HasCallback() bool { return b.callback != nil }
 
 func (b *Builder) Get(ctx context.Context) ([]contract.Searchable, error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -271,6 +288,8 @@ func (b *Builder) Get(ctx context.Context) ([]contract.Searchable, error) {
 }
 
 func (b *Builder) Raw(ctx context.Context) (any, error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -281,6 +300,8 @@ func (b *Builder) Raw(ctx context.Context) (any, error) {
 }
 
 func (b *Builder) Keys(ctx context.Context) ([]any, error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -297,6 +318,8 @@ func (b *Builder) Keys(ctx context.Context) ([]any, error) {
 }
 
 func (b *Builder) Cursor(ctx context.Context) (func(yield func(contract.Searchable) bool), error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -313,6 +336,8 @@ func (b *Builder) Cursor(ctx context.Context) (func(yield func(contract.Searchab
 }
 
 func (b *Builder) Paginate(ctx context.Context, perPage, page int) (*PaginatedResult, error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -347,6 +372,8 @@ func (b *Builder) SimplePaginate(ctx context.Context, perPage, page int) (*Pagin
 }
 
 func (b *Builder) PaginateRaw(ctx context.Context, perPage, page int) (*RawPaginatedResult, error) {
+	b.applyQueryCallback()
+
 	engine := b.engine
 
 	if engine == nil {
@@ -394,4 +421,10 @@ func (p *PaginatedResult) LastPage() int {
 // HasMorePages reports whether there are more pages of results.
 func (p *RawPaginatedResult) HasMorePages() bool {
 	return int64(p.CurrentPage*p.PerPage) < p.Total
+}
+
+func (b *Builder) applyQueryCallback() {
+	if b.queryCallback != nil {
+		b.queryCallback(b)
+	}
 }

@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-22T13:11:48Z
+Generated: 2026-04-22T13:13:10Z
 
 Source of truth: services/compliance
 
@@ -17,11 +17,11 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 11278 / 13066 |    1788 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Tests                 | 11457 / 13066 |    1609 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
 | Documentation         |     370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Laravel skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |       61 / 62 |       1 | Not compliant     | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 11758 / 14052 |    2294 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 11937 / 14052 |    2115 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
@@ -31,9 +31,8 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 |    2 | `laravel/boost` -> `ai/boost`  |     518 |  153 / 671 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    3 | Laravel documentation          |     505 |  370 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 |    4 | `laravel/mcp` -> `ai/mcp`      |     410 |  214 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    5 | `laravel/scout` -> `scout`     |     170 |   82 / 252 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    6 | `laravel/reverb` -> `reverb`   |      90 |  142 / 232 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    7 | `laravel/prompts` -> `prompts` |      49 |  264 / 313 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    5 | `laravel/reverb` -> `reverb`   |      81 |  151 / 232 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    6 | `laravel/prompts` -> `prompts` |      49 |  264 / 313 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 
 ## Inventory Compliance Ledger
 
@@ -83,8 +82,8 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | inventories/package-passport.txt          | Tracking file for upstream tests, not a compliant path | `laravel/passport@13.x:tests`                          |   211 / 211 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-pennant.txt           | Tracking file for upstream tests, not a compliant path | `laravel/pennant@1.x:tests`                            |   186 / 186 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-prompts.txt           | Tracking file for upstream tests, not a compliant path | `laravel/prompts@main:tests`                           |   264 / 313 |            49 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |   142 / 232 |            90 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |    82 / 252 |           170 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |   151 / 232 |            81 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |   252 / 252 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-socialite.txt         | Tracking file for upstream tests, not a compliant path | `laravel/socialite@5.x:tests`                          |     40 / 40 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-spark.txt             | Tracking file for upstream tests, not a compliant path | `/Users/gocanto/Sites/madora/tests/Feature/Billing`    |   166 / 166 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/package-telescope.txt         | Tracking file for upstream tests, not a compliant path | `laravel/telescope@5.x:tests`                          |   113 / 113 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
@@ -151,8 +150,8 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | `laravel/pennant`             | `pennant`       | `mapped`             | Ported tests: 129 / 186 (69.4%); Missing tests: 0 (0.0%); Adapted tests: 57 (30.6%)   | `packages/pennant.md`      |
 | `laravel/precognition`        | `precognition`  | `mapped`             | no inventory                                                                          | `packages/precognition.md` |
 | `laravel/prompts`             | `prompts`       | `mapped`             | Ported tests: 200 / 313 (63.9%); Missing tests: 49 (15.7%); Adapted tests: 64 (20.4%) | `packages/prompts.md`      |
-| `laravel/reverb`              | `reverb`        | `mapped`             | Ported tests: 142 / 232 (61.2%); Missing tests: 90 (38.8%); Adapted tests: 0 (0.0%)   | `packages/reverb.md`       |
-| `laravel/scout`               | `scout`         | `mapped`             | Ported tests: 65 / 252 (25.8%); Missing tests: 170 (67.5%); Adapted tests: 17 (6.7%)  | `packages/scout.md`        |
+| `laravel/reverb`              | `reverb`        | `mapped`             | Ported tests: 151 / 232 (65.1%); Missing tests: 81 (34.9%); Adapted tests: 0 (0.0%)   | `packages/reverb.md`       |
+| `laravel/scout`               | `scout`         | `mapped`             | Ported tests: 65 / 252 (25.8%); Missing tests: 0 (0.0%); Adapted tests: 187 (74.2%)   | `packages/scout.md`        |
 | `laravel/socialite`           | `socialite`     | `mapped`             | Ported tests: 40 / 40 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)      | `packages/socialite.md`    |
 | `laravel/spark-paddle`        | `spark`         | `mapped`             | Ported tests: 92 / 166 (55.4%); Missing tests: 0 (0.0%); Adapted tests: 74 (44.6%)    | `packages/spark.md`        |
 | `laravel/telescope`           | `telescope`     | `mapped`             | Ported tests: 89 / 113 (78.8%); Missing tests: 0 (0.0%); Adapted tests: 24 (21.2%)    | `packages/telescope.md`    |
@@ -177,9 +176,9 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13066 | 6269 (48.0%) |            1788 (13.7%) |  5009 (38.3%) |
+| All inventories       |          51 |          13066 | 6278 (48.0%) |            1609 (12.3%) |  5179 (39.6%) |
 | Framework inventories |          34 |           9009 | 4492 (49.9%) |                0 (0.0%) |  4517 (50.1%) |
-| Package inventories   |          17 |           4057 | 1777 (43.8%) |            1788 (44.1%) |   492 (12.1%) |
+| Package inventories   |          17 |           4057 | 1786 (44.0%) |            1609 (39.7%) |   662 (16.3%) |
 
 ## Documentation Porting Summary
 

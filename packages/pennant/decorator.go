@@ -45,6 +45,13 @@ func (d *Decorator) Define(name string, resolver func(ctx context.Context, scope
 	d.driver.Define(name, resolver)
 }
 
+// DefineValue registers a feature that always resolves to value.
+func (d *Decorator) DefineValue(name string, value any) {
+	d.Define(name, func(context.Context, any) (any, error) {
+		return value, nil
+	})
+}
+
 // Defined returns the names of all features with registered resolvers.
 // Delegates to the underlying driver.
 func (d *Decorator) Defined() []string {

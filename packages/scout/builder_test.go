@@ -218,6 +218,205 @@ func TestBuilderCallback(t *testing.T) {
 	}
 }
 
+type paginateResult struct {
+	models []contract.Searchable
+	total  int64
+}
+
+type fakePaginationEngine struct {
+	paginateCalls     int
+	mapCalls          int
+	getTotalCalls     int
+	callbackInvoked   bool
+	lastCallbackQuery string
+}
+
+func (e *fakePaginationEngine) Update(context.Context, []contract.Searchable) error { return nil }
+func (e *fakePaginationEngine) Delete(context.Context, []contract.Searchable) error { return nil }
+func (e *fakePaginationEngine) Search(context.Context, contract.SearchBuilder) (any, error) {
+	return nil, nil
+}
+func (e *fakePaginationEngine) Paginate(_ context.Context, builder contract.SearchBuilder, perPage, page int) (any, error) {
+	e.paginateCalls++
+
+	if builder.HasCallback() {
+		cb := builder.GetCallback()
+		if cb != nil {
+			e.callbackInvoked = true
+			e.lastCallbackQuery = builder.GetQuery()
+			_ = cb(e, builder.GetQuery(), builder.GetOptions())
+		}
+	}
+
+	start := (page - 1) * perPage
+	end := start + perPage
+
+	if start < 0 {
+		start = 0
+	}
+	if end < start {
+		end = start
+	}
+
+	models := []contract.Searchable{
+		newTestModel(1, "posts"),
+		newTestModel(2, "posts"),
+		newTestModel(3, "posts"),
+	}
+
+	if start > len(models) {
+		start = len(models)
+	}
+	if end > len(models) {
+		end = len(models)
+	}
+
+	return &paginateResult{models: models[start:end], total: int64(len(models))}, nil
+}
+func (e *fakePaginationEngine) MapIds(any) []any { return nil }
+func (e *fakePaginationEngine) Map(_ context.Context, results any, _ contract.Searchable) ([]contract.Searchable, error) {
+	e.mapCalls++
+	pr, ok := results.(*paginateResult)
+	if !ok {
+		return nil, nil
+	}
+	return pr.models, nil
+}
+func (e *fakePaginationEngine) LazyMap(context.Context, any, contract.Searchable) func(yield func(contract.Searchable) bool) {
+	return func(func(contract.Searchable) bool) {}
+}
+func (e *fakePaginationEngine) GetTotalCount(results any) int64 {
+	e.getTotalCalls++
+	pr, ok := results.(*paginateResult)
+	if !ok {
+		return 0
+	}
+	return pr.total
+}
+func (e *fakePaginationEngine) Flush(context.Context, contract.Searchable) error          { return nil }
+func (e *fakePaginationEngine) CreateIndex(context.Context, string, map[string]any) error { return nil }
+func (e *fakePaginationEngine) DeleteIndex(context.Context, string) error                 { return nil }
+
+var _ contract.Engine = (*fakePaginationEngine)(nil)
+
+func TestBuilderPaginateWithoutCustomQueryCallback(t *testing.T) {
+	t.Parallel()
+	// BuilderTest::test_it_can_paginate_without_custom_query_callback
+	engine := &fakePaginationEngine{}
+	model := newTestModel(1, "posts")
+	builder := scout.NewBuilder(model, "hello").SetEngine(engine)
+
+	result, err := builder.Paginate(context.Background(), 2, 1)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if engine.paginateCalls != 1 {
+		t.Fatalf("expected 1 paginate call, got %d", engine.paginateCalls)
+	}
+
+	if engine.mapCalls != 1 {
+		t.Fatalf("expected 1 map call, got %d", engine.mapCalls)
+	}
+
+	if engine.callbackInvoked {
+		t.Fatal("expected callback not to be invoked")
+	}
+
+	if result.Total != 3 {
+		t.Fatalf("expected total 3, got %d", result.Total)
+	}
+
+	if len(result.Models) != 2 {
+		t.Fatalf("expected 2 models, got %d", len(result.Models))
+	}
+}
+
+func TestBuilderPaginateWithCustomQueryCallback(t *testing.T) {
+	t.Parallel()
+	// BuilderTest::test_it_can_paginate_with_custom_query_callback
+	engine := &fakePaginationEngine{}
+	model := newTestModel(1, "posts")
+
+	builder := scout.NewBuilder(model, "hello", func(_ contract.Engine, query string, _ map[string]any) any {
+		if query != "hello" {
+			t.Fatalf("expected callback query %q, got %q", "hello", query)
+		}
+		return nil
+	}).SetEngine(engine)
+
+	_, err := builder.Paginate(context.Background(), 2, 1)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !engine.callbackInvoked {
+		t.Fatal("expected callback to be invoked")
+	}
+
+	if engine.lastCallbackQuery != "hello" {
+		t.Fatalf("expected last callback query %q, got %q", "hello", engine.lastCallbackQuery)
+	}
+}
+
+func TestBuilderPaginateRawWithoutCustomQueryCallback(t *testing.T) {
+	t.Parallel()
+	// BuilderTest::test_it_can_paginate_raw_without_custom_query_callback
+	engine := &fakePaginationEngine{}
+	model := newTestModel(1, "posts")
+	builder := scout.NewBuilder(model, "hello").SetEngine(engine)
+
+	result, err := builder.PaginateRaw(context.Background(), 2, 1)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if engine.paginateCalls != 1 {
+		t.Fatalf("expected 1 paginate call, got %d", engine.paginateCalls)
+	}
+
+	if engine.mapCalls != 0 {
+		t.Fatalf("expected no map calls for PaginateRaw, got %d", engine.mapCalls)
+	}
+
+	if result.Total != 3 {
+		t.Fatalf("expected total 3, got %d", result.Total)
+	}
+
+	if result.Results == nil {
+		t.Fatal("expected raw results to be non-nil")
+	}
+}
+
+func TestBuilderSimplePaginateRawWithoutCustomQueryCallback(t *testing.T) {
+	t.Parallel()
+
+	engine := &fakePaginationEngine{}
+	model := newTestModel(1, "posts")
+	builder := scout.NewBuilder(model, "hello").SetEngine(engine)
+
+	result, err := builder.SimplePaginateRaw(context.Background(), 2, 1)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Total != 3 {
+		t.Fatalf("expected total 3, got %d", result.Total)
+	}
+
+	if result.Results == nil {
+		t.Fatal("expected raw results to be non-nil")
+	}
+
+	if !result.HasMorePages() {
+		t.Fatal("expected simple raw pagination to report more pages")
+	}
+}
+
 func TestBuilderFluentChaining(t *testing.T) {
 	t.Parallel()
 	model := newTestModel(1, "posts")
