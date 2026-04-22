@@ -229,6 +229,16 @@ func TestGenericUser(t *testing.T) {
 	}
 }
 
+func TestGenericUserReturnsBroadcastingIdentifier(t *testing.T) {
+	u := auth.NewGenericUser(map[string]any{"id": "42"})
+
+	var _ cauth.BroadcastingAuthenticatable = u
+
+	if u.GetAuthIdentifierForBroadcasting() != "42" {
+		t.Errorf("GetAuthIdentifierForBroadcasting() = %q, want %q", u.GetAuthIdentifierForBroadcasting(), "42")
+	}
+}
+
 func TestGenericUserIdentifierName(t *testing.T) {
 	u := auth.NewGenericUser(map[string]any{"id": "1"})
 

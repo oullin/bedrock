@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	frameworkdb "github.com/bedrock/packages/database"
 )
 
 type fakeResult struct {
@@ -312,6 +314,10 @@ func TestCheckRowsAffected(t *testing.T) {
 
 	if err := checkRowsAffected(fakeResult{rows: 0}); !errors.Is(err, ErrNotFound) {
 		t.Fatalf("checkRowsAffected() error = %v, want %v", err, ErrNotFound)
+	}
+
+	if !errors.Is(ErrNotFound, frameworkdb.ErrRecordNotFound) {
+		t.Fatalf("ErrNotFound = %v, want %v", ErrNotFound, frameworkdb.ErrRecordNotFound)
 	}
 
 	wantErr := errors.New("rows affected failed")

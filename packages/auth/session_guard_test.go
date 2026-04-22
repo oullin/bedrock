@@ -942,6 +942,10 @@ func TestSessionGuardAttemptWhenFailsWithInvalidCredentials(t *testing.T) {
 
 // --- SessionGuard: Basic / OnceBasic ---
 
+func TestSessionGuardImplementsSupportsBasicAuth(t *testing.T) {
+	var _ cauth.SupportsBasicAuth = (*auth.SessionGuard)(nil)
+}
+
 func TestSessionGuardBasicAuthenticatesFromRequest(t *testing.T) {
 	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw"})
 	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
@@ -977,6 +981,24 @@ func TestSessionGuardBasicReturnsFalseWithInvalidCredentials(t *testing.T) {
 
 	if ok {
 		t.Error("Basic should fail with invalid credentials")
+	}
+}
+
+// Port of Framework\Tests\Auth\AuthGuardTest::testBasicWithExtraConditions
+func TestSessionGuardBasicWithExtraConditions(t *testing.T) {
+	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw", "active": "1"})
+	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	sess := newStubSession()
+	guard := auth.NewSessionGuard("web", provider, sess, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.SetBasicAuth("a@b.com", "pw")
+	guard.SetRequest(req)
+
+	ok := guard.Basic(context.Background(), "email", map[string]string{"active": "1"})
+
+	if !ok {
+		t.Error("Basic should include extra credential conditions")
 	}
 }
 

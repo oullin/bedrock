@@ -2,6 +2,7 @@ package engines_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -343,6 +344,31 @@ func TestDatabaseEngineConnectionError(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "connection failed") {
 		t.Fatalf("expected connection failed error, got: %v", err)
+	}
+}
+
+func TestDatabaseEngineSearchErrorWrapsSentinels(t *testing.T) {
+	t.Parallel()
+
+	selectErr := errors.New("select failed")
+	conn := &mockConnection{
+		driver:    "sqlite",
+		selectErr: selectErr,
+	}
+	resolver := &mockResolver{conn: conn}
+	e := engines.NewDatabaseEngine(resolver)
+
+	model := newTestModelWithData(1, "posts", map[string]any{"id": 1})
+	b := search.NewBuilder(model, "test")
+
+	_, err := e.Search(context.Background(), b)
+
+	if !errors.Is(err, search.ErrSearchFailed) {
+		t.Fatalf("Search() error = %v, want %v", err, search.ErrSearchFailed)
+	}
+
+	if !errors.Is(err, selectErr) {
+		t.Fatalf("Search() error = %v, want %v", err, selectErr)
 	}
 }
 

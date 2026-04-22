@@ -14,6 +14,14 @@ rules:
   source_of_truth: services/compliance
   package_local_parity_docs_allowed: false
   package_local_inventory_files_allowed: false
+  upstream_feature_audits:
+    required_for_mapped_bedrock_surfaces: true
+    prompt: "make sure we also have all the upstream features for <package>"
+    evidence:
+      - Compare the upstream source contracts, public APIs, middleware, events, and runtime behavior against the Bedrock package surface.
+      - Add executable parity tests for Bedrock-equivalent features.
+      - Record PHP-only or intentionally different behavior in services/compliance/divergences.yml.
+      - Keep services/compliance/features.yml updated so every mapped Bedrock surface has feature audit coverage.
 
 framework:
   - id: framework.auth
@@ -27,13 +35,13 @@ framework:
 
   - id: framework.broadcasting
     upstream: Framework\Broadcasting
-    bedrock: broadcastclient
-    status: missing
+    bedrock: broadcasting
+    status: mapped
     repo: upstream/framework
     branch: 13.x
     tests_path: tests/Broadcasting
     inventory: inventories/framework-broadcasting.txt
-    rationale: Bedrock has BroadcastClient/WebSockets integration pieces, but no formal framework broadcasting contract inventory yet.
+    rationale: Bedrock has a dedicated framework broadcasting package; BroadcastClient remains the client-side receiver package.
 
   - id: framework.bus
     upstream: Framework\Bus
