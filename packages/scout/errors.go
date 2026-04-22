@@ -1,6 +1,10 @@
 package scout
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/bedrock/packages/scout/internal/scouterr"
+)
 
 var (
 	// ErrEngineNotConfigured is returned when a named engine has not been registered.
@@ -12,7 +16,7 @@ var (
 	// ErrIndexNotFound is returned when a search index cannot be located.
 	ErrIndexNotFound = errors.New("scout: index not found")
 	// ErrSearchFailed is returned when a search query cannot be executed.
-	ErrSearchFailed = errors.New("scout: search query failed")
+	ErrSearchFailed = scouterr.ErrSearchFailed
 	// ErrIndexingFailed is returned when an indexing operation fails.
 	ErrIndexingFailed = errors.New("scout: indexing operation failed")
 	// ErrFlushFailed is returned when a flush operation fails.

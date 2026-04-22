@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// FailureCallback is invoked when a failure-tolerant batch records a failed job.
+type FailureCallback = func(ctx context.Context, batch *Batch, err error)
+
 // PendingBatch is a fluent builder for creating and dispatching a Batch.
 type PendingBatch struct {
 	name              string
@@ -17,7 +20,7 @@ type PendingBatch struct {
 	options           map[string]any
 	progressCallbacks []func(ctx context.Context, batch *Batch)
 	thenCallbacks     []func(ctx context.Context, batch *Batch)
-	catchCallbacks    []func(ctx context.Context, batch *Batch, err error)
+	catchCallbacks    []FailureCallback
 	finallyCallbacks  []func(ctx context.Context, batch *Batch)
 	beforeCallbacks   []func(ctx context.Context, batch *Batch)
 	dispatcher        QueueingDispatcher
@@ -80,7 +83,7 @@ func (p *PendingBatch) Then(fn func(ctx context.Context, batch *Batch)) *Pending
 }
 
 // Catch registers a callback invoked when any job fails.
-func (p *PendingBatch) Catch(fn func(ctx context.Context, batch *Batch, err error)) *PendingBatch {
+func (p *PendingBatch) Catch(fn FailureCallback) *PendingBatch {
 	p.catchCallbacks = append(p.catchCallbacks, fn)
 
 	return p
@@ -96,6 +99,21 @@ func (p *PendingBatch) Finally(fn func(ctx context.Context, batch *Batch)) *Pend
 // AllowFailures prevents the batch from being considered failed when a job fails.
 func (p *PendingBatch) AllowFailures() *PendingBatch {
 	p.allowFailures = true
+
+	return p
+}
+
+// DisallowFailures disables failure tolerance for the batch.
+func (p *PendingBatch) DisallowFailures() *PendingBatch {
+	p.allowFailures = false
+
+	return p
+}
+
+// OnFailure enables failure tolerance and registers typed failure callbacks.
+func (p *PendingBatch) OnFailure(callbacks ...FailureCallback) *PendingBatch {
+	p.allowFailures = true
+	p.catchCallbacks = append(p.catchCallbacks, callbacks...)
 
 	return p
 }
@@ -127,7 +145,12 @@ func (p *PendingBatch) Jobs() []any { return p.jobs }
 func (p *PendingBatch) AllowsFailures() bool { return p.allowFailures }
 
 // CatchCallbacks returns the catch callbacks.
-func (p *PendingBatch) CatchCallbacks() []func(ctx context.Context, batch *Batch, err error) {
+func (p *PendingBatch) CatchCallbacks() []FailureCallback {
+	return p.catchCallbacks
+}
+
+// FailureCallbacks returns callbacks registered through OnFailure or Catch.
+func (p *PendingBatch) FailureCallbacks() []FailureCallback {
 	return p.catchCallbacks
 }
 

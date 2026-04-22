@@ -1,8 +1,7 @@
 package install
 
 import (
-	"fmt"
-
+	"github.com/bedrock/packages/ai/boost/internal/boosterr"
 	"github.com/bedrock/packages/ai/boost/internal/jsonconfig"
 )
 
@@ -29,7 +28,7 @@ func (w *McpWriter) Write(agent SupportsMcpConfigPath, serverKey string, serverC
 	configKey := agent.McpConfigKey()
 
 	if configPath == "" {
-		return false, fmt.Errorf("install: agent returned an empty MCP config path")
+		return false, boosterr.ErrNoMcpConfigPath
 	}
 
 	return writeJSONConfigEntry(configPath, configKey, serverKey, serverConfig, nil)

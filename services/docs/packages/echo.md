@@ -13,6 +13,9 @@ multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform
 `Channel` and `Connector` interface. It is a Go port of the Laravel Echo
 JavaScript library.
 
+For server-side channel authorization and event publishing, use
+`github.com/bedrock/packages/broadcasting`.
+
 **Module:** `github.com/bedrock/packages/echo`
 
 ```bash

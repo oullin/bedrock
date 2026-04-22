@@ -2,12 +2,12 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
+	frameworkdb "github.com/bedrock/packages/database"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -68,7 +68,7 @@ type Note struct {
 	CreatedAt   time.Time
 }
 
-var ErrNotFound = errors.New("database: record not found")
+var ErrNotFound = frameworkdb.ErrRecordNotFound
 
 func checkRowsAffected(result sql.Result) error {
 	n, err := result.RowsAffected()

@@ -3,13 +3,13 @@
 package agents
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/bedrock/packages/ai/boost/internal/boosterr"
 	"github.com/bedrock/packages/ai/boost/internal/jsonconfig"
 	"github.com/bedrock/packages/ai/boost/internal/platform"
 )
@@ -197,7 +197,7 @@ func writeJSONConfigEntry(
 }
 
 // ErrNoMcpConfigPath is returned when an agent's config path is empty.
-var ErrNoMcpConfigPath = fmt.Errorf("boost: agent has no MCP config path")
+var ErrNoMcpConfigPath = boosterr.ErrNoMcpConfigPath
 
 // fallback returns override when non-empty, otherwise returns def.
 func fallback(override, def string) string {

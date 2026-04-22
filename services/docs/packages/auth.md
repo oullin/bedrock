@@ -56,6 +56,32 @@ policy objects) and checks them against the authenticated user with `Can()` and
 The `passwords` sub-package provides a `PasswordBroker` with token generation,
 email delivery, and reset confirmation helpers.
 
+### Laravel parity hooks
+
+Bedrock keeps PHP runtime mechanics out of the core API, but exposes optional Go
+interfaces for upstream auth behavior that maps cleanly:
+
+- `contracts/auth.BroadcastingAuthenticatable` exposes
+  `GetAuthIdentifierForBroadcasting()`.
+- `contracts/auth.SupportsBasicAuth` marks guards with `Basic()` and
+  `OnceBasic()` support.
+- `contracts/auth.EmailVerificationNotificationSender` lets registration
+  listeners call `SendEmailVerificationNotification(ctx)`.
+- `contracts/auth.PasswordResetNotificationSender` lets the password broker
+  call `SendPasswordResetNotification(ctx, token)`.
+
+`passwords.Broker` also supports reset-link throttling, custom reset-link
+callbacks through `SendResetLinkUsing`, and reset-link event dispatch through
+`WithEventDispatcher` or `SetEventDispatcher`.
+
+Callers can detect throttled reset-link requests with `errors.Is`:
+
+```go
+if errors.Is(err, passwords.ErrResetLinkThrottled) {
+    // Ask the user to wait before requesting another reset link.
+}
+```
+
 ## Middleware
 
 `auth.Middleware` protects routes by checking the default guard and redirecting

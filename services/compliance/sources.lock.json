@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "generated_at": "2026-04-20T08:50:52Z",
+  "generated_at": "2026-04-21T08:40:26Z",
   "sources": [
     {
       "repo": "laravel/framework",
       "branch": "13.x",
-      "commit": "e20a33055ab88383bd5238c4a46b4c8b05d4b75d",
+      "commit": "3d64382ca7bbd4c47365b7751fe947e06b86277c",
       "url": "https://github.com/laravel/framework/tree/13.x"
     },
     {
       "repo": "laravel/ai",
       "branch": "0.x",
-      "commit": "89cfac0e2461a4691781bb546225824e28ee107b",
+      "commit": "4da222837b5b3d80b08951f3c51a22b5441b9a37",
       "url": "https://github.com/laravel/ai/tree/0.x"
     },
     {
@@ -65,7 +65,7 @@
     {
       "repo": "laravel/prompts",
       "branch": "main",
-      "commit": "c0914221d7f9fbea096e615ef64ae9701c2f3a6d",
+      "commit": "c9483c8075385d490bf273da6a79d67bf9eb0295",
       "url": "https://github.com/laravel/prompts/tree/main"
     },
     {
@@ -89,7 +89,7 @@
     {
       "repo": "local:/Users/gocanto/Sites/madora",
       "branch": "local",
-      "commit": "e99b5952db5f370a9f6d1c758e5b1ad48fcee0f6",
+      "commit": "0a14a966da09776366e3fe03918f6bc95d5f9ac8",
       "url": "/Users/gocanto/Sites/madora"
     },
     {
@@ -101,7 +101,7 @@
     {
       "repo": "laravel/horizon",
       "branch": "5.x",
-      "commit": "b2bce62044081b871a863589ca3b76a2afcc7d83",
+      "commit": "bfea968e8aa674fb649d02e55ea0d38bdf5137d5",
       "url": "https://github.com/laravel/horizon/tree/5.x"
     },
     {
@@ -125,7 +125,7 @@
     {
       "repo": "laravel/docs",
       "branch": "13.x",
-      "commit": "0c28388c5674293f7fc63549240f30184e150d27",
+      "commit": "bfe8937090d4303afed6e92ce40b6606f08e158f",
       "url": "https://github.com/laravel/docs/tree/13.x"
     },
     {

@@ -7,13 +7,9 @@ import (
 	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
-// EmailVerificationSender is implemented by users that can send email
-// verification notifications. This extends the contracts MustVerifyEmail
-// interface with notification capability.
-type EmailVerificationSender interface {
-	cauth.MustVerifyEmail
-	SendEmailVerificationNotification()
-}
+// EmailVerificationSender is kept for backward compatibility. New code should
+// use contracts/auth.EmailVerificationNotificationSender.
+type EmailVerificationSender = cauth.EmailVerificationNotificationSender
 
 // SendEmailVerificationNotification sends an email verification notification
 // when a new user registers, if the user implements EmailVerificationSender and has
@@ -21,8 +17,8 @@ type EmailVerificationSender interface {
 type SendEmailVerificationNotification struct{}
 
 // Handle processes a Registered event.
-func (l *SendEmailVerificationNotification) Handle(_ context.Context, event events.Registered) {
-	mv, ok := event.User.(EmailVerificationSender)
+func (l *SendEmailVerificationNotification) Handle(ctx context.Context, event events.Registered) {
+	mv, ok := event.User.(cauth.EmailVerificationNotificationSender)
 
 	if !ok {
 		return
@@ -32,5 +28,5 @@ func (l *SendEmailVerificationNotification) Handle(_ context.Context, event even
 		return
 	}
 
-	mv.SendEmailVerificationNotification()
+	mv.SendEmailVerificationNotification(ctx)
 }

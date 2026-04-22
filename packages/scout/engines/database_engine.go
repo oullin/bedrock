@@ -7,6 +7,7 @@ import (
 
 	dbcontract "github.com/bedrock/packages/contracts/database"
 	contract "github.com/bedrock/packages/contracts/scout"
+	"github.com/bedrock/packages/scout/internal/scouterr"
 )
 
 // DatabaseEngine performs full-text search using the database's native
@@ -370,7 +371,7 @@ func (e *DatabaseEngine) performSearch(ctx context.Context, builder contract.Sea
 	rows, err := conn.Select(ctx, sql.String(), bindings...)
 
 	if err != nil {
-		return nil, fmt.Errorf("scout: search query failed: %w", err)
+		return nil, fmt.Errorf("%w: %w", scouterr.ErrSearchFailed, err)
 	}
 
 	return &DatabaseResult{
