@@ -57,6 +57,39 @@ func Deny(message string, statusCode int) Response {
 	return Response{Allowed: false, Message: message, StatusCode: statusCode}
 }
 
+// DenyWithStatus returns a denying Response with an explicit HTTP status.
+func DenyWithStatus(statusCode int, message string) Response {
+	return Deny(message, statusCode)
+}
+
+// DenyAsNotFound returns a denying Response that should be rendered as 404.
+func DenyAsNotFound(message string) Response {
+	return Deny(message, http.StatusNotFound)
+}
+
+// Authorize returns an AuthorizationException when the response is denied.
+func (r Response) Authorize() error {
+	if r.Allowed {
+		return nil
+	}
+
+	return &AuthorizationException{Response: r}
+}
+
+// String returns the response message.
+func (r Response) String() string {
+	return r.Message
+}
+
+// ToMap returns a stable representation for JSON or assertion helpers.
+func (r Response) ToMap() map[string]any {
+	return map[string]any{
+		"allowed": r.Allowed,
+		"message": r.Message,
+		"status":  r.StatusCode,
+	}
+}
+
 func (e *AuthorizationException) Error() string {
 	if e.Response.Message != "" {
 		return e.Response.Message

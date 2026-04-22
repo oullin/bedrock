@@ -60,6 +60,20 @@ func (r *MemoryRepository) Exists(_ context.Context, email, token string) bool {
 	return entry.token == token
 }
 
+func (r *MemoryRepository) RecentlyCreated(_ context.Context, email string, within time.Duration) bool {
+	r.mu.RLock()
+
+	defer r.mu.RUnlock()
+
+	entry, ok := r.tokens[email]
+
+	if !ok {
+		return false
+	}
+
+	return time.Since(entry.createdAt) <= within
+}
+
 func (r *MemoryRepository) Delete(_ context.Context, email string) error {
 	r.mu.Lock()
 

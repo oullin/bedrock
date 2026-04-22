@@ -137,6 +137,14 @@ Many Bedrock packages (`routing`, `validation`, `translation`, `redis`,
 the upstream PHP test suites. Each PHP test method maps to a `t.Run` subtest
 with the same snake_case name, making parity easy to audit.
 
+Every compliance pass must also run an upstream feature audit for the mapped
+package: `make sure we also have all the upstream features for <package>`. That
+audit compares upstream contracts, public APIs, middleware, events, and runtime
+behavior against the Bedrock surface. Bedrock-equivalent features need executable
+Go tests; PHP-only or intentionally different behavior belongs in
+`services/compliance/divergences.yml`. Keep `services/compliance/features.yml`
+updated so every mapped Bedrock package has feature audit coverage.
+
 ## Running Tests
 
 ```bash

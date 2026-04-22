@@ -6,6 +6,9 @@ type EventFunc func(event any)
 // BatchDispatched is fired after a batch is dispatched.
 type BatchDispatched struct{ Batch *Batch }
 
+// BatchStarted is fired when the first batch job is recorded.
+type BatchStarted struct{ Batch *Batch }
+
 // BatchFinished is fired when all batch jobs have completed successfully.
 type BatchFinished struct{ Batch *Batch }
 

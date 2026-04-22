@@ -797,6 +797,204 @@ count_percent_display() {
   printf '%s (%s)' "$count" "$(percent_display "$count" "$total")"
 }
 
+compliance_status() {
+  local missing="$1"
+
+  if [ "$missing" -eq 0 ]; then
+    printf 'Complete'
+  else
+    printf 'Not compliant'
+  fi
+}
+
+inventory_source_display() {
+  local file="$1"
+  local repo="$2"
+  local branch="$3"
+  local tests_path="$4"
+  local source
+
+  source="$(awk '
+    /^# Source:/ {
+      sub(/^# Source:[[:space:]]*/, "")
+      print
+      exit
+    }
+  ' "$file")"
+
+  if [ -n "$source" ]; then
+    if [[ "$source" =~ ^https://github.com/([^/]+/[^/]+)/tree/([^/]+)/(.+)$ ]]; then
+      printf '%s@%s:%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
+    else
+      printf '%s' "$source"
+    fi
+    return 0
+  fi
+
+  printf '%s@%s:%s' "$repo" "$branch" "$tests_path"
+}
+
+inventory_next_action() {
+  local status="$1"
+  local bedrock="$2"
+  local missing="$3"
+
+  if [ "$missing" -eq 0 ]; then
+    printf 'No action; every upstream entry is classified as ported or adapted.'
+  elif [ "$status" = "missing" ] || [ -z "$bedrock" ] || [ "$bedrock" = "null" ]; then
+    printf 'Implement the surface or convert it to a permanent exclusion.'
+  else
+    printf 'Port executable equivalents or add divergence overrides for Go adaptations.'
+  fi
+}
+
+feature_summary_stats() {
+  local ported=0 partial=0 missing=0 excluded=0 classified=0
+  local id source_id name upstream bedrock status docs notes
+
+  while IFS="$RECORD_SEPARATOR" read -r id source_id name upstream bedrock status docs notes; do
+    case "$status" in
+      ported) ported=$((ported + 1)); classified=$((classified + 1)) ;;
+      partial) partial=$((partial + 1)); classified=$((classified + 1)) ;;
+      excluded) excluded=$((excluded + 1)); classified=$((classified + 1)) ;;
+      missing) missing=$((missing + 1)) ;;
+    esac
+  done < <(list_feature_records)
+
+  printf '%d\t%d\t%d\t%d\t%d\n' "$classified" "$missing" "$ported" "$partial" "$excluded"
+}
+
+command_center_rows() {
+  local ported_index="$1"
+  local adapted_index="$2"
+  local docs_ported_index="$3"
+  local docs_adapted_index="$4"
+  local docs_excluded_index="$5"
+  local skeleton_ported_index="$6"
+  local skeleton_adapted_index="$7"
+  local skeleton_excluded_index="$8"
+
+  local stats inventory_count total ported adapted missing classified
+  local overall_classified=0 overall_missing=0 overall_total=0
+
+  stats="$(inventory_summary_stats "all" "$ported_index" "$adapted_index")"
+  IFS=$'\t' read -r inventory_count total ported adapted missing <<< "$stats"
+  classified=$((ported + adapted))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + missing))
+  overall_total=$((overall_total + total))
+  printf '| Tests | %s / %s | %s | %s | Port executable equivalents or add divergence overrides for Go adaptations. |\n' \
+    "$classified" "$total" "$missing" "$(compliance_status "$missing")"
+
+  stats="$(generic_inventory_stats "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index")"
+  local docs_total docs_ported docs_adapted docs_excluded docs_missing
+  IFS=$'\t' read -r docs_total docs_ported docs_adapted docs_excluded docs_missing <<< "$stats"
+  classified=$((docs_ported + docs_adapted + docs_excluded))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + docs_missing))
+  overall_total=$((overall_total + docs_total))
+  printf '| Documentation | %s / %s | %s | %s | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |\n' \
+    "$classified" "$docs_total" "$docs_missing" "$(compliance_status "$docs_missing")"
+
+  stats="$(generic_inventory_stats "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index")"
+  local skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing
+  IFS=$'\t' read -r skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing <<< "$stats"
+  classified=$((skeleton_ported + skeleton_adapted + skeleton_excluded))
+  overall_classified=$((overall_classified + classified))
+  overall_missing=$((overall_missing + skeleton_missing))
+  overall_total=$((overall_total + skeleton_total))
+  printf '| Upstream skeleton demo | %s / %s | %s | %s | Keep complete while upstream skeleton changes. |\n' \
+    "$classified" "$skeleton_total" "$skeleton_missing" "$(compliance_status "$skeleton_missing")"
+
+  stats="$(feature_summary_stats)"
+  local feature_classified feature_missing feature_ported feature_partial feature_excluded
+  IFS=$'\t' read -r feature_classified feature_missing feature_ported feature_partial feature_excluded <<< "$stats"
+  local feature_total=$((feature_classified + feature_missing))
+  overall_classified=$((overall_classified + feature_classified))
+  overall_missing=$((overall_missing + feature_missing))
+  overall_total=$((overall_total + feature_total))
+  printf '| Feature audits | %s / %s | %s | %s | Add audits for missing surfaces, then move partial surfaces to ported as parity closes. |\n' \
+    "$feature_classified" "$feature_total" "$feature_missing" "$(compliance_status "$feature_missing")"
+
+  printf '| Overall | %s / %s | %s | %s | Start with the Critical Path below; close the largest missing surfaces first. |\n' \
+    "$overall_classified" "$overall_total" "$overall_missing" "$(compliance_status "$overall_missing")"
+}
+
+critical_path_rows() {
+  local ported_index="$1"
+  local adapted_index="$2"
+  local docs_ported_index="$3"
+  local docs_adapted_index="$4"
+  local docs_excluded_index="$5"
+  local skeleton_ported_index="$6"
+  local skeleton_adapted_index="$7"
+  local skeleton_excluded_index="$8"
+  local rows rank=0
+
+  rows="$(
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+      local stats total ported adapted missing classified surface action
+      stats="$(inventory_stats "$COMPLIANCE_PATH/$inventory" "$ported_index" "$adapted_index")"
+      IFS=$'\t' read -r total ported adapted missing <<< "$stats"
+      [ "$missing" -gt 0 ] || continue
+
+      classified=$((ported + adapted))
+      surface="\`$upstream\`"
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        surface="$surface -> \`$bedrock\`"
+      fi
+
+      if [ "$status" = "missing" ] || [ -z "$bedrock" ] || [ "$bedrock" = "null" ]; then
+        action="Implement the surface or convert it to a permanent exclusion."
+      else
+        action="Port executable equivalents or add divergence overrides for Go adaptations."
+      fi
+
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' "$missing" "$surface" "$classified" "$total" "$(compliance_status "$missing")" "$action"
+    done
+
+    local docs_stats docs_total docs_ported docs_adapted docs_excluded docs_missing docs_classified
+    docs_stats="$(generic_inventory_stats "$DOCS_INVENTORY_FILE" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index")"
+    IFS=$'\t' read -r docs_total docs_ported docs_adapted docs_excluded docs_missing <<< "$docs_stats"
+    if [ "$docs_missing" -gt 0 ]; then
+      docs_classified=$((docs_ported + docs_adapted + docs_excluded))
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' \
+        "$docs_missing" \
+        "Upstream documentation" \
+        "$docs_classified" \
+        "$docs_total" \
+        "$(compliance_status "$docs_missing")" \
+        "Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections."
+    fi
+
+    local skeleton_stats skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing skeleton_classified
+    skeleton_stats="$(generic_inventory_stats "$SKELETON_INVENTORY_FILE" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index")"
+    IFS=$'\t' read -r skeleton_total skeleton_ported skeleton_adapted skeleton_excluded skeleton_missing <<< "$skeleton_stats"
+    if [ "$skeleton_missing" -gt 0 ]; then
+      skeleton_classified=$((skeleton_ported + skeleton_adapted + skeleton_excluded))
+      printf '%s\t%s\t%s / %s\t%s\t%s\n' \
+        "$skeleton_missing" \
+        "Upstream skeleton demo" \
+        "$skeleton_classified" \
+        "$skeleton_total" \
+        "$(compliance_status "$skeleton_missing")" \
+        "Port, adapt, or exclude remaining skeleton files."
+    fi
+  )"
+
+  if [ -z "$rows" ]; then
+    broadcastclient "| 1 | n/a | 0 | Complete | Complete | Nothing missing. |"
+    return 0
+  fi
+
+  printf '%s\n' "$rows" | sort -t $'\t' -k1,1nr | head -n 15 | while IFS=$'\t' read -r missing surface classified status action; do
+    rank=$((rank + 1))
+    printf '| %s | %s | %s | %s | %s | %s |\n' "$rank" "$surface" "$missing" "$classified" "$status" "$action"
+  done
+}
+
 inventory_summary_stats() {
   local scope="$1"
   local ported_index="$2"
@@ -950,6 +1148,118 @@ report() {
     broadcastclient
     broadcastclient "Source of truth: services/compliance"
     broadcastclient
+    broadcastclient "## Compliance Workflow Requirements"
+    broadcastclient
+    broadcastclient "- Every mapped Bedrock package compliance pass must include an upstream feature audit: \`make sure we also have all the upstream features for <package>\`."
+    broadcastclient "- The audit compares upstream source contracts, public APIs, middleware, events, and runtime behavior against the Bedrock surface."
+    broadcastclient "- Bedrock-equivalent features need executable parity tests; PHP-only or intentionally different behavior belongs in \`services/compliance/divergences.yml\`."
+    broadcastclient "- \`services/compliance/features.yml\` must contain feature audit coverage for every mapped Bedrock surface."
+    broadcastclient
+    broadcastclient "## Compliance Command Center"
+    broadcastclient
+    broadcastclient "Compliance target: classified parity. An upstream item is compliant when it is ported, adapted with a divergence rationale, or excluded at an approved product boundary."
+    broadcastclient
+    broadcastclient "| Area | Classified | Missing | Compliance Status | Fastest Next Move |"
+    broadcastclient "| --- | ---: | ---: | --- | --- |"
+    command_center_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    broadcastclient
+    broadcastclient "## Critical Path"
+    broadcastclient
+    broadcastclient "| Rank | Surface | Missing | Classified | Status | Next Action |"
+    broadcastclient "| ---: | --- | ---: | ---: | --- | --- |"
+    critical_path_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    broadcastclient
+    broadcastclient "## Inventory Compliance Ledger"
+    broadcastclient
+    broadcastclient "These inventory paths are tracking files, not compliant code paths. A row is compliant only when \`Missing Tests\` is 0."
+    broadcastclient
+    broadcastclient "| Inventory Path | What This Path Is | Source | Classified | Missing Tests | Compliance Status | Next Action |"
+    broadcastclient "| --- | --- | --- | ---: | ---: | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+
+      local file
+      file="$COMPLIANCE_PATH/$inventory"
+
+      local rel source stats total ported adapted missing classified action
+      rel="${file#$COMPLIANCE_PATH/}"
+      source="$(inventory_source_display "$file" "$repo" "$branch" "$tests_path")"
+      stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
+      IFS=$'\t' read -r total ported adapted missing <<< "$stats"
+      classified=$((ported + adapted))
+      action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      printf '| %s | Tracking file for upstream tests, not a compliant path | `%s` | %s / %s | %s | %s | %s |\n' \
+        "$rel" \
+        "$(markdown_cell "$source")" \
+        "$classified" \
+        "$total" \
+        "$missing" \
+        "$(compliance_status "$missing")" \
+        "$action"
+    done
+
+    broadcastclient
+    broadcastclient "## Framework Coverage"
+    broadcastclient
+    broadcastclient "| Upstream Source | Bedrock Surface | Port Status | Tests | Docs |"
+    broadcastclient "| --- | --- | --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      case "$id" in
+        framework.*) ;;
+        *) continue ;;
+      esac
+
+      local display_bedrock display_tests display_docs
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
+      display_docs="$(docs_display "$bedrock" "")"
+
+      printf '| `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$upstream")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$(markdown_cell "$display_tests")" \
+        "$display_docs"
+    done
+
+    broadcastclient
+    broadcastclient "## Package Coverage"
+    broadcastclient
+    broadcastclient "| Upstream Package | Bedrock Surface | Port Status | Tests | Docs |"
+    broadcastclient "| --- | --- | --- | --- | --- |"
+
+    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
+      case "$id" in
+        package.*) ;;
+        *) continue ;;
+      esac
+
+      local display_bedrock display_tests display_docs
+      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
+        display_bedrock="\`$bedrock\`"
+      else
+        display_bedrock="n/a"
+      fi
+
+      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
+      display_docs="$(docs_display "$bedrock" "")"
+
+      printf '| `%s` | %s | `%s` | %s | %s |\n' \
+        "$(markdown_cell "$upstream")" \
+        "$display_bedrock" \
+        "$(markdown_cell "$status")" \
+        "$(markdown_cell "$display_tests")" \
+        "$display_docs"
+    done
+
+    broadcastclient
     broadcastclient "## Test Porting Summary"
     broadcastclient
     broadcastclient "| Scope | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |"
@@ -990,60 +1300,6 @@ report() {
     broadcastclient "| Upstream Skeleton File | Status |"
     broadcastclient "| --- | --- |"
     skeleton_status_rows "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
-    broadcastclient
-    broadcastclient "## Inventories"
-    broadcastclient
-    broadcastclient "| Inventory | Upstream Tests | Ported Tests | Missing Tests | Adapted Tests |"
-    broadcastclient "| --- | ---: | ---: | ---: | ---: |"
-
-    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
-      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
-
-      local file
-      file="$COMPLIANCE_PATH/$inventory"
-
-      local rel stats total ported adapted missing
-      rel="${file#$COMPLIANCE_PATH/}"
-      stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
-      IFS=$'\t' read -r total ported adapted missing <<< "$stats"
-      printf '| %s | %s | %s | %s | %s |\n' \
-        "$rel" \
-        "$total" \
-        "$(count_percent_display "$ported" "$total")" \
-        "$(count_percent_display "$missing" "$total")" \
-        "$(count_percent_display "$adapted" "$total")"
-    done
-
-    broadcastclient
-    broadcastclient "## Framework Coverage"
-    broadcastclient
-    broadcastclient "| Upstream Source | Bedrock Surface | Port Status | Tests | Docs |"
-    broadcastclient "| --- | --- | --- | --- | --- |"
-
-    list_records | while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter upstream bedrock; do
-      case "$id" in
-        framework.*) ;;
-        *) continue ;;
-      esac
-
-      local display_bedrock display_tests display_docs
-      if [ -n "$bedrock" ] && [ "$bedrock" != "null" ]; then
-        display_bedrock="\`$bedrock\`"
-      else
-        display_bedrock="n/a"
-      fi
-
-      display_tests="$(tests_display "$inventory" "$ported_index" "$adapted_index")"
-      display_docs="$(docs_display "$bedrock" "")"
-
-      printf '| `%s` | %s | `%s` | %s | %s |\n' \
-        "$(markdown_cell "$upstream")" \
-        "$display_bedrock" \
-        "$(markdown_cell "$status")" \
-        "$(markdown_cell "$display_tests")" \
-        "$display_docs"
-    done
-
     broadcastclient
     broadcastclient "## Feature Coverage"
     broadcastclient
@@ -1360,12 +1616,16 @@ check_features_format() {
 }
 
 check_features() {
-  local failed=0 count=0 source_ids feature_ids
+  local failed=0 count=0 source_ids feature_ids required_source_ids audited_source_ids missing_audits
   source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-source-ids.XXXXXX")"
   feature_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-feature-ids.XXXXXX")"
+  required_source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-required-feature-audits.XXXXXX")"
+  audited_source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-audited-sources.XXXXXX")"
 
   list_records | awk -F "$RECORD_SEPARATOR" '{ print $1 }' | sort -u > "$source_ids"
+  list_records | awk -F "$RECORD_SEPARATOR" '$2 == "mapped" && $9 != "" && $9 != "null" { print $1 }' | sort -u > "$required_source_ids"
   : > "$feature_ids"
+  : > "$audited_source_ids"
 
   check_features_format || failed=1
 
@@ -1389,6 +1649,7 @@ check_features() {
       broadcastclient "Feature $id references unknown source_id: $source_id" >&2
       failed=1
     fi
+    printf '%s\n' "$source_id" >> "$audited_source_ids"
 
     if rg -Fxq -- "$id" "$feature_ids"; then
       broadcastclient "Duplicate feature id: $id" >&2
@@ -1417,12 +1678,21 @@ check_features() {
     fi
   done < <(list_feature_records)
 
+  sort -u -o "$audited_source_ids" "$audited_source_ids"
+  missing_audits="$(comm -23 "$required_source_ids" "$audited_source_ids")"
+
+  if [ -n "$missing_audits" ]; then
+    broadcastclient "Mapped Bedrock sources missing upstream feature audit coverage in $FEATURES_FILE:" >&2
+    printf '%s\n' "$missing_audits" >&2
+    failed=1
+  fi
+
   if [ "$count" -eq 0 ]; then
     broadcastclient "$FEATURES_FILE must define at least one feature." >&2
     failed=1
   fi
 
-  rm -f "$source_ids" "$feature_ids"
+  rm -f "$source_ids" "$feature_ids" "$required_source_ids" "$audited_source_ids"
   return "$failed"
 }
 
