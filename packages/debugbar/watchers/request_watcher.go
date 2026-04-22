@@ -211,7 +211,13 @@ func readRequestBody(r *http.Request, limit int) map[string]any {
 		}
 	}
 
-	if strings.Contains(ct, "application/x-www-form-urlencoded") || strings.Contains(ct, "multipart/form-data") {
+	if strings.Contains(ct, "multipart/form-data") {
+		if payload, ok := parseMultipartBody(body, ct); ok {
+			return payload
+		}
+	}
+
+	if strings.Contains(ct, "application/x-www-form-urlencoded") {
 		if err := r.ParseForm(); err == nil {
 			m := make(map[string]any, len(r.PostForm))
 
