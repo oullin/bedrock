@@ -10,6 +10,7 @@ import (
 
 func TestRemoveFromSearchHandle(t *testing.T) {
 	t.Parallel()
+	// RemoveFromSearchTest::test_handle_passes_the_collection_to_engine
 	engine := &fakeEngine{}
 	models := []contract.Searchable{
 		&testModel{id: 1, table: "posts"},

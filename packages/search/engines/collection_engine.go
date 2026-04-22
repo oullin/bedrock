@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	contract "github.com/bedrock/packages/contracts/search"
@@ -14,6 +15,10 @@ import (
 // Search's CollectionEngine.
 type CollectionEngine struct {
 	softDelete bool
+}
+
+type searchableCollectionTransformer interface {
+	MakeSearchableUsing([]contract.Searchable) []contract.Searchable
 }
 
 // Compile-time interface check.
@@ -184,7 +189,7 @@ func (e *CollectionEngine) DeleteIndex(_ context.Context, _ string) error {
 }
 
 func (e *CollectionEngine) searchModels(builder contract.SearchBuilder) []contract.Searchable {
-	models := e.getModels(builder)
+	models := e.applyMakeSearchableUsing(e.getModels(builder))
 	query := strings.TrimSpace(builder.GetQuery())
 	wheres := builder.GetWheres()
 	whereIns := builder.GetWhereIns()
@@ -237,6 +242,19 @@ func (e *CollectionEngine) getModels(builder contract.SearchBuilder) []contract.
 	return nil
 }
 
+func (e *CollectionEngine) applyMakeSearchableUsing(models []contract.Searchable) []contract.Searchable {
+	if len(models) == 0 {
+		return models
+	}
+
+	transformer, ok := models[0].(searchableCollectionTransformer)
+	if !ok {
+		return models
+	}
+
+	return transformer.MakeSearchableUsing(models)
+}
+
 func (e *CollectionEngine) matchesQuery(data map[string]any, query string) bool {
 	lowerQuery := strings.ToLower(query)
 
@@ -257,6 +275,14 @@ func (e *CollectionEngine) matchesWheres(data map[string]any, wheres map[string]
 
 		if !exists {
 			return false
+		}
+
+		if operator, value, ok := whereComparison(expected); ok {
+			if !compareValues(actual, operator, value) {
+				return false
+			}
+
+			continue
 		}
 
 		if fmt.Sprintf("%v", actual) != fmt.Sprintf("%v", expected) {
@@ -335,4 +361,105 @@ func (e *CollectionEngine) sortModels(models []contract.Searchable, orders []con
 
 		return false
 	})
+}
+
+func whereComparison(expected any) (string, any, bool) {
+	comparison, ok := expected.(map[string]any)
+	if !ok {
+		return "", nil, false
+	}
+
+	operator, _ := comparison["__operator"].(string)
+	value, exists := comparison["__value"]
+	if !exists {
+		return "", nil, false
+	}
+
+	switch operator {
+	case "=", "!=", "<>", ">", "<", ">=", "<=":
+		return operator, value, true
+	default:
+		return "", nil, false
+	}
+}
+
+func compareValues(actual any, operator string, expected any) bool {
+	if actualNumber, expectedNumber, ok := comparableNumbers(actual, expected); ok {
+		switch operator {
+		case "=":
+			return actualNumber == expectedNumber
+		case "!=", "<>":
+			return actualNumber != expectedNumber
+		case ">":
+			return actualNumber > expectedNumber
+		case "<":
+			return actualNumber < expectedNumber
+		case ">=":
+			return actualNumber >= expectedNumber
+		case "<=":
+			return actualNumber <= expectedNumber
+		}
+	}
+
+	actualString := fmt.Sprintf("%v", actual)
+	expectedString := fmt.Sprintf("%v", expected)
+
+	switch operator {
+	case "=":
+		return actualString == expectedString
+	case "!=", "<>":
+		return actualString != expectedString
+	case ">":
+		return actualString > expectedString
+	case "<":
+		return actualString < expectedString
+	case ">=":
+		return actualString >= expectedString
+	case "<=":
+		return actualString <= expectedString
+	default:
+		return false
+	}
+}
+
+func comparableNumbers(actual any, expected any) (float64, float64, bool) {
+	actualNumber, actualOK := toFloat(actual)
+	expectedNumber, expectedOK := toFloat(expected)
+
+	return actualNumber, expectedNumber, actualOK && expectedOK
+}
+
+func toFloat(value any) (float64, bool) {
+	switch typed := value.(type) {
+	case int:
+		return float64(typed), true
+	case int8:
+		return float64(typed), true
+	case int16:
+		return float64(typed), true
+	case int32:
+		return float64(typed), true
+	case int64:
+		return float64(typed), true
+	case uint:
+		return float64(typed), true
+	case uint8:
+		return float64(typed), true
+	case uint16:
+		return float64(typed), true
+	case uint32:
+		return float64(typed), true
+	case uint64:
+		return float64(typed), true
+	case float32:
+		return float64(typed), true
+	case float64:
+		return typed, true
+	case string:
+		parsed, err := strconv.ParseFloat(typed, 64)
+
+		return parsed, err == nil
+	default:
+		return 0, false
+	}
 }

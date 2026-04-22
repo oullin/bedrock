@@ -34,6 +34,7 @@ func (d *fakeDispatcher) GetListeners(_ any) []cevents.Listener   { return nil }
 
 func TestSearchableScopeSearchable(t *testing.T) {
 	t.Parallel()
+	// SearchableScopeTest::test_chunks_by_id
 	engine := &fakeEngine{}
 	config := search.Config{Chunk: search.ChunkConfig{Searchable: 5}}
 	dispatcher := &fakeDispatcher{}
