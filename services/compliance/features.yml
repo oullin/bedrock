@@ -87,9 +87,9 @@ features:
     name: Container bindings
     upstream: Framework\Container bindings, singletons, tags, and contextual resolution
     bedrock: container
-    status: partial
+    status: ported
     docs: packages/container.md
-    notes: Container package exists; upstream container tests have not been matched yet.
+    notes: Bindings, shared and scoped lifecycles, aliases, contextual bindings, tags, extenders, method bindings, and resolving callbacks are complete under classified parity; PHP reflection, attributes, callable strings, ArrayAccess, and environment selectors are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.contracts.interfaces
     source_id: framework.contracts
