@@ -25,12 +25,13 @@ type Batch struct {
 	// Callbacks — invoked by the dispatcher at batch lifecycle events.
 	ProgressCallbacks []func(ctx context.Context, batch *Batch)
 	ThenCallbacks     []func(ctx context.Context, batch *Batch)
-	CatchCallbacks    []func(ctx context.Context, batch *Batch, err error)
+	CatchCallbacks    []FailureCallback
 	FinallyCallbacks  []func(ctx context.Context, batch *Batch)
 
 	repo       BatchRepository
 	dispatcher QueueingDispatcher
 	eventFunc  EventFunc
+	started    bool
 }
 
 // NewBatchWithRepo creates a Batch with the given ID and repository.
@@ -80,6 +81,11 @@ func (b *Batch) SetEventFunc(fn EventFunc) {
 	b.eventFunc = fn
 }
 
+// SetDispatcher sets the dispatcher used when adding jobs to an existing batch.
+func (b *Batch) SetDispatcher(dispatcher QueueingDispatcher) {
+	b.dispatcher = dispatcher
+}
+
 func (b *Batch) Finished() bool {
 	b.mu.RLock()
 
@@ -105,16 +111,17 @@ func (b *Batch) HasFailures() bool {
 }
 
 func (b *Batch) Cancel(ctx context.Context) error {
+	now := time.Now()
+
 	if b.repo != nil {
 		if err := b.repo.Cancel(ctx, b.ID); err != nil {
 			return err
 		}
-	} else {
-		b.mu.Lock()
-		now := time.Now()
-		b.CancelledAt = &now
-		b.mu.Unlock()
 	}
+
+	b.mu.Lock()
+	b.CancelledAt = &now
+	b.mu.Unlock()
 
 	if b.eventFunc != nil {
 		b.eventFunc(BatchCanceled{Batch: b})
@@ -125,6 +132,7 @@ func (b *Batch) Cancel(ctx context.Context) error {
 
 func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts, error) {
 	var counts *UpdatedBatchJobCounts
+	started := b.shouldDispatchStarted()
 
 	if b.repo != nil {
 		var err error
@@ -134,6 +142,11 @@ func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts
 		if err != nil {
 			return nil, err
 		}
+
+		b.mu.Lock()
+		b.PendingJobs = counts.PendingJobs
+		b.FailedJobs = counts.FailedJobs
+		b.mu.Unlock()
 	} else {
 		b.mu.Lock()
 
@@ -143,6 +156,10 @@ func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts
 
 		counts = &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}
 		b.mu.Unlock()
+	}
+
+	if started && b.markStarted() {
+		b.dispatchStarted()
 	}
 
 	b.InvokeProgressCallbacks(ctx)
@@ -168,6 +185,9 @@ func (b *Batch) RecordSuccessfulJob(ctx context.Context) (*UpdatedBatchJobCounts
 
 func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string, err error) (*UpdatedBatchJobCounts, error) {
 	var counts *UpdatedBatchJobCounts
+	started := b.shouldDispatchStarted()
+	alreadyFailed := b.HasFailures()
+	allowsFailures := b.AllowsFailures()
 
 	if b.repo != nil {
 		var repoErr error
@@ -177,21 +197,64 @@ func (b *Batch) RecordFailedJob(ctx context.Context, failedJobID string, err err
 		if repoErr != nil {
 			return nil, repoErr
 		}
+
+		b.mu.Lock()
+		b.PendingJobs = counts.PendingJobs
+		b.FailedJobs = counts.FailedJobs
+		b.FailedJobIDs = append(b.FailedJobIDs, failedJobID)
+		b.mu.Unlock()
 	} else {
 		b.mu.Lock()
 
 		b.FailedJobs++
 		b.FailedJobIDs = append(b.FailedJobIDs, failedJobID)
 
-		if b.PendingJobs > 0 {
+		if allowsFailures && b.PendingJobs > 0 {
 			b.PendingJobs--
+		} else {
+			b.PendingJobs = 0
+			now := time.Now()
+			b.CancelledAt = &now
+			b.FinishedAt = &now
 		}
 
 		counts = &UpdatedBatchJobCounts{PendingJobs: b.PendingJobs, FailedJobs: b.FailedJobs}
 		b.mu.Unlock()
 	}
 
-	b.InvokeCatchCallbacks(ctx, err)
+	if started && b.markStarted() {
+		b.dispatchStarted()
+	}
+
+	if !alreadyFailed {
+		b.InvokeCatchCallbacks(ctx, err)
+	}
+
+	if allowsFailures {
+		b.InvokeProgressCallbacks(ctx)
+
+		return counts, nil
+	}
+
+	if b.repo != nil {
+		if cancelErr := b.repo.Cancel(ctx, b.ID); cancelErr != nil {
+			return nil, cancelErr
+		}
+
+		_ = b.repo.MarkAsFinished(ctx, b.ID)
+		counts.PendingJobs = 0
+
+		b.mu.Lock()
+		now := time.Now()
+		b.PendingJobs = 0
+		b.CancelledAt = &now
+		b.FinishedAt = &now
+		b.mu.Unlock()
+	}
+
+	if b.eventFunc != nil {
+		b.eventFunc(BatchCanceled{Batch: b})
+	}
 
 	if counts.PendingJobs == 0 {
 		b.InvokeFinallyCallbacks(ctx)
@@ -344,6 +407,12 @@ func (b *Batch) Add(ctx context.Context, jobs []any) error {
 		}
 	}
 
+	for _, job := range jobs {
+		if batchable, ok := job.(interface{ WithBatchID(string) }); ok {
+			batchable.WithBatchID(b.ID)
+		}
+	}
+
 	b.mu.Lock()
 	b.TotalJobs += len(jobs)
 	b.PendingJobs += len(jobs)
@@ -398,6 +467,34 @@ func (b *Batch) progressLocked() float64 {
 	}
 
 	return float64(b.TotalJobs-b.PendingJobs) / float64(b.TotalJobs) * 100
+}
+
+func (b *Batch) shouldDispatchStarted() bool {
+	b.mu.RLock()
+
+	defer b.mu.RUnlock()
+
+	return !b.started && b.TotalJobs > 0 && b.PendingJobs == b.TotalJobs && b.FailedJobs == 0
+}
+
+func (b *Batch) markStarted() bool {
+	b.mu.Lock()
+
+	defer b.mu.Unlock()
+
+	if b.started {
+		return false
+	}
+
+	b.started = true
+
+	return true
+}
+
+func (b *Batch) dispatchStarted() {
+	if b.eventFunc != nil {
+		b.eventFunc(BatchStarted{Batch: b})
+	}
 }
 
 // AllJobsRanExactlyOnce reports whether all jobs completed without failure.
