@@ -1,4 +1,6 @@
-// Port of Upstream\Ai\Tests\Feature\ImageFakeTest
+// ImageFakeTest::test_images_can_be_faked
+// ImageFakeTest::test_can_assert_no_images_were_generated
+// ImageFakeTest::test_image_size_and_quality_are_recorded
 package ai_test
 
 import (

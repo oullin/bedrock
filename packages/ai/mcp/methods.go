@@ -116,7 +116,7 @@ func handleToolsList(_ context.Context, req *JsonRpcRequest, sc *ServerContext) 
 		items[i] = toolToMap(t)
 	}
 
-	perPage := sc.PerPage(0)
+	perPage := sc.PerPage(req.PerPage())
 	pager := NewCursorPaginator(items, perPage, req.Cursor())
 
 	return pager.Paginate("tools"), nil
@@ -151,7 +151,7 @@ func handleResourcesList(_ context.Context, req *JsonRpcRequest, sc *ServerConte
 		items[i] = resourceToMap(r)
 	}
 
-	perPage := sc.PerPage(0)
+	perPage := sc.PerPage(req.PerPage())
 	pager := NewCursorPaginator(items, perPage, req.Cursor())
 
 	return pager.Paginate("resources"), nil
@@ -180,6 +180,13 @@ func handleResourcesRead(ctx context.Context, req *JsonRpcRequest, sc *ServerCon
 
 	mcpReq := req.ToRequest()
 	mcpReq.URIVars = vars
+	if len(vars) > 0 {
+		arguments := mcpReq.All()
+		for k, v := range vars {
+			arguments[k] = v
+		}
+		mcpReq.Arguments = arguments
+	}
 
 	resp, err := resource.Read(ctx, mcpReq)
 
@@ -201,7 +208,7 @@ func handlePromptsList(_ context.Context, req *JsonRpcRequest, sc *ServerContext
 		items[i] = promptToMap(p)
 	}
 
-	perPage := sc.PerPage(0)
+	perPage := sc.PerPage(req.PerPage())
 	pager := NewCursorPaginator(items, perPage, req.Cursor())
 
 	return pager.Paginate("prompts"), nil

@@ -166,6 +166,13 @@ func (s *Server) Handle(ctx context.Context, message, sessionID string) (string,
 //
 //	mux.Handle("/mcp", server)
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+
+		return
+	}
+
 	t := NewHttpTransport(w, r)
 	t.OnReceive(s.Handle)
 	t.Run(r.Context()) //nolint:errcheck

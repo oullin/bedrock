@@ -48,7 +48,7 @@ func (g *TranscriptionGateway) GenerateTranscription(ctx context.Context, req co
 		Audio:    req.Audio,
 		Language: req.Language,
 		Diarize:  req.Diarize,
-		Timeout:  req.Timeout,
+		Timeout:  timeoutOrDefault(req.Timeout, DefaultMediaTimeout),
 	}
 
 	if req.Model != "" {

@@ -3,6 +3,7 @@ package skills_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/bedrock/packages/ai/boost/skills"
@@ -12,7 +13,8 @@ type mockSkillsAgent struct{ base string }
 
 func (m *mockSkillsAgent) SkillsPath() string { return m.base }
 
-// TestSkillWriterCreatesFiles verifies SKILL.md files are created.
+// SkillWriterTest::it_writes_skill_to_a_target_directory
+// SkillWriterTest::it_writes_all_skills
 func TestSkillWriterCreatesFiles(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +47,7 @@ func TestSkillWriterCreatesFiles(t *testing.T) {
 	}
 }
 
-// TestSkillWriterCreatesParentDirs verifies that nested skill dirs are created.
+// SkillWriterTest::it_copies_nested_directory_structure
 func TestSkillWriterCreatesParentDirs(t *testing.T) {
 	t.Parallel()
 
@@ -64,5 +66,21 @@ func TestSkillWriterCreatesParentDirs(t *testing.T) {
 
 	if _, err := os.Stat(dest); err != nil {
 		t.Errorf("expected SKILL.md at %s: %v", dest, err)
+	}
+}
+
+// SkillWriterTest::it_throws_an_exception_for_path_traversal_in_skill_name
+func TestSkillWriterRejectsPathTraversal(t *testing.T) {
+	t.Parallel()
+
+	tmp := t.TempDir()
+	agent := &mockSkillsAgent{base: filepath.Join(tmp, ".claude", "skills")}
+
+	err := skills.NewSkillWriter().Write(agent, []skills.Skill{
+		{Name: "../escape", Content: "# Escape\n"},
+	})
+
+	if err == nil || !strings.Contains(err.Error(), "invalid skill name") {
+		t.Fatalf("Write path traversal error = %v, want invalid skill name", err)
 	}
 }

@@ -21,6 +21,8 @@ func TestDetectorGetAgents(t *testing.T) {
 	}
 }
 
+// AgentsDetectorTest::it_returns_an_array_of_detected_agent_names_for_project_discovery
+// AgentsDetectorTest::it_returns_an_empty_array_when_no_agents_are_detected_for_project_discovery
 // TestDetectorDiscoverProjectInstalled verifies project detection by creating
 // a temp directory with a CLAUDE.md file (triggering the claude_code agent).
 func TestDetectorDiscoverProjectInstalled(t *testing.T) {
@@ -59,6 +61,8 @@ func TestDetectorDiscoverProjectInstalled(t *testing.T) {
 	}
 }
 
+// AgentsDetectorTest::it_returns_an_array_of_detected_agent_names_for_system_discovery
+// AgentsDetectorTest::it_returns_an_empty_array_when_no_agents_are_detected_for_system_discovery
 // TestDetectorDiscoverSystemInstalled verifies that DiscoverSystemInstalledAgents
 // returns a slice (possibly empty, since this runs in a CI-like env).
 func TestDetectorDiscoverSystemInstalled(t *testing.T) {
