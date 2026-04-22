@@ -6,36 +6,36 @@ features:
     name: Authentication guards
     upstream: Framework\Auth guard and provider system
     bedrock: auth
-    status: partial
+    status: ported
     docs: packages/auth.md
-    notes: Session, token, and request guards exist; upstream test inventory is still mostly missing.
+    notes: Session, token, request, basic-auth, provider, and event surfaces are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.auth.passwords
     source_id: framework.auth
     name: Password broker
     upstream: Framework\Auth password reset broker
     bedrock: auth
-    status: partial
+    status: ported
     docs: packages/auth.md
-    notes: Password management is ported through auth; upstream test parity remains incomplete.
+    notes: Password reset tokens, throttling, callback notification override, notification sender hook, and reset-link events are complete under classified parity; PHP manager/config mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.broadcasting.contracts
     source_id: framework.broadcasting
     name: Broadcasting contracts
     upstream: Framework\Broadcasting channel and event contracts
-    bedrock: broadcastclient
-    status: missing
-    docs: packages/broadcastclient.md
-    notes: BroadcastClient and WebSockets pieces exist, but no framework broadcasting contract inventory is ported yet.
+    bedrock: broadcasting
+    status: ported
+    docs: packages/broadcasting.md
+    notes: Server-side channel auth, broadcast event payload handling, Pusher/Redis/Ably broadcaster responses, and Pusher channel conventions are ported; BroadcastClient remains the client receiver package.
 
   - id: framework.bus.dispatch
     source_id: framework.bus
     name: Command bus dispatch
     upstream: Framework\Bus command dispatch, chains, and middleware
     bedrock: bus
-    status: partial
+    status: ported
     docs: packages/bus.md
-    notes: Bus package exists with command dispatch and middleware; upstream test parity is not complete.
+    notes: Command dispatch, queue routing, after-response dispatch, chains, batches, lifecycle events, and typed failure callbacks are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.cache.repository
     source_id: framework.cache

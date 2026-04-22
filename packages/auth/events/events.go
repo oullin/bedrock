@@ -63,7 +63,7 @@ type PasswordReset struct {
 
 // PasswordResetLinkSent is dispatched after a password reset link is sent.
 type PasswordResetLinkSent struct {
-	User cauth.CanResetPassword
+	User cauth.ResettableAuthenticatable
 }
 
 // Registered is dispatched after a new user registers.

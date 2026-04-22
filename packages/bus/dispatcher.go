@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/bedrock/packages/bus/pipeline"
 	"github.com/bedrock/packages/queue"
@@ -163,6 +164,14 @@ func (d *BusDispatcher) DispatchToQueue(ctx context.Context, command any) error 
 
 	if q, ok := command.(interface{ GetQueue() string }); ok {
 		queueName = q.GetQueue()
+	}
+
+	if delayer, ok := command.(interface{ GetDelay() time.Duration }); ok {
+		if delay := delayer.GetDelay(); delay > 0 {
+			_, err = d.queueBackend.PushDelayed(ctx, queueName, payload, delay)
+
+			return err
+		}
 	}
 
 	_, err = d.queueBackend.Push(ctx, queueName, payload)

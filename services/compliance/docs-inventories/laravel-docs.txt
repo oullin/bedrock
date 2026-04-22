@@ -1,7 +1,7 @@
 # Upstream documentation inventory.
 # Source: https://github.com/upstream/docs/tree/13.x
 # Format: <markdown file>#<heading slug>
-# Generated: 2026-04-20
+# Generated: 2026-04-21
 #
 # Bedrock docs mark ported sections with:
 # <!-- upstream-docs: <markdown file>#<heading slug> -->
