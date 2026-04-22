@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-22T04:11:02Z
+Generated: 2026-04-22T04:37:44Z
 
 Source of truth: services/compliance
 
@@ -17,11 +17,11 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |   Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | -----------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 1363 / 13066 |   11703 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Tests                 | 1556 / 13066 |   11510 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
 | Documentation         |    370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Upstream skeleton demo |      49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |      60 / 62 |       2 | Not compliant     | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 1842 / 14052 |   12210 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 2035 / 14052 |   12017 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
@@ -57,7 +57,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | inventories/framework-conditionable.txt   | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Conditionable`           |      2 / 2 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-config.txt          | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Config`                  |    33 / 33 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-console.txt         | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Console`                 |  156 / 156 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-container.txt       | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Container`               |    0 / 193 |           193 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
+| inventories/framework-container.txt       | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Container`               |  193 / 193 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
 | inventories/framework-cookie.txt          | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Cookie`                  |     0 / 26 |            26 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/framework-database.txt        | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Database`                |   0 / 2626 |          2626 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
 | inventories/framework-encryption.txt      | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Encryption`              |     0 / 27 |            27 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
@@ -113,7 +113,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | `Framework\Conditionable`   | `conditionable` | `mapped`             | Ported tests: 2 / 2 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)        | `packages/conditionable.md` |
 | `Framework\Config`          | `config`        | `mapped`             | Ported tests: 32 / 33 (97.0%); Missing tests: 0 (0.0%); Adapted tests: 1 (3.0%)       | `packages/config.md`        |
 | `Framework\Console`         | `console`       | `mapped`             | Ported tests: 156 / 156 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)    | `packages/console.md`       |
-| `Framework\Container`       | `container`     | `mapped`             | Ported tests: 0 / 193 (0.0%); Missing tests: 193 (100.0%); Adapted tests: 0 (0.0%)    | `packages/container.md`     |
+| `Framework\Container`       | `container`     | `mapped`             | Ported tests: 102 / 193 (52.8%); Missing tests: 0 (0.0%); Adapted tests: 91 (47.2%)   | `packages/container.md`     |
 | `Framework\Contracts`       | `contracts`     | `mapped`             | no inventory                                                                          | `packages/contracts.md`     |
 | `Framework\Cookie`          | `cookie`        | `mapped`             | Ported tests: 0 / 26 (0.0%); Missing tests: 26 (100.0%); Adapted tests: 0 (0.0%)      | `packages/cookie.md`        |
 | `Framework\Database`        | `database`      | `mapped`             | Ported tests: 0 / 2626 (0.0%); Missing tests: 2626 (100.0%); Adapted tests: 0 (0.0%)  | `packages/database.md`      |
@@ -185,8 +185,8 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13066 |  1035 (7.9%) |           11703 (89.6%) |    328 (2.5%) |
-| Framework inventories |          34 |           9009 | 1032 (11.5%) |            7649 (84.9%) |    328 (3.6%) |
+| All inventories       |          51 |          13066 |  1137 (8.7%) |           11510 (88.1%) |    419 (3.2%) |
+| Framework inventories |          34 |           9009 | 1134 (12.6%) |            7456 (82.8%) |    419 (4.7%) |
 | Package inventories   |          17 |           4057 |     3 (0.1%) |            4054 (99.9%) |      0 (0.0%) |
 
 ## Documentation Porting Summary
@@ -298,7 +298,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | Conditional fluent execution | `framework.conditionable`   | `conditionable` | `ported`   | `packages/conditionable.md` | Executable Go equivalents cover when and unless; PHP dynamic no-argument and magic behavior is represented through explicit Go proxy constructors.                                                                                                                                                                                            |
 | Configuration repository     | `framework.config`          | `config`        | `ported`   | `packages/config.md`        | Dot-notation reads, literal-dot key precedence, explicit nil values, write helpers, typed getters, collection wrapping, and explicit Go offset adaptations are complete under classified parity; PHP Macroable runtime mechanics are covered by Go adaptation rules in divergences.yml.                                                       |
 | Console commands             | `framework.console`         | `console`       | `ported`   | `packages/console.md`       | Command registration and dispatch, signature parsing, typed input and output helpers, signal traps, scheduling primitives, and explicit command/scheduling mutexes are complete under classified parity; Symfony/PHP attribute runtime and dynamic Macroable/callable-string mechanics are covered by Go adaptation rules in divergences.yml. |
-| Container bindings           | `framework.container`       | `container`     | `partial`  | `packages/container.md`     | Container package exists; upstream container tests have not been matched yet.                                                                                                                                                                                                                                                                 |
+| Container bindings           | `framework.container`       | `container`     | `ported`   | `packages/container.md`     | Bindings, shared and scoped lifecycles, aliases, contextual bindings, tags, extenders, method bindings, and resolving callbacks are complete under classified parity; PHP reflection, attributes, callable strings, ArrayAccess, and environment selectors are covered by Go adaptation rules in divergences.yml.                             |
 | Shared interfaces            | `framework.contracts`       | `contracts`     | `ported`   | `packages/contracts.md`     | Interface compliance is tracked through concrete package inventories.                                                                                                                                                                                                                                                                         |
 | Cookie handling              | `framework.cookie`          | `cookie`        | `partial`  | `packages/cookie.md`        | Cookie package exists; upstream test parity is not complete.                                                                                                                                                                                                                                                                                  |
 | Database query builder       | `framework.database`        | `database`      | `partial`  | `packages/database.md`      | Query, schema, migrations, and Orm surfaces exist; broad upstream parity remains incomplete.                                                                                                                                                                                                                                             |
