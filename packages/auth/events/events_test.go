@@ -5,8 +5,19 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bedrock/packages/auth"
 	"github.com/bedrock/packages/auth/events"
+	cauth "github.com/bedrock/packages/contracts/auth"
 )
+
+type resettableEventUser struct {
+	*auth.GenericUser
+	email string
+}
+
+var _ cauth.ResettableAuthenticatable = (*resettableEventUser)(nil)
+
+func (u *resettableEventUser) GetEmailForPasswordReset() string { return u.email }
 
 func TestAttemptingFields(t *testing.T) {
 	e := events.Attempting{
@@ -101,11 +112,19 @@ func TestPasswordResetFields(t *testing.T) {
 	}
 }
 
-func TestPasswordResetLinkSentAcceptsCanResetPassword(t *testing.T) {
-	e := events.PasswordResetLinkSent{User: nil}
+func TestPasswordResetLinkSentAcceptsResettableAuthenticatable(t *testing.T) {
+	user := &resettableEventUser{
+		GenericUser: auth.NewGenericUser(map[string]any{"id": "1"}),
+		email:       "test@example.com",
+	}
+	e := events.PasswordResetLinkSent{User: user}
 
-	if e.User != nil {
-		t.Error("expected nil user")
+	if e.User.GetAuthIdentifier() != "1" {
+		t.Errorf("GetAuthIdentifier = %q, want %q", e.User.GetAuthIdentifier(), "1")
+	}
+
+	if e.User.GetEmailForPasswordReset() != "test@example.com" {
+		t.Errorf("GetEmailForPasswordReset = %q, want %q", e.User.GetEmailForPasswordReset(), "test@example.com")
 	}
 }
 
