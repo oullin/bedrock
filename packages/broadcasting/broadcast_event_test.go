@@ -9,13 +9,17 @@ import (
 )
 
 // BroadcastEventTest::testBasicEventBroadcastParameterFormatting
-
+// BroadcastedEventsTest::testShouldBroadcastSuccess
+// BroadcastedEventsTest::testShouldBroadcastAsQueuedAndCallNormalListeners
+// BroadcastedEventsTest::testShouldBroadcastFail
 // BroadcastEventTest::testManualParameterSpecification
-
+// BroadcastedEventsTest::testBroadcastWithMultipleChannels
+// BroadcastedEventsTest::testBroadcastWithCustomConnectionName
+// BroadcastedEventsTest::testBroadcastWithCustomEventName
+// BroadcastedEventsTest::testBroadcastWithCustomPayload
+// BroadcastedEventsTest::testEventBroadcastsUsingNamedArguments
 // BroadcastEventTest::testSpecificBroadcasterGiven
-
 // BroadcastEventTest::testSpecificChannelsPerConnection
-
 // BroadcastEventTest::testMiddlewareProxiesMiddlewareFromUnderlyingEvent
 // BroadcastEventTest::testMiddlewareProxiesFailedHandlerFromUnderlyingEvent
 
