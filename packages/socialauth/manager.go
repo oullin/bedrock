@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // ProviderConfig holds the OAuth credentials and options for a single driver.
@@ -11,7 +12,7 @@ type ProviderConfig struct {
 	ClientID     string
 	ClientSecret string
 	RedirectURL  string
-	Scopes       []string
+	Scopes       any
 	// Host is used by GitLab for self-hosted instances.
 	Host string
 }
@@ -148,23 +149,71 @@ func (m *Manager) buildReal(name string) (Provider, error) {
 // registerBuiltins wires the eight built-in OAuth2 providers.
 func (m *Manager) registerBuiltins() {
 	m.factories["github"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewGithubProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("github", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewGithubProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["google"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewGoogleProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("google", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewGoogleProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["facebook"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewFacebookProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("facebook", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewFacebookProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["linkedin"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewLinkedInProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("linkedin", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewLinkedInProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["gitlab"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
+		if err := validateProviderConfig("gitlab", cfg); err != nil {
+			return nil, err
+		}
+
 		p := NewGitlabProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
 
 		if cfg.Host != "" {
 			p.SetHost(cfg.Host)
@@ -174,14 +223,87 @@ func (m *Manager) registerBuiltins() {
 	}
 
 	m.factories["bitbucket"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewBitbucketProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("bitbucket", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewBitbucketProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["slack"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewSlackProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("slack", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewSlackProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
 	}
 
 	m.factories["twitter"] = func(req *http.Request, s Session, cfg ProviderConfig) (Provider, error) {
-		return NewTwitterProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL), nil
+		if err := validateProviderConfig("twitter", cfg); err != nil {
+			return nil, err
+		}
+
+		p := NewTwitterProvider(req, s, cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+
+		if scopes := normalizeScopes(cfg.Scopes); len(scopes) > 0 {
+			p.SetScopes(scopes)
+		}
+
+		return p, nil
+	}
+}
+
+func validateProviderConfig(driver string, cfg ProviderConfig) error {
+	if cfg.ClientID == "" {
+		return fmt.Errorf("socialauth: missing client_id for %s provider", driver)
+	}
+
+	if cfg.ClientSecret == "" {
+		return fmt.Errorf("socialauth: missing client_secret for %s provider", driver)
+	}
+
+	if cfg.RedirectURL == "" {
+		return fmt.Errorf("socialauth: missing redirect_url for %s provider", driver)
+	}
+
+	return nil
+}
+
+func normalizeScopes(v any) []string {
+	switch scopes := v.(type) {
+	case nil:
+		return nil
+	case []string:
+		return scopes
+	case []any:
+		out := make([]string, 0, len(scopes))
+
+		for _, item := range scopes {
+			if s, ok := item.(string); ok && s != "" {
+				out = append(out, s)
+			}
+		}
+
+		return out
+	case string:
+		if scopes == "" {
+			return nil
+		}
+
+		return strings.Fields(strings.NewReplacer(",", " ").Replace(scopes))
+	default:
+		return nil
 	}
 }

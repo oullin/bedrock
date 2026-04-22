@@ -9,7 +9,8 @@ import (
 
 // FileHandler stores session data as files on the filesystem.
 type FileHandler struct {
-	path string
+	path        string
+	maxLifetime int
 }
 
 // NewFileHandler creates a FileHandler that stores sessions under path.
@@ -28,7 +29,26 @@ func (h *FileHandler) Open(_ context.Context, path, _ string) error {
 func (h *FileHandler) Close(_ context.Context) error { return nil }
 
 func (h *FileHandler) Read(_ context.Context, id string) (string, error) {
-	data, err := os.ReadFile(h.filePath(id))
+	path := h.filePath(id)
+	info, err := os.Stat(path)
+
+	if os.IsNotExist(err) {
+		return "", nil
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	if h.maxLifetime > 0 {
+		cutoff := time.Now().Add(-time.Duration(h.maxLifetime) * time.Second)
+
+		if info.ModTime().Before(cutoff) {
+			return "", nil
+		}
+	}
+
+	data, err := os.ReadFile(path)
 
 	if os.IsNotExist(err) {
 		return "", nil
@@ -75,7 +95,17 @@ func (h *FileHandler) Destroy(_ context.Context, id string) error {
 }
 
 func (h *FileHandler) GC(_ context.Context, maxLifetime int) error {
-	cutoff := time.Now().Add(-time.Duration(maxLifetime) * time.Second)
+	lifetime := maxLifetime
+
+	if lifetime <= 0 {
+		lifetime = h.maxLifetime
+	}
+
+	if lifetime <= 0 {
+		return nil
+	}
+
+	cutoff := time.Now().Add(-time.Duration(lifetime) * time.Second)
 
 	entries, err := os.ReadDir(h.path)
 

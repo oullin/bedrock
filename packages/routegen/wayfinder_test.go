@@ -94,6 +94,16 @@ func postControllerRoutes() []*routegen.RouteInfo {
 // PostController tests (mirrors PostController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of PostController::test_properties.
+// Port of PostController::test_url.
+// Port of PostController::test_default_method.
+// Port of PostController::test_get.
+// Port of PostController::test_head.
+// Port of PostController::test_definition.
+// Port of PostController::test_post.
+// Port of PostController::test_patch.
+// Port of PostController::test_delete.
+// Port of DefaultParameters::test_it_can_generate_urls_without_default_parameters_set.
 func TestPostControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -134,10 +144,30 @@ func TestPostControllerGeneration(t *testing.T) {
 	assertContains(t, content, `export default PostController`)
 }
 
+// Port of AnonymousMiddleware::test_will_allow_for_closure_middleware.
+func TestAnonymousMiddlewareClosureRoutesDoNotBlockGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{URI: "/closure", Methods: []string{"get", "head"}, Controller: "Closure"},
+		{URI: "/posts", Methods: []string{"get", "head"}, Controller: "App\\Http\\Controllers\\PostController@index"},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/PostController.ts")
+
+	assertContains(t, content, `url: "/posts"`)
+
+	if _, err := os.Stat(filepath.Join(dir, "actions/Closure.ts")); !os.IsNotExist(err) {
+		t.Fatalf("closure middleware route should not create a Closure action file")
+	}
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // InvokableController tests (mirrors InvokableController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of InvokableController::it_exports_default_for_invokable_controllers.
 func TestInvokableControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -161,10 +191,42 @@ func TestInvokableControllerGeneration(t *testing.T) {
 	assertNotContains(t, content, `export const InvokableController`)
 }
 
+// Port of InvokablePlusController::it_exports_default_and_methods_for_invokable_controllers.
+func TestInvokablePlusControllerGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:         "/invokable-plus",
+			Methods:     []string{"get", "head"},
+			Controller:  "App\\Http\\Controllers\\InvokablePlusController@Invoke",
+			IsInvokable: true,
+		},
+		{
+			URI:        "/invokable-plus/download",
+			Methods:    []string{"post"},
+			Controller: "App\\Http\\Controllers\\InvokablePlusController@download",
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/InvokablePlusController.ts")
+
+	assertContains(t, content, `const InvokablePlusController = (`)
+	assertContains(t, content, `const download = (`)
+	assertContains(t, content, `InvokablePlusController.download = download`)
+	assertContains(t, content, `export default InvokablePlusController`)
+	assertNotContains(t, content, `export const InvokablePlusController`)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // OptionalController tests (mirrors OptionalController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of OptionalController::test_url.
+// Port of OptionalController::test_definition.
+// Port of OptionalController::test_url_supports_falsy_optional_values.
+// Port of OptionalController::it_throws_an_error_when_passing_optional_parameters_with_missing_optional_parameters_before.
 func TestOptionalControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -199,12 +261,36 @@ func TestOptionalControllerGeneration(t *testing.T) {
 
 	// manyOptional
 	assertContains(t, content, `url: "/many-optional/{one?}/{two?}/{three?}"`)
+	assertContains(t, content, `validateParameters(args, ["one", "two", "three"])`)
+	assertContains(t, content, `.replace("{one?}", parsedArgs.one?.toString() ?? '')`)
+	assertContains(t, content, `.replace("{two?}", parsedArgs.two?.toString() ?? '')`)
+	assertContains(t, content, `.replace("{three?}", parsedArgs.three?.toString() ?? '')`)
+}
+
+// Port of EmptyRoute::it_doesn_t_add_a_to_an_empty_route.
+func TestEmptyRouteGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:        "",
+			Methods:    []string{"get", "head"},
+			Controller: "App\\Http\\Controllers\\EmptyRouteController@index",
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/EmptyRouteController.ts")
+
+	assertContains(t, content, `url: ""`)
+	assertNotContains(t, content, `url: "/"`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ModelBindingController tests (mirrors ModelBindingController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of ModelBindingController::test_will_detect_model_binding.
 func TestModelBindingControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -227,10 +313,35 @@ func TestModelBindingControllerGeneration(t *testing.T) {
 	assertContains(t, content, `if (Array.isArray(args))`)
 }
 
+// Port of CamelCaseRouteParameter::test_can_resolve_model_binding_keys_for_camelcase_route_handler_parameters.
+func TestCamelCaseRouteParameterGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:        "/profiles/{userProfile}",
+			Methods:    []string{"get", "head"},
+			Controller: "App\\Http\\Controllers\\CamelCaseRouteParameterController@show",
+			Params:     []routegen.Param{{Name: "userProfile", Key: "uuid"}},
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/CamelCaseRouteParameterController.ts")
+
+	assertContains(t, content, `url: "/profiles/{userProfile}"`)
+	assertContains(t, content, `"uuid" in args`)
+	assertContains(t, content, `args.userProfile.uuid`)
+	assertContains(t, content, `.replace("{userProfile}", parsedArgs.userProfile.toString())`)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // KeyController tests (mirrors KeyController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of KeyController::it_can_pass_primitive_values_to_routes_with_custom_keys.
+// Port of KeyController::it_can_pass_objects_with_custom_key.
+// Port of KeyController::test_definition.
 func TestKeyControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -257,6 +368,9 @@ func TestKeyControllerGeneration(t *testing.T) {
 // DisallowedMethodNames tests (mirrors DisallowedMethodNames.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of DisallowedMethodNames::test_will_append_method_to_invalid_methods.
+// Port of DisallowedMethodNames::test_will_properly_handle_leading_numbers.
+// Port of DisallowedMethodNames::test_will_properly_handle_reserved_js_words.
 func TestDisallowedMethodNamesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -290,10 +404,60 @@ func TestDisallowedMethodNamesGeneration(t *testing.T) {
 	assertContains(t, content, `export default DisallowedMethodNameController`)
 }
 
+// Port of MethodNameCollision::test_does_not_shadow_a_generated_method_named_options.
+func TestMethodNameCollisionGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:        "/method-collision/{post}",
+			Methods:    []string{"get", "head"},
+			Controller: "App\\Http\\Controllers\\MethodNameCollisionController@options",
+			Params:     []routegen.Param{{Name: "post"}},
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/MethodNameCollisionController.ts")
+
+	assertContains(t, content, `export const options = (args: {`)
+	assertContains(t, content, `routeOptions?: RouteQueryOptions`)
+	assertContains(t, content, `queryParams(routeOptions)`)
+	assertNotContains(t, content, `queryParams(options)`)
+}
+
+// Port of ParamaterName::test_url.
+// Port of ParamaterName::test_definition.
+func TestParameterNameCollisionGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:        "/parameter-names/{args}/{options}/{parsedArgs}",
+			Methods:    []string{"get", "head"},
+			Controller: "App\\Http\\Controllers\\ParamaterNameController@show",
+			Params: []routegen.Param{
+				{Name: "args"},
+				{Name: "options"},
+				{Name: "parsedArgs"},
+			},
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "actions/App/Http/Controllers/ParamaterNameController.ts")
+
+	assertContains(t, content, `url: "/parameter-names/{args}/{options}/{parsedArgs}"`)
+	assertContains(t, content, `.replace("{args}", parsedArgs.args.toString())`)
+	assertContains(t, content, `.replace("{options}", parsedArgs.options.toString())`)
+	assertContains(t, content, `.replace("{parsedArgs}", parsedArgs.parsedArgs.toString())`)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // TwoRoutesSameAction tests (mirrors TwoRoutesSameAction.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of TwoRoutesSameAction::it_creates_a_keyed_dictionary_of_routes_for_multiple_routes_pointing_to_the_same_action.
 func TestTwoRoutesSameActionGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -316,6 +480,9 @@ func TestTwoRoutesSameActionGeneration(t *testing.T) {
 // DomainController tests (mirrors DomainController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of DomainController::test_can_generate_fixed_domain_urls.
+// Port of DomainController::test_can_generate_dynamic_domain_urls.
+// Port of AppUrlRootResolution::test_does_not_inject_app_url_port_into_explicit_domain_routes.
 func TestDomainControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -348,12 +515,14 @@ func TestDomainControllerGeneration(t *testing.T) {
 
 	// Dynamic domain URL includes the domain placeholder.
 	assertContains(t, content, `//{defaultDomain?}.au/default-parameters-domain/{param}`)
+	assertNotContains(t, content, `:8080`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Named routes tests (mirrors NamedRoutes.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of NamedRoutes::it_exports_named_routes.
 func TestNamedRoutesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -396,10 +565,43 @@ func TestNamedRoutesGeneration(t *testing.T) {
 	assertContains(t, rootContent, `dashboard`)
 }
 
+// Port of NamedspacedRoute::it_can_access_a_namespaced_route.
+// Port of StorageRoute::it_can_import_storage_routes.
+func TestNamespacedAndStorageRoutesGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{
+			URI:        "/admin/reports",
+			Methods:    []string{"get", "head"},
+			Name:       "admin::reports.index",
+			Controller: "App\\Http\\Controllers\\Admin\\ReportsController@index",
+		},
+		{
+			URI:     "/storage/{path}",
+			Methods: []string{"get", "head"},
+			Name:    "storage.local",
+			Params:  []routegen.Param{{Name: "path"}},
+		},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{})
+	content := readFile(t, dir, "routes/namespaced/admin/reports/index.ts")
+	assertContains(t, content, `export const index`)
+	assertContains(t, content, `url: "/admin/reports"`)
+
+	storage := readFile(t, dir, "routes/storage/index.ts")
+	assertContains(t, storage, `export const local`)
+	assertContains(t, storage, `url: "/storage/{path}"`)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // UrlDefaults tests (mirrors UrlDefaultsController.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of UrlDefaultsController::test_url.
+// Port of UrlDefaultsController::test_default_method.
+// Port of DefaultParameters::test_it_can_generate_urls_with_default_url_parameters_set_on_backend_and_frontend.
 func TestUrlDefaultsControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -429,6 +631,9 @@ func TestUrlDefaultsControllerGeneration(t *testing.T) {
 // WithForm option tests
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of PostController::test_default_form_method.
+// Port of PostController::test_form_get.
+// Port of PostController::test_form_head.
 func TestWithFormOption(t *testing.T) {
 	t.Parallel()
 
@@ -459,6 +664,7 @@ func TestWithFormOption(t *testing.T) {
 // AppUrl base-path tests (mirrors AppUrlRootResolution.test.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of AppUrlRootResolution::test_prefixes_generated_urls_with_app_url_path.
 func TestAppURLPathPrefix(t *testing.T) {
 	t.Parallel()
 
@@ -479,6 +685,20 @@ func TestAppURLPathPrefix(t *testing.T) {
 // RouteGen runtime utility
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of QueryParams::it_can_convert_basic_params.
+// Port of QueryParams::it_can_convert_array_params.
+// Port of QueryParams::it_can_convert_object_params.
+// Port of QueryParams::it_can_convert_boolean_params.
+// Port of QueryParams::it_will_ignore_existing_params_without_star.
+// Port of QueryParams::it_can_integrate_basic_params_with_existing_window_params.
+// Port of QueryParams::it_can_integrate_array_params_with_existing_window_params.
+// Port of QueryParams::it_can_integrate_object_params_with_existing_window_params.
+// Port of QueryParams::it_can_delete_existing_params_via_null.
+// Port of QueryParams::it_can_delete_existing_params_via_undefined.
+// Port of QueryParams::it_can_merge_with_the_form_method.
+// Port of QueryParams::it_can_pass_nested_query_parameters.
+// Port of QueryParams::it_ignores_nested_object_values_with_unallowed_types.
+// Port of DefaultParameters::test_it_can_generate_urls_with_dynamic_function_based_default_url_parameters.
 func TestRouteGenRuntimeUtility(t *testing.T) {
 	t.Parallel()
 
@@ -494,6 +714,28 @@ func TestRouteGenRuntimeUtility(t *testing.T) {
 	assertContains(t, content, `export type RouteDefinition`)
 	assertContains(t, content, `export type RouteFormDefinition`)
 	assertContains(t, content, `export type RouteQueryOptions`)
+}
+
+func TestRouteGenRuntimeQueryParamsSource(t *testing.T) {
+	t.Parallel()
+
+	data, err := os.ReadFile(filepath.FromSlash("resources/routegen.ts"))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	content := string(data)
+
+	assertContains(t, content, `return "1";`)
+	assertContains(t, content, `return "0";`)
+	assertContains(t, content, "params.append(`${paramKey}[]`, getValue(v))")
+	assertContains(t, content, `addNestedParams(value, paramKey, params)`)
+	assertContains(t, content, `window.location.search`)
+	assertContains(t, content, `params.delete(key)`)
+	assertContains(t, content, `export const setUrlDefaults = (params: UrlDefaults | (() => UrlDefaults))`)
+	assertContains(t, content, `export const applyUrlDefaults`)
+	assertContains(t, content, `export const validateParameters`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -534,6 +776,9 @@ func TestSkipOptions(t *testing.T) {
 // Barrel files
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Port of PathNameNormalization::it_can_normalize_to_camel_case.
+// Port of PathNameNormalization::it_will_properly_export_barrel_files.
+// Port of NestedController::it_can_handle_conflicting_nested_route_names.
 func TestBarrelFilesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -552,4 +797,21 @@ func TestBarrelFilesGeneration(t *testing.T) {
 	// Top-level barrel.
 	rootIndex := readFile(t, dir, "actions/index.ts")
 	assertContains(t, rootIndex, `export default`)
+}
+
+// Port of RepeatedNamespaceController::it_avoids_conflicting_barrel_identifiers_when_namespace_segment_repeats.
+func TestRepeatedNamespaceControllerGeneration(t *testing.T) {
+	t.Parallel()
+
+	routes := []*routegen.RouteInfo{
+		{URI: "/admin/repeated", Methods: []string{"get"}, Controller: "App\\Http\\Controllers\\Admin\\Admin\\RepeatedNamespaceController@index"},
+		{URI: "/admin/users", Methods: []string{"get"}, Controller: "App\\Http\\Controllers\\Admin\\UserController@index"},
+	}
+
+	dir := generateTo(t, routes, routegen.Options{SkipRoutes: true})
+	content := readFile(t, dir, "actions/App/Http/Controllers/Admin/index.ts")
+
+	assertContains(t, content, `import Admin from './Admin'`)
+	assertContains(t, content, `import UserController from './UserController'`)
+	assertContains(t, content, `const Admin = {`)
 }

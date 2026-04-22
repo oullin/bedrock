@@ -326,6 +326,21 @@ semantic_divergences:
   - surface: str
     divergence: Strict transliteration flag is not exposed
     rationale: Bedrock transliteration exposes explicit replacement text for unknown runes and does not mirror Upstream's PHP boolean strict-mode flag.
+  - surface: session
+    divergence: AuthenticateSession middleware is not shipped
+    rationale: Bedrock session currently exposes store, handler, and start-session middleware behavior, but not Upstream's auth-password session middleware with guard-specific runtime state and legacy cookie compatibility.
+  - surface: session
+    divergence: Backed enum session keys are compile-time strings
+    rationale: Go session APIs accept explicit string keys, so Upstream's runtime backed-enum key tests do not have a direct executable equivalent without widening the public API.
+  - surface: session
+    divergence: Validation error bag session helpers are not coupled into the store
+    rationale: Bedrock session storage does not own Upstream's validation error serialization helpers or macroable message-bag plumbing.
+  - surface: session
+    divergence: Runtime macro registration is not exposed
+    rationale: Go session APIs are explicit methods rather than dynamic macroable extensions.
+  - surface: remotetasks
+    divergence: PHP RemoteTasks compiler directives are not exposed
+    rationale: Bedrock RemoteTasks uses explicit Go Task planning and Runner execution instead of compiling PHP Template-style @before, @finished, @setup, and @servers directives.
 
 test_status_overrides:
   # Cookie, encryption, and database PHP runtime mechanics counted as adapted.
@@ -334,6 +349,38 @@ test_status_overrides:
   - EncrypterTest::testEncryptedReturnsFalseForNonString
   - SupportStrTest::testAsciiNull
   - SupportStrTest::testTransliterateStrict
+  - CompilerTest::test_it_compiles_finished_statement
+  - CompilerTest::test_compile_before_statement
+  - CompilerTest::test_it_compiles_server_statement
+  - CompilerTest::test_it_compiles_server_statement_with_setup
+  - Middleware/AuthenticateSessionTest::test_handle_without_session
+  - Middleware/AuthenticateSessionTest::test_handle_with_session_without_request_user
+  - Middleware/AuthenticateSessionTest::test_handle_with_session_without_auth_password
+  - Middleware/AuthenticateSessionTest::test_handle_with_session_with_user_auth_password_on_request_via_remember_false
+  - Middleware/AuthenticateSessionTest::test_handle_with_invalid_password_hash
+  - Middleware/AuthenticateSessionTest::test_handle_with_invalid_incookie_password_hash_via_remember_true
+  - Middleware/AuthenticateSessionTest::test_handle_with_valid_incookie_invalid_insession_hash_via_remember_true
+  - Middleware/AuthenticateSessionTest::test_handle_with_valid_password_in_session_cookie_is_empty_guard_has_user
+  - Middleware/AuthenticateSessionTest::test_handle_with_old_format_cookie_for_backward_compatibility
+  - Middleware/AuthenticateSessionTest::test_handle_with_old_format_cookie_and_legacy_guard
+  - SessionStoreTest::testBackedEnumKeyPut
+  - SessionStoreTest::testBackedEnumKeyGet
+  - SessionStoreTest::testBackedEnumKeyHas
+  - SessionStoreTest::testBackedEnumKeyHasAny
+  - SessionStoreTest::testBackedEnumKeyExists
+  - SessionStoreTest::testBackedEnumKeyMissing
+  - SessionStoreTest::testBackedEnumKeyForget
+  - SessionStoreTest::testBackedEnumKeyPull
+  - SessionStoreTest::testBackedEnumKeyRemember
+  - SessionStoreTest::testBackedEnumKeyPush
+  - SessionStoreTest::testBackedEnumKeyIncrement
+  - SessionStoreTest::testBackedEnumKeyDecrement
+  - SessionStoreTest::testBackedEnumKeyRemove
+  - SessionStoreTest::testBackedEnumKeyFlash
+  - SessionStoreTest::testBackedEnumKeyNow
+  - SessionStoreTest::testValidationErrorsCanBeSerializedAsJson
+  - SessionStoreTest::testValidationErrorsCanBeReadAsJson
+  - SessionStoreTest::testItIsMacroable
   - DatabaseAbstractSchemaGrammarTest::testCreateDatabase
   - DatabaseAbstractSchemaGrammarTest::testDropDatabaseIfExists
   - DatabaseConcernsBuildsQueriesTraitTest::testTapCallbackInstance
