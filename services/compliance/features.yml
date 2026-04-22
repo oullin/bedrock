@@ -6,18 +6,18 @@ features:
     name: Authentication guards
     laravel: Illuminate\Auth guard and provider system
     bedrock: auth
-    status: partial
+    status: ported
     docs: packages/auth.md
-    notes: Session, token, request, basic-auth, provider, and event surfaces exist with a current upstream feature audit; remaining gaps are PHP-specific mechanics or broader test parity.
+    notes: Session, token, request, basic-auth, provider, and event surfaces are complete under classified parity; PHP runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.auth.passwords
     source_id: framework.auth
     name: Password broker
     laravel: Illuminate\Auth password reset broker
     bedrock: auth
-    status: partial
+    status: ported
     docs: packages/auth.md
-    notes: Password reset tokens, throttling, callback notification override, notification sender hook, and reset-link events exist; manager/config wiring remains adapted to Go.
+    notes: Password reset tokens, throttling, callback notification override, notification sender hook, and reset-link events are complete under classified parity; PHP manager/config mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.broadcasting.contracts
     source_id: framework.broadcasting

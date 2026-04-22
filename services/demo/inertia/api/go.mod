@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/bedrock/packages/config v0.0.0
+	github.com/bedrock/packages/database v0.0.0
 	github.com/bedrock/packages/encryption v0.0.0
 	github.com/bedrock/packages/inertia v0.0.0
 	github.com/bedrock/packages/seo v0.0.0
@@ -45,6 +46,7 @@ replace (
 	github.com/bedrock/packages/config => ../../../../packages/config
 	github.com/bedrock/packages/container => ../../../../packages/container
 	github.com/bedrock/packages/contracts => ../../../../packages/contracts
+	github.com/bedrock/packages/database => ../../../../packages/database
 	github.com/bedrock/packages/encryption => ../../../../packages/encryption
 	github.com/bedrock/packages/inertia => ../../../../packages/inertia
 	github.com/bedrock/packages/seo => ../../../../packages/seo

@@ -66,13 +66,21 @@ interfaces for upstream auth behavior that maps cleanly:
 - `contracts/auth.SupportsBasicAuth` marks guards with `Basic()` and
   `OnceBasic()` support.
 - `contracts/auth.EmailVerificationNotificationSender` lets registration
-  listeners call `SendEmailVerificationNotification()`.
+  listeners call `SendEmailVerificationNotification(ctx)`.
 - `contracts/auth.PasswordResetNotificationSender` lets the password broker
-  call `SendPasswordResetNotification(token)`.
+  call `SendPasswordResetNotification(ctx, token)`.
 
 `passwords.Broker` also supports reset-link throttling, custom reset-link
 callbacks through `SendResetLinkUsing`, and reset-link event dispatch through
 `WithEventDispatcher` or `SetEventDispatcher`.
+
+Callers can detect throttled reset-link requests with `errors.Is`:
+
+```go
+if errors.Is(err, passwords.ErrResetLinkThrottled) {
+    // Ask the user to wait before requesting another reset link.
+}
+```
 
 ## Middleware
 

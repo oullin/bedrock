@@ -136,8 +136,8 @@ func TestLaravelAuthPasswordBrokerRejectsRecentlyCreatedToken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := broker.SendResetLink(ctx, "test@example.com"); err == nil {
-		t.Fatal("SendResetLink should reject a recently created token")
+	if err := broker.SendResetLink(ctx, "test@example.com"); !errors.Is(err, passwords.ErrResetLinkThrottled) {
+		t.Fatalf("SendResetLink error = %v, want ErrResetLinkThrottled", err)
 	}
 }
 

@@ -2,10 +2,12 @@ package install_test
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/bedrock/packages/ai/boost"
 	"github.com/bedrock/packages/ai/boost/install"
 )
 
@@ -130,5 +132,18 @@ func TestMcpWriterMergesExistingKeys(t *testing.T) {
 
 	if _, ok := servers["boost"]; !ok {
 		t.Error("new 'boost' entry not found")
+	}
+}
+
+func TestMcpWriterMissingConfigPathReturnsSentinel(t *testing.T) {
+	t.Parallel()
+
+	agent := &mockMcpAgent{configKey: "mcpServers"}
+	w := &install.McpWriter{}
+
+	_, err := w.Write(agent, "boost", map[string]any{"command": "go"})
+
+	if !errors.Is(err, boost.ErrNoMcpConfigPath) {
+		t.Fatalf("Write() error = %v, want %v", err, boost.ErrNoMcpConfigPath)
 	}
 }

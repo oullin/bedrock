@@ -2,6 +2,7 @@ package passwords_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/bedrock/packages/auth/passwords"
 	cauth "github.com/bedrock/packages/contracts/auth"
 	cevents "github.com/bedrock/packages/contracts/events"
+	clog "github.com/bedrock/packages/contracts/log"
 )
 
 type resetUser struct {
@@ -23,20 +25,72 @@ type brokerProvider struct {
 
 type notifyingResetUser struct {
 	*resetUser
-	notifiedToken string
+	notifiedToken   string
+	notifiedContext context.Context
 }
 
 type brokerDispatcher struct {
 	events []any
 }
 
+type incompatibleTokenRepository struct {
+	createCalls int
+}
+
+type brokerLogEntry struct {
+	message string
+	context []map[string]any
+}
+
+type brokerLogger struct {
+	warnings []brokerLogEntry
+}
+
+type resetContextKey struct{}
+
 var _ cauth.PasswordResetNotificationSender = (*notifyingResetUser)(nil)
 
 func (u *resetUser) GetEmailForPasswordReset() string { return u.email }
 
-func (u *notifyingResetUser) SendPasswordResetNotification(token string) {
+func (u *notifyingResetUser) SendPasswordResetNotification(ctx context.Context, token string) {
 	u.notifiedToken = token
+	u.notifiedContext = ctx
 }
+
+func (r *incompatibleTokenRepository) Create(_ context.Context, _ string) (string, error) {
+	r.createCalls++
+
+	return "token", nil
+}
+
+func (r *incompatibleTokenRepository) Exists(_ context.Context, _, _ string) bool {
+	return false
+}
+
+func (r *incompatibleTokenRepository) Delete(_ context.Context, _ string) error {
+	return nil
+}
+
+func (r *incompatibleTokenRepository) DeleteExpired(_ context.Context) error {
+	return nil
+}
+
+func (l *brokerLogger) Emergency(_ string, _ ...map[string]any) {}
+func (l *brokerLogger) Alert(_ string, _ ...map[string]any)     {}
+func (l *brokerLogger) Critical(_ string, _ ...map[string]any)  {}
+func (l *brokerLogger) Error(_ string, _ ...map[string]any)     {}
+func (l *brokerLogger) Notice(_ string, _ ...map[string]any)    {}
+func (l *brokerLogger) Info(_ string, _ ...map[string]any)      {}
+func (l *brokerLogger) Debug(_ string, _ ...map[string]any)     {}
+
+func (l *brokerLogger) Warning(message string, context ...map[string]any) {
+	l.warnings = append(l.warnings, brokerLogEntry{
+		message: message,
+		context: context,
+	})
+}
+
+func (l *brokerLogger) Log(_ clog.Level, _ string, _ ...map[string]any) {}
 
 func (p *brokerProvider) RetrieveByID(_ context.Context, id string) (cauth.Authenticatable, error) {
 	return p.users[id], nil
@@ -156,8 +210,9 @@ func TestBrokerSendResetLinkCreatesTokenSendsNotificationAndDispatchesEvent(t *t
 	repo := passwords.NewMemoryRepository(time.Hour)
 	dispatcher := &brokerDispatcher{}
 	broker := passwords.NewBroker(provider, repo, time.Hour).WithEventDispatcher(dispatcher)
+	ctx := context.WithValue(context.Background(), resetContextKey{}, "reset-request")
 
-	err := broker.SendResetLink(context.Background(), "test@example.com")
+	err := broker.SendResetLink(ctx, "test@example.com")
 
 	if err != nil {
 		t.Fatal(err)
@@ -171,12 +226,26 @@ func TestBrokerSendResetLinkCreatesTokenSendsNotificationAndDispatchesEvent(t *t
 		t.Error("SendResetLink should store the generated token")
 	}
 
+	if got := user.notifiedContext.Value(resetContextKey{}); got != "reset-request" {
+		t.Errorf("SendResetLink should pass context to notification hook, got context value %v", got)
+	}
+
 	if len(dispatcher.events) != 1 {
 		t.Fatalf("expected one dispatched event, got %d", len(dispatcher.events))
 	}
 
-	if _, ok := dispatcher.events[0].(authevents.PasswordResetLinkSent); !ok {
+	event, ok := dispatcher.events[0].(authevents.PasswordResetLinkSent)
+
+	if !ok {
 		t.Fatalf("expected PasswordResetLinkSent event, got %T", dispatcher.events[0])
+	}
+
+	if event.User.GetAuthIdentifier() != "1" {
+		t.Errorf("event user auth identifier = %q, want %q", event.User.GetAuthIdentifier(), "1")
+	}
+
+	if event.User.GetEmailForPasswordReset() != "test@example.com" {
+		t.Errorf("event user reset email = %q, want %q", event.User.GetEmailForPasswordReset(), "test@example.com")
 	}
 }
 
@@ -217,6 +286,79 @@ func TestBrokerSendResetLinkUsingExecutesCallbackInsteadOfNotification(t *testin
 
 	if len(dispatcher.events) != 0 {
 		t.Errorf("SendResetLinkUsing should not dispatch default reset-link event with callback, got %d events", len(dispatcher.events))
+	}
+}
+
+func TestBrokerSendResetLinkWithThrottleRequiresRecentTokenRepository(t *testing.T) {
+	user := &notifyingResetUser{resetUser: &resetUser{
+		GenericUser: auth.NewGenericUser(map[string]any{"id": "1"}),
+		email:       "test@example.com",
+	}}
+	provider := &brokerProvider{users: map[string]cauth.Authenticatable{"1": user}}
+	repo := &incompatibleTokenRepository{}
+	dispatcher := &brokerDispatcher{}
+	logger := &brokerLogger{}
+	broker := passwords.NewBroker(provider, repo, time.Hour).
+		WithThrottle(time.Minute).
+		WithEventDispatcher(dispatcher).
+		WithLogger(logger)
+
+	callbackCalled := false
+
+	err := broker.SendResetLinkUsing(context.Background(), "test@example.com", func(context.Context, cauth.CanResetPassword, string) error {
+		callbackCalled = true
+
+		return nil
+	})
+
+	if !errors.Is(err, passwords.ErrThrottleRepositoryUnsupported) {
+		t.Fatalf("SendResetLinkUsing error = %v, want ErrThrottleRepositoryUnsupported", err)
+	}
+
+	if repo.createCalls != 0 {
+		t.Fatalf("repository Create calls = %d, want 0", repo.createCalls)
+	}
+
+	if callbackCalled {
+		t.Fatal("SendResetLinkUsing should not call the callback when the repository cannot support throttling")
+	}
+
+	if user.notifiedToken != "" {
+		t.Fatal("SendResetLinkUsing should not send a notification when the repository cannot support throttling")
+	}
+
+	if len(dispatcher.events) != 0 {
+		t.Fatalf("expected no dispatched events, got %d", len(dispatcher.events))
+	}
+
+	if len(logger.warnings) != 1 {
+		t.Fatalf("expected one warning, got %d", len(logger.warnings))
+	}
+
+	warning := logger.warnings[0]
+
+	if warning.message == "" {
+		t.Fatal("warning message should not be empty")
+	}
+
+	if len(warning.context) != 1 {
+		t.Fatalf("warning context count = %d, want 1", len(warning.context))
+	}
+
+	if warning.context[0]["repository"] == "" {
+		t.Fatal("warning context should include the repository type")
+	}
+
+	if warning.context[0]["throttle"] != time.Minute.String() {
+		t.Fatalf("warning throttle context = %v, want %q", warning.context[0]["throttle"], time.Minute.String())
+	}
+
+	if _, ok := warning.context[0]["email"]; ok {
+		t.Fatal("warning context should not include email")
+	}
+
+	if _, ok := warning.context[0]["token"]; ok {
+		t.Fatal("warning context should not include token")
 	}
 }
 
