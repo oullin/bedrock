@@ -1853,8 +1853,26 @@ func (s *StringBuilder) EndsWith(suffixes ...string) bool {
 func (s *StringBuilder) Is(pattern string, ignoreCase ...bool) bool {
 	return StrIs(pattern, s.value, ignoreCase...)
 }
-func (s *StringBuilder) IsAscii() bool    { return StrIsAscii(s.value) }
-func (s *StringBuilder) IsJson() bool     { return StrIsJson(s.value) }
+func (s *StringBuilder) ClassBasename() *StringBuilder {
+	name := strings.Trim(s.value, "\\/")
+	if idx := strings.LastIndexAny(name, "\\/"); idx >= 0 {
+		name = name[idx+1:]
+	}
+
+	return &StringBuilder{value: name}
+}
+func (s *StringBuilder) IsMatch(patterns ...string) bool {
+	return StrIsMatch(patterns, s.value)
+}
+func (s *StringBuilder) IsAscii() bool { return StrIsAscii(s.value) }
+func (s *StringBuilder) IsJson() bool  { return StrIsJson(s.value) }
+func (s *StringBuilder) IsUrl(protocols ...string) bool {
+	return StrIsUrl(s.value, protocols...)
+}
+func (s *StringBuilder) IsUuid(version ...int) bool {
+	return StrIsUuid(s.value, version...)
+}
+func (s *StringBuilder) IsUlid() bool     { return StrIsUlid(s.value) }
 func (s *StringBuilder) IsEmpty() bool    { return s.value == "" }
 func (s *StringBuilder) IsNotEmpty() bool { return s.value != "" }
 func (s *StringBuilder) Length() int      { return StrLength(s.value) }
@@ -1872,6 +1890,11 @@ func (s *StringBuilder) Match(pattern string) *StringBuilder {
 }
 func (s *StringBuilder) MatchAll(pattern string) []string {
 	return StrMatchAll(pattern, s.value)
+}
+func (s *StringBuilder) Test(pattern string) bool {
+	matched, err := regexp.MatchString(pattern, s.value)
+
+	return err == nil && matched
 }
 func (s *StringBuilder) Replace(search, replace any, caseSensitive ...bool) *StringBuilder {
 	return &StringBuilder{value: StrReplace(search, replace, s.value, caseSensitive...)}
@@ -1961,6 +1984,12 @@ func (s *StringBuilder) FromBase64() (*StringBuilder, error) {
 }
 func (s *StringBuilder) Plural(count ...int) *StringBuilder {
 	return &StringBuilder{value: StrPlural(s.value, count...)}
+}
+func (s *StringBuilder) PluralStudly(count ...int) *StringBuilder {
+	return &StringBuilder{value: StrPluralStudly(s.value, count...)}
+}
+func (s *StringBuilder) PluralPascal(count ...int) *StringBuilder {
+	return &StringBuilder{value: StrPluralPascal(s.value, count...)}
 }
 func (s *StringBuilder) Singular() *StringBuilder {
 	return &StringBuilder{value: StrSingular(s.value)}
