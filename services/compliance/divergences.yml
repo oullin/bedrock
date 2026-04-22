@@ -38,6 +38,12 @@ adaptation_rules:
         bedrock: Fakes or build-tagged integration tests where an external service is required
       - upstream: PHPUnit exception expectations
         bedrock: errors.Is and errors.As
+      - upstream: PendingDispatch destructor side effects trigger dispatch
+        bedrock: Dispatch is explicit; typed options are passed through JobOptions or driver-specific push helpers
+      - upstream: Queue payload construction reaches into PHP object traits and serialization metadata
+        bedrock: Payload construction is explicit, JSON-shaped, and typed through CreatePayloadFor plus JobOptions
+      - upstream: SQS FIFO deduplication may serialize PHP closures into the job payload
+        bedrock: FIFO group and deduplication IDs are explicit strings or typed callback return values; Go closures are not serialized
 
   bus:
     source: Framework\Bus
@@ -137,6 +143,20 @@ adaptation_rules:
       - upstream: Macroable runtime method registration
         bedrock: Explicit Go methods and compile-time APIs
 
+  console:
+    source: Framework\Console
+    rules:
+      - upstream: PHP command classes, closure commands, and Symfony Console input/output contracts
+        bedrock: Typed Go Command values with explicit Run functions, Input, and Output
+      - upstream: Dynamic PHP argument and option definitions resolved through CLI/Symfony runtime
+        bedrock: Explicit Go command signatures, ArgumentDef, OptionDef, and typed input accessors
+      - upstream: Scheduler and isolation mutexes resolved through Upstream's container, cache, and event runtime
+        bedrock: Explicit Schedule, Event, CommandMutex, SchedulingMutex, and EventMutex APIs
+      - upstream: PHP attributes and Symfony Console runtime metadata
+        bedrock: Not implemented; commands and scheduling metadata are registered explicitly in Go
+      - upstream: Macroable methods, magic calls, closures, and callable strings
+        bedrock: Not implemented; extension points use typed Go functions, interfaces, and method sets
+
   concurrency:
     source: Framework\Concurrency
     rules:
@@ -171,6 +191,12 @@ semantic_divergences:
   - surface: queue
     divergence: Unique jobs use a CacheLock interface
     rationale: Avoids a hard dependency on a specific cache backend.
+  - surface: queue
+    divergence: Dispatch is explicit instead of destructor-driven
+    rationale: Go does not run deterministic destructors at scope exit, so pending dispatch side effects are represented by explicit queue calls.
+  - surface: queue
+    divergence: Queue payloads use typed JSON construction
+    rationale: Go avoids PHP object serialization and represents queue metadata with JobOptions, Payload, and typed driver calls.
   - surface: bus
     divergence: Pending batches use explicit Go job slices
     rationale: Go has no PHP-style truthiness or collection/iterable runtime conversion.
@@ -228,6 +254,15 @@ semantic_divergences:
   - surface: config
     divergence: No runtime macro registration
     rationale: Go does not support PHP-style dynamic method registration; Bedrock exposes explicit methods instead.
+  - surface: console
+    divergence: Explicit command and option contracts
+    rationale: Bedrock uses typed Go commands, arguments, options, input, and output instead of PHP/Symfony runtime command metadata.
+  - surface: console
+    divergence: Explicit scheduling and mutex APIs
+    rationale: Bedrock exposes Schedule, Event, CommandMutex, SchedulingMutex, and EventMutex directly instead of resolving scheduling state through Upstream's container and cache runtime.
+  - surface: console
+    divergence: No PHP attribute, Macroable, or callable-string runtime
+    rationale: Go uses explicit registration, typed functions, interfaces, and method sets instead of PHP attributes, magic methods, dynamic macros, closures, and callable strings.
 
 test_status_overrides:
   # Framework\Cache entries without a direct executable Go analogue are counted
@@ -341,6 +376,19 @@ test_status_overrides:
   - InvokeSerializedClosureCommandTest::testItReturnsNullWhenNoClosureIsProvided
   - InvokeSerializedClosureCommandTest::testItHandlesExceptionsGracefully
   - InvokeSerializedClosureCommandTest::testItHandlesCustomExceptionWithParameters
+
+  # Framework\Queue entries below depend on PHP PendingDispatch destructor
+  # mechanics, Console command wiring, or PHP serialized-closure payload
+  # internals. Executable queue parity lives under packages/queue.
+  - PruneBatchesCommandTest::testAllowPruningAllCancelledBatches
+  - PruneBatchesCommandTest::testAllowPruningAllUnfinishedBatches
+  - QueueSqsQueueTest::testDelayedPendingDispatchProperlyPushesJobObjectOntoSqsFifoQueueWithoutDelay
+  - QueueSqsQueueTest::testJobObjectCanBeSerializedOntoSqsFifoQueueWithDeduplicator
+  - QueueSqsQueueTest::testPendingDispatchProperlyPushesJobObjectOntoSqs
+  - QueueSqsQueueTest::testPendingDispatchProperlyPushesJobObjectOntoSqsFairQueue
+  - QueueSqsQueueTest::testPendingDispatchProperlyPushesJobObjectOntoSqsFifoQueue
+  - QueueSqsQueueTest::testPendingDispatchProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicationId
+  - QueueSqsQueueTest::testPendingDispatchProperlyPushesJobObjectOntoSqsFifoQueueWithDeduplicator
 
   # Framework\Auth entries without a direct executable Go analogue are counted
   # as adapted. Executable parity tests live under packages/auth.

@@ -176,23 +176,24 @@ func (r *Repository) PutMany(ctx context.Context, values map[string]any, ttl tim
 
 // Add stores a value only if the key is absent.
 func (r *Repository) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
-	r.dispatch(ctx, RetrievingKey{StoreName: r.storeName, Key: key})
-
-	if existing, err := r.store.Get(ctx, key); err == nil {
-		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: existing})
-	} else {
-		r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
-	}
-
 	r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
 
 	ok, err := r.store.Add(ctx, key, value, ttl)
 
-	if ok {
-		r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+	if err != nil {
+		return ok, err
 	}
 
-	return ok, err
+	if ok {
+		r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
+		r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+
+		return true, nil
+	}
+
+	r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key})
+
+	return false, nil
 }
 
 // Forever stores a value with no expiry.

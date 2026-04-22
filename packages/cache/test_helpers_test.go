@@ -22,6 +22,15 @@ type spyStore struct {
 	calls []string
 }
 
+type spyTaggableStore struct {
+	*spyStore
+	tagged *spyTaggedCache
+}
+
+type spyTaggedCache struct {
+	*spyStore
+}
+
 // mockEventDispatcher records dispatched events.
 type mockEventDispatcher struct {
 	mu     sync.Mutex
@@ -94,6 +103,13 @@ func (c *fakeClock) Advance(d time.Duration) {
 
 func newSpyStore() *spyStore {
 	return &spyStore{inner: cache.NewArrayStore()}
+}
+
+func newSpyTaggableStore() *spyTaggableStore {
+	return &spyTaggableStore{
+		spyStore: newSpyStore(),
+		tagged:   &spyTaggedCache{spyStore: newSpyStore()},
+	}
 }
 
 func (s *spyStore) record(name string) {
@@ -187,6 +203,24 @@ func (s *spyStore) Flush(ctx context.Context) error {
 }
 
 func (s *spyStore) GetPrefix() string { return s.inner.GetPrefix() }
+
+func (s *spyTaggableStore) Tags(_ ...string) cache.TaggedCache {
+	s.record("Tags")
+
+	return s.tagged
+}
+
+func (tc *spyTaggedCache) FlushTagged(context.Context) error {
+	tc.record("FlushTagged")
+
+	return nil
+}
+
+func (tc *spyTaggedCache) TaggedItemKey(_ context.Context, key string) (string, error) {
+	return key, nil
+}
+
+func (tc *spyTaggedCache) GetTags() *cache.TagSet { return nil }
 
 func (d *mockEventDispatcher) Dispatch(_ context.Context, event cache.Event) {
 	d.mu.Lock()

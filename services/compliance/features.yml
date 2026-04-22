@@ -77,10 +77,10 @@ features:
     source_id: framework.console
     name: Console commands
     upstream: Framework\Console command runtime
-    bedrock: null
-    status: missing
-    docs: null
-    notes: No Bedrock console package exists yet.
+    bedrock: console
+    status: ported
+    docs: packages/console.md
+    notes: Command registration and dispatch, signature parsing, typed input and output helpers, signal traps, scheduling primitives, and explicit command/scheduling mutexes are complete under classified parity; Symfony/PHP attribute runtime and dynamic Macroable/callable-string mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.container.bindings
     source_id: framework.container
@@ -249,9 +249,9 @@ features:
     name: Queue workers and drivers
     upstream: Framework\Queue workers, jobs, failed jobs, and drivers
     bedrock: queue
-    status: partial
+    status: ported
     docs: packages/queue.md
-    notes: Queue has the strongest upstream test match so far, but missing tests remain.
+    notes: Queue workers, drivers, payload hooks, routing, FIFO metadata, delay options, after-commit precedence, and selected Go adaptations are complete under classified parity.
 
   - id: framework.redis.commands
     source_id: framework.redis
