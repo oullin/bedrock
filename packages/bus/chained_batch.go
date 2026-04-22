@@ -13,7 +13,7 @@ type ChainedBatch struct {
 	jobs           []any
 	name           string
 	options        map[string]any
-	catchCallbacks []func(ctx context.Context, batch *Batch, err error)
+	catchCallbacks []FailureCallback
 }
 
 // NewChainedBatch creates a ChainedBatch from a PendingBatch,

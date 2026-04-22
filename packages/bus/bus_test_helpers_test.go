@@ -14,6 +14,7 @@ import (
 type mockQueue struct {
 	mu       sync.Mutex
 	pushes   []mockPush
+	delays   []time.Duration
 	pushErr  error
 	connName string
 }
@@ -78,12 +79,24 @@ func (q *mockQueue) Push(_ context.Context, queueName string, payload []byte) (s
 	}
 
 	q.pushes = append(q.pushes, mockPush{Queue: queueName, Payload: payload})
+	q.delays = append(q.delays, 0)
 
 	return fmt.Sprintf("job-%d", len(q.pushes)), nil
 }
 
-func (q *mockQueue) PushDelayed(_ context.Context, queueName string, payload []byte, _ time.Duration) (string, error) {
-	return q.Push(context.Background(), queueName, payload)
+func (q *mockQueue) PushDelayed(_ context.Context, queueName string, payload []byte, delay time.Duration) (string, error) {
+	q.mu.Lock()
+
+	defer q.mu.Unlock()
+
+	if q.pushErr != nil {
+		return "", q.pushErr
+	}
+
+	q.pushes = append(q.pushes, mockPush{Queue: queueName, Payload: payload})
+	q.delays = append(q.delays, delay)
+
+	return fmt.Sprintf("job-%d", len(q.pushes)), nil
 }
 
 func (q *mockQueue) PushMultiple(_ context.Context, queueName string, payloads [][]byte) ([]string, error) {
