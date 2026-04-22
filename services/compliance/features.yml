@@ -105,36 +105,36 @@ features:
     name: Cookie handling
     upstream: Framework\Cookie queueing and cookie values
     bedrock: cookie
-    status: partial
+    status: ported
     docs: packages/cookie.md
-    notes: Cookie package exists; upstream test parity is not complete.
+    notes: Cookie creation, queueing, response attachment, and encrypted-cookie middleware are complete under classified parity; PHP mixed arguments and Macroable runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.database.query
     source_id: framework.database
     name: Database query builder
     upstream: Framework\Database query builder and SQL grammars
     bedrock: database
-    status: partial
+    status: ported
     docs: packages/database.md
-    notes: Query, schema, migrations, and Orm surfaces exist; broad upstream parity remains incomplete.
+    notes: Query builders, SQL grammars, connection management, transactions, schema, migrations, and seeding are complete under classified parity; PHP facades, static model calls, exceptions, and unsupported SQL Server behavior are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.database.orm
     source_id: framework.database
     name: Orm-style ORM
     upstream: Framework\Database\Orm models and relations
     bedrock: database
-    status: partial
+    status: ported
     docs: packages/database.md
-    notes: ORM primitives exist with Go adaptations for attributes, relations, and errors.
+    notes: Model, attribute, timestamp, scope, soft-delete, visibility, collection, and builder primitives are complete under classified parity; PHP trait, magic property, relation, and recursive runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.encryption.encrypter
     source_id: framework.encryption
     name: Encrypter
     upstream: Framework\Encryption encrypter payloads and ciphers
     bedrock: encryption
-    status: partial
+    status: ported
     docs: packages/encryption.md
-    notes: CBC and GCM encryption exist; upstream encryption tests are not fully matched.
+    notes: CBC and GCM encryption, previous-key decryption, MAC/tag validation, key parsing, cipher validation, tamper rejection, and encrypted-value detection are complete under classified parity; PHP serialization and mixed runtime input checks are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.events.dispatcher
     source_id: framework.events
