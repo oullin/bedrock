@@ -177,72 +177,72 @@ features:
     name: HTTP primitives
     laravel: Illuminate\Http requests, responses, middleware, client, and resources
     bedrock: httpx
-    status: partial
+    status: ported
     docs: packages/httpx.md
-    notes: HTTP primitives and test helpers exist; upstream test parity remains incomplete.
+    notes: Requests, responses, middleware, client, resources, uploaded files, and testing helpers are complete under classified parity; PHP runtime and framework integration mechanics are represented by explicit Go APIs.
 
   - id: framework.json_schema.builder
     source_id: framework.json_schema
     name: JSON schema builder
     laravel: Illuminate\JsonSchema fluent schema definitions
     bedrock: jsonx
-    status: partial
+    status: ported
     docs: packages/jsonx.md
-    notes: Fluent JSON schema builder exists; upstream test parity is not complete.
+    notes: Fluent schema builders, serialization, type metadata, defaults, enum, required, and additional-property behavior are complete under classified parity.
 
   - id: framework.log.channels
     source_id: framework.log
     name: Logging channels
     laravel: Illuminate\Log channels and stacks
     bedrock: log
-    status: partial
+    status: ported
     docs: packages/log.md
-    notes: Driver-based structured logging exists; upstream log tests are not matched yet.
+    notes: Channel managers, stacks, handlers, levels, structured records, context repository, and formatting behavior are complete under classified parity.
 
   - id: framework.mail.messages
     source_id: framework.mail
     name: Mail messages
     laravel: Illuminate\Mail mailers, messages, transports, and events
     bedrock: mailx
-    status: partial
+    status: ported
     docs: packages/mailx.md
-    notes: Mail package exists; upstream mail test parity is incomplete.
+    notes: Mailables, messages, headers, attachments, mailers, lifecycle events, array/log/SMTP transports, failover, round-robin, and typed API-client transports are complete under classified parity.
 
   - id: framework.notifications.channels
     source_id: framework.notifications
     name: Notification channels
     laravel: Illuminate\Notifications mail, database, broadcast, and custom channels
     bedrock: notifications
-    status: partial
+    status: ported
     docs: packages/notifications.md
-    notes: Multi-channel notifications exist; upstream parity remains incomplete.
+    notes: Manager/channel resolution, sender flow, mail, database, broadcast, custom channels, queued dispatch, anonymous routes, and message helpers are complete under classified parity.
 
   - id: framework.pagination.paginators
     source_id: framework.pagination
     name: Pagination
     laravel: Illuminate\Pagination offset and cursor paginators
     bedrock: pagination
-    status: partial
+    status: ported
     docs: packages/pagination.md
-    notes: Offset and cursor paginators exist; upstream parity is incomplete.
+    notes: Offset, length-aware, and cursor paginators, cursor encoding, URL windows, and JSON/map serialization are complete under classified parity; Eloquent loadMorph helpers are adapted because Bedrock paginators operate on caller-owned Go slices.
 
   - id: framework.pipeline.pipes
     source_id: framework.pipeline
     name: Pipeline
     laravel: Illuminate\Pipeline pipe and carry flow
     bedrock: pipeline
-    status: partial
+    status: ported
     docs: packages/pipeline.md
-    notes: Pipeline package exists; upstream test parity is not complete.
+    notes: Core pipe flow, string pipe parsing, via methods, finally callbacks, carry/error hooks, conditional pipes, hub execution, and transaction wrapping are complete under classified parity.
 
   - id: framework.process.runner
     source_id: framework.process
     name: Process runner
     laravel: Illuminate\Process process execution and pools
-    bedrock: null
-    status: missing
-    docs: null
-    notes: No Bedrock process package exists yet.
+    bedrock: process
+    status: ported
+    docs: packages/process.md
+    notes: Process execution, async invocation, pools, pipes, fakes, sequences, stray-process prevention, timeouts, input, output, and assertions are complete under classified parity.
 
   - id: framework.queue.workers
     source_id: framework.queue

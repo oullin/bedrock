@@ -241,13 +241,12 @@ framework:
 
   - id: framework.process
     laravel: Illuminate\Process
-    bedrock: null
-    status: missing
+    bedrock: process
+    status: mapped
     repo: laravel/framework
     branch: 13.x
     tests_path: tests/Process
     inventory: inventories/framework-process.txt
-    rationale: No Bedrock process package exists yet.
 
   - id: framework.queue
     laravel: Illuminate\Queue

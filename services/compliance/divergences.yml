@@ -387,6 +387,12 @@ test_status_overrides:
   - DatabaseConnectionTest::testFromCreatesNewQueryBuilder
   - DatabaseConnectionTest::testPrepareBindings
   - DatabaseConnectionTest::testLogQueryFiresEventsIfSet
+  # Pagination Eloquent model eager-load helpers are counted as adapted. Bedrock
+  # paginators operate on caller-owned Go slices and do not own ORM relations.
+  - PaginatorLoadMorphTest::testPaginatorLoadMorph
+  - PaginatorLoadMorphCountTest::testPaginatorLoadMorphCount
+  - CursorPaginatorLoadMorphTest::testCursorPaginatorLoadMorph
+  - CursorPaginatorLoadMorphCountTest::testCursorPaginatorLoadMorphCount
   - DatabaseConnectionTest::testBeforeExecutingHooksCanBeRegistered
   - DatabaseConnectionTest::testBeforeStartingTransactionHooksCanBeRegistered
   - DatabaseConnectionTest::testPretendOnlyLogsQueries
