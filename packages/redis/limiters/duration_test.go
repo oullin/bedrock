@@ -10,6 +10,10 @@ import (
 	"github.com/bedrock/packages/redis/limiters"
 )
 
+// DurationLimiterTest::testItFailsImmediatelyOrRetriesForAWhileBasedOnAGivenTimeout
+// DurationLimiterTest::testTooManyAttemptsReportsCorrectly
+// DurationLimiterTest::testClearResetsLimiter
+
 func TestDurationLimiterAllowsUpToMax(t *testing.T) {
 	t.Parallel()
 	conn := newConn()

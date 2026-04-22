@@ -28,7 +28,7 @@ func (s *orderStoreWithData) HasCompletedForProduct(_ context.Context, _ int64, 
 	return false, nil
 }
 
-// Mirrors OrderTest::test_guest_cannot_access_orders
+// OrderTest::test_guest_cannot_access_orders
 func TestOrderHandler_Index_UnauthenticatedReturns401(t *testing.T) {
 	resolver := func(r *http.Request) (billing.Billable, error) {
 		return nil, errors.New("unauthenticated")
@@ -45,7 +45,7 @@ func TestOrderHandler_Index_UnauthenticatedReturns401(t *testing.T) {
 	}
 }
 
-// Mirrors OrderTest::test_authenticated_user_can_view_orders
+// OrderTest::test_authenticated_user_can_view_orders
 func TestOrderHandler_Index_AuthenticatedReturnsOK(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (billing.Billable, error) {
@@ -63,7 +63,7 @@ func TestOrderHandler_Index_AuthenticatedReturnsOK(t *testing.T) {
 	}
 }
 
-// Mirrors OrderTest::test_orders_page_shows_team_orders
+// OrderTest::test_orders_page_shows_team_orders
 func TestOrderHandler_Index_ReturnsTeamOrders(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (billing.Billable, error) {

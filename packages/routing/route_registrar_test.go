@@ -4,6 +4,21 @@ import "testing"
 
 // Translation of upstream/framework tests/Routing/RouteRegistrarTest.php and
 // the resource-registration portions of RoutingRouteTest.
+// RouteRegistrarTest::testMiddlewareFluentRegistration
+// RouteRegistrarTest::testCanRegisterGroupWithPrefix
+// RouteRegistrarTest::testCanRegisterGroupWithDomain
+// RouteRegistrarTest::testFallbackRoute
+// RouteRegistrarTest::testCanRegisterMatchRouteWithClosureAction
+// RouteRegistrarTest::testCanRegisterAnyRouteWithClosureAction
+// RouteRegistrarTest::testCanRegisterResource
+// RouteRegistrarTest::testCanRegisterResourcesWithOnlyOption
+// RouteRegistrarTest::testCanRegisterResourcesWithExceptOption
+// RouteRegistrarTest::testCanRegisterApiResourcesWithoutOption
+// RouteRegistrarTest::testCanNameRoutesOnRegisteredResource
+// RouteRegistrarTest::testCanSetMiddlewareOnRegisteredResource
+// RouteRegistrarTest::testCanRegisterCreatableSingleton
+// RouteRegistrarTest::testSingletonCreatableNotDestroyable
+// RouteRegistrarTest::testCanRegisterSingleton
 
 func TestRouteRegistrar_Fluent(t *testing.T) {
 	t.Run("test_middleware_then_get", func(t *testing.T) {
