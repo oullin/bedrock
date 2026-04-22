@@ -1,24 +1,59 @@
 package billing
 
-import "time"
+import (
+	"context"
+	"time"
+)
+
+const DefaultPendingExpiryDays = 14
 
 // Subscription represents a billable's subscription record.
 // Mirrors Upstream\Paddle\Subscription.
 type Subscription struct {
-	ID           int64
-	BillableType string
-	BillableID   int64
-	Type         string
-	PaddleID     string
-	Status       SubscriptionStatus
-	TrialEndsAt  *time.Time
-	PausedAt     *time.Time
-	EndsAt       *time.Time
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Items        []SubscriptionItem
+	ID               int64
+	BillableType     string
+	BillableID       int64
+	Type             string
+	Plan             string
+	PaddleID         string
+	Status           SubscriptionStatus
+	PendingExpiresAt *time.Time
+	PaymentReadyAt   *time.Time
+	TrialEndsAt      *time.Time
+	PausedAt         *time.Time
+	EndsAt           *time.Time
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Items            []SubscriptionItem
 
 	prorationBehavior ProrationBehavior
+}
+
+// NewPendingSubscription creates a local pending subscription record using
+// Billing's default hold window.
+func NewPendingSubscription(billable Billable, plan string, now time.Time) *Subscription {
+	pendingExpiresAt := now.AddDate(0, 0, DefaultPendingExpiryDays)
+
+	return &Subscription{
+		BillableType:     billable.BillableType(),
+		BillableID:       billable.BillableID(),
+		Type:             DefaultSubscriptionType,
+		Plan:             plan,
+		Status:           StatusPending,
+		PendingExpiresAt: &pendingExpiresAt,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
+}
+
+// NewTrialSubscription creates a local trial subscription record.
+func NewTrialSubscription(billable Billable, plan string, trialDays int, now time.Time) *Subscription {
+	sub := NewPendingSubscription(billable, plan, now)
+	trialEndsAt := now.AddDate(0, 0, trialDays)
+	sub.Status = StatusTrialing
+	sub.TrialEndsAt = &trialEndsAt
+
+	return sub
 }
 
 // Active reports whether the subscription status is active.
@@ -155,4 +190,155 @@ func (s *Subscription) ProrationBehavior() ProrationBehavior {
 	}
 
 	return s.prorationBehavior
+}
+
+// MarkPaymentReady transitions a pending subscription into awaiting payment.
+func (s *Subscription) MarkPaymentReady(now time.Time) bool {
+	if s.Status == StatusAwaitingPayment {
+		return false
+	}
+
+	s.Status = StatusAwaitingPayment
+
+	if s.PaymentReadyAt == nil {
+		readyAt := now
+		s.PaymentReadyAt = &readyAt
+	}
+
+	s.UpdatedAt = now
+
+	return true
+}
+
+// Activate transitions the subscription to active.
+func (s *Subscription) Activate(now time.Time) bool {
+	if s.Status == StatusActive {
+		return false
+	}
+
+	s.Status = StatusActive
+	s.UpdatedAt = now
+
+	return true
+}
+
+// Expire transitions the subscription to expired.
+func (s *Subscription) Expire(now time.Time) bool {
+	if s.Status == StatusExpired {
+		return false
+	}
+
+	s.Status = StatusExpired
+	s.UpdatedAt = now
+
+	return true
+}
+
+// MarkPastDue transitions the subscription to past due.
+func (s *Subscription) MarkPastDue(now time.Time) bool {
+	if s.Status == StatusPastDue {
+		return false
+	}
+
+	s.Status = StatusPastDue
+	s.UpdatedAt = now
+
+	return true
+}
+
+// Pause transitions the subscription to paused.
+func (s *Subscription) Pause(now time.Time) bool {
+	if s.Status == StatusPaused {
+		return false
+	}
+
+	s.Status = StatusPaused
+
+	if s.PausedAt == nil {
+		pausedAt := now
+		s.PausedAt = &pausedAt
+	}
+
+	s.UpdatedAt = now
+
+	return true
+}
+
+// Cancel transitions the subscription to canceled and starts its grace period.
+func (s *Subscription) Cancel(now time.Time) bool {
+	if s.Status == StatusCanceled {
+		return false
+	}
+
+	s.Status = StatusCanceled
+
+	if s.EndsAt == nil {
+		endsAt := now
+		s.EndsAt = &endsAt
+	}
+
+	s.UpdatedAt = now
+
+	return true
+}
+
+// Resume reactivates a canceled subscription that is still on its grace period.
+func (s *Subscription) Resume(now time.Time) bool {
+	if !s.OnGracePeriod() {
+		return false
+	}
+
+	s.Status = StatusActive
+	s.EndsAt = nil
+	s.UpdatedAt = now
+
+	return true
+}
+
+// ExpirableSubscriptionStore exposes pending-like subscriptions that may have
+// outlived their local checkout hold window.
+type ExpirableSubscriptionStore interface {
+	ExpirableSubscriptions(ctx context.Context, now time.Time) ([]*Subscription, error)
+	Delete(ctx context.Context, id int64) error
+}
+
+// Expirable reports whether the subscription should be removed by the stale
+// pending-subscription batch.
+func (s *Subscription) Expirable(now time.Time) bool {
+	if s.PendingExpiresAt == nil || s.PendingExpiresAt.After(now) {
+		return false
+	}
+
+	switch s.Status {
+	case StatusPending, StatusAwaitingPayment, StatusTrialing:
+		return true
+	default:
+		return false
+	}
+}
+
+// ExpireStaleSubscriptions removes pending-like subscriptions whose checkout
+// hold window has elapsed.
+func ExpireStaleSubscriptions(ctx context.Context, store ExpirableSubscriptionStore, now time.Time) (int, error) {
+	subscriptions, err := store.ExpirableSubscriptions(ctx, now)
+	if err != nil {
+		return 0, err
+	}
+
+	expired := 0
+
+	for _, subscription := range append([]*Subscription(nil), subscriptions...) {
+		if subscription == nil || !subscription.Expirable(now) {
+			continue
+		}
+
+		subscription.Expire(now)
+		if err := store.Delete(ctx, subscription.ID); err != nil {
+			return expired, err
+		}
+
+		expired++
+	}
+
+	return expired, nil
 }

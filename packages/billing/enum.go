@@ -16,11 +16,14 @@ type TransactionStatus string
 type ProrationBehavior string
 
 const (
-	StatusActive   SubscriptionStatus = "active"
-	StatusTrialing SubscriptionStatus = "trialing"
-	StatusPastDue  SubscriptionStatus = "past_due"
-	StatusPaused   SubscriptionStatus = "paused"
-	StatusCanceled SubscriptionStatus = "canceled"
+	StatusPending         SubscriptionStatus = "pending"
+	StatusAwaitingPayment SubscriptionStatus = "awaiting_payment"
+	StatusActive          SubscriptionStatus = "active"
+	StatusTrialing        SubscriptionStatus = "trialing"
+	StatusPastDue         SubscriptionStatus = "past_due"
+	StatusPaused          SubscriptionStatus = "paused"
+	StatusCanceled        SubscriptionStatus = "canceled"
+	StatusExpired         SubscriptionStatus = "expired"
 )
 
 func (s SubscriptionStatus) GrantsAccess() bool {
