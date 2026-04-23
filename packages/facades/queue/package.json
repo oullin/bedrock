@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/facades-queue",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../../storage/.turbo/dist/facades-queue && go build ./... && touch ../../../storage/.turbo/dist/facades-queue/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../../storage/.cache/coverage/go/facades-queue && go test -race ./... -coverprofile=../../../storage/.cache/coverage/go/facades-queue/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
