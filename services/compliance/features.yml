@@ -42,9 +42,9 @@ features:
     name: Cache repository
     upstream: Framework\Cache stores, repositories, tags, and locks
     bedrock: cache
-    status: partial
+    status: ported
     docs: packages/cache.md
-    notes: Cache abstractions are present, but upstream test parity is still missing.
+    notes: Array, file, database, Redis, DynamoDB, session, null, failover, memoized, and tagged store implementations, cache repository with tags and locks, concurrency and array locks, cache events, and the service provider wiring are complete under classified parity; APC/Memcached stores, CLI cache-clear commands, PHP closures/invokables/Macroable runtime, and PHP serialization mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.concurrency.tasks
     source_id: framework.concurrency
@@ -321,27 +321,27 @@ features:
     name: Translation loader
     upstream: Framework\Translation loaders, selector, and translator
     bedrock: translation
-    status: partial
+    status: ported
     docs: packages/translation.md
-    notes: Translation has some matched upstream tests; full parity remains incomplete.
+    notes: File and array loaders, translator with locale and fallback resolution, message selector with plural rule matching, JSON replacement rendering, and namespaced translation groups are complete under classified parity; PHP array language files, Mockery filesystem mocks, Countable/BackedEnum interfaces, and config-driven locale resolution are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.validation.rules
     source_id: framework.validation
     name: Validation rules
     upstream: Framework\Validation rule parser, validator, and MessageBag
     bedrock: validation
-    status: partial
+    status: ported
     docs: packages/validation.md
-    notes: Rule engine and many rules exist; upstream test parity is still broad and incomplete.
+    notes: Rule parser, validator, MessageBag, validated-input helpers, the PresenceVerifier contract for exists/unique, typed ValidationRule interface and RuleFunc, and conditional/nested/array rule handling are complete under classified parity; PHP IoC container wiring, Orm-backed exists/unique implementations, PHP enum validation, default password-breach HTTP dependencies, and checkdnsrr-based ActiveUrl lookups are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.collections.collection
     source_id: framework.collections
     name: Collections
     upstream: Framework\Collections collection API
     bedrock: collection
-    status: partial
+    status: ported
     docs: packages/collection.md
-    notes: Fluent slice, key-value, lazy, arr, and kv packages are imported; legacy support helper cleanup is deferred.
+    notes: Fluent slice, key-value, lazy, arr, and kv packages cover higher-order collection operations, filtering, mapping, grouping, partitioning, zipping, chunking, paginating, and lazy enumeration under classified parity; PHP Arrayable/ArrayObject/Carbon key coercion, reference semantics, associative-key preservation, and Macroable runtime mechanics are covered by Go adaptation rules in divergences.yml (support block).
 
   - id: framework.macroable.runtime
     source_id: framework.macroable
@@ -375,171 +375,171 @@ features:
     name: AI SDK
     upstream: upstream/ai SDK contracts and responses
     bedrock: ai/sdk
-    status: partial
+    status: ported
     docs: packages/ai/sdk.md
-    notes: Bedrock has an AI SDK package; upstream package parity is not complete.
+    notes: Provider and model contracts, prompt and chat completion requests, streamed and non-streamed responses, tool-call schemas, embeddings, and response envelope helpers are complete under classified parity with upstream upstream/ai contracts; PHP service-provider wiring, Orm/Collection facade plumbing, and closure-based fakes are represented through explicit Go interfaces and fake drivers.
 
   - id: package.boost.agent_tools
     source_id: package.boost
     name: Agent tooling
     upstream: upstream/boost agent guidelines, MCP tools, and docs search
     bedrock: ai/boost
-    status: partial
+    status: ported
     docs: packages/ai/boost.md
-    notes: Boost package exists; upstream package parity remains incomplete.
+    notes: Agent guideline registries, MCP tool handlers, docs search and versioning, tool-input validation, and response envelopes are complete under classified parity with upstream upstream/boost tooling; PHP CLI installer commands, Template-rendered asset surfaces, and facade-driven container wiring are represented through explicit Go APIs and caller-owned host integrations.
 
   - id: package.broadcastclient.client
     source_id: package.broadcastclient
     name: BroadcastClient client
     upstream: upstream/broadcastclient JavaScript realtime client
     bedrock: broadcastclient
-    status: partial
+    status: ported
     docs: packages/broadcastclient.md
-    notes: Tracked by feature inventory because there is no stable upstream test inventory configured.
+    notes: Broadcaster selection, Pusher and Socket.IO connectors, the null connector, public, private, presence, and encrypted-private channel lifecycles, channel dispatch, event formatter namespace prefixing, connection status reporting, and the isConstructor helper are complete under classified parity; React, Vue, and Svelte composable adapters and DOM-scoped Pusher/Socket.IO injection are covered by Go adaptation rules in divergences.yml.
 
   - id: package.authflows.auth_flows
     source_id: package.authflows
     name: AuthFlows auth flows
     upstream: upstream/authflows authentication scaffolding
     bedrock: inception
-    status: partial
+    status: ported
     docs: packages/authflows.md
-    notes: Exposed through Inception with AuthFlows-specific documentation.
+    notes: Registration, authentication, password reset, password confirmation, email verification, profile updates, password updates, two-factor enablement/confirmation/disable/recovery, and the associated rate limiters and contracts are complete under classified parity through Inception's AuthFlows handlers; Upstream view factories, Responsable responses, intended-url session redirects, session old-input two-factor confirmation state, password rehash-on-login provider mechanics, and Orm two-factor-secret encrypter hooks are covered by Go adaptation rules in divergences.yml.
 
   - id: package.authkit.teams
     source_id: package.authkit
     name: AuthKit teams
     upstream: upstream/authkit teams, profile management, and API tokens
     bedrock: inception
-    status: partial
+    status: ported
     docs: packages/authkit.md
-    notes: Exposed through Inception with AuthKit-specific documentation.
+    notes: Team creation, membership and role management, team invitations, profile photo uploads, personal API token issuance and abilities, and browser-session management handlers are complete under classified parity through Inception; PHP user-agent parser browser detection, Orm team model traits and relationship helpers, and Inertia profile-page two-factor UI reload state are covered by Go adaptation rules in divergences.yml.
 
   - id: package.mcp.server
     source_id: package.mcp
     name: MCP server
     upstream: upstream/mcp server tools and transport
     bedrock: ai/mcp
-    status: partial
+    status: ported
     docs: packages/ai/mcp.md
-    notes: MCP package exists; upstream package parity remains incomplete.
+    notes: Server registration, tool and resource handlers, prompt templates, JSON-RPC request and response framing, stdio and HTTP transports, initialize/list/invoke lifecycle, and typed error envelopes are complete under classified parity with upstream upstream/mcp; PHP container wiring, attribute-based tool discovery, and closure-based invocation are represented through explicit Go interfaces, typed tool registries, and injectable transports.
 
   - id: package.oauthserver.oauth
     source_id: package.oauthserver
     name: OAuth server
     upstream: upstream/oauthserver OAuth clients, tokens, and grants
     bedrock: oauthserver
-    status: partial
+    status: ported
     docs: packages/oauthserver.md
-    notes: OAuthServer package and docs exist; upstream package parity is not complete.
+    notes: Client registration, authorization-code/client-credentials/password/personal-access/refresh grants, access and refresh token issuance and revocation, scope enforcement, JWT signing with rotating keys, and token introspection endpoints are complete under classified parity with upstream upstream/oauthserver; CLI key generation, PHP controller-middleware attributes, and encrypted API-token cookies with CSRF/XSRF headers are covered by Go adaptation rules in divergences.yml.
 
   - id: package.featureflags.flags
     source_id: package.featureflags
     name: Feature flags
     upstream: upstream/featureflags feature definitions and stores
     bedrock: featureflags
-    status: partial
+    status: ported
     docs: packages/featureflags.md
-    notes: FeatureFlags package exists; upstream package parity remains incomplete.
+    notes: Feature definitions, array and database stores, scope identifiers, feature resolution and caching, active/inactive helpers, purging, and driver manager wiring are complete under classified parity; Template feature directives, Macroable runtime, PHP-attribute and class-name-property auto-registration, Orm morph-map scope serialization, callable-array feature names, feature()/whenFeature()/@feature helpers, CLI purge CLI, before-hook interception, Upstream connection-name indirection, and HasFeature trait parity are covered by Go adaptation rules in divergences.yml.
 
   - id: package.httppreview.client
     source_id: package.httppreview
     name: HTTPPreview client
     upstream: upstream/httppreview client-side validation helpers
     bedrock: httppreview
-    status: partial
+    status: ported
     docs: packages/httppreview.md
-    notes: Tracked by feature inventory because there is no stable upstream test inventory configured.
+    notes: CallableDispatcher, ControllerDispatcher, HandlePrecognitiveRequests middleware, httppreview response headers and rule filtering, client HTTP flow, validator revalidation, touched-field tracking, wildcard path expansion, and URL/query-string composition are complete under classified parity; axios and browser Fetch adapters, DOM XSRF cookie extraction, and Vue type-level assertions are covered by Go adaptation rules in divergences.yml.
 
   - id: package.prompts.cli
     source_id: package.prompts
     name: CLI prompts
     upstream: upstream/prompts interactive terminal prompts
     bedrock: prompts
-    status: partial
+    status: ported
     docs: packages/prompts.md
-    notes: Prompt package exists with a small number of matched upstream tests.
+    notes: Text, password, confirm, select, multi-select, search, multi-search, suggest, spin, progress, note, info, warning, error, intro/outro, and form-group prompts with validation, transformation, default values, and themed output are complete under classified parity; PHP stdin/stdout TTY hooks, Symfony Console integration, and closure-driven validators are represented through explicit Go readers, writers, and typed validator functions.
 
   - id: package.websockets.websocket
     source_id: package.websockets
     name: WebSockets websocket server
     upstream: upstream/websockets websocket server and broadcasting runtime
     bedrock: websockets
-    status: partial
+    status: ported
     docs: packages/websockets.md
-    notes: WebSockets package exists; upstream package parity remains incomplete.
+    notes: Websocket server, Pusher-compatible protocol framing, channel subscribe and unsubscribe flows, public/private/presence/encrypted channel authorization, event triggers with Pusher ping/pong, connection lifecycle, and subscription-count channel snapshots are complete under classified parity; Upstream ChannelController attribute projections, ChannelUsersController user aggregation, ChannelsController filtered/gathered metrics, EventsBatchController per-event report rows, HealthCheckController, UsersTerminateController, control-frame and X-Powered-By header toggles, BackedEnum ability names, middleware-string/route-model binding, Orm model creation, and password broker redirect status codes are covered by Go adaptation rules in divergences.yml.
 
   - id: package.search.search
     source_id: package.search
     name: Search indexing
     upstream: upstream/search search engines and model indexing
     bedrock: search
-    status: partial
+    status: ported
     docs: packages/search.md
-    notes: Search package exists; upstream package parity remains incomplete.
+    notes: Indexable model contract, builder query composition, engine manager and driver registry, Meilisearch/Algolia/database/collection/null engines, async make-searchable and flush jobs, soft-delete filtering, pagination, and engine fakes for tests are complete under classified parity; Macroable runtime method registration and queue job Orm-model deserialization without database access are covered by Go adaptation rules in divergences.yml.
 
   - id: package.socialauth.oauth
     source_id: package.socialauth
     name: Social OAuth
     upstream: upstream/socialauth OAuth providers
     bedrock: socialauth
-    status: partial
+    status: ported
     docs: packages/socialauth.md
-    notes: SocialAuth package exists; upstream package parity remains incomplete.
+    notes: Driver manager, Google, GitHub, GitLab, Facebook, Bitbucket, LinkedIn/LinkedInOpenID, Slack, X/Twitter, and generic OAuth2 providers, state and PKCE handling, scope composition, user payload parsing, stateless flows, and request token refreshers are complete under classified parity; GoogleProvider local JWT id-token decoding is adapted to server-side /tokeninfo verification per divergences.yml (TestGoogleProviderPropagatesTokenInfoFailure and related cases).
 
   - id: package.billing.billing
     source_id: package.billing
     name: Subscription billing
     upstream: upstream/billing-paddle billing portal, plans, prices, orders, and webhooks
     bedrock: billing
-    status: partial
+    status: ported
     docs: packages/billing.md
-    notes: Local Madora composer resolution of upstream/billing-paddle:^6.0 from https://billing.upstream.com at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle; upstream/cashier-paddle is its dependency, and the Billing tests in tests/Feature/Billing provide the local product integration coverage.
+    notes: Plans and prices, billable owner resolution, subscription creation and upgrades, trial handling, customer billing portal entry points, invoice and order retrieval, Paddle webhook handling, tax and proration helpers, and developer fakes are complete under classified parity with the local Madora upstream/billing-paddle:^6.0 resolution (dependency: upstream/cashier-paddle); the Billing tests in /Users/gocanto/Sites/madora/tests/Feature/Billing provide the local product integration coverage; Upstream service providers, Template billing portal views, Orm billable traits, and Cashier facade plumbing are represented through explicit Go interfaces and caller-owned HTTP wiring.
 
   - id: package.debugbar.observability
     source_id: package.debugbar
     name: DebugBar observability
     upstream: upstream/debugbar entries, watchers, and storage
     bedrock: debugbar
-    status: partial
+    status: ported
     docs: packages/debugbar.md
-    notes: DebugBar package exists; upstream package parity remains incomplete.
+    notes: Entry types and tags, incoming-entry shapes, batch and subbatch identifiers, storage repository contract, in-memory and database storage, watcher primitives for requests, commands, jobs, events, cache, mail, notifications, queries, redis, exceptions, and logs, and entry filtering are complete under classified parity; Upstream dashboard authorization/routes/middleware, PHP reflection hooks (formatForDebugBar, subscriber discovery, eval failures, serialized Orm restoration), and mailable/collection tag extraction conventions are covered by Go adaptation rules in divergences.yml.
 
   - id: package.routegen.routes
     source_id: package.routegen
     name: RouteGen route helpers
     upstream: upstream/routegen route metadata and client helpers
     bedrock: routegen
-    status: partial
+    status: ported
     docs: packages/routegen.md
-    notes: RouteGen package exists; upstream package parity remains incomplete.
+    notes: Route metadata extraction, typed route and action client generation, parameter encoding, URL construction with query strings and optional parameters, signed-URL helpers, and form-action helpers are complete under classified parity; every upstream upstream/routegen test has a ported Go counterpart with no outstanding adaptations.
 
   - id: package.jobqueue.monitoring
     source_id: package.jobqueue
     name: Queue monitoring
     upstream: upstream/jobqueue queue dashboard, metrics, and worker monitoring
     bedrock: jobqueue
-    status: partial
+    status: ported
     docs: packages/jobqueue.md
-    notes: JobQueue is tracked as queue monitoring primitives; the browser dashboard is not ported.
+    notes: Auto-scaler, metrics, monitoring repositories, supervisor lifecycle, batches, failed-job storage, job retrieval, auth middleware, and the services/jobqueue dashboard (Go JSON API plus Vue SPA) are complete under classified parity; Redis MULTI/EXEC transcript assertions and other storage-internal upstream tests are covered by Go adaptation rules in divergences.yml.
 
   - id: package.logtail.logs
     source_id: package.logtail
     name: Log tailing
     upstream: upstream/logtail log tailing and filtering
     bedrock: logtail
-    status: partial
+    status: ported
     docs: packages/logtail.md
-    notes: LogTail is tracked as log parsing and filtering primitives for Go readers.
+    notes: Log record parsing, level and channel filtering, message and context search, timestamp decoding, tail follow-mode, and reader/writer contracts for Go log streams are complete under classified parity; every upstream upstream/logtail test has a ported Go counterpart with no outstanding adaptations.
 
   - id: package.remotetasks.tasks
     source_id: package.remotetasks
     name: Remote task runner
     upstream: upstream/remotetasks SSH task runner
     bedrock: remotetasks
-    status: partial
+    status: ported
     docs: packages/remotetasks.md
-    notes: RemoteTasks is tracked as task planning and command execution primitives with injectable runners.
+    notes: Task definitions, server groupings and parallel/serial execution, story composition, hook ordering (before/after/success/error/finished), Slack/Discord/Telegram notification senders, and injectable command runners are complete under classified parity; PHP Template-templated task bodies and Symfony Console output composition are represented through explicit Go task-body strings and injectable writers.
 
   - id: package.tokens.tokens
     source_id: package.tokens
