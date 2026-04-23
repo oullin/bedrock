@@ -239,6 +239,7 @@ func TestArrRandomEmpty(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Support\SupportArrTest::testRandomThrowsAnErrorWhenRequestingMoreItemsThanAreAvailable
 func TestArrRandomExceedsLength(t *testing.T) {
 	t.Parallel()
 

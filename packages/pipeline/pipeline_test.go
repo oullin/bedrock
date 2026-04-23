@@ -113,6 +113,32 @@ func TestPipelineUsageWithCallable(t *testing.T) {
 	}
 }
 
+func TestPipelineWithinTransaction(t *testing.T) {
+	t.Parallel()
+
+	var wrapped bool
+
+	result, err := New().
+		Send("value").
+		Through(Pipe(func(_ context.Context, passable any, next func(any) (any, error)) (any, error) {
+			return next(passable.(string) + "-pipe")
+		})).
+		WithinTransaction(func(_ context.Context, run func() (any, error)) (any, error) {
+			wrapped = true
+
+			return run()
+		}).
+		ThenReturn(context.Background())
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !wrapped || result != "value-pipe" {
+		t.Fatalf("expected transaction wrapper and pipeline result, wrapped=%v result=%v", wrapped, result)
+	}
+}
+
 func TestPipelineUsageWithPipeAppend(t *testing.T) {
 	result, err := New().
 		Send("x").

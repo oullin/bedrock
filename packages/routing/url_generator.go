@@ -194,6 +194,8 @@ func (u *UrlGenerator) Route(name string, parameters map[string]any, absolute bo
 
 // ToRoute produces the URL for the supplied route. Mirrors UrlGenerator::toRoute.
 func (u *UrlGenerator) ToRoute(route *Route, parameters map[string]any, absolute bool) (string, error) {
+	parameters = mergeRouteDefaults(route, parameters)
+
 	for _, name := range route.ParameterNames() {
 		if _, hasParam := parameters[name]; !hasParam {
 			if !route.HasDefault(name) && !isOptionalParam(route.Uri, name) {
@@ -205,6 +207,28 @@ func (u *UrlGenerator) ToRoute(route *Route, parameters map[string]any, absolute
 	gen := NewRouteUrlGenerator(u, u.request)
 
 	return gen.To(route, parameters, absolute), nil
+}
+
+func mergeRouteDefaults(route *Route, parameters map[string]any) map[string]any {
+	if parameters == nil {
+		parameters = map[string]any{}
+	}
+
+	if len(route.DefaultValues) == 0 {
+		return parameters
+	}
+
+	merged := make(map[string]any, len(route.DefaultValues)+len(parameters))
+
+	for k, v := range route.DefaultValues {
+		merged[k] = v
+	}
+
+	for k, v := range parameters {
+		merged[k] = v
+	}
+
+	return merged
 }
 
 func isOptionalParam(uri, name string) bool {

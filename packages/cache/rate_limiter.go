@@ -109,7 +109,7 @@ func (rl *RateLimiter) Hit(ctx context.Context, key string, decaySeconds int) (i
 	decay := time.Duration(decaySeconds) * time.Second
 
 	// Set the timer key if it doesn't exist (first hit in this window).
-	_, _ = rl.cache.Add(ctx, timerKey, rl.nowUnix(), decay)
+	_, _ = rl.cache.Add(ctx, timerKey, rl.nowUnix()+int64(decaySeconds), decay)
 
 	// Set the counter key if it doesn't exist.
 	added, _ := rl.cache.Add(ctx, key, int64(0), decay)
@@ -200,7 +200,7 @@ func (rl *RateLimiter) Increment(ctx context.Context, key string, decaySeconds i
 	timerKey := key + ":timer"
 	decay := time.Duration(decaySeconds) * time.Second
 
-	_, _ = rl.cache.Add(ctx, timerKey, rl.nowUnix(), decay)
+	_, _ = rl.cache.Add(ctx, timerKey, rl.nowUnix()+int64(decaySeconds), decay)
 
 	added, _ := rl.cache.Add(ctx, key, int64(0), decay)
 

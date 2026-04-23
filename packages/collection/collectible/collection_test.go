@@ -8,6 +8,59 @@ import (
 	"github.com/bedrock/packages/collection/support"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportCollectionTest::testCollectionIsConstructed
+// SupportCollectionTest::testGet
+// SupportCollectionTest::testGetOrPut
+// SupportCollectionTest::testHas
+// SupportCollectionTest::testHasAny
+// SupportCollectionTest::testPutAddsItemToCollection
+// SupportCollectionTest::testPullRetrievesItemFromCollection
+// SupportCollectionTest::testForgetArrayOfKeys
+// SupportCollectionTest::testOnly
+// SupportCollectionTest::testExcept
+// SupportCollectionTest::testKeys
+// SupportCollectionTest::testValues
+// SupportCollectionTest::testContains
+// SupportCollectionTest::testContainsOneItem
+// SupportCollectionTest::testFirstReturnsFirstItemInCollection
+// SupportCollectionTest::testFirstWithCallback
+// SupportCollectionTest::testLastReturnsLastItemInCollection
+// SupportCollectionTest::testLastWithCallback
+// SupportCollectionTest::testFilter
+// SupportCollectionTest::testRejectRemovesElementsPassingTruthTest
+// SupportCollectionTest::testTransform
+// SupportCollectionTest::testEvery
+// SupportCollectionTest::testPartition
+// SupportCollectionTest::testMergeArray
+// SupportCollectionTest::testReplaceArray
+// SupportCollectionTest::testUnionArray
+// SupportCollectionTest::testDiffKeys
+// SupportCollectionTest::testIntersectByKeys
+// SupportCollectionTest::testFlip
+// SupportCollectionTest::testSortKeys
+// SupportCollectionTest::testSortKeysDesc
+// SupportCollectionTest::testImplode
+// SupportCollectionTest::testToJSON
+// SupportCollectionTest::testWhen
+// SupportCollectionTest::testSearchReturnsIndexOfFirstFoundItem
+// SupportCollectionTest::testSearchReturnsFalseWhenItemIsNotFound
+// SupportCollectionTest::testContainsManyItems
+// SupportCollectionTest::testEach
+// SupportCollectionTest::testDiffKeysUsing
+// SupportCollectionTest::testDiffAssoc
+// SupportCollectionTest::testIntersectAssoc
+// SupportCollectionTest::testJoin
+// SupportCollectionTest::testTap
+// SupportCollectionTest::testUnless
+// SupportCollectionTest::testWhenDefault
+// SupportCollectionTest::testToPrettyJSON
+// SupportCollectionTest::testString
+// SupportCollectionTest::testMarshalJSON
+// SupportCollectionTest::testUnmarshalJSON
+// SupportCollectionTest::testDump
+// SupportCollectionTest::testIter
+// SupportCollectionTest::testConstructMethodFromNull
 func TestNew(t *testing.T) {
 	m := New(map[string]int{"a": 1, "b": 2, "c": 3})
 
@@ -275,6 +328,20 @@ func TestMapMerge(t *testing.T) {
 	}
 }
 
+func TestMapReplace(t *testing.T) {
+	m := New(map[string]int{"a": 1, "b": 2})
+	result := m.Replace(map[string]int{"b": 20, "c": 3})
+	v, _ := result.Get("b")
+
+	if v != 20 {
+		t.Errorf("expected 20 (overwritten), got %d", v)
+	}
+
+	if result.Count() != 3 {
+		t.Errorf("expected 3, got %d", result.Count())
+	}
+}
+
 func TestMapUnion(t *testing.T) {
 	m := New(map[string]int{"a": 1, "b": 2})
 	result := m.Union(map[string]int{"b": 20, "c": 3})
@@ -488,16 +555,6 @@ func TestMapSortKeysUsing(t *testing.T) {
 
 	if !reflect.DeepEqual(keys, expected) {
 		t.Errorf("expected %v, got %v", expected, keys)
-	}
-}
-
-func TestMapReplace(t *testing.T) {
-	m := New(map[string]int{"a": 1, "b": 2})
-	result := m.Replace(map[string]int{"b": 20, "c": 3})
-	v, _ := result.Get("b")
-
-	if v != 20 {
-		t.Errorf("expected 20, got %d", v)
 	}
 }
 

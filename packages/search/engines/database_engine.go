@@ -256,8 +256,16 @@ func (e *DatabaseEngine) performSearch(ctx context.Context, builder contract.Sea
 		}
 
 		sql.WriteString(key)
-		sql.WriteString(" = ?")
-		bindings = append(bindings, value)
+
+		if operator, comparedValue, ok := whereComparison(value); ok {
+			sql.WriteString(" ")
+			sql.WriteString(operator)
+			sql.WriteString(" ?")
+			bindings = append(bindings, comparedValue)
+		} else {
+			sql.WriteString(" = ?")
+			bindings = append(bindings, value)
+		}
 	}
 
 	for key, values := range builder.GetWhereIns() {

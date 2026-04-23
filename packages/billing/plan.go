@@ -16,15 +16,17 @@ type Plan struct {
 	Features         []string
 	Options          map[string]any
 	Active           bool
+	PriceIncludesVAT bool
 }
 
 // NewPlan creates a new plan with the given name and provider price ID.
 func NewPlan(name, id string) *Plan {
 	return &Plan{
-		ID:       id,
-		Name:     name,
-		Interval: "monthly",
-		Active:   true,
+		ID:               id,
+		Name:             name,
+		Interval:         "monthly",
+		Active:           true,
+		PriceIncludesVAT: true,
 	}
 }
 
@@ -112,10 +114,11 @@ func (p *Plan) ToMap() map[string]any {
 			"monthly": p.MonthlyIncentive,
 			"yearly":  p.YearlyIncentive,
 		},
-		"short_description": p.ShortDescription,
-		"trial_days":        p.TrialDays,
-		"features":          p.Features,
-		"options":           p.Options,
-		"active":            p.Active,
+		"short_description":  p.ShortDescription,
+		"trial_days":         p.TrialDays,
+		"features":           p.Features,
+		"options":            p.Options,
+		"active":             p.Active,
+		"price_includes_vat": p.PriceIncludesVAT,
 	}
 }

@@ -36,6 +36,8 @@ type countingLoader struct {
 	calls int
 }
 
+type countedItems struct{ n int }
+
 // ── choice ────────────────────────────────────────────────────────────────
 
 // cs has no translation; fallback to en is used for both fetch and plural form.
@@ -67,6 +69,8 @@ type version int
 // Go equivalent of PHP unit enum (no associated value).
 type person struct{ name string }
 
+func (c countedItems) Len() int { return c.n }
+
 func newTranslator(locale string) *translation.Translator {
 	return translation.NewTranslator(translation.NewArrayLoader(), locale)
 }
@@ -76,6 +80,18 @@ func seed(t *translation.Translator, locale, ns, group string, msgs map[string]a
 }
 
 func ptrStr(s string) *string { return &s }
+
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testHasMethodReturnsFalseWhenReturnedTranslationIsNull
+func TestHasMethodReturnsFalseWhenReturnedTranslationIsNull(t *testing.T) {
+	t.Parallel()
+
+	tr := newTranslator("en")
+	tr.GetLoader().(*translation.ArrayLoader).AddMessages("en", "foo", map[string]any{"bar": nil}, nil)
+
+	if tr.Has("foo.bar", ptrStr("en")) {
+		t.Error("Has should return false when the loaded translation value is nil")
+	}
+}
 
 func TestHasMethodReturnsFalseWhenTranslationEqualsKey(t *testing.T) {
 	t.Parallel()
@@ -88,6 +104,7 @@ func TestHasMethodReturnsFalseWhenTranslationEqualsKey(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testHasMethodReturnsTrueWhenReturnedTranslationIsNotNull
 func TestHasMethodReturnsTrueWhenTranslationDiffersFromKey(t *testing.T) {
 	t.Parallel()
 
@@ -99,6 +116,7 @@ func TestHasMethodReturnsTrueWhenTranslationDiffersFromKey(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testHasMethodReturnsTrueWhenReturnedTranslationIsNotNullForLocale
 func TestHasForLocaleReturnsTrueWhenKeyExists(t *testing.T) {
 	t.Parallel()
 
@@ -110,6 +128,7 @@ func TestHasForLocaleReturnsTrueWhenKeyExists(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testHasMethodReturnsFalseWhenReturnedTranslationIsNullForLocale
 func TestHasForLocaleReturnsFalseWhenKeyMissing(t *testing.T) {
 	t.Parallel()
 
@@ -121,6 +140,7 @@ func TestHasForLocaleReturnsFalseWhenKeyMissing(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesItem
 func TestGetMethodProperlyLoadsAndRetrievesItem(t *testing.T) {
 	t.Parallel()
 
@@ -147,6 +167,7 @@ func TestGetMethodProperlyLoadsAndRetrievesItem(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesArrayItem
 func TestGetMethodProperlyLoadsAndRetrievesArrayItem(t *testing.T) {
 	t.Parallel()
 
@@ -169,6 +190,7 @@ func TestGetMethodProperlyLoadsAndRetrievesArrayItem(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodForNonExistingReturnsSameKey
 func TestGetMethodForNonExistingReturnsSameKey(t *testing.T) {
 	t.Parallel()
 
@@ -188,6 +210,7 @@ func TestGetMethodForNonExistingReturnsSameKey(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testTransMethodProperlyLoadsAndRetrievesItemWithHTMLInTheMessage
 func TestGetMethodWithHTMLInMessage(t *testing.T) {
 	t.Parallel()
 
@@ -201,6 +224,7 @@ func TestGetMethodWithHTMLInMessage(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesItemWithCapitalization
 func TestGetMethodProperlyLoadsAndRetrievesItemWithCapitalization(t *testing.T) {
 	t.Parallel()
 
@@ -216,6 +240,7 @@ func TestGetMethodProperlyLoadsAndRetrievesItemWithCapitalization(t *testing.T) 
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesItemWithLongestReplacementsFirst
 func TestGetMethodProperlyLoadsAndRetrievesItemWithLongestReplacementsFirst(t *testing.T) {
 	t.Parallel()
 
@@ -241,6 +266,7 @@ func TestGetMethodProperlyLoadsAndRetrievesItemWithLongestReplacementsFirst(t *t
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesItemForFallback
 func TestGetMethodProperlyLoadsAndRetrievesItemForFallback(t *testing.T) {
 	t.Parallel()
 
@@ -256,6 +282,7 @@ func TestGetMethodProperlyLoadsAndRetrievesItemForFallback(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetDoesNotCallGetLineTwiceForMissingKeyWhenLocaleMatchesFallback
 func TestGetDoesNotCallLoaderTwiceWhenLocaleMatchesFallback(t *testing.T) {
 	t.Parallel()
 
@@ -280,6 +307,7 @@ func (c *countingLoader) Load(locale, group string, namespace *string) map[strin
 	return c.ArrayLoader.Load(locale, group, namespace)
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetMethodProperlyLoadsAndRetrievesItemForGlobalNamespace
 func TestGetMethodProperlyLoadsAndRetrievesItemForGlobalNamespace(t *testing.T) {
 	t.Parallel()
 
@@ -293,6 +321,7 @@ func TestGetMethodProperlyLoadsAndRetrievesItemForGlobalNamespace(t *testing.T) 
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testChoiceMethodProperlyLoadsAndRetrievesItemForAnInt
 func TestChoiceMethodProperlyLoadsAndRetrievesItemForAnInt(t *testing.T) {
 	t.Parallel()
 
@@ -306,6 +335,7 @@ func TestChoiceMethodProperlyLoadsAndRetrievesItemForAnInt(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testChoiceMethodProperlyLoadsAndRetrievesItemForAFloat
 func TestChoiceMethodProperlyLoadsAndRetrievesItemForAFloat(t *testing.T) {
 	t.Parallel()
 
@@ -315,6 +345,20 @@ func TestChoiceMethodProperlyLoadsAndRetrievesItemForAFloat(t *testing.T) {
 	got := tr.Choice("foo", 1.2, nil, ptrStr("en"))
 
 	if got != "many items" {
+		t.Errorf("got %q", got)
+	}
+}
+
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testChoiceMethodProperlyCountsCollectionsAndLoadsAndRetrievesItem
+func TestChoiceMethodProperlyCountsCollectionsAndLoadsAndRetrievesItem(t *testing.T) {
+	t.Parallel()
+
+	tr := newTranslator("en")
+	tr.AddLines(map[string]any{"foo": "{1} one|[2,*] many"}, "en")
+
+	got := tr.Choice("foo", countedItems{n: 3}, nil, ptrStr("en"))
+
+	if got != "many" {
 		t.Errorf("got %q", got)
 	}
 }
@@ -333,6 +377,7 @@ func TestChoiceMethodProperlyCountsSlices(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testChoiceMethodProperlySelectsLocaleForChoose
 func TestChoiceMethodProperlySelectsLocaleForChoose(t *testing.T) {
 	t.Parallel()
 
@@ -347,6 +392,7 @@ func TestChoiceMethodProperlySelectsLocaleForChoose(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testChoiceMethodProperlyUsesCustomCountReplacement
 func TestChoiceMethodProperlyUsesCustomCountReplacement(t *testing.T) {
 	t.Parallel()
 
@@ -360,6 +406,7 @@ func TestChoiceMethodProperlyUsesCustomCountReplacement(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJson
 func TestGetJson(t *testing.T) {
 	t.Parallel()
 
@@ -373,6 +420,7 @@ func TestGetJson(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonReplaces
 func TestGetJsonReplaces(t *testing.T) {
 	t.Parallel()
 
@@ -386,6 +434,7 @@ func TestGetJsonReplaces(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonHasAtomicReplacements
 func TestGetJsonHasAtomicReplacements(t *testing.T) {
 	t.Parallel()
 
@@ -399,6 +448,7 @@ func TestGetJsonHasAtomicReplacements(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonReplacesForAssociativeInput
 func TestGetJsonReplacesForAssociativeInput(t *testing.T) {
 	t.Parallel()
 
@@ -412,6 +462,7 @@ func TestGetJsonReplacesForAssociativeInput(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonPreservesOrder
 func TestGetJsonPreservesOrder(t *testing.T) {
 	t.Parallel()
 
@@ -425,6 +476,7 @@ func TestGetJsonPreservesOrder(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonForNonExistingJsonKeyLooksForRegularKeys
 func TestGetJsonForNonExistingJsonKeyLooksForRegularKeys(t *testing.T) {
 	t.Parallel()
 
@@ -438,6 +490,7 @@ func TestGetJsonForNonExistingJsonKeyLooksForRegularKeys(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonForNonExistingJsonKeyLooksForRegularKeysAndReplace
 func TestGetJsonForNonExistingJsonKeyLooksForRegularKeysAndReplace(t *testing.T) {
 	t.Parallel()
 
@@ -451,6 +504,7 @@ func TestGetJsonForNonExistingJsonKeyLooksForRegularKeysAndReplace(t *testing.T)
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonForNonExistingReturnsSameKey
 func TestGetJsonForNonExistingReturnsSameKey(t *testing.T) {
 	t.Parallel()
 
@@ -463,6 +517,7 @@ func TestGetJsonForNonExistingReturnsSameKey(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonForNonExistingReturnsSameKeyAndReplaces
 func TestGetJsonForNonExistingReturnsSameKeyAndReplaces(t *testing.T) {
 	t.Parallel()
 
@@ -475,6 +530,7 @@ func TestGetJsonForNonExistingReturnsSameKeyAndReplaces(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testEmptyFallbacks
 func TestEmptyFallbacks(t *testing.T) {
 	t.Parallel()
 
@@ -492,6 +548,7 @@ func (d fakeDate) String() string {
 	return fmt.Sprintf("%d", d.unix)
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonReplacesWithStringable
 func TestGetJsonReplacesWithStringable(t *testing.T) {
 	t.Parallel()
 
@@ -531,6 +588,7 @@ func (p person) String() string { return p.name }
 
 var hosni = person{name: "Hosni"}
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testGetJsonReplacesWithEnums
 func TestGetJsonReplacesWithEnums(t *testing.T) {
 	t.Parallel()
 
@@ -562,6 +620,7 @@ func TestGetJsonReplacesWithEnums(t *testing.T) {
 
 // ── Tag replacements ──────────────────────────────────────────────────────
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testTagReplacements
 func TestTagReplacements(t *testing.T) {
 	t.Parallel()
 
@@ -584,6 +643,7 @@ func TestTagReplacements(t *testing.T) {
 	}
 }
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testTagReplacementsHandleMultipleOfSameTag
 func TestTagReplacementsHandleMultipleOfSameTag(t *testing.T) {
 	t.Parallel()
 
@@ -608,6 +668,7 @@ func TestTagReplacementsHandleMultipleOfSameTag(t *testing.T) {
 
 // ── DetermineLocalesUsing ─────────────────────────────────────────────────
 
+// Port of Framework\Tests\Translation\TranslationTranslatorTest::testDetermineLocalesUsingMethod
 func TestDetermineLocalesUsingMethod(t *testing.T) {
 	t.Parallel()
 

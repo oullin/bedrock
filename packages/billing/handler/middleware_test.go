@@ -25,7 +25,7 @@ func newMiddleware(resolver billing.ResolverFunc, subs []*billing.Subscription) 
 	return handler.VerifyBillableIsSubscribed(mgr, billing)
 }
 
-// Mirrors EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_gateway
+// EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_gateway
 func TestVerifyBillableIsSubscribed_Unsubscribed_Redirects(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (billing.Billable, error) {
@@ -53,7 +53,7 @@ func TestVerifyBillableIsSubscribed_Unsubscribed_Redirects(t *testing.T) {
 	}
 }
 
-// Mirrors EnsureTeamSubscribedTest::test_unsubscribed_xhr_request_returns_402
+// EnsureTeamSubscribedTest::test_unsubscribed_xhr_request_returns_402
 func TestVerifyBillableIsSubscribed_XHR_Returns402(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (billing.Billable, error) {
@@ -76,7 +76,7 @@ func TestVerifyBillableIsSubscribed_XHR_Returns402(t *testing.T) {
 	}
 }
 
-// Mirrors EnsureTeamSubscribedTest::test_unauthenticated_user_is_redirected
+// EnsureTeamSubscribedTest::test_unauthenticated_user_is_redirected
 func TestVerifyBillableIsSubscribed_Unauthenticated_Redirects(t *testing.T) {
 	resolver := func(r *http.Request) (billing.Billable, error) {
 		return nil, errors.New("unauthenticated")

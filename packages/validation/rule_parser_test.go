@@ -147,6 +147,10 @@ func TestFlattenData(t *testing.T) {
 		t.Errorf("user.name: got %v", flat["user.name"])
 	}
 
+	if user, ok := flat["user"].(map[string]any); !ok || user["name"] != "Alice" {
+		t.Fatalf("user: got %v, want the original nested map", flat["user"])
+	}
+
 	if flat["items.0.id"] != 1 {
 		t.Errorf("items.0.id: got %v", flat["items.0.id"])
 	}

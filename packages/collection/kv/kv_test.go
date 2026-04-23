@@ -8,6 +8,30 @@ import (
 	"github.com/bedrock/packages/collection/kv"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportArrTest::testGet
+// SupportArrTest::testSet
+// SupportArrTest::testAdd
+// SupportArrTest::testHas
+// SupportArrTest::testHasAllMethod
+// SupportArrTest::testHasAnyMethod
+// SupportArrTest::testPull
+// SupportArrTest::testForget
+// SupportArrTest::testDot
+// SupportArrTest::testDotWithDepth
+// SupportArrTest::testUndot
+// SupportArrTest::testOnly
+// SupportArrTest::testExcept
+// SupportArrTest::testIsAssoc
+// SupportArrTest::testQuery
+// SupportArrTest::testToCssClasses
+// SupportArrTest::testToCssStyles
+// SupportArrTest::testSort
+// SupportArrTest::testSortRecursive
+// SupportArrTest::testMap
+// SupportArrTest::testWhere
+// SupportArrTest::testPrependKeysWith
+// SupportArrTest::testReplaceArray
 func TestGet(t *testing.T) {
 	data := map[string]any{
 		"user": map[string]any{

@@ -2,6 +2,8 @@ package support
 
 import (
 	"encoding/json"
+	"iter"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -14,13 +16,13 @@ type Fluent struct {
 }
 
 // NewFluent creates a new Fluent instance.
-// Accepts an optional initial map of attributes.
+// Accepts an optional initial value that can be a map or a struct with exported fields.
 // Mirrors new Fluent($attributes).
-func NewFluent(attrs ...map[string]any) *Fluent {
+func NewFluent(attrs ...any) *Fluent {
 	f := &Fluent{attributes: make(map[string]any)}
 
 	if len(attrs) > 0 {
-		for k, v := range attrs[0] {
+		for k, v := range fluentAttributes(attrs[0]) {
 			f.attributes[k] = v
 		}
 	}
@@ -80,6 +82,12 @@ func (f *Fluent) All() map[string]any {
 	}
 
 	return result
+}
+
+// Array returns all attributes as a map.
+// Mirrors Fluent::toArray() / array access helpers.
+func (f *Fluent) Array() map[string]any {
+	return f.All()
 }
 
 // Only returns a map containing only the specified keys.
@@ -308,4 +316,88 @@ func (f *Fluent) UnmarshalJSON(data []byte) error {
 // ToJSON returns the JSON-encoded attributes.
 func (f *Fluent) ToJSON() ([]byte, error) {
 	return json.Marshal(f.attributes)
+}
+
+// ToPrettyJSON returns the JSON-encoded attributes with indentation.
+func (f *Fluent) ToPrettyJSON() (string, error) {
+	data, err := json.MarshalIndent(f.attributes, "", "  ")
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+func fluentAttributes(value any) map[string]any {
+	result := make(map[string]any)
+
+	if value == nil {
+		return result
+	}
+
+	switch v := value.(type) {
+	case map[string]any:
+		return v
+	case map[string]string:
+		for key, item := range v {
+			result[key] = item
+		}
+
+		return result
+	case *Fluent:
+		return v.All()
+	case Fluent:
+		return v.All()
+	case iter.Seq2[string, any]:
+		v(func(key string, item any) bool {
+			result[key] = item
+
+			return true
+		})
+
+		return result
+	}
+
+	rv := reflect.ValueOf(value)
+
+	if !rv.IsValid() {
+		return result
+	}
+
+	for rv.Kind() == reflect.Pointer {
+		if rv.IsNil() {
+			return result
+		}
+
+		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Struct {
+		return result
+	}
+
+	rt := rv.Type()
+
+	for i := 0; i < rv.NumField(); i++ {
+		field := rt.Field(i)
+
+		if field.PkgPath != "" {
+			continue
+		}
+
+		name := field.Name
+
+		if tag := field.Tag.Get("json"); tag != "" && tag != "-" {
+			if comma := strings.Index(tag, ","); comma >= 0 {
+				name = tag[:comma]
+			} else {
+				name = tag
+			}
+		}
+
+		result[name] = rv.Field(i).Interface()
+	}
+
+	return result
 }

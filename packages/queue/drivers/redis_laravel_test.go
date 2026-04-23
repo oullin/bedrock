@@ -2,10 +2,12 @@ package drivers_test
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/bedrock/packages/queue"
 	"github.com/bedrock/packages/queue/drivers"
 )
 
@@ -65,6 +67,7 @@ import (
 type redisCall struct {
 	op      string
 	key     string
+	keys    []string
 	value   string
 	score   float64
 	members []string
@@ -167,6 +170,12 @@ func (r *recordingRedisClient) ZCard(_ context.Context, key string) (int64, erro
 	r.record(redisCall{op: "ZCard", key: key})
 
 	return 0, nil
+}
+
+func (r *recordingRedisClient) Del(_ context.Context, keys ...string) (int64, error) {
+	r.record(redisCall{op: "Del", keys: keys})
+
+	return int64(len(keys)), nil
 }
 
 // IsCluster satisfies drivers.RedisClusterAware. Implementing it as a
@@ -277,6 +286,143 @@ func TestRedisGetRedisKeyReturnsPlainKeyForNonCluster(t *testing.T) {
 
 		if len(calls) != 1 || calls[0].key != tc.want {
 			t.Fatalf("queue=%q: LPush key = %q, want %q", tc.queue, calls[0].key, tc.want)
+		}
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueRedisQueueTest::testPushProperlyPushesJobOntoRedisWithTwoCustomPayloadHook
+func TestPushProperlyPushesJobOntoRedisWithTwoCustomPayloadHook(t *testing.T) {
+	// Not t.Parallel: mutates global payload hooks.
+	queue.ClearPayloadHooks()
+
+	defer queue.ClearPayloadHooks()
+
+	queue.CreatePayloadUsing(func(_, _ string, p *queue.Payload) {
+		if p.Data == nil {
+			p.Data = map[string]any{}
+		}
+
+		p.Data["first"] = "one"
+	})
+	queue.CreatePayloadUsing(func(_, _ string, p *queue.Payload) {
+		p.Data["second"] = "two"
+	})
+
+	client := newRecordingRedisClient()
+	d := drivers.NewRedisDriver(client, "default")
+	_, raw, err := queue.CreatePayloadFor("redis", "default", "job", nil, queue.JobOptions{})
+
+	if err != nil {
+		t.Fatalf("CreatePayloadFor: %v", err)
+	}
+
+	if _, err := d.Push(context.Background(), "default", raw); err != nil {
+		t.Fatalf("Push: %v", err)
+	}
+
+	calls := client.callsFor("LPush")
+
+	if len(calls) != 1 {
+		t.Fatalf("LPush calls: got %d, want 1", len(calls))
+	}
+
+	if !strings.Contains(calls[0].value, `"first":"one"`) || !strings.Contains(calls[0].value, `"second":"two"`) {
+		t.Fatalf("payload hooks not forwarded: %s", calls[0].value)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueRedisQueueTest::testPushUsesGetRedisKeyForLuaScript
+func TestPushUsesGetRedisKeyForLuaScript(t *testing.T) {
+	t.Parallel()
+
+	client := newRecordingRedisClient()
+	client.cluster = true
+	d := drivers.NewRedisDriver(client, "default")
+
+	if _, err := d.Push(context.Background(), "emails", []byte(`{"job":"x"}`)); err != nil {
+		t.Fatalf("Push: %v", err)
+	}
+
+	calls := client.callsFor("LPush")
+
+	if len(calls) != 1 || calls[0].key != "queues:{emails}" {
+		t.Fatalf("LPush calls: got %+v, want cluster-safe key queues:{emails}", calls)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueRedisQueueTest::testPushPassesUnchangedQueueToCreatePayload
+func TestPushPassesUnchangedQueueToCreatePayload(t *testing.T) {
+	// Not t.Parallel: mutates global payload hooks.
+	queue.ClearPayloadHooks()
+
+	defer queue.ClearPayloadHooks()
+
+	var observedQueue string
+
+	queue.CreatePayloadUsing(func(_, queueName string, _ *queue.Payload) {
+		observedQueue = queueName
+	})
+
+	client := newRecordingRedisClient()
+	client.cluster = true
+	d := drivers.NewRedisDriver(client, "default")
+	_, raw, err := queue.CreatePayloadFor("redis", "emails", "job", nil, queue.JobOptions{})
+
+	if err != nil {
+		t.Fatalf("CreatePayloadFor: %v", err)
+	}
+
+	if _, err := d.Push(context.Background(), "emails", raw); err != nil {
+		t.Fatalf("Push: %v", err)
+	}
+
+	if observedQueue != "emails" {
+		t.Fatalf("observed queue: got %q, want emails", observedQueue)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueRedisQueueTest::testSizeUsesGetRedisKeyOnCluster
+func TestSizeUsesGetRedisKeyOnCluster(t *testing.T) {
+	t.Parallel()
+
+	client := newRecordingRedisClient()
+	client.cluster = true
+	d := drivers.NewRedisDriver(client, "default")
+
+	if _, err := d.Size(context.Background(), "emails"); err != nil {
+		t.Fatalf("Size: %v", err)
+	}
+
+	calls := client.callsFor("LLen")
+
+	if len(calls) != 1 || calls[0].key != "queues:{emails}" {
+		t.Fatalf("LLen calls: got %+v, want cluster-safe key queues:{emails}", calls)
+	}
+}
+
+// Port of Framework\Tests\Queue\QueueRedisQueueTest::testClearUsesGetRedisKeyOnCluster
+func TestClearUsesGetRedisKeyOnCluster(t *testing.T) {
+	t.Parallel()
+
+	client := newRecordingRedisClient()
+	client.cluster = true
+	d := drivers.NewRedisDriver(client, "default")
+
+	if err := d.ClearQueue(context.Background(), "emails"); err != nil {
+		t.Fatalf("ClearQueue: %v", err)
+	}
+
+	calls := client.callsFor("Del")
+
+	if len(calls) != 1 {
+		t.Fatalf("Del calls: got %d, want 1", len(calls))
+	}
+
+	want := []string{"queues:{emails}", "queues:{emails}:delayed", "queues:{emails}:failed"}
+
+	for i, key := range want {
+		if calls[0].keys[i] != key {
+			t.Fatalf("keys[%d]: got %q, want %q", i, calls[0].keys[i], key)
 		}
 	}
 }

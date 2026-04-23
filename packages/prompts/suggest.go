@@ -105,10 +105,16 @@ func Suggest(label string, options any, opts ...SuggestOption) (string, error) {
 			}
 
 			p.prompt.submit()
+		case key == KeyTab && len(matches) > 0:
+			p.TypedValue.SetValue(matches[p.Scrollable.Highlighted()])
 		case IsUpKey(key) && len(matches) > 0:
 			p.Scrollable.HighlightPrevious(1)
 		case IsDownKey(key) && len(matches) > 0:
 			p.Scrollable.HighlightNext(1)
+		case OneOfKey(KeyHome, key) && len(matches) > 0:
+			p.Scrollable.HighlightFirst()
+		case OneOfKey(KeyEnd, key) && len(matches) > 0:
+			p.Scrollable.HighlightLast()
 		}
 	})
 

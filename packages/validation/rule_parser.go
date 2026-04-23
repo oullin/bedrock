@@ -251,6 +251,8 @@ func flattenInto(out map[string]any, data map[string]any, prefix string) {
 
 		switch child := v.(type) {
 		case map[string]any:
+			// Keep the map itself so top-level array/list/shape rules can run.
+			out[key] = v
 			flattenInto(out, child, key)
 		case []any:
 			for i, item := range child {
