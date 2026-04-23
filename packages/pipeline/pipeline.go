@@ -33,6 +33,7 @@ type Pipeline struct {
 	resolver    Resolver
 	handleCarry func(any) any
 	handleError func(any, error) (any, error)
+	transaction func(context.Context, func() (any, error)) (any, error)
 }
 
 // Option configures a Pipeline.
@@ -58,6 +59,13 @@ func WithHandleCarry(fn func(any) any) Option {
 func WithHandleError(fn func(any, error) (any, error)) Option {
 	return func(p *Pipeline) {
 		p.handleError = fn
+	}
+}
+
+// WithTransaction sets a wrapper around the complete pipeline execution.
+func WithTransaction(fn func(context.Context, func() (any, error)) (any, error)) Option {
+	return func(p *Pipeline) {
+		p.transaction = fn
 	}
 }
 
@@ -110,6 +118,13 @@ func (p *Pipeline) Finally(fn func(any, error)) *Pipeline {
 	return p
 }
 
+// WithinTransaction wraps pipeline execution in the given transaction callback.
+func (p *Pipeline) WithinTransaction(fn func(context.Context, func() (any, error)) (any, error)) *Pipeline {
+	p.transaction = fn
+
+	return p
+}
+
 // When conditionally applies a callback to the pipeline.
 func (p *Pipeline) When(condition bool, callback func(*Pipeline) *Pipeline, defaultFn ...func(*Pipeline) *Pipeline) *Pipeline {
 	if condition {
@@ -152,7 +167,15 @@ func (p *Pipeline) Then(ctx context.Context, destination func(any) (any, error))
 		}
 	}
 
-	return chain(p.passable)
+	run := func() (any, error) {
+		return chain(p.passable)
+	}
+
+	if p.transaction != nil {
+		return p.transaction(ctx, run)
+	}
+
+	return run()
 }
 
 // ThenReturn runs the pipeline and returns the passable.

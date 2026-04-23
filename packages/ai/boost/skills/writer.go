@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // SupportsSkills is a local re-declaration of the interface subset needed
@@ -25,6 +26,10 @@ func (w *SkillWriter) Write(agent SupportsSkills, skills []Skill) error {
 	base := agent.SkillsPath()
 
 	for _, skill := range skills {
+		if !isSafeSkillName(skill.Name) {
+			return fmt.Errorf("boost: invalid skill name %q", skill.Name)
+		}
+
 		dir := filepath.Join(base, skill.Name)
 
 		if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -39,4 +44,18 @@ func (w *SkillWriter) Write(agent SupportsSkills, skills []Skill) error {
 	}
 
 	return nil
+}
+
+func isSafeSkillName(name string) bool {
+	cleaned := filepath.Clean(name)
+
+	if cleaned == "." || filepath.IsAbs(cleaned) {
+		return false
+	}
+
+	if cleaned == ".." || strings.HasPrefix(cleaned, ".."+string(filepath.Separator)) {
+		return false
+	}
+
+	return true
 }

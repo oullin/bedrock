@@ -14,11 +14,23 @@ type taggedCache struct {
 	tags  *TagSet
 }
 
+type eventTaggedCache struct {
+	TaggedCache
+	storeName string
+	tags      []string
+	events    EventDispatcher
+}
+
 var _ TaggedCache = (*taggedCache)(nil)
+var _ TaggedCache = (*eventTaggedCache)(nil)
 
 // NewTaggedCache creates a TaggedCache wrapping the given store and tags.
 func NewTaggedCache(store Store, tags *TagSet) TaggedCache {
 	return &taggedCache{store: store, tags: tags}
+}
+
+func newEventTaggedCache(inner TaggedCache, storeName string, tags []string, events EventDispatcher) TaggedCache {
+	return &eventTaggedCache{TaggedCache: inner, storeName: storeName, tags: append([]string(nil), tags...), events: events}
 }
 
 func (tc *taggedCache) prefixed(ctx context.Context, key string) (string, error) {
@@ -178,4 +190,139 @@ func (tc *taggedCache) TaggedItemKey(ctx context.Context, key string) (string, e
 // GetTags returns the underlying TagSet.
 func (tc *taggedCache) GetTags() *TagSet {
 	return tc.tags
+}
+
+func (tc *eventTaggedCache) dispatch(ctx context.Context, event Event) {
+	if tc.events != nil {
+		tc.events.Dispatch(ctx, event)
+	}
+}
+
+func (tc *eventTaggedCache) Get(ctx context.Context, key string) (any, error) {
+	tc.dispatch(ctx, RetrievingKey{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+	v, err := tc.TaggedCache.Get(ctx, key)
+
+	if err != nil {
+		tc.dispatch(ctx, CacheMissed{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+		return nil, err
+	}
+
+	tc.dispatch(ctx, CacheHit{StoreName: tc.storeName, Key: key, Value: v, Tags: tc.tags})
+
+	return v, nil
+}
+
+func (tc *eventTaggedCache) GetMany(ctx context.Context, keys []string) (map[string]any, error) {
+	tc.dispatch(ctx, RetrievingManyKeys{StoreName: tc.storeName, Keys: keys, Tags: tc.tags})
+
+	result, err := tc.TaggedCache.GetMany(ctx, keys)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, key := range keys {
+		if v, ok := result[key]; ok {
+			tc.dispatch(ctx, CacheHit{StoreName: tc.storeName, Key: key, Value: v, Tags: tc.tags})
+		} else {
+			tc.dispatch(ctx, CacheMissed{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+		}
+	}
+
+	return result, nil
+}
+
+func (tc *eventTaggedCache) Put(ctx context.Context, key string, value any, ttl time.Duration) error {
+	tc.dispatch(ctx, WritingKey{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+
+	if err := tc.TaggedCache.Put(ctx, key, value, ttl); err != nil {
+		return err
+	}
+
+	tc.dispatch(ctx, KeyWritten{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+
+	return nil
+}
+
+func (tc *eventTaggedCache) PutMany(ctx context.Context, values map[string]any, ttl time.Duration) error {
+	keys := make([]string, 0, len(values))
+
+	for key := range values {
+		keys = append(keys, key)
+	}
+
+	tc.dispatch(ctx, WritingManyKeys{StoreName: tc.storeName, Keys: keys, Values: values, TTL: ttl, Tags: tc.tags})
+
+	if err := tc.TaggedCache.PutMany(ctx, values, ttl); err != nil {
+		return err
+	}
+
+	for key, value := range values {
+		tc.dispatch(ctx, KeyWritten{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+	}
+
+	return nil
+}
+
+func (tc *eventTaggedCache) Add(ctx context.Context, key string, value any, ttl time.Duration) (bool, error) {
+	tc.dispatch(ctx, WritingKey{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+
+	ok, err := tc.TaggedCache.Add(ctx, key, value, ttl)
+
+	if err != nil {
+		return ok, err
+	}
+
+	if ok {
+		tc.dispatch(ctx, CacheMissed{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+		tc.dispatch(ctx, KeyWritten{StoreName: tc.storeName, Key: key, Value: value, TTL: ttl, Tags: tc.tags})
+
+		return true, nil
+	}
+
+	tc.dispatch(ctx, CacheHit{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+	return false, nil
+}
+
+func (tc *eventTaggedCache) Forever(ctx context.Context, key string, value any) error {
+	tc.dispatch(ctx, WritingKey{StoreName: tc.storeName, Key: key, Value: value, Tags: tc.tags})
+
+	if err := tc.TaggedCache.Forever(ctx, key, value); err != nil {
+		return err
+	}
+
+	tc.dispatch(ctx, KeyWritten{StoreName: tc.storeName, Key: key, Value: value, Tags: tc.tags})
+
+	return nil
+}
+
+func (tc *eventTaggedCache) Forget(ctx context.Context, key string) error {
+	tc.dispatch(ctx, ForgettingKey{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+	if err := tc.TaggedCache.Forget(ctx, key); err != nil {
+		tc.dispatch(ctx, KeyForgetFailed{StoreName: tc.storeName, Key: key, Err: err, Tags: tc.tags})
+
+		return err
+	}
+
+	tc.dispatch(ctx, KeyForgotten{StoreName: tc.storeName, Key: key, Tags: tc.tags})
+
+	return nil
+}
+
+func (tc *eventTaggedCache) Flush(ctx context.Context) error {
+	tc.dispatch(ctx, CacheFlushing{StoreName: tc.storeName, Tags: tc.tags})
+
+	if err := tc.TaggedCache.Flush(ctx); err != nil {
+		tc.dispatch(ctx, CacheFlushFailed{StoreName: tc.storeName, Err: err, Tags: tc.tags})
+
+		return err
+	}
+
+	tc.dispatch(ctx, CacheFlushed{StoreName: tc.storeName, Tags: tc.tags})
+
+	return nil
 }

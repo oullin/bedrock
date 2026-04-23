@@ -3,6 +3,7 @@ package websockets
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	contractsWebSockets "github.com/bedrock/packages/contracts/websockets"
@@ -19,6 +20,7 @@ import (
 //	GET  /apps/{id}/channels/{ch}   - channel info
 type HTTPHandler struct {
 	apps       *AppManager
+	conns      *ConnectionManager
 	channels   *ChannelManager
 	dispatcher contractsWebSockets.Dispatcher
 }
@@ -50,27 +52,36 @@ type BatchTriggerRequest struct {
 
 // handleBatchTrigger processes POST /apps/{id}/batch_events.
 
-// channelInfo holds the JSON shape for a single channel in list/info responses.
-type channelInfo struct {
-	SubscriptionCount int `json:"subscription_count"`
-}
-
 // channelsResponse is the JSON shape for GET /apps/{id}/channels.
 type channelsResponse struct {
-	Channels map[string]channelInfo `json:"channels"`
+	Channels map[string]map[string]any `json:"channels"`
 }
 
-func NewHTTPHandler(apps *AppManager, channels *ChannelManager, dispatcher contractsWebSockets.Dispatcher) *HTTPHandler {
+func NewHTTPHandler(apps *AppManager, conns *ConnectionManager, channels *ChannelManager, dispatcher contractsWebSockets.Dispatcher) *HTTPHandler {
 	return &HTTPHandler{
 		apps:       apps,
+		conns:      conns,
 		channels:   channels,
 		dispatcher: dispatcher,
 	}
 }
 
 func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/up" {
+		h.handleHealth(w)
 
-	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/apps/"), "/")
+		return
+	}
+
+	appPath, ok := appPathFromRequest(r.URL.Path)
+
+	if !ok {
+		http.Error(w, "not found", http.StatusNotFound)
+
+		return
+	}
+
+	parts := strings.Split(strings.TrimPrefix(appPath, "/apps/"), "/")
 
 	if len(parts) < 2 {
 		http.Error(w, "not found", http.StatusNotFound)
@@ -102,20 +113,41 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case resource == "batch_events" && r.Method == http.MethodPost:
 		h.handleBatchTrigger(w, r.WithContext(ctx), app)
 
+	case resource == "connections" && r.Method == http.MethodGet && len(parts) == 2:
+		h.handleConnections(w, app)
+
 	case resource == "channels" && r.Method == http.MethodGet && len(parts) == 2:
-		h.handleChannels(w, app)
+		h.handleChannels(w, r, app)
+
+	case resource == "channels" && r.Method == http.MethodGet && len(parts) >= 4 && parts[3] == "users":
+		h.handleChannelUsers(w, app, parts[2])
 
 	case resource == "channels" && r.Method == http.MethodGet && len(parts) >= 3:
-		h.handleChannel(w, app, parts[2])
+		h.handleChannel(w, r, app, parts[2])
 
 	default:
 		http.Error(w, "not found", http.StatusNotFound)
 	}
 }
 
+func appPathFromRequest(path string) (string, bool) {
+	idx := strings.Index(path, "/apps/")
+
+	if idx < 0 {
+		return "", false
+	}
+
+	return path[idx:], true
+}
+
 func (h *HTTPHandler) authenticate(w http.ResponseWriter, r *http.Request, app *App) bool {
 	q := r.URL.Query()
 	signature := q.Get("auth_signature")
+	normalizedPath, ok := appPathFromRequest(r.URL.Path)
+
+	if !ok {
+		normalizedPath = r.URL.Path
+	}
 
 	params := make(map[string]string, len(q))
 
@@ -129,7 +161,7 @@ func (h *HTTPHandler) authenticate(w http.ResponseWriter, r *http.Request, app *
 		}
 	}
 
-	if !VerifyHTTPRequest(app.Secret(), r.Method, r.URL.Path, params, signature) {
+	if !VerifyHTTPRequest(app.Secret(), r.Method, normalizedPath, params, signature) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 
 		return false
@@ -171,7 +203,15 @@ func (h *HTTPHandler) handleTrigger(w http.ResponseWriter, r *http.Request, app 
 		}
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
+	info := requestedInfo(r)
+
+	if len(info) == 0 {
+		writeJSON(w, http.StatusOK, map[string]any{})
+
+		return
+	}
+
+	writeJSON(w, http.StatusOK, h.eventResponse(app, req.Channels, info))
 }
 
 func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request, app *App) {
@@ -209,26 +249,33 @@ func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request,
 		}
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
+	info := requestedInfo(r)
+
+	if len(info) == 0 {
+		writeJSON(w, http.StatusOK, map[string]any{})
+
+		return
+	}
+
+	writeJSON(w, http.StatusOK, h.eventResponse(app, flattenBatchChannels(req.Batch), info))
 }
 
 // handleChannels lists all channels for the application.
-func (h *HTTPHandler) handleChannels(w http.ResponseWriter, app *App) {
+func (h *HTTPHandler) handleChannels(w http.ResponseWriter, r *http.Request, app *App) {
 	all := h.channels.All(app.ID())
+	info := requestedInfo(r)
 
-	result := make(map[string]channelInfo, len(all))
+	result := make(map[string]map[string]any, len(all))
 
 	for _, ch := range all {
-		result[ch.Name()] = channelInfo{
-			SubscriptionCount: len(ch.Connections()),
-		}
+		result[ch.Name()] = projectChannelListInfo(ch, info)
 	}
 
 	writeJSON(w, http.StatusOK, channelsResponse{Channels: result})
 }
 
 // handleChannel returns info for a single channel.
-func (h *HTTPHandler) handleChannel(w http.ResponseWriter, app *App, name string) {
+func (h *HTTPHandler) handleChannel(w http.ResponseWriter, r *http.Request, app *App, name string) {
 	ch, ok := h.channels.Get(app.ID(), name)
 
 	if !ok {
@@ -237,16 +284,241 @@ func (h *HTTPHandler) handleChannel(w http.ResponseWriter, app *App, name string
 		return
 	}
 
-	writeJSON(w, http.StatusOK, channelInfo{
-		SubscriptionCount: len(ch.Connections()),
-	})
+	if len(r.URL.Query().Get("info")) == 0 {
+		if len(ch.Connections()) == 0 {
+			writeJSON(w, http.StatusOK, map[string]any{"occupied": false})
+
+			return
+		}
+
+		writeJSON(w, http.StatusOK, map[string]any{"occupied": true})
+
+		return
+	}
+
+	writeJSON(w, http.StatusOK, projectChannelInfo(ch, requestedInfo(r)))
+}
+
+func requestedInfo(r *http.Request) map[string]struct{} {
+	raw := r.URL.Query().Get("info")
+
+	if raw == "" {
+		return nil
+	}
+
+	info := make(map[string]struct{})
+
+	for _, part := range strings.Split(raw, ",") {
+		part = strings.TrimSpace(part)
+
+		if part != "" {
+			info[part] = struct{}{}
+		}
+	}
+
+	return info
+}
+
+func projectChannelListInfo(ch contractsWebSockets.Channel, info map[string]struct{}) map[string]any {
+	if len(info) == 0 {
+		return map[string]any{}
+	}
+
+	attrs := make(map[string]any)
+
+	if hasInfo(info, "subscription_count") {
+		attrs["subscription_count"] = len(ch.Connections())
+	}
+
+	if hasInfo(info, "user_count") {
+		if pc, ok := ch.(contractsWebSockets.PresenceChanneler); ok {
+			attrs["user_count"] = pc.MemberCount()
+		}
+	}
+
+	if hasInfo(info, "cache") {
+		if cache, ok := ch.(contractsWebSockets.CacheableChannel); ok {
+			if cached := cachedEventData(cache.LastEvent()); cached != nil {
+				attrs["cache"] = cached
+			}
+		}
+	}
+
+	return attrs
+}
+
+func projectChannelInfo(ch contractsWebSockets.Channel, info map[string]struct{}) map[string]any {
+	if len(ch.Connections()) == 0 {
+		return map[string]any{"occupied": false}
+	}
+
+	attrs := map[string]any{"occupied": true}
+
+	if hasInfo(info, "subscription_count") {
+		attrs["subscription_count"] = len(ch.Connections())
+	}
+
+	if hasInfo(info, "user_count") {
+		if pc, ok := ch.(contractsWebSockets.PresenceChanneler); ok {
+			attrs["user_count"] = pc.MemberCount()
+		}
+	}
+
+	if hasInfo(info, "cache") {
+		if cache, ok := ch.(contractsWebSockets.CacheableChannel); ok {
+			if cached := cachedEventData(cache.LastEvent()); cached != nil {
+				attrs["cache"] = cached
+			}
+		}
+	}
+
+	return attrs
+}
+
+func hasInfo(info map[string]struct{}, key string) bool {
+	if len(info) == 0 {
+		return false
+	}
+
+	_, ok := info[key]
+
+	return ok
+}
+
+func cachedEventData(event *contractsWebSockets.Event) any {
+	if event == nil {
+		return nil
+	}
+
+	var data any
+
+	if err := json.Unmarshal([]byte(event.Data), &data); err == nil {
+		return data
+	}
+
+	return event.Data
+}
+
+func parseUserID(id string) any {
+	if n, err := strconv.Atoi(id); err == nil {
+		return n
+	}
+
+	return id
+}
+
+func (h *HTTPHandler) handleChannelUsers(w http.ResponseWriter, app *App, name string) {
+	ch, ok := h.channels.Get(app.ID(), name)
+
+	if !ok {
+		http.Error(w, "presence channel not found", http.StatusBadRequest)
+
+		return
+	}
+
+	pc, ok := ch.(contractsWebSockets.PresenceChanneler)
+
+	if !ok {
+		http.Error(w, "presence channel not found", http.StatusBadRequest)
+
+		return
+	}
+
+	if len(pc.Connections()) == 0 {
+		http.Error(w, "presence channel not occupied", http.StatusNotFound)
+
+		return
+	}
+
+	users := make([]map[string]any, 0, len(pc.MemberIDs()))
+
+	for _, id := range pc.MemberIDs() {
+		users = append(users, map[string]any{"id": parseUserID(id)})
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"users": users})
+}
+
+func (h *HTTPHandler) handleConnections(w http.ResponseWriter, app *App) {
+	writeJSON(w, http.StatusOK, map[string]any{"connections": h.conns.Count(app.ID())})
+}
+
+func (h *HTTPHandler) handleHealth(w http.ResponseWriter) {
+	writeJSON(w, http.StatusOK, map[string]string{"health": "OK"})
+}
+
+func (h *HTTPHandler) eventResponse(app *App, channels []string, info map[string]struct{}) map[string]any {
+	result := make(map[string]map[string]any)
+	seen := make(map[string]struct{})
+
+	for _, chanName := range channels {
+		if _, ok := seen[chanName]; ok {
+			continue
+		}
+
+		seen[chanName] = struct{}{}
+
+		ch, ok := h.channels.Get(app.ID(), chanName)
+
+		if !ok {
+			continue
+		}
+
+		result[chanName] = projectEventInfo(chanName, ch, info)
+	}
+
+	return map[string]any{"channels": result}
+}
+
+func projectEventInfo(chanName string, ch contractsWebSockets.Channel, info map[string]struct{}) map[string]any {
+	attrs := make(map[string]any)
+	channelType := TypeOf(chanName)
+
+	if hasInfo(info, "subscription_count") && !strings.HasPrefix(channelType, "presence") {
+		attrs["subscription_count"] = len(ch.Connections())
+	}
+
+	if hasInfo(info, "user_count") {
+		if pc, ok := ch.(contractsWebSockets.PresenceChanneler); ok {
+			attrs["user_count"] = pc.MemberCount()
+		}
+	}
+
+	if hasInfo(info, "cache") {
+		if cache, ok := ch.(contractsWebSockets.CacheableChannel); ok {
+			if cached := cachedEventData(cache.LastEvent()); cached != nil {
+				attrs["cache"] = cached
+			}
+		}
+	}
+
+	return attrs
+}
+
+func flattenBatchChannels(batch []TriggerRequest) []string {
+	channels := make([]string, 0)
+
+	for _, item := range batch {
+		channels = append(channels, item.Channels...)
+	}
+
+	return channels
 }
 
 // writeJSON encodes v as JSON and writes it with the given status code.
 func writeJSON(w http.ResponseWriter, status int, v any) {
+	payload, err := json.Marshal(v)
+
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(payload)))
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	_, _ = w.Write(payload)
 }
 
 // ensure HTTPHandler implements http.Handler at compile time.

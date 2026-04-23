@@ -82,7 +82,7 @@ func Autocomplete(label string, options any, opts ...AutocompleteOption) (string
 			return
 		}
 
-		if key == KeyTab {
+		if key == KeyTab || IsRightKey(key) {
 			ghost := p.GhostText()
 
 			if ghost != "" {

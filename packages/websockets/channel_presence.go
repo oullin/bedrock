@@ -3,6 +3,8 @@ package websockets
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"sync"
 
 	contractsWebSockets "github.com/bedrock/packages/contracts/websockets"
@@ -10,7 +12,7 @@ import (
 
 // presenceMember holds the identity data for a single presence subscriber.
 type presenceMember struct {
-	UserID   string
+	UserKey  string
 	UserInfo any
 }
 
@@ -22,6 +24,7 @@ type PresenceChannel struct {
 	app     *App
 	mu      sync.RWMutex
 	members map[string]presenceMember // socketID → presenceMember
+	order   []string                  // userKey join order
 }
 
 var _ contractsWebSockets.Channel = (*PresenceChannel)(nil)
@@ -37,6 +40,7 @@ func NewPresenceChannel(name string, app *App) *PresenceChannel {
 		},
 		app:     app,
 		members: make(map[string]presenceMember),
+		order:   []string{},
 	}
 }
 
@@ -48,11 +52,12 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 	}
 
 	var cd struct {
-		UserID   string `json:"user_id"`
-		UserInfo any    `json:"user_info"`
+		UserID   json.RawMessage `json:"user_id"`
+		UserInfo any             `json:"user_info"`
 	}
 
 	_ = json.Unmarshal([]byte(channelData), &cd)
+	userKey := presenceUserKey(cd.UserID)
 
 	ch.mu.Lock()
 
@@ -60,14 +65,18 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 	isNewUser := true
 
 	for _, m := range ch.members {
-		if m.UserID == cd.UserID {
+		if m.UserKey == userKey {
 			isNewUser = false
 
 			break
 		}
 	}
 
-	ch.members[conn.SocketID()] = presenceMember{UserID: cd.UserID, UserInfo: cd.UserInfo}
+	ch.members[conn.SocketID()] = presenceMember{UserKey: userKey, UserInfo: cd.UserInfo}
+
+	if isNewUser {
+		ch.order = append(ch.order, userKey)
+	}
 
 	// Also add to base channel conns.
 	ch.channel.mu.Lock()
@@ -78,7 +87,7 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsWebSocke
 
 	// Notify existing subscribers when a new user_id joins.
 	if isNewUser {
-		data := map[string]any{"user_id": cd.UserID, "user_info": cd.UserInfo}
+		data := map[string]any{"user_id": userKey, "user_info": cd.UserInfo}
 		dataBytes, _ := json.Marshal(data)
 		socketID := conn.SocketID()
 		addedEvent := contractsWebSockets.Event{
@@ -129,8 +138,18 @@ func (ch *PresenceChannel) Unsubscribe(ctx context.Context, conn contractsWebSoc
 
 	if exists {
 		for _, m := range ch.members {
-			if m.UserID == member.UserID {
+			if m.UserKey == member.UserKey {
 				remaining++
+			}
+		}
+
+		if remaining == 0 {
+			for i, key := range ch.order {
+				if key == member.UserKey {
+					ch.order = append(ch.order[:i], ch.order[i+1:]...)
+
+					break
+				}
 			}
 		}
 	}
@@ -138,7 +157,7 @@ func (ch *PresenceChannel) Unsubscribe(ctx context.Context, conn contractsWebSoc
 	ch.mu.Unlock()
 
 	if exists && remaining == 0 {
-		data := map[string]any{"user_id": member.UserID}
+		data := map[string]any{"user_id": member.UserKey}
 		dataBytes, _ := json.Marshal(data)
 		removedEvent := contractsWebSockets.Event{
 			Event:   "pusher_internal:member_removed",
@@ -169,7 +188,7 @@ func (ch *PresenceChannel) Members() map[string]any {
 	result := make(map[string]any)
 
 	for _, m := range ch.members {
-		result[m.UserID] = m.UserInfo
+		result[m.UserKey] = m.UserInfo
 	}
 
 	return result
@@ -182,12 +201,12 @@ func (ch *PresenceChannel) MemberCount() int {
 
 // MemberIDs returns the unique user IDs of all subscribers.
 func (ch *PresenceChannel) MemberIDs() []string {
-	members := ch.Members()
-	ids := make([]string, 0, len(members))
+	ch.mu.RLock()
 
-	for id := range members {
-		ids = append(ids, id)
-	}
+	defer ch.mu.RUnlock()
+
+	ids := make([]string, len(ch.order))
+	copy(ids, ch.order)
 
 	return ids
 }
@@ -202,4 +221,20 @@ func (ch *PresenceChannel) subscriptionData() PresenceMemberData {
 		IDs:   ids,
 		Hash:  members,
 	}
+}
+
+func presenceUserKey(raw json.RawMessage) string {
+	trimmed := strings.TrimSpace(string(raw))
+
+	if trimmed == "" {
+		return ""
+	}
+
+	var parsed any
+
+	if err := json.Unmarshal(raw, &parsed); err == nil {
+		return fmt.Sprint(parsed)
+	}
+
+	return trimmed
 }

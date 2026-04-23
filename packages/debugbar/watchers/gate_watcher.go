@@ -51,6 +51,11 @@ func (w *GateWatcher) ShouldIgnore(ability string) bool {
 // ability name, allowed reports the decision, user is the authorised subject
 // (optional), and arguments are the gate arguments (e.g. model instance).
 func (w *GateWatcher) Record(ability string, allowed bool, user any, arguments []any) {
+	w.RecordWithMessage(ability, allowed, "", user, arguments)
+}
+
+// RecordWithMessage records a gate authorization check with an optional response message.
+func (w *GateWatcher) RecordWithMessage(ability string, allowed bool, message string, user any, arguments []any) {
 	if w.ShouldIgnore(ability) {
 		return
 	}
@@ -75,6 +80,10 @@ func (w *GateWatcher) Record(ability string, allowed bool, user any, arguments [
 
 	if user != nil {
 		content["user"] = fmt.Sprintf("%v", user)
+	}
+
+	if message != "" {
+		content["message"] = message
 	}
 
 	entry := debugbar.NewEntry(debugbar.EntryTypeGate, content)

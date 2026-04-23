@@ -72,11 +72,16 @@ func (s *ScopedFeatureInteraction) Inactive(ctx context.Context, feature string)
 	return !s.Active(ctx, feature)
 }
 
-// Value returns the raw resolved value for the feature using the first scope.
+// Value returns the raw resolved value for the feature using the only scope.
+// It returns ErrMultipleScopes when the interaction has more than one scope.
 func (s *ScopedFeatureInteraction) Value(ctx context.Context, feature string) (any, error) {
-	scope := s.resolveScopes()[0]
+	scopes := s.resolveScopes()
 
-	return s.decorator.Get(ctx, feature, scope)
+	if len(scopes) > 1 {
+		return nil, ErrMultipleScopes
+	}
+
+	return s.decorator.Get(ctx, feature, scopes[0])
 }
 
 // Values returns resolved values for multiple features using the first scope.
@@ -282,6 +287,11 @@ func (s *ScopedFeatureInteraction) LoadMissing(ctx context.Context, features []s
 	return s.Load(ctx, features)
 }
 
+// LoadAll eagerly resolves every registered feature for all scopes.
+func (s *ScopedFeatureInteraction) LoadAll(ctx context.Context) error {
+	return s.Load(ctx, s.decorator.Defined())
+}
+
 // For returns a ScopedFeatureInteraction bound to the default driver.
 func (d *Decorator) For(scopes ...any) *ScopedFeatureInteraction {
 	return NewScopedFeatureInteraction(d, scopes...)
@@ -289,6 +299,22 @@ func (d *Decorator) For(scopes ...any) *ScopedFeatureInteraction {
 
 // For returns a ScopedFeatureInteraction backed by the Manager's default driver.
 func (m *Manager) For(scopes ...any) (*ScopedFeatureInteraction, error) {
+	if len(scopes) == 0 {
+		m.mu.RLock()
+		resolver := m.scopeResolver
+		m.mu.RUnlock()
+
+		if resolver != nil {
+			scope, err := resolver(context.Background())
+
+			if err != nil {
+				return nil, err
+			}
+
+			scopes = []any{scope}
+		}
+	}
+
 	dec, err := m.DefaultDecorator()
 
 	if err != nil {

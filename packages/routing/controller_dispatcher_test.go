@@ -9,6 +9,9 @@ import (
 // Translation of the dispatcher portions of upstream/framework
 // tests/Routing/RoutingControllerAttributeTest.php and the controller
 // dispatch parts of RoutingRouteTest.
+// RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInherited
+// RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInheritedInDeclarationOrder
+// RoutingRouteTest::testControllerCallActionMethodParameters
 
 // userController is a fake controller used in dispatch tests.
 type userController struct {
@@ -74,6 +77,7 @@ func TestCallableDispatcher(t *testing.T) {
 }
 
 func TestControllerDispatcher(t *testing.T) {
+	// RoutingRouteTest::testControllerCallActionMethodParameters
 	t.Run("test_dispatch_calls_method", func(t *testing.T) {
 		d := NewControllerDispatcher(nil)
 		ctrl := &userController{}
@@ -119,6 +123,7 @@ func TestControllerDispatcher(t *testing.T) {
 		}
 	})
 
+	// RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInherited
 	t.Run("test_get_middleware_filters_by_only_except", func(t *testing.T) {
 		d := NewControllerDispatcher(nil)
 		ctrl := &authController{}
@@ -137,14 +142,44 @@ func TestControllerDispatcher(t *testing.T) {
 			t.Errorf("public middleware should be empty, got %v", got)
 		}
 	})
-}
 
-// authController.Middleware uses lowercase method names — adapt the test to
-// match the Upstream filter behavior where method names are compared as-is.
-// Since our test calls "Settings"/"Public" (capitalized) but the WithOnly
-// args are lowercase, fix the controller fixture to use the exact names.
-func init() {
-	// no-op — keep the fixture and tests in sync below.
+	// RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInherited
+	t.Run("test_controller_middleware_attributes_are_inherited", func(t *testing.T) {
+		type inheritedController struct{ Controller }
+
+		d := NewControllerDispatcher(nil)
+		ctrl := &inheritedController{}
+		ctrl.Use("auth").Only("Show")
+		ctrl.Use("throttle").Except("Public")
+
+		got := d.GetMiddleware(ctrl, "Show")
+
+		if len(got) != 2 || got[0] != "auth" || got[1] != "throttle" {
+			t.Errorf("show middleware = %v", got)
+		}
+
+		got = d.GetMiddleware(ctrl, "Public")
+
+		if len(got) != 0 {
+			t.Errorf("public middleware = %v, want []", got)
+		}
+	})
+
+	// RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInheritedInDeclarationOrder
+	t.Run("test_controller_middleware_attributes_are_in_declaration_order", func(t *testing.T) {
+		type orderedController struct{ Controller }
+
+		d := NewControllerDispatcher(nil)
+		ctrl := &orderedController{}
+		ctrl.Use("first").Only("Show")
+		ctrl.Use("second").Only("Show")
+
+		got := d.GetMiddleware(ctrl, "Show")
+
+		if len(got) != 2 || got[0] != "first" || got[1] != "second" {
+			t.Errorf("show middleware order = %v", got)
+		}
+	})
 }
 
 // Helper for type-asserting the missing-method error without importing errors.

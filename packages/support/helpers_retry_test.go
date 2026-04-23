@@ -2,10 +2,14 @@ package support
 
 import (
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 )
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testRetry
+// Ports of:
+// - Framework\Tests\Support\SupportHelpersTest::testRetry
+// - Framework\Tests\Support\SupportHelpersTest::testRetryWithBackoff
 func TestRetry(t *testing.T) {
 	t.Parallel()
 
@@ -96,6 +100,86 @@ func TestRetry(t *testing.T) {
 	})
 }
 
+// Port of Framework\Tests\Support\SupportHelpersTest::testRetryWithPassingSleepCallback
+func TestRetryWithPassingSleepCallback(t *testing.T) {
+	t.Parallel()
+
+	var sleeps []int
+	attempts := 0
+
+	err := Retry(3, func(attempt int) error {
+		attempts++
+
+		if attempts < 3 {
+			return errors.New("retry")
+		}
+
+		return nil
+	}, func(attempt int) time.Duration {
+		sleeps = append(sleeps, attempt)
+
+		return 0
+	})
+
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+
+	if len(sleeps) != 2 || sleeps[0] != 1 || sleeps[1] != 2 {
+		t.Fatalf("unexpected sleep attempts: %v", sleeps)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testRetryWithPassingWhenCallback
+func TestRetryWithPassingWhenCallback(t *testing.T) {
+	t.Parallel()
+
+	attempts := 0
+	err := RetryWhen(3, func(attempt int) error {
+		attempts++
+
+		if attempts < 2 {
+			return errors.New("retry")
+		}
+
+		return nil
+	}, func(error) bool {
+		return true
+	})
+
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+
+	if attempts != 2 {
+		t.Fatalf("expected 2 attempts, got %d", attempts)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testRetryWithFailingWhenCallback
+func TestRetryWithFailingWhenCallback(t *testing.T) {
+	t.Parallel()
+
+	attempts := 0
+	sentinel := errors.New("stop")
+
+	err := RetryWhen(3, func(attempt int) error {
+		attempts++
+
+		return sentinel
+	}, func(error) bool {
+		return false
+	})
+
+	if !errors.Is(err, sentinel) {
+		t.Fatalf("expected sentinel error, got %v", err)
+	}
+
+	if attempts != 1 {
+		t.Fatalf("expected 1 attempt, got %d", attempts)
+	}
+}
+
 // Port of Framework\Tests\Support\SupportHelpersTest::testThrow
 func TestThrowIf(t *testing.T) {
 	t.Parallel()
@@ -127,5 +211,146 @@ func TestThrowUnless(t *testing.T) {
 
 	if err == nil || err.Error() != "thrown" {
 		t.Errorf("ThrowUnless(false) should return 'thrown', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowDefaultException
+func TestSupportHelpersThrowDefaultException(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, nil)
+
+	if err == nil {
+		t.Fatalf("expected default exception")
+	}
+
+	if err.Error() == "" {
+		t.Fatalf("expected non-empty default exception message")
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowExceptionWithMessage
+func TestSupportHelpersThrowExceptionWithMessage(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, errors.New("boom"))
+
+	if err == nil || err.Error() != "boom" {
+		t.Fatalf("expected 'boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowExceptionAsStringWithMessage
+func TestSupportHelpersThrowExceptionAsStringWithMessage(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, "boom")
+
+	if err == nil || err.Error() != "boom" {
+		t.Fatalf("expected 'boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowClosureException
+func TestSupportHelpersThrowClosureException(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, func() error { return errors.New("closure boom") })
+
+	if err == nil || err.Error() != "closure boom" {
+		t.Fatalf("expected 'closure boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowClosureWithParamsException
+func TestSupportHelpersThrowClosureWithParamsException(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, func(arg string) error { return fmt.Errorf("%s boom", arg) }, "first")
+
+	if err == nil || err.Error() != "first boom" {
+		t.Fatalf("expected 'first boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowClosureStringWithParamsException
+func TestSupportHelpersThrowClosureStringWithParamsException(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(true, func(arg string) string { return arg + " string" }, "first")
+
+	if err == nil || err.Error() != "first string" {
+		t.Fatalf("expected 'first string', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowUnlessDefaultException
+func TestSupportHelpersThrowUnlessDefaultException(t *testing.T) {
+	t.Parallel()
+
+	err := ThrowUnless(false, nil)
+
+	if err == nil {
+		t.Fatalf("expected default exception")
+	}
+
+	if err.Error() == "" {
+		t.Fatalf("expected non-empty default exception message")
+	}
+
+	err = ThrowUnless(true, errors.New("boom"))
+
+	if err != nil {
+		t.Fatalf("expected nil when condition is true, got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowUnlessExceptionWithMessage
+func TestSupportHelpersThrowUnlessExceptionWithMessage(t *testing.T) {
+	t.Parallel()
+
+	err := ThrowUnless(false, errors.New("boom"))
+
+	if err == nil || err.Error() != "boom" {
+		t.Fatalf("expected 'boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowUnlessExceptionAsStringWithMessage
+func TestSupportHelpersThrowUnlessExceptionAsStringWithMessage(t *testing.T) {
+	t.Parallel()
+
+	err := ThrowUnless(false, "boom")
+
+	if err == nil || err.Error() != "boom" {
+		t.Fatalf("expected 'boom', got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowReturnIfNotThrown
+func TestSupportHelpersThrowReturnIfNotThrown(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(false, errors.New("unexpected"))
+
+	if err != nil {
+		t.Fatalf("expected nil when condition is false, got %v", err)
+	}
+}
+
+// Port of Framework\Tests\Support\SupportHelpersTest::testThrowWithString
+func TestSupportHelpersThrowWithString(t *testing.T) {
+	t.Parallel()
+
+	err := Throw(false, "boom")
+
+	if err != nil {
+		t.Fatalf("expected nil when condition is false, got %v", err)
+	}
+
+	err = Throw(true, "first:%d", 7)
+
+	if err == nil || err.Error() != "first:7" {
+		t.Fatalf("expected formatted message, got %v", err)
 	}
 }

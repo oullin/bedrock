@@ -65,6 +65,10 @@ func newTextContent(text string, meta map[string]any) *TextContent {
 	return &TextContent{Text: text, meta: meta}
 }
 
+func (c *TextContent) String() string {
+	return c.Text
+}
+
 func (c *TextContent) ToTool() map[string]any {
 	m := map[string]any{"type": "text", "text": c.Text}
 
@@ -91,8 +95,12 @@ func (c *TextContent) ToResource(uri string) map[string]any {
 	return m
 }
 
+func (c *ImageContent) String() string {
+	return c.Data
+}
+
 func (c *ImageContent) ToTool() map[string]any {
-	m := map[string]any{"type": "image", "data": c.Data, "mimeType": c.MIMEType}
+	m := map[string]any{"type": "image", "data": c.Data, "mimeType": c.mimeType()}
 
 	for k, v := range c.meta {
 		m[k] = v
@@ -106,11 +114,23 @@ func (c *ImageContent) ToPrompt() map[string]any {
 }
 
 func (c *ImageContent) ToResource(uri string) map[string]any {
-	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
+	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.mimeType()}
+}
+
+func (c *ImageContent) mimeType() string {
+	if c.MIMEType == "" {
+		return "image/png"
+	}
+
+	return c.MIMEType
+}
+
+func (c *AudioContent) String() string {
+	return c.Data
 }
 
 func (c *AudioContent) ToTool() map[string]any {
-	m := map[string]any{"type": "audio", "data": c.Data, "mimeType": c.MIMEType}
+	m := map[string]any{"type": "audio", "data": c.Data, "mimeType": c.mimeType()}
 
 	for k, v := range c.meta {
 		m[k] = v
@@ -124,7 +144,19 @@ func (c *AudioContent) ToPrompt() map[string]any {
 }
 
 func (c *AudioContent) ToResource(uri string) map[string]any {
-	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.MIMEType}
+	return map[string]any{"uri": uri, "blob": c.Data, "mimeType": c.mimeType()}
+}
+
+func (c *AudioContent) mimeType() string {
+	if c.MIMEType == "" {
+		return "audio/wav"
+	}
+
+	return c.MIMEType
+}
+
+func (c *BlobContent) String() string {
+	return string(c.Blob)
 }
 
 // ToTool implements Content — binary is base64-encoded as image for tools.

@@ -66,6 +66,16 @@ func ParseJsonRpcRequest(data []byte, sessionID string) (*JsonRpcRequest, error)
 		return nil, fmt.Errorf("%w: %s", ErrParseError, err)
 	}
 
+	if r.JSONRPC != jsonrpcVersion {
+		return nil, ErrInvalidRequest
+	}
+
+	switch r.ID.(type) {
+	case nil, string, float64:
+	default:
+		return nil, ErrInvalidRequest
+	}
+
 	if r.Method == "" {
 		return nil, ErrInvalidRequest
 	}
@@ -97,6 +107,18 @@ func (r *JsonRpcRequest) Cursor() string {
 	}
 
 	return ""
+}
+
+func (r *JsonRpcRequest) PerPage() int {
+	if n, ok := r.Params["perPage"].(float64); ok {
+		return int(n)
+	}
+
+	if n, ok := r.Params["per_page"].(float64); ok {
+		return int(n)
+	}
+
+	return 0
 }
 
 func (r *JsonRpcRequest) Meta() map[string]any {
