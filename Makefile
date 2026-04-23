@@ -62,8 +62,8 @@ go-test:
 	$(require-go-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		broadcastclient "go test ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test ./...; \
+		broadcastclient "go test -race ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race ./...; \
 	done
 
 go-build:
@@ -82,8 +82,8 @@ go-coverage:
 		safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
 		report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
 		mkdir -p "$$report_dir"; \
-		broadcastclient "go test -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
-		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -coverprofile=$$report_dir/coverage.out ./...; \
+		broadcastclient "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race -coverprofile=$$report_dir/coverage.out ./...; \
 	done
 
 typecheck:

@@ -38,8 +38,16 @@ func tokenInfoFake(t *testing.T, expectedToken string, status int, payload map[s
 			return nil, fmt.Errorf("unexpected tokeninfo URL: %s", r.URL.String())
 		}
 
-		if got := r.URL.Query().Get("id_token"); got != expectedToken {
-			return nil, fmt.Errorf("unexpected id_token query: got %q want %q", got, expectedToken)
+		if r.Method != http.MethodPost {
+			return nil, fmt.Errorf("expected POST, got %s", r.Method)
+		}
+
+		if err := r.ParseForm(); err != nil {
+			return nil, fmt.Errorf("failed to parse form: %w", err)
+		}
+
+		if got := r.FormValue("id_token"); got != expectedToken {
+			return nil, fmt.Errorf("unexpected id_token form value: got %q want %q", got, expectedToken)
 		}
 
 		return jsonResponse(status, string(body)), nil
