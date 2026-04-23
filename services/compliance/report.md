@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-23T08:17:33Z
+Generated: 2026-04-23T08:33:12Z
 
 Source of truth: services/compliance
 
