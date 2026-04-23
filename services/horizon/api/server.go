@@ -175,8 +175,8 @@ func (b *InMemoryBatches) Store(batch Batch) {
 
 // Search ports Laravel Horizon's BatchRepository::getRecentUnfinished +
 // searchBy helpers: matches are case-insensitive substring matches on the
-// batch name, cursor pagination is ID-based, and wildcard characters in the
-// query are treated as literals (LIKE wildcard escaping).
+// batch name or ID, cursor pagination is ID-based, and wildcard characters in
+// the query are treated as literals (LIKE wildcard escaping).
 func (b *InMemoryBatches) Search(name string, afterID string, limit int) []Batch {
 	b.mu.RLock()
 
@@ -186,7 +186,9 @@ func (b *InMemoryBatches) Search(name string, afterID string, limit int) []Batch
 	needle := normaliseBatchQuery(name)
 
 	for _, batch := range b.items {
-		if needle != "" && !containsFold(batch.Name, needle) {
+		if needle != "" &&
+			!containsFold(batch.Name, needle) &&
+			!containsFold(batch.ID, needle) {
 			continue
 		}
 

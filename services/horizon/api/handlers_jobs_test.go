@@ -80,6 +80,47 @@ func TestPendingJobsEndpointPaginatesLargeResults(t *testing.T) {
 	}
 }
 
+func TestPendingJobsEndpointClampsNegativePagination(t *testing.T) {
+	t.Parallel()
+
+	jobs := horizon.NewJobRepository(nil)
+
+	for i := 0; i < 3; i++ {
+		jobs.StorePending(horizon.JobRecord{
+			ID:       jobID(i),
+			Queue:    "default",
+			PushedAt: time.Unix(1700000000+int64(i), 0),
+		})
+	}
+
+	handler := newTestHandler(t, api.Options{Jobs: jobs})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/jobs/pending?queue=default&starting_at=-1&limit=-5", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	var body []map[string]any
+
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+
+	if len(body) != 3 {
+		t.Fatalf("expected all jobs after clamping negative pagination, got %d", len(body))
+	}
+
+	for i, job := range body {
+		if got, want := job["id"], jobID(i); got != want {
+			t.Fatalf("job %d id = %v, want %s", i, got, want)
+		}
+	}
+}
+
 // Port of JobRetrievalTest::test_recent_jobs_are_correctly_trimmed_and_expired.
 func TestCompletedJobsEndpointReturnsTrimmedRecent(t *testing.T) {
 	t.Parallel()

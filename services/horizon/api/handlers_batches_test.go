@@ -68,7 +68,7 @@ func TestBatchesCanBeSearchedById(t *testing.T) {
 
 	handler := newTestHandler(t, api.Options{Batches: seededBatches()})
 
-	r := httptest.NewRequest(http.MethodGet, "/api/batches?name=Rebuild", nil)
+	r := httptest.NewRequest(http.MethodGet, "/api/batches?name=b2", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, r)

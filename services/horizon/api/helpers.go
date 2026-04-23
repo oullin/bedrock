@@ -34,6 +34,16 @@ func queryInt(r *http.Request, key string, fallback int) int {
 	return value
 }
 
+func nonNegativeQueryInt(r *http.Request, key string, fallback int) int {
+	value := queryInt(r, key, fallback)
+
+	if value < 0 {
+		return 0
+	}
+
+	return value
+}
+
 func normaliseBatchQuery(query string) string {
 	// Laravel Horizon escapes LIKE wildcards so users can search for literal
 	// % and _ characters; Bedrock does the same by matching against a trimmed

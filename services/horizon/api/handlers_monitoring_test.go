@@ -85,6 +85,49 @@ func TestMonitoringShowPaginatesJobsByTag(t *testing.T) {
 	}
 }
 
+func TestMonitoringShowClampsNegativePagination(t *testing.T) {
+	t.Parallel()
+
+	monitoring := horizon.NewMonitoringRepository()
+	monitoring.Monitor([]string{"billing"})
+
+	jobs := horizon.NewJobRepository(nil)
+
+	for _, id := range []string{"1", "2", "3"} {
+		jobs.StorePending(horizon.JobRecord{ID: id, Queue: "default", Tags: []string{"billing"}})
+	}
+
+	handler := newTestHandler(t, api.Options{Monitoring: monitoring, Jobs: jobs})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/monitoring/billing?starting_at=-1&limit=-5", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	var body struct {
+		Tag  string   `json:"tag"`
+		Jobs []string `json:"jobs"`
+	}
+
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+
+	if body.Tag != "billing" || len(body.Jobs) != 3 {
+		t.Fatalf("got %+v, want tag=billing with all jobs", body)
+	}
+
+	for i, id := range []string{"1", "2", "3"} {
+		if body.Jobs[i] != id {
+			t.Fatalf("job %d id = %q, want %q", i, body.Jobs[i], id)
+		}
+	}
+}
+
 // Port of MonitoringControllerTest::test_can_paginate_where_jobs_dont_exist.
 func TestMonitoringShowReturnsEmptyWhenNoJobsMatchTag(t *testing.T) {
 	t.Parallel()
