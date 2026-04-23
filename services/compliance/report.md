@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-22T13:14:38Z
+Generated: 2026-04-23T02:22:58Z
 
 Source of truth: services/compliance
 
@@ -17,11 +17,11 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 13066 / 13066 |       0 | Complete          | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Tests                 | 12685 / 12685 |       0 | Complete          | Port executable equivalents or add divergence overrides for Go adaptations.               |
 | Documentation         |     370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Laravel skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
-| Feature audits        |       61 / 62 |       1 | Not compliant     | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 13546 / 14052 |     506 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
+| Overall               | 13166 / 13671 |     505 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
@@ -65,7 +65,6 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | inventories/framework-support.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 | 1554 / 1554 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 | inventories/framework-support-str.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   115 / 115 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 | inventories/framework-support-lottery.txt | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |     14 / 14 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
-| inventories/framework-testing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Testing`                 |   381 / 381 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 | inventories/framework-translation.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Translation`             |     52 / 52 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 | inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Validation`              |   597 / 597 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 | inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   629 / 629 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
@@ -123,7 +122,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | `Illuminate\Support`         | `support`       | `mapped`             | Ported tests: 1006 / 1554 (64.7%); Missing tests: 0 (0.0%); Adapted tests: 548 (35.3%) | `packages/support.md`       |
 | `Illuminate\Support\Str`     | `str`           | `mapped`             | Ported tests: 113 / 115 (98.3%); Missing tests: 0 (0.0%); Adapted tests: 2 (1.7%)      | `packages/str.md`           |
 | `Illuminate\Support\Lottery` | `lottery`       | `mapped`             | Ported tests: 14 / 14 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/lottery.md`       |
-| `Illuminate\Testing`         | n/a             | `missing`            | Ported tests: 359 / 381 (94.2%); Missing tests: 0 (0.0%); Adapted tests: 22 (5.8%)     | n/a                         |
+| `Illuminate\Testing`         | n/a             | `excluded-permanent` | no inventory                                                                           | n/a                         |
 | `Illuminate\Translation`     | `translation`   | `mapped`             | Ported tests: 52 / 52 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)       | `packages/translation.md`   |
 | `Illuminate\Validation`      | `validation`    | `mapped`             | Ported tests: 161 / 597 (27.0%); Missing tests: 0 (0.0%); Adapted tests: 436 (73.0%)   | `packages/validation.md`    |
 | `Illuminate\Collections`     | `collection`    | `mapped`             | Ported tests: 489 / 629 (77.7%); Missing tests: 0 (0.0%); Adapted tests: 140 (22.3%)   | `packages/collection.md`    |
@@ -171,8 +170,8 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          51 |          13066 | 6278 (48.0%) |                0 (0.0%) |  6788 (52.0%) |
-| Framework inventories |          34 |           9009 | 4492 (49.9%) |                0 (0.0%) |  4517 (50.1%) |
+| All inventories       |          50 |          12685 | 5919 (46.7%) |                0 (0.0%) |  6766 (53.3%) |
+| Framework inventories |          33 |           8628 | 4133 (47.9%) |                0 (0.0%) |  4495 (52.1%) |
 | Package inventories   |          17 |           4057 | 1786 (44.0%) |                0 (0.0%) |  2271 (56.0%) |
 
 ## Documentation Porting Summary
@@ -309,7 +308,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | Support helpers              | `framework.support`         | `support`       | `partial`  | `packages/support.md`       | Several support helpers are ported; upstream support coverage is still partial.                                                                                                                                                                                                                                                               |
 | String helpers               | `framework.support_str`     | `str`           | `partial`  | `packages/str.md`           | String helper parity has many ported tests, but missing cases remain.                                                                                                                                                                                                                                                                         |
 | Lottery helper               | `framework.support_lottery` | `lottery`       | `partial`  | `packages/lottery.md`       | Lottery package exists; upstream Lottery tests are not matched yet.                                                                                                                                                                                                                                                                           |
-| Testing utilities            | `framework.testing`         | n/a             | `missing`  | n/a                         | No standalone Bedrock testing package exists yet.                                                                                                                                                                                                                                                                                             |
+| Testing utilities            | `framework.testing`         | n/a             | `excluded` | n/a                         | Standalone Laravel testing helpers are intentionally excluded from Bedrock.                                                                                                                                                                                                                                                                   |
 | Translation loader           | `framework.translation`     | `translation`   | `partial`  | `packages/translation.md`   | Translation has some matched upstream tests; full parity remains incomplete.                                                                                                                                                                                                                                                                  |
 | Validation rules             | `framework.validation`      | `validation`    | `partial`  | `packages/validation.md`    | Rule engine and many rules exist; upstream test parity is still broad and incomplete.                                                                                                                                                                                                                                                         |
 | Collections                  | `framework.collections`     | `collection`    | `partial`  | `packages/collection.md`    | Fluent slice, key-value, lazy, arr, and kv packages are imported; legacy support helper cleanup is deferred.                                                                                                                                                                                                                                  |
@@ -349,6 +348,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 ## Permanent Exclusions
 
 - `Illuminate\Foundation` - Product boundary; Bedrock does not ship Laravel's full application kernel/Foundation layer.
+- `Illuminate\Testing` - Product boundary; standalone Laravel testing helpers are intentionally excluded from Bedrock.
 - `Illuminate\Macroable` - PHP runtime macro behaviour does not map cleanly to Go's static method set.
 - `Illuminate\Reflection` - PHP reflection helpers are not a Bedrock product surface.
 - `Illuminate\View` - Product boundary; Bedrock does not ship Laravel's Blade/view engine.

@@ -239,14 +239,6 @@ adaptation_rules:
       - laravel: PHP reflection self, parent, union type, and attribute metadata
         bedrock: Go reflection exposes concrete type/interface metadata but not PHP's class-string, parent-class, union-type, or attribute model.
 
-  testing:
-    source: Illuminate\Testing
-    rules:
-      - laravel: Fluent JSON closure shorthand and PHP callable overloads
-        bedrock: Go exposes explicit Scope, FirstScope, EachScope, and predicate callback methods instead of PHP's runtime argument overloading.
-      - laravel: Parallel console output process isolation
-        bedrock: Console output is asserted through deterministic writer fakes; Laravel's parallel process output wrapper is PHP test-runner infrastructure.
-
   auth:
     source: Illuminate\Auth
     rules:
