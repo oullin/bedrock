@@ -148,6 +148,39 @@ func TestStartAndWaitUntil(t *testing.T) {
 	}
 }
 
+func TestWaitUntilIsRaceFree(t *testing.T) {
+	t.Parallel()
+
+	if runtime.GOOS == "windows" {
+		t.Skip("shell snippets are POSIX-specific")
+	}
+
+	invoked, err := New().Start(
+		context.Background(),
+		Shell("for i in $(seq 1 200); do printf 'line-%s\\n' \"$i\"; done"),
+	)
+
+	if err != nil {
+		t.Fatalf("unexpected start error: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer cancel()
+
+	result, err := invoked.WaitUntil(ctx, func(output string, _ string) bool {
+		return strings.Contains(output, "line-200")
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected wait error: %v", err)
+	}
+
+	if !strings.Contains(result.Output(), "line-200") {
+		t.Fatalf("expected final line in output, got %q", result.Output())
+	}
+}
+
 func TestPoolAndPipe(t *testing.T) {
 	t.Parallel()
 
