@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Github } from 'lucide-vue-next'
 import Sidebar from '../Sidebar.vue'
 import Navbar from '../Navbar.vue'
 import TableOfContents from '../TableOfContents.vue'
+import BrandMark from '../home/BrandMark.vue'
 import { Button } from '../ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from '../ui/sheet'
 
@@ -63,31 +64,30 @@ const nextPage = computed(() =>
 </script>
 
 <template>
-  <div class="relative flex min-h-full bg-white antialiased dark:bg-slate-900">
+  <div class="bedrock-docs relative flex min-h-full antialiased" style="background: var(--bg); color: var(--ink);">
 
     <!-- ── Mobile sidebar drawer ─────────────────────────────────────────── -->
     <Sheet v-model:open="sidebarOpen">
       <SheetContent
         side="left"
-        class="flex w-72 flex-col p-0 bg-white dark:bg-slate-900
-               border-r border-slate-200 dark:border-slate-800"
+        class="bedrock-docs flex w-72 flex-col p-0 border-r"
+        style="background: var(--panel); border-color: var(--line); color: var(--ink);"
       >
         <SheetHeader class="sr-only">
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>
 
-        <div class="flex h-14 shrink-0 items-center border-b border-slate-200 dark:border-slate-800 px-6">
+        <div class="flex h-14 shrink-0 items-center border-b px-6" style="border-color: var(--line);">
           <RouteLink
             to="/"
-            class="flex items-center gap-2.5 text-sm font-semibold text-slate-900 dark:text-white hover:opacity-75 transition-opacity"
+            class="flex items-center gap-2.5 text-sm font-semibold hover:opacity-75 transition-opacity"
+            style="color: var(--ink);"
             @click="sidebarOpen = false"
           >
-            <span
-              class="flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white shrink-0"
-              style="background: linear-gradient(135deg, #06b6d4, #6366f1);"
-              aria-hidden="true"
-            >B</span>
-            {{ site.title }}
+            <span class="brand-mark shrink-0" aria-hidden="true">
+              <BrandMark :size="24" />
+            </span>
+            <span class="font-semibold lowercase" style="letter-spacing: -0.01em;">{{ site.title }}</span>
           </RouteLink>
         </div>
 
@@ -97,13 +97,15 @@ const nextPage = computed(() =>
 
         <div
           v-if="themeOptions.repo"
-          class="shrink-0 border-t border-slate-200 dark:border-slate-800 px-6 py-4"
+          class="shrink-0 border-t px-6 py-4"
+          style="border-color: var(--line);"
         >
           <a
             :href="themeOptions.repo"
             target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+            class="flex items-center gap-2 text-sm transition-colors hover:opacity-100"
+            style="color: var(--ink-3); opacity: 0.9;"
           >
             <Github class="h-4 w-4 shrink-0" />
             GitHub
@@ -114,21 +116,19 @@ const nextPage = computed(() =>
 
     <!-- ── Desktop sidebar ───────────────────────────────────────────────── -->
     <aside
-      class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-72 lg:flex-col
-             bg-white dark:bg-slate-900
-             border-r border-slate-200 dark:border-slate-800"
+      class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-72 lg:flex-col border-r"
+      style="background: var(--panel); border-color: var(--line);"
     >
-      <div class="flex h-14 shrink-0 items-center border-b border-slate-200 dark:border-slate-800 px-6">
+      <div class="flex h-14 shrink-0 items-center border-b px-6" style="border-color: var(--line);">
         <RouteLink
           to="/"
-          class="flex items-center gap-2.5 text-sm font-semibold text-slate-900 dark:text-white hover:opacity-75 transition-opacity"
+          class="flex items-center gap-2.5 text-sm font-semibold hover:opacity-75 transition-opacity"
+          style="color: var(--ink);"
         >
-          <span
-            class="flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white shrink-0"
-            style="background: linear-gradient(135deg, #06b6d4, #6366f1);"
-            aria-hidden="true"
-          >B</span>
-          {{ site.title }}
+          <span class="brand-mark shrink-0" aria-hidden="true">
+            <BrandMark :size="24" />
+          </span>
+          <span class="font-semibold lowercase" style="letter-spacing: -0.01em;">{{ site.title }}</span>
         </RouteLink>
       </div>
 
@@ -138,13 +138,15 @@ const nextPage = computed(() =>
 
       <div
         v-if="themeOptions.repo"
-        class="shrink-0 border-t border-slate-200 dark:border-slate-800 px-6 py-4"
+        class="shrink-0 border-t px-6 py-4"
+        style="border-color: var(--line);"
       >
         <a
           :href="themeOptions.repo"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+          class="flex items-center gap-2 text-sm transition-colors hover:opacity-100"
+          style="color: var(--ink-3); opacity: 0.9;"
         >
           <Github class="h-4 w-4 shrink-0" />
           GitHub
@@ -168,13 +170,7 @@ const nextPage = computed(() =>
             class="mx-auto max-w-2xl min-w-0
                    prose prose-slate dark:prose-invert
                    prose-headings:font-display prose-headings:font-normal
-                   prose-headings:scroll-mt-28 lg:prose-headings:scroll-mt-[8.5rem]
-                   prose-lead:text-slate-500 dark:prose-lead:text-slate-400
-                   prose-a:font-semibold dark:prose-a:text-sky-400
-                   prose-a:no-underline
-                   prose-pre:rounded-xl prose-pre:bg-slate-900 prose-pre:shadow-lg
-                   dark:prose-pre:bg-slate-800/60 dark:prose-pre:ring-1 dark:prose-pre:ring-slate-300/10
-                   dark:prose-hr:border-slate-800"
+                   prose-headings:scroll-mt-28 lg:prose-headings:scroll-mt-[8.5rem]"
             vp-content
           >
             <Content />
@@ -182,21 +178,24 @@ const nextPage = computed(() =>
             <!-- Prev / Next -->
             <div
               v-if="prevPage || nextPage"
-              class="mt-16 flex items-stretch gap-3 border-t border-slate-200 dark:border-slate-800 pt-8 not-prose"
+              class="mt-16 flex items-stretch gap-3 border-t pt-8 not-prose"
+              style="border-color: var(--line);"
             >
               <Button
                 v-if="prevPage"
                 variant="outline"
                 as-child
-                class="flex-1 h-auto flex-col items-start gap-1 px-5 py-4 text-left
-                       border-slate-200 dark:border-slate-800 hover:border-sky-400 dark:hover:border-sky-500 hover:bg-transparent"
+                class="flex-1 h-auto flex-col items-start gap-1 px-5 py-4 text-left hover:bg-transparent"
+                style="border-color: var(--line);"
+                @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'"
+                @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'"
               >
                 <RouteLink :to="prevPage.link" class="w-full">
-                  <span class="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                  <span class="flex items-center gap-1 text-xs" style="color: var(--ink-3);">
                     <ArrowLeft class="h-3 w-3" />
                     Previous
                   </span>
-                  <span class="mt-1 block text-sm font-medium text-slate-900 dark:text-white">
+                  <span class="mt-1 block text-sm font-medium" style="color: var(--ink);">
                     {{ prevPage.text }}
                   </span>
                 </RouteLink>
@@ -208,15 +207,17 @@ const nextPage = computed(() =>
                 v-if="nextPage"
                 variant="outline"
                 as-child
-                class="flex-1 h-auto flex-col items-end gap-1 px-5 py-4 text-right
-                       border-slate-200 dark:border-slate-800 hover:border-sky-400 dark:hover:border-sky-500 hover:bg-transparent"
+                class="flex-1 h-auto flex-col items-end gap-1 px-5 py-4 text-right hover:bg-transparent"
+                style="border-color: var(--line);"
+                @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'"
+                @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'"
               >
                 <RouteLink :to="nextPage.link" class="w-full text-right">
-                  <span class="flex items-center justify-end gap-1 text-xs text-slate-400 dark:text-slate-500">
+                  <span class="flex items-center justify-end gap-1 text-xs" style="color: var(--ink-3);">
                     Next
                     <ArrowRight class="h-3 w-3" />
                   </span>
-                  <span class="mt-1 block text-sm font-medium text-slate-900 dark:text-white">
+                  <span class="mt-1 block text-sm font-medium" style="color: var(--ink);">
                     {{ nextPage.text }}
                   </span>
                 </RouteLink>

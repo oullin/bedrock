@@ -23,16 +23,15 @@ function isActive(link?: string): boolean {
 
 <template>
   <header
-    class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b
-           border-slate-200 dark:border-slate-800
-           bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm
-           px-4 lg:px-6"
+    class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b backdrop-blur-sm px-4 lg:px-6"
+    style="border-color: var(--line); background-color: color-mix(in srgb, var(--bg) 85%, transparent);"
   >
     <!-- Mobile: hamburger -->
     <Button
       variant="ghost"
       size="icon"
-      class="lg:hidden -ml-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+      class="lg:hidden -ml-1 hover:bg-transparent"
+      style="color: var(--ink-3);"
       aria-label="Open sidebar"
       @click="emit('toggle-sidebar')"
     >
@@ -47,12 +46,10 @@ function isActive(link?: string): boolean {
         variant="ghost"
         size="sm"
         as-child
-        :class="[
-          'text-sm',
-          isActive(item.link)
-            ? 'text-slate-900 dark:text-white bg-slate-900/5 dark:bg-white/5'
-            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-900/5 dark:hover:bg-white/5',
-        ]"
+        class="text-sm hover:bg-transparent"
+        :style="isActive(item.link)
+          ? 'color: var(--ink);'
+          : 'color: var(--ink-2);'"
       >
         <RouteLink :to="item.link ?? '#'">{{ item.text }}</RouteLink>
       </Button>
@@ -62,15 +59,13 @@ function isActive(link?: string): boolean {
     <button
       type="button"
       class="hidden lg:flex items-center gap-2 ml-4 h-8 rounded-full px-3
-             ring-1 ring-slate-200 dark:ring-slate-700
-             text-sm text-slate-400 dark:text-slate-500
-             hover:ring-slate-300 dark:hover:ring-slate-600
-             transition-all cursor-pointer min-w-[200px] bg-white dark:bg-slate-800/60"
+             transition-all cursor-pointer min-w-[200px]"
+      style="background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-3);"
       aria-label="Search documentation"
     >
-      <Search class="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
+      <Search class="h-3.5 w-3.5 shrink-0" style="color: var(--ink-3);" />
       <span class="flex-1 text-left text-sm">Search docs</span>
-      <kbd class="font-mono text-[10px] text-slate-300 dark:text-slate-600">⌘K</kbd>
+      <kbd class="font-mono text-[10px]" style="color: var(--ink-3);">⌘K</kbd>
     </button>
 
     <!-- Right side -->
@@ -79,7 +74,8 @@ function isActive(link?: string): boolean {
         variant="ghost"
         size="icon"
         as-child
-        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        class="hover:bg-transparent"
+        style="color: var(--ink-3);"
         aria-label="GitHub"
       >
         <a href="https://github.com/gocanto/bedrock" target="_blank" rel="noopener noreferrer">
