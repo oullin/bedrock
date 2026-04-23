@@ -390,9 +390,8 @@ packages:
     status: mapped
     repo: upstream/broadcastclient
     branch: 2.x
-    tests_path: null
-    inventory: null
-    rationale: TypeScript client package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+    tests_path: packages
+    inventory: inventories/package-broadcastclient.txt
 
   - id: package.authflows
     upstream: upstream/authflows
@@ -445,9 +444,8 @@ packages:
     status: mapped
     repo: upstream/httppreview
     branch: 2.x
-    tests_path: null
-    inventory: null
-    rationale: JavaScript package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+    tests_path: packages
+    inventory: inventories/package-httppreview.txt
 
   - id: package.prompts
     upstream: upstream/prompts
