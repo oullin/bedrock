@@ -365,6 +365,34 @@ adaptation_rules:
       - laravel: PHP exceptions for missing channels and unsupported anonymous routing
         bedrock: Sentinel errors such as ErrInvalidChannel, ErrMissingMailData, and ErrDatabaseChannelNotAllowed
 
+  echo:
+    source: laravel/echo
+    rules:
+      - laravel: React useEcho/useEchoModel/useEchoPresence/useEchoPublic/useEchoNotification composables and configureEcho() context helpers
+        bedrock: Bedrock ships a Go broadcasting client (packages/echo); React hooks are UI-framework adapters owned by the host frontend and are not part of the Go package surface.
+      - laravel: Vue 3 useEcho composables, configureEcho() plugin integration, and reactive getter-based channel/event rebinding
+        bedrock: Go callers subscribe to channels imperatively via connector methods; Vue reactivity, Pinia, and getter-based rebind semantics belong to the frontend host, not the Go client.
+      - laravel: Svelte 5 $effect/$state-based useEcho runes, teardown hooks, and SvelteKit configureEcho() wiring
+        bedrock: Svelte runes and lifecycle hooks are UI-runtime concerns; Bedrock exposes Subscribe/Leave through explicit method calls and contexts.
+      - laravel: DOM-scoped Pusher/Socket.IO constructor injection via window globals
+        bedrock: Connectors receive Pusher and Socket.IO client implementations via typed options; no browser window globals are involved.
+      - laravel: Vitest describe/test harness with jsdom event simulation
+        bedrock: Parity is asserted with Go's testing package against the ported surface in packages/echo.
+
+  precognition:
+    source: laravel/precognition
+    rules:
+      - laravel: axios-based request adapter with AxiosInstance injection, axios.defaults.timeout fallback, and axios cancel-token flow
+        bedrock: Bedrock's precognition client relies on net/http; axios-specific instance management, default timeout inheritance, and AbortController-to-CancelToken conversion are not part of the Go surface.
+      - laravel: browser Fetch client with same-origin credentials, JSON content-type inference, and XSRF cookie extraction via document.cookie
+        bedrock: net/http request composition, CSRF token sourcing from the session middleware, and content-type negotiation are handled by the host application's HTTP runtime rather than the precognition package.
+      - laravel: Vue composable type-level assertions validated via tsd-style test harnesses
+        bedrock: Go's static type checker is authoritative; TypeScript-only type assertions do not map into Bedrock's compile-time guarantees.
+      - laravel: DOM XSRF-TOKEN cookie reading and X-XSRF-TOKEN header emission
+        bedrock: CSRF cookie/header wiring is owned by Bedrock's session and cookie packages; the precognition client forwards whatever headers the caller provides.
+      - laravel: Vitest mock-module harness for axios, fetch, and cancel-token stubs
+        bedrock: net/http-based tests exercise the Go client directly through httptest servers.
+
 semantic_divergences:
   - surface: database
     divergence: No static methods
@@ -811,21 +839,6 @@ test_status_overrides:
   - SearchableTest::test_make_all_searchable_uses_order_by
   - SearchableTest::test_overridden_make_searchable_is_dispatched
   - SearchableTest::test_overridden_remove_from_search_is_dispatched
-  - BatchesControllerTest::test_batches_can_be_searched_by_name
-  - BatchesControllerTest::test_batches_can_be_searched_by_id
-  - BatchesControllerTest::test_search_escapes_like_wildcards
-  - BatchesControllerTest::test_search_supports_cursor_pagination
-  - MasterSupervisorControllerTest::test_master_supervisor_listing_without_supervisors
-  - MasterSupervisorControllerTest::test_master_supervisor_listing_with_supervisors
-  - MasterSupervisorControllerTest::test_master_supervisor_with_custom_name_listing_with_supervisors
-  - MonitoringControllerTest::test_monitored_tags_and_job_counts_are_returned
-  - MonitoringControllerTest::test_monitored_jobs_can_be_paginated_by_tag
-  - MonitoringControllerTest::test_can_paginate_where_jobs_dont_exist
-  - MonitoringControllerTest::test_can_start_monitoring_tags
-  - MonitoringControllerTest::test_can_stop_monitoring_tags
-  - AuthTest::test_authentication_callback_works
-  - AuthTest::test_authentication_middleware_can_pass
-  - AuthTest::test_authentication_middleware_throws_on_failure
   - AddSupervisorTest::test_add_supervisor_command_creates_new_supervisor_on_master_process
   - ListenCommandTest::test_listen_command_requires_watch_configuration
   - ListenCommandTest::test_listen_command_requires_watch_configuration_to_be_set
@@ -7011,3 +7024,191 @@ test_status_overrides:
   - UsersTerminateControllerTest::it_unsubscribes_from_all_channels_and_terminates_a_user
   - ValidationMessagesTest::test_implodes_all_messages_a_single_one
   - ValidationMessagesTest::test_returns_a_generic_message_if_no_messages_are_available
+  # Echo: React composable/config tests — Bedrock's Go client has no React adapter.
+  - ReactConfig::throws_error_when_echo_is_not_configured
+  - ReactConfig::creates_echo_instance_with_proper_configuration
+  - ReactConfig::checks_if_echo_is_configured
+  - UseEchoReact::throws_error_when_echo_is_not_configured
+  - UseEchoReact::useecho_hook__subscribes_to_a_channel_and_listens_for_events
+  - UseEchoReact::useecho_hook__handles_multiple_events
+  - UseEchoReact::useecho_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoReact::useecho_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoReact::useecho_hook__will_register_callbacks_for_events
+  - UseEchoReact::useecho_hook__can_leave_a_channel
+  - UseEchoReact::useecho_hook__can_leave_all_channel_variations
+  - UseEchoReact::useecho_hook__can_connect_to_a_public_channel
+  - UseEchoReact::useecho_hook__can_manually_start_listening_to_events
+  - UseEchoReact::useecho_hook__can_manually_stop_listening_to_events
+  - UseEchoReact::useecho_hook__stoplistening_is_a_no_op_when_not_listening
+  - UseEchoReact::useecho_hook__listen_is_a_no_op_when_already_listening
+  - UseEchoReact::useecho_hook__events_and_listeners_are_optional
+  - UseEchoReact::useecho_hook__updates_callback_when_dependencies_change
+  - UseEchoReact::useecho_hook__maintains_callback_stability_when_dependencies_don_t_change
+  - UseEchoReact::useecho_hook__maintains_return_value_stability_when_props_don_t_change
+  - UseEchoReact::useecho_hook__handles_array_event_dependencies_with_stable_eventkey
+  - UseEchoReact::useechomodel_hook__subscribes_to_model_channel_and_listens_for_model_events
+  - UseEchoReact::useechomodel_hook__handles_multiple_model_events
+  - UseEchoReact::useechomodel_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoReact::useechomodel_hook__won_t_subscribe_multiple_times_to_the_same_model_channel
+  - UseEchoReact::useechomodel_hook__can_leave_a_model_channel
+  - UseEchoReact::useechomodel_hook__can_leave_all_model_channel_variations
+  - UseEchoReact::useechomodel_hook__handles_model_events_with_dots_in_the_name
+  - UseEchoReact::useechomodel_hook__events_and_listeners_are_optional
+  - UseEchoReact::useechopublic_hook__subscribes_to_a_public_channel_and_listens_for_events
+  - UseEchoReact::useechopublic_hook__handles_multiple_events
+  - UseEchoReact::useechopublic_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoReact::useechopublic_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoReact::useechopublic_hook__can_leave_a_channel
+  - UseEchoReact::useechopublic_hook__can_leave_all_channel_variations
+  - UseEchoReact::useechopublic_hook__events_and_listeners_are_optional
+  - UseEchoReact::useechopresence_hook__subscribes_to_a_presence_channel_and_listens_for_events
+  - UseEchoReact::useechopresence_hook__handles_multiple_events
+  - UseEchoReact::useechopresence_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoReact::useechopresence_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoReact::useechopresence_hook__can_leave_a_channel
+  - UseEchoReact::useechopresence_hook__can_leave_all_channel_variations
+  - UseEchoReact::useechopresence_hook__events_and_listeners_are_optional
+  - UseEchoReact::useechonotification_hook__subscribes_to_a_private_channel_and_listens_for_notifications
+  - UseEchoReact::useechonotification_hook__sets_up_a_notification_listener_on_a_channel
+  - UseEchoReact::useechonotification_hook__handles_notification_filtering_by_event_type
+  - UseEchoReact::useechonotification_hook__handles_multiple_notification_event_types
+  - UseEchoReact::useechonotification_hook__handles_dotted_and_slashed_notification_event_types
+  - UseEchoReact::useechonotification_hook__accepts_all_notifications_when_no_event_types_specified
+  - UseEchoReact::useechonotification_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoReact::useechonotification_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoReact::useechonotification_hook__can_leave_a_channel
+  - UseEchoReact::useechonotification_hook__can_leave_all_channel_variations
+  - UseEchoReact::useechonotification_hook__can_manually_start_and_stop_listening
+  - UseEchoReact::useechonotification_hook__stoplistening_prevents_new_notification_listeners
+  - UseEchoReact::useechonotification_hook__callback_and_events_are_optional
+  - UseEchoReact::useechonotification_hook__maintains_callback_stability_when_dependencies_don_t_change
+  - UseEchoReact::useechonotification_hook__maintains_return_value_stability_when_props_don_t_change
+  - UseEchoReact::useechonotification_hook__handles_array_event_dependencies_with_stable_eventkey
+  - UseEchoReact::useechonotification_hook__returns_the_connection_status_from_echo_instance
+  # Echo: Svelte rune/composable tests — Bedrock's Go client has no Svelte adapter.
+  - SvelteConfig::throws_error_when_echo_is_not_configured
+  - SvelteConfig::creates_echo_instance_with_proper_configuration
+  - SvelteConfig::checks_if_echo_is_configured
+  - UseEchoSvelte::throws_if_echo_is_used_before_configureecho
+  - UseEchoSvelte::subscribes_to_a_private_channel_and_exposes_channel_controls
+  - UseEchoSvelte::handles_multiple_private_events_and_stops_listening_on_teardown
+  - UseEchoSvelte::subscribes_once_for_identical_private_channels_and_leaves_after_last_teardown
+  - UseEchoSvelte::can_leave_a_private_channel
+  - UseEchoSvelte::can_leave_all_private_channel_variations
+  - UseEchoSvelte::supports_manual_listen_and_stoplistening_controls
+  - UseEchoSvelte::guards_against_duplicate_listen_and_stoplistening_calls
+  - UseEchoSvelte::allows_events_and_callbacks_to_be_omitted
+  - UseEchoSvelte::uses_dependency_getters_reactively_without_resubscribing
+  - UseEchoSvelte::rebinds_when_a_reactive_channel_getter_changes
+  - UseEchoSvelte::rebinds_when_a_reactive_event_getter_changes
+  - UseEchoSvelte::uses_the_latest_callback_ref_without_remounting
+  - UseEchoSvelte::clears_stale_channel_cache_when_configureecho_swaps_instances
+  - UseEchoSvelte::useechopublic__subscribes_to_a_public_channel_and_leaves_it_on_teardown
+  - UseEchoSvelte::useechopublic__allows_events_and_callbacks_to_be_omitted
+  - UseEchoSvelte::useechopresence__subscribes_to_a_presence_channel_and_leaves_it_on_teardown
+  - UseEchoSvelte::useechopresence__allows_events_and_callbacks_to_be_omitted
+  - UseEchoSvelte::useechonotification__subscribes_to_a_private_channel_and_registers_a_notification_listener
+  - UseEchoSvelte::useechonotification__filters_notifications_by_event_type
+  - UseEchoSvelte::useechonotification__handles_multiple_notification_event_types
+  - UseEchoSvelte::useechonotification__accepts_all_notifications_when_no_event_types_are_specified
+  - UseEchoSvelte::useechonotification__allows_notification_listeners_to_stop_and_resume
+  - UseEchoSvelte::useechonotification__rebinds_notification_filters_when_a_reactive_event_getter_changes
+  - UseEchoSvelte::useechonotification__uses_the_latest_notification_callback_ref
+  - UseEchoSvelte::useechomodel__subscribes_to_a_model_channel_and_prefixes_model_events
+  - UseEchoSvelte::useechomodel__handles_multiple_model_events
+  - UseEchoSvelte::useconnectionstatus__tracks_connection_status_changes_and_unsubscribes_on_teardown
+  # Echo: Vue composable/config tests — Bedrock's Go client has no Vue adapter.
+  - VueConfig::throws_error_when_echo_is_not_configured
+  - VueConfig::creates_echo_instance_with_proper_configuration
+  - VueConfig::checks_if_echo_is_configured
+  - UseEchoVue::throws_error_when_echo_is_not_configured
+  - UseEchoVue::useecho_hook__subscribes_to_a_channel_and_listens_for_events
+  - UseEchoVue::useecho_hook__handles_multiple_events
+  - UseEchoVue::useecho_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoVue::useecho_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoVue::useecho_hook__will_register_callbacks_for_events
+  - UseEchoVue::useecho_hook__can_leave_a_channel
+  - UseEchoVue::useecho_hook__can_leave_all_channel_variations
+  - UseEchoVue::useecho_hook__can_connect_to_a_public_channel
+  - UseEchoVue::useecho_hook__listen_method_adds_event_listeners
+  - UseEchoVue::useecho_hook__listen_method_is_a_no_op_when_already_listening
+  - UseEchoVue::useecho_hook__stoplistening_method_removes_event_listeners
+  - UseEchoVue::useecho_hook__stoplistening_method_is_a_no_op_when_not_listening
+  - UseEchoVue::useecho_hook__listen_and_stoplistening_work_with_multiple_events
+  - UseEchoVue::useecho_hook__events_and_listeners_are_optional
+  - UseEchoVue::useechopublic_hook__subscribes_to_a_public_channel_and_listens_for_events
+  - UseEchoVue::useechopublic_hook__handles_multiple_events
+  - UseEchoVue::useechopublic_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoVue::useechopublic_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoVue::useechopublic_hook__can_leave_a_channel
+  - UseEchoVue::useechopublic_hook__can_leave_all_channel_variations
+  - UseEchoVue::useechopublic_hook__events_and_listeners_are_optional
+  - UseEchoVue::useechopresence_hook__subscribes_to_a_presence_channel_and_listens_for_events
+  - UseEchoVue::useechopresence_hook__handles_multiple_events
+  - UseEchoVue::useechopresence_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoVue::useechopresence_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoVue::useechopresence_hook__can_leave_a_channel
+  - UseEchoVue::useechopresence_hook__can_leave_all_channel_variations
+  - UseEchoVue::useechopresence_hook__events_and_listeners_are_optional
+  - UseEchoVue::useechonotification_hook__subscribes_to_a_private_channel_and_listens_for_notifications
+  - UseEchoVue::useechonotification_hook__sets_up_a_notification_listener_on_a_channel
+  - UseEchoVue::useechonotification_hook__handles_notification_filtering_by_event_type
+  - UseEchoVue::useechonotification_hook__handles_multiple_notification_event_types
+  - UseEchoVue::useechonotification_hook__handles_dotted_and_slashed_notification_event_types
+  - UseEchoVue::useechonotification_hook__accepts_all_notifications_when_no_event_types_specified
+  - UseEchoVue::useechonotification_hook__cleans_up_subscriptions_on_unmount
+  - UseEchoVue::useechonotification_hook__won_t_subscribe_multiple_times_to_the_same_channel
+  - UseEchoVue::useechonotification_hook__can_leave_a_channel
+  - UseEchoVue::useechonotification_hook__can_leave_all_channel_variations
+  - UseEchoVue::useechonotification_hook__can_manually_start_and_stop_listening
+  - UseEchoVue::useechonotification_hook__stoplistening_prevents_new_notification_listeners
+  - UseEchoVue::useechonotification_hook__callback_and_events_are_optional
+  - UseEchoVue::useechonotification_hook__returns_the_connection_status_from_echo_instance
+  # Precognition: axios/fetch browser adapter tests — Bedrock uses net/http.
+  - AxiosAdapter::creates_an_adapter_with_the_provided_axios_instance
+  - AxiosAdapter::makes_a_successful_get_request
+  - AxiosAdapter::makes_a_post_request_with_data
+  - AxiosAdapter::passes_all_config_options_to_axios
+  - AxiosAdapter::forwards_the_accept_header_when_provided
+  - AxiosAdapter::normalizes_response_headers_to_lowercase
+  - AxiosAdapter::exposes_the_axios_instance_via_getaxiosinstance
+  - AxiosAdapter::uses_axios_defaults_timeout_when_config_timeout_is_not_provided
+  - AxiosAdapter::falls_back_to_30000ms_timeout_when_no_timeout_is_configured
+  - AxiosAdapter::config_timeout_takes_precedence_over_axios_defaults_timeout
+  - AxiosAdapter::axiosadapter_with_real_axios__creates_an_adapter_using_default_axios_when_no_instance_provided
+  - AxiosAdapter::axiosadapter_with_real_axios__throws_httpresponseerror_for_error_responses
+  - AxiosAdapter::axiosadapter_with_real_axios__throws_httpcancellederror_for_cancelled_requests
+  - AxiosAdapter::axiosadapter_with_real_axios__throws_httpnetworkerror_for_network_errors
+  - FetchClient::exports_a_default_fetchhttpclient_instance
+  - FetchClient::can_create_a_custom_fetch_client_with_options
+  - FetchClient::makes_a_successful_get_request
+  - FetchClient::makes_a_post_request_with_json_data
+  - FetchClient::builds_url_with_base_url
+  - FetchClient::builds_query_string_from_params
+  - FetchClient::builds_query_string_with_array_params
+  - FetchClient::throws_httpresponseerror_for_4xx_responses
+  - FetchClient::throws_httpresponseerror_for_5xx_responses
+  - FetchClient::throws_httpcancellederror_when_request_is_aborted
+  - FetchClient::throws_httpnetworkerror_for_network_failures
+  - FetchClient::parses_text_responses_when_content_type_is_not_json
+  - FetchClient::normalizes_response_headers_to_lowercase
+  - FetchClient::sets_content_type_to_application_json_for_post_requests_with_data
+  - FetchClient::does_not_set_content_type_for_get_requests
+  - FetchClient::forwards_the_accept_header_when_provided
+  - FetchClient::passes_custom_headers
+  - FetchClient::uses_same_origin_credentials
+  - FetchClient::does_not_set_content_type_for_formdata_uploads
+  - FetchClient::does_not_set_content_type_when_data_contains_files
+  - FetchClient::inherits_x_requested_with_from_laravel_bootstrap_config
+  - FetchClient::uses_config_timeout_when_provided
+  - FetchClient::falls_back_to_30000ms_timeout_when_no_timeout_is_configured
+  - FetchClient::extracts_xsrf_token_from_cookies_and_adds_x_xsrf_token_header_on_post_requests
+  - FetchClient::does_not_add_x_xsrf_token_header_on_get_requests
+  - FetchClient::uses_custom_xsrfcookiename_option
+  - FetchClient::uses_custom_xsrfheadername_option
+  - FetchClient::does_not_add_xsrf_header_when_custom_cookie_is_not_found
+  # Precognition: Vue type-assertion tests — Go's static type system is authoritative.
+  - VueTypes::accepts_valid_array_field_paths
+  - VueTypes::accepts_valid_object_field_paths
+  - VueTypes::accepts_valid_nested_paths
+  - VueTypes::rejects_invalid_paths

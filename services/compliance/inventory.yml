@@ -390,9 +390,8 @@ packages:
     status: mapped
     repo: laravel/echo
     branch: 2.x
-    tests_path: null
-    inventory: null
-    rationale: TypeScript client package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+    tests_path: packages
+    inventory: inventories/package-echo.txt
 
   - id: package.fortify
     laravel: laravel/fortify
@@ -445,9 +444,8 @@ packages:
     status: mapped
     repo: laravel/precognition
     branch: 2.x
-    tests_path: null
-    inventory: null
-    rationale: JavaScript package; compliance is tracked by feature inventory until a stable upstream test inventory is available.
+    tests_path: packages
+    inventory: inventories/package-precognition.txt
 
   - id: package.prompts
     laravel: laravel/prompts
