@@ -17,8 +17,8 @@ func jobsPending(opts Options) http.HandlerFunc {
 			queue = "default"
 		}
 
-		offset := queryInt(r, "starting_at", 0)
-		limit := queryInt(r, "limit", 50)
+		offset := nonNegativeQueryInt(r, "starting_at", 0)
+		limit := nonNegativeQueryInt(r, "limit", 50)
 
 		writeJSON(w, http.StatusOK, jobList(opts.Jobs.Pending(queue, offset, limit)))
 	}
