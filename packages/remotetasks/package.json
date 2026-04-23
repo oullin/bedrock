@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/remotetasks",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/remotetasks && go build ./... && touch ../../storage/.turbo/dist/remotetasks/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/remotetasks && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/remotetasks/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

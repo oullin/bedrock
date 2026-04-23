@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/lottery",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/lottery && go build ./... && touch ../../storage/.turbo/dist/lottery/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/lottery && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/lottery/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

@@ -245,6 +245,23 @@ func (r *JobRepository) MarkFailed(id string, at time.Time, tagTTL time.Duration
 	return true
 }
 
+// Failed returns all failed jobs, sorted by push time for stable pagination.
+func (r *JobRepository) Failed() []JobRecord {
+	r.mu.RLock()
+
+	defer r.mu.RUnlock()
+
+	jobs := make([]JobRecord, 0, len(r.failed))
+
+	for _, job := range r.failed {
+		jobs = append(jobs, cloneJob(job))
+	}
+
+	sortJobs(jobs)
+
+	return jobs
+}
+
 // FindFailed returns a failed job by id.
 func (r *JobRepository) FindFailed(id string) (JobRecord, bool) {
 	r.mu.RLock()
