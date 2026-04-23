@@ -95,10 +95,35 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage to Codecov (attempt 1)
+        id: codecov_1
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/coverage
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload coverage to Codecov (attempt 2)
+        if: steps.codecov_1.outcome == 'failure'
+        id: codecov_2
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/coverage
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload coverage to Codecov (attempt 3)
+        if: steps.codecov_2.outcome == 'failure'
         uses: codecov/codecov-action@v6
         with:
           directory: storage/.cache/coverage
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
+          version: v11.2.8
