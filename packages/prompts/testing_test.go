@@ -63,7 +63,9 @@ func TestFakeWriterCaptures(t *testing.T) {
 }
 
 func TestFakeNonInteractive(t *testing.T) {
-	t.Parallel()
+	// Not parallel: mutates the package-global `interactive` flag, which every
+	// Fake()-using parallel test also writes to. Running serially avoids the
+	// cross-test trample that -race reliably exposes.
 	cleanup := FakeNonInteractive()
 
 	defer cleanup()

@@ -23,14 +23,16 @@ type Repository struct {
 
 // New creates a Repository pre-loaded with the given key-value pairs. The map
 // may contain nested map[string]any values accessible via dot notation.
+//
+// Items are stored verbatim in the repository and are not pushed into the
+// underlying Viper instance: doing so would split dot-notation keys (e.g.
+// "a.b") into nested paths, which — combined with Go's randomised map
+// iteration order — can leave Viper with a non-deterministic view when the
+// input map mixes literal dotted keys with nested maps under the same prefix.
+// Lookups consult items first via lookupExplicit, so callers see the
+// unaltered structure they provided.
 func New(items map[string]any) *Repository {
-	v := viper.New()
-
-	for key, value := range items {
-		v.Set(key, value)
-	}
-
-	return &Repository{v: v, items: cloneMap(items)}
+	return &Repository{v: viper.New(), items: cloneMap(items)}
 }
 
 // NewFromViper wraps an already-configured Viper instance. Use this when you
