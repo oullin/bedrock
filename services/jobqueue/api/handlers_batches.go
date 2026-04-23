@@ -11,11 +11,7 @@ func batchesIndex(opts Options) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := strings.TrimSpace(r.URL.Query().Get("name"))
 		after := strings.TrimSpace(r.URL.Query().Get("after"))
-		limit := queryInt(r, "limit", 25)
-
-		if limit < 0 {
-			limit = 0
-		}
+		limit := nonNegativeQueryInt(r, "limit", 25)
 
 		matches := opts.Batches.Search(query, after, limit)
 

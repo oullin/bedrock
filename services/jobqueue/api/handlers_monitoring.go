@@ -36,8 +36,8 @@ func monitoringIndex(opts Options) http.HandlerFunc {
 func monitoringShow(opts Options) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tag := r.PathValue("tag")
-		offset := queryInt(r, "starting_at", 0)
-		limit := queryInt(r, "limit", 50)
+		offset := nonNegativeQueryInt(r, "starting_at", 0)
+		limit := nonNegativeQueryInt(r, "limit", 50)
 
 		ids := opts.Jobs.JobIDsForTag(tag, offset, limit)
 
