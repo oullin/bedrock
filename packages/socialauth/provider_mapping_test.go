@@ -2,35 +2,16 @@ package socialite_test
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bedrock/packages/socialauth"
 )
-
-func unsignedJWT(t *testing.T, claims map[string]any) string {
-	t.Helper()
-
-	header, err := json.Marshal(map[string]any{"alg": "none", "typ": "JWT"})
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	payload, err := json.Marshal(claims)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return base64.RawURLEncoding.EncodeToString(header) + "." +
-		base64.RawURLEncoding.EncodeToString(payload) + ".signature"
-}
 
 func fakeHTTPClientFunc(fn func(*http.Request) (*http.Response, error)) *http.Client {
 	return &http.Client{Transport: roundTripper(fn)}
@@ -41,6 +22,28 @@ func jsonResponse(status int, body string) *http.Response {
 		StatusCode: status,
 		Body:       io.NopCloser(strings.NewReader(body)),
 	}
+}
+
+func tokenInfoFake(t *testing.T, expectedToken string, status int, payload map[string]any) *http.Client {
+	t.Helper()
+
+	body, err := json.Marshal(payload)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return fakeHTTPClientFunc(func(r *http.Request) (*http.Response, error) {
+		if r.URL.Host != "oauth2.googleapis.com" || r.URL.Path != "/tokeninfo" {
+			return nil, fmt.Errorf("unexpected tokeninfo URL: %s", r.URL.String())
+		}
+
+		if got := r.URL.Query().Get("id_token"); got != expectedToken {
+			return nil, fmt.Errorf("unexpected id_token query: got %q want %q", got, expectedToken)
+		}
+
+		return jsonResponse(status, string(body)), nil
+	})
 }
 
 // GoogleProviderTest::test_it_can_map_a_user_from_an_access_token
@@ -69,26 +72,17 @@ func TestGoogleProviderMapsUserFromAccessToken(t *testing.T) {
 	}
 }
 
-// GoogleProviderIdTokenTest::test_it_can_detect_jwt_tokens
-func TestGoogleProviderCanDetectJWTTokens(t *testing.T) {
-	token := unsignedJWT(t, map[string]any{"sub": "google-123"})
-
-	if !socialauth.IsJWT(token) {
-		t.Fatal("expected token to be detected as JWT")
-	}
-
-	if socialauth.IsJWT("access-token") {
-		t.Fatal("expected opaque access token not to be detected as JWT")
-	}
-}
-
 // GoogleProviderIdTokenTest::test_it_uses_jwt_verification_for_id_tokens
 // GoogleProviderIdTokenTest::test_user_mapping_works_with_id_token_format
 func TestGoogleProviderMapsUserFromIDToken(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 	session := newTestSession()
 	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
-	idToken := unsignedJWT(t, map[string]any{
+	idToken := "header.payload.signature"
+	provider.HTTP = tokenInfoFake(t, idToken, http.StatusOK, map[string]any{
+		"iss":            "https://accounts.google.com",
+		"aud":            "client-id",
+		"exp":            float64(time.Now().Add(time.Hour).Unix()),
 		"sub":            "google-123",
 		"name":           "Google User",
 		"email":          "user@example.com",
@@ -112,41 +106,105 @@ func TestGoogleProviderMapsUserFromIDToken(t *testing.T) {
 	}
 }
 
-// GoogleProviderIdTokenTest::test_it_falls_back_to_api_call_for_access_tokens
-func TestGoogleProviderFallsBackToAPIForAccessTokens(t *testing.T) {
+func TestGoogleProviderRejectsIDTokenWithWrongAudience(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 	session := newTestSession()
 	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
-	called := false
-	provider.HTTP = fakeHTTPClientFunc(func(r *http.Request) (*http.Response, error) {
-		called = true
-
-		return jsonResponse(http.StatusOK, `{"sub":"google-123","name":"Google User"}`), nil
+	idToken := "header.payload.signature"
+	provider.HTTP = tokenInfoFake(t, idToken, http.StatusOK, map[string]any{
+		"iss": "https://accounts.google.com",
+		"aud": "some-other-app",
+		"exp": float64(time.Now().Add(time.Hour).Unix()),
+		"sub": "google-123",
 	})
 
-	user, err := provider.UserFromToken(context.Background(), "access-token")
-
-	if err != nil {
-		t.Fatalf("UserFromToken() returned error: %v", err)
-	}
-
-	if !called {
-		t.Fatal("expected opaque access token to call userinfo API")
-	}
-
-	if user.ID != "google-123" {
-		t.Fatalf("unexpected user ID: %q", user.ID)
+	if _, err := provider.UserFromIDToken(context.Background(), idToken); err == nil {
+		t.Fatal("expected wrong-audience id token to return an error")
 	}
 }
 
-// GoogleProviderIdTokenTest::test_it_handles_invalid_jwt_tokens
-func TestGoogleProviderHandlesInvalidJWTTokens(t *testing.T) {
+func TestGoogleProviderRejectsIDTokenWithBadIssuer(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	session := newTestSession()
+	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
+	idToken := "header.payload.signature"
+	provider.HTTP = tokenInfoFake(t, idToken, http.StatusOK, map[string]any{
+		"iss": "https://evil.example.com",
+		"aud": "client-id",
+		"exp": float64(time.Now().Add(time.Hour).Unix()),
+		"sub": "google-123",
+	})
+
+	if _, err := provider.UserFromIDToken(context.Background(), idToken); err == nil {
+		t.Fatal("expected bad-issuer id token to return an error")
+	}
+}
+
+func TestGoogleProviderRejectsExpiredIDToken(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	session := newTestSession()
+	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
+	idToken := "header.payload.signature"
+	provider.HTTP = tokenInfoFake(t, idToken, http.StatusOK, map[string]any{
+		"iss": "https://accounts.google.com",
+		"aud": "client-id",
+		"exp": float64(time.Now().Add(-time.Hour).Unix()),
+		"sub": "google-123",
+	})
+
+	if _, err := provider.UserFromIDToken(context.Background(), idToken); err == nil {
+		t.Fatal("expected expired id token to return an error")
+	}
+}
+
+func TestGoogleProviderPropagatesTokenInfoFailure(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	session := newTestSession()
+	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
+	idToken := "not.a.valid-jwt"
+	provider.HTTP = tokenInfoFake(t, idToken, http.StatusBadRequest, map[string]any{
+		"error": "invalid_token",
+	})
+
+	if _, err := provider.UserFromIDToken(context.Background(), idToken); err == nil {
+		t.Fatal("expected tokeninfo failure to surface as an error")
+	}
+}
+
+// GoogleProviderIdTokenTest::test_it_falls_back_to_api_call_for_access_tokens
+// UserFromToken always hits userinfo — even a 3-segment token must not be
+// decoded locally. This guards against the regression that introduced an
+// unsigned-JWT fast path.
+func TestGoogleProviderUserFromTokenAlwaysCallsUserinfo(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 	session := newTestSession()
 	provider := socialauth.NewGoogleProvider(req, session, "client-id", "client-secret", "http://callback")
 
-	if _, err := provider.UserFromIDToken(context.Background(), "not.a.valid-jwt"); err == nil {
-		t.Fatal("expected invalid JWT to return an error")
+	for _, token := range []string{"access-token", "a.b.c"} {
+		called := false
+		provider.HTTP = fakeHTTPClientFunc(func(r *http.Request) (*http.Response, error) {
+			if r.URL.String() != "https://www.googleapis.com/oauth2/v3/userinfo" {
+				return nil, fmt.Errorf("unexpected URL for token %q: %s", token, r.URL.String())
+			}
+
+			called = true
+
+			return jsonResponse(http.StatusOK, `{"sub":"google-123","name":"Google User"}`), nil
+		})
+
+		user, err := provider.UserFromToken(context.Background(), token)
+
+		if err != nil {
+			t.Fatalf("UserFromToken(%q) returned error: %v", token, err)
+		}
+
+		if !called {
+			t.Fatalf("token %q did not reach userinfo endpoint", token)
+		}
+
+		if user.ID != "google-123" {
+			t.Fatalf("unexpected user ID for token %q: %q", token, user.ID)
+		}
 	}
 }
 

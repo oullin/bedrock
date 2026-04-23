@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/mailx && go build ./... && touch ../../storage/.turbo/dist/mailx/.build-stamp'",
-    "dev": "go test ./... -count=1",
-    "test": "go test ./...",
-    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/mailx && go test ./... -coverprofile=../../storage/.cache/coverage/go/mailx/coverage.out'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/mailx && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/mailx/coverage.out'",
     "typecheck": "go test ./... -run '^$'",
     "fmt": "gofmt -w .",
     "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
