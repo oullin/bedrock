@@ -103,7 +103,26 @@ func TestWith(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testTransform
+// Port of Illuminate\Tests\Support\SupportHelpersTest::testValue
+func TestValue(t *testing.T) {
+	t.Parallel()
+
+	if got := Value[string]("literal"); got != "literal" {
+		t.Errorf("Value(literal) = %q", got)
+	}
+
+	if got := Value[string](func() string { return "callback" }); got != "callback" {
+		t.Errorf("Value(callback) = %q", got)
+	}
+
+	if got := Value[string](func(value any) string { return value.(string) + " value" }, "passed"); got != "passed value" {
+		t.Errorf("Value(callback with arg) = %q", got)
+	}
+}
+
+// Ports of:
+// - Illuminate\Tests\Support\SupportHelpersTest::testTransform
+// - Illuminate\Tests\Support\SupportHelpersTest::testTransformDefaultWhenBlank
 func TestTransform(t *testing.T) {
 	t.Parallel()
 
@@ -234,5 +253,46 @@ func TestEnvEscapedString(t *testing.T) {
 
 	if got := Env("TEST_SUPPORT_QUOTED"); got != "hello world" {
 		t.Errorf("expected 'hello world', got %q", got)
+	}
+}
+
+func TestInventoryHeadLastAndClassBasename(t *testing.T) {
+	t.Parallel()
+
+	// SupportHelpersTest::testHead
+	// SupportHelpersTest::testLast
+	// SupportHelpersTest::testClassBasename
+	head, ok := Head([]string{"first", "second"})
+
+	if !ok || head != "first" {
+		t.Fatalf("Head = %q, %v", head, ok)
+	}
+
+	last, ok := Last([]string{"first", "second"})
+
+	if !ok || last != "second" {
+		t.Fatalf("Last = %q, %v", last, ok)
+	}
+
+	if _, ok := Head([]string{}); ok {
+		t.Fatal("Head on empty slice should report false")
+	}
+
+	if _, ok := Last([]string{}); ok {
+		t.Fatal("Last on empty slice should report false")
+	}
+
+	type localHelperType struct{}
+
+	if got := ClassBasename("App\\Models\\User"); got != "User" {
+		t.Fatalf("ClassBasename PHP class = %q", got)
+	}
+
+	if got := ClassBasename("/app/Models/User"); got != "User" {
+		t.Fatalf("ClassBasename path = %q", got)
+	}
+
+	if got := ClassBasename(&localHelperType{}); got != "localHelperType" {
+		t.Fatalf("ClassBasename type = %q", got)
 	}
 }

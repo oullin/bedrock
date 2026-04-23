@@ -1,4 +1,7 @@
-// Port of Laravel\Ai\Tests\Feature\TranscriptionFakeTest
+// TranscriptionFakeTest::test_transcriptions_can_be_faked
+// TranscriptionFakeTest::test_can_assert_no_transcriptions_were_generated
+// TranscriptionFakeTest::test_transcription_language_and_diarize_are_recorded
+// TranscriptionFakeTest::test_fake_transcriptions_include_segments
 package ai_test
 
 import (

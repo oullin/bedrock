@@ -113,6 +113,8 @@ func (a *ArrayDriver) Get(ctx context.Context, feature string, scope any) (any, 
 		ro.val, ro.err = resolver(ctx, scope)
 
 		if ro.err == nil {
+			ro.val = resolveFeatureValue(ro.val)
+
 			a.mu.Lock()
 
 			if _, ok := a.resolvedStates[feature]; !ok {

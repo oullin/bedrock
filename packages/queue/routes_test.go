@@ -154,3 +154,26 @@ func TestGetConnection(t *testing.T) {
 		t.Errorf("Payment connection: got %q, want empty", got)
 	}
 }
+
+// Port of Illuminate\Tests\Queue\QueueRoutesTest::testStringRouteDefaultsToQueueNotConnection
+func TestStringRouteDefaultsToQueueNotConnection(t *testing.T) {
+	t.Parallel()
+
+	routes := queue.NewRoutes()
+
+	if err := routes.SetMany(map[string]any{
+		keySomeJob: "jobs",
+	}); err != nil {
+		t.Fatalf("SetMany: %v", err)
+	}
+
+	job := newSomeJob()
+
+	if got := routes.GetQueue(job); got != "jobs" {
+		t.Errorf("GetQueue: got %q, want jobs", got)
+	}
+
+	if got := routes.GetConnection(job); got != "" {
+		t.Errorf("GetConnection: got %q, want empty", got)
+	}
+}

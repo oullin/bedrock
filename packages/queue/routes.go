@@ -10,9 +10,10 @@ import (
 // It binds a class-like lookup key to either a plain queue name (string
 // form) or a (connection, queue) pair (array form). The worker-facing
 // resolvers (GetQueue, GetConnection) preserve Laravel's slightly
-// asymmetric reading rules: for a plain-string entry both resolvers
-// return the stored string, while for an array entry GetConnection
-// returns the first slot and GetQueue returns the second.
+// asymmetric reading rules: for a plain-string entry GetQueue returns
+// the stored string and GetConnection returns empty, while for an array
+// entry GetConnection returns the first slot and GetQueue returns the
+// second.
 //
 // Key lookup: Laravel walks class_parents, class_implements, and
 // class_uses to find a route. Go has no equivalent runtime type
@@ -142,7 +143,8 @@ func (r *Routes) GetQueue(queueable any) string {
 }
 
 // GetConnection returns the connection name to which queueable should
-// be routed. Same rules as GetQueue for the plain-string form.
+// be routed. A plain-string route stores a queue name, not a connection
+// name, matching Laravel's QueueRoutes default.
 func (r *Routes) GetConnection(queueable any) string {
 	rv, ok := r.GetRoute(queueable)
 
@@ -151,7 +153,7 @@ func (r *Routes) GetConnection(queueable any) string {
 	}
 
 	if rv.isPlain {
-		return rv.plain
+		return ""
 	}
 
 	return rv.connection

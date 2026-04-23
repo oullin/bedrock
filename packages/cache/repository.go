@@ -69,7 +69,15 @@ func (r *Repository) SupportsFlushingLocks() bool {
 
 // Has reports whether a non-expired value exists for key.
 func (r *Repository) Has(ctx context.Context, key string) bool {
-	_, err := r.store.Get(ctx, key)
+	r.dispatch(ctx, RetrievingKey{StoreName: r.storeName, Key: key})
+
+	v, err := r.store.Get(ctx, key)
+
+	if err != nil {
+		r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
+	} else {
+		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
+	}
 
 	return err == nil
 }
@@ -81,6 +89,8 @@ func (r *Repository) Missing(ctx context.Context, key string) bool {
 
 // Get retrieves a value. Returns defaultVal if key is absent or expired.
 func (r *Repository) Get(ctx context.Context, key string, defaultVal any) any {
+	r.dispatch(ctx, RetrievingKey{StoreName: r.storeName, Key: key})
+
 	v, err := r.store.Get(ctx, key)
 
 	if err != nil {
@@ -96,6 +106,8 @@ func (r *Repository) Get(ctx context.Context, key string, defaultVal any) any {
 
 // GetMany retrieves multiple values. Missing keys are omitted.
 func (r *Repository) GetMany(ctx context.Context, keys []string) (map[string]any, error) {
+	r.dispatch(ctx, RetrievingManyKeys{StoreName: r.storeName, Keys: keys})
+
 	result, err := r.store.GetMany(ctx, keys)
 
 	if err != nil {
@@ -118,7 +130,7 @@ func (r *Repository) GetMany(ctx context.Context, keys []string) (map[string]any
 // Pull retrieves a value and then deletes it. Returns defaultVal if absent.
 func (r *Repository) Pull(ctx context.Context, key string, defaultVal any) any {
 	v := r.Get(ctx, key, defaultVal)
-	_ = r.store.Forget(ctx, key)
+	_ = r.Forget(ctx, key)
 
 	return v
 }
@@ -139,9 +151,14 @@ func (r *Repository) Put(ctx context.Context, key string, value any, ttl time.Du
 // PutMany stores multiple values.
 func (r *Repository) PutMany(ctx context.Context, values map[string]any, ttl time.Duration) error {
 	if r.events != nil {
+		keys := make([]string, 0, len(values))
+
 		for k, v := range values {
+			keys = append(keys, k)
 			r.dispatch(ctx, WritingKey{StoreName: r.storeName, Key: k, Value: v, TTL: ttl})
 		}
+
+		r.dispatch(ctx, WritingManyKeys{StoreName: r.storeName, Keys: keys, Values: values, TTL: ttl})
 	}
 
 	if err := r.store.PutMany(ctx, values, ttl); err != nil {
@@ -163,11 +180,20 @@ func (r *Repository) Add(ctx context.Context, key string, value any, ttl time.Du
 
 	ok, err := r.store.Add(ctx, key, value, ttl)
 
-	if ok {
-		r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+	if err != nil {
+		return ok, err
 	}
 
-	return ok, err
+	if ok {
+		r.dispatch(ctx, CacheMissed{StoreName: r.storeName, Key: key})
+		r.dispatch(ctx, KeyWritten{StoreName: r.storeName, Key: key, Value: value, TTL: ttl})
+
+		return true, nil
+	}
+
+	r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key})
+
+	return false, nil
 }
 
 // Forever stores a value with no expiry.
@@ -203,6 +229,8 @@ func (r *Repository) Forget(ctx context.Context, key string) error {
 	r.dispatch(ctx, ForgettingKey{StoreName: r.storeName, Key: key})
 
 	if err := r.store.Forget(ctx, key); err != nil {
+		r.dispatch(ctx, KeyForgetFailed{StoreName: r.storeName, Key: key, Err: err})
+
 		return err
 	}
 
@@ -216,6 +244,8 @@ func (r *Repository) Flush(ctx context.Context) error {
 	r.dispatch(ctx, CacheFlushing{StoreName: r.storeName})
 
 	if err := r.store.Flush(ctx); err != nil {
+		r.dispatch(ctx, CacheFlushFailed{StoreName: r.storeName, Err: err})
+
 		return err
 	}
 
@@ -231,6 +261,8 @@ func (r *Repository) GetPrefix() string {
 
 // Remember retrieves a value or stores the result of fn if key is absent.
 func (r *Repository) Remember(ctx context.Context, key string, ttl time.Duration, fn func() (any, error)) (any, error) {
+	r.dispatch(ctx, RetrievingKey{StoreName: r.storeName, Key: key})
+
 	if v, err := r.store.Get(ctx, key); err == nil {
 		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
 
@@ -245,11 +277,13 @@ func (r *Repository) Remember(ctx context.Context, key string, ttl time.Duration
 		return nil, err
 	}
 
-	return result, r.store.Put(ctx, key, result, ttl)
+	return result, r.Put(ctx, key, result, ttl)
 }
 
 // RememberForever retrieves a value or stores the result of fn indefinitely.
 func (r *Repository) RememberForever(ctx context.Context, key string, fn func() (any, error)) (any, error) {
+	r.dispatch(ctx, RetrievingKey{StoreName: r.storeName, Key: key})
+
 	if v, err := r.store.Get(ctx, key); err == nil {
 		r.dispatch(ctx, CacheHit{StoreName: r.storeName, Key: key, Value: v})
 
@@ -264,7 +298,7 @@ func (r *Repository) RememberForever(ctx context.Context, key string, fn func() 
 		return nil, err
 	}
 
-	return result, r.store.Forever(ctx, key, result)
+	return result, r.Forever(ctx, key, result)
 }
 
 // Sear is an alias for RememberForever (Laravel naming).
@@ -296,7 +330,13 @@ func (r *Repository) RestoreLock(name, owner string) Lock {
 // the store does not implement TaggableStore.
 func (r *Repository) Tags(tags ...string) TaggedCache {
 	if ts, ok := r.store.(TaggableStore); ok {
-		return ts.Tags(tags...)
+		tagged := ts.Tags(tags...)
+
+		if r.events != nil {
+			return newEventTaggedCache(tagged, r.storeName, tags, r.events)
+		}
+
+		return tagged
 	}
 
 	return nil
@@ -311,7 +351,17 @@ func (r *Repository) Funnel(name string, maxSlots int, releaseAfter time.Duratio
 // implement the LockFlusher interface.
 func (r *Repository) FlushLocks(ctx context.Context) error {
 	if f, ok := r.store.(LockFlusher); ok {
-		return f.FlushLocks(ctx)
+		r.dispatch(ctx, CacheLocksFlushing{StoreName: r.storeName})
+
+		if err := f.FlushLocks(ctx); err != nil {
+			r.dispatch(ctx, CacheLocksFlushFailed{StoreName: r.storeName, Err: err})
+
+			return err
+		}
+
+		r.dispatch(ctx, CacheLocksFlushed{StoreName: r.storeName})
+
+		return nil
 	}
 
 	return fmt.Errorf("cache: store does not support flushing locks")

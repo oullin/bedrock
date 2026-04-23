@@ -55,6 +55,11 @@ func (s *SlackProvider) MapUserToObject(raw map[string]any) *User {
 		if image, ok := user["image_512"].(string); ok {
 			u.Avatar = image
 		}
+	} else {
+		u.ID = stringify(raw["sub"])
+		u.Name = stringify(raw["name"])
+		u.Email = stringify(raw["email"])
+		u.Avatar = stringify(raw["picture"])
 	}
 
 	if team, ok := raw["team"].(map[string]any); ok {

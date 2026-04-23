@@ -61,6 +61,7 @@ func TestResponseAsAssistantSetsRole(t *testing.T) {
 func TestResponseWithMetaAttachesMeta(t *testing.T) {
 	t.Parallel()
 
+	// ResponseFactoryTest::it_supports_fluent_withmeta_for_result_level_metadata
 	resp := mcp.Text("data").WithMeta("source", "db")
 	// Meta is internal; verify it's included in the tool result.
 	result := mcp.ExportToolResult(resp)
@@ -75,10 +76,42 @@ func TestResponseWithMetaAttachesMeta(t *testing.T) {
 	}
 }
 
+func TestResponseWithMetaMergesMultipleCalls(t *testing.T) {
+	t.Parallel()
+
+	// ResponseFactoryTest::it_supports_withmeta_with_key_value_signature
+	// ResponseFactoryTest::it_merges_multiple_withmeta_calls
+	resp := mcp.Text("data").
+		WithMeta("source", "db").
+		WithMeta("trace", "abc").
+		WithMeta("source", "api")
+
+	result := mcp.ExportToolResult(resp)
+	meta, ok := result["_meta"].(map[string]any)
+
+	if !ok {
+		t.Fatal("expected _meta in tool result")
+	}
+
+	if meta["source"] != "api" {
+		t.Fatalf("expected later WithMeta call to overwrite source, got %v", meta["source"])
+	}
+
+	if meta["trace"] != "abc" {
+		t.Fatalf("expected trace=abc in _meta, got %v", meta["trace"])
+	}
+}
+
 func TestResponseStructuredAttachesData(t *testing.T) {
 	t.Parallel()
 
-	resp := mcp.Text("ok").Structured(map[string]any{"count": 3})
+	// ResponseFactoryTest::it_creates_a_structured_content_response_with_response_structured
+	// ResponseFactoryTest::it_creates_a_structured_content_response_with_meta_using_response_structured
+	// ResponseFactoryTest::it_adds_structured_content_to_existing_responsefactory_with_withstructuredcontent
+	// ResponseFactoryTest::it_adds_structured_content_with_meta_to_responsefactory
+	resp := mcp.Text("ok").
+		Structured(map[string]any{"count": 3}).
+		WithMeta("trace", "abc")
 	result := mcp.ExportToolResult(resp)
 	structured, ok := result["structuredContent"].(map[string]any)
 
@@ -88,6 +121,10 @@ func TestResponseStructuredAttachesData(t *testing.T) {
 
 	if structured["count"] != 3 {
 		t.Fatalf("expected count=3, got %v", structured["count"])
+	}
+
+	if meta := result["_meta"].(map[string]any); meta["trace"] != "abc" {
+		t.Fatalf("expected trace=abc in _meta, got %#v", meta)
 	}
 }
 

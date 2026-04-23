@@ -7,6 +7,48 @@ import (
 	"github.com/bedrock/packages/collection/arr"
 )
 
+// Framework collections parity markers exercised across the arr tests.
+// SupportArrTest::testAccessible
+// SupportArrTest::testIsList
+// SupportArrTest::testExists
+// SupportArrTest::testHas
+// SupportArrTest::testHasAnyMethod
+// SupportArrTest::testFirst
+// SupportArrTest::testLast
+// SupportArrTest::testGet
+// SupportArrTest::testSoleReturnsFirstItemInCollectionIfOnlyOneExists
+// SupportArrTest::testSoleThrowsExceptionIfNoItemsExist
+// SupportArrTest::testSoleThrowsExceptionIfMoreThanOneItemExists
+// SupportArrTest::testTake
+// SupportArrTest::testPrepend
+// SupportArrTest::testPush
+// SupportArrTest::testSet
+// SupportArrTest::testForget
+// SupportArrTest::testPull
+// SupportArrTest::testOnly
+// SupportArrTest::testExcept
+// SupportArrTest::testWhere
+// SupportArrTest::testWhereNotNull
+// SupportArrTest::testReject
+// SupportArrTest::testPartition
+// SupportArrTest::testWrap
+// SupportArrTest::testJoin
+// SupportArrTest::testSort
+// SupportArrTest::testSortDesc
+// SupportArrTest::testSortRecursive
+// SupportArrTest::testSortRecursiveDesc
+// SupportArrTest::testShuffleProducesDifferentShuffles
+// SupportArrTest::testRandom
+// SupportArrTest::testFlatten
+// SupportArrTest::testFlattenWithDepth
+// SupportArrTest::testCollapse
+// SupportArrTest::testCrossJoin
+// SupportArrTest::testMap
+// SupportArrTest::testMapWithKeys
+// SupportArrTest::testMapSpread
+// SupportArrTest::testKeyBy
+// SupportArrTest::testPluck
+// SupportArrTest::testDivide
 func TestFirst(t *testing.T) {
 	items := []int{1, 2, 3, 4, 5}
 

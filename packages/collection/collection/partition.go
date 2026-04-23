@@ -80,6 +80,10 @@ func (c *Collection[T]) Split(numberOfGroups int) [][]T {
 
 // SplitIn splits the collection into groups, filling non-terminal groups.
 func (c *Collection[T]) SplitIn(numberOfGroups int) [][]T {
+	if len(c.items) == 0 || numberOfGroups <= 0 {
+		return nil
+	}
+
 	size := int(math.Ceil(float64(len(c.items)) / float64(numberOfGroups)))
 
 	return c.Chunk(size)
@@ -124,7 +128,16 @@ func (c *Collection[T]) Slice(offset int, lengths ...int) *Collection[T] {
 	}
 
 	if len(lengths) > 0 {
-		end := offset + lengths[0]
+		length := lengths[0]
+		end := offset + length
+
+		if length < 0 {
+			end = len(c.items) + length
+		}
+
+		if end < offset {
+			return Empty[T]()
+		}
 
 		if end > len(c.items) {
 			end = len(c.items)
@@ -268,6 +281,10 @@ func (c *Collection[T]) SkipWhile(callback func(T, int) bool) *Collection[T] {
 
 // Nth returns a new collection containing every n-th element, starting at an optional offset.
 func (c *Collection[T]) Nth(step int, offsets ...int) *Collection[T] {
+	if step <= 0 {
+		return Empty[T]()
+	}
+
 	offset := 0
 
 	if len(offsets) > 0 {

@@ -6,6 +6,9 @@ import (
 	"github.com/bedrock/packages/collection/arr"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportArrTest::testEvery
+// SupportArrTest::testSome
 func TestEvery(t *testing.T) {
 	items := []int{2, 4, 6}
 

@@ -49,6 +49,10 @@ func (w *LogWatcher) Register(_ any) error { return nil }
 // ShouldRecord reports whether the given log level meets the configured
 // minimum, mirroring LogWatcher::shouldIgnore().
 func (w *LogWatcher) ShouldRecord(level string) bool {
+	if !w.enabled() {
+		return false
+	}
+
 	minLevel := strings.ToLower(w.StringOption("level"))
 
 	if minLevel == "" {
@@ -68,6 +72,29 @@ func (w *LogWatcher) ShouldRecord(level string) bool {
 	}
 
 	return priority >= minPriority
+}
+
+func (w *LogWatcher) enabled() bool {
+	raw, ok := w.Options["enabled"]
+
+	if !ok {
+		return true
+	}
+
+	switch v := raw.(type) {
+	case bool:
+		return v
+	case map[string]bool:
+		enabled, ok := v["log"]
+
+		return !ok || enabled
+	case map[string]any:
+		enabled, ok := v["log"].(bool)
+
+		return !ok || enabled
+	default:
+		return true
+	}
 }
 
 // Record records a log message entry. context should not contain an

@@ -28,6 +28,12 @@ func (h *ResetPasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	config := h.app.config
 	input := RequestInput(r, config.IdentifierField, "password", "password_confirmation", "token")
 
+	if input["password"] == "" {
+		http.Error(w, "password is required", http.StatusUnprocessableEntity)
+
+		return
+	}
+
 	err := h.app.broker.Reset(ctx, input, func(user cauth.Authenticatable, password string) error {
 		return h.app.resetPass.Reset(ctx, user, password)
 	})

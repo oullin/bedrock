@@ -270,42 +270,42 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 
 	m := pennant.NewManager("array")
 
-	called := false
+	called := 0
 	m.ResolveScopeUsing(func(_ context.Context) (any, error) {
-		called = true
+		called++
 
-		return "user:1", nil
+		return "team:1", nil
 	})
 
-	// ResolveScopeUsing only stores the resolver; the Manager itself does not
-	// invoke it on Store. We verify it was accepted without error and the field
-	// is exercised through usage at the scope interaction level. For this unit
-	// test, simply asserting no panic and a non-nil manager is sufficient.
-	if m == nil {
-		t.Fatal("manager must not be nil after ResolveScopeUsing")
-	}
-
-	// Confirm the resolver is callable in isolation.
-	scope, err := func() (any, error) {
-		// Simulate what ScopedFeatureInteraction would do.
-		ctx := context.Background()
-		_ = ctx // Resolver is stored inside m; we call a local closure here to
-		// exercise the "called" flag via a local reference.
-		called = true
-
-		return "user:1", nil
-	}()
+	dec, err := m.DefaultDecorator()
 
 	if err != nil {
-		t.Fatalf("unexpected resolver error: %v", err)
+		t.Fatalf("DefaultDecorator: %v", err)
 	}
 
-	if scope != "user:1" {
-		t.Fatalf("expected scope %q, got %v", "user:1", scope)
+	dec.Define("flag", func(_ context.Context, scope any) (any, error) {
+		return scope, nil
+	})
+
+	// FeatureManagerTest::test_the_authenticated_user_is_the_default_scope
+	scoped, err := m.For()
+
+	if err != nil {
+		t.Fatalf("For: %v", err)
 	}
 
-	if !called {
-		t.Fatal("expected the scope resolver to have been called")
+	val, err := scoped.Value(context.Background(), "flag")
+
+	if err != nil {
+		t.Fatalf("Value: %v", err)
+	}
+
+	if val != "team:1" {
+		t.Fatalf("expected default scope to resolve to team:1, got %v", val)
+	}
+
+	if called != 1 {
+		t.Fatalf("expected scope resolver to run once, got %d", called)
 	}
 }
 

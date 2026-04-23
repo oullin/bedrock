@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/spark"
 )
 
-// Mirrors OrderTest::test_order_can_be_marked_as_completed
+// OrderTest::test_order_can_be_marked_as_completed
 func TestOrder_MarkAsCompleted(t *testing.T) {
 	order := &spark.Order{
 		ID:     1,
@@ -38,9 +38,7 @@ func TestOrder_MarkAsCompleted(t *testing.T) {
 	}
 }
 
-// Mirrors OrderTest::test_team_can_check_if_product_purchased
-// This tests the Order status checks used by the store's
-// HasCompletedForProduct method.
+// OrderTest::test_team_can_check_if_product_purchased
 func TestOrder_HasPurchased(t *testing.T) {
 	pendingOrder := &spark.Order{
 		TeamID:    1,

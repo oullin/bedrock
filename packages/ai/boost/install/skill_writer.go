@@ -49,6 +49,10 @@ func (w *SkillWriter) Write(agent SupportsSkillsPath, skills []Skill) error {
 			continue
 		}
 
+		if !isSafeSkillName(name) {
+			return fmt.Errorf("install: invalid skill name %q", name)
+		}
+
 		dir := filepath.Join(base, name)
 
 		if err := os.MkdirAll(dir, 0755); err != nil {
@@ -69,4 +73,18 @@ func (w *SkillWriter) Write(agent SupportsSkillsPath, skills []Skill) error {
 	}
 
 	return nil
+}
+
+func isSafeSkillName(name string) bool {
+	cleaned := filepath.Clean(name)
+
+	if cleaned == "." || filepath.IsAbs(cleaned) {
+		return false
+	}
+
+	if cleaned == ".." || strings.HasPrefix(cleaned, ".."+string(filepath.Separator)) {
+		return false
+	}
+
+	return true
 }

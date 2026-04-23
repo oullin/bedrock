@@ -3,6 +3,13 @@ package routing
 import "testing"
 
 // Translation of laravel/framework tests/Routing/RoutingRedirectorTest.php.
+// RoutingRedirectorTest::testBasicRedirectTo
+// RoutingRedirectorTest::testAwayDoesntValidateTheUrl
+// RoutingRedirectorTest::testSecureRedirectToHttpsUrl
+// RoutingRedirectorTest::testBackRedirectToHttpReferer
+// RoutingRedirectorTest::testRoute
+// RoutingRedirectorTest::testIntendedRedirectToIntendedUrlInSession
+// RoutingRedirectorTest::testItSetsAndGetsValidIntendedUrl
 
 // fakeSession implements [SessionStore] for redirector tests.
 type fakeSession struct {

@@ -7,6 +7,9 @@ import (
 	"github.com/bedrock/packages/redis"
 )
 
+// RedisConnectionTest::testItRunsPipes
+// RedisConnectionTest::testItRunsTransactions
+
 func TestPipelineExecutesInOrder(t *testing.T) {
 	t.Parallel()
 	c, _ := newConn(t)

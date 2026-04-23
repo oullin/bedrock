@@ -1,4 +1,7 @@
-// Port of Laravel\Ai\Tests\Feature\EmbeddingsFakeTest
+// EmbeddingsFakeTest::test_can_fake_embeddings
+// EmbeddingsFakeTest::test_can_assert_embeddings_generated
+// EmbeddingsFakeTest::test_can_assert_nothing_generated
+// EmbeddingsFakeTest::test_fake_embeddings_are_normalized
 package ai_test
 
 import (

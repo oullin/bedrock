@@ -90,13 +90,12 @@ framework:
 
   - id: framework.console
     laravel: Illuminate\Console
-    bedrock: null
-    status: missing
+    bedrock: console
+    status: mapped
     repo: laravel/framework
     branch: 13.x
     tests_path: tests/Console
     inventory: inventories/framework-console.txt
-    rationale: No Bedrock console package exists yet.
 
   - id: framework.container
     laravel: Illuminate\Container
@@ -242,13 +241,12 @@ framework:
 
   - id: framework.process
     laravel: Illuminate\Process
-    bedrock: null
-    status: missing
+    bedrock: process
+    status: mapped
     repo: laravel/framework
     branch: 13.x
     tests_path: tests/Process
     inventory: inventories/framework-process.txt
-    rationale: No Bedrock process package exists yet.
 
   - id: framework.queue
     laravel: Illuminate\Queue
@@ -318,12 +316,8 @@ framework:
   - id: framework.testing
     laravel: Illuminate\Testing
     bedrock: null
-    status: missing
-    repo: laravel/framework
-    branch: 13.x
-    tests_path: tests/Testing
-    inventory: inventories/framework-testing.txt
-    rationale: No Bedrock testing package exists yet.
+    status: excluded-permanent
+    rationale: Product boundary; standalone Laravel testing helpers are intentionally excluded from Bedrock.
 
   - id: framework.translation
     laravel: Illuminate\Translation
@@ -492,14 +486,14 @@ packages:
     inventory: inventories/package-socialite.txt
 
   - id: package.spark
-    laravel: laravel/spark
+    laravel: laravel/spark-paddle
     bedrock: spark
     status: mapped
     repo: local:/Users/gocanto/Sites/madora
     branch: local
     tests_path: tests/Feature/Billing
     inventory: inventories/package-spark.txt
-    rationale: Spark is distributed through the local madora checkout; use the available billing/Spark integration tests as the local Spark compliance inventory.
+    rationale: Local Madora composer resolution of laravel/spark-paddle:^6.0 from https://spark.laravel.com at /Users/gocanto/Sites/madora/vendor/laravel/spark-paddle; laravel/cashier-paddle is its dependency, and tests/Feature/Billing remains the local product integration inventory.
 
   - id: package.telescope
     laravel: laravel/telescope

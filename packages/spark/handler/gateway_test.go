@@ -96,7 +96,7 @@ func newGateway(resolver spark.ResolverFunc, products *testProductStore) *handle
 
 // --- tests ---
 
-// Mirrors BillingGatewayTest::test_guest_cannot_access_billing_gateway
+// BillingGatewayTest::test_guest_cannot_access_billing_gateway
 func TestGatewayHandler_Show_UnauthenticatedReturns401(t *testing.T) {
 	resolver := func(r *http.Request) (spark.Billable, error) {
 		return nil, errors.New("unauthenticated")
@@ -113,7 +113,7 @@ func TestGatewayHandler_Show_UnauthenticatedReturns401(t *testing.T) {
 	}
 }
 
-// Mirrors BillingGatewayTest::test_authenticated_user_can_access_billing_gateway
+// BillingGatewayTest::test_authenticated_user_can_access_billing_gateway
 func TestGatewayHandler_Show_AuthenticatedReturnsOK(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team", name: "Test"}
 	resolver := func(r *http.Request) (spark.Billable, error) {
@@ -131,7 +131,7 @@ func TestGatewayHandler_Show_AuthenticatedReturnsOK(t *testing.T) {
 	}
 }
 
-// Mirrors BillingGatewayTest::test_user_can_select_stripe_as_provider
+// BillingGatewayTest::test_user_can_select_stripe_as_provider
 func TestGatewayHandler_Store_Stripe(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (spark.Billable, error) {
@@ -163,7 +163,7 @@ func TestGatewayHandler_Store_Stripe(t *testing.T) {
 	}
 }
 
-// Mirrors BillingGatewayTest::test_user_can_select_paddle_as_provider
+// BillingGatewayTest::test_user_can_select_paddle_as_provider
 func TestGatewayHandler_Store_Paddle(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (spark.Billable, error) {
@@ -195,7 +195,7 @@ func TestGatewayHandler_Store_Paddle(t *testing.T) {
 	}
 }
 
-// Mirrors BillingGatewayTest::test_invalid_provider_is_rejected
+// BillingGatewayTest::test_invalid_provider_is_rejected
 func TestGatewayHandler_Store_InvalidProviderReturns422(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (spark.Billable, error) {
@@ -215,7 +215,7 @@ func TestGatewayHandler_Store_InvalidProviderReturns422(t *testing.T) {
 	}
 }
 
-// Mirrors BillingGatewayTest::test_billing_gateway_shows_products
+// BillingGatewayTest::test_billing_gateway_shows_products
 func TestGatewayHandler_Show_IncludesProducts(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (spark.Billable, error) {

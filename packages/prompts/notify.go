@@ -43,7 +43,7 @@ func Notify(title string, opts ...NotifyOption) {
 	}
 }
 
-func notifyMacOS(title string, cfg *notifyConfig) {
+func macOSNotificationScript(title string, cfg *notifyConfig) string {
 	script := "display notification"
 
 	if cfg.body != "" {
@@ -64,10 +64,10 @@ func notifyMacOS(title string, cfg *notifyConfig) {
 		script += " sound name \"" + escapeAppleScript(cfg.sound) + "\""
 	}
 
-	_ = exec.Command("osascript", "-e", script).Run()
+	return script
 }
 
-func notifyLinux(title string, cfg *notifyConfig) {
+func linuxNotificationArgs(title string, cfg *notifyConfig) []string {
 	args := []string{title}
 
 	if cfg.body != "" {
@@ -77,6 +77,16 @@ func notifyLinux(title string, cfg *notifyConfig) {
 	if cfg.icon != "" {
 		args = append([]string{"-i", cfg.icon}, args...)
 	}
+
+	return args
+}
+
+func notifyMacOS(title string, cfg *notifyConfig) {
+	_ = exec.Command("osascript", "-e", macOSNotificationScript(title, cfg)).Run()
+}
+
+func notifyLinux(title string, cfg *notifyConfig) {
+	args := linuxNotificationArgs(title, cfg)
 
 	if _, err := exec.LookPath("notify-send"); err == nil {
 		_ = exec.Command("notify-send", args...).Run()

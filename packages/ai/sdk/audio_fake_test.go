@@ -1,4 +1,7 @@
-// Port of Laravel\Ai\Tests\Feature\AudioFakeTest
+// AudioFakeTest::test_audio_can_be_faked
+// AudioFakeTest::test_can_assert_no_audio_was_generated
+// AudioFakeTest::test_audio_timeout_defaults_to_sdk_fallback
+// AudioFakeTest::test_audio_voice_and_instructions_are_recorded
 package ai_test
 
 import (

@@ -14,6 +14,7 @@ type Entry struct {
 	Level     string
 	Message   string
 	Context   map[string]any
+	Trace     []string
 	Raw       string
 }
 
@@ -45,8 +46,14 @@ func (f Filter) Match(entry Entry) bool {
 		}
 	}
 
-	if f.Contains != "" && !strings.Contains(strings.ToLower(entry.Message), strings.ToLower(f.Contains)) {
-		return false
+	if f.Contains != "" {
+		needle := strings.ToLower(f.Contains)
+
+		if !strings.Contains(strings.ToLower(entry.Message), needle) &&
+			!strings.Contains(strings.ToLower(entry.Level), needle) &&
+			!strings.Contains(strings.ToLower(entry.Raw), needle) {
+			return false
+		}
 	}
 
 	if !f.Since.IsZero() && entry.Timestamp.Before(f.Since) {
@@ -108,6 +115,7 @@ func ParseLine(line string) Entry {
 		if err := json.Unmarshal([]byte(rawContext), &context); err == nil {
 			entry.Message = strings.TrimSpace(message[:contextStart])
 			entry.Context = context
+			entry.Trace = traceFromContext(context)
 		}
 	}
 

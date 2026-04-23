@@ -47,6 +47,7 @@ func TestStrFreezeUuidsCleanup(t *testing.T) {
 }
 
 // Port of Illuminate\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUuidsToUtilise
+// SupportStrTest::testItCanSpecifyAFallbackForASequence
 func TestStrUuidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := CreateUuidsUsingSequence([]string{
@@ -63,9 +64,21 @@ func TestStrUuidSequence(t *testing.T) {
 	if got := StrUuid(); got != "second-uuid" {
 		t.Errorf("sequence[1] = %q", got)
 	}
+
+	cleanup()
+	cleanup = CreateUuidsUsingSequence([]string{"only-uuid"}, func() string { return "fallback-uuid" })
+
+	if got := StrUuid(); got != "only-uuid" {
+		t.Errorf("fallback sequence first value = %q", got)
+	}
+
+	if got := StrUuid(); got != "fallback-uuid" {
+		t.Errorf("fallback value = %q", got)
+	}
 }
 
 // Port of Illuminate\Tests\Support\SupportStrTest::testItCanFreezeUlids
+// SupportStrTest::testItCanFreezeUlidsInAClosure
 func TestStrFreezeUlids(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := FreezeUlids(func() string { return "FROZENULID00000000000000000" })
@@ -78,6 +91,7 @@ func TestStrFreezeUlids(t *testing.T) {
 }
 
 // Port of Illuminate\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUlidsToUtilise
+// SupportStrTest::testItCanSpecifyAFallbackForAUlidSequence
 func TestStrUlidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
 	seq := []string{
@@ -95,9 +109,23 @@ func TestStrUlidSequence(t *testing.T) {
 	if got := StrUlid(); got != seq[1] {
 		t.Errorf("sequence[1] = %q", got)
 	}
+
+	cleanup()
+	cleanup = CreateUlidsUsingSequence([]string{"ONLYULID0000000000000000"}, func() string {
+		return "FALLBACKULID000000000000"
+	})
+
+	if got := StrUlid(); got != "ONLYULID0000000000000000" {
+		t.Errorf("fallback sequence first value = %q", got)
+	}
+
+	if got := StrUlid(); got != "FALLBACKULID000000000000" {
+		t.Errorf("fallback value = %q", got)
+	}
 }
 
 // Port of Illuminate\Tests\Support\SupportStrTest::testItCreatesUuidsNormallyAfterFailureWithinFreezeMethod
+// SupportStrTest::testItCreatesUlidsNormallyAfterFailureWithinFreezeMethod
 func TestStrCreateUuidsNormally(t *testing.T) {
 	// NOT parallel — modifies global state
 	cleanup := FreezeUuids(func() string { return "frozen" })
@@ -111,6 +139,19 @@ func TestStrCreateUuidsNormally(t *testing.T) {
 
 	if !StrIsUuid(uuid) {
 		t.Errorf("should be valid UUID, got %q", uuid)
+	}
+
+	ulidCleanup := FreezeUlids(func() string { return "FROZENULID00000000000000000" })
+	ulidCleanup()
+
+	ulid := StrUlid()
+
+	if ulid == "FROZENULID00000000000000000" {
+		t.Error("after ULID cleanup, should generate real ULIDs")
+	}
+
+	if len(ulid) != 26 {
+		t.Errorf("should be valid ULID length, got %q", ulid)
 	}
 }
 

@@ -124,6 +124,8 @@ func (c *RouteCollection) RefreshActionLookups() {
 	for _, r := range c.allRoutes {
 		if v, ok := r.ActionMap["controller"]; ok {
 			if controller, ok := v.(string); ok && controller != "" {
+				controller = strings.TrimLeft(controller, `\`)
+
 				if _, present := c.actionList[controller]; !present {
 					c.actionList[controller] = r
 				}

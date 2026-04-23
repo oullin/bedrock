@@ -7,6 +7,11 @@ import (
 	"github.com/bedrock/packages/collection/arr"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportArrTest::testEmptyShuffle
+// SupportArrTest::testShuffleActuallyShuffles
+// SupportArrTest::testShuffleKeepsSameValues
+// SupportArrTest::testRandomOnEmptyArray
 func TestSort(t *testing.T) {
 	items := []int{3, 1, 4, 1, 5}
 	result := arr.Sort(items, func(a, b int) bool { return a < b })

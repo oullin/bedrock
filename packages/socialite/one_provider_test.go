@@ -67,6 +67,7 @@ func stringify(v any) string {
 
 // ── Tests (OAuthOneTest.php equivalents) ─────────────────────────────────────
 
+// OAuthOneTest::testRedirectGeneratesTheProperIlluminateRedirectResponse
 // TestOAuth1RedirectGeneratesURL mirrors
 // testRedirectGeneratesTheProperIlluminateRedirectResponse.
 func TestOAuth1RedirectGeneratesURL(t *testing.T) {
@@ -99,6 +100,7 @@ func TestOAuth1RedirectGeneratesURL(t *testing.T) {
 	}
 }
 
+// OAuthOneTest::testUserReturnsAUserInstanceForTheAuthenticatedRequest
 // TestOAuth1UserReturnsAuthenticatedUser mirrors
 // testUserReturnsAUserInstanceForTheAuthenticatedRequest.
 func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
@@ -142,6 +144,7 @@ func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
 	}
 }
 
+// OAuthOneTest::testExceptionIsThrownWhenVerifierIsMissing
 // TestOAuth1ErrorsOnMissingVerifier mirrors
 // testExceptionIsThrownWhenVerifierIsMissing.
 func TestOAuth1ErrorsOnMissingVerifier(t *testing.T) {
@@ -157,6 +160,7 @@ func TestOAuth1ErrorsOnMissingVerifier(t *testing.T) {
 	}
 }
 
+// OAuthOneTest::testExceptionIsThrownWhenTemporaryCredentialsAreMissing
 // TestOAuth1ErrorsOnMissingTemporaryCredentials mirrors
 // testExceptionIsThrownWhenTemporaryCredentialsAreMissing.
 func TestOAuth1ErrorsOnMissingTemporaryCredentials(t *testing.T) {

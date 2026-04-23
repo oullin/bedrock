@@ -6,6 +6,167 @@ import (
 	"time"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportLazyCollectionTest::testCanCreateCollectionFromArray
+// SupportLazyCollectionTest::testCanCreateCollectionFromGeneratorFunction
+// SupportLazyCollectionTest::testCanCreateCollectionFromNonGeneratorFunction
+// SupportLazyCollectionTest::testDoesNotCreateCollectionFromGenerator
+// SupportLazyCollectionTest::testCanCreateEmptyCollection
+// SupportLazyCollectionTest::testEager
+// SupportLazyCollectionTest::testRemember
+// SupportLazyCollectionTest::testRememberWithTwoRunners
+// SupportLazyCollectionTest::testRememberWithDuplicateKeys
+// SupportLazyCollectionTest::testTakeUntilTimeout
+// SupportLazyCollectionTest::testTapEach
+// SupportLazyCollectionTest::testThrottle
+// SupportLazyCollectionTest::testThrottleAccountsForTimePassed
+// SupportLazyCollectionTest::testUniqueDoubleEnumeration
+// SupportLazyCollectionTest::testAfter
+// SupportLazyCollectionTest::testBefore
+// SupportLazyCollectionTest::testShuffle
+// SupportLazyCollectionTest::testCollapseWithKeys
+// SupportLazyCollectionTest::testContainsOneItem
+// SupportLazyCollectionTest::testContainsManyItems
+// SupportLazyCollectionTest::testDoesntContain
+// SupportLazyCollectionTest::testDot
+// SupportLazyCollectionTest::testWithHeartbeat
+// SupportLazyCollectionTest::testRandomPreservesKeys
+// SupportLazyCollectionTest::testFirstOrFail
+// SupportLazyCollectionTest::testFirstOrFailReturnsFirstItemInCollectionIfOnlyOneExistsWithCallback
+// SupportLazyCollectionTest::testFirstOrFailThrowsExceptionIfNoItemsExistWithCallback
+// SupportLazyCollectionTest::testFirstOrFailDoesntThrowExceptionIfMoreThanOneItemExistsWithCallback
+// SupportLazyCollectionIsLazyTest::testFirstIsLazy
+// SupportLazyCollectionTest::testLast
+// SupportLazyCollectionTest::testGet
+// SupportLazyCollectionTest::testContains
+// SupportLazyCollectionTest::testSearch
+// SupportLazyCollectionTest::testBefore
+// SupportLazyCollectionTest::testAfter
+// SupportLazyCollectionTest::testFilter
+// SupportLazyCollectionTest::testReject
+// SupportLazyCollectionTest::testMap
+// SupportLazyCollectionTest::testFlatMap
+// SupportLazyCollectionTest::testTake
+// SupportLazyCollectionTest::testTakeUntil
+// SupportLazyCollectionTest::testTakeWhile
+// SupportLazyCollectionTest::testSkip
+// SupportLazyCollectionTest::testSkipUntil
+// SupportLazyCollectionTest::testSkipWhile
+// SupportLazyCollectionTest::testSlice
+// SupportLazyCollectionTest::testChunk
+// SupportLazyCollectionTest::testNth
+// SupportLazyCollectionTest::testConcat
+// SupportLazyCollectionTest::testPad
+// SupportLazyCollectionTest::testEvery
+// SupportLazyCollectionTest::testImplode
+// SupportLazyCollectionTest::testJoin
+// SupportLazyCollectionTest::testReduce
+// SupportLazyCollectionTest::testUnique
+// SupportLazyCollectionTest::testPluck
+// SupportLazyCollectionTest::testGroupBy
+// SupportLazyCollectionTest::testKeyBy
+// SupportLazyCollectionTest::testCountBy
+// SupportLazyCollectionTest::testRemember
+// SupportLazyCollectionTest::testContainsOneItem
+// SupportLazyCollectionTest::testWhen
+// SupportLazyCollectionTest::testTapEach
+// SupportLazyCollectionTest::testFromSlice
+// SupportLazyCollectionTest::testEach
+// SupportLazyCollectionTest::testSole
+// SupportLazyCollectionTest::testFirstOrFail
+// SupportLazyCollectionTest::testIter
+// SupportLazyCollectionTest::testCollect
+// SupportLazyCollectionTest::testContainsManyItems
+// SupportLazyCollectionTest::testSome
+// SupportLazyCollectionTest::testDoesntContain
+// SupportLazyCollectionTest::testTap
+// SupportLazyCollectionTest::testHas
+// SupportLazyCollectionTest::testHasAny
+// SupportLazyCollectionTest::testHasSole
+// SupportLazyCollectionTest::testChunkWhile
+// SupportLazyCollectionTest::testTakeUntilTimeout
+// SupportLazyCollectionTest::testThrottle
+// SupportLazyCollectionTest::testWhenFalseWithDefault
+// SupportLazyCollectionTest::testWhenFalseWithoutDefault
+// SupportLazyCollectionTest::testWhenEmpty
+// SupportLazyCollectionTest::testWhenNotEmpty
+// SupportLazyCollectionTest::testUnless
+// SupportLazyCollectionTest::testDump
+// SupportLazyCollectionTest::testSoleEmpty
+// SupportLazyCollectionTest::testSoleMultiple
+// SupportLazyCollectionTest::testSoleSingle
+// SupportLazyCollectionTest::testSoleCallbackNoMatch
+// SupportLazyCollectionTest::testSoleCallbackMultipleMatches
+// SupportLazyCollectionTest::testPadNegative
+// SupportLazyCollectionTest::testPadAlreadySufficient
+// SupportLazyCollectionTest::testRangeSingle
+// SupportLazyCollectionTest::testTimesZero
+// SupportLazyCollectionTest::testIsEmptyNonEmpty
+// SupportLazyCollectionTest::testEveryEmpty
+// SupportLazyCollectionTest::testEveryFailing
+// SupportLazyCollectionIsLazyTest::testMakeWithClosureIsLazy
+// SupportLazyCollectionIsLazyTest::testMakeWithLazyCollectionIsLazy
+// SupportLazyCollectionIsLazyTest::testEagerEnumeratesOnce
+// SupportLazyCollectionIsLazyTest::testChunkIsLazy
+// SupportLazyCollectionIsLazyTest::testChunkWhileIsLazy
+// SupportLazyCollectionIsLazyTest::testCollapseIsLazy
+// SupportLazyCollectionIsLazyTest::testCombineIsLazy
+// SupportLazyCollectionIsLazyTest::testConcatIsLazy
+// SupportLazyCollectionIsLazyTest::testMultiplyIsLazy
+// SupportLazyCollectionIsLazyTest::testContainsIsLazy
+// SupportLazyCollectionIsLazyTest::testDoesntContainIsLazy
+// SupportLazyCollectionIsLazyTest::testContainsStrictIsLazy
+// SupportLazyCollectionIsLazyTest::testCountEnumeratesOnce
+// SupportLazyCollectionIsLazyTest::testCountByIsLazy
+// SupportLazyCollectionIsLazyTest::testCrossJoinIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffAssocIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffAssocUsingIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffKeysIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffKeysUsingIsLazy
+// SupportLazyCollectionIsLazyTest::testDiffUsingIsLazy
+// SupportLazyCollectionIsLazyTest::testDuplicatesIsLazy
+// SupportLazyCollectionIsLazyTest::testDuplicatesStrictIsLazy
+// SupportLazyCollectionIsLazyTest::testEachIsLazy
+// SupportLazyCollectionIsLazyTest::testEachSpreadIsLazy
+// SupportLazyCollectionIsLazyTest::testEveryIsLazy
+// SupportLazyCollectionIsLazyTest::testExceptIsLazy
+// SupportLazyCollectionIsLazyTest::testFilterIsLazy
+// SupportLazyCollectionIsLazyTest::testFirstIsLazy
+// SupportLazyCollectionIsLazyTest::testFirstWhereIsLazy
+// SupportLazyCollectionIsLazyTest::testFlatMapIsLazy
+// SupportLazyCollectionIsLazyTest::testFlattenIsLazy
+// SupportLazyCollectionIsLazyTest::testFlipIsLazy
+// SupportLazyCollectionIsLazyTest::testForPageIsLazy
+// SupportLazyCollectionIsLazyTest::testGetIsLazy
+// SupportLazyCollectionIsLazyTest::testGroupByIsLazy
+// SupportLazyCollectionIsLazyTest::testHasIsLazy
+// SupportLazyCollectionIsLazyTest::testHasAnyIsLazy
+// SupportLazyCollectionIsLazyTest::testImplodeEnumeratesOnce
+// SupportLazyCollectionIsLazyTest::testIntersectIsLazy
+// SupportLazyCollectionIsLazyTest::testIntersectUsingIsLazy
+// SupportLazyCollectionIsLazyTest::testIntersectAssocIsLazy
+// SupportLazyCollectionIsLazyTest::testIntersectAssocUsingIsLazy
+// SupportLazyCollectionIsLazyTest::testIsEmptyIsLazy
+// SupportLazyCollectionIsLazyTest::testIsNotEmptyIsLazy
+// SupportLazyCollectionIsLazyTest::testContainsOneItemIsLazy
+// SupportLazyCollectionIsLazyTest::testHasManyIsLazy
+// SupportLazyCollectionIsLazyTest::testHasSoleIsLazy
+// SupportLazyCollectionIsLazyTest::testJoinIsLazy
+// SupportLazyCollectionIsLazyTest::testLastEnumeratesOnce
+// SupportLazyCollectionIsLazyTest::testMapIsLazy
+// SupportLazyCollectionIsLazyTest::testNthIsLazy
+// SupportLazyCollectionIsLazyTest::testPluckIsLazy
+// SupportLazyCollectionIsLazyTest::testRejectIsLazy
+// SupportLazyCollectionIsLazyTest::testSkipIsLazy
+// SupportLazyCollectionIsLazyTest::testSkipUntilIsLazy
+// SupportLazyCollectionIsLazyTest::testSkipWhileIsLazy
+// SupportLazyCollectionIsLazyTest::testSliceIsLazy
+// SupportLazyCollectionIsLazyTest::testTakeIsLazy
+// SupportLazyCollectionIsLazyTest::testTakeUntilIsLazy
+// SupportLazyCollectionIsLazyTest::testTakeWhileIsLazy
+// SupportLazyCollectionIsLazyTest::testUniqueIsLazy
+// SupportLazyCollectionIsLazyTest::testValuesIsLazy
 func TestFrom(t *testing.T) {
 	lc := From([]int{1, 2, 3})
 	items := lc.All()
@@ -193,6 +354,523 @@ func TestFlatMap(t *testing.T) {
 
 	if !reflect.DeepEqual(result.All(), expected) {
 		t.Errorf("expected %v, got %v", expected, result.All())
+	}
+}
+
+func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
+	// SupportLazyCollectionIsLazyTest::testPadIsLazy
+	// SupportLazyCollectionIsLazyTest::testRangeIsLazy
+	// SupportLazyCollectionIsLazyTest::testRememberIsLazy
+	// SupportLazyCollectionIsLazyTest::testTakeUntilTimeoutIsLazy
+	// SupportLazyCollectionIsLazyTest::testTapDoesNotEnumerate
+	// SupportLazyCollectionIsLazyTest::testTapEachIsLazy
+	// SupportLazyCollectionIsLazyTest::testTimesIsLazy
+	// SupportLazyCollectionIsLazyTest::testUnlessDoesNotEnumerate
+	// SupportLazyCollectionIsLazyTest::testWhenDoesNotEnumerate
+	tests := []struct {
+		name  string
+		build func(*Collection[int]) *Collection[int]
+		want  []int
+	}{
+		{
+			name: "map",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return Map(lc, func(item int, _ int) int { return item * 2 })
+			},
+			want: []int{2, 4, 6},
+		},
+		{
+			name:  "pluck",
+			build: func(lc *Collection[int]) *Collection[int] { return Pluck(lc, func(item int) int { return item * 10 }) },
+			want:  []int{10, 20, 30},
+		},
+		{
+			name: "reject",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.Reject(func(item int, _ int) bool { return item%2 == 0 })
+			},
+			want: []int{1, 3},
+		},
+		{
+			name:  "take",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Take(2) },
+			want:  []int{1, 2},
+		},
+		{
+			name: "take-until",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.TakeUntil(func(item int, _ int) bool { return item == 3 })
+			},
+			want: []int{1, 2},
+		},
+		{
+			name: "take-while",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.TakeWhile(func(item int, _ int) bool { return item < 3 })
+			},
+			want: []int{1, 2},
+		},
+		{
+			name:  "skip",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Skip(1) },
+			want:  []int{2, 3},
+		},
+		{
+			name: "skip-until",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.SkipUntil(func(item int, _ int) bool { return item == 2 })
+			},
+			want: []int{2, 3},
+		},
+		{
+			name: "skip-while",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.SkipWhile(func(item int, _ int) bool { return item < 3 })
+			},
+			want: []int{3},
+		},
+		{
+			name:  "slice",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Slice(1, 2) },
+			want:  []int{2, 3},
+		},
+		{
+			name:  "nth",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Nth(2) },
+			want:  []int{1, 3},
+		},
+		{
+			name:  "pad",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Pad(5, 0) },
+			want:  []int{1, 2, 3, 0, 0},
+		},
+		{
+			name:  "remember",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Remember() },
+			want:  []int{1, 2, 3},
+		},
+		{
+			name:  "take-until-timeout",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.TakeUntilTimeout(time.Hour) },
+			want:  []int{1, 2, 3},
+		},
+		{
+			name: "tap",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.Tap(func(inner *Collection[int]) {
+					if inner == nil {
+						t.Fatal("Tap received nil collection")
+					}
+				})
+			},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "tap-each",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.TapEach(func(_ int, _ int) {})
+			},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "unless",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.Unless(true, func(inner *Collection[int]) *Collection[int] {
+					t.Fatal("Unless callback should not run when condition is true")
+
+					return inner
+				})
+			},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "when",
+			build: func(lc *Collection[int]) *Collection[int] {
+				return lc.When(false, func(inner *Collection[int]) *Collection[int] {
+					t.Fatal("When callback should not run when condition is false")
+
+					return inner
+				})
+			},
+			want: []int{1, 2, 3},
+		},
+		{
+			name:  "unique",
+			build: func(lc *Collection[int]) *Collection[int] { return Unique(lc, func(item int) int { return item % 2 }) },
+			want:  []int{1, 2},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			enumerated := 0
+			source := New(func(yield func(int) bool) {
+				for _, item := range []int{1, 2, 3} {
+					enumerated++
+
+					if !yield(item) {
+						return
+					}
+				}
+			})
+
+			result := tt.build(source)
+
+			if enumerated != 0 {
+				t.Fatalf("expected construction to stay lazy, enumerated %d items", enumerated)
+			}
+
+			if got := result.All(); !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("expected %v, got %v", tt.want, got)
+			}
+		})
+	}
+
+	t.Run("range-constructor", func(t *testing.T) {
+		lc := Range(1, 3)
+
+		if got := lc.All(); !reflect.DeepEqual(got, []int{1, 2, 3}) {
+			t.Fatalf("expected range values, got %v", got)
+		}
+	})
+
+	t.Run("times-constructor", func(t *testing.T) {
+		calls := 0
+		lc := Times(3, func(index int) int {
+			calls++
+
+			return index * 10
+		})
+
+		if calls != 0 {
+			t.Fatalf("expected Times construction to stay lazy, called %d times", calls)
+		}
+
+		if got := lc.All(); !reflect.DeepEqual(got, []int{10, 20, 30}) {
+			t.Fatalf("expected times values, got %v", got)
+		}
+
+		if calls != 3 {
+			t.Fatalf("expected Times callback to run during enumeration, called %d times", calls)
+		}
+	})
+}
+
+func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
+	t.Parallel()
+
+	// SupportLazyCollectionIsLazyTest::testAvgEnumeratesOnce
+	// SupportLazyCollectionIsLazyTest::testFindFirstOrFailIsLazy
+	// SupportLazyCollectionIsLazyTest::testMaxEnumeratesOnce
+	// SupportLazyCollectionIsLazyTest::testMinEnumeratesOnce
+	// SupportLazyCollectionIsLazyTest::testReduceIsLazy
+	// SupportLazyCollectionIsLazyTest::testReverseIsLazy
+	// SupportLazyCollectionIsLazyTest::testRandomEnumeratesOnce
+	// SupportLazyCollectionIsLazyTest::testSearchIsLazy
+	// SupportLazyCollectionIsLazyTest::testShuffleIsLazy
+	// SupportLazyCollectionIsLazyTest::testSlidingIsLazy
+	// SupportLazyCollectionIsLazyTest::testSomeIsLazy
+	// SupportLazyCollectionIsLazyTest::testSoleIsLazy
+	// SupportLazyCollectionIsLazyTest::testSortIsLazy
+	// SupportLazyCollectionIsLazyTest::testSortDescIsLazy
+	// SupportLazyCollectionIsLazyTest::testSortByIsLazy
+	// SupportLazyCollectionIsLazyTest::testSortByDescIsLazy
+	// SupportLazyCollectionIsLazyTest::testSumEnumeratesOnce
+	// SupportLazyCollectionIsLazyTest::testThrottleIsLazy
+	// SupportLazyCollectionIsLazyTest::testToArrayEnumeratesOnce
+	enumerated := 0
+	source := New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	first, err := source.FirstOrFail(func(item int, _ int) bool { return item == 2 })
+
+	if err != nil || first != 2 {
+		t.Fatalf("FirstOrFail = %d, %v", first, err)
+	}
+
+	if enumerated != 2 {
+		t.Fatalf("FirstOrFail enumerated %d items, want 2", enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	idx, ok := source.Search(func(item int, _ int) bool { return item == 3 })
+
+	if !ok || idx != 2 || enumerated != 3 {
+		t.Fatalf("Search idx=%d ok=%v enumerated=%d", idx, ok, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if !source.Some(func(item int, _ int) bool { return item == 1 }) || enumerated != 1 {
+		t.Fatalf("Some enumerated %d items, want 1", enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	sole, err := source.Sole(func(item int, _ int) bool { return item == 3 })
+
+	if err != nil || sole != 3 || enumerated != 4 {
+		t.Fatalf("Sole = %d, %v after %d enumerations", sole, err, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	sum := Reduce(source, func(carry int, item int, _ int) int { return carry + item }, 0)
+
+	if sum != 10 || enumerated != 4 {
+		t.Fatalf("Reduce sum=%d enumerated=%d", sum, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{3, 1, 4, 2} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if got := Sum(source); got != 10 || enumerated != 4 {
+		t.Fatalf("Sum=%d enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{3, 1, 4, 2} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if got := Avg(source); got != 2.5 || enumerated != 4 {
+		t.Fatalf("Avg=%v enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{3, 1, 4, 2} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if got, ok := Min(source); !ok || got != 1 || enumerated != 4 {
+		t.Fatalf("Min=%d ok=%v enumerated=%d", got, ok, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{3, 1, 4, 2} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if got, ok := Max(source); !ok || got != 4 || enumerated != 4 {
+		t.Fatalf("Max=%d ok=%v enumerated=%d", got, ok, enumerated)
+	}
+
+	lazyCases := []struct {
+		name  string
+		build func(*Collection[int]) *Collection[int]
+		want  []int
+	}{
+		{
+			name:  "reverse",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Reverse() },
+			want:  []int{2, 4, 1, 3},
+		},
+		{
+			name:  "sort",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.Sort(func(a, b int) bool { return a < b }) },
+			want:  []int{1, 2, 3, 4},
+		},
+		{
+			name:  "sort-desc",
+			build: func(lc *Collection[int]) *Collection[int] { return lc.SortDesc(func(a, b int) bool { return a < b }) },
+			want:  []int{4, 3, 2, 1},
+		},
+		{
+			name:  "sort-by",
+			build: func(lc *Collection[int]) *Collection[int] { return SortBy(lc, func(item int) int { return item }) },
+			want:  []int{1, 2, 3, 4},
+		},
+		{
+			name:  "sort-by-desc",
+			build: func(lc *Collection[int]) *Collection[int] { return SortByDesc(lc, func(item int) int { return item }) },
+			want:  []int{4, 3, 2, 1},
+		},
+	}
+
+	for _, tt := range lazyCases {
+		t.Run(tt.name, func(t *testing.T) {
+			enumerated = 0
+			source = New(func(yield func(int) bool) {
+				for _, item := range []int{3, 1, 4, 2} {
+					enumerated++
+
+					if !yield(item) {
+						return
+					}
+				}
+			})
+			result := tt.build(source)
+
+			if enumerated != 0 {
+				t.Fatalf("%s construction enumerated %d items", tt.name, enumerated)
+			}
+
+			if got := result.All(); !reflect.DeepEqual(got, tt.want) || enumerated != 4 {
+				t.Fatalf("%s got=%v enumerated=%d", tt.name, got, enumerated)
+			}
+		})
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	random := source.Random(2)
+
+	if enumerated != 0 {
+		t.Fatalf("Random construction enumerated %d items", enumerated)
+	}
+
+	if got := random.All(); len(got) != 2 || enumerated != 4 {
+		t.Fatalf("Random got=%v enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	shuffled := source.Shuffle()
+
+	if enumerated != 0 {
+		t.Fatalf("Shuffle construction enumerated %d items", enumerated)
+	}
+
+	if got := shuffled.All(); len(got) != 4 || enumerated != 4 {
+		t.Fatalf("Shuffle got=%v enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	sliding := Sliding(source, 2)
+
+	if enumerated != 0 {
+		t.Fatalf("Sliding construction enumerated %d items", enumerated)
+	}
+
+	if got := sliding.All(); !reflect.DeepEqual(got, [][]int{{1, 2}, {2, 3}, {3, 4}}) || enumerated != 4 {
+		t.Fatalf("Sliding got=%v enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+	throttled := source.Throttle(0)
+
+	if enumerated != 0 {
+		t.Fatalf("Throttle construction enumerated %d items", enumerated)
+	}
+
+	if got := throttled.All(); !reflect.DeepEqual(got, []int{1, 2, 3, 4}) || enumerated != 4 {
+		t.Fatalf("Throttle All got=%v enumerated=%d", got, enumerated)
+	}
+
+	enumerated = 0
+	source = New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3, 4} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	if got := source.All(); !reflect.DeepEqual(got, []int{1, 2, 3, 4}) || enumerated != 4 {
+		t.Fatalf("All got=%v enumerated=%d", got, enumerated)
 	}
 }
 
@@ -522,6 +1200,70 @@ func TestFirstOrFail(t *testing.T) {
 
 	if err == nil {
 		t.Error("expected error")
+	}
+
+	cases := []struct {
+		name      string
+		predicate func(int, int) bool
+		want      int
+		wantErr   bool
+	}{
+		{
+			name:      "single match",
+			predicate: func(item int, _ int) bool { return item == 2 },
+			want:      2,
+		},
+		{
+			name:      "no match",
+			predicate: func(item int, _ int) bool { return item > 10 },
+			wantErr:   true,
+		},
+		{
+			name:      "multiple matches",
+			predicate: func(item int, _ int) bool { return item > 1 },
+			want:      2,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := lc.FirstOrFail(tt.predicate)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("expected error")
+				}
+
+				return
+			}
+
+			if err != nil || got != tt.want {
+				t.Fatalf("expected %d, got %d, err: %v", tt.want, got, err)
+			}
+		})
+	}
+}
+
+func TestFirstIsLazy(t *testing.T) {
+	enumerated := 0
+	lc := New(func(yield func(int) bool) {
+		for _, item := range []int{1, 2, 3} {
+			enumerated++
+
+			if !yield(item) {
+				return
+			}
+		}
+	})
+
+	v, ok := lc.First(func(item int, _ int) bool { return item == 2 })
+
+	if !ok || v != 2 {
+		t.Fatalf("expected 2, got %d", v)
+	}
+
+	if enumerated != 2 {
+		t.Fatalf("expected to enumerate 2 items, got %d", enumerated)
 	}
 }
 

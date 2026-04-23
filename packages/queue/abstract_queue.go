@@ -114,6 +114,14 @@ func NewUUIDv4() string {
 func CreatePayloadFor(connection, queueName string, job any, data map[string]any, opts JobOptions) (*Payload, []byte, error) {
 	now := time.Now().UTC()
 
+	if opts.BatchID != "" {
+		if data == nil {
+			data = make(map[string]any, 1)
+		}
+
+		data["batchId"] = opts.BatchID
+	}
+
 	p := &Payload{
 		UUID:          NewUUIDv4(),
 		DisplayName:   DisplayName(job),

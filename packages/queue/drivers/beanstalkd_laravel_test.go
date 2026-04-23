@@ -53,7 +53,16 @@ type recordingBeanstalkdClient struct {
 	puts     []recordingBeanstalkdPut
 	reserves []recordingBeanstalkdReserve
 	deletes  []uint64
-	nextID   uint64
+	releases []struct {
+		id       uint64
+		priority uint32
+		delay    time.Duration
+	}
+	buries []struct {
+		id       uint64
+		priority uint32
+	}
+	nextID uint64
 
 	// Canned reserve response.
 	reserveID   uint64
@@ -102,11 +111,30 @@ func (c *recordingBeanstalkdClient) Delete(_ context.Context, id uint64) error {
 	return nil
 }
 
-func (c *recordingBeanstalkdClient) Release(_ context.Context, _ uint64, _ uint32, _ time.Duration) error {
+func (c *recordingBeanstalkdClient) Release(_ context.Context, id uint64, priority uint32, delay time.Duration) error {
+	c.mu.Lock()
+
+	defer c.mu.Unlock()
+
+	c.releases = append(c.releases, struct {
+		id       uint64
+		priority uint32
+		delay    time.Duration
+	}{id: id, priority: priority, delay: delay})
+
 	return nil
 }
 
-func (c *recordingBeanstalkdClient) Bury(_ context.Context, _ uint64, _ uint32) error {
+func (c *recordingBeanstalkdClient) Bury(_ context.Context, id uint64, priority uint32) error {
+	c.mu.Lock()
+
+	defer c.mu.Unlock()
+
+	c.buries = append(c.buries, struct {
+		id       uint64
+		priority uint32
+	}{id: id, priority: priority})
+
 	return nil
 }
 
@@ -306,5 +334,132 @@ func TestDeleteProperlyRemoveJobsOffBeanstalkd(t *testing.T) {
 	// mock has primed a reserve response.
 	if errors.Is(err, queue.ErrNoJob) {
 		t.Error("unexpected ErrNoJob from primed reserve")
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueBeanstalkdJobTest::testFireProperlyCallsTheJobHandler
+func TestBeanstalkdJobFireProperlyCallsTheJobHandler(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newBeanstalkdDriverForPort(0)
+	client.reserveID = 99
+	client.reserveBody = []byte(`{"job":"foo"}`)
+
+	job, err := drv.Pop(context.Background(), "default")
+
+	if err != nil {
+		t.Fatalf("Pop: %v", err)
+	}
+
+	if err := job.Fire(context.Background()); err != nil {
+		t.Fatalf("Fire: %v", err)
+	}
+
+	if string(job.Payload()) != `{"job":"foo"}` {
+		t.Errorf("payload: got %q", job.Payload())
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueBeanstalkdJobTest::testFailProperlyCallsTheJobHandler
+func TestBeanstalkdJobFailProperlyCallsTheJobHandler(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newBeanstalkdDriverForPort(0)
+	client.reserveID = 99
+	client.reserveBody = []byte(`{"job":"foo"}`)
+
+	job, err := drv.Pop(context.Background(), "default")
+
+	if err != nil {
+		t.Fatalf("Pop: %v", err)
+	}
+
+	if err := job.Fail(errors.New("boom")); err != nil {
+		t.Fatalf("Fail: %v", err)
+	}
+
+	if !job.HasFailed() {
+		t.Fatal("job should be marked failed")
+	}
+
+	if len(client.buries) != 1 || client.buries[0].id != 99 {
+		t.Fatalf("buries: got %+v, want id 99", client.buries)
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueBeanstalkdJobTest::testDeleteRemovesTheJobFromBeanstalkd
+func TestBeanstalkdJobDeleteRemovesTheJobFromBeanstalkd(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newBeanstalkdDriverForPort(0)
+	client.reserveID = 99
+	client.reserveBody = []byte(`{"job":"foo"}`)
+
+	job, err := drv.Pop(context.Background(), "default")
+
+	if err != nil {
+		t.Fatalf("Pop: %v", err)
+	}
+
+	if err := job.Delete(); err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+
+	if len(client.deletes) != 1 || client.deletes[0] != 99 {
+		t.Fatalf("deletes: got %+v, want [99]", client.deletes)
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueBeanstalkdJobTest::testReleaseProperlyReleasesJobOntoBeanstalkd
+func TestBeanstalkdJobReleaseProperlyReleasesJobOntoBeanstalkd(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newBeanstalkdDriverForPort(0)
+	client.reserveID = 99
+	client.reserveBody = []byte(`{"job":"foo"}`)
+
+	job, err := drv.Pop(context.Background(), "default")
+
+	if err != nil {
+		t.Fatalf("Pop: %v", err)
+	}
+
+	if err := job.Release(10 * time.Second); err != nil {
+		t.Fatalf("Release: %v", err)
+	}
+
+	if len(client.releases) != 1 {
+		t.Fatalf("releases: got %d, want 1", len(client.releases))
+	}
+
+	if got := client.releases[0]; got.id != 99 || got.priority != 1024 || got.delay != 10*time.Second {
+		t.Fatalf("release: got %+v, want id=99 priority=1024 delay=10s", got)
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueBeanstalkdJobTest::testBuryProperlyBuryTheJobFromBeanstalkd
+func TestBeanstalkdJobBuryProperlyBuryTheJobFromBeanstalkd(t *testing.T) {
+	t.Parallel()
+
+	drv, client := newBeanstalkdDriverForPort(0)
+	client.reserveID = 99
+	client.reserveBody = []byte(`{"job":"foo"}`)
+
+	job, err := drv.Pop(context.Background(), "default")
+
+	if err != nil {
+		t.Fatalf("Pop: %v", err)
+	}
+
+	if err := job.Fail(errors.New("bury")); err != nil {
+		t.Fatalf("Fail: %v", err)
+	}
+
+	if len(client.buries) != 1 {
+		t.Fatalf("buries: got %d, want 1", len(client.buries))
+	}
+
+	if got := client.buries[0]; got.id != 99 || got.priority != 1024 {
+		t.Fatalf("bury: got %+v, want id=99 priority=1024", got)
 	}
 }

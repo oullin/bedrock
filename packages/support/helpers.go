@@ -1,6 +1,7 @@
 package support
 
 import (
+	"fmt"
 	"html"
 	"os"
 	"reflect"
@@ -106,8 +107,23 @@ func Transform[T, U any](value T, fn func(T) U, def ...U) (U, bool) {
 
 // E HTML-encodes the given string, converting special characters to HTML entities.
 // Mirrors Laravel's e() helper.
-func E(value string) string {
-	return html.EscapeString(value)
+func E(value any) string {
+	if value == nil {
+		return ""
+	}
+
+	var raw string
+
+	switch v := value.(type) {
+	case string:
+		raw = v
+	case []byte:
+		raw = string(v)
+	default:
+		raw = fmt.Sprint(v)
+	}
+
+	return html.EscapeString(raw)
 }
 
 // Env returns the value of the environment variable named by key.
@@ -164,4 +180,51 @@ func EnvBool(key string, def ...bool) bool {
 	}
 
 	return false
+}
+
+// Head returns the first item in a slice.
+func Head[T any](items []T) (T, bool) {
+	if len(items) == 0 {
+		var zero T
+
+		return zero, false
+	}
+
+	return items[0], true
+}
+
+// Last returns the last item in a slice.
+func Last[T any](items []T) (T, bool) {
+	if len(items) == 0 {
+		var zero T
+
+		return zero, false
+	}
+
+	return items[len(items)-1], true
+}
+
+// ClassBasename returns the unqualified name for a type or class-like string.
+func ClassBasename(value any) string {
+	if value == nil {
+		return ""
+	}
+
+	if name, ok := value.(string); ok {
+		name = strings.Trim(name, "\\/")
+
+		if idx := strings.LastIndexAny(name, "\\/"); idx >= 0 {
+			return name[idx+1:]
+		}
+
+		return name
+	}
+
+	typ := reflect.TypeOf(value)
+
+	for typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+
+	return typ.Name()
 }

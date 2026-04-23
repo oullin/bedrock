@@ -65,6 +65,18 @@ type payloadReadingFailedHandler struct {
 // test can assert the hook data flowed all the way through.
 type payloadMessageHandler struct{}
 
+type recordingTransactionManager struct {
+	mu        sync.Mutex
+	callbacks []func()
+}
+
+type syncAfterCommitJob struct{}
+
+type syncBeforeCommitJob struct{}
+
+func (syncAfterCommitJob) QueueAfterCommit() bool   { return true }
+func (syncBeforeCommitJob) QueueBeforeCommit() bool { return true }
+
 func (r *syncEventRecorder) Emit(event any) {
 	r.mu.Lock()
 
@@ -140,6 +152,22 @@ func (payloadMessageHandler) Handle(_ context.Context, job queue.Job) error {
 	return errors.New("missing extra")
 }
 
+func (tx *recordingTransactionManager) AddCallback(callback func()) {
+	tx.mu.Lock()
+
+	defer tx.mu.Unlock()
+
+	tx.callbacks = append(tx.callbacks, callback)
+}
+
+func (tx *recordingTransactionManager) count() int {
+	tx.mu.Lock()
+
+	defer tx.mu.Unlock()
+
+	return len(tx.callbacks)
+}
+
 // helper: build a payload for the given "job name".
 func buildSyncPayload(t *testing.T, connection, queueName, jobName string, data map[string]any) []byte {
 	t.Helper()
@@ -168,6 +196,75 @@ func countByType[T any](r *syncEventRecorder) int {
 	}
 
 	return n
+}
+
+// Port of Illuminate\Tests\Queue\QueueSyncQueueTest::testItAddsATransactionCallbackForAfterCommitJobs
+func TestItAddsATransactionCallbackForAfterCommitJobs(t *testing.T) {
+	t.Parallel()
+
+	tx := &recordingTransactionManager{}
+	handler := &recordingSyncHandler{}
+	drv := drivers.NewSyncDriver("sync", handler).SetTransactionManager(tx)
+
+	if _, err := drv.PushJob(context.Background(), "default", syncAfterCommitJob{}, []byte(`{"job":"x"}`), nil); err != nil {
+		t.Fatalf("PushJob: %v", err)
+	}
+
+	if tx.count() != 1 {
+		t.Fatalf("callbacks: got %d, want 1", tx.count())
+	}
+
+	if handler.called.Load() {
+		t.Fatal("handler should not run before transaction callback")
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueSyncQueueTest::testItAddsATransactionCallbackForAfterCommitUniqueJobs
+func TestItAddsATransactionCallbackForAfterCommitUniqueJobs(t *testing.T) {
+	t.Parallel()
+
+	tx := &recordingTransactionManager{}
+	drv := drivers.NewSyncDriver("sync", &recordingSyncHandler{}).SetTransactionManager(tx)
+
+	if _, err := drv.PushJob(context.Background(), "default", syncAfterCommitJob{}, []byte(`{"job":"unique"}`), nil); err != nil {
+		t.Fatalf("PushJob: %v", err)
+	}
+
+	if tx.count() != 1 {
+		t.Fatalf("callbacks: got %d, want 1", tx.count())
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueSyncQueueTest::testItAddsATransactionCallbackForInterfaceBasedAfterCommitJobs
+func TestItAddsATransactionCallbackForInterfaceBasedAfterCommitJobs(t *testing.T) {
+	t.Parallel()
+
+	tx := &recordingTransactionManager{}
+	drv := drivers.NewSyncDriver("sync", &recordingSyncHandler{}).SetTransactionManager(tx)
+
+	if _, err := drv.PushJob(context.Background(), "default", syncAfterCommitJob{}, []byte(`{"job":"x"}`), map[string]any{"after_commit": false}); err != nil {
+		t.Fatalf("PushJob: %v", err)
+	}
+
+	if tx.count() != 1 {
+		t.Fatalf("callbacks: got %d, want 1", tx.count())
+	}
+}
+
+// Port of Illuminate\Tests\Queue\QueueSyncQueueTest::testItAddsATransactionCallbackForInterfaceBasedAfterCommitUniqueJobs
+func TestItAddsATransactionCallbackForInterfaceBasedAfterCommitUniqueJobs(t *testing.T) {
+	t.Parallel()
+
+	tx := &recordingTransactionManager{}
+	drv := drivers.NewSyncDriver("sync", &recordingSyncHandler{}).SetTransactionManager(tx)
+
+	if _, err := drv.PushJob(context.Background(), "default", syncAfterCommitJob{}, []byte(`{"job":"unique"}`), map[string]any{"after_commit": false}); err != nil {
+		t.Fatalf("PushJob: %v", err)
+	}
+
+	if tx.count() != 1 {
+		t.Fatalf("callbacks: got %d, want 1", tx.count())
+	}
 }
 
 // --- ports ------------------------------------------------------------

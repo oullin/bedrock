@@ -14,6 +14,7 @@ import (
 func TestMiddlewareIsExecuted(t *testing.T) {
 	t.Parallel()
 
+	// AgentMiddlewareTest::test_agent_middleware_is_invoked
 	m := ai.NewManager()
 	m.Fake("middleware response")
 
@@ -29,6 +30,32 @@ func TestMiddlewareIsExecuted(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("Prompt error: %v", err)
+	}
+
+	if !executed {
+		t.Error("expected middleware to be executed")
+	}
+}
+
+func TestMiddlewareIsExecutedWhenStreaming(t *testing.T) {
+	t.Parallel()
+
+	// AgentMiddlewareTest::test_agent_middleware_is_invoked_when_streaming
+	m := ai.NewManager()
+	m.Fake("stream response")
+
+	executed := false
+	mw := contractsai.MiddlewareFunc(func(ctx context.Context, passable any, next func(any) (any, error)) (any, error) {
+		executed = true
+
+		return next(passable)
+	})
+
+	agent := ai.NewAnonymousAgent(m, "Be helpful.").WithMiddleware(mw)
+	_, err := agent.Stream(context.Background(), "hello")
+
+	if err != nil {
+		t.Fatalf("Stream error: %v", err)
 	}
 
 	if !executed {

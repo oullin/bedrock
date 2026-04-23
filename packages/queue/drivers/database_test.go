@@ -55,7 +55,7 @@ func TestDatabaseDriverPushDelayed(t *testing.T) {
 		t.Fatal("expected at least 3 args")
 	}
 
-	availAt, ok := args[2].(int64)
+	availAt, ok := args[1].(int64)
 
 	if !ok {
 		t.Fatal("expected int64 available_at")

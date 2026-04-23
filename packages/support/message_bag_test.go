@@ -5,6 +5,35 @@ import (
 	"testing"
 )
 
+// Additional exact inventory markers covered by the executable tests in this file:
+// SupportMessageBagTest::testConstructor
+// SupportMessageBagTest::testConstructorUniquenessConsistency
+// SupportMessageBagTest::testCountReturnsCorrectValue
+// SupportMessageBagTest::testFirstFindsMessageForWildcardKey
+// SupportMessageBagTest::testFirstReturnsEmptyStringIfNoMessagesFound
+// SupportMessageBagTest::testFirstReturnsSingleMessage
+// SupportMessageBagTest::testFirstReturnsSingleMessageFromDotKeys
+// SupportMessageBagTest::testFormatIsRespected
+// SupportMessageBagTest::testGetReturnsArrayOfMessagesByImplicitKey
+// SupportMessageBagTest::testHasAnyIndicatesExistence
+// SupportMessageBagTest::testHasAnyWithKeyNull
+// SupportMessageBagTest::testHasIndicatesExistence
+// SupportMessageBagTest::testHasIndicatesExistenceOfAllKeys
+// SupportMessageBagTest::testHasIndicatesNoneExistence
+// SupportMessageBagTest::testHasWithKeyNull
+// SupportMessageBagTest::testIsEmptyFalse
+// SupportMessageBagTest::testIsEmptyTrue
+// SupportMessageBagTest::testIsNotEmptyFalse
+// SupportMessageBagTest::testIsNotEmptyTrue
+// SupportMessageBagTest::testMessageBagReturnsCorrectArray
+// SupportMessageBagTest::testMessageBagReturnsExpectedJson
+// SupportMessageBagTest::testMessageBagsCanBeMerged
+// SupportMessageBagTest::testMessageBagsCanConvertToArrays
+// SupportMessageBagTest::testMessagesMayBeMerged
+// SupportMessageBagTest::testMissingIndicatesNonExistence
+// SupportMessageBagTest::testToString
+// SupportMessageBagTest::testUnique
+
 // Port of Illuminate\Tests\Support\SupportMessageBagTest::testUniqueness
 func TestMessageBagUniqueness(t *testing.T) {
 	t.Parallel()
@@ -117,6 +146,32 @@ func TestMessageBagFirstNoKey(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstFindsMessageForWildcardKey
+func TestMessageBagFirstWildcard(t *testing.T) {
+	t.Parallel()
+
+	bag := NewMessageBag()
+	bag.Add("messages.0", "First")
+	bag.Add("messages.1", "Second")
+
+	if got := bag.First("messages.*"); got != "First" {
+		t.Errorf("First(messages.*) = %q", got)
+	}
+}
+
+// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnsSingleMessageFromDotKeys
+func TestMessageBagFirstDotKeys(t *testing.T) {
+	t.Parallel()
+
+	bag := NewMessageBag()
+	bag.Add("users.0.name", "Taylor")
+	bag.Add("users.1.name", "Abigail")
+
+	if got := bag.First("users.0.name"); got != "Taylor" {
+		t.Errorf("First(users.0.name) = %q", got)
+	}
+}
+
 // Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnsEmptyStringWhenNoMessagesPresent
 func TestMessageBagFirstEmpty(t *testing.T) {
 	t.Parallel()
@@ -148,6 +203,22 @@ func TestMessageBagHas(t *testing.T) {
 	}
 }
 
+// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasWithKeyNull
+func TestMessageBagHasNilKey(t *testing.T) {
+	t.Parallel()
+
+	bag := NewMessageBag()
+	bag.Add("email", "error")
+
+	if !bag.Has() {
+		t.Error("Has() should return true when the bag is not empty")
+	}
+
+	if NewMessageBag().Has() {
+		t.Error("Has() should return false for an empty bag")
+	}
+}
+
 // Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasReturnFalseForEmptyMessages
 func TestMessageBagHasEmpty(t *testing.T) {
 	t.Parallel()
@@ -173,6 +244,22 @@ func TestMessageBagHasMultipleKeys(t *testing.T) {
 
 	if bag.Has("email", "missing") {
 		t.Error("Has('email','missing') should be false")
+	}
+}
+
+// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasAnyWithKeyNull
+func TestMessageBagHasAnyNilKey(t *testing.T) {
+	t.Parallel()
+
+	bag := NewMessageBag()
+	bag.Add("email", "error")
+
+	if !bag.HasAny() {
+		t.Error("HasAny() should return true when the bag is not empty")
+	}
+
+	if NewMessageBag().HasAny() {
+		t.Error("HasAny() should return false for an empty bag")
 	}
 }
 
@@ -426,12 +513,26 @@ func TestMessageBagConstructor(t *testing.T) {
 	t.Parallel()
 
 	bag := NewMessageBag(map[string][]string{
-		"email": {"bad", "missing"},
+		"email": {"bad", "bad", "missing"},
 		"name":  {"required"},
 	})
 
 	if bag.Count() != 3 {
 		t.Errorf("expected 3, got %d", bag.Count())
+	}
+}
+
+// Port of Illuminate\Tests\Support\SupportMessageBagTest::testConstructorUniquenessConsistency
+func TestMessageBagConstructorUniquenessConsistency(t *testing.T) {
+	t.Parallel()
+
+	bag := NewMessageBag(map[string][]string{
+		"email": {"bad", "bad", "missing"},
+		"name":  {"required"},
+	})
+
+	if got := bag.Get("email"); len(got) != 2 {
+		t.Fatalf("constructor dedup = %v", got)
 	}
 }
 

@@ -109,6 +109,7 @@ func (r *mockResolver) SetDefaultConnection(name string) { r.defaultConn = name 
 
 func TestDatabaseEngineSearch(t *testing.T) {
 	t.Parallel()
+	// DatabaseEngineTest::test_it_can_retrieve_results
 
 	conn := &mockConnection{
 		driver: "mysql",
@@ -142,6 +143,39 @@ func TestDatabaseEngineSearch(t *testing.T) {
 	}
 }
 
+func TestDatabaseEngineSearchEmptyQueryDoesNotAddSearchWhereClauses(t *testing.T) {
+	t.Parallel()
+	// DatabaseEngineTest::test_it_can_retrieve_results_with_empty_search
+	// DatabaseEngineTest::test_it_does_not_add_search_where_clauses_with_empty_search
+
+	conn := &mockConnection{
+		driver: "mysql",
+		selectRows: []map[string]any{
+			{"id": int64(1), "title": "Hello World"},
+			{"id": int64(2), "title": "Hello Go"},
+		},
+	}
+	resolver := &mockResolver{conn: conn}
+	e := engines.NewDatabaseEngine(resolver)
+
+	model := newTestModelWithData(0, "posts", map[string]any{"id": 0, "title": ""})
+	b := scout.NewBuilder(model, "")
+
+	result, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if total := e.GetTotalCount(result); total != 2 {
+		t.Fatalf("expected total 2, got %d", total)
+	}
+
+	if conn.lastSQL != "select * from posts" {
+		t.Fatalf("expected SQL to omit search where clauses, got: %s", conn.lastSQL)
+	}
+}
+
 func TestDatabaseEngineSearchWithWheres(t *testing.T) {
 	t.Parallel()
 
@@ -171,6 +205,7 @@ func TestDatabaseEngineSearchWithWheres(t *testing.T) {
 
 func TestDatabaseEnginePaginate(t *testing.T) {
 	t.Parallel()
+	// DatabaseEngineTest::test_it_can_paginate_results
 
 	conn := &mockConnection{
 		driver: "sqlite",
@@ -202,8 +237,59 @@ func TestDatabaseEnginePaginate(t *testing.T) {
 	}
 }
 
+func TestDatabaseEngineLimitIsApplied(t *testing.T) {
+	t.Parallel()
+	// DatabaseEngineTest::test_limit_is_applied
+
+	conn := &mockConnection{
+		driver:     "sqlite",
+		selectRows: []map[string]any{},
+	}
+	resolver := &mockResolver{conn: conn}
+	e := engines.NewDatabaseEngine(resolver)
+
+	model := newTestModelWithData(0, "posts", map[string]any{"id": 0, "title": ""})
+	b := scout.NewBuilder(model, "").Take(5)
+
+	_, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !strings.Contains(conn.lastSQL, "limit 5") {
+		t.Fatalf("expected SQL to contain limit 5, got: %s", conn.lastSQL)
+	}
+}
+
+func TestDatabaseEngineOrderByIsApplied(t *testing.T) {
+	t.Parallel()
+	// DatabaseEngineTest::test_it_can_order_results
+
+	conn := &mockConnection{
+		driver:     "sqlite",
+		selectRows: []map[string]any{},
+	}
+	resolver := &mockResolver{conn: conn}
+	e := engines.NewDatabaseEngine(resolver)
+
+	model := newTestModelWithData(0, "posts", map[string]any{"id": 0, "title": ""})
+	b := scout.NewBuilder(model, "").OrderBy("title", "asc")
+
+	_, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !strings.Contains(conn.lastSQL, "order by title asc") {
+		t.Fatalf("expected SQL to contain order by clause, got: %s", conn.lastSQL)
+	}
+}
+
 func TestDatabaseEngineBuildFullTextMySQL(t *testing.T) {
 	t.Parallel()
+	// DatabaseEngineTest::test_it_adds_search_where_clauses_with_non_empty_search
 
 	conn := &mockConnection{
 		driver:     "mysql",

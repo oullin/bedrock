@@ -9,6 +9,10 @@ import (
 	"github.com/bedrock/packages/scout/engines"
 )
 
+type makeSearchableUsingModel struct {
+	*testModel
+}
+
 func makeBuilder(model contract.Searchable, query string, models []contract.Searchable) *scout.Builder {
 	b := scout.NewBuilder(model, query).
 		WithOptions(map[string]any{"__models": models})
@@ -16,8 +20,43 @@ func makeBuilder(model contract.Searchable, query string, models []contract.Sear
 	return b
 }
 
+func (m *makeSearchableUsingModel) MakeSearchableUsing(models []contract.Searchable) []contract.Searchable {
+	for _, model := range models {
+		if model, ok := model.(*makeSearchableUsingModel); ok {
+			model.data["value"] = "loaded"
+		}
+	}
+
+	return models
+}
+
+func TestCollectionEngineSearchEmptyQueryReturnsAllModels(t *testing.T) {
+	t.Parallel()
+	// CollectionEngineTest::test_it_can_retrieve_results_with_empty_search
+	e := engines.NewCollectionEngine()
+
+	models := []contract.Searchable{
+		newTestModelWithData(1, "posts", map[string]any{"id": 1, "title": "Hello World"}),
+		newTestModelWithData(2, "posts", map[string]any{"id": 2, "title": "Go Programming"}),
+		newTestModelWithData(3, "posts", map[string]any{"id": 3, "title": "Another Post"}),
+	}
+
+	b := makeBuilder(newTestModel(0, "posts"), "", models)
+
+	result, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if total := e.GetTotalCount(result); total != 3 {
+		t.Fatalf("expected 3 results, got %d", total)
+	}
+}
+
 func TestCollectionEngineSearch(t *testing.T) {
 	t.Parallel()
+	// CollectionEngineTest::test_it_can_retrieve_results
 	e := engines.NewCollectionEngine()
 
 	models := []contract.Searchable{
@@ -44,6 +83,51 @@ func TestCollectionEngineSearch(t *testing.T) {
 
 	if len(ids) != 2 {
 		t.Fatalf("expected 2 ids, got %d", len(ids))
+	}
+}
+
+func TestCollectionEngineSearchMatchesCustomSearchableData(t *testing.T) {
+	t.Parallel()
+	// CollectionEngineTest::test_it_can_retrieve_results_matching_to_custom_searchable_data
+	e := engines.NewCollectionEngine()
+
+	models := []contract.Searchable{
+		newTestModelWithData(1, "posts", map[string]any{"id": 1, "custom": "special token"}),
+		newTestModelWithData(2, "posts", map[string]any{"id": 2, "custom": "other"}),
+	}
+
+	b := makeBuilder(newTestModel(0, "posts"), "token", models)
+
+	result, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if total := e.GetTotalCount(result); total != 1 {
+		t.Fatalf("expected 1 result, got %d", total)
+	}
+}
+
+func TestCollectionEngineCallsMakeSearchableUsingBeforeSearching(t *testing.T) {
+	t.Parallel()
+	// CollectionEngineTest::test_it_calls_make_searchable_using_before_searching
+	e := engines.NewCollectionEngine()
+
+	models := []contract.Searchable{
+		&makeSearchableUsingModel{testModel: newTestModelWithData(1, "posts", map[string]any{"id": 1})},
+		&makeSearchableUsingModel{testModel: newTestModelWithData(2, "posts", map[string]any{"id": 2})},
+	}
+
+	b := makeBuilder(newTestModel(0, "posts"), "loaded", models)
+	result, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if total := e.GetTotalCount(result); total != 2 {
+		t.Fatalf("expected 2 transformed results, got %d", total)
 	}
 }
 
@@ -149,6 +233,7 @@ func TestCollectionEngineWhereNotInFilter(t *testing.T) {
 
 func TestCollectionEngineOrdering(t *testing.T) {
 	t.Parallel()
+	// CollectionEngineTest::test_it_can_order_results
 	e := engines.NewCollectionEngine()
 
 	models := []contract.Searchable{
@@ -183,6 +268,7 @@ func TestCollectionEngineOrdering(t *testing.T) {
 
 func TestCollectionEngineLimit(t *testing.T) {
 	t.Parallel()
+	// CollectionEngineTest::test_limit_is_applied
 	e := engines.NewCollectionEngine()
 
 	models := make([]contract.Searchable, 10)
@@ -208,6 +294,7 @@ func TestCollectionEngineLimit(t *testing.T) {
 
 func TestCollectionEnginePaginate(t *testing.T) {
 	t.Parallel()
+	// CollectionEngineTest::test_it_can_paginate_results
 	e := engines.NewCollectionEngine()
 
 	models := make([]contract.Searchable, 10)
@@ -248,6 +335,76 @@ func TestCollectionEnginePaginate(t *testing.T) {
 
 	if len(mapped2) != 1 {
 		t.Fatalf("expected 1 on page 4, got %d", len(mapped2))
+	}
+}
+
+func TestCollectionEngineLatestAndOldestOrdering(t *testing.T) {
+	t.Parallel()
+	// CollectionEngineTest::test_it_can_order_by_latest_and_oldest
+	e := engines.NewCollectionEngine()
+
+	models := []contract.Searchable{
+		newTestModelWithData(1, "posts", map[string]any{"id": 1, "created_at": "2024-01-01"}),
+		newTestModelWithData(2, "posts", map[string]any{"id": 2, "created_at": "2025-01-01"}),
+		newTestModelWithData(3, "posts", map[string]any{"id": 3, "created_at": "2023-01-01"}),
+	}
+
+	latestBuilder := makeBuilder(newTestModel(0, "posts"), "", models).Latest()
+	latestResult, err := e.Search(context.Background(), latestBuilder)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	latestModels, _ := e.Map(context.Background(), latestResult, nil)
+
+	if len(latestModels) != 3 {
+		t.Fatalf("expected 3 results, got %d", len(latestModels))
+	}
+
+	if latestModels[0].GetScoutKey() != 2 {
+		t.Fatalf("expected newest (id=2) first, got id=%v", latestModels[0].GetScoutKey())
+	}
+
+	oldestBuilder := makeBuilder(newTestModel(0, "posts"), "", models).Oldest()
+	oldestResult, err := e.Search(context.Background(), oldestBuilder)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	oldestModels, _ := e.Map(context.Background(), oldestResult, nil)
+
+	if oldestModels[0].GetScoutKey() != 3 {
+		t.Fatalf("expected oldest (id=3) first, got id=%v", oldestModels[0].GetScoutKey())
+	}
+}
+
+func TestCollectionEngineCustomCreatedAtTimestampOrdering(t *testing.T) {
+	t.Parallel()
+	// CollectionEngineTest::test_it_can_order_by_custom_model_created_at_timestamp
+	e := engines.NewCollectionEngine()
+
+	models := []contract.Searchable{
+		newTestModelWithData(1, "posts", map[string]any{"id": 1, "published_at": "2024-05-01"}),
+		newTestModelWithData(2, "posts", map[string]any{"id": 2, "published_at": "2024-07-01"}),
+	}
+
+	b := makeBuilder(newTestModel(0, "posts"), "", models).Latest("published_at")
+	result, err := e.Search(context.Background(), b)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	mapped, _ := e.Map(context.Background(), result, nil)
+
+	if len(mapped) != 2 {
+		t.Fatalf("expected 2 results, got %d", len(mapped))
+	}
+
+	if mapped[0].GetScoutKey() != 2 {
+		t.Fatalf("expected latest published_at (id=2) first, got id=%v", mapped[0].GetScoutKey())
 	}
 }
 

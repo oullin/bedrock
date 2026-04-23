@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/bedrock/packages/routing/contracts"
 )
 
 // RouteUrlGenerator builds a URL for a single named route by substituting
@@ -145,6 +147,10 @@ func stringify(v any) string {
 		}
 
 		return "0"
+	case BackedEnum:
+		return x.BackingValue()
+	case contracts.UrlRoutable:
+		return stringify(x.GetRouteKey())
 	}
 
 	return ""

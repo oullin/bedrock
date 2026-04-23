@@ -80,6 +80,30 @@ func Number(label string, opts ...NumberOption) (int, error) {
 		opt(p)
 	}
 
+	validate := p.prompt.validate
+
+	if p.min != nil || p.max != nil || validate != nil {
+		p.prompt.validate = func(value string) string {
+			if p.min != nil || p.max != nil {
+				if n, err := strconv.Atoi(value); err == nil {
+					if p.min != nil && n < *p.min {
+						return "Minimum value is " + strconv.Itoa(*p.min) + "."
+					}
+
+					if p.max != nil && n > *p.max {
+						return "Maximum value is " + strconv.Itoa(*p.max) + "."
+					}
+				}
+			}
+
+			if validate != nil {
+				return validate(value)
+			}
+
+			return ""
+		}
+	}
+
 	p.prompt.valueFn = p.TypedValue.Value
 	p.prompt.renderer = func(state State) string {
 		return getTheme().NumberRenderer(p, state)
@@ -118,7 +142,12 @@ func Number(label string, opts ...NumberOption) (int, error) {
 
 func (p *NumberPrompt) increment() {
 	val := p.currentInt()
-	val += p.step
+
+	if p.Value() == "" && p.min != nil {
+		val = *p.min
+	} else {
+		val += p.step
+	}
 
 	if p.max != nil && val > *p.max {
 		val = *p.max
@@ -129,7 +158,12 @@ func (p *NumberPrompt) increment() {
 
 func (p *NumberPrompt) decrement() {
 	val := p.currentInt()
-	val -= p.step
+
+	if p.Value() == "" && p.min != nil {
+		val = *p.min
+	} else {
+		val -= p.step
+	}
 
 	if p.min != nil && val < *p.min {
 		val = *p.min

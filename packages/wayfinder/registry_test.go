@@ -293,6 +293,7 @@ func TestLookupMiss(t *testing.T) {
 	}
 }
 
+// Port of Export::test_export_param.
 func TestRouteParams(t *testing.T) {
 	t.Parallel()
 

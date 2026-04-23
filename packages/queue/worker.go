@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -40,6 +41,10 @@ type WorkerOptions struct {
 type ExceptionReporter interface {
 	ReportException(err error)
 }
+
+// WorkerPopCallback overrides how a worker pops from one queue name.
+// It is the typed Go equivalent of Laravel's Worker::popUsing callback map.
+type WorkerPopCallback func(ctx context.Context, q Queue, queueName string) (Job, error)
 
 // WorkerStopReason is the machine-readable status code returned from
 // the daemon loop when it exits. The numeric values intentionally
@@ -101,6 +106,12 @@ type Worker struct {
 	// lastStopReason captures the reason the most recent Run call
 	// exited. Read via LastStopReason().
 	lastStopReason WorkerStopReason
+	// popCallbacks holds per-queue pop selectors. The "*" entry applies
+	// to queue names that do not have a more specific callback.
+	popCallbacks map[string]WorkerPopCallback
+	// LostConnectionDetector, when non-nil, decides whether a pop error
+	// should stop the daemon with WorkerStopReasonLostConnection.
+	LostConnectionDetector func(error) bool
 }
 
 // NewWorker creates a Worker.
@@ -256,6 +267,20 @@ func (w *Worker) SleptFor() time.Duration { return w.sleptFor }
 
 func (w *Worker) LastStopReason() WorkerStopReason { return w.lastStopReason }
 
+func (w *Worker) PopUsing(queueName string, callback WorkerPopCallback) {
+	if w.popCallbacks == nil {
+		w.popCallbacks = make(map[string]WorkerPopCallback)
+	}
+
+	if callback == nil {
+		delete(w.popCallbacks, queueName)
+
+		return
+	}
+
+	w.popCallbacks[queueName] = callback
+}
+
 func parseQueueNames(raw string) []string {
 	parts := splitComma(raw)
 	out := parts[:0]
@@ -291,7 +316,8 @@ func splitComma(raw string) []string {
 
 func (w *Worker) popFromQueues(ctx context.Context, queueNames []string) (Job, error) {
 	for _, q := range queueNames {
-		job, err := w.queue.Pop(ctx, q)
+		pop := w.popCallbackFor(q)
+		job, err := pop(ctx, w.queue, q)
 
 		if err == nil && job != nil {
 			return job, nil
@@ -303,6 +329,34 @@ func (w *Worker) popFromQueues(ctx context.Context, queueNames []string) (Job, e
 	}
 
 	return nil, ErrNoJob
+}
+
+func (w *Worker) popCallbackFor(queueName string) WorkerPopCallback {
+	if w.popCallbacks != nil {
+		if callback := w.popCallbacks[queueName]; callback != nil {
+			return callback
+		}
+
+		if callback := w.popCallbacks["*"]; callback != nil {
+			return callback
+		}
+	}
+
+	return func(ctx context.Context, q Queue, name string) (Job, error) {
+		return q.Pop(ctx, name)
+	}
+}
+
+func (w *Worker) isLostConnection(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if w.LostConnectionDetector != nil {
+		return w.LostConnectionDetector(err)
+	}
+
+	return strings.Contains(strings.ToLower(err.Error()), "lost connection")
 }
 
 func (w *Worker) reportPopError(err error) {
@@ -388,7 +442,9 @@ func (w *Worker) Run(ctx context.Context, queueName string) error {
 		WorkerName:     w.opts.Name,
 	})
 
-	defer w.emit(WorkerStopping{WorkerName: w.opts.Name})
+	defer func() {
+		w.emit(WorkerStopping{WorkerName: w.opts.Name, Status: int(w.lastStopReason)})
+	}()
 
 	queues := parseQueueNames(queueName)
 	start := time.Now()
@@ -430,6 +486,13 @@ func (w *Worker) Run(ctx context.Context, queueName string) error {
 
 		if err != nil && err != ErrNoJob {
 			w.reportPopError(err)
+
+			if w.isLostConnection(err) {
+				w.lastStopReason = WorkerStopReasonLostConnection
+
+				return nil
+			}
+
 			w.sleep(ctx, w.opts.Sleep)
 
 			if ctx.Err() != nil {

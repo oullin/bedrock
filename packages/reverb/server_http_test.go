@@ -55,23 +55,24 @@ func signedRequest(t *testing.T, method, path, secret string, body []byte) *http
 	return req
 }
 
-func newHTTPTestSetup(t *testing.T) (*reverb.HTTPHandler, *reverb.AppManager, *reverb.ChannelManager) {
+func newHTTPTestSetup(t *testing.T) (*reverb.HTTPHandler, *reverb.AppManager, *reverb.ConnectionManager, *reverb.ChannelManager) {
 	t.Helper()
 
 	apps := reverb.NewAppManager([]reverb.AppConfig{
 		{ID: "app-1", Key: "key-1", Secret: "secret-1"},
 	})
+	conns := reverb.NewConnectionManager()
 	mgr := reverb.NewChannelManager(apps)
 	dispatcher := reverb.NewSyncDispatcher(mgr)
-	handler := reverb.NewHTTPHandler(apps, mgr, dispatcher)
+	handler := reverb.NewHTTPHandler(apps, conns, mgr, dispatcher)
 
-	return handler, apps, mgr
+	return handler, apps, conns, mgr
 }
 
 func TestHTTPHandler_Trigger_Success(t *testing.T) {
 	t.Parallel()
 
-	handler, _, mgr := newHTTPTestSetup(t)
+	handler, _, _, mgr := newHTTPTestSetup(t)
 	ctx := httptest.NewRequest(http.MethodPost, "/", nil).Context()
 
 	// Create a channel and subscribe a fakeConn
@@ -121,7 +122,7 @@ func TestHTTPHandler_Trigger_Success(t *testing.T) {
 func TestHTTPHandler_Trigger_InvalidSignature(t *testing.T) {
 	t.Parallel()
 
-	handler, _, _ := newHTTPTestSetup(t)
+	handler, _, _, _ := newHTTPTestSetup(t)
 
 	body, _ := json.Marshal(reverb.TriggerRequest{
 		Name:     "test-event",
@@ -146,7 +147,7 @@ func TestHTTPHandler_Trigger_InvalidSignature(t *testing.T) {
 func TestHTTPHandler_Trigger_AppNotFound(t *testing.T) {
 	t.Parallel()
 
-	handler, _, _ := newHTTPTestSetup(t)
+	handler, _, _, _ := newHTTPTestSetup(t)
 
 	body, _ := json.Marshal(reverb.TriggerRequest{
 		Name:     "test-event",
@@ -170,7 +171,7 @@ func TestHTTPHandler_Trigger_AppNotFound(t *testing.T) {
 func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 	t.Parallel()
 
-	handler, _, mgr := newHTTPTestSetup(t)
+	handler, _, _, mgr := newHTTPTestSetup(t)
 	ctx := httptest.NewRequest(http.MethodPost, "/", nil).Context()
 
 	// Set up two channels
@@ -242,7 +243,7 @@ func TestHTTPHandler_BatchTrigger_Success(t *testing.T) {
 func TestHTTPHandler_GetChannels(t *testing.T) {
 	t.Parallel()
 
-	handler, _, mgr := newHTTPTestSetup(t)
+	handler, _, _, mgr := newHTTPTestSetup(t)
 	ctx := httptest.NewRequest(http.MethodGet, "/", nil).Context()
 
 	// Create a channel with a subscriber
@@ -288,7 +289,7 @@ func TestHTTPHandler_GetChannels(t *testing.T) {
 func TestHTTPHandler_GetChannel_Found(t *testing.T) {
 	t.Parallel()
 
-	handler, _, mgr := newHTTPTestSetup(t)
+	handler, _, _, mgr := newHTTPTestSetup(t)
 	ctx := httptest.NewRequest(http.MethodGet, "/", nil).Context()
 
 	ch, err := mgr.GetOrCreate("app-1", "public-test")
@@ -319,7 +320,7 @@ func TestHTTPHandler_GetChannel_Found(t *testing.T) {
 func TestHTTPHandler_GetChannel_NotFound(t *testing.T) {
 	t.Parallel()
 
-	handler, _, _ := newHTTPTestSetup(t)
+	handler, _, _, _ := newHTTPTestSetup(t)
 
 	path := "/apps/app-1/channels/nonexistent"
 	req := signedRequest(t, http.MethodGet, path, "secret-1", nil)

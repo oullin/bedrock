@@ -17,15 +17,39 @@ import (
 func TestRepositoryAddDispatchesEvents(t *testing.T) {
 	t.Parallel()
 
-	store := cache.NewArrayStore()
+	store := newSpyStore()
 	dispatcher := &mockEventDispatcher{}
 	r := cache.NewRepositoryWithEvents(store, "array", dispatcher)
 	ctx := context.Background()
 
-	ok, _ := r.Add(ctx, "k", "v", time.Minute)
+	ok, err := r.Add(ctx, "k", "v", time.Minute)
+
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !ok {
 		t.Fatal("expected Add to succeed")
+	}
+
+	if store.callCount("Get") != 0 {
+		t.Fatalf("expected Add to avoid Get, got %d calls", store.callCount("Get"))
+	}
+
+	if store.callCount("Add") != 1 {
+		t.Fatalf("expected 1 Add call, got %d", store.callCount("Add"))
+	}
+
+	if dispatcher.count("RetrievingKey") != 0 {
+		t.Fatalf("expected no RetrievingKey event from Add, got %d", dispatcher.count("RetrievingKey"))
+	}
+
+	if dispatcher.count("CacheHit") != 0 {
+		t.Fatalf("expected no CacheHit event from Add, got %d", dispatcher.count("CacheHit"))
+	}
+
+	if dispatcher.count("CacheMissed") != 1 {
+		t.Fatalf("expected 1 CacheMissed event from Add, got %d", dispatcher.count("CacheMissed"))
 	}
 
 	if dispatcher.count("WritingKey") != 1 {
@@ -35,12 +59,52 @@ func TestRepositoryAddDispatchesEvents(t *testing.T) {
 	if dispatcher.count("KeyWritten") != 1 {
 		t.Fatal("expected 1 KeyWritten event from Add")
 	}
+
+	events := dispatcher.Events()
+
+	if _, ok := events[0].(cache.WritingKey); !ok {
+		t.Fatalf("expected first Add event to be WritingKey, got %T", events[0])
+	}
+
+	if _, ok := events[1].(cache.CacheMissed); !ok {
+		t.Fatalf("expected second Add event to be CacheMissed, got %T", events[1])
+	}
+
+	if _, ok := events[2].(cache.KeyWritten); !ok {
+		t.Fatalf("expected third Add event to be KeyWritten, got %T", events[2])
+	}
+}
+
+func TestRepositoryAddWithoutDispatcherDoesNotReadBeforeAdd(t *testing.T) {
+	t.Parallel()
+
+	store := newSpyStore()
+	r := cache.NewRepository(store)
+	ctx := context.Background()
+
+	ok, err := r.Add(ctx, "k", "v", time.Minute)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !ok {
+		t.Fatal("expected Add to succeed")
+	}
+
+	if store.callCount("Get") != 0 {
+		t.Fatalf("expected Add to avoid Get without dispatcher, got %d calls", store.callCount("Get"))
+	}
+
+	if store.callCount("Add") != 1 {
+		t.Fatalf("expected 1 Add call, got %d", store.callCount("Add"))
+	}
 }
 
 func TestRepositoryAddDoesNotDispatchWrittenOnFailure(t *testing.T) {
 	t.Parallel()
 
-	store := cache.NewArrayStore()
+	store := newSpyStore()
 	dispatcher := &mockEventDispatcher{}
 	r := cache.NewRepositoryWithEvents(store, "array", dispatcher)
 	ctx := context.Background()
@@ -61,6 +125,110 @@ func TestRepositoryAddDoesNotDispatchWrittenOnFailure(t *testing.T) {
 
 	if dispatcher.count("KeyWritten") != 1 {
 		t.Fatalf("expected 1 KeyWritten event, got %d", dispatcher.count("KeyWritten"))
+	}
+
+	if store.callCount("Get") != 0 {
+		t.Fatalf("expected Add to avoid Get, got %d calls", store.callCount("Get"))
+	}
+
+	if store.callCount("Add") != 2 {
+		t.Fatalf("expected 2 Add calls, got %d", store.callCount("Add"))
+	}
+
+	if dispatcher.count("RetrievingKey") != 0 {
+		t.Fatalf("expected no RetrievingKey event from Add, got %d", dispatcher.count("RetrievingKey"))
+	}
+
+	if dispatcher.count("CacheHit") != 1 {
+		t.Fatalf("expected 1 CacheHit event from Add, got %d", dispatcher.count("CacheHit"))
+	}
+
+	if dispatcher.count("CacheMissed") != 1 {
+		t.Fatalf("expected 1 CacheMissed event from Add, got %d", dispatcher.count("CacheMissed"))
+	}
+
+	events := dispatcher.Events()
+	hit, ok := events[len(events)-1].(cache.CacheHit)
+
+	if !ok {
+		t.Fatalf("expected failed Add to end with CacheHit, got %T", events[len(events)-1])
+	}
+
+	if hit.Value != nil {
+		t.Fatalf("expected failed Add CacheHit value to be nil, got %v", hit.Value)
+	}
+}
+
+func TestTaggedCacheAddWithEventsDelegatesAtomically(t *testing.T) {
+	t.Parallel()
+
+	store := newSpyTaggableStore()
+	dispatcher := &mockEventDispatcher{}
+	r := cache.NewRepositoryWithEvents(store, "array", dispatcher)
+	ctx := context.Background()
+	tagged := r.Tags("users")
+
+	ok, err := tagged.Add(ctx, "k", "v1", time.Minute)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !ok {
+		t.Fatal("expected first Add to succeed")
+	}
+
+	ok, err = tagged.Add(ctx, "k", "v2", time.Minute)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if ok {
+		t.Fatal("expected second Add to fail")
+	}
+
+	if store.tagged.callCount("Get") != 0 {
+		t.Fatalf("expected tagged Add to avoid Get, got %d calls", store.tagged.callCount("Get"))
+	}
+
+	if store.tagged.callCount("Add") != 2 {
+		t.Fatalf("expected tagged Add to delegate both attempts, got %d calls", store.tagged.callCount("Add"))
+	}
+
+	if dispatcher.count("RetrievingKey") != 0 {
+		t.Fatalf("expected no RetrievingKey event from tagged Add, got %d", dispatcher.count("RetrievingKey"))
+	}
+
+	if dispatcher.count("CacheHit") != 1 {
+		t.Fatalf("expected 1 CacheHit event from tagged Add, got %d", dispatcher.count("CacheHit"))
+	}
+
+	if dispatcher.count("CacheMissed") != 1 {
+		t.Fatalf("expected 1 CacheMissed event from tagged Add, got %d", dispatcher.count("CacheMissed"))
+	}
+
+	if dispatcher.count("WritingKey") != 2 {
+		t.Fatalf("expected 2 WritingKey events, got %d", dispatcher.count("WritingKey"))
+	}
+
+	if dispatcher.count("KeyWritten") != 1 {
+		t.Fatalf("expected 1 KeyWritten event, got %d", dispatcher.count("KeyWritten"))
+	}
+
+	events := dispatcher.Events()
+	hit, ok := events[len(events)-1].(cache.CacheHit)
+
+	if !ok {
+		t.Fatalf("expected failed tagged Add to end with CacheHit, got %T", events[len(events)-1])
+	}
+
+	if hit.Value != nil {
+		t.Fatalf("expected failed tagged Add CacheHit value to be nil, got %v", hit.Value)
+	}
+
+	if len(hit.Tags) != 1 || hit.Tags[0] != "users" {
+		t.Fatalf("expected CacheHit tags to be preserved, got %#v", hit.Tags)
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/bedrock/packages/ai/boost/internal/platform"
 )
 
+// JunieTest::test_name_and_display_name
 func TestJunieIdentity(t *testing.T) {
 	t.Parallel()
 
@@ -23,6 +24,7 @@ func TestJunieIdentity(t *testing.T) {
 	}
 }
 
+// JunieTest::test_default_paths
 func TestJunieDefaultPaths(t *testing.T) {
 	t.Parallel()
 
@@ -41,6 +43,7 @@ func TestJunieDefaultPaths(t *testing.T) {
 	}
 }
 
+// JunieTest::test_mcp_strategy
 func TestJunieMcpStrategy(t *testing.T) {
 	t.Parallel()
 
@@ -48,6 +51,36 @@ func TestJunieMcpStrategy(t *testing.T) {
 
 	if got := a.McpInstallationStrategy(); got != platform.McpStrategyFile {
 		t.Errorf("McpInstallationStrategy() = %v, want McpStrategyFile", got)
+	}
+}
+
+// JunieTest::test_returns_absolute_php_binary_path
+// JunieTest::test_returns_absolute_artisan_path
+// JunieTest::test_uses_relative_paths_for_mcp
+func TestJunieAbsolutePaths(t *testing.T) {
+	t.Parallel()
+
+	a := agents.NewJunie()
+
+	if got := a.GoBinaryPath(true); !filepath.IsAbs(got) || filepath.Base(got) != "go" {
+		t.Fatalf("GoBinaryPath(true) = %q, want absolute go binary", got)
+	}
+
+	if got := a.EntryPointPath(true); !filepath.IsAbs(got) || filepath.Base(got) != "main.go" {
+		t.Fatalf("EntryPointPath(true) = %q, want absolute main.go path", got)
+	}
+
+	configured := agents.NewJunie(agents.AgentOptions{
+		GoBinary:   filepath.Join(t.TempDir(), "bin", "go"),
+		EntryPoint: filepath.Join(t.TempDir(), "artisan"),
+	})
+
+	if got := configured.GoBinaryPath(false); !filepath.IsAbs(got) {
+		t.Fatalf("configured GoBinaryPath(false) = %q, want absolute path", got)
+	}
+
+	if got := configured.EntryPointPath(false); !filepath.IsAbs(got) {
+		t.Fatalf("configured EntryPointPath(false) = %q, want absolute path", got)
 	}
 }
 

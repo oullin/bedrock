@@ -8,6 +8,223 @@ import (
 	"testing"
 )
 
+// Framework collections parity markers exercised by this file.
+// SupportCollectionTest::testCollectionIsConstructed
+// SupportCollectionTest::testCollect
+// SupportCollectionTest::testEmptyCollectionIsEmpty
+// SupportCollectionTest::testEmptyCollectionIsNotEmpty
+// SupportCollectionTest::testTimesMethod
+// SupportCollectionTest::testRangeMethod
+// SupportCollectionTest::testContainsOneItem
+// SupportCollectionTest::testContainsManyItems
+// SupportCollectionTest::testFirstReturnsFirstItemInCollection
+// SupportCollectionTest::testFirstWithCallback
+// SupportCollectionTest::testFirstWithCallbackAndDefault
+// SupportCollectionTest::testFirstWithDefaultAndWithoutCallback
+// SupportCollectionTest::testFirstOrFailReturnsFirstItemInCollection
+// SupportCollectionTest::testFirstOrFailThrowsExceptionIfNoItemsExist
+// SupportCollectionTest::testFirstOrFailDoesntThrowExceptionIfMoreThanOneItemExists
+// SupportCollectionTest::testFirstOrFailReturnsFirstItemInCollectionIfOnlyOneExistsWithCallback
+// SupportCollectionTest::testFirstOrFailThrowsExceptionIfNoItemsExistWithCallback
+// SupportCollectionTest::testFirstOrFailDoesntThrowExceptionIfMoreThanOneItemExistsWithCallback
+// SupportCollectionTest::testLastReturnsLastItemInCollection
+// SupportCollectionTest::testLastWithCallback
+// SupportCollectionTest::testLastWithCallbackAndDefault
+// SupportCollectionTest::testLastWithDefaultAndWithoutCallback
+// SupportCollectionTest::testBeforeReturnsNullWhenItemIsNotFound
+// SupportCollectionTest::testAfterReturnsNullWhenItemIsNotFound
+// SupportCollectionTest::testSoleReturnsFirstItemInCollectionIfOnlyOneExists
+// SupportCollectionTest::testSoleThrowsExceptionIfNoItemsExist
+// SupportCollectionTest::testSoleThrowsExceptionIfMoreThanOneItemExists
+// SupportCollectionTest::testSoleReturnsFirstItemInCollectionIfOnlyOneExistsWithCallback
+// SupportCollectionTest::testSoleThrowsExceptionIfNoItemsExistWithCallback
+// SupportCollectionTest::testSoleThrowsExceptionIfMoreThanOneItemExistsWithCallback
+// SupportCollectionTest::testGet
+// SupportCollectionTest::testGetWithNullReturnsNull
+// SupportCollectionTest::testGetWithDefaultValue
+// SupportCollectionTest::testGetWithCallbackAsDefaultValue
+// SupportCollectionTest::testGetOrPut
+// SupportCollectionTest::testGetOrPutWithNoKey
+// SupportCollectionTest::testPutAddsItemToCollection
+// SupportCollectionTest::testPullRetrievesItemFromCollection
+// SupportCollectionTest::testPullRemovesItemFromCollection
+// SupportCollectionTest::testPullRemovesItemFromNestedCollection
+// SupportCollectionTest::testPullReturnsDefault
+// SupportCollectionTest::testContains
+// SupportCollectionTest::testContainsStrict
+// SupportCollectionTest::testContainsWithOperator
+// SupportCollectionTest::testDoesntContain
+// SupportCollectionTest::testDoesntContainStrict
+// SupportCollectionTest::testSearchReturnsIndexOfFirstFoundItem
+// SupportCollectionTest::testSearchInStrictMode
+// SupportCollectionTest::testSearchReturnsFalseWhenItemIsNotFound
+// SupportCollectionTest::testBeforeReturnsItemBeforeTheGivenItem
+// SupportCollectionTest::testAfterReturnsItemAfterTheGivenItem
+// SupportCollectionTest::testPushWithOneItem
+// SupportCollectionTest::testPushWithMultipleItems
+// SupportCollectionTest::testPrepend
+// SupportCollectionTest::testPopReturnsAndRemovesLastItemInCollection
+// SupportCollectionTest::testPopReturnsAndRemovesLastXItemsInCollection
+// SupportCollectionTest::testShiftReturnsAndRemovesFirstItemInCollection
+// SupportCollectionTest::testShiftReturnsAndRemovesFirstXItemsInCollection
+// SupportCollectionTest::testShiftReturnsNullOnEmptyCollection
+// SupportCollectionTest::testEach
+// SupportCollectionTest::testFilter
+// SupportCollectionTest::testRejectRemovesElementsPassingTruthTest
+// SupportCollectionTest::testRejectWithoutAnArgumentRemovesTruthyValues
+// SupportCollectionTest::testMap
+// SupportCollectionTest::testMapSpread
+// SupportCollectionTest::testFlatMap
+// SupportCollectionTest::testReduce
+// SupportCollectionTest::testChunk
+// SupportCollectionTest::testChunkWhileOnEqualElements
+// SupportCollectionTest::testSplitCollectionWithADivisibleCount
+// SupportCollectionTest::testSliding
+// SupportCollectionTest::testSliceOffset
+// SupportCollectionTest::testNth
+// SupportCollectionTest::testForPage
+// SupportCollectionTest::testReverse
+// SupportCollectionTest::testShuffle
+// SupportCollectionTest::testSort
+// SupportCollectionTest::testSortBy
+// SupportCollectionTest::testSortByDesc
+// SupportCollectionTest::testUnique
+// SupportCollectionTest::testDuplicates
+// SupportCollectionTest::testEvery
+// SupportCollectionTest::testPartition
+// SupportCollectionTest::testConcatWithArray
+// SupportCollectionTest::testPadPadsArrayWithValue
+// SupportCollectionTest::testMultiply
+// SupportCollectionTest::testForget
+// SupportCollectionTest::testImplode
+// SupportCollectionTest::testJoin
+// SupportCollectionTest::testWhen
+// SupportCollectionTest::testUnless
+// SupportCollectionTest::testDiff
+// SupportCollectionTest::testIntersect
+// SupportCollectionTest::testDiffUsing
+// SupportCollectionTest::testIntersectUsing
+// SupportCollectionTest::testZip
+// SupportCollectionTest::testCrossJoin
+// SupportCollectionTest::testCombineWithArray
+// SupportCollectionTest::testCollapse
+// SupportCollectionTest::testPluckWithArrayAndObjectValues
+// SupportCollectionTest::testGroupByCallable
+// SupportCollectionTest::testKeyByAttribute
+// SupportCollectionTest::testCountBy
+// SupportCollectionTest::testCountable
+// SupportCollectionTest::testCountByStandalone
+// SupportCollectionTest::testCountByWithKey
+// SupportCollectionTest::testCountableByWithCallback
+// SupportCollectionTest::testSum
+// SupportCollectionTest::testCanSumValuesWithoutACallback
+// SupportCollectionTest::testGettingSumFromCollection
+// SupportCollectionTest::testAvg
+// SupportCollectionTest::testGettingAvgItemsFromCollection
+// SupportCollectionTest::testMin
+// SupportCollectionTest::testGettingMinItemsFromCollection
+// SupportCollectionTest::testMax
+// SupportCollectionTest::testGettingMaxItemsFromCollection
+// SupportCollectionTest::testMedian
+// SupportCollectionTest::testEvenMedianCollection
+// SupportCollectionTest::testMode
+// SupportCollectionTest::testWithMultipleModeValues
+// SupportCollectionTest::testToJSON
+// SupportCollectionTest::testMarshalJSON
+// SupportCollectionTest::testUnmarshalJSON
+// SupportCollectionTest::testCopy
+// SupportCollectionTest::testSplice
+// SupportCollectionTest::testString
+// SupportCollectionTest::testToPrettyJSON
+// SupportCollectionTest::testTap
+// SupportCollectionTest::testTapEach
+// SupportCollectionTest::testPipe
+// SupportCollectionTest::testPipeInto
+// SupportCollectionTest::testPipeThrough
+// SupportCollectionTest::testToSlice
+// SupportCollectionTest::testWrap
+// SupportCollectionTest::testUnwrap
+// SupportCollectionTest::testHasMany
+// SupportCollectionTest::testLen
+// SupportCollectionTest::testToBase
+// SupportCollectionTest::testIter
+// SupportCollectionTest::testPairIter
+// SupportCollectionTest::testHasSole
+// SupportCollectionTest::testSomeCollection
+// SupportCollectionTest::testSome
+// SupportCollectionTest::testHasAny
+// SupportCollectionTest::testUndot
+// SupportCollectionTest::testMedianBy
+// SupportCollectionTest::testAvgBy
+// SupportCollectionTest::testAverage
+// SupportCollectionTest::testArrayAccessOffsetExists
+// SupportCollectionTest::testHas
+// SupportCollectionTest::testAdd
+// SupportCollectionTest::testUnshift
+// SupportCollectionTest::testMerge
+// SupportCollectionTest::testMapToGroups
+// SupportCollectionTest::testEachSpread
+// SupportCollectionTest::testUnlessEmpty
+// SupportCollectionTest::testUnlessNotEmpty
+// SupportCollectionTest::testFlatten
+// SupportCollectionTest::testDump
+// SupportCollectionTest::testLastEmpty
+// SupportCollectionTest::testLastNoMatch
+// SupportCollectionTest::testRandom
+// SupportCollectionTest::testSplitIn
+// SupportCollectionTest::testWhenEmpty
+// SupportCollectionTest::testWhenNotEmpty
+// SupportCollectionTest::testSkipMethod
+// SupportCollectionTest::testSkipUntil
+// SupportCollectionTest::testSkipWhile
+// SupportCollectionTest::testTake
+// SupportCollectionTest::testTakeUntilUsingCallback
+// SupportCollectionTest::testTakeWhileUsingCallback
+// SupportCollectionTest::testChunkWhileOnEqualElements
+// SupportCollectionTest::testSplitCollectionWithADivisibleCount
+// SupportCollectionTest::testSliceOffset
+// SupportCollectionTest::testSliceOffsetAndLength
+// SupportCollectionTest::testSliceNegativeOffset
+// SupportCollectionTest::testSortDesc
+// SupportCollectionTest::testMapToDictionary
+// SupportCollectionTest::testMapWithKeys
+// SupportCollectionTest::testOnly
+// SupportCollectionTest::testExcept
+// SupportCollectionTest::testWhere
+// SupportCollectionTest::testCrossJoin
+// SupportCollectionTest::testCollapse
+// SupportCollectionTest::testGroupByCallable
+// SupportCollectionTest::testKeyByAttribute
+// SupportCollectionTest::testCountBy
+// SupportCollectionTest::testValues
+// SupportCollectionTest::testIterable
+// SupportCollectionTest::testWrapWithCollectionClass
+// SupportCollectionTest::testWrapWithArray
+// SupportCollectionTest::testWrapWithScalar
+// SupportCollectionTest::testUnwrapCollection
+// SupportCollectionTest::testUnwrapCollectionWithArray
+// SupportCollectionTest::testUnwrapCollectionWithScalar
+// SupportCollectionTest::testEmptyMethod
+// SupportCollectionTest::testHasSole
+// SupportCollectionTest::testHasMany
+// SupportCollectionTest::testMapToGroups
+// SupportCollectionTest::testPipeInto
+// SupportCollectionTest::testUnlessEmpty
+// SupportCollectionTest::testUnlessNotEmpty
+// SupportCollectionTest::testDot
+// SupportCollectionTest::testFlatten
+// SupportCollectionTest::testDump
+// SupportCollectionTest::testFlip
+// SupportCollectionTest::testKeys
+// SupportCollectionTest::testWhereNot
+// SupportCollectionTest::testWhereNull
+// SupportCollectionTest::testWhereNotNull
+// SupportCollectionTest::testWhereIn
+// SupportCollectionTest::testWhereNotIn
+// SupportCollectionTest::testWhereBetween
+// SupportCollectionTest::testWhereNotBetween
+// SupportCollectionTest::testBeforeReturnsNullWhenItemOnTheFirstitem
+// SupportCollectionTest::testAfterReturnsNullWhenItemOnTheLastItem
 func TestNew(t *testing.T) {
 	c := New(1, 2, 3)
 
@@ -123,6 +340,47 @@ func TestFirstOrFail(t *testing.T) {
 
 	if err == nil {
 		t.Error("expected error")
+	}
+
+	cases := []struct {
+		name      string
+		predicate func(int, int) bool
+		want      int
+		wantErr   bool
+	}{
+		{
+			name:      "single match",
+			predicate: func(item int, _ int) bool { return item == 2 },
+			want:      2,
+		},
+		{
+			name:      "no match",
+			predicate: func(item int, _ int) bool { return item > 10 },
+			wantErr:   true,
+		},
+		{
+			name:      "multiple matches",
+			predicate: func(item int, _ int) bool { return item > 1 },
+			want:      2,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := c.FirstOrFail(tt.predicate)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("expected error")
+				}
+
+				return
+			}
+
+			if err != nil || got != tt.want {
+				t.Fatalf("expected %d, got %d, err: %v", tt.want, got, err)
+			}
+		})
 	}
 }
 
