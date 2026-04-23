@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 )
@@ -52,9 +51,9 @@ func (g *GoogleProvider) UserFromIDToken(ctx context.Context, idToken string) (*
 }
 
 func (g *GoogleProvider) verifyIDToken(ctx context.Context, idToken string) (map[string]any, error) {
-	endpoint := "https://oauth2.googleapis.com/tokeninfo?id_token=" + url.QueryEscape(idToken)
-
-	raw, err := g.getJSON(ctx, endpoint, nil)
+	raw, err := g.postForm(ctx, "https://oauth2.googleapis.com/tokeninfo", nil, map[string]string{
+		"id_token": idToken,
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("socialite: invalid id token: %w", err)
@@ -80,11 +79,14 @@ func (g *GoogleProvider) verifyIDToken(ctx context.Context, idToken string) (map
 }
 
 func idTokenExpired(exp any) (bool, error) {
+	const leeway = 2 * time.Minute
+	now := time.Now().Add(-leeway).Unix()
+
 	switch v := exp.(type) {
 	case nil:
 		return false, fmt.Errorf("missing exp claim")
 	case float64:
-		return time.Now().Unix() >= int64(v), nil
+		return now >= int64(v), nil
 	case string:
 		n, err := strconv.ParseInt(v, 10, 64)
 
@@ -92,7 +94,7 @@ func idTokenExpired(exp any) (bool, error) {
 			return false, fmt.Errorf("invalid exp claim: %w", err)
 		}
 
-		return time.Now().Unix() >= n, nil
+		return now >= n, nil
 	default:
 		return false, fmt.Errorf("invalid exp claim type")
 	}

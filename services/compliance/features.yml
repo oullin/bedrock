@@ -215,7 +215,7 @@ features:
     bedrock: notifications
     status: ported
     docs: packages/notifications.md
-    notes: Manager/channel resolution, sender flow, mail, database, broadcast, custom channels, queued dispatch, anonymous routes, and message helpers are complete under classified parity.
+    notes: Manager/channel resolution, sender flow, mail, database, broadcast, custom channels, queued dispatch, anonymous routes, and message helpers are complete under classified parity; PHP Notifiable/RoutesNotifications/HasDatabaseNotifications traits, the notifications:table console generator, and the Eloquent DatabaseNotification model are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.pagination.paginators
     source_id: framework.pagination
@@ -258,54 +258,54 @@ features:
     name: Redis commands
     laravel: Illuminate\Redis connections, commands, pipelines, and pubsub
     bedrock: redis
-    status: partial
+    status: ported
     docs: packages/redis.md
-    notes: Redis command surface exists; upstream Redis tests are not matched yet.
+    notes: Connection, cluster, manager, events, pipeline, transaction, scan, pub/sub, Lua, and concurrency/duration limiter surfaces are complete under classified parity; phpredis extension context arrays, stream wrappers, cluster password tuples, backoff constants, and Macroable runtime mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.routing.routes
     source_id: framework.routing
     name: Routing
     laravel: Illuminate\Routing routes, middleware, URL generation, and binding
     bedrock: routing
-    status: partial
+    status: ported
     docs: packages/routing.md
-    notes: Routing package exists; upstream routing tests remain incomplete.
+    notes: Route registration, route collections, resource/api/singleton registrars, route groups, middleware pipelines, redirector, URL generation with signed URLs and backed enums, implicit and explicit model binding, and route signature parameter extraction are complete under classified parity; PHP serialized closures, controller attribute reflection, namespace auto-resolution, backed-enum metadata, and other PHP-centric routing mechanics are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.session.stores
     source_id: framework.session
     name: Session stores
     laravel: Illuminate\Session stores, flash data, and CSRF tokens
     bedrock: session
-    status: partial
+    status: ported
     docs: packages/session.md
-    notes: Session stores exist; upstream session tests are not matched yet.
+    notes: Array, file, cache, cookie, database, null, and encrypting stores, session manager, flash and now-flash data, CSRF token rotation, password confirmation tracking, and the StartSession middleware lifecycle are complete under classified parity; PHP backed-enum key coercion, the AuthenticateSession guard-integrity middleware, validation error bag serialization, and PHP Macroable runtime are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.support.helpers
     source_id: framework.support
     name: Support helpers
     laravel: Illuminate\Support helpers, Fluent, MessageBag, Optional, Sleep, and Timebox
     bedrock: support
-    status: partial
+    status: ported
     docs: packages/support.md
-    notes: Several support helpers are ported; upstream support coverage is still partial.
+    notes: Fluent, MessageBag, Optional, Sleep, Timebox, HtmlString, URI, ValidatedInput, ViewErrorBag, Arr/Number/value helpers, and Env are complete under classified parity; PHP Macroable runtime, Arrayable/ArrayObject/Carbon key coercion, ICU locale spellouts, and PHP reflection metadata are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.support_str.strings
     source_id: framework.support_str
     name: String helpers
     laravel: Illuminate\Support\Str helpers
     bedrock: str
-    status: partial
+    status: ported
     docs: packages/str.md
-    notes: String helper parity has many ported tests, but missing cases remain.
+    notes: Case conversions, slug/kebab/camel/studly/title/headline, before/after/between/contains/replace, UUID and ULID generation with frozen sequences, pluralization, transliteration with explicit replacements, and StringBuilder are complete under classified parity; PHP null-string coercion and the PHP strict-transliteration boolean flag are covered by Go adaptation rules in divergences.yml.
 
   - id: framework.support_lottery.lottery
     source_id: framework.support_lottery
     name: Lottery helper
     laravel: Illuminate\Support\Lottery random odds helper
     bedrock: lottery
-    status: partial
+    status: ported
     docs: packages/lottery.md
-    notes: Lottery package exists; upstream Lottery tests are not matched yet.
+    notes: Odds construction, winner and loser callbacks, float and fractional odds, callable invocation, deterministic ForceWin and ForceLose, sequence-based outcomes, and out-of-range rejection are complete under classified parity.
 
   - id: framework.testing.assertions
     source_id: framework.testing
