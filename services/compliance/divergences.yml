@@ -239,14 +239,6 @@ adaptation_rules:
       - upstream: PHP reflection self, parent, union type, and attribute metadata
         bedrock: Go reflection exposes concrete type/interface metadata but not PHP's class-string, parent-class, union-type, or attribute model.
 
-  testing:
-    source: Framework\Testing
-    rules:
-      - upstream: Fluent JSON closure shorthand and PHP callable overloads
-        bedrock: Go exposes explicit Scope, FirstScope, EachScope, and predicate callback methods instead of PHP's runtime argument overloading.
-      - upstream: Parallel console output process isolation
-        bedrock: Console output is asserted through deterministic writer fakes; Upstream's parallel process output wrapper is PHP test-runner infrastructure.
-
   auth:
     source: Framework\Auth
     rules:
