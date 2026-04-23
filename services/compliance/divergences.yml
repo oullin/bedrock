@@ -347,6 +347,24 @@ adaptation_rules:
       - upstream: Associative array input preserves string keys in output
         bedrock: Task slices return ordered results by task index
 
+  socialauth:
+    source: Upstream\SocialAuth
+    rules:
+      - upstream: GoogleProvider decodes JWT id tokens locally and asserts detection/invalid-shape behavior via unsigned test tokens
+        bedrock: GoogleProvider delegates all id-token verification to Google's /tokeninfo endpoint and never trusts client-side decoding; invalid tokens surface through the tokeninfo response path (TestGoogleProviderPropagatesTokenInfoFailure, TestGoogleProviderRejectsIDTokenWithWrongAudience/BadIssuer/Expired) and the opaque-vs-segmented token path is guarded by TestGoogleProviderUserFromTokenAlwaysCallsUserinfo
+
+  notifications:
+    source: Framework\Notifications
+    rules:
+      - upstream: Notifiable, RoutesNotifications, and HasDatabaseNotifications PHP traits composed into user models
+        bedrock: contracts/notifications.Notifiable interface (RouteNotificationFor, GetKey), AnonymousNotifiable for on-demand routing, and a caller-owned DatabaseNotificationStore
+      - upstream: notifications:table CLI generator for the notifications migration
+        bedrock: Not implemented; schema for persisted notifications is managed through the database package
+      - upstream: Orm DatabaseNotification model with dynamic relations and a DatabaseNotificationCollection Orm collection
+        bedrock: Plain DatabaseNotification struct plus a DatabaseNotificationStore interface and in-memory DatabaseNotificationCollection helpers
+      - upstream: PHP exceptions for missing channels and unsupported anonymous routing
+        bedrock: Sentinel errors such as ErrInvalidChannel, ErrMissingMailData, and ErrDatabaseChannelNotAllowed
+
 semantic_divergences:
   - surface: database
     divergence: No static methods
@@ -489,9 +507,25 @@ semantic_divergences:
   - surface: package.boost
     divergence: No CLI command wrapper layer for install and update flows
     rationale: Bedrock exercises the underlying Go APIs for agents, guidelines, skills, MCP config writing, and database tools instead of Upstream's command façade and command-wrapper layer.
+  - surface: socialauth
+    divergence: Google id tokens are verified server-side via /tokeninfo instead of local JWT decoding
+    rationale: Upstream's GoogleProviderIdTokenTest decodes unsigned JWTs locally and asserts on detection/invalidity; Bedrock never trusts client-side JWT decoding and always posts the id token to Google's /tokeninfo endpoint, so the detection and invalid-token intents are covered by TestGoogleProviderUserFromTokenAlwaysCallsUserinfo and TestGoogleProviderPropagatesTokenInfoFailure (plus the issuer/audience/expiry rejection tests).
+  - surface: notifications
+    divergence: Notifiable composition is expressed as interfaces instead of PHP traits
+    rationale: Go has no trait system; Upstream's Notifiable/RoutesNotifications/HasDatabaseNotifications traits are adapted to the contracts/notifications.Notifiable interface, AnonymousNotifiable for on-demand routing, and a caller-owned DatabaseNotificationStore.
+  - surface: notifications
+    divergence: notifications:table CLI generator is not shipped
+    rationale: Migration generation is owned by the database package; Bedrock does not expose an CLI-style command to scaffold the notifications table.
+  - surface: notifications
+    divergence: DatabaseNotification is a plain struct backed by a store interface
+    rationale: Upstream's Orm DatabaseNotification model and DatabaseNotificationCollection rely on PHP magic relations and dynamic collections; Bedrock exposes a plain struct plus a DatabaseNotificationStore interface so callers plug in their own persistence.
 
 test_status_overrides:
   # Cookie, encryption, and database PHP runtime mechanics counted as adapted.
+  # SocialAuth: Google id-token verification is delegated to /tokeninfo instead of
+  # local JWT decoding; see adaptation_rules.socialauth and semantic_divergences.
+  - GoogleProviderIdTokenTest::test_it_can_detect_jwt_tokens
+  - GoogleProviderIdTokenTest::test_it_handles_invalid_jwt_tokens
   # Prompts package: fallback, collection, and advanced terminal behaviors not modeled by the Go API.
   - AutoCompletePromptTest::it_cycles_through_suggestions_with_arrow_keys
   - AutoCompletePromptTest::it_cycles_through_suggestions_wrapping_around
