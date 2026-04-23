@@ -1756,9 +1756,9 @@ func StrPassword(length ...int) (string, error) {
 }
 
 func FlushCache() {
-	camelCache = sync.Map{}
-	studlyCache = sync.Map{}
-	snakeCache = sync.Map{}
+	camelCache.Clear()
+	studlyCache.Clear()
+	snakeCache.Clear()
 }
 
 func StrConvertCase(str string, mode int) string {
