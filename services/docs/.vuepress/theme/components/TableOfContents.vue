@@ -64,24 +64,23 @@ watch(
 <template>
   <nav v-if="headers.length" class="text-sm" aria-label="On this page">
     <p
-      class="mb-4 text-[11px] font-semibold uppercase tracking-widest
-             text-slate-900 dark:text-white"
-      style="font-family: var(--font-display);"
+      class="mb-4 text-[11px] font-semibold uppercase tracking-widest"
+      style="color: var(--ink); font-family: var(--font-display);"
     >
       On this page
     </p>
     <ScrollArea class="max-h-[calc(100vh-12rem)]">
-      <ul class="space-y-2 border-l border-slate-200 dark:border-slate-800 pr-2">
+      <ul class="space-y-2 border-l pr-2" style="border-color: var(--line);">
         <li v-for="h in headers" :key="h.slug">
           <a
             :href="`#${h.slug}`"
             :class="[
               'block -ml-px border-l pl-3 text-[13px] leading-snug transition-colors duration-150',
               h.level === 3 ? 'pl-5' : '',
-              activeSlug === h.slug
-                ? 'border-sky-500 dark:border-sky-400 text-sky-500 dark:text-sky-400 font-semibold'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500',
             ]"
+            :style="activeSlug === h.slug
+              ? 'border-color: var(--accent); color: var(--accent); font-weight: 600;'
+              : 'border-color: transparent; color: var(--ink-3);'"
           >
             {{ h.title }}
           </a>
