@@ -1,7 +1,6 @@
 package process
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"os/exec"
@@ -17,8 +16,8 @@ type InvokedProcess struct {
 	cmd     *exec.Cmd
 	cancel  func()
 
-	stdout bytes.Buffer
-	stderr bytes.Buffer
+	stdout safeBuffer
+	stderr safeBuffer
 
 	once   sync.Once
 	done   chan struct{}
@@ -124,7 +123,7 @@ func (p *InvokedProcess) WaitUntil(ctx context.Context, fn func(output string, e
 
 // Output returns all captured stdout.
 func (p *InvokedProcess) Output() string {
-	if p.result != nil {
+	if p.cmd == nil {
 		return p.result.Output()
 	}
 
@@ -138,7 +137,7 @@ func (p *InvokedProcess) LatestOutput() string {
 
 // ErrorOutput returns all captured stderr.
 func (p *InvokedProcess) ErrorOutput() string {
-	if p.result != nil {
+	if p.cmd == nil {
 		return p.result.ErrorOutput()
 	}
 

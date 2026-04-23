@@ -52,3 +52,4 @@ service/storage/.turbo/**
 !service/storage/.turbo/.gitkeep
 
 services/storage/dist/
+services/jobqueue/app/dist/
