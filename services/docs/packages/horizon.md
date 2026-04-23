@@ -40,7 +40,15 @@ snapshot, err := monitor.Capture(ctx)
 application-specific store. The in-memory repository is useful for tests and
 single-process dashboards.
 
+## Dashboard
+
+The `services/horizon` service ports Laravel Horizon's browser dashboard on top
+of these primitives: a Go JSON API (`/api/stats`, `/api/master-supervisors`,
+`/api/monitoring`, `/api/batches`, `/api/jobs/*`, `/api/metrics/*`) plus a Vue
+SPA. See [`services/horizon/README.md`](../../horizon/README.md) for run
+instructions.
+
 ## Port Notes
 
-Bedrock ports Horizon's queue monitoring model, not Laravel's Vue dashboard or
-PHP supervisor runtime.
+PHP supervisor runtime and Redis transcript internals are covered by Go
+adaptation rules in `services/compliance/divergences.yml`.

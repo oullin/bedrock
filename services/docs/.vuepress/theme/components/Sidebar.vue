@@ -51,7 +51,7 @@ function isActive(link?: string): boolean {
   <ScrollArea class="h-full">
     <nav class="text-sm px-3 py-4" aria-label="Sidebar navigation">
       <template v-for="(section, idx) in config" :key="section.text">
-        <Separator v-if="idx > 0" class="my-3 bg-slate-100 dark:bg-slate-800" />
+        <Separator v-if="idx > 0" class="my-3" style="background: var(--line);" />
 
         <!-- Section with children (collapsible) -->
         <Collapsible
@@ -63,10 +63,8 @@ function isActive(link?: string): boolean {
             <Button
               variant="ghost"
               size="sm"
-              class="w-full justify-between px-3 text-[11px] font-semibold uppercase tracking-widest
-                     text-slate-500 dark:text-slate-400
-                     hover:text-slate-700 dark:hover:text-slate-300
-                     hover:bg-slate-900/5 dark:hover:bg-white/5"
+              class="w-full justify-between px-3 text-[11px] font-semibold uppercase tracking-widest hover:bg-transparent"
+              style="color: var(--ink-3);"
             >
               {{ section.text }}
               <ChevronRight
@@ -86,12 +84,10 @@ function isActive(link?: string): boolean {
                   variant="ghost"
                   size="sm"
                   as-child
-                  :class="cn(
-                    'w-full justify-start pl-4 font-normal',
-                    isActive(item.link)
-                      ? 'text-sky-500 dark:text-sky-400 font-medium hover:text-sky-500 dark:hover:text-sky-400'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white',
-                  )"
+                  :class="cn('w-full justify-start pl-4 font-normal hover:bg-transparent')"
+                  :style="isActive(item.link)
+                    ? 'color: var(--accent); font-weight: 500;'
+                    : 'color: var(--ink-2);'"
                 >
                   <RouteLink :to="item.link" @click="emit('navigate')">
                     {{ item.text }}
@@ -99,7 +95,8 @@ function isActive(link?: string): boolean {
                 </Button>
                 <span
                   v-else
-                  class="block px-4 py-1.5 text-sm text-slate-400 dark:text-slate-600 select-none"
+                  class="block px-4 py-1.5 text-sm select-none"
+                  style="color: var(--ink-3);"
                 >
                   {{ item.text }}
                 </span>
@@ -114,12 +111,10 @@ function isActive(link?: string): boolean {
           variant="ghost"
           size="sm"
           as-child
-          :class="cn(
-            'w-full justify-start font-normal',
-            isActive(section.link)
-              ? 'text-sky-500 dark:text-sky-400 font-medium hover:text-sky-500 dark:hover:text-sky-400'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white',
-          )"
+          :class="cn('w-full justify-start font-normal hover:bg-transparent')"
+          :style="isActive(section.link)
+            ? 'color: var(--accent); font-weight: 500;'
+            : 'color: var(--ink-2);'"
         >
           <RouteLink :to="section.link" @click="emit('navigate')">
             {{ section.text }}

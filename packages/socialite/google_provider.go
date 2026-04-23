@@ -2,11 +2,10 @@ package socialite
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
-	"strings"
+	"strconv"
+	"time"
 )
 
 // GoogleProvider handles OAuth2 authentication via Google.
@@ -34,16 +33,15 @@ func (g *GoogleProvider) GetTokenURL() string {
 }
 
 func (g *GoogleProvider) GetUserByToken(ctx context.Context, token string) (map[string]any, error) {
-	if IsJWT(token) {
-		return DecodeJWTClaims(token)
-	}
-
 	return g.getWithBearer(ctx, "https://www.googleapis.com/oauth2/v3/userinfo", token)
 }
 
-// UserFromIDToken maps an OpenID Connect ID token without calling userinfo.
-func (g *GoogleProvider) UserFromIDToken(_ context.Context, idToken string) (*User, error) {
-	raw, err := DecodeJWTClaims(idToken)
+// UserFromIDToken maps an OpenID Connect ID token after verifying it with
+// Google's tokeninfo endpoint. The endpoint validates the token signature,
+// format, and expiry server-side; this method additionally enforces that the
+// audience matches the configured client ID and the issuer is Google.
+func (g *GoogleProvider) UserFromIDToken(ctx context.Context, idToken string) (*User, error) {
+	raw, err := g.verifyIDToken(ctx, idToken)
 
 	if err != nil {
 		return nil, err
@@ -52,13 +50,54 @@ func (g *GoogleProvider) UserFromIDToken(_ context.Context, idToken string) (*Us
 	return g.MapUserToObject(raw).SetRaw(raw).SetToken(idToken), nil
 }
 
-// UserFromToken accepts either an access token or an OpenID Connect ID token.
-func (g *GoogleProvider) UserFromToken(ctx context.Context, token string) (*User, error) {
-	if IsJWT(token) {
-		return g.UserFromIDToken(ctx, token)
+func (g *GoogleProvider) verifyIDToken(ctx context.Context, idToken string) (map[string]any, error) {
+	raw, err := g.postForm(ctx, "https://oauth2.googleapis.com/tokeninfo", nil, map[string]string{
+		"id_token": idToken,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("socialite: invalid id token: %w", err)
 	}
 
-	return g.AbstractProvider.UserFromToken(ctx, token)
+	if aud := stringify(raw["aud"]); aud != g.clientID {
+		return nil, fmt.Errorf("socialite: invalid id token: audience %q does not match client id", aud)
+	}
+
+	iss := stringify(raw["iss"])
+
+	if iss != "accounts.google.com" && iss != "https://accounts.google.com" {
+		return nil, fmt.Errorf("socialite: invalid id token: unexpected issuer %q", iss)
+	}
+
+	if expired, err := idTokenExpired(raw["exp"]); err != nil {
+		return nil, fmt.Errorf("socialite: invalid id token: %w", err)
+	} else if expired {
+		return nil, fmt.Errorf("socialite: invalid id token: token expired")
+	}
+
+	return raw, nil
+}
+
+func idTokenExpired(exp any) (bool, error) {
+	const leeway = 2 * time.Minute
+	now := time.Now().Add(-leeway).Unix()
+
+	switch v := exp.(type) {
+	case nil:
+		return false, fmt.Errorf("missing exp claim")
+	case float64:
+		return now >= int64(v), nil
+	case string:
+		n, err := strconv.ParseInt(v, 10, 64)
+
+		if err != nil {
+			return false, fmt.Errorf("invalid exp claim: %w", err)
+		}
+
+		return now >= n, nil
+	default:
+		return false, fmt.Errorf("invalid exp claim type")
+	}
 }
 
 func (g *GoogleProvider) MapUserToObject(raw map[string]any) *User {
@@ -78,46 +117,4 @@ func (g *GoogleProvider) MapUserToObject(raw map[string]any) *User {
 	u.Attributes["link"] = raw["profile"]
 
 	return u
-}
-
-// IsJWT reports whether token has the three base64url segments of a JWT.
-func IsJWT(token string) bool {
-	parts := strings.Split(token, ".")
-
-	if len(parts) != 3 {
-		return false
-	}
-
-	for _, part := range parts {
-		if part == "" {
-			return false
-		}
-	}
-
-	return true
-}
-
-// DecodeJWTClaims decodes JWT claims without performing provider signature
-// verification. Production verification belongs at the provider boundary; this
-// helper only mirrors Socialite's testable mapping path for already trusted
-// OpenID Connect ID tokens.
-func DecodeJWTClaims(token string) (map[string]any, error) {
-	if !IsJWT(token) {
-		return nil, errors.New("socialite: token is not a jwt")
-	}
-
-	parts := strings.Split(token, ".")
-	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
-
-	if err != nil {
-		return nil, err
-	}
-
-	claims := map[string]any{}
-
-	if err := json.Unmarshal(payload, &claims); err != nil {
-		return nil, err
-	}
-
-	return claims, nil
 }
