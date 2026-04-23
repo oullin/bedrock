@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/money",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/money && go build ./... && touch ../../storage/.turbo/dist/money/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/money && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/money/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "gofmt -w .",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}
