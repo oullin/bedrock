@@ -168,6 +168,7 @@ func TestConcurrencyLimiterReleasesLockIfTaskTookTooLong(t *testing.T) {
 	}
 
 	llen, err := conn.Command(context.Background(), "LLEN", "limiter:concurrency:slow")
+
 	if err != nil {
 		t.Fatalf("LLEN err=%v", err)
 	}

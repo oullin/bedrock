@@ -1855,6 +1855,7 @@ func (s *StringBuilder) Is(pattern string, ignoreCase ...bool) bool {
 }
 func (s *StringBuilder) ClassBasename() *StringBuilder {
 	name := strings.Trim(s.value, "\\/")
+
 	if idx := strings.LastIndexAny(name, "\\/"); idx >= 0 {
 		name = name[idx+1:]
 	}

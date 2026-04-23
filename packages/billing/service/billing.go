@@ -97,6 +97,7 @@ func (s *BillingService) CancelSubscription(ctx context.Context, billableType st
 	}
 
 	now := time.Now()
+
 	if !active.Subscription.Cancel(now) {
 		return nil
 	}

@@ -41,15 +41,19 @@ func TestMadoraReconcileSubscriptionPlanMatching(t *testing.T) {
 		events := &madoraDispatcher{}
 
 		reconciled, err := billing.ReconcileSubscriptionAfterCheckout(context.Background(), store, "team", 42, cashier, events)
+
 		if err != nil {
 			t.Fatalf("reconcile checkout: %v", err)
 		}
+
 		if !reconciled {
 			t.Fatalf("expected reconciliation to match the pending price snapshot")
 		}
+
 		if len(store.saved) != 1 || store.saved[0].ID != cashier.ID {
 			t.Fatalf("saved subscriptions = %#v, want cashier", store.saved)
 		}
+
 		if len(store.deleted) != 1 || store.deleted[0] != matching.ID {
 			t.Fatalf("deleted subscriptions = %#v, want matching pending row", store.deleted)
 		}
@@ -75,12 +79,15 @@ func TestMadoraReconcileSubscriptionPlanMatching(t *testing.T) {
 		store := &madoraSubStore{subs: []*billing.Subscription{pending, cashier}}
 
 		reconciled, err := billing.ReconcileSubscriptionAfterCheckout(context.Background(), store, "team", 42, cashier, nil)
+
 		if err != nil {
 			t.Fatalf("reconcile checkout: %v", err)
 		}
+
 		if !reconciled {
 			t.Fatalf("expected reconciliation to fall back to plan matching")
 		}
+
 		if len(store.deleted) != 1 || store.deleted[0] != pending.ID {
 			t.Fatalf("deleted subscriptions = %#v, want pending row", store.deleted)
 		}
@@ -105,12 +112,15 @@ func TestMadoraReconcileSubscriptionPlanMatching(t *testing.T) {
 		store := &madoraSubStore{subs: []*billing.Subscription{pending, cashier}}
 
 		reconciled, err := billing.ReconcileSubscriptionAfterCheckout(context.Background(), store, "team", 42, cashier, nil)
+
 		if err != nil {
 			t.Fatalf("reconcile checkout: %v", err)
 		}
+
 		if reconciled {
 			t.Fatalf("expected reconciliation to skip when no price ids are available")
 		}
+
 		if len(store.deleted) != 0 || len(store.saved) != 0 {
 			t.Fatalf("store mutated despite no matching pending row: saved=%#v deleted=%#v", store.saved, store.deleted)
 		}

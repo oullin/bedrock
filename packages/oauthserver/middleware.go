@@ -131,6 +131,7 @@ func CheckClientCredentials(guard *TokenGuard, scopes ...string) func(http.Handl
 
 			for _, scope := range scopes {
 				ok, err := clientCredentialHasScope(r.Context(), guard, client, scope)
+
 				if err != nil || !ok {
 					writeJSON(w, http.StatusForbidden, "Invalid scope(s) provided.")
 
@@ -164,6 +165,7 @@ func CheckClientCredentialsForAnyScope(guard *TokenGuard, scopes ...string) func
 
 			for _, scope := range scopes {
 				ok, err := clientCredentialHasScope(r.Context(), guard, client, scope)
+
 				if err == nil && ok {
 					next.ServeHTTP(w, r)
 
@@ -178,6 +180,7 @@ func CheckClientCredentialsForAnyScope(guard *TokenGuard, scopes ...string) func
 
 func clientCredentialHasScope(ctx context.Context, guard *TokenGuard, client *Client, scope string) (bool, error) {
 	token, err := guard.Token(ctx)
+
 	if err != nil {
 		return false, err
 	}

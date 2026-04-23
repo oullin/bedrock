@@ -280,6 +280,7 @@ func TestValidator_ExcludeUnless(t *testing.T) {
 	)
 
 	got, err := v.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated() returned error: %v", err)
 	}
@@ -294,6 +295,7 @@ func TestValidator_ExcludeUnless(t *testing.T) {
 	)
 
 	got2, err := v2.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated() returned error: %v", err)
 	}

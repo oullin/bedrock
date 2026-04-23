@@ -53,6 +53,7 @@ func NewMetricsRepository() *MetricsRepository {
 // RecordJob records one completed job for aggregate metrics.
 func (r *MetricsRepository) RecordJob(measurement JobMeasurement) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	r.total = r.total.add(measurement.Runtime)
@@ -69,6 +70,7 @@ func (r *MetricsRepository) RecordJob(measurement JobMeasurement) {
 // Total returns aggregate throughput and runtime.
 func (r *MetricsRepository) Total() MetricSummary {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return r.total.summary()
@@ -77,6 +79,7 @@ func (r *MetricsRepository) Total() MetricSummary {
 // Job returns metrics for a job class.
 func (r *MetricsRepository) Job(name string) MetricSummary {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return r.jobs[name].summary()
@@ -85,6 +88,7 @@ func (r *MetricsRepository) Job(name string) MetricSummary {
 // Queue returns metrics for a queue.
 func (r *MetricsRepository) Queue(name string) MetricSummary {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	return r.queues[name].summary()
@@ -93,12 +97,15 @@ func (r *MetricsRepository) Queue(name string) MetricSummary {
 // Jobs returns all job classes that have metric samples.
 func (r *MetricsRepository) Jobs() []string {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	jobs := make([]string, 0, len(r.jobs))
+
 	for job := range r.jobs {
 		jobs = append(jobs, job)
 	}
+
 	sort.Strings(jobs)
 
 	return jobs
@@ -107,6 +114,7 @@ func (r *MetricsRepository) Jobs() []string {
 // SnapshotPerformance stores and returns the current aggregate counters.
 func (r *MetricsRepository) SnapshotPerformance(recordedAt time.Time) MetricsSnapshot {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	snapshot := MetricsSnapshot{
@@ -117,6 +125,7 @@ func (r *MetricsRepository) SnapshotPerformance(recordedAt time.Time) MetricsSna
 	}
 
 	r.snapshots = append(r.snapshots, snapshot)
+
 	if len(r.snapshots) > 24 {
 		r.snapshots = append([]MetricsSnapshot(nil), r.snapshots[len(r.snapshots)-24:]...)
 	}
@@ -127,9 +136,11 @@ func (r *MetricsRepository) SnapshotPerformance(recordedAt time.Time) MetricsSna
 // Snapshots returns retained performance snapshots.
 func (r *MetricsRepository) Snapshots() []MetricsSnapshot {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	snapshots := make([]MetricsSnapshot, len(r.snapshots))
+
 	for i, snapshot := range r.snapshots {
 		snapshots[i] = cloneMetricsSnapshot(snapshot)
 	}
@@ -140,14 +151,17 @@ func (r *MetricsRepository) Snapshots() []MetricsSnapshot {
 // JobsProcessedPerMinuteSince returns the throughput since a prior snapshot.
 func (r *MetricsRepository) JobsProcessedPerMinuteSince(snapshot MetricsSnapshot, now time.Time) float64 {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	elapsed := now.Sub(snapshot.RecordedAt).Minutes()
+
 	if elapsed <= 0 {
 		return 0
 	}
 
 	processed := r.total.count - snapshot.JobsProcessed
+
 	if processed <= 0 {
 		return 0
 	}
@@ -175,6 +189,7 @@ func (b metricBucket) summary() MetricSummary {
 
 func bucketCounts(buckets map[string]metricBucket) map[string]int {
 	counts := make(map[string]int, len(buckets))
+
 	for name, bucket := range buckets {
 		counts[name] = bucket.count
 	}
@@ -191,6 +206,7 @@ func cloneMetricsSnapshot(snapshot MetricsSnapshot) MetricsSnapshot {
 
 func cloneIntMap(values map[string]int) map[string]int {
 	cloned := make(map[string]int, len(values))
+
 	for key, value := range values {
 		cloned[key] = value
 	}

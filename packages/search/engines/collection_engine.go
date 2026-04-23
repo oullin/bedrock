@@ -248,6 +248,7 @@ func (e *CollectionEngine) applyMakeSearchableUsing(models []contract.Searchable
 	}
 
 	transformer, ok := models[0].(searchableCollectionTransformer)
+
 	if !ok {
 		return models
 	}
@@ -365,12 +366,14 @@ func (e *CollectionEngine) sortModels(models []contract.Searchable, orders []con
 
 func whereComparison(expected any) (string, any, bool) {
 	comparison, ok := expected.(map[string]any)
+
 	if !ok {
 		return "", nil, false
 	}
 
 	operator, _ := comparison["__operator"].(string)
 	value, exists := comparison["__value"]
+
 	if !exists {
 		return "", nil, false
 	}

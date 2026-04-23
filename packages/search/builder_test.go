@@ -14,6 +14,27 @@ type testModel struct {
 	table string
 }
 
+// Default column
+
+// Custom column
+
+// Without Within, uses model default.
+
+// With custom index.
+
+type paginateResult struct {
+	models []contract.Searchable
+	total  int64
+}
+
+type fakePaginationEngine struct {
+	paginateCalls     int
+	mapCalls          int
+	getTotalCalls     int
+	callbackInvoked   bool
+	lastCallbackQuery string
+}
+
 func (m *testModel) GetScoutKey() any                                  { return m.id }
 func (m *testModel) GetScoutKeyName() string                           { return "id" }
 func (m *testModel) SearchableAs() string                              { return "test_" + m.table }
@@ -118,7 +139,6 @@ func TestBuilderLatest(t *testing.T) {
 	t.Parallel()
 	model := newTestModel(1, "posts")
 
-	// Default column
 	b := search.NewBuilder(model, "test").Latest()
 	orders := b.GetOrders()
 
@@ -126,7 +146,6 @@ func TestBuilderLatest(t *testing.T) {
 		t.Fatalf("Latest() default: unexpected %+v", orders)
 	}
 
-	// Custom column
 	b2 := search.NewBuilder(model, "test").Latest("updated_at")
 	orders2 := b2.GetOrders()
 
@@ -161,14 +180,12 @@ func TestBuilderWithin(t *testing.T) {
 	t.Parallel()
 	model := newTestModel(1, "posts")
 
-	// Without Within, uses model default.
 	b := search.NewBuilder(model, "test")
 
 	if b.GetIndex() != "test_posts" {
 		t.Fatalf("expected index test_posts, got %s", b.GetIndex())
 	}
 
-	// With custom index.
 	b2 := search.NewBuilder(model, "test").Within("custom_index")
 
 	if b2.GetIndex() != "custom_index" {
@@ -218,19 +235,6 @@ func TestBuilderCallback(t *testing.T) {
 	}
 }
 
-type paginateResult struct {
-	models []contract.Searchable
-	total  int64
-}
-
-type fakePaginationEngine struct {
-	paginateCalls     int
-	mapCalls          int
-	getTotalCalls     int
-	callbackInvoked   bool
-	lastCallbackQuery string
-}
-
 func (e *fakePaginationEngine) Update(context.Context, []contract.Searchable) error { return nil }
 func (e *fakePaginationEngine) Delete(context.Context, []contract.Searchable) error { return nil }
 func (e *fakePaginationEngine) Search(context.Context, contract.SearchBuilder) (any, error) {
@@ -241,6 +245,7 @@ func (e *fakePaginationEngine) Paginate(_ context.Context, builder contract.Sear
 
 	if builder.HasCallback() {
 		cb := builder.GetCallback()
+
 		if cb != nil {
 			e.callbackInvoked = true
 			e.lastCallbackQuery = builder.GetQuery()
@@ -254,6 +259,7 @@ func (e *fakePaginationEngine) Paginate(_ context.Context, builder contract.Sear
 	if start < 0 {
 		start = 0
 	}
+
 	if end < start {
 		end = start
 	}
@@ -267,6 +273,7 @@ func (e *fakePaginationEngine) Paginate(_ context.Context, builder contract.Sear
 	if start > len(models) {
 		start = len(models)
 	}
+
 	if end > len(models) {
 		end = len(models)
 	}
@@ -277,9 +284,11 @@ func (e *fakePaginationEngine) MapIds(any) []any { return nil }
 func (e *fakePaginationEngine) Map(_ context.Context, results any, _ contract.Searchable) ([]contract.Searchable, error) {
 	e.mapCalls++
 	pr, ok := results.(*paginateResult)
+
 	if !ok {
 		return nil, nil
 	}
+
 	return pr.models, nil
 }
 func (e *fakePaginationEngine) LazyMap(context.Context, any, contract.Searchable) func(yield func(contract.Searchable) bool) {
@@ -288,9 +297,11 @@ func (e *fakePaginationEngine) LazyMap(context.Context, any, contract.Searchable
 func (e *fakePaginationEngine) GetTotalCount(results any) int64 {
 	e.getTotalCalls++
 	pr, ok := results.(*paginateResult)
+
 	if !ok {
 		return 0
 	}
+
 	return pr.total
 }
 func (e *fakePaginationEngine) Flush(context.Context, contract.Searchable) error          { return nil }
@@ -343,6 +354,7 @@ func TestBuilderPaginateWithCustomQueryCallback(t *testing.T) {
 		if query != "hello" {
 			t.Fatalf("expected callback query %q, got %q", "hello", query)
 		}
+
 		return nil
 	}).SetEngine(engine)
 

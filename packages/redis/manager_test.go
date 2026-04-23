@@ -67,6 +67,7 @@ func TestManagerClusterConnection(t *testing.T) {
 	})
 
 	c, err := m.Connection("clustered")
+
 	if err != nil {
 		t.Fatal(err)
 	}

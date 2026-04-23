@@ -25,16 +25,35 @@ type madoraBillable struct {
 	seats int
 }
 
-func (b madoraBillable) BillableID() int64     { return b.id }
-func (b madoraBillable) BillableType() string  { return b.typ }
-func (b madoraBillable) BillableName() string  { return b.name }
-func (b madoraBillable) BillableEmail() string { return b.email }
-
 type madoraSubStore struct {
 	subs    []*billing.Subscription
 	saved   []*billing.Subscription
 	deleted []int64
 }
+
+type madoraOrderStore struct{}
+
+type madoraProductStore struct{}
+
+type madoraTransactionStore struct {
+	transactions map[string]*billing.Transaction
+	created      []*billing.Transaction
+	saved        []*billing.Transaction
+}
+
+type madoraExpirableStore struct {
+	subscriptions []*billing.Subscription
+	deleted       []int64
+}
+
+type madoraDispatcher struct {
+	events []any
+}
+
+func (b madoraBillable) BillableID() int64     { return b.id }
+func (b madoraBillable) BillableType() string  { return b.typ }
+func (b madoraBillable) BillableName() string  { return b.name }
+func (b madoraBillable) BillableEmail() string { return b.email }
 
 func (s *madoraSubStore) FindByID(_ context.Context, id int64) (*billing.Subscription, error) {
 	for _, sub := range s.subs {
@@ -104,8 +123,6 @@ func (s *madoraSubStore) Delete(_ context.Context, id int64) error {
 	return nil
 }
 
-type madoraOrderStore struct{}
-
 func (s madoraOrderStore) FindByID(context.Context, int64) (*billing.Order, error) { return nil, nil }
 func (s madoraOrderStore) FindByBillable(context.Context, int64, int) ([]billing.Order, error) {
 	return nil, nil
@@ -116,8 +133,6 @@ func (s madoraOrderStore) HasCompletedForProduct(context.Context, int64, int64) 
 	return false, nil
 }
 
-type madoraProductStore struct{}
-
 func (s madoraProductStore) FindByID(context.Context, int64) (*billing.Product, error) { return nil, nil }
 func (s madoraProductStore) Active(context.Context) ([]billing.Product, error)         { return nil, nil }
 func (s madoraProductStore) ActiveSubscriptions(context.Context) ([]billing.Product, error) {
@@ -125,12 +140,6 @@ func (s madoraProductStore) ActiveSubscriptions(context.Context) ([]billing.Prod
 }
 func (s madoraProductStore) ActiveOneTime(context.Context) ([]billing.Product, error) {
 	return nil, nil
-}
-
-type madoraTransactionStore struct {
-	transactions map[string]*billing.Transaction
-	created      []*billing.Transaction
-	saved        []*billing.Transaction
 }
 
 func (s *madoraTransactionStore) FindByProviderID(_ context.Context, providerID string) (*billing.Transaction, error) {
@@ -155,11 +164,6 @@ func (s *madoraTransactionStore) Save(_ context.Context, tx *billing.Transaction
 	return nil
 }
 
-type madoraExpirableStore struct {
-	subscriptions []*billing.Subscription
-	deleted       []int64
-}
-
 func (s *madoraExpirableStore) ExpirableSubscriptions(context.Context, time.Time) ([]*billing.Subscription, error) {
 	return s.subscriptions, nil
 }
@@ -176,10 +180,6 @@ func (s *madoraExpirableStore) Delete(_ context.Context, id int64) error {
 	}
 
 	return nil
-}
-
-type madoraDispatcher struct {
-	events []any
 }
 
 func (d *madoraDispatcher) Dispatch(event any) error {
@@ -252,6 +252,7 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 
 	frontend := state.NewFrontendState(mgr, &cfg, subscriptions)
 	current, err := frontend.Current(context.Background(), "team", billable)
+
 	if err != nil {
 		t.Fatalf("frontend state: %v", err)
 	}
@@ -259,31 +260,39 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 	if current["dashboardUrl"] != "/agreement" {
 		t.Fatalf("dashboardUrl = %v, want /agreement", current["dashboardUrl"])
 	}
+
 	if current["sparkPath"] != "billing" {
 		t.Fatalf("sparkPath = %v, want billing", current["sparkPath"])
 	}
+
 	if current["defaultInterval"] != "monthly" {
 		t.Fatalf("defaultInterval = %v, want monthly", current["defaultInterval"])
 	}
+
 	if got := len(current["monthlyPlans"].([]*billing.Plan)); got != 1 {
 		t.Fatalf("monthlyPlans = %d, want 1 active monthly plan", got)
 	}
+
 	if got := len(current["yearlyPlans"].([]*billing.Plan)); got != 1 {
 		t.Fatalf("yearlyPlans = %d, want 1 active yearly plan", got)
 	}
 
 	activePlan := current["plan"].(*billing.Plan)
+
 	if activePlan.ID != "pri_starter_monthly" {
 		t.Fatalf("active plan = %s, want pri_starter_monthly", activePlan.ID)
 	}
 
 	planMap := activePlan.ToMap()
+
 	if planMap["price_includes_vat"] != true {
 		t.Fatalf("price_includes_vat = %v, want true", planMap["price_includes_vat"])
 	}
+
 	if len(planMap["features"].([]string)) != 2 {
 		t.Fatalf("features were not serialised: %#v", planMap["features"])
 	}
+
 	if mgr.SeatName("team") != "seat" || mgr.SeatCount("team", billable) != 4 {
 		t.Fatalf("seat billing was not registered")
 	}
@@ -317,15 +326,18 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var subs []*billing.Subscription
+
 			if tt.sub != nil {
 				subs = append(subs, tt.sub)
 			}
 
 			frontend := state.NewFrontendState(testBillingManager(), &billing.Config{Path: "billing"}, &madoraSubStore{subs: subs})
 			current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
 			if err != nil {
 				t.Fatalf("frontend state: %v", err)
 			}
+
 			if current["state"] != tt.want {
 				t.Fatalf("state = %v, want %s", current["state"], tt.want)
 			}
@@ -338,9 +350,11 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 	}}
 	billing := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
 	active, err := billing.GetActiveSubscription(context.Background(), "team", 10)
+
 	if err != nil {
 		t.Fatalf("active subscription: %v", err)
 	}
+
 	if active == nil || active.Subscription.Status != billing.StatusPastDue {
 		t.Fatalf("accessible subscription = %#v, want past_due", active)
 	}
@@ -455,6 +469,7 @@ func TestMadoraBillingStatePortalAndCTA(t *testing.T) {
 				&madoraSubStore{subs: []*billing.Subscription{tt.sub}},
 			)
 			current, err := frontend.CurrentAt(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"}, now)
+
 			if err != nil {
 				t.Fatalf("frontend state: %v", err)
 			}
@@ -471,24 +486,31 @@ func TestMadoraBillingStatePortalAndCTA(t *testing.T) {
 			if subscription["status"] != string(tt.wantStatus) {
 				t.Fatalf("status = %v, want %s", subscription["status"], tt.wantStatus)
 			}
+
 			if subscription["plan_code"] != tt.wantPlanCode {
 				t.Fatalf("plan_code = %v, want %s", subscription["plan_code"], tt.wantPlanCode)
 			}
+
 			if subscription["plan_name"] != tt.wantPlanName {
 				t.Fatalf("plan_name = %v, want %s", subscription["plan_name"], tt.wantPlanName)
 			}
+
 			if subscription["portal_url"] != tt.wantPortalURL {
 				t.Fatalf("portal_url = %v, want %s", subscription["portal_url"], tt.wantPortalURL)
 			}
+
 			if subscription["pay_now"] != tt.wantPayNow {
 				t.Fatalf("pay_now = %v, want %v", subscription["pay_now"], tt.wantPayNow)
 			}
+
 			if cta["visible"] != tt.wantCTAVisible {
 				t.Fatalf("cta.visible = %v, want %v", cta["visible"], tt.wantCTAVisible)
 			}
+
 			if cta["label"] != tt.wantCTALabel {
 				t.Fatalf("cta.label = %v, want %s", cta["label"], tt.wantCTALabel)
 			}
+
 			if cta["remaining_days"] != tt.wantRemainingDays {
 				t.Fatalf("cta.remaining_days = %v, want %d", cta["remaining_days"], tt.wantRemainingDays)
 			}
@@ -509,9 +531,11 @@ func TestMadoraSubscriptionLifecycleStateMachine(t *testing.T) {
 	billable := madoraBillable{id: 10, typ: "team"}
 
 	sub := billing.NewPendingSubscription(billable, "pro", now)
+
 	if sub.Status != billing.StatusPending || sub.Plan != "pro" || sub.PendingExpiresAt == nil {
 		t.Fatalf("pending subscription = %#v", sub)
 	}
+
 	if got := int(sub.PendingExpiresAt.Sub(now).Hours() / 24); got != billing.DefaultPendingExpiryDays {
 		t.Fatalf("pending expiry days = %d, want %d", got, billing.DefaultPendingExpiryDays)
 	}
@@ -519,49 +543,63 @@ func TestMadoraSubscriptionLifecycleStateMachine(t *testing.T) {
 	if !sub.MarkPaymentReady(now) {
 		t.Fatalf("first payment-ready transition returned false")
 	}
+
 	if sub.Status != billing.StatusAwaitingPayment || sub.PaymentReadyAt == nil || !sub.PaymentReadyAt.Equal(now) {
 		t.Fatalf("awaiting-payment subscription = %#v", sub)
 	}
+
 	if sub.MarkPaymentReady(now.Add(time.Hour)) || !sub.PaymentReadyAt.Equal(now) {
 		t.Fatalf("payment-ready transition was not idempotent: %#v", sub)
 	}
+
 	if !sub.Activate(now.Add(2*time.Hour)) || sub.Status != billing.StatusActive {
 		t.Fatalf("active subscription = %#v", sub)
 	}
 
 	expired := billing.NewPendingSubscription(billable, "starter", now)
+
 	if !expired.Expire(now.Add(time.Hour)) || expired.Status != billing.StatusExpired {
 		t.Fatalf("expired subscription = %#v", expired)
 	}
 
 	trial := billing.NewTrialSubscription(billable, "starter", 14, now)
+
 	if trial.Status != billing.StatusTrialing || trial.TrialEndsAt == nil || trial.PaymentReadyAt != nil {
 		t.Fatalf("trial subscription = %#v", trial)
 	}
 
 	pastDue := &billing.Subscription{Status: billing.StatusActive, UpdatedAt: now}
+
 	if !pastDue.MarkPastDue(now.Add(time.Hour)) || pastDue.Status != billing.StatusPastDue {
 		t.Fatalf("past-due subscription = %#v", pastDue)
 	}
+
 	pastDueUpdatedAt := pastDue.UpdatedAt
+
 	if pastDue.MarkPastDue(now.Add(2*time.Hour)) || !pastDue.UpdatedAt.Equal(pastDueUpdatedAt) {
 		t.Fatalf("past-due transition was not idempotent: %#v", pastDue)
 	}
 
 	paused := &billing.Subscription{Status: billing.StatusActive, UpdatedAt: now}
+
 	if !paused.Pause(now.Add(time.Hour)) || paused.Status != billing.StatusPaused || paused.PausedAt == nil {
 		t.Fatalf("paused subscription = %#v", paused)
 	}
+
 	pausedAt := paused.PausedAt
+
 	if paused.Pause(now.Add(2*time.Hour)) || paused.PausedAt != pausedAt {
 		t.Fatalf("pause transition was not idempotent: %#v", paused)
 	}
 
 	canceled := &billing.Subscription{Status: billing.StatusActive, UpdatedAt: now}
+
 	if !canceled.Cancel(now.Add(time.Hour)) || canceled.Status != billing.StatusCanceled || canceled.EndsAt == nil {
 		t.Fatalf("canceled subscription = %#v", canceled)
 	}
+
 	endsAt := canceled.EndsAt
+
 	if canceled.Cancel(now.Add(2*time.Hour)) || canceled.EndsAt != endsAt {
 		t.Fatalf("cancel transition was not idempotent: %#v", canceled)
 	}
@@ -596,6 +634,7 @@ func TestMadoraStaleSubscriptionExpiryBatch(t *testing.T) {
 	}}
 
 	expired, err := billing.ExpireStaleSubscriptions(context.Background(), store, now)
+
 	if err != nil {
 		t.Fatalf("expire stale subscriptions: %v", err)
 	}
@@ -603,12 +642,15 @@ func TestMadoraStaleSubscriptionExpiryBatch(t *testing.T) {
 	if expired != 3 {
 		t.Fatalf("expired = %d, want 3", expired)
 	}
+
 	if !reflect.DeepEqual(store.deleted, []int64{1, 2, 7}) {
 		t.Fatalf("deleted subscriptions = %#v, want [1 2 7]", store.deleted)
 	}
+
 	if stalePending.Status != billing.StatusExpired || staleAwaiting.Status != billing.StatusExpired || staleTrial.Status != billing.StatusExpired {
 		t.Fatalf("stale statuses = %s/%s/%s, want expired", stalePending.Status, staleAwaiting.Status, staleTrial.Status)
 	}
+
 	if freshPending.Status != billing.StatusPending || active.Status != billing.StatusActive ||
 		paused.Status != billing.StatusPaused || canceled.Status != billing.StatusCanceled {
 		t.Fatalf("non-expirable statuses changed: %s/%s/%s/%s", freshPending.Status, active.Status, paused.Status, canceled.Status)
@@ -629,6 +671,7 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 	if !billing.StatusActive.GrantsAccess() || !billing.StatusPastDue.GrantsAccess() || !billing.StatusTrialing.GrantsAccess() {
 		t.Fatalf("active, past_due, and trialing statuses should grant access")
 	}
+
 	if billing.StatusPaused.GrantsAccess() || billing.StatusCanceled.GrantsAccess() {
 		t.Fatalf("paused and canceled statuses should not grant access")
 	}
@@ -638,9 +681,11 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 	billing := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
 
 	active, err := billing.GetActiveSubscription(context.Background(), "team", 10)
+
 	if err != nil {
 		t.Fatalf("active subscription: %v", err)
 	}
+
 	if active == nil || active.Provider != "paddle" {
 		t.Fatalf("active provider = %#v, want paddle subscription", active)
 	}
@@ -648,15 +693,18 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 	if err := billing.CancelSubscription(context.Background(), "team", 10); err != nil {
 		t.Fatalf("cancel: %v", err)
 	}
+
 	if sub.Status != billing.StatusCanceled || sub.EndsAt == nil || len(store.saved) != 1 {
 		t.Fatalf("cancel did not persist canceled status: %#v", sub)
 	}
 
 	graceEnds := time.Now().Add(24 * time.Hour)
 	sub.EndsAt = &graceEnds
+
 	if err := billing.ResumeSubscription(context.Background(), "team", 10); err != nil {
 		t.Fatalf("resume: %v", err)
 	}
+
 	if sub.Status != billing.StatusActive || sub.EndsAt != nil {
 		t.Fatalf("resume did not reactivate grace-period subscription: %#v", sub)
 	}
@@ -670,19 +718,24 @@ func TestMadoraCheckoutCreationIsStable(t *testing.T) {
 	plan := billing.NewPlan("Pro", "pri_pro_monthly")
 
 	first, err := creator.Execute(context.Background(), billable, plan, map[string]any{"return_url": "/agreement"})
+
 	if err != nil {
 		t.Fatalf("first checkout: %v", err)
 	}
+
 	second, err := creator.Execute(context.Background(), billable, plan, map[string]any{"return_url": "/agreement"})
+
 	if err != nil {
 		t.Fatalf("second checkout: %v", err)
 	}
 
 	firstJSON, _ := json.Marshal(first.ToMap())
 	secondJSON, _ := json.Marshal(second.ToMap())
+
 	if !bytes.Equal(firstJSON, secondJSON) {
 		t.Fatalf("checkout creation is not stable:\n%s\n%s", firstJSON, secondJSON)
 	}
+
 	if first.Items[0].Quantity != 3 || first.Options()["return_url"] != "/agreement" {
 		t.Fatalf("checkout = %#v, options = %#v", first.Items, first.Options())
 	}
@@ -707,13 +760,17 @@ func TestMadoraCanonicalMoneySchema(t *testing.T) {
 	}
 
 	total, err := billing.ParseMinorAmount("12345")
+
 	if err != nil || total != 12345 {
 		t.Fatalf("ParseMinorAmount string = %d, %v; want 12345", total, err)
 	}
+
 	signed, err := billing.ParseMinorAmount("-42")
+
 	if err != nil || signed != -42 {
 		t.Fatalf("ParseMinorAmount signed string = %d, %v; want -42", signed, err)
 	}
+
 	if _, err := billing.ParseMinorAmount("12xyz"); err == nil {
 		t.Fatalf("malformed minor amount string accepted")
 	}
@@ -721,26 +778,33 @@ func TestMadoraCanonicalMoneySchema(t *testing.T) {
 	if err := billing.ValidateTransactionMoney(12345, 123, "USD"); err != nil {
 		t.Fatalf("valid transaction money rejected: %v", err)
 	}
+
 	if err := billing.ValidateTransactionMoney(0, 0, "USD"); err != nil {
 		t.Fatalf("zero transaction money rejected: %v", err)
 	}
+
 	if err := billing.ValidateTransactionMoney(-1, 0, "USD"); err == nil {
 		t.Fatalf("negative total accepted")
 	}
+
 	if err := billing.ValidateTransactionMoney(0, -1, "USD"); err == nil {
 		t.Fatalf("negative tax accepted")
 	}
+
 	if err := billing.ValidateTransactionMoney(0, 0, "ZZZ"); err == nil {
 		t.Fatalf("unknown currency accepted")
 	}
+
 	if err := billing.ValidatePriceMoney(0, "USD"); err != nil {
 		t.Fatalf("zero price money rejected: %v", err)
 	}
+
 	if err := billing.ValidatePriceMoney(-1, "USD"); err == nil {
 		t.Fatalf("negative price money accepted")
 	}
 
 	tx := billing.Transaction{Total: total, Tax: 123, Currency: "USD"}
+
 	if tx.TotalFormatted() != "USD 123.45" || tx.TaxFormatted() != "USD 1.23" {
 		t.Fatalf("formatted transaction totals = %s / %s", tx.TotalFormatted(), tx.TaxFormatted())
 	}
@@ -778,12 +842,15 @@ func TestMadoraPlanPriceRotation(t *testing.T) {
 		Period:          "per month",
 		ProviderPriceID: "pri_rotated",
 	})
+
 	if err != nil {
 		t.Fatalf("rotate valid money price: %v", err)
 	}
+
 	if len(rotated) != 2 || rotated[0].Active || !rotated[1].Active {
 		t.Fatalf("rotated history = %#v", rotated)
 	}
+
 	if rotated[1].DisplayAmount() != "USD 299.00" {
 		t.Fatalf("display amount = %s, want USD 299.00", rotated[1].DisplayAmount())
 	}
@@ -805,10 +872,13 @@ func TestMadoraPlanPriceRotation(t *testing.T) {
 	}
 
 	free, err := billing.RotatePlanPrice(nil, billing.PlanPeriodPrice{PricingMode: billing.PlanPricingModeFree})
+
 	if err != nil || free[0].DisplayAmount() != "Free" || free[0].AmountMinor != nil || free[0].Currency != "" {
 		t.Fatalf("free price = %#v, err = %v", free, err)
 	}
+
 	custom, err := billing.RotatePlanPrice(free, billing.PlanPeriodPrice{PricingMode: billing.PlanPricingModeCustom})
+
 	if err != nil || custom[1].DisplayAmount() != "Custom" || custom[1].AmountMinor != nil || custom[1].Currency != "" {
 		t.Fatalf("custom price = %#v, err = %v", custom, err)
 	}
@@ -823,6 +893,7 @@ func TestMadoraPlanPriceRotation(t *testing.T) {
 		PricingMode:     billing.PlanPricingModeMoney,
 		ProviderPriceID: "pri_new_active",
 	})
+
 	if err != nil || len(withInactive) != 3 {
 		t.Fatalf("inactive history = %#v, err = %v", withInactive, err)
 	}
@@ -869,15 +940,19 @@ func TestMadoraWebhookSubscriptionUpdateSyncsLocalState(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
+
 	if sub.Status != billing.StatusActive {
 		t.Fatalf("subscription status = %s, want active", sub.Status)
 	}
+
 	if len(sub.Items) != 1 || sub.Items[0].PriceID != "pri_new" || sub.Items[0].Quantity != 1 {
 		t.Fatalf("subscription items = %#v", sub.Items)
 	}
+
 	if len(subs.saved) != 1 {
 		t.Fatalf("saved subscriptions = %d, want 1", len(subs.saved))
 	}
+
 	if !containsEvent[billing.WebhookReceivedEvent](events.events) ||
 		!containsEvent[billing.SubscriptionUpdatedEvent](events.events) ||
 		!containsEvent[billing.WebhookHandledEvent](events.events) {
@@ -911,34 +986,44 @@ func TestMadoraReconcileSubscriptionAfterCheckout(t *testing.T) {
 	events := &madoraDispatcher{}
 
 	reconciled, err := billing.ReconcileSubscriptionAfterCheckout(context.Background(), store, "team", 42, cashier, events)
+
 	if err != nil {
 		t.Fatalf("reconcile checkout: %v", err)
 	}
+
 	if !reconciled {
 		t.Fatalf("expected checkout reconciliation")
 	}
+
 	if cashier.Plan != "pro" || cashier.Type != billing.DefaultSubscriptionType {
 		t.Fatalf("cashier metadata = plan %q type %q, want pro/default", cashier.Plan, cashier.Type)
 	}
+
 	if len(store.saved) != 1 || store.saved[0].ID != cashier.ID {
 		t.Fatalf("saved subscriptions = %#v, want cashier", store.saved)
 	}
+
 	found, err := store.FindByID(context.Background(), pending.ID)
+
 	if err != nil {
 		t.Fatalf("find pending: %v", err)
 	}
+
 	if found != nil {
 		t.Fatalf("pending subscription was not removed: %#v", found)
 	}
+
 	if !containsEvent[billing.SubscriptionUpdatedEvent](events.events) {
 		t.Fatalf("events = %#v, want subscription update", events.events)
 	}
 
 	noPendingStore := &madoraSubStore{subs: []*billing.Subscription{cashier}}
 	reconciled, err = billing.ReconcileSubscriptionAfterCheckout(context.Background(), noPendingStore, "team", 42, cashier, events)
+
 	if err != nil {
 		t.Fatalf("noop reconcile: %v", err)
 	}
+
 	if reconciled {
 		t.Fatalf("reconciled without a pre-paddle subscription")
 	}
@@ -974,13 +1059,17 @@ func TestMadoraWebhookTransactionCompletedPersistsTransaction(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
+
 	if len(transactions.created) != 1 {
 		t.Fatalf("created transactions = %d, want 1", len(transactions.created))
 	}
+
 	tx := transactions.created[0]
+
 	if tx.PaddleID != "txn_123" || tx.Status != billing.TransactionCompleted || tx.Total != 2500 || tx.Tax != 250 || tx.Currency != "USD" {
 		t.Fatalf("transaction = %#v", tx)
 	}
+
 	if !containsEvent[billing.TransactionCompletedEvent](events.events) {
 		t.Fatalf("events = %#v", events.events)
 	}
@@ -1056,9 +1145,11 @@ func TestMadoraWebhookTransactionRejectsInvalidMoneyPayloads(t *testing.T) {
 			if rec.Code != http.StatusOK {
 				t.Fatalf("status = %d, want 200", rec.Code)
 			}
+
 			if len(transactions.created) != 0 {
 				t.Fatalf("created transactions = %#v, want none", transactions.created)
 			}
+
 			if containsEvent[billing.TransactionCompletedEvent](events.events) {
 				t.Fatalf("transaction completion event dispatched for invalid payload: %#v", events.events)
 			}
@@ -1092,9 +1183,11 @@ func TestMadoraWebhookTransactionRejectsInvalidMoneyPayloads(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
+
 	if len(transactions.saved) != 0 {
 		t.Fatalf("saved transactions = %#v, want none", transactions.saved)
 	}
+
 	if existing.Status != billing.TransactionReady || existing.Total != 2500 || existing.Tax != 250 || existing.Currency != "SGD" {
 		t.Fatalf("existing transaction changed after invalid update: %#v", existing)
 	}
@@ -1130,12 +1223,15 @@ func TestMadoraWebhookTransactionUpdatedRefreshesTransactionMoney(t *testing.T) 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
+
 	if len(transactions.created) != 0 || len(transactions.saved) != 1 {
 		t.Fatalf("created/saved transactions = %d/%d, want 0/1", len(transactions.created), len(transactions.saved))
 	}
+
 	if existing.Status != billing.TransactionCompleted || existing.Total != 3000 || existing.Tax != 0 || existing.Currency != "USD" {
 		t.Fatalf("updated transaction = %#v", existing)
 	}
+
 	if !containsEvent[billing.TransactionCompletedEvent](events.events) {
 		t.Fatalf("events = %#v", events.events)
 	}

@@ -45,31 +45,38 @@ func TestInventoryInstallGuidelineWriterAndFormatter(t *testing.T) {
 	}
 
 	data, err := os.ReadFile(target)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
+
 	if string(data) != "## Rules" {
 		t.Fatalf("guideline content = %q", string(data))
 	}
 
 	formatter := &install.MarkdownFormatter{}
 	withFrontmatter := formatter.AddFrontmatter("# Body\n", map[string]string{"description": "test"})
+
 	if !strings.HasPrefix(withFrontmatter, "---\n") {
 		t.Fatalf("frontmatter not added: %q", withFrontmatter)
 	}
+
 	if strings.Contains(formatter.StripFrontmatter(withFrontmatter), "description: test") {
 		t.Fatal("StripFrontmatter should remove YAML frontmatter")
 	}
+
 	if formatter.NormalizeHeadings("## Title") != "# Title" {
 		t.Fatal("NormalizeHeadings should promote the first heading level to H1")
 	}
 
 	blocker := filepath.Join(tmp, "not-a-directory")
+
 	if err := os.WriteFile(blocker, []byte("file"), 0o644); err != nil {
 		t.Fatalf("write blocker file: %v", err)
 	}
 
 	err = writer.Write(&mockGLAgent{path: filepath.Join(blocker, "AGENTS.md")}, "# Rules")
+
 	if err == nil || !strings.Contains(err.Error(), "create guidelines dir") {
 		t.Fatalf("Write with file as parent error = %v, want create-directory failure", err)
 	}
@@ -84,30 +91,37 @@ func TestInventoryInstallMcpWriterJSONMerge(t *testing.T) {
 	writer := &install.McpWriter{}
 
 	written, err := writer.Write(agent, "boost", map[string]any{"command": "go", "args": []string{"run", "."}})
+
 	if err != nil {
 		t.Fatalf("Write: %v", err)
 	}
+
 	if !written {
 		t.Fatal("first MCP write should modify the file")
 	}
 
 	written, err = writer.Write(agent, "boost", map[string]any{"command": "go"})
+
 	if err != nil {
 		t.Fatalf("second Write: %v", err)
 	}
+
 	if written {
 		t.Fatal("second MCP write should be idempotent")
 	}
 
 	raw, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
 
 	var root map[string]map[string]map[string]any
+
 	if err := json.Unmarshal(raw, &root); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
+
 	if root["mcpServers"]["boost"]["command"] != "go" {
 		t.Fatalf("written config = %#v", root)
 	}
@@ -124,6 +138,7 @@ func TestInventoryInstallSkillWriter(t *testing.T) {
 		&install.SkillEntry{Name: "review", Content: "# Review"},
 		&install.SkillEntry{Name: "nested/name", Content: "# Nested"},
 	})
+
 	if err != nil {
 		t.Fatalf("Write: %v", err)
 	}
@@ -140,6 +155,7 @@ func TestInventoryInstallSkillWriter(t *testing.T) {
 	err = writer.Write(agent, []install.Skill{
 		&install.SkillEntry{Name: "../escape", Content: "# Escape"},
 	})
+
 	if err == nil || !strings.Contains(err.Error(), "invalid skill name") {
 		t.Fatalf("Write path traversal error = %v, want invalid skill name", err)
 	}

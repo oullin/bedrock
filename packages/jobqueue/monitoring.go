@@ -29,6 +29,7 @@ func NewMonitoringRepository() *MonitoringRepository {
 // Monitor starts monitoring the given tags.
 func (r *MonitoringRepository) Monitor(tags []string) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, tag := range tags {
@@ -39,12 +40,15 @@ func (r *MonitoringRepository) Monitor(tags []string) {
 // Monitoring returns the monitored tags in stable order.
 func (r *MonitoringRepository) Monitoring() []string {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	tags := make([]string, 0, len(r.tags))
+
 	for tag := range r.tags {
 		tags = append(tags, tag)
 	}
+
 	sort.Strings(tags)
 
 	return tags
@@ -53,6 +57,7 @@ func (r *MonitoringRepository) Monitoring() []string {
 // IsMonitoring reports whether any of the supplied tags are monitored.
 func (r *MonitoringRepository) IsMonitoring(tags []string) bool {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	for _, tag := range tags {
@@ -67,6 +72,7 @@ func (r *MonitoringRepository) IsMonitoring(tags []string) bool {
 // StopMonitoring removes monitored tags and prunes jobs no longer monitored.
 func (r *MonitoringRepository) StopMonitoring(tags []string) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	for _, tag := range tags {
@@ -83,6 +89,7 @@ func (r *MonitoringRepository) StopMonitoring(tags []string) {
 // RecordCompletedJob stores a completed job only when one of its tags is monitored.
 func (r *MonitoringRepository) RecordCompletedJob(job CompletedJob) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if !hasAnyTag(r.tags, job.Tags) {
@@ -97,9 +104,11 @@ func (r *MonitoringRepository) RecordCompletedJob(job CompletedJob) bool {
 // CompletedJobs returns completed jobs, optionally filtered by tag.
 func (r *MonitoringRepository) CompletedJobs(tag string) []CompletedJob {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	jobs := make([]CompletedJob, 0, len(r.completed))
+
 	for _, job := range r.completed {
 		if tag == "" || jobHasTag(job, tag) {
 			jobs = append(jobs, cloneCompletedJob(job))
@@ -116,11 +125,13 @@ func (r *MonitoringRepository) CompletedJobs(tag string) []CompletedJob {
 // CompletedJobsPage returns monitored completed jobs with offset/limit paging.
 func (r *MonitoringRepository) CompletedJobsPage(tag string, offset, limit int) []CompletedJob {
 	jobs := r.CompletedJobs(tag)
+
 	if offset >= len(jobs) {
 		return nil
 	}
 
 	end := len(jobs)
+
 	if limit > 0 && offset+limit < end {
 		end = offset + limit
 	}

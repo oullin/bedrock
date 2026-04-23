@@ -10,6 +10,7 @@ type ValidatedInput struct {
 // NewValidatedInput creates a validated input wrapper.
 func NewValidatedInput(values map[string]any) ValidatedInput {
 	copied := make(map[string]any, len(values))
+
 	for key, value := range values {
 		copied[key] = value
 	}
@@ -20,6 +21,7 @@ func NewValidatedInput(values map[string]any) ValidatedInput {
 // All returns all validated values.
 func (v ValidatedInput) All() map[string]any {
 	copied := make(map[string]any, len(v.values))
+
 	for key, value := range v.values {
 		copied[key] = value
 	}
@@ -32,6 +34,7 @@ func (v ValidatedInput) Input(key string, defaults ...any) any {
 	if value, ok := v.values[key]; ok {
 		return value
 	}
+
 	if len(defaults) > 0 {
 		return defaults[0]
 	}
@@ -54,6 +57,7 @@ func (v ValidatedInput) Exists(keys ...string) bool {
 func (v ValidatedInput) Has(keys ...string) bool {
 	for _, key := range keys {
 		value, ok := v.values[key]
+
 		if !ok || Blank(value) {
 			return false
 		}
@@ -118,6 +122,7 @@ func (v ValidatedInput) Keys() []string {
 // Merge returns a new input wrapper with values overwritten by extra.
 func (v ValidatedInput) Merge(extra map[string]any) ValidatedInput {
 	merged := v.All()
+
 	for key, value := range extra {
 		merged[key] = value
 	}
@@ -143,6 +148,7 @@ func (v ValidatedInput) Float(key string, defaults ...float64) float64 {
 // String returns a string value.
 func (v ValidatedInput) String(key string, defaults ...string) string {
 	value := v.Input(key)
+
 	if value == nil {
 		if len(defaults) > 0 {
 			return defaults[0]

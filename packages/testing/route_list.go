@@ -32,6 +32,7 @@ type RouteListOptions struct {
 // JSON form.
 func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, error) {
 	filtered := make([]RouteListEntry, 0, len(routes))
+
 	for _, route := range routes {
 		if opts.ExceptVendor && route.Vendor {
 			continue
@@ -50,6 +51,7 @@ func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, er
 
 	if opts.JSON {
 		payload := make([]map[string]any, 0, len(filtered))
+
 		for _, route := range filtered {
 			item := map[string]any{
 				"action": route.Action,
@@ -65,9 +67,11 @@ func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, er
 
 			if len(route.BindingFields) > 0 {
 				fields := make(map[string]string, len(route.BindingFields))
+
 				for key, value := range route.BindingFields {
 					fields[key] = value
 				}
+
 				item["bindingFields"] = fields
 			}
 
@@ -75,6 +79,7 @@ func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, er
 		}
 
 		data, err := json.Marshal(payload)
+
 		if err != nil {
 			return "", err
 		}
@@ -83,6 +88,7 @@ func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, er
 	}
 
 	lines := make([]string, 0, len(filtered))
+
 	for _, route := range filtered {
 		parts := []string{route.Name, route.Action, route.URI}
 
@@ -92,12 +98,15 @@ func RenderRouteList(routes []RouteListEntry, opts RouteListOptions) (string, er
 
 		if len(route.BindingFields) > 0 {
 			keys := make([]string, 0, len(route.BindingFields))
+
 			for key := range route.BindingFields {
 				keys = append(keys, key)
 			}
+
 			sort.Strings(keys)
 
 			fields := make([]string, 0, len(keys))
+
 			for _, key := range keys {
 				fields = append(fields, fmt.Sprintf("%s:%s", key, route.BindingFields[key]))
 			}

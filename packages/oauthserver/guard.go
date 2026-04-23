@@ -81,9 +81,12 @@ func (g *TokenGuard) User(ctx context.Context) (cauth.Authenticatable, error) {
 	}
 
 	token := g.token
+
 	if token == nil {
 		var err error
+
 		token, err = g.resolveToken(ctx)
+
 		if err != nil || token == nil {
 			return nil, err
 		}
@@ -119,6 +122,7 @@ func (g *TokenGuard) Client(ctx context.Context) (*Client, error) {
 	// Test override: return acting-as client.
 	if _, _, actingClient, scopes, ok := g.oauthserver.actingAsState(); ok && actingClient != nil {
 		client := *actingClient
+
 		if len(scopes) > 0 {
 			client.Scopes = scopes
 		}
@@ -132,6 +136,7 @@ func (g *TokenGuard) Client(ctx context.Context) (*Client, error) {
 
 	if g.token == nil {
 		token, err := g.resolveToken(ctx)
+
 		if err != nil || token == nil {
 			return nil, err
 		}
@@ -140,6 +145,7 @@ func (g *TokenGuard) Client(ctx context.Context) (*Client, error) {
 	}
 
 	client, err := g.clients.FindActive(ctx, g.token.ClientID)
+
 	if err != nil || client == nil {
 		return nil, err
 	}
@@ -157,6 +163,7 @@ func (g *TokenGuard) Token(ctx context.Context) (*Token, error) {
 
 	if g.token == nil {
 		token, err := g.resolveToken(ctx)
+
 		if err != nil || token == nil {
 			return nil, err
 		}

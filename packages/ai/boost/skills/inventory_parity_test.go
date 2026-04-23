@@ -28,9 +28,11 @@ func TestInventorySkillComposerDiscoversUserAndPackageSkills(t *testing.T) {
 	tmp := t.TempDir()
 	writeSkill := func(path, body string) {
 		t.Helper()
+
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatalf("mkdir %s: %v", path, err)
 		}
+
 		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
 			t.Fatalf("write %s: %v", path, err)
 		}
@@ -47,6 +49,7 @@ func TestInventorySkillComposerDiscoversUserAndPackageSkills(t *testing.T) {
 	found := composer.Skills()
 
 	byName := map[string]skills.Skill{}
+
 	for _, skill := range found {
 		byName[skill.Name] = skill
 	}
@@ -54,6 +57,7 @@ func TestInventorySkillComposerDiscoversUserAndPackageSkills(t *testing.T) {
 	if byName["review"].Description != "Review code" {
 		t.Fatalf("user skill not parsed: %#v", byName["review"])
 	}
+
 	if byName["routing"].Description != "Routing help" {
 		t.Fatalf("package skill not parsed: %#v", byName["routing"])
 	}
@@ -70,6 +74,7 @@ func TestInventorySkillWriterWritesAllSkills(t *testing.T) {
 		{Name: "review", Content: "# Review\n"},
 		{Name: "test", Content: "# Test\n"},
 	})
+
 	if err != nil {
 		t.Fatalf("Write: %v", err)
 	}

@@ -49,6 +49,7 @@ func TestPortalHandler_Show_BillingAccessAndState(t *testing.T) {
 	}
 
 	var resp map[string]any
+
 	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
@@ -56,17 +57,21 @@ func TestPortalHandler_Show_BillingAccessAndState(t *testing.T) {
 	if resp["billableId"] != float64(10) {
 		t.Fatalf("billableId = %v, want 10", resp["billableId"])
 	}
+
 	if resp["dashboardUrl"] != "/agreement" {
 		t.Fatalf("dashboardUrl = %v, want /agreement", resp["dashboardUrl"])
 	}
+
 	if resp["state"] != "none" {
 		t.Fatalf("state = %v, want none", resp["state"])
 	}
 
 	subscription, ok := resp["subscription"].(map[string]any)
+
 	if !ok {
 		t.Fatalf("subscription = %#v, want map", resp["subscription"])
 	}
+
 	if subscription["status"] != "" || subscription["plan_code"] != "" {
 		t.Fatalf("empty subscription state = %#v", subscription)
 	}

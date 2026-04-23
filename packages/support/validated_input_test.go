@@ -98,6 +98,7 @@ func TestValidatedInputTransformationsAndTypes(t *testing.T) {
 	}
 
 	merged := input.Merge(map[string]any{"name": "Abigail", "city": "Little Rock"})
+
 	if merged.String("name") != "Abigail" || merged.String("city") != "Little Rock" {
 		t.Fatalf("Merge = %v", merged.All())
 	}

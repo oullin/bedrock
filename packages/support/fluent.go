@@ -321,6 +321,7 @@ func (f *Fluent) ToJSON() ([]byte, error) {
 // ToPrettyJSON returns the JSON-encoded attributes with indentation.
 func (f *Fluent) ToPrettyJSON() (string, error) {
 	data, err := json.MarshalIndent(f.attributes, "", "  ")
+
 	if err != nil {
 		return "", err
 	}
@@ -359,6 +360,7 @@ func fluentAttributes(value any) map[string]any {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	if !rv.IsValid() {
 		return result
 	}
@@ -376,13 +378,16 @@ func fluentAttributes(value any) map[string]any {
 	}
 
 	rt := rv.Type()
+
 	for i := 0; i < rv.NumField(); i++ {
 		field := rt.Field(i)
+
 		if field.PkgPath != "" {
 			continue
 		}
 
 		name := field.Name
+
 		if tag := field.Tag.Get("json"); tag != "" && tag != "-" {
 			if comma := strings.Index(tag, ","); comma >= 0 {
 				name = tag[:comma]

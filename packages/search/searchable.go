@@ -27,8 +27,6 @@ type SearchableMixin struct {
 	scoutMetadata map[string]any
 }
 
-var syncingDisabled sync.Map
-
 type wasSearchableBeforeUpdate interface {
 	WasSearchableBeforeUpdate() bool
 }
@@ -36,6 +34,8 @@ type wasSearchableBeforeUpdate interface {
 type wasSearchableBeforeDelete interface {
 	WasSearchableBeforeDelete() bool
 }
+
+var syncingDisabled sync.Map
 
 // SetScoutPrefix sets the index name prefix.
 func (s *SearchableMixin) SetScoutPrefix(prefix string) {
