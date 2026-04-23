@@ -184,6 +184,7 @@ func TestDatabaseEngineInventoryWhereComparisons(t *testing.T) {
 
 			conn := &mockConnection{driver: "sqlite", selectRows: []map[string]any{{"id": int64(1)}}}
 			engine := engines.NewDatabaseEngine(&mockResolver{conn: conn})
+
 			if _, err := engine.Search(context.Background(), tt.builder); err != nil {
 				t.Fatalf("unexpected search error: %v", err)
 			}

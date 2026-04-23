@@ -18,11 +18,13 @@ func TestNamespacedItemResolver(t *testing.T) {
 	}
 
 	resolver.Parse("admin::users.profile")
+
 	if resolver.CacheSize() != 1 {
 		t.Fatalf("CacheSize = %d", resolver.CacheSize())
 	}
 
 	resolver.Flush()
+
 	if resolver.CacheSize() != 0 {
 		t.Fatalf("CacheSize after Flush = %d", resolver.CacheSize())
 	}

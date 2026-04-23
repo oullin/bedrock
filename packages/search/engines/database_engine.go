@@ -256,6 +256,7 @@ func (e *DatabaseEngine) performSearch(ctx context.Context, builder contract.Sea
 		}
 
 		sql.WriteString(key)
+
 		if operator, comparedValue, ok := whereComparison(value); ok {
 			sql.WriteString(" ")
 			sql.WriteString(operator)

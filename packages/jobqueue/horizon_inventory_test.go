@@ -86,6 +86,7 @@ func TestMetricsInventoryParity(t *testing.T) {
 
 	t.Run("MetricsTest::test_snapshot_of_metrics_performance_can_be_stored", func(t *testing.T) {
 		snapshot := repo.SnapshotPerformance(time.Unix(100, 0).UTC())
+
 		if snapshot.JobsProcessed != 3 || snapshot.JobThroughput["SendEmail"] != 2 || snapshot.QueueThroughput["mail"] != 2 {
 			t.Fatalf("snapshot = %#v", snapshot)
 		}
@@ -106,6 +107,7 @@ func TestMetricsInventoryParity(t *testing.T) {
 		}
 
 		snapshots := repo.Snapshots()
+
 		if len(snapshots) != 24 {
 			t.Fatalf("snapshot count = %d, want 24", len(snapshots))
 		}
@@ -121,6 +123,7 @@ func TestMonitoringInventoryParity(t *testing.T) {
 
 	t.Run("MonitoringControllerTest::test_can_start_monitoring_tags", func(t *testing.T) {
 		repo.Monitor([]string{"billing"})
+
 		if !repo.IsMonitoring([]string{"billing"}) {
 			t.Fatal("expected billing tag to be monitored")
 		}
@@ -216,6 +219,7 @@ func TestMonitoringInventoryParity(t *testing.T) {
 		if got := len(repo.CompletedJobs("billing")); got != 1 {
 			t.Fatalf("billing jobs = %d, want 1", got)
 		}
+
 		if got := len(repo.CompletedJobs("mail")); got != 1 {
 			t.Fatalf("mail jobs = %d, want 1", got)
 		}
@@ -243,6 +247,7 @@ func TestWaitTimeCalculatorInventoryParity(t *testing.T) {
 
 	t.Run("WaitTimeCalculatorTest::test_time_to_clear_is_calculated_per_queue", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:default")
+
 		if len(times) != 1 || times[0].Duration != 2*time.Minute {
 			t.Fatalf("times = %#v", times)
 		}
@@ -250,6 +255,7 @@ func TestWaitTimeCalculatorInventoryParity(t *testing.T) {
 
 	t.Run("WaitTimeCalculatorTest::test_multiple_queues_are_supported", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:default", "redis:mail")
+
 		if len(times) != 2 || times[0].Duration != 2*time.Minute || times[1].Duration != time.Minute {
 			t.Fatalf("times = %#v", times)
 		}
@@ -257,6 +263,7 @@ func TestWaitTimeCalculatorInventoryParity(t *testing.T) {
 
 	t.Run("WaitTimeCalculatorTest::test_single_queue_can_be_retrieved_for_multiple_queues", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:mail")
+
 		if len(times) != 1 || times[0].Queue != "redis:mail" {
 			t.Fatalf("times = %#v", times)
 		}
@@ -264,6 +271,7 @@ func TestWaitTimeCalculatorInventoryParity(t *testing.T) {
 
 	t.Run("WaitTimeCalculatorTest::test_time_to_clear_can_be_zero", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:empty")
+
 		if len(times) != 1 || times[0].Duration != 0 {
 			t.Fatalf("times = %#v", times)
 		}
@@ -271,6 +279,7 @@ func TestWaitTimeCalculatorInventoryParity(t *testing.T) {
 
 	t.Run("WaitTimeCalculatorTest::test_total_processes_can_be_zero", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:stalled")
+
 		if len(times) != 1 || times[0].Duration != 0 {
 			t.Fatalf("times = %#v", times)
 		}
@@ -286,9 +295,11 @@ func TestRepositoryAndOptionsInventoryParity(t *testing.T) {
 
 	t.Run("StopwatchTest::test_time_between_checks_can_be_measured", func(t *testing.T) {
 		stopwatch := NewStopwatch(time.Unix(100, 0).UTC())
+
 		if got := stopwatch.Check(time.Unix(160, 0).UTC()); got != time.Minute {
 			t.Fatalf("elapsed = %s, want 1m", got)
 		}
+
 		if got := stopwatch.Check(time.Unix(190, 0).UTC()); got != 30*time.Second {
 			t.Fatalf("elapsed = %s, want 30s", got)
 		}
@@ -307,6 +318,7 @@ func TestPendingJobRetrievalInventoryParity(t *testing.T) {
 
 	t.Run("JobRetrievalTest::test_pending_jobs_can_be_retrieved", func(t *testing.T) {
 		pending := repo.Pending("default", 0, 10)
+
 		if got, want := len(pending), 4; got != want {
 			t.Fatalf("pending count = %d, want %d", got, want)
 		}
@@ -320,12 +332,15 @@ func TestPendingJobRetrievalInventoryParity(t *testing.T) {
 		}
 
 		page := repo.Pending("default", 1, 2)
+
 		if got, want := len(page), 2; got != want {
 			t.Fatalf("page count = %d, want %d", got, want)
 		}
+
 		if got, want := page[0].ID, "job-2"; got != want {
 			t.Fatalf("first page item = %q, want %q", got, want)
 		}
+
 		if got, want := page[1].ID, "job-3"; got != want {
 			t.Fatalf("second page item = %q, want %q", got, want)
 		}
@@ -348,9 +363,11 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("JobRetrievalTest::test_pending_jobs_can_be_retrieved", func(t *testing.T) {
 		pending := repo.Pending("default", 0, 10)
+
 		if got, want := len(pending), 2; got != want {
 			t.Fatalf("pending count = %d, want %d", got, want)
 		}
+
 		if pending[0].ID != "job-1" || pending[1].ID != "job-2" {
 			t.Fatalf("pending jobs = %#v", pending)
 		}
@@ -358,6 +375,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("JobRetrievalTest::test_paginating_large_job_results_gives_correct_amounts", func(t *testing.T) {
 		page := repo.Pending("default", 1, 1)
+
 		if len(page) != 1 || page[0].ID != "job-2" {
 			t.Fatalf("page = %#v", page)
 		}
@@ -377,6 +395,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("QueueProcessingTest::test_pending_jobs_are_stored_with_their_type", func(t *testing.T) {
 		pending := repo.Pending("mail", 0, 1)
+
 		if len(pending) != 1 || pending[0].Type != "listener" {
 			t.Fatalf("pending mail job = %#v", pending)
 		}
@@ -398,6 +417,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		}
 
 		pending := repo.Pending("default", 0, 10)
+
 		if len(pending) != 2 || !pending[0].ReservedWasMigrated {
 			t.Fatalf("pending after migrate = %#v", pending)
 		}
@@ -409,6 +429,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		}
 
 		recent := repo.Recent(10)
+
 		if len(recent) != 1 || recent[0].Status != JobCompleted || !recent[0].CompletionStored {
 			t.Fatalf("recent = %#v", recent)
 		}
@@ -424,6 +445,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("QueueProcessingTest::test_completed_jobs_are_not_normally_stored_in_completed_database", func(t *testing.T) {
 		repo.StorePending(JobRecord{ID: "job-4", Name: "SilentComplete", Queue: "default", PushedAt: now.Add(4 * time.Second)})
+
 		if !repo.MarkComplete("job-4", false, now.Add(4*time.Minute)) {
 			t.Fatal("expected job-4 completion")
 		}
@@ -435,12 +457,15 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("QueueProcessingTest::test_legacy_jobs_can_be_processed_without_errors", func(t *testing.T) {
 		repo.StorePending(JobRecord{ID: "job-legacy", Name: "LegacyJob", Queue: "default", PushedAt: now.Add(4 * time.Second)})
+
 		if !repo.MarkReserved("job-legacy", now.Add(4*time.Minute)) {
 			t.Fatal("expected legacy job to be reserved")
 		}
+
 		if !repo.MarkComplete("job-legacy", true, now.Add(5*time.Minute)) {
 			t.Fatal("expected legacy job to complete")
 		}
+
 		if got := len(repo.Recent(10)); got != 2 {
 			t.Fatalf("recent jobs count = %d, want 2", got)
 		}
@@ -452,6 +477,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		repo.TrimRecent(1)
 
 		recent := repo.Recent(10)
+
 		if len(recent) != 1 || recent[0].ID != "job-5" {
 			t.Fatalf("trimmed recent = %#v", recent)
 		}
@@ -459,11 +485,13 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("FailedJobTest::test_failed_jobs_are_placed_in_the_failed_job_table", func(t *testing.T) {
 		repo.StorePending(JobRecord{ID: "job-failed", Name: "FailingJob", Queue: "default", Tags: []string{"failed-tag"}, PushedAt: now.Add(6 * time.Second)})
+
 		if !repo.MarkFailed("job-failed", now.Add(6*time.Minute), time.Hour) {
 			t.Fatal("expected failed job to be stored")
 		}
 
 		failed, ok := repo.FindFailed("job-failed")
+
 		if !ok || failed.Status != JobFailed {
 			t.Fatalf("failed job = %#v, ok=%v", failed, ok)
 		}
@@ -471,6 +499,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("FailedJobTest::test_tags_for_failed_jobs_are_stored_in_redis", func(t *testing.T) {
 		failed, _ := repo.FindFailed("job-failed")
+
 		if got, want := failed.Tags, []string{"failed-tag"}; !reflect.DeepEqual(got, want) {
 			t.Fatalf("failed tags = %v, want %v", got, want)
 		}
@@ -478,6 +507,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("FailedJobTest::test_failed_job_tags_have_an_expiration", func(t *testing.T) {
 		failed, _ := repo.FindFailed("job-failed")
+
 		if got, want := failed.FailedTagsExpireAt, now.Add(6*time.Minute).Add(time.Hour); !got.Equal(want) {
 			t.Fatalf("failed tag expiration = %s, want %s", got, want)
 		}
@@ -499,6 +529,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		if !repo.DeleteFailed("job-failed") {
 			t.Fatal("expected failed job delete")
 		}
+
 		if _, ok := repo.FindFailed("job-failed"); ok {
 			t.Fatal("failed job was not deleted")
 		}
@@ -512,12 +543,15 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("StoreTagsForFailedTest::test_temporary_failed_job_should_be_deleted_when_the_main_job_is_deleted", func(t *testing.T) {
 		repo.StorePending(JobRecord{ID: "job-temporary-failed", Name: "FailingJob", Queue: "default", Tags: []string{"failed-tag"}, PushedAt: now.Add(7 * time.Second)})
+
 		if !repo.MarkFailed("job-temporary-failed", now.Add(7*time.Minute), time.Minute) {
 			t.Fatal("expected temporary failed job to be stored")
 		}
+
 		if !repo.DeleteFailed("job-temporary-failed") {
 			t.Fatal("expected temporary failed job delete")
 		}
+
 		if _, ok := repo.FindFailed("job-temporary-failed"); ok {
 			t.Fatal("temporary failed job was not deleted")
 		}
@@ -527,6 +561,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		if !repo.Release("job-2", now.Add(10*time.Minute)) {
 			t.Fatal("expected job-2 release")
 		}
+
 		if got := len(repo.Pending("default", 0, 10)); got != 0 {
 			t.Fatalf("pending count before delay expires = %d, want 0", got)
 		}
@@ -536,6 +571,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		if got := repo.MigrateReleased(now.Add(11 * time.Minute)); got != 1 {
 			t.Fatalf("migrated released count = %d, want 1", got)
 		}
+
 		if got := len(repo.Pending("default", 0, 10)); got != 1 {
 			t.Fatalf("pending count after delay expires = %d, want 1", got)
 		}
@@ -545,6 +581,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 		if got := repo.PurgeQueue("default"); got != 1 {
 			t.Fatalf("purged count = %d, want 1", got)
 		}
+
 		if got := len(repo.Recent(10)); got != 0 {
 			t.Fatalf("recent count = %d, want 0", got)
 		}
@@ -552,6 +589,7 @@ func TestJobRepositoryInventoryParity(t *testing.T) {
 
 	t.Run("TagRepositoryTest::test_pagination_of_job_ids_can_be_accomplished", func(t *testing.T) {
 		got := repo.JobIDsForTag("user:1", 0, 1)
+
 		if want := []string{"job-3"}; !reflect.DeepEqual(got, want) {
 			t.Fatalf("tag page = %v, want %v", got, want)
 		}

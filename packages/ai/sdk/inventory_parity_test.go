@@ -51,12 +51,15 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 		rec.AssertAgentNeverPrompted(t)
 
 		resp, err := ai.NewAnonymousAgent(m, "Be precise.").Prompt(ctx, "hello")
+
 		if err != nil {
 			t.Fatalf("Prompt error: %v", err)
 		}
+
 		if resp.GetText() != "fake response" {
 			t.Fatalf("response text = %q, want fake response", resp.GetText())
 		}
+
 		rec.AssertAgentWasPrompted(t, func(p *prompts.AgentPrompt) bool {
 			return p.Text == "hello" && p.Timeout == fake.DefaultTextTimeout
 		})
@@ -69,9 +72,11 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 		m.Fake()
 
 		empty, err := ai.NewAnonymousAgent(m, "Be brief.").Prompt(ctx, "empty")
+
 		if err != nil {
 			t.Fatalf("Prompt error: %v", err)
 		}
+
 		if empty.GetText() != "" {
 			t.Fatalf("empty fake text = %q, want empty string", empty.GetText())
 		}
@@ -80,12 +85,15 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 			return responses.NewAgentResponse(p.InvocationID, "broadcastclient: "+p.Text, data.Usage{}, data.Meta{}), nil
 		})
 		got, err := ai.NewAnonymousAgent(m, "BroadcastClient.").Prompt(ctx, "closure")
+
 		if err != nil {
 			t.Fatalf("Prompt closure error: %v", err)
 		}
+
 		if got.GetText() != "broadcastclient: closure" {
 			t.Fatalf("closure text = %q", got.GetText())
 		}
+
 		rec.AssertAgentWasPrompted(t, func(p *prompts.AgentPrompt) bool {
 			return p.Text == "closure"
 		})
@@ -97,14 +105,17 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 		m := ai.NewManager()
 		m.Fake()
 		provider, err := m.TextProvider()
+
 		if err != nil {
 			t.Fatalf("TextProvider error: %v", err)
 		}
+
 		gw := fake.NewTextGateway(m.Recorder())
 		gw.PreventStray()
 		provider.UseTextGateway(gw)
 
 		_, err = ai.NewAnonymousAgent(m, "No stray.").Prompt(ctx, "unexpected")
+
 		if err == nil {
 			t.Fatal("expected stray prompt error")
 		}
@@ -114,6 +125,7 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 			return nil, expected
 		})
 		_, err = ai.NewAnonymousAgent(m, "Fail.").Prompt(ctx, "boom")
+
 		if !errors.Is(err, expected) {
 			t.Fatalf("Prompt error = %v, want %v", err, expected)
 		}
@@ -128,34 +140,43 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 		m.Fake(`{"name":"Ada"}`)
 		agent := ai.NewStructuredAnonymousAgent(m, "Return JSON.", contractsai.JsonSchema{"type": "object"})
 		structured, err := agent.Prompt(ctx, "profile")
+
 		if err != nil {
 			t.Fatalf("Structured prompt error: %v", err)
 		}
+
 		if structured.ToMap()["name"] != "Ada" {
 			t.Fatalf("structured name = %#v", structured.ToMap()["name"])
 		}
 
 		m.Fake()
 		empty, err := ai.NewStructuredAnonymousAgent(m, "Return JSON.", nil).Prompt(ctx, "empty")
+
 		if err != nil {
 			t.Fatalf("Structured empty prompt error: %v", err)
 		}
+
 		if len(empty.ToMap()) != 0 || empty.GetText() != "" {
 			t.Fatalf("empty structured response = %#v text %q", empty.ToMap(), empty.GetText())
 		}
 
 		m.Fake("stream response")
 		streamed, err := ai.NewAnonymousAgent(m, "Stream.").Stream(ctx, "stream")
+
 		if err != nil {
 			t.Fatalf("Stream error: %v", err)
 		}
+
 		var b strings.Builder
+
 		streamed.(*responses.StreamableAgentResponse).Each(func(e stream.Event) bool {
 			if delta, ok := e.(stream.TextDelta); ok {
 				b.WriteString(delta.Delta)
 			}
+
 			return true
 		})
+
 		if b.String() != "stream response" {
 			t.Fatalf("stream text = %q", b.String())
 		}
@@ -178,21 +199,27 @@ func TestInventoryAgentFakeCoreParity(t *testing.T) {
 		rec.AssertAgentNeverQueued(t)
 		queuedCheck := &recordingT{}
 		rec.AssertAgentWasQueued(queuedCheck, func(*prompts.AgentPrompt) bool { return true })
+
 		if !queuedCheck.failed {
 			t.Fatal("expected missing queued assertion to be reported without panicking")
 		}
+
 		rec.AssertAgentNotQueued(t, func(*prompts.AgentPrompt) bool { return true })
 
 		agent := ai.NewAnonymousAgent(m, "Route by provider.")
+
 		if _, err := agent.Prompt(ctx, "prompt", contractsai.WithProvider(enums.LabOpenAI.String()), contractsai.WithTimeout(12)); err != nil {
 			t.Fatalf("Prompt with provider error: %v", err)
 		}
+
 		if _, err := agent.Stream(ctx, "stream", contractsai.WithProvider(enums.LabOpenAI.String()), contractsai.WithTimeout(13)); err != nil {
 			t.Fatalf("Stream with provider error: %v", err)
 		}
+
 		if _, err := agent.Queue(ctx, "queue", contractsai.WithProvider(enums.LabOpenAI.String())); err != nil {
 			t.Fatalf("Queue with provider error: %v", err)
 		}
+
 		rec.AssertAgentWasPrompted(t, func(p *prompts.AgentPrompt) bool {
 			return p.Text == "prompt" && p.Timeout == 12
 		})
@@ -296,28 +323,35 @@ func TestInventoryProviderAgentFakeParity(t *testing.T) {
 			emptyProvider.SetDefault(spec.lab.String())
 			emptyProvider.Fake()
 			emptyResp, err := ai.NewAnonymousAgent(emptyProvider, "Empty.").Prompt(context.Background(), "empty")
+
 			if err != nil {
 				t.Fatalf("empty provider prompt error: %v", err)
 			}
+
 			if emptyResp.GetText() != "" {
 				t.Fatalf("empty provider text = %q", emptyResp.GetText())
 			}
 
 			resp, err := agent.Prompt(context.Background(), spec.lab.String())
+
 			if err != nil {
 				t.Fatalf("provider prompt error: %v", err)
 			}
+
 			if resp.GetText() != "provider: "+spec.lab.String() {
 				t.Fatalf("provider text = %q", resp.GetText())
 			}
+
 			rec.AssertAgentWasPrompted(t, func(p *prompts.AgentPrompt) bool {
 				return p.Text == spec.lab.String()
 			})
 
 			streamed, err := agent.Stream(context.Background(), "stream "+spec.lab.String())
+
 			if err != nil {
 				t.Fatalf("provider stream error: %v", err)
 			}
+
 			if streamed.(*responses.StreamableAgentResponse).Consume().GetText() == "" {
 				t.Fatal("expected provider stream text")
 			}
@@ -340,6 +374,7 @@ func TestInventoryAiManagerParity(t *testing.T) {
 	}
 
 	m.SetDefault(enums.LabElevenLabs.String())
+
 	if _, err := m.TextProvider(); err == nil {
 		t.Fatal("expected provider type error")
 	}
@@ -364,9 +399,11 @@ func TestInventoryAudioFakeParity(t *testing.T) {
 	rec := m.Fake()
 	rec.AssertNothingAudioGenerated(t)
 	provider, err := m.AudioProvider()
+
 	if err != nil {
 		t.Fatalf("AudioProvider error: %v", err)
 	}
+
 	instructions := "slowly"
 	audio, err := provider.Audio(ctx, contractsprovider.AudioGenerateRequest{
 		Text:         "hello",
@@ -374,12 +411,15 @@ func TestInventoryAudioFakeParity(t *testing.T) {
 		Instructions: &instructions,
 		Timeout:      15,
 	})
+
 	if err != nil {
 		t.Fatalf("Audio error: %v", err)
 	}
+
 	if audio.Content == "" {
 		t.Fatal("expected fake audio content")
 	}
+
 	rec.AssertAudioGenerated(t, func(p *prompts.AudioPrompt) bool {
 		return p.Text == "hello" && p.Voice == "alloy" && p.Instructions != nil && *p.Instructions == "slowly" && p.Timeout == 15
 	})
@@ -387,6 +427,7 @@ func TestInventoryAudioFakeParity(t *testing.T) {
 	if _, err := provider.Audio(ctx, contractsprovider.AudioGenerateRequest{Text: "default timeout"}); err != nil {
 		t.Fatalf("Audio default timeout error: %v", err)
 	}
+
 	rec.AssertAudioGenerated(t, func(p *prompts.AudioPrompt) bool {
 		return p.Text == "default timeout" && p.Timeout == fake.DefaultMediaTimeout
 	})
@@ -395,8 +436,10 @@ func TestInventoryAudioFakeParity(t *testing.T) {
 		if p.Timeout != 21 {
 			t.Fatalf("audio closure timeout = %d", p.Timeout)
 		}
+
 		return &contractsgw.AudioGenerateResult{Content: "YXVkaW8="}, nil
 	})
+
 	if _, err := provider.Audio(ctx, contractsprovider.AudioGenerateRequest{Text: "closure", Timeout: 21}); err != nil {
 		t.Fatalf("Audio closure error: %v", err)
 	}
@@ -404,13 +447,16 @@ func TestInventoryAudioFakeParity(t *testing.T) {
 	gw := fake.NewAudioGateway(m.Recorder())
 	gw.PreventStray()
 	provider.UseAudioGateway(gw)
+
 	if _, err := provider.Audio(ctx, contractsprovider.AudioGenerateRequest{Text: "stray"}); err == nil {
 		t.Fatal("expected stray audio error")
 	}
+
 	expected := errors.New("audio failed")
 	m.FakeAudioProvider(func(*prompts.AudioPrompt) (*contractsgw.AudioGenerateResult, error) {
 		return nil, expected
 	})
+
 	if _, err := provider.Audio(ctx, contractsprovider.AudioGenerateRequest{Text: "fail"}); !errors.Is(err, expected) {
 		t.Fatalf("Audio error = %v, want %v", err, expected)
 	}
@@ -437,21 +483,26 @@ func TestInventoryEmbeddingsFakeParity(t *testing.T) {
 	rec := m.Fake()
 	rec.AssertNothingEmbeddingsGenerated(t)
 	provider, err := m.EmbeddingProvider()
+
 	if err != nil {
 		t.Fatalf("EmbeddingProvider error: %v", err)
 	}
+
 	dims := 4
 	result, err := provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{
 		Inputs:     []string{"one", "two"},
 		Dimensions: &dims,
 		Timeout:    9,
 	})
+
 	if err != nil {
 		t.Fatalf("Embeddings error: %v", err)
 	}
+
 	if len(result.Embeddings) != 2 || len(result.Embeddings[0]) != dims {
 		t.Fatalf("embedding shape = %dx%d", len(result.Embeddings), len(result.Embeddings[0]))
 	}
+
 	rec.AssertEmbeddingsGenerated(t, func(p *prompts.EmbeddingsPrompt) bool {
 		return len(p.Inputs) == 2 && p.Dimensions != nil && *p.Dimensions == dims && p.Timeout == 9
 	})
@@ -459,6 +510,7 @@ func TestInventoryEmbeddingsFakeParity(t *testing.T) {
 	if _, err := provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{Inputs: []string{"default timeout"}}); err != nil {
 		t.Fatalf("Embeddings default timeout error: %v", err)
 	}
+
 	rec.AssertEmbeddingsGenerated(t, func(p *prompts.EmbeddingsPrompt) bool {
 		return len(p.Inputs) == 1 && p.Inputs[0] == "default timeout" && p.Timeout == fake.DefaultMediaTimeout
 	})
@@ -466,9 +518,11 @@ func TestInventoryEmbeddingsFakeParity(t *testing.T) {
 	custom := [][]float64{{0.25, 0.75}}
 	m.FakeEmbeddingProvider(custom)
 	got, err := provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{Inputs: []string{"custom"}})
+
 	if err != nil {
 		t.Fatalf("custom embeddings error: %v", err)
 	}
+
 	if got.Embeddings[0][1] != 0.75 {
 		t.Fatalf("custom embedding = %#v", got.Embeddings)
 	}
@@ -477,11 +531,14 @@ func TestInventoryEmbeddingsFakeParity(t *testing.T) {
 		if p.Timeout != 22 {
 			t.Fatalf("embedding closure timeout = %d", p.Timeout)
 		}
+
 		return &contractsgw.EmbeddingGenerateResult{Embeddings: [][]float64{{1}}}, nil
 	})
+
 	if _, err := provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{Inputs: []string{"closure"}, Timeout: 22}); err != nil {
 		t.Fatalf("closure embeddings error: %v", err)
 	}
+
 	if len(ai.FakeEmbedding(3)) != 3 {
 		t.Fatal("expected normalized fake embedding dimensions")
 	}
@@ -489,6 +546,7 @@ func TestInventoryEmbeddingsFakeParity(t *testing.T) {
 	gw := fake.NewEmbeddingGateway(m.Recorder())
 	gw.PreventStray()
 	provider.UseEmbeddingGateway(gw)
+
 	if _, err := provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{Inputs: []string{"stray"}}); err == nil {
 		t.Fatal("expected stray embeddings error")
 	}
@@ -511,9 +569,11 @@ func TestInventoryImageFakeParity(t *testing.T) {
 	rec := m.Fake()
 	rec.AssertNothingImageGenerated(t)
 	provider, err := m.ImageProvider()
+
 	if err != nil {
 		t.Fatalf("ImageProvider error: %v", err)
 	}
+
 	size := "1024x1024"
 	quality := "high"
 	result, err := provider.Image(ctx, contractsprovider.ImageGenerateRequest{
@@ -521,12 +581,15 @@ func TestInventoryImageFakeParity(t *testing.T) {
 		Size:    &size,
 		Quality: &quality,
 	})
+
 	if err != nil {
 		t.Fatalf("Image error: %v", err)
 	}
+
 	if len(result.Images) != 1 {
 		t.Fatalf("fake image count = %d", len(result.Images))
 	}
+
 	rec.AssertImageGenerated(t, func(p *prompts.ImagePrompt) bool {
 		return p.Prompt == "a precise diagram" && p.Size != nil && *p.Size == size && p.Quality != nil && *p.Quality == quality
 	})
@@ -534,19 +597,24 @@ func TestInventoryImageFakeParity(t *testing.T) {
 	m.FakeImageProvider(func(p *prompts.ImagePrompt) (*contractsgw.ImageGenerateResult, error) {
 		return &contractsgw.ImageGenerateResult{Images: []contractsgw.GeneratedImageData{{Image: "custom", MimeType: "image/png"}}}, nil
 	})
+
 	if _, err := provider.Image(ctx, contractsprovider.ImageGenerateRequest{Prompt: "closure"}); err != nil {
 		t.Fatalf("Image closure error: %v", err)
 	}
+
 	gw := fake.NewImageGateway(m.Recorder())
 	gw.PreventStray()
 	provider.UseImageGateway(gw)
+
 	if _, err := provider.Image(ctx, contractsprovider.ImageGenerateRequest{Prompt: "stray"}); err == nil {
 		t.Fatal("expected stray image error")
 	}
+
 	expected := errors.New("image failed")
 	m.FakeImageProvider(func(*prompts.ImagePrompt) (*contractsgw.ImageGenerateResult, error) {
 		return nil, expected
 	})
+
 	if _, err := provider.Image(ctx, contractsprovider.ImageGenerateRequest{Prompt: "fail"}); !errors.Is(err, expected) {
 		t.Fatalf("Image error = %v, want %v", err, expected)
 	}
@@ -571,21 +639,26 @@ func TestInventoryRerankingFakeParity(t *testing.T) {
 	rec := m.Fake()
 	rec.AssertNothingReranked(t)
 	provider, err := m.RerankingProvider()
+
 	if err != nil {
 		t.Fatalf("RerankingProvider error: %v", err)
 	}
+
 	limit := 1
 	result, err := provider.Rerank(ctx, contractsprovider.RerankingRequest{
 		Documents: []string{"alpha", "beta"},
 		Query:     "a",
 		Limit:     &limit,
 	})
+
 	if err != nil {
 		t.Fatalf("Rerank error: %v", err)
 	}
+
 	if result.Results[0].Document != "alpha" {
 		t.Fatalf("first reranked document = %q", result.Results[0].Document)
 	}
+
 	rec.AssertReranked(t, func(p *prompts.RerankingPrompt) bool {
 		return p.Query == "a" && p.Limit != nil && *p.Limit == 1
 	})
@@ -593,9 +666,11 @@ func TestInventoryRerankingFakeParity(t *testing.T) {
 	custom := &contractsgw.RerankResult{Results: []contractsgw.RankedDocumentData{{Index: 1, Document: "beta", Score: 0.99}}}
 	m.FakeRerankingProvider(custom)
 	got, err := provider.Rerank(ctx, contractsprovider.RerankingRequest{Documents: []string{"alpha", "beta"}, Query: "b"})
+
 	if err != nil {
 		t.Fatalf("custom rerank error: %v", err)
 	}
+
 	if got.Results[0].Document != "beta" {
 		t.Fatalf("custom reranked document = %q", got.Results[0].Document)
 	}
@@ -603,12 +678,15 @@ func TestInventoryRerankingFakeParity(t *testing.T) {
 	m.FakeRerankingProvider(func(p *prompts.RerankingPrompt) (*contractsgw.RerankResult, error) {
 		return &contractsgw.RerankResult{Results: []contractsgw.RankedDocumentData{{Document: p.Query, Score: 1}}}, nil
 	})
+
 	if _, err := provider.Rerank(ctx, contractsprovider.RerankingRequest{Documents: []string{"x"}, Query: "closure"}); err != nil {
 		t.Fatalf("closure rerank error: %v", err)
 	}
+
 	gw := fake.NewRerankingGateway(m.Recorder())
 	gw.PreventStray()
 	provider.UseRerankingGateway(gw)
+
 	if _, err := provider.Rerank(ctx, contractsprovider.RerankingRequest{Documents: []string{"x"}, Query: "stray"}); err == nil {
 		t.Fatal("expected stray reranking error")
 	}
@@ -633,9 +711,11 @@ func TestInventoryTranscriptionFakeParity(t *testing.T) {
 	rec := m.Fake()
 	rec.AssertNothingTranscriptionGenerated(t)
 	provider, err := m.TranscriptionProvider()
+
 	if err != nil {
 		t.Fatalf("TranscriptionProvider error: %v", err)
 	}
+
 	language := "en"
 	audio := contractsgw.TranscribableAudio{Content: "ZmFrZQ==", MimeType: "audio/mp3"}
 	result, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{
@@ -644,12 +724,15 @@ func TestInventoryTranscriptionFakeParity(t *testing.T) {
 		Diarize:  true,
 		Timeout:  16,
 	})
+
 	if err != nil {
 		t.Fatalf("Transcription error: %v", err)
 	}
+
 	if result.Text == "" {
 		t.Fatal("expected fake transcription text")
 	}
+
 	rec.AssertTranscriptionGenerated(t, func(p *prompts.TranscriptionPrompt) bool {
 		return p.Audio.Content == audio.Content && p.Language != nil && *p.Language == language && p.Diarize && p.Timeout == 16
 	})
@@ -660,28 +743,36 @@ func TestInventoryTranscriptionFakeParity(t *testing.T) {
 	}
 	m.FakeTranscriptionProvider(custom)
 	got, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{Audio: audio})
+
 	if err != nil {
 		t.Fatalf("custom transcription error: %v", err)
 	}
+
 	if len(got.Segments) != 1 {
 		t.Fatalf("segments = %#v", got.Segments)
 	}
+
 	m.FakeTranscriptionProvider(func(p *prompts.TranscriptionPrompt) (*contractsgw.TranscriptionResult, error) {
 		return &contractsgw.TranscriptionResult{Text: p.Audio.Content}, nil
 	})
+
 	if _, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{Audio: audio}); err != nil {
 		t.Fatalf("closure transcription error: %v", err)
 	}
+
 	gw := fake.NewTranscriptionGateway(m.Recorder())
 	gw.PreventStray()
 	provider.UseTranscriptionGateway(gw)
+
 	if _, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{Audio: audio}); err == nil {
 		t.Fatal("expected stray transcription error")
 	}
+
 	expected := errors.New("transcription failed")
 	m.FakeTranscriptionProvider(func(*prompts.TranscriptionPrompt) (*contractsgw.TranscriptionResult, error) {
 		return nil, expected
 	})
+
 	if _, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{Audio: audio}); !errors.Is(err, expected) {
 		t.Fatalf("Transcription error = %v, want %v", err, expected)
 	}
@@ -691,8 +782,10 @@ func newTextStub() contractsprovider.TextProvider {
 	m := ai.NewManager()
 	m.Fake()
 	p, err := m.TextProvider()
+
 	if err != nil {
 		panic(err)
 	}
+
 	return p
 }

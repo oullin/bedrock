@@ -263,11 +263,13 @@ func TestInventoryHeadLastAndClassBasename(t *testing.T) {
 	// SupportHelpersTest::testLast
 	// SupportHelpersTest::testClassBasename
 	head, ok := Head([]string{"first", "second"})
+
 	if !ok || head != "first" {
 		t.Fatalf("Head = %q, %v", head, ok)
 	}
 
 	last, ok := Last([]string{"first", "second"})
+
 	if !ok || last != "second" {
 		t.Fatalf("Last = %q, %v", last, ok)
 	}
@@ -275,6 +277,7 @@ func TestInventoryHeadLastAndClassBasename(t *testing.T) {
 	if _, ok := Head([]string{}); ok {
 		t.Fatal("Head on empty slice should report false")
 	}
+
 	if _, ok := Last([]string{}); ok {
 		t.Fatal("Last on empty slice should report false")
 	}
@@ -284,9 +287,11 @@ func TestInventoryHeadLastAndClassBasename(t *testing.T) {
 	if got := ClassBasename("App\\Models\\User"); got != "User" {
 		t.Fatalf("ClassBasename PHP class = %q", got)
 	}
+
 	if got := ClassBasename("/app/Models/User"); got != "User" {
 		t.Fatalf("ClassBasename path = %q", got)
 	}
+
 	if got := ClassBasename(&localHelperType{}); got != "localHelperType" {
 		t.Fatalf("ClassBasename type = %q", got)
 	}

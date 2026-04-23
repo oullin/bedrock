@@ -22,6 +22,11 @@ type observerTestModel struct {
 	hasWasSearchableBeforeDelete bool
 }
 
+type dirtyObserverModel struct {
+	observerTestModel
+	dirty map[string]bool
+}
+
 func (m *observerTestModel) GetScoutKey() any                                  { return m.id }
 func (m *observerTestModel) GetScoutKeyName() string                           { return "id" }
 func (m *observerTestModel) SearchableAs() string                              { return m.table }
@@ -57,11 +62,6 @@ func newObserverModel(id any, searchable, updateIndex bool) *observerTestModel {
 		shouldBeSearchable: searchable,
 		shouldUpdateIndex:  updateIndex,
 	}
-}
-
-type dirtyObserverModel struct {
-	observerTestModel
-	dirty map[string]bool
 }
 
 func (m *dirtyObserverModel) SearchIndexShouldBeUpdated() bool {

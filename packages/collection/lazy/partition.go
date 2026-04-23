@@ -174,6 +174,7 @@ func (lc *Collection[T]) ChunkWhile(callback func(T, int, []T) bool) [][]T {
 // Sliding returns a lazy collection of sliding windows with the given size and optional step.
 func Sliding[T any](lc *Collection[T], size int, steps ...int) *Collection[[]T] {
 	step := 1
+
 	if len(steps) > 0 {
 		step = steps[0]
 	}
@@ -193,12 +194,14 @@ func Sliding[T any](lc *Collection[T], size int, steps ...int) *Collection[[]T] 
 			}
 
 			window = append(window, item)
+
 			if len(window) < size {
 				return true
 			}
 
 			out := make([]T, len(window))
 			copy(out, window)
+
 			if !yield(out) {
 				return false
 			}

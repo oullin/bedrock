@@ -124,6 +124,7 @@ func TestRedisPayloadInventoryParity(t *testing.T) {
 			JobTags:  []string{"mail", "default"},
 			Silenced: false,
 		})
+
 		if payload.Silenced {
 			t.Fatal("expected payload not to be silenced")
 		}
@@ -135,6 +136,7 @@ func TestRedisPayloadInventoryParity(t *testing.T) {
 			JobTags:  []string{"mail", "default"},
 			Silenced: true,
 		})
+
 		if !payload.Silenced {
 			t.Fatal("expected payload to be silenced by config-like setting")
 		}
@@ -145,6 +147,7 @@ func TestRedisPayloadInventoryParity(t *testing.T) {
 			JobTags:      []string{"mail", "quiet", "default"},
 			SilencedTags: []string{"quiet"},
 		})
+
 		if !payload.Silenced {
 			t.Fatal("expected payload to be silenced by matching tag")
 		}
@@ -156,6 +159,7 @@ func TestRedisPayloadInventoryParity(t *testing.T) {
 			Event:    "UserSignedUp",
 			Mailable: true,
 		})
+
 		if !payload.Silenced {
 			t.Fatal("expected payload to be silenced from interface-like job metadata")
 		}

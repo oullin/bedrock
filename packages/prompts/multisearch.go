@@ -173,9 +173,11 @@ func (p *MultiSearchPrompt) refreshMatches() {
 	p.currentMatches = nil
 
 	keys := make([]string, 0, len(result))
+
 	for key := range result {
 		keys = append(keys, key)
 	}
+
 	sort.Strings(keys)
 
 	for _, key := range keys {

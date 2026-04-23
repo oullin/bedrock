@@ -191,6 +191,7 @@ func TestSleepInventoryDurationsAndUntil(t *testing.T) {
 	Sleep(0)
 
 	calls := fake.SleptTimes()
+
 	if len(calls) != 14 {
 		t.Fatalf("sleep calls = %d, want 14: %v", len(calls), calls)
 	}
@@ -209,14 +210,17 @@ func TestSleepInventoryDurationsAndUntil(t *testing.T) {
 		time.Second + 250*time.Millisecond,
 		250 * time.Microsecond,
 	}
+
 	for i, want := range expected {
 		if calls[i] != want {
 			t.Fatalf("sleep call %d = %v, want %v", i, calls[i], want)
 		}
 	}
+
 	if calls[12] <= 0 {
 		t.Fatalf("SleepUntil future call = %v, want positive duration", calls[12])
 	}
+
 	if calls[13] != 0 {
 		t.Fatalf("zero-duration sleep call = %v, want 0", calls[13])
 	}

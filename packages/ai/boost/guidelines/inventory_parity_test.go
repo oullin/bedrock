@@ -25,12 +25,15 @@ func TestInventoryGuidelineComposerDiscoversPackagesAndCustomGuidelines(t *testi
 
 	tmp := t.TempDir()
 	customDir := filepath.Join(tmp, ".ai", "guidelines")
+
 	if err := os.MkdirAll(filepath.Join(customDir, "upstream", "framework"), 0o755); err != nil {
 		t.Fatalf("mkdir package guideline: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(customDir, "upstream", "framework", "guidelines.md"), []byte("# Framework\n"), 0o644); err != nil {
 		t.Fatalf("write package guideline: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(customDir, "project.md"), []byte("# Project\n"), 0o644); err != nil {
 		t.Fatalf("write custom guideline: %v", err)
 	}
@@ -50,6 +53,7 @@ func TestInventoryGuidelineComposerDiscoversPackagesAndCustomGuidelines(t *testi
 	}
 
 	used := strings.Join(composer.Used(), ",")
+
 	if !strings.Contains(used, "upstream/framework") || !strings.Contains(used, "custom:project") {
 		t.Fatalf("Used() = %v", composer.Used())
 	}

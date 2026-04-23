@@ -55,14 +55,17 @@ func TestURIQueryBuildingAndDecoding(t *testing.T) {
 	}
 
 	merged := built.WithQuery(map[string]string{"filter.active": "0"})
+
 	if got := merged.Query().Get("filter.active"); got != "0" {
 		t.Fatalf("WithQuery replacement = %q", got)
 	}
 
 	missing := merged.WithQueryIfMissing(map[string]string{"filter.active": "1", "page": "2"})
+
 	if got := missing.Query().Get("filter.active"); got != "0" {
 		t.Fatalf("WithQueryIfMissing existing = %q", got)
 	}
+
 	if got := missing.Query().Get("page"); got != "2" {
 		t.Fatalf("WithQueryIfMissing page = %q", got)
 	}
@@ -72,6 +75,7 @@ func TestURIQueryBuildingAndDecoding(t *testing.T) {
 	}
 
 	decoded := MustParseURI("https://example.test/search?q=upstream+go#top").Decoded()
+
 	if decoded != "https://example.test/search?q=upstream go#top" {
 		t.Fatalf("Decoded = %q", decoded)
 	}
@@ -81,6 +85,7 @@ func TestURIPathSegments(t *testing.T) {
 	t.Parallel()
 
 	segments := MustParseURI("https://example.test/users/Taylor%20Otwell/profile").PathSegments()
+
 	if len(segments) != 3 || segments[0] != "users" || segments[1] != "Taylor Otwell" || segments[2] != "profile" {
 		t.Fatalf("PathSegments = %v", segments)
 	}

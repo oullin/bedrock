@@ -53,6 +53,7 @@ func TestPhpRedisClusterConnectionScansAllMasters(t *testing.T) {
 	conn := redis.NewConnection("cluster", fake)
 
 	res, err := conn.ClusterScan(ctx, 0, "user:*", 10)
+
 	if err != nil {
 		t.Fatalf("ClusterScan err=%v", err)
 	}
@@ -79,6 +80,7 @@ func TestPhpRedisClusterConnectionReturnsEmptyScanWhenNoMasters(t *testing.T) {
 	conn := redis.NewConnection("cluster", newClusterAwareFake())
 
 	res, err := conn.ClusterScan(context.Background(), 0, "missing:*", 10)
+
 	if err != nil {
 		t.Fatalf("ClusterScan err=%v", err)
 	}
@@ -102,6 +104,7 @@ func TestPhpRedisClusterConnectionFlushesAllMasters(t *testing.T) {
 	_ = c2.Set(ctx, "beta", "2", 0)
 
 	conn := redis.NewConnection("cluster", newClusterAwareFake(m1, m2))
+
 	if err := conn.ClusterFlushDB(ctx); err != nil {
 		t.Fatalf("ClusterFlushDB err=%v", err)
 	}

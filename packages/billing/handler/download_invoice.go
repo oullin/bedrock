@@ -69,11 +69,13 @@ func routeMatchesBillable(r *http.Request, billable billing.Billable) bool {
 	}
 
 	routeID := r.PathValue("id")
+
 	if routeID == "" {
 		return true
 	}
 
 	id, err := strconv.ParseInt(routeID, 10, 64)
+
 	if err != nil {
 		return false
 	}

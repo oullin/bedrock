@@ -11,9 +11,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Prefix: "custom:"})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Prefix != "custom:" {
 			t.Fatalf("prefix = %q, want custom:", connection.Prefix)
 		}
@@ -24,9 +26,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Prefix: "jobqueue:", Kind: RedisCluster, SupportsCluster: true})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Prefix != "{jobqueue}:" {
 			t.Fatalf("prefix = %q, want {jobqueue}:", connection.Prefix)
 		}
@@ -37,9 +41,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Prefix: "{jobqueue}:", Kind: RedisCluster, SupportsCluster: true})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Prefix != "{jobqueue}:" {
 			t.Fatalf("prefix = %q, want unchanged hash tag", connection.Prefix)
 		}
@@ -50,9 +56,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Prefix: "jobqueue:", Kind: RedisStandalone})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Prefix != "jobqueue:" {
 			t.Fatalf("prefix = %q, want jobqueue:", connection.Prefix)
 		}
@@ -63,9 +71,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Kind: RedisCluster, SupportsCluster: true})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Prefix != "{fallback}:" {
 			t.Fatalf("prefix = %q, want {fallback}:", connection.Prefix)
 		}
@@ -76,9 +86,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Kind: RedisCluster, SupportsCluster: true, Nodes: []string{"127.0.0.1:6379", "127.0.0.1:6380"}})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if len(connection.Nodes) != 2 || connection.Nodes[1] != "127.0.0.1:6380" {
 			t.Fatalf("nodes = %#v", connection.Nodes)
 		}
@@ -88,6 +100,7 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry := NewRedisConnectionRegistry("jobqueue:")
 
 		_, err := registry.Use("missing")
+
 		if !errors.Is(err, ErrUnknownRedisConnection) {
 			t.Fatalf("Use error = %v, want ErrUnknownRedisConnection", err)
 		}
@@ -98,9 +111,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Kind: RedisCluster, SupportsCluster: false})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Kind != RedisStandalone {
 			t.Fatalf("kind = %q, want standalone", connection.Kind)
 		}
@@ -129,18 +144,22 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Kind: RedisCluster, SupportsCluster: true, Options: map[string]string{"read_timeout": "1s"}})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Options["read_timeout"] != "1s" {
 			t.Fatalf("options = %#v", connection.Options)
 		}
 
 		connection.Options["read_timeout"] = "mutated"
 		again, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if again.Options["read_timeout"] != "1s" {
 			t.Fatalf("options were not cloned: %#v", again.Options)
 		}
@@ -152,9 +171,11 @@ func TestRedisPrefixInventoryParity(t *testing.T) {
 		registry.Register(RedisConnectionConfig{Name: "jobqueue", Prefix: "cluster:", Kind: RedisCluster, SupportsCluster: true})
 
 		connection, err := registry.Use("jobqueue")
+
 		if err != nil {
 			t.Fatalf("Use returned error: %v", err)
 		}
+
 		if connection.Kind != RedisCluster || connection.Prefix != "{cluster}:" {
 			t.Fatalf("connection = %#v, want cluster precedence", connection)
 		}

@@ -26,6 +26,11 @@ import (
 // AgentsDetectorTest::it_returns_an_array_of_detected_agent_names_for_system_discovery
 // AgentsDetectorTest::it_returns_an_empty_array_when_no_agents_are_detected_for_system_discovery
 
+type systemDetectionStub struct {
+	stubAgent
+	detected bool
+}
+
 func TestInventoryBoostProviderManagerAndDetection(t *testing.T) {
 	t.Parallel()
 
@@ -34,16 +39,19 @@ func TestInventoryBoostProviderManagerAndDetection(t *testing.T) {
 	provider.Register()
 
 	first, err := app.Make("boost")
+
 	if err != nil {
 		t.Fatalf("Make(boost): %v", err)
 	}
 
 	second, err := app.Make("boost")
+
 	if err != nil {
 		t.Fatalf("Make(boost) second: %v", err)
 	}
 
 	manager, ok := first.(*boost.Manager)
+
 	if !ok {
 		t.Fatalf("Make(boost) = %T, want *boost.Manager", first)
 	}
@@ -89,11 +97,13 @@ func TestInventoryBoostProjectDetection(t *testing.T) {
 	}
 
 	found := detector.DiscoverProjectInstalledAgents(tmp)
+
 	if len(found) == 0 {
 		t.Fatal("project detector should find Cursor from .cursor marker")
 	}
 
 	hasCursor := false
+
 	for _, agent := range found {
 		if agent.Name() == "cursor" {
 			hasCursor = true
@@ -148,11 +158,6 @@ func replaceManagerAgents(t *testing.T, manager *boost.Manager, agents map[strin
 
 	field := reflect.ValueOf(manager).Elem().FieldByName("agents")
 	reflect.NewAt(field.Type(), unsafe.Pointer(field.UnsafeAddr())).Elem().Set(reflect.ValueOf(agents))
-}
-
-type systemDetectionStub struct {
-	stubAgent
-	detected bool
 }
 
 func (s *systemDetectionStub) DetectOnSystem(_ boost.Platform) bool { return s.detected }

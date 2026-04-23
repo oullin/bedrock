@@ -41,6 +41,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("StreamTest::it_accumulates_the_message_property", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		stream := Stream()
@@ -59,6 +60,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("StreamTest::it_handles_newlines_in_appended_text", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		stream := Stream()
@@ -79,6 +81,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("StreamTest::it_handles_empty_appends", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		stream := Stream()
@@ -97,9 +100,11 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("StreamTest::it_can_be_created_via_helper_function", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		stream := Stream()
+
 		if stream == nil {
 			t.Fatal("stream = nil")
 		}
@@ -111,6 +116,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, "J", "o", "x", "e", KeyLeft, KeyLeft, KeyDelete, KeyEnter, func(*TestPrompts) {
 			got, err := Text("Name?")
 			requireNoError(t, err)
+
 			if got != "Joe" {
 				t.Fatalf("text = %q", got)
 			}
@@ -121,6 +127,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, "a", "b", KeyCtrlA, "x", KeyCtrlE, "y", KeyEnter, func(*TestPrompts) {
 			got, err := Text("Name?")
 			requireNoError(t, err)
+
 			if got != "xaby" {
 				t.Fatalf("text = %q", got)
 			}
@@ -131,6 +138,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, "4", "0", "2", KeyLeft, KeyLeft, KeyDelete, KeyEnter, func(*TestPrompts) {
 			got, err := Number("Age?")
 			requireNoError(t, err)
+
 			if got != 42 {
 				t.Fatalf("number = %d", got)
 			}
@@ -141,6 +149,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, "s", "e", "c", "x", "r", "e", "t", KeyLeft, KeyLeft, KeyLeft, KeyLeft, KeyDelete, KeyEnter, func(*TestPrompts) {
 			got, err := Password("Password?")
 			requireNoError(t, err)
+
 			if got != "secret" {
 				t.Fatalf("password = %q", got)
 			}
@@ -149,15 +158,20 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("PausePromptTest::it_does_not_render_when_non_interactive", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
+
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		got, err := Pause()
 		requireNoError(t, err)
+
 		if !got {
 			t.Fatal("pause = false, want true")
 		}
+
 		if strings.TrimSpace(tp.StrippedContent()) != "" {
 			t.Fatalf("pause output = %q", tp.StrippedContent())
 		}
@@ -169,9 +183,11 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 				if value == "true" {
 					return "Choose no."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got {
 				t.Fatal("confirm = true, want false")
 			}
@@ -182,6 +198,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := Select("Framework?", []string{"Upstream", "Bedrock"}, SelectWithDefault("Bedrock"))
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("select = %q", got)
 			}
@@ -195,6 +212,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 				{Key: "bedrock", Label: "Bedrock"},
 			}, SelectWithDefault("bedrock"))
 			requireNoError(t, err)
+
 			if got != "bedrock" {
 				t.Fatalf("select = %q", got)
 			}
@@ -205,6 +223,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, KeyCtrlN, KeyEnter, func(*TestPrompts) {
 			got, err := Select("Framework?", []string{"Upstream", "Bedrock"})
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("select = %q", got)
 			}
@@ -215,6 +234,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Bedrock"}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -228,6 +248,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 				{Key: "bedrock", Label: "Bedrock"},
 			}, MultiSelectWithDefault([]string{"bedrock"}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -238,6 +259,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 		withFake(t, "a", KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Upstream", "Bedrock"}))
 			requireNoError(t, err)
+
 			if len(got) != 0 {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -246,21 +268,25 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("ProgressTest::it_renders_a_progress_bar", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		results, err := Progress("Build", []int{1, 2}, func(step int, _ *ProgressBar) int {
 			return step * 2
 		})
 		requireNoError(t, err)
+
 		if !reflect.DeepEqual(results, []int{2, 4}) {
 			t.Fatalf("progress = %#v", results)
 		}
+
 		tp.AssertStrippedOutputContains("Build")
 		tp.AssertStrippedOutputContains("100%")
 	})
 
 	t.Run("ProgressTest::it_can_update_the_label_and_hint_while_rendering", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		_, err := Progress("Step 1", []int{1, 2}, func(step int, bar *ProgressBar) int {
@@ -268,6 +294,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 				bar.Label("Step 2")
 				bar.Hint("Working")
 			}
+
 			return step
 		}, ProgressWithHint("Starting..."))
 		requireNoError(t, err)
@@ -278,6 +305,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("ProgressTest::it_renders_a_progress_bar_without_a_label", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		_, err := Progress("", []int{1}, func(step int, _ *ProgressBar) int {
@@ -289,9 +317,11 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("GridTest::it_renders_a_grid_with_a_single_item", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		Grid([]string{"Upstream"})
+
 		if strings.TrimSpace(tp.StrippedContent()) != "Upstream" {
 			t.Fatalf("grid output = %q", tp.StrippedContent())
 		}
@@ -299,6 +329,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("GridTest::it_renders_grid_items_containing_special_characters", func(t *testing.T) {
 		tp := Fake(t, 80, 24)
+
 		defer tp.Cleanup()
 
 		Grid([]string{"foo+bar", "baz/qux"})
@@ -308,10 +339,12 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("GridTest::it_uses_default_terminal_width_when_maxwidth_is_not_provided", func(t *testing.T) {
 		tp := Fake(t, 10, 24)
+
 		defer tp.Cleanup()
 
 		Grid([]string{"abcdefghij", "klmnopqrst"})
 		stripped := strings.TrimSuffix(tp.StrippedContent(), "\n")
+
 		if strings.Count(stripped, "\n") != 0 {
 			t.Fatalf("grid output = %q", tp.StrippedContent())
 		}

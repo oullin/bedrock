@@ -56,6 +56,12 @@ type fakeURLRequest struct {
 	qs     string
 }
 
+type urlGeneratorRoutable struct {
+	key any
+}
+
+type urlGeneratorStatus string
+
 func (r fakeURLRequest) Scheme() string           { return r.scheme }
 func (r fakeURLRequest) Host() string             { return r.host }
 func (r fakeURLRequest) URL() string              { return r.url }
@@ -63,18 +69,12 @@ func (r fakeURLRequest) Path() string             { return r.path }
 func (r fakeURLRequest) Query(name string) string { return r.query[name] }
 func (r fakeURLRequest) QueryString() string      { return r.qs }
 
-type urlGeneratorRoutable struct {
-	key any
-}
-
 func (u urlGeneratorRoutable) GetRouteKey() any                                     { return u.key }
 func (u urlGeneratorRoutable) GetRouteKeyName() string                              { return "id" }
 func (u urlGeneratorRoutable) ResolveRouteBinding(value, field string) (any, error) { return nil, nil }
 func (u urlGeneratorRoutable) ResolveChildRouteBinding(_, _, _ string) (any, error) { return nil, nil }
 
 var _ contracts.UrlRoutable = urlGeneratorRoutable{}
-
-type urlGeneratorStatus string
 
 func (s urlGeneratorStatus) BackingValue() string { return string(s) }
 

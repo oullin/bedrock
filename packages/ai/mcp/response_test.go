@@ -88,6 +88,7 @@ func TestResponseWithMetaMergesMultipleCalls(t *testing.T) {
 
 	result := mcp.ExportToolResult(resp)
 	meta, ok := result["_meta"].(map[string]any)
+
 	if !ok {
 		t.Fatal("expected _meta in tool result")
 	}
