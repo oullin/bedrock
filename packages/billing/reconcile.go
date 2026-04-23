@@ -26,11 +26,13 @@ func ReconcileSubscriptionAfterCheckout(
 	}
 
 	subscriptions, err := store.ActiveForBillable(ctx, billableType, billableID)
+
 	if err != nil {
 		return false, err
 	}
 
 	pending := matchingPrePaddleSubscription(subscriptions, cashier)
+
 	if pending == nil {
 		return false, nil
 	}
@@ -38,6 +40,7 @@ func ReconcileSubscriptionAfterCheckout(
 	if cashier.Type == "" {
 		cashier.Type = pending.Type
 	}
+
 	if cashier.Plan == "" {
 		cashier.Plan = pending.Plan
 	}

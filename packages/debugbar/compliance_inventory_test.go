@@ -19,6 +19,7 @@ import (
 func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("ClearCommandTest::test_clear_command_will_delete_all_entries", func(t *testing.T) {
 		repo := storage.NewInMemoryRepository()
+
 		if err := repo.Store([]*debugbar.IncomingEntry{
 			debugbar.NewEntry(debugbar.EntryTypeLog, map[string]any{"message": "one"}),
 			debugbar.NewEntry(debugbar.EntryTypeQuery, map[string]any{"sql": "select 1"}),
@@ -46,6 +47,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		}
 
 		pruned, err := repo.Prune(time.Now().Add(-24*time.Hour), false)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -65,6 +67,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		}
 
 		pruned, err := repo.Prune(time.Now().Add(-24*time.Hour), true)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -83,6 +86,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 
 		hash := fmt.Sprintf("%x", md5.Sum([]byte("taylor@example.com")))
 		want := "https://www.gravatar.com/avatar/" + hash + "?s=200&d=mm"
+
 		if result.Avatar != want {
 			t.Fatalf("avatar = %q, want %q", result.Avatar, want)
 		}
@@ -120,11 +124,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		repo := storage.NewInMemoryRepository()
 		entry := debugbar.NewEntry(debugbar.EntryTypeLog, map[string]any{"message": "stored"})
 		entry.UUID = "entry-1"
+
 		if err := repo.Store([]*debugbar.IncomingEntry{entry}); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := repo.Find("entry-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -138,17 +144,20 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		repo := storage.NewInMemoryRepository()
 		entry := debugbar.NewEntry(debugbar.EntryTypeJob, map[string]any{"status": "pending"})
 		entry.UUID = "job-1"
+
 		if err := repo.Store([]*debugbar.IncomingEntry{entry}); err != nil {
 			t.Fatal(err)
 		}
 
 		update := debugbar.NewEntryUpdate("job-1", debugbar.EntryTypeJob, map[string]any{"status": "processed"}).
 			AddTags("processed")
+
 		if err := repo.Update([]*debugbar.EntryUpdate{update}); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := repo.Find("job-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -156,6 +165,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		if found.Content["status"] != "processed" {
 			t.Fatalf("status = %v, want processed", found.Content["status"])
 		}
+
 		assertHasTag(t, found.Tags, "processed")
 	})
 
@@ -163,11 +173,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		repo := storage.NewInMemoryRepository()
 		entry := debugbar.NewEntry(debugbar.EntryTypeRequest, map[string]any{"body": []byte{0, 1, 2}})
 		entry.UUID = "binary-1"
+
 		if err := repo.Store([]*debugbar.IncomingEntry{entry}); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := repo.Find("binary-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -197,6 +209,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			if err := scope.Store(testContext()); err != nil {
 				t.Fatalf("store from callback: %v", err)
 			}
+
 			scope.Flush()
 		})
 
@@ -209,14 +222,18 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 
 	t.Run("DebugBarTest::test_run_after_store_callback", func(t *testing.T) {
 		scope, _ := newTestScope(t)
+
 		var batch string
+
 		var stored int
+
 		scope.AfterStoring(func(batchID string, entries []*debugbar.IncomingEntry) {
 			batch = batchID
 			stored = len(entries)
 		})
 
 		scope.RecordLog(debugbar.NewEntry(debugbar.EntryTypeLog, map[string]any{"message": "stored"}))
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
@@ -231,6 +248,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, nil)
 		w.Missed("missing-key")
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["type"] != "missed" {
 			t.Fatalf("type = %v", repo.Entries()[0].Content["type"])
 		}
@@ -241,6 +259,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, nil)
 		w.Written("cache-key", "value", 60)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["expires"] != int64(60) {
 			t.Fatalf("expires = %v", repo.Entries()[0].Content["expires"])
 		}
@@ -251,6 +270,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, nil)
 		w.Hit("cache-key", "value")
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["type"] != "hit" {
 			t.Fatalf("type = %v", repo.Entries()[0].Content["type"])
 		}
@@ -261,6 +281,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, nil)
 		w.Forgotten("cache-key")
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["type"] != "forget" {
 			t.Fatalf("type = %v", repo.Entries()[0].Content["type"])
 		}
@@ -271,6 +292,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, map[string]any{"hidden": []string{"secret"}})
 		w.Written("secret", "value", 0)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["value"] != "********" {
 			t.Fatalf("value = %v", repo.Entries()[0].Content["value"])
 		}
@@ -281,6 +303,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCacheWatcher(scope, map[string]any{"hidden": []string{"secret"}})
 		w.Hit("secret", "value")
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCache, 1)
+
 		if repo.Entries()[0].Content["value"] != "********" {
 			t.Fatalf("value = %v", repo.Entries()[0].Content["value"])
 		}
@@ -298,6 +321,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewEventWatcher(scope, nil)
 		w.Record("App\\Events\\OrderShipped", nil, nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeEvent, 1)
+
 		if repo.Entries()[0].Content["name"] != "App\\Events\\OrderShipped" {
 			t.Fatalf("name = %v", repo.Entries()[0].Content["name"])
 		}
@@ -309,6 +333,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record("App\\Events\\OrderShipped", map[string]any{"order_id": 10}, nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeEvent, 1)
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["order_id"] != 10 {
 			t.Fatalf("payload = %#v", payload)
 		}
@@ -326,6 +351,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewExceptionWatcher(scope, nil)
 		w.Record(errors.New("boom"), 0)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeException, 1)
+
 		if repo.Entries()[0].Content["message"] != "boom" {
 			t.Fatalf("message = %v", repo.Entries()[0].Content["message"])
 		}
@@ -336,6 +362,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewExceptionWatcher(scope, nil)
 		w.RecordRaw("App\\Exceptions\\Custom", "/app/main.go", 9, "custom", nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeException, 1)
+
 		if repo.Entries()[0].Content["class"] != "App\\Exceptions\\Custom" {
 			t.Fatalf("class = %v", repo.Entries()[0].Content["class"])
 		}
@@ -346,6 +373,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewJobWatcher(scope, nil)
 		w.Pending(watchers.JobMeta{UUID: "job-1", Type: "SendMail", Connection: "redis", Queue: "mail"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeJob, 1)
+
 		if repo.Entries()[0].Content["name"] != "SendMail" {
 			t.Fatalf("name = %v", repo.Entries()[0].Content["name"])
 		}
@@ -356,6 +384,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewJobWatcher(scope, nil)
 		w.Pending(watchers.JobMeta{UUID: "job-1", Type: "SendMail", BatchID: "batch-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeJob, 1)
+
 		if repo.Entries()[0].BatchID != scope.CurrentBatchID() {
 			t.Fatalf("recorded batch = %q", repo.Entries()[0].BatchID)
 		}
@@ -365,18 +394,23 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		scope, repo := newTestScope(t)
 		w := watchers.NewJobWatcher(scope, nil)
 		w.Pending(watchers.JobMeta{UUID: "job-1", Type: "Import"})
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		w.Failed("job-1", "Import", errors.New("failed"))
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := repo.Find("job-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if found.Content["status"] != watchers.JobStatusFailed {
 			t.Fatalf("status = %v", found.Content["status"])
 		}
@@ -387,6 +421,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewQueryWatcher(scope, nil)
 		w.Record("select * from users where id = ?", []any{1}, time.Millisecond, "mysql", "", 0)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeQuery, 1)
+
 		if repo.Entries()[0].Content["connection"] != "mysql" {
 			t.Fatalf("connection = %v", repo.Entries()[0].Content["connection"])
 		}
@@ -403,6 +438,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("QueryWatcherTest::test_query_watcher_can_prepare_bindings", func(t *testing.T) {
 		got := watchers.ReplaceBindings("select * from users where id = ? and active = ?", []any{7, true})
 		want := "select * from users where id = 7 and active = 1"
+
 		if got != want {
 			t.Fatalf("sql = %q, want %q", got, want)
 		}
@@ -411,6 +447,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("QueryWatcherTest::test_query_watcher_can_prepare_named_bindings", func(t *testing.T) {
 		got := watchers.ReplaceNamedBindings("select * from users where id = :id", map[string]any{"id": 7})
 		want := "select * from users where id = 7"
+
 		if got != want {
 			t.Fatalf("sql = %q, want %q", got, want)
 		}
@@ -419,6 +456,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("QueryWatcherTest::test_query_watcher_can_prepare_bindings_for_nonstandard_connections", func(t *testing.T) {
 		got := watchers.ReplaceBindings("select * from `users` where uuid = ?", []any{"abc-123"})
 		want := "select * from `users` where uuid = 'abc-123'"
+
 		if got != want {
 			t.Fatalf("sql = %q, want %q", got, want)
 		}
@@ -427,9 +465,11 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("RequestWatchersTest::test_request_watcher_registers_requests", func(t *testing.T) {
 		scope, repo, w := makeRequestTestScope(t, nil)
 		doTestRequest(t, w, http.MethodGet, "/users", "", nil)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		if repo.Count() != 1 {
 			t.Fatalf("count = %d, want 1", repo.Count())
 		}
@@ -438,10 +478,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("RequestWatchersTest::test_request_watcher_hides_password", func(t *testing.T) {
 		scope, repo, w := makeRequestTestScope(t, nil)
 		doTestRequest(t, w, http.MethodPost, "/login", `{"password":"secret"}`, map[string]string{"Content-Type": "application/json"})
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["password"] != "********" {
 			t.Fatalf("password = %v", payload["password"])
 		}
@@ -450,10 +493,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("RequestWatchersTest::test_request_watcher_hides_authorization", func(t *testing.T) {
 		scope, repo, w := makeRequestTestScope(t, nil)
 		doTestRequest(t, w, http.MethodGet, "/users", "", map[string]string{"Authorization": "Bearer token"})
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		headers := repo.Entries()[0].Content["headers"].(map[string]string)
+
 		if headers["Authorization"] != "********" {
 			t.Fatalf("authorization = %q", headers["Authorization"])
 		}
@@ -469,6 +515,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			ContentType: "application/json",
 		}, 15*time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
+
 		if repo.Entries()[0].Content["response_status"] != http.StatusOK {
 			t.Fatalf("status = %v", repo.Entries()[0].Content["response_status"])
 		}
@@ -482,6 +529,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			Headers:    http.Header{"Location": []string{"/dashboard"}},
 		}, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
+
 		if repo.Entries()[0].Content["response_status"] != http.StatusFound {
 			t.Fatalf("status = %v", repo.Entries()[0].Content["response_status"])
 		}
@@ -496,6 +544,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			ContentType: "text/plain",
 		}, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
+
 		if repo.Entries()[0].Content["response"] != "plain response" {
 			t.Fatalf("response = %v", repo.Entries()[0].Content["response"])
 		}
@@ -510,6 +559,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			ContentType: "application/json",
 		}, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
+
 		if repo.Entries()[0].Content["response_status"] != http.StatusInternalServerError {
 			t.Fatalf("status = %v", repo.Entries()[0].Content["response_status"])
 		}
@@ -521,6 +571,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/login", http.Header{"Content-Type": []string{"application/json"}}, []byte(`{"password":"secret"}`), nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["password"] != "********" {
 			t.Fatalf("client request payload = %#v", payload)
 		}
@@ -532,6 +583,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodGet, "https://example.test/users", http.Header{"Authorization": []string{"Bearer token"}}, nil, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		headers := repo.Entries()[0].Content["headers"].(map[string]string)
+
 		if headers["Authorization"] != "********" {
 			t.Fatalf("authorization = %q", headers["Authorization"])
 		}
@@ -543,6 +595,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodGet, "https://example.test/users", http.Header{"Php-Auth-Pw": []string{"secret"}}, nil, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		headers := repo.Entries()[0].Content["headers"].(map[string]string)
+
 		if headers["Php-Auth-Pw"] != "********" {
 			t.Fatalf("php auth pw = %q", headers["Php-Auth-Pw"])
 		}
@@ -554,6 +607,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/form", http.Header{"Content-Type": []string{"application/x-www-form-urlencoded"}}, []byte("name=taylor"), nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["name"] != "taylor" {
 			t.Fatalf("payload = %v", repo.Entries()[0].Content["payload"])
 		}
@@ -566,6 +620,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/upload", http.Header{"Content-Type": []string{contentType}}, body, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["name"] != "taylor" || payload["avatar"].(map[string]any)["name"] != "avatar.txt" {
 			t.Fatalf("payload = %#v", payload)
 		}
@@ -578,6 +633,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/upload", http.Header{"Content-Type": []string{contentType}}, body, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		file := repo.Entries()[0].Content["payload"].(map[string]any)["document"].(map[string]any)
+
 		if file["size"] != int64(len("contents")) {
 			t.Fatalf("file = %#v", file)
 		}
@@ -590,6 +646,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/upload", http.Header{"Content-Type": []string{contentType}}, body, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		document := repo.Entries()[0].Content["payload"].(map[string]any)["document"]
+
 		if document != "contents" {
 			t.Fatalf("document = %#v", document)
 		}
@@ -602,6 +659,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodPost, "https://example.test/upload", http.Header{"Content-Type": []string{contentType}}, body, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		file := repo.Entries()[0].Content["payload"].(map[string]any)["resource"].(map[string]any)
+
 		if file["name"] != "resource.bin" {
 			t.Fatalf("file = %#v", file)
 		}
@@ -616,6 +674,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		content := repo.Entries()[0].Content
 		file := content["payload"].(map[string]any)["resource"].(map[string]any)
 		headers := content["headers"].(map[string]string)
+
 		if file["name"] != "named.bin" || headers["X-Upload"] != "1" {
 			t.Fatalf("content = %#v", content)
 		}
@@ -627,6 +686,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record(http.MethodGet, "https://example.test/users", http.Header{"X-Test": []string{"one", "two"}}, nil, nil, time.Millisecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeClientRequest, 1)
 		headers := repo.Entries()[0].Content["headers"].(map[string]string)
+
 		if headers["X-Test"] != "one" {
 			t.Fatalf("headers = %#v", headers)
 		}
@@ -637,6 +697,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewCommandWatcher(scope, nil)
 		w.Record("queue:work", 0, map[string]any{"connection": "redis"}, map[string]any{"once": true})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeCommand, 1)
+
 		if repo.Entries()[0].Content["command"] != "queue:work" {
 			t.Fatalf("command = %v", repo.Entries()[0].Content["command"])
 		}
@@ -647,6 +708,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewDumpWatcher(scope, nil)
 		w.Record(map[string]any{"name": "Taylor"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeDump, 1)
+
 		if repo.Entries()[0].Content["dump"] == "" {
 			t.Fatal("expected dump content")
 		}
@@ -658,6 +720,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Record("App\\Events\\OrderShipped", nil, []string{"SendShipmentNotification"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeEvent, 1)
 		listeners := repo.Entries()[0].Content["listeners"].([]string)
+
 		if len(listeners) != 1 || listeners[0] != "SendShipmentNotification" {
 			t.Fatalf("listeners = %#v", listeners)
 		}
@@ -668,6 +731,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("viewDashboard", true, "user-1", []any{"dashboard"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["result"] != watchers.GateResultAllowed {
 			t.Fatalf("result = %v", repo.Entries()[0].Content["result"])
 		}
@@ -678,6 +742,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("deletePost", false, "user-1", []any{"post-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["result"] != watchers.GateResultDenied {
 			t.Fatalf("result = %v", repo.Entries()[0].Content["result"])
 		}
@@ -688,6 +753,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("viewPublic", true, nil, nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if _, ok := repo.Entries()[0].Content["user"]; ok {
 			t.Fatalf("guest gate stored user: %#v", repo.Entries()[0].Content)
 		}
@@ -698,6 +764,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("viewPrivate", false, nil, nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["result"] != watchers.GateResultDenied {
 			t.Fatalf("result = %v", repo.Entries()[0].Content["result"])
 		}
@@ -708,6 +775,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.RecordWithMessage("viewDashboard", true, "allowed", "user-1", nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["message"] != "allowed" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -718,6 +786,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.RecordWithMessage("deletePost", false, "denied", "user-1", nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["message"] != "denied" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -728,6 +797,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.RecordWithMessage("viewPublic", true, "guest allowed", nil, nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["message"] != "guest allowed" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -738,6 +808,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("PostPolicy@view", true, "user-1", []any{"post-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["ability"] != "PostPolicy@view" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -748,6 +819,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("after:view", true, "user-1", nil)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["ability"] != "after:view" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -758,6 +830,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.Record("PostPolicy@delete", false, "user-1", []any{"post-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["result"] != watchers.GateResultDenied {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -768,6 +841,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.RecordWithMessage("PostPolicy@update", true, "policy allowed", "user-1", []any{"post-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["message"] != "policy allowed" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -778,6 +852,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewGateWatcher(scope, nil)
 		w.RecordWithMessage("PostPolicy@update", false, "policy denied", "user-1", []any{"post-1"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeGate, 1)
+
 		if repo.Entries()[0].Content["message"] != "policy denied" {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -788,6 +863,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewBatchWatcher(scope, nil)
 		w.Record(watchers.BatchDispatch{ID: "batch-1", Name: "Import users", Total: 3})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeBatch, 1)
+
 		if repo.Entries()[0].Content["total"] != 3 {
 			t.Fatalf("content = %#v", repo.Entries()[0].Content)
 		}
@@ -799,6 +875,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Pending(watchers.JobMeta{UUID: "job-2", Type: "ImportUsers", Connection: "database", Queue: "imports", MaxTries: 3, Timeout: 60})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeJob, 1)
 		content := repo.Entries()[0].Content
+
 		if content["connection"] != "database" || content["queue"] != "imports" {
 			t.Fatalf("job content = %#v", content)
 		}
@@ -852,6 +929,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewLogWatcher(scope, nil)
 		w.Record("info", "Hello {name}", map[string]any{"name": "Taylor"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeLog, 1)
+
 		if repo.Entries()[0].Content["message"] != "Hello Taylor" {
 			t.Fatalf("message = %v", repo.Entries()[0].Content["message"])
 		}
@@ -862,6 +940,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewMailWatcher(scope, nil)
 		w.Record(watchers.MailMessage{Mailable: "App\\Mail\\Welcome", Subject: "Welcome", To: []string{"taylor@example.com"}})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeMail, 1)
+
 		if repo.Entries()[0].Content["subject"] != "Welcome" {
 			t.Fatalf("subject = %v", repo.Entries()[0].Content["subject"])
 		}
@@ -872,6 +951,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewModelWatcher(scope, nil)
 		w.Record("App\\Models\\User", watchers.ModelActionCreated, 1)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeModel, 1)
+
 		if repo.Entries()[0].Content["action"] != watchers.ModelActionCreated {
 			t.Fatalf("action = %v", repo.Entries()[0].Content["action"])
 		}
@@ -896,6 +976,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewNotificationWatcher(scope, nil)
 		w.Record("App\\Notifications\\InvoicePaid", "mail", "user-1", true)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeNotification, 1)
+
 		if repo.Entries()[0].Content["channel"] != "mail" {
 			t.Fatalf("channel = %v", repo.Entries()[0].Content["channel"])
 		}
@@ -906,6 +987,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewNotificationWatcher(scope, nil)
 		w.Record("App\\Notifications\\InvoicePaid", "mail", []string{"a@example.com", "b@example.com"}, false)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeNotification, 1)
+
 		if repo.Entries()[0].Content["notifiable"] == "" {
 			t.Fatalf("notifiable = %v", repo.Entries()[0].Content["notifiable"])
 		}
@@ -916,6 +998,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewRedisWatcher(scope, nil)
 		w.Record("SET key value", "default", 250*time.Microsecond)
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeRedis, 1)
+
 		if repo.Entries()[0].Content["connection"] != "default" {
 			t.Fatalf("connection = %v", repo.Entries()[0].Content["connection"])
 		}
@@ -933,9 +1016,11 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/missing", nil)
 		rr := httptest.NewRecorder()
 		w.Middleware(http.NotFoundHandler()).ServeHTTP(rr, req)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		if repo.Entries()[0].Content["response_status"] != http.StatusNotFound {
 			t.Fatalf("status = %v", repo.Entries()[0].Content["response_status"])
 		}
@@ -944,10 +1029,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("RequestWatchersTest::test_request_watcher_hides_php_auth_pw", func(t *testing.T) {
 		scope, repo, w := makeRequestTestScope(t, nil)
 		doTestRequest(t, w, http.MethodGet, "/users", "", map[string]string{"Php-Auth-Pw": "secret"})
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		headers := repo.Entries()[0].Content["headers"].(map[string]string)
+
 		if headers["Php-Auth-Pw"] != "********" {
 			t.Fatalf("php auth pw = %q", headers["Php-Auth-Pw"])
 		}
@@ -965,13 +1053,17 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			rw.WriteHeader(http.StatusOK)
 			_, _ = rw.Write([]byte("ok"))
 		})).ServeHTTP(rr, req)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		content := repo.Entries()[0].Content
+
 		if content["headers"].(map[string]string)["X-Test"] != "one" {
 			t.Fatalf("headers = %#v", content["headers"])
 		}
+
 		if content["response_headers"].(map[string]string)["X-Response"] != "first" {
 			t.Fatalf("response headers = %#v", content["response_headers"])
 		}
@@ -985,9 +1077,11 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 			rw.Header().Set("Content-Type", "text/plain")
 			_, _ = rw.Write([]byte("plain"))
 		})).ServeHTTP(rr, req)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		if repo.Entries()[0].Content["response"] != "plain" {
 			t.Fatalf("response = %v", repo.Entries()[0].Content["response"])
 		}
@@ -996,10 +1090,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 	t.Run("RequestWatchersTest::test_request_watcher_records_plain_text_payload", func(t *testing.T) {
 		scope, repo, w := makeRequestTestScope(t, nil)
 		doTestRequest(t, w, http.MethodPost, "/plain", "plain body", map[string]string{"Content-Type": "text/plain"})
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["raw"] != "plain body" {
 			t.Fatalf("payload = %#v", payload)
 		}
@@ -1014,10 +1111,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Middleware(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
 			_, _ = rw.Write([]byte("ok"))
 		})).ServeHTTP(rr, req)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		payload := repo.Entries()[0].Content["payload"].(map[string]any)
+
 		if payload["name"] != "taylor" || payload["avatar"].(map[string]any)["name"] != "avatar.txt" {
 			t.Fatalf("payload = %#v", payload)
 		}
@@ -1032,10 +1132,13 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w.Middleware(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
 			_, _ = rw.Write([]byte("ok"))
 		})).ServeHTTP(rr, req)
+
 		if err := scope.Store(testContext()); err != nil {
 			t.Fatal(err)
 		}
+
 		avatar := repo.Entries()[0].Content["payload"].(map[string]any)["avatar"]
+
 		if avatar != "hello" {
 			t.Fatalf("avatar = %#v", avatar)
 		}
@@ -1046,6 +1149,7 @@ func TestDebugBarComplianceInventory(t *testing.T) {
 		w := watchers.NewViewWatcher(scope, nil)
 		w.Record("users.index", []string{"users"}, []string{"App\\View\\Composers\\UsersComposer"})
 		storeAndAssertCount(t, scope, repo, debugbar.EntryTypeView, 1)
+
 		if repo.Entries()[0].Content["name"] != "users.index" {
 			t.Fatalf("name = %v", repo.Entries()[0].Content["name"])
 		}
@@ -1065,12 +1169,15 @@ func multipartBody(t *testing.T, field string, filename string, contents string,
 	}
 
 	part, err := writer.CreateFormFile(field, filename)
+
 	if err != nil {
 		t.Fatalf("create file: %v", err)
 	}
+
 	if _, err := part.Write([]byte(contents)); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
+
 	if err := writer.Close(); err != nil {
 		t.Fatalf("close multipart writer: %v", err)
 	}

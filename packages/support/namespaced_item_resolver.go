@@ -19,12 +19,14 @@ func (r *NamespacedItemResolver) Parse(key string) (namespace, group, item strin
 	}
 
 	target := key
+
 	if before, after, ok := strings.Cut(key, "::"); ok {
 		namespace = before
 		target = after
 	}
 
 	group = target
+
 	if before, after, ok := strings.Cut(target, "."); ok {
 		group = before
 		item = after

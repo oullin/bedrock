@@ -9,6 +9,7 @@ func TypeName(value any) string {
 	}
 
 	t := reflect.TypeOf(value)
+
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
@@ -36,6 +37,7 @@ func Implements(value any, target any) bool {
 	}
 
 	targetType := reflect.TypeOf(target)
+
 	if targetType.Kind() != reflect.Pointer || targetType.Elem().Kind() != reflect.Interface {
 		return false
 	}

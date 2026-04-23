@@ -477,6 +477,7 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 			build: func(lc *Collection[int]) *Collection[int] {
 				return lc.Unless(true, func(inner *Collection[int]) *Collection[int] {
 					t.Fatal("Unless callback should not run when condition is true")
+
 					return inner
 				})
 			},
@@ -487,6 +488,7 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 			build: func(lc *Collection[int]) *Collection[int] {
 				return lc.When(false, func(inner *Collection[int]) *Collection[int] {
 					t.Fatal("When callback should not run when condition is false")
+
 					return inner
 				})
 			},
@@ -505,6 +507,7 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 			source := New(func(yield func(int) bool) {
 				for _, item := range []int{1, 2, 3} {
 					enumerated++
+
 					if !yield(item) {
 						return
 					}
@@ -512,6 +515,7 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 			})
 
 			result := tt.build(source)
+
 			if enumerated != 0 {
 				t.Fatalf("expected construction to stay lazy, enumerated %d items", enumerated)
 			}
@@ -524,6 +528,7 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 
 	t.Run("range-constructor", func(t *testing.T) {
 		lc := Range(1, 3)
+
 		if got := lc.All(); !reflect.DeepEqual(got, []int{1, 2, 3}) {
 			t.Fatalf("expected range values, got %v", got)
 		}
@@ -536,12 +541,15 @@ func TestLazyTransformationsAreDeferredUntilConsumed(t *testing.T) {
 
 			return index * 10
 		})
+
 		if calls != 0 {
 			t.Fatalf("expected Times construction to stay lazy, called %d times", calls)
 		}
+
 		if got := lc.All(); !reflect.DeepEqual(got, []int{10, 20, 30}) {
 			t.Fatalf("expected times values, got %v", got)
 		}
+
 		if calls != 3 {
 			t.Fatalf("expected Times callback to run during enumeration, called %d times", calls)
 		}
@@ -574,6 +582,7 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source := New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
@@ -581,9 +590,11 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	})
 
 	first, err := source.FirstOrFail(func(item int, _ int) bool { return item == 2 })
+
 	if err != nil || first != 2 {
 		t.Fatalf("FirstOrFail = %d, %v", first, err)
 	}
+
 	if enumerated != 2 {
 		t.Fatalf("FirstOrFail enumerated %d items, want 2", enumerated)
 	}
@@ -592,12 +603,14 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	idx, ok := source.Search(func(item int, _ int) bool { return item == 3 })
+
 	if !ok || idx != 2 || enumerated != 3 {
 		t.Fatalf("Search idx=%d ok=%v enumerated=%d", idx, ok, enumerated)
 	}
@@ -606,11 +619,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if !source.Some(func(item int, _ int) bool { return item == 1 }) || enumerated != 1 {
 		t.Fatalf("Some enumerated %d items, want 1", enumerated)
 	}
@@ -619,12 +634,14 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	sole, err := source.Sole(func(item int, _ int) bool { return item == 3 })
+
 	if err != nil || sole != 3 || enumerated != 4 {
 		t.Fatalf("Sole = %d, %v after %d enumerations", sole, err, enumerated)
 	}
@@ -633,12 +650,14 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	sum := Reduce(source, func(carry int, item int, _ int) int { return carry + item }, 0)
+
 	if sum != 10 || enumerated != 4 {
 		t.Fatalf("Reduce sum=%d enumerated=%d", sum, enumerated)
 	}
@@ -647,11 +666,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{3, 1, 4, 2} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if got := Sum(source); got != 10 || enumerated != 4 {
 		t.Fatalf("Sum=%d enumerated=%d", got, enumerated)
 	}
@@ -660,11 +681,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{3, 1, 4, 2} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if got := Avg(source); got != 2.5 || enumerated != 4 {
 		t.Fatalf("Avg=%v enumerated=%d", got, enumerated)
 	}
@@ -673,11 +696,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{3, 1, 4, 2} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if got, ok := Min(source); !ok || got != 1 || enumerated != 4 {
 		t.Fatalf("Min=%d ok=%v enumerated=%d", got, ok, enumerated)
 	}
@@ -686,11 +711,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{3, 1, 4, 2} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if got, ok := Max(source); !ok || got != 4 || enumerated != 4 {
 		t.Fatalf("Max=%d ok=%v enumerated=%d", got, ok, enumerated)
 	}
@@ -726,21 +753,25 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 			want:  []int{4, 3, 2, 1},
 		},
 	}
+
 	for _, tt := range lazyCases {
 		t.Run(tt.name, func(t *testing.T) {
 			enumerated = 0
 			source = New(func(yield func(int) bool) {
 				for _, item := range []int{3, 1, 4, 2} {
 					enumerated++
+
 					if !yield(item) {
 						return
 					}
 				}
 			})
 			result := tt.build(source)
+
 			if enumerated != 0 {
 				t.Fatalf("%s construction enumerated %d items", tt.name, enumerated)
 			}
+
 			if got := result.All(); !reflect.DeepEqual(got, tt.want) || enumerated != 4 {
 				t.Fatalf("%s got=%v enumerated=%d", tt.name, got, enumerated)
 			}
@@ -751,15 +782,18 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	random := source.Random(2)
+
 	if enumerated != 0 {
 		t.Fatalf("Random construction enumerated %d items", enumerated)
 	}
+
 	if got := random.All(); len(got) != 2 || enumerated != 4 {
 		t.Fatalf("Random got=%v enumerated=%d", got, enumerated)
 	}
@@ -768,15 +802,18 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	shuffled := source.Shuffle()
+
 	if enumerated != 0 {
 		t.Fatalf("Shuffle construction enumerated %d items", enumerated)
 	}
+
 	if got := shuffled.All(); len(got) != 4 || enumerated != 4 {
 		t.Fatalf("Shuffle got=%v enumerated=%d", got, enumerated)
 	}
@@ -785,15 +822,18 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	sliding := Sliding(source, 2)
+
 	if enumerated != 0 {
 		t.Fatalf("Sliding construction enumerated %d items", enumerated)
 	}
+
 	if got := sliding.All(); !reflect.DeepEqual(got, [][]int{{1, 2}, {2, 3}, {3, 4}}) || enumerated != 4 {
 		t.Fatalf("Sliding got=%v enumerated=%d", got, enumerated)
 	}
@@ -802,15 +842,18 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
 	throttled := source.Throttle(0)
+
 	if enumerated != 0 {
 		t.Fatalf("Throttle construction enumerated %d items", enumerated)
 	}
+
 	if got := throttled.All(); !reflect.DeepEqual(got, []int{1, 2, 3, 4}) || enumerated != 4 {
 		t.Fatalf("Throttle All got=%v enumerated=%d", got, enumerated)
 	}
@@ -819,11 +862,13 @@ func TestLazyTerminalOperationsEnumerateOnceOrStopEarly(t *testing.T) {
 	source = New(func(yield func(int) bool) {
 		for _, item := range []int{1, 2, 3, 4} {
 			enumerated++
+
 			if !yield(item) {
 				return
 			}
 		}
 	})
+
 	if got := source.All(); !reflect.DeepEqual(got, []int{1, 2, 3, 4}) || enumerated != 4 {
 		t.Fatalf("All got=%v enumerated=%d", got, enumerated)
 	}

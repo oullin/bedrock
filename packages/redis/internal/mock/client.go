@@ -244,22 +244,27 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 			c.strings[newKey] = v
 			delete(c.strings, oldKey)
 		}
+
 		if v, ok := c.hashes[oldKey]; ok {
 			c.hashes[newKey] = v
 			delete(c.hashes, oldKey)
 		}
+
 		if v, ok := c.lists[oldKey]; ok {
 			c.lists[newKey] = v
 			delete(c.lists, oldKey)
 		}
+
 		if v, ok := c.sets[oldKey]; ok {
 			c.sets[newKey] = v
 			delete(c.sets, oldKey)
 		}
+
 		if v, ok := c.zsets[oldKey]; ok {
 			c.zsets[newKey] = v
 			delete(c.zsets, oldKey)
 		}
+
 		if exp, ok := c.expires[oldKey]; ok {
 			c.expires[newKey] = exp
 			delete(c.expires, oldKey)
@@ -592,9 +597,11 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		}
 
 		keys := make([]string, 0, len(set))
+
 		for k := range set {
 			keys = append(keys, k)
 		}
+
 		sort.Strings(keys)
 
 		if count > len(keys) {
@@ -602,6 +609,7 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		}
 
 		out := make([]any, 0, count)
+
 		for i := 0; i < count; i++ {
 			delete(set, keys[i])
 			out = append(out, keys[i])
@@ -709,6 +717,7 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		sortZ(zs)
 
 		out := make([]any, 0, len(zs))
+
 		for _, zm := range zs {
 			if zm.score >= min && zm.score <= max {
 				out = append(out, zm.member)
@@ -723,6 +732,7 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		sortZ(zs)
 
 		out := make([]any, 0, len(zs))
+
 		for i := len(zs) - 1; i >= 0; i-- {
 			if zs[i].score >= min && zs[i].score <= max {
 				out = append(out, zs[i].member)
@@ -789,14 +799,17 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		out := zs[:0]
 
 		remove := map[string]struct{}{}
+
 		for _, arg := range args[1:] {
 			remove[s(arg)] = struct{}{}
 		}
 
 		var n int64
+
 		for _, zm := range zs {
 			if _, ok := remove[zm.member]; ok {
 				n++
+
 				continue
 			}
 
@@ -813,9 +826,11 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		out := zs[:0]
 
 		var n int64
+
 		for _, zm := range zs {
 			if zm.score >= min && zm.score <= max {
 				n++
+
 				continue
 			}
 
@@ -835,29 +850,37 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		if start < 0 {
 			start += len(zs)
 		}
+
 		if stop < 0 {
 			stop += len(zs)
 		}
+
 		if start < 0 {
 			start = 0
 		}
+
 		if stop >= len(zs) {
 			stop = len(zs) - 1
 		}
+
 		if start > stop || len(zs) == 0 {
 			return int64(0), nil
 		}
 
 		remove := map[string]struct{}{}
+
 		for i := start; i <= stop; i++ {
 			remove[zs[i].member] = struct{}{}
 		}
 
 		out := c.zsets[k][:0]
+
 		var n int64
+
 		for _, zm := range c.zsets[k] {
 			if _, ok := remove[zm.member]; ok {
 				n++
+
 				continue
 			}
 
@@ -871,56 +894,76 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		dest := s(args[0])
 		n, _ := strconv.Atoi(s(args[1]))
 		keys := make([]string, 0, n)
+
 		for i := 0; i < n && 2+i < len(args); i++ {
 			keys = append(keys, s(args[2+i]))
 		}
+
 		if len(keys) == 0 {
 			c.zsets[dest] = nil
+
 			return int64(0), nil
 		}
+
 		common := map[string]zmember{}
+
 		for _, zm := range c.zsets[keys[0]] {
 			common[zm.member] = zm
 		}
+
 		for _, key := range keys[1:] {
 			next := map[string]zmember{}
 			seen := map[string]struct{}{}
+
 			for _, zm := range c.zsets[key] {
 				seen[zm.member] = struct{}{}
 			}
+
 			for member, zm := range common {
 				if _, ok := seen[member]; ok {
 					next[member] = zm
 				}
 			}
+
 			common = next
 		}
+
 		out := make([]zmember, 0, len(common))
+
 		for _, zm := range common {
 			out = append(out, zm)
 		}
+
 		sortZ(out)
 		c.zsets[dest] = out
+
 		return int64(len(out)), nil
 	case "ZUNIONSTORE":
 		dest := s(args[0])
 		n, _ := strconv.Atoi(s(args[1]))
 		keys := make([]string, 0, n)
+
 		for i := 0; i < n && 2+i < len(args); i++ {
 			keys = append(keys, s(args[2+i]))
 		}
+
 		union := map[string]zmember{}
+
 		for _, key := range keys {
 			for _, zm := range c.zsets[key] {
 				union[zm.member] = zm
 			}
 		}
+
 		out := make([]zmember, 0, len(union))
+
 		for _, zm := range union {
 			out = append(out, zm)
 		}
+
 		sortZ(out)
 		c.zsets[dest] = out
+
 		return int64(len(out)), nil
 	case "FLUSHDB", "FLUSHALL":
 		c.strings = map[string]entry{}
@@ -957,6 +1000,7 @@ func (c *Client) dispatch(cmd string, args []any) (any, error) {
 		if len(args) > 0 && strings.TrimSpace(s(args[0])) == "return 1" {
 			return int64(1), nil
 		}
+
 		return c.eval(args)
 	case "SCRIPT":
 		sub, _ := args[0].(string)
@@ -1148,37 +1192,47 @@ func (c *Client) eval(args []any) (any, error) {
 
 func (c *Client) scanKeys(args ...any) (any, error) {
 	pat := "*"
+
 	for i := 1; i < len(args)-1; i++ {
 		if strings.EqualFold(s(args[i]), "MATCH") {
 			pat = s(args[i+1])
 		}
 	}
+
 	var keys []any
+
 	for k := range c.strings {
 		if matchPattern(pat, k) {
 			keys = append(keys, k)
 		}
 	}
+
 	return []any{"0", keys}, nil
 }
 
 func (c *Client) scanHash(args ...any) (any, error) {
 	key := s(args[0])
 	h := c.hashes[key]
+
 	var out []any
+
 	for field, value := range h {
 		out = append(out, field, value)
 	}
+
 	return []any{"0", out}, nil
 }
 
 func (c *Client) scanSet(args ...any) (any, error) {
 	key := s(args[0])
 	set := c.sets[key]
+
 	var out []any
+
 	for member := range set {
 		out = append(out, member)
 	}
+
 	return []any{"0", out}, nil
 }
 
@@ -1186,10 +1240,13 @@ func (c *Client) scanZSet(args ...any) (any, error) {
 	key := s(args[0])
 	zs := append([]zmember(nil), c.zsets[key]...)
 	sortZ(zs)
+
 	var out []any
+
 	for _, zm := range zs {
 		out = append(out, zm.member, strconv.FormatFloat(zm.score, 'f', -1, 64))
 	}
+
 	return []any{"0", out}, nil
 }
 
@@ -1199,22 +1256,28 @@ func parseScoreBounds(minArg, maxArg any) (float64, float64) {
 
 func parseBound(v any, isMin bool) float64 {
 	sv := strings.TrimSpace(s(v))
+
 	switch strings.ToLower(sv) {
 	case "-inf":
 		return math.Inf(-1)
 	case "+inf", "inf":
 		return math.Inf(1)
 	}
+
 	if strings.HasPrefix(sv, "(") {
 		sv = strings.TrimPrefix(sv, "(")
 	}
+
 	f, err := strconv.ParseFloat(sv, 64)
+
 	if err != nil {
 		if isMin {
 			return math.Inf(-1)
 		}
+
 		return math.Inf(1)
 	}
+
 	return f
 }
 

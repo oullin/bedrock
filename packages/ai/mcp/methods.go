@@ -180,11 +180,14 @@ func handleResourcesRead(ctx context.Context, req *JsonRpcRequest, sc *ServerCon
 
 	mcpReq := req.ToRequest()
 	mcpReq.URIVars = vars
+
 	if len(vars) > 0 {
 		arguments := mcpReq.All()
+
 		for k, v := range vars {
 			arguments[k] = v
 		}
+
 		mcpReq.Arguments = arguments
 	}
 

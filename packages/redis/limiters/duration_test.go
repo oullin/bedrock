@@ -68,17 +68,20 @@ func TestDurationLimiterResetsAfterDecay(t *testing.T) {
 	ctx := context.Background()
 
 	ok, err := lim.Acquire(ctx)
+
 	if err != nil || !ok {
 		t.Fatalf("first acquire ok=%v err=%v", ok, err)
 	}
 
 	ok, err = lim.Acquire(ctx)
+
 	if err != nil || ok {
 		t.Fatalf("second acquire before decay ok=%v err=%v", ok, err)
 	}
 
 	now = now.Add(3 * time.Second)
 	ok, err = lim.Acquire(ctx)
+
 	if err != nil || !ok {
 		t.Fatalf("second acquire ok=%v err=%v", ok, err)
 	}

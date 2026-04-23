@@ -12,9 +12,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	t.Run("ConsoleOutputTest::it_correctly_counts_trailing_newlines_with_unix_line_endings", func(t *testing.T) {
 		w := &BufferedWriter{}
 		w.Write("hello\n\n")
+
 		if got := strings.TrimRight(w.Output(), "\n"); got != "hello" {
 			t.Fatalf("trimmed output = %q", got)
 		}
+
 		if got := len(w.Output()) - len(strings.TrimRight(w.Output(), "\n")); got != 2 {
 			t.Fatalf("trailing newlines = %d", got)
 		}
@@ -23,6 +25,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	t.Run("ConsoleOutputTest::it_correctly_counts_trailing_newlines_with_windows_line_endings", func(t *testing.T) {
 		w := &BufferedWriter{}
 		w.Write("hello\r\n\r\n")
+
 		if got := strings.Count(w.Output(), "\r\n"); got != 2 {
 			t.Fatalf("windows trailing newlines = %d", got)
 		}
@@ -32,6 +35,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		w := &BufferedWriter{}
 		w.WriteLn("")
 		w.WriteLn("hello")
+
 		if !strings.HasSuffix(w.Output(), "hello\n") {
 			t.Fatalf("output = %q", w.Output())
 		}
@@ -41,6 +45,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := Search("Framework?", fixedSearchOptions("Upstream", "Upstream"))
 			requireNoError(t, err)
+
 			if got != "Upstream" {
 				t.Fatalf("search = %q", got)
 			}
@@ -51,6 +56,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "Lar", KeyRight, KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Upstream"})
 			requireNoError(t, err)
+
 			if got != "Upstream" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -61,6 +67,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "Lar", KeyRight, KeyBackspace, "s", KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Upstream"})
 			requireNoError(t, err)
+
 			if got != "Laraves" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -71,6 +78,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Upstream"})
 			requireNoError(t, err)
+
 			if got != "Upstream" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -81,6 +89,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "La", KeyDown, KeyEnter, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
 			requireNoError(t, err)
+
 			if got != "Laminas" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -91,6 +100,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "a", KeyEnd[0], KeyHome[0], KeyEnter, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
 			requireNoError(t, err)
+
 			if got != "Upstream" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -101,6 +111,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "a", KeyEnd[0], KeyEnter, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
 			requireNoError(t, err)
+
 			if got != "Laminas" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -111,6 +122,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnd[0], KeyHome[0], KeyEnter, func(*TestPrompts) {
 			got, err := Search("Framework?", inventoryOrderedSearchOptions())
 			requireNoError(t, err)
+
 			if got != "a" {
 				t.Fatalf("search = %q", got)
 			}
@@ -121,6 +133,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnd[0], KeyEnter, func(*TestPrompts) {
 			got, err := Search("Framework?", inventoryOrderedSearchOptions())
 			requireNoError(t, err)
+
 			if got != "c" {
 				t.Fatalf("search = %q", got)
 			}
@@ -129,8 +142,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SearchPromptTest::it_fails_when_when_non_interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
+
 		_, err := Search("Framework?", func(string) map[string]string { return nil }, SearchWithRequired(true))
+
 		if !errors.Is(err, ErrNonInteractive) {
 			t.Fatalf("err = %v, want ErrNonInteractive", err)
 		}
@@ -138,8 +154,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SearchPromptTest::it_allows_the_required_validation_message_to_be_customised_when_non_interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
+
 		_, err := Search("Framework?", func(string) map[string]string { return nil }, SearchWithRequired("Choose one."))
+
 		if !errors.Is(err, ErrNonInteractive) || !strings.Contains(err.Error(), "Choose one.") {
 			t.Fatalf("err = %v, want custom non-interactive required error", err)
 		}
@@ -151,9 +170,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if query == "" {
 					return nil
 				}
+
 				return map[string]string{"bedrock": "Bedrock"}
 			})
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"bedrock"}) {
 				t.Fatalf("multisearch = %#v", got)
 			}
@@ -166,10 +187,13 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if len(values) < 2 {
 					return "Select two."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			slices.Sort(got)
+
 			if !reflect.DeepEqual(got, []string{"a", "b"}) {
 				t.Fatalf("multisearch = %#v", got)
 			}
@@ -180,6 +204,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnd[0], KeySpace, KeyHome[0], KeySpace, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSearch("Framework?", inventoryOrderedSearchOptions())
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(sortedStrings(got), []string{"a", "c"}) {
 				t.Fatalf("multisearch = %#v", got)
 			}
@@ -192,9 +217,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if len(values) == 0 {
 					return "Required."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"a"}) {
 				t.Fatalf("multisearch = %#v", got)
 			}
@@ -205,6 +232,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := Select("Count?", []OptionItem{{Key: "1", Label: "One"}})
 			requireNoError(t, err)
+
 			if got != "1" {
 				t.Fatalf("select = %q", got)
 			}
@@ -215,9 +243,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(tp *TestPrompts) {
 			got, err := Select("Framework?", []string{"A", "B", "C", "D", "E"}, SelectWithDefault("D"), SelectWithScroll(3))
 			requireNoError(t, err)
+
 			if got != "D" {
 				t.Fatalf("select = %q", got)
 			}
+
 			tp.AssertStrippedOutputContains("D")
 		})
 	})
@@ -226,18 +256,22 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(tp *TestPrompts) {
 			got, err := Select("Framework?", []string{"A", "B", "C", "D", "E"}, SelectWithDefault("E"), SelectWithScroll(3))
 			requireNoError(t, err)
+
 			if got != "E" {
 				t.Fatalf("select = %q", got)
 			}
+
 			tp.AssertStrippedOutputContains("E")
 		})
 	})
 
 	t.Run("SelectPromptTest::it_allows_the_required_validation_message_to_be_customised_when_non_interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		_, err := Select("Framework?", []string{}, SelectWithRequired("Choose one."))
+
 		if !errors.Is(err, ErrNonInteractive) || !strings.Contains(err.Error(), "Choose one.") {
 			t.Fatalf("err = %v, want custom non-interactive required error", err)
 		}
@@ -247,6 +281,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeySpace, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Count?", []OptionItem{{Key: "1", Label: "One"}})
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"1"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -259,9 +294,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if len(values) == 0 {
 					return "Required."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Upstream"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -272,6 +309,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Upstream", "Bedrock"}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Upstream", "Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -282,9 +320,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "1", KeyEnter, KeyCtrlU, "5", KeyEnter, func(tp *TestPrompts) {
 			got, err := Number("Count?", NumberWithMin(5))
 			requireNoError(t, err)
+
 			if got != 5 {
 				t.Fatalf("number = %d", got)
 			}
+
 			tp.AssertStrippedOutputContains("Minimum value is 5.")
 		})
 	})
@@ -293,9 +333,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "9", KeyEnter, KeyCtrlU, "5", KeyEnter, func(tp *TestPrompts) {
 			got, err := Number("Count?", NumberWithMax(5))
 			requireNoError(t, err)
+
 			if got != 5 {
 				t.Fatalf("number = %d", got)
 			}
+
 			tp.AssertStrippedOutputContains("Maximum value is 5.")
 		})
 	})
@@ -306,12 +348,15 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if value == "7" {
 					return "Try eight."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != 8 {
 				t.Fatalf("number = %d", got)
 			}
+
 			tp.AssertStrippedOutputContains("Try eight.")
 		})
 	})
@@ -322,12 +367,15 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if value == "7" {
 					return "Try nine."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != 9 {
 				t.Fatalf("number = %d", got)
 			}
+
 			tp.AssertStrippedOutputContains("Try nine.")
 		})
 	})
@@ -336,6 +384,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyUp, KeyEnter, func(*TestPrompts) {
 			got, err := Number("Count?", NumberWithMin(5))
 			requireNoError(t, err)
+
 			if got != 5 {
 				t.Fatalf("number = %d", got)
 			}
@@ -346,6 +395,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyDown, KeyEnter, func(*TestPrompts) {
 			got, err := Number("Count?", NumberWithMin(5))
 			requireNoError(t, err)
+
 			if got != 5 {
 				t.Fatalf("number = %d", got)
 			}
@@ -358,9 +408,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if len(value) < 6 {
 					return "Too short."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "secret" {
 				t.Fatalf("password = %q", got)
 			}
@@ -373,9 +425,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if value == "" {
 					return "Required."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "Joe" {
 				t.Fatalf("text = %q", got)
 			}
@@ -388,9 +442,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 				if value == "" {
 					return "Required."
 				}
+
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "Hi" {
 				t.Fatalf("textarea = %q", got)
 			}
@@ -401,6 +457,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "H", "x", "i", KeyLeft, KeyLeft, KeyDelete, KeyCtrlD, func(*TestPrompts) {
 			got, err := Textarea("Bio?")
 			requireNoError(t, err)
+
 			if got != "Hi" {
 				t.Fatalf("textarea = %q", got)
 			}
@@ -411,6 +468,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "a", "b", KeyCtrlA, "x", KeyCtrlE, "y", KeyCtrlD, func(*TestPrompts) {
 			got, err := Textarea("Bio?")
 			requireNoError(t, err)
+
 			if got != "xaby" {
 				t.Fatalf("textarea = %q", got)
 			}
@@ -421,6 +479,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "a", "b", KeyHome[0], "x", KeyEnd[0], "y", KeyCtrlD, func(*TestPrompts) {
 			got, err := Textarea("Bio?")
 			requireNoError(t, err)
+
 			if got != "xaby" {
 				t.Fatalf("textarea = %q", got)
 			}
@@ -431,6 +490,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, "a", KeyEnter, "b", KeyUp, "X", KeyDown, "Y", KeyCtrlD, func(*TestPrompts) {
 			got, err := Textarea("Bio?")
 			requireNoError(t, err)
+
 			if got != "aX\nbY" {
 				t.Fatalf("textarea = %q", got)
 			}
@@ -439,9 +499,12 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("TextareaPromptTest::it_returns_an_empty_string_when_non_interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
+
 		got, err := Textarea("Bio?")
 		requireNoError(t, err)
+
 		if got != "" {
 			t.Fatalf("textarea = %q", got)
 		}
@@ -449,8 +512,11 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("TextareaPromptTest::it_validates_the_default_value_when_non_interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
+
 		_, err := Textarea("Bio?", TextareaWithDefault("x"), TextareaWithValidate(func(string) string { return "blocked" }))
+
 		if !errors.Is(err, ErrValidation) {
 			t.Fatalf("err = %v, want ErrValidation", err)
 		}
@@ -460,6 +526,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyUp, KeyEnter, func(*TestPrompts) {
 			got, err := DataTable([]string{"Name"}, [][]string{{"A"}, {"B"}})
 			requireNoError(t, err)
+
 			if got != "B" {
 				t.Fatalf("datatable = %q", got)
 			}
@@ -470,6 +537,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyPageDown, KeyEnter, func(*TestPrompts) {
 			got, err := DataTable([]string{"Name"}, [][]string{{"A"}, {"B"}, {"C"}}, DataTableWithScroll(2))
 			requireNoError(t, err)
+
 			if got != "C" {
 				t.Fatalf("datatable = %q", got)
 			}
@@ -480,6 +548,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnd[0], KeyHome[0], KeyEnter, func(*TestPrompts) {
 			got, err := DataTable([]string{"Name"}, [][]string{{"A"}, {"B"}, {"C"}})
 			requireNoError(t, err)
+
 			if got != "A" {
 				t.Fatalf("datatable = %q", got)
 			}
@@ -490,6 +559,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := DataTable(nil, [][]string{{"A"}})
 			requireNoError(t, err)
+
 			if got != "A" {
 				t.Fatalf("datatable = %q", got)
 			}
@@ -499,6 +569,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	t.Run("NotifyPromptTest::it_sets_the_title_and_body", func(t *testing.T) {
 		cfg := &notifyConfig{}
 		NotifyWithBody("Done")(cfg)
+
 		if cfg.body != "Done" {
 			t.Fatalf("body = %q", cfg.body)
 		}
@@ -508,6 +579,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 		cfg := &notifyConfig{}
 		NotifyWithSubtitle("Deploy")(cfg)
 		NotifyWithSound("Basso")(cfg)
+
 		if cfg.subtitle != "Deploy" || cfg.sound != "Basso" {
 			t.Fatalf("mac options = %#v", cfg)
 		}
@@ -516,6 +588,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	t.Run("NotifyPromptTest::it_sets_linux_options", func(t *testing.T) {
 		cfg := &notifyConfig{}
 		NotifyWithIcon("app.png")(cfg)
+
 		if cfg.icon != "app.png" {
 			t.Fatalf("linux icon = %q", cfg.icon)
 		}
@@ -534,6 +607,8 @@ func inventoryOrderedSearchOptions() func(string) map[string]string {
 
 func sortedStrings(values []string) []string {
 	out := slices.Clone(values)
+
 	slices.Sort(out)
+
 	return out
 }

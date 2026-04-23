@@ -9,15 +9,15 @@ import (
 	"github.com/bedrock/packages/search/engines"
 )
 
+type makeSearchableUsingModel struct {
+	*testModel
+}
+
 func makeBuilder(model contract.Searchable, query string, models []contract.Searchable) *search.Builder {
 	b := search.NewBuilder(model, query).
 		WithOptions(map[string]any{"__models": models})
 
 	return b
-}
-
-type makeSearchableUsingModel struct {
-	*testModel
 }
 
 func (m *makeSearchableUsingModel) MakeSearchableUsing(models []contract.Searchable) []contract.Searchable {

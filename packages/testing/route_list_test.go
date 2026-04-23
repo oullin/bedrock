@@ -43,6 +43,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testDisplayRoutesForCli", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList(baseRoutes[:2], packagetesting.RouteListOptions{})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -54,6 +55,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testDisplayRoutesForCliInVerboseMode", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList(baseRoutes[:2], packagetesting.RouteListOptions{Verbose: true})
+
 		if err != nil {
 			t.Fatalf("expected verbose route list render to succeed, got %v", err)
 		}
@@ -65,6 +67,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testRouteCanBeFilteredByName", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList(baseRoutes, packagetesting.RouteListOptions{NameFilter: "dashboard"})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -76,6 +79,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testRouteCanBeFilteredByAction", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList(baseRoutes, packagetesting.RouteListOptions{ActionFilter: "UserController"})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -87,6 +91,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testClosurePathIsDisplayedInVerboseMode", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[2]}, packagetesting.RouteListOptions{Verbose: true})
+
 		if err != nil {
 			t.Fatalf("expected verbose route list render to succeed, got %v", err)
 		}
@@ -98,6 +103,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testClosurePathIsDisplayedInNonVerboseMode", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[2]}, packagetesting.RouteListOptions{})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -109,6 +115,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testClosurePathIsIncludedInJsonOutput", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[2]}, packagetesting.RouteListOptions{JSON: true})
+
 		if err != nil {
 			t.Fatalf("expected JSON route list render to succeed, got %v", err)
 		}
@@ -120,6 +127,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testControllerRouteHasNullPathInJsonOutput", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[0]}, packagetesting.RouteListOptions{JSON: true})
+
 		if err != nil {
 			t.Fatalf("expected JSON route list render to succeed, got %v", err)
 		}
@@ -131,6 +139,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testDisplayRoutesExceptVendor", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList(baseRoutes, packagetesting.RouteListOptions{ExceptVendor: true})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -142,6 +151,7 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testDisplayRoutesWithBindingFields", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[1]}, packagetesting.RouteListOptions{})
+
 		if err != nil {
 			t.Fatalf("expected route list render to succeed, got %v", err)
 		}
@@ -153,16 +163,19 @@ func TestRouteListRendering(t *testing.T) {
 
 	t.Run("Console/RouteListCommandTest::testDisplayRoutesWithBindingFieldsAsJson", func(t *testing.T) {
 		got, err := packagetesting.RenderRouteList([]packagetesting.RouteListEntry{baseRoutes[1]}, packagetesting.RouteListOptions{JSON: true})
+
 		if err != nil {
 			t.Fatalf("expected JSON route list render to succeed, got %v", err)
 		}
 
 		var payload []map[string]any
+
 		if err := json.Unmarshal([]byte(got), &payload); err != nil {
 			t.Fatalf("expected valid JSON, got %v", err)
 		}
 
 		bindingFields, ok := payload[0]["bindingFields"].(map[string]any)
+
 		if !ok || bindingFields["user"] != "slug" {
 			t.Fatalf("expected binding fields in JSON output, got %v", payload[0])
 		}

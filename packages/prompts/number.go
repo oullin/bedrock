@@ -81,6 +81,7 @@ func Number(label string, opts ...NumberOption) (int, error) {
 	}
 
 	validate := p.prompt.validate
+
 	if p.min != nil || p.max != nil || validate != nil {
 		p.prompt.validate = func(value string) string {
 			if p.min != nil || p.max != nil {

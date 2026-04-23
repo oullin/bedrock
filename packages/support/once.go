@@ -2,8 +2,6 @@ package support
 
 import "sync"
 
-var onceStore = &onceCache{values: make(map[string]any)}
-
 type onceCache struct {
 	mu       sync.Mutex
 	enabled  bool
@@ -11,10 +9,13 @@ type onceCache struct {
 	values   map[string]any
 }
 
+var onceStore = &onceCache{values: make(map[string]any)}
+
 // Once memoizes a callback result by an explicit key.
 func Once[T any](key string, fn func() T) T {
 	onceStore.mu.Lock()
 	enabled := onceStore.disabled == 0
+
 	if enabled {
 		if value, ok := onceStore.values[key]; ok {
 			onceStore.mu.Unlock()
@@ -22,9 +23,11 @@ func Once[T any](key string, fn func() T) T {
 			return value.(T)
 		}
 	}
+
 	onceStore.mu.Unlock()
 
 	value := fn()
+
 	if !enabled {
 		return value
 	}
@@ -39,6 +42,7 @@ func Once[T any](key string, fn func() T) T {
 // FlushOnce clears all memoized Once results.
 func FlushOnce() {
 	onceStore.mu.Lock()
+
 	defer onceStore.mu.Unlock()
 
 	onceStore.values = make(map[string]any)
@@ -47,6 +51,7 @@ func FlushOnce() {
 // DisableOnce disables memoization until EnableOnce is called.
 func DisableOnce() {
 	onceStore.mu.Lock()
+
 	defer onceStore.mu.Unlock()
 
 	onceStore.disabled++
@@ -55,6 +60,7 @@ func DisableOnce() {
 // EnableOnce reverses one DisableOnce call.
 func EnableOnce() {
 	onceStore.mu.Lock()
+
 	defer onceStore.mu.Unlock()
 
 	if onceStore.disabled > 0 {
@@ -65,6 +71,7 @@ func EnableOnce() {
 // WithoutOnce runs fn while memoization is temporarily disabled.
 func WithoutOnce(fn func()) {
 	DisableOnce()
+
 	defer EnableOnce()
 
 	fn()

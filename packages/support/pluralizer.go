@@ -25,6 +25,7 @@ func Plural(word string, count ...int) string {
 	}
 
 	lower := strings.ToLower(word)
+
 	if plural, ok := irregularPlurals[lower]; ok {
 		return preserveCase(word, plural)
 	}
@@ -42,6 +43,7 @@ func Plural(word string, count ...int) string {
 // Singular returns a simple English singular form.
 func Singular(word string) string {
 	lower := strings.ToLower(word)
+
 	if singular, ok := irregularSingulars[lower]; ok {
 		return preserveCase(word, singular)
 	}
@@ -65,6 +67,7 @@ func PluralStudly(word string, count ...int) string {
 	}
 
 	start := len(word) - 1
+
 	for start > 0 && (word[start] < 'A' || word[start] > 'Z') {
 		start--
 	}
@@ -88,6 +91,7 @@ func preserveCase(original, replacement string) string {
 	if original == strings.ToUpper(original) {
 		return strings.ToUpper(replacement)
 	}
+
 	if len(original) > 0 && original[0] >= 'A' && original[0] <= 'Z' {
 		return strings.ToUpper(replacement[:1]) + replacement[1:]
 	}

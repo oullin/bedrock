@@ -27,6 +27,7 @@ func TestInventoryFakeTransportSendDoesNotError(t *testing.T) {
 
 	// FakeTransporterTest::it_send_is_a_no_op_and_does_not_throw
 	transport := newFakeTransport("", "")
+
 	if err := transport.Send(context.Background(), `{"jsonrpc":"2.0","id":1,"result":{}}`, ""); err != nil {
 		t.Fatalf("expected Send to be a no-op, got error: %v", err)
 	}

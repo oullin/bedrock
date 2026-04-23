@@ -19,6 +19,29 @@ type inventoryAuthServer struct {
 	err    error
 }
 
+type inventoryDispatcher struct {
+	events []any
+}
+
+type inventoryCountingProvider struct {
+	users map[string]cauth.Authenticatable
+	calls int
+}
+
+type inventoryErrorTokenStore struct {
+	err error
+}
+
+type inventoryCountingClientStore struct {
+	client *oauthserver.Client
+	calls  int
+	err    error
+}
+
+type inventoryErrorClientStore struct {
+	err error
+}
+
 func (s *inventoryAuthServer) IssueToken(_ context.Context, req oauthserver.TokenRequest) (*oauthserver.IssuedToken, error) {
 	s.req = req
 
@@ -35,10 +58,6 @@ func (s *inventoryAuthServer) ValidateAuthorizationRequest(context.Context, oaut
 
 func (s *inventoryAuthServer) CompleteAuthorizationRequest(context.Context, *oauthserver.ValidatedAuthRequest, bool) (*oauthserver.AuthorizationResponse, error) {
 	return nil, errors.New("not implemented")
-}
-
-type inventoryDispatcher struct {
-	events []any
 }
 
 func (d *inventoryDispatcher) Dispatch(_ context.Context, event any) ([]any, error) {
@@ -59,25 +78,6 @@ func requireInventoryScopeIDs(t *testing.T, scopes []oauthserver.Scope, want []s
 			t.Fatalf("scope[%d] = %q, want %q: %#v", i, scope.ID, want[i], scopes)
 		}
 	}
-}
-
-type inventoryCountingProvider struct {
-	users map[string]cauth.Authenticatable
-	calls int
-}
-
-type inventoryErrorTokenStore struct {
-	err error
-}
-
-type inventoryCountingClientStore struct {
-	client *oauthserver.Client
-	calls  int
-	err    error
-}
-
-type inventoryErrorClientStore struct {
-	err error
 }
 
 func (p *inventoryCountingProvider) RetrieveByID(_ context.Context, id string) (cauth.Authenticatable, error) {
@@ -318,6 +318,7 @@ func TestOAuthServerInventoryClientAndModelPrimitives(t *testing.T) {
 		})
 
 		scopes := p.Scopes()
+
 		if len(scopes) != 2 {
 			t.Fatalf("scope count = %d, want 2: %#v", len(scopes), scopes)
 		}
@@ -399,11 +400,13 @@ func TestOAuthServerInventoryTokenAndScopeParity(t *testing.T) {
 	t.Run("ScopeTest::test_scope_can_be_converted_to_json", func(t *testing.T) {
 		scope := oauthserver.Scope{ID: "orders:read", Description: "Read orders"}
 		payload, err := json.Marshal(scope)
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		var arr map[string]string
+
 		if err := json.Unmarshal(payload, &arr); err != nil {
 			t.Fatal(err)
 		}
@@ -517,6 +520,7 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 		repo := oauthserver.NewScopeRepository(p, nil)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"orders:read", "missing"}, oauthserver.GrantAuthorizationCode, "")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -530,6 +534,7 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 		repo := oauthserver.NewScopeRepository(p, nil)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"orders:read", "admin"}, oauthserver.GrantPassword, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -544,12 +549,15 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 			"orders:write": "Write orders",
 		})
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := clients.Create(ctx, &oauthserver.Client{ID: "client-1", Name: "Web"}); err != nil {
 			t.Fatal(err)
 		}
+
 		repo := oauthserver.NewScopeRepository(p, clients)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"orders:read", "orders:write"}, oauthserver.GrantAuthorizationCode, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -564,12 +572,15 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 			"orders:write": "Write orders",
 		})
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := clients.Create(ctx, &oauthserver.Client{ID: "client-1", Name: "Web", Scopes: []string{"orders:read"}}); err != nil {
 			t.Fatal(err)
 		}
+
 		repo := oauthserver.NewScopeRepository(p, clients)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"orders:read", "orders:write"}, oauthserver.GrantAuthorizationCode, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -583,12 +594,15 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 			TokensCan(map[string]string{"orders:read": "Read orders"}).
 			UseInheritedScopes(true)
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := clients.Create(ctx, &oauthserver.Client{ID: "client-1", Name: "Web", Scopes: []string{"orders"}}); err != nil {
 			t.Fatal(err)
 		}
+
 		repo := oauthserver.NewScopeRepository(p, clients)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"orders:read"}, oauthserver.GrantAuthorizationCode, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -600,12 +614,15 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 	t.Run("BridgeScopeRepositoryTest::test_superuser_scope_cant_be_applied_if_wrong_grant", func(t *testing.T) {
 		p := newOAuthServer()
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := clients.Create(ctx, &oauthserver.Client{ID: "client-1", Name: "Web", Scopes: []string{"*"}}); err != nil {
 			t.Fatal(err)
 		}
+
 		repo := oauthserver.NewScopeRepository(p, clients)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"*"}, oauthserver.GrantAuthorizationCode, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -618,6 +635,7 @@ func TestOAuthServerInventoryScopeRepositoryParity(t *testing.T) {
 		repo := oauthserver.NewScopeRepository(newOAuthServer(), nil)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"*"}, oauthserver.GrantPassword, "")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -632,11 +650,13 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 	t.Run("BridgeAccessTokenRepositoryTest::test_access_tokens_can_be_persisted", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		token := newTestToken("token-1", "user-1", "client-1", []string{"read"})
+
 		if err := store.Save(ctx, token); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, "token-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -649,14 +669,17 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 	t.Run("BridgeAccessTokenRepositoryTest::test_access_tokens_can_be_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		token := newTestToken("token-1", "user-1", "client-1", []string{"read"})
+
 		if err := store.Save(ctx, token); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "token-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, "token-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -674,6 +697,7 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 		}
 
 		found, err := store.Find(ctx, "missing-token")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -694,11 +718,13 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 	t.Run("BridgeRefreshTokenRepositoryTest::test_access_tokens_can_be_persisted", func(t *testing.T) {
 		store := oauthserver.NewMemoryRefreshTokenStore()
 		refresh := &oauthserver.RefreshToken{ID: "refresh-1", AccessTokenID: "token-1", ExpiresAt: time.Now().Add(time.Hour)}
+
 		if err := store.Save(ctx, refresh); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, "refresh-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -727,6 +753,7 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 	t.Run("RevokedTest::test_a_access_token_is_also_revoked_if_it_cannot_be_found", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		token, err := store.Find(ctx, "missing")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -746,14 +773,17 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_auth_code_is_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryAuthCodeStore()
+
 		if err := store.Save(ctx, &oauthserver.AuthCode{ID: "code-1"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "code-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "code-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -765,6 +795,7 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_a_auth_code_is_also_revoked_if_it_cannot_be_found", func(t *testing.T) {
 		revoked, err := oauthserver.NewMemoryAuthCodeStore().IsRevoked(ctx, "missing")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -776,11 +807,13 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_auth_code_is_not_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryAuthCodeStore()
+
 		if err := store.Save(ctx, &oauthserver.AuthCode{ID: "code-1"}); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "code-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -792,14 +825,17 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_refresh_token_is_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryRefreshTokenStore()
+
 		if err := store.Save(ctx, &oauthserver.RefreshToken{ID: "refresh-1"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "refresh-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "refresh-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -811,6 +847,7 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_a_refresh_token_is_also_revoked_if_it_cannot_be_found", func(t *testing.T) {
 		revoked, err := oauthserver.NewMemoryRefreshTokenStore().IsRevoked(ctx, "missing")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -822,11 +859,13 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_refresh_token_is_not_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryRefreshTokenStore()
+
 		if err := store.Save(ctx, &oauthserver.RefreshToken{ID: "refresh-1"}); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "refresh-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -838,14 +877,17 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_device_code_is_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryDeviceCodeStore()
+
 		if err := store.Save(ctx, &oauthserver.DeviceCode{ID: "device-1"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "device-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "device-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -857,6 +899,7 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_a_device_code_is_also_revoked_if_it_cannot_be_found", func(t *testing.T) {
 		revoked, err := oauthserver.NewMemoryDeviceCodeStore().IsRevoked(ctx, "missing")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -868,11 +911,13 @@ func TestOAuthServerInventoryStoreParity(t *testing.T) {
 
 	t.Run("RevokedTest::test_it_can_determine_if_a_device_code_is_not_revoked", func(t *testing.T) {
 		store := oauthserver.NewMemoryDeviceCodeStore()
+
 		if err := store.Save(ctx, &oauthserver.DeviceCode{ID: "device-1"}); err != nil {
 			t.Fatal(err)
 		}
 
 		revoked, err := store.IsRevoked(ctx, "device-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -891,6 +936,7 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		user := newStubUser("user-1")
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
@@ -901,6 +947,7 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		guard.SetRequest(req)
 
 		got, err := guard.User(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -914,9 +961,11 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("user-1")
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		provider := &inventoryCountingProvider{users: map[string]cauth.Authenticatable{"user-1": user}}
 		guard := oauthserver.NewTokenGuard(p, tokens, oauthserver.NewMemoryClientStore(), provider)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -926,6 +975,7 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		if _, err := guard.User(ctx); err != nil {
 			t.Fatal(err)
 		}
+
 		if _, err := guard.User(ctx); err != nil {
 			t.Fatal(err)
 		}
@@ -938,15 +988,18 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 	t.Run("TokenGuardTest::test_null_is_returned_if_no_user_is_found", func(t *testing.T) {
 		p := newOAuthServer()
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "missing-user", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := newGuard(p, tokens, oauthserver.NewMemoryClientStore(), map[string]cauth.Authenticatable{})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
 		guard.SetRequest(req)
 
 		got, err := guard.User(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -959,15 +1012,18 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 	t.Run("TokenGuardTest::test_null_is_returned_for_client_credentials_token", func(t *testing.T) {
 		p := newOAuthServer()
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := newGuard(p, tokens, oauthserver.NewMemoryClientStore(), map[string]cauth.Authenticatable{})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
 		guard.SetRequest(req)
 
 		got, err := guard.User(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -981,15 +1037,18 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("shared-id")
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "shared-id", "shared-id", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := newGuard(p, tokens, oauthserver.NewMemoryClientStore(), map[string]cauth.Authenticatable{"shared-id": user})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
 		guard.SetRequest(req)
 
 		got, err := guard.User(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1004,21 +1063,26 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		user := newStubUser("user-1")
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
 		clients := oauthserver.NewMemoryClientStore()
+
 		if err := clients.Create(ctx, &oauthserver.Client{ID: "client-1", Name: "Worker", Secret: "secret"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := newGuard(p, tokens, clients, map[string]cauth.Authenticatable{"user-1": user})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
 		guard.SetRequest(req)
+
 		if _, err := guard.User(ctx); err != nil {
 			t.Fatal(err)
 		}
 
 		client, err := guard.Client(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1037,6 +1101,7 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		guard.SetRequest(req)
 
 		got, err := guard.User(ctx)
+
 		if err == nil || got != nil {
 			t.Fatalf("expected token lookup error, got user=%#v err=%v", got, err)
 		}
@@ -1045,9 +1110,11 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 	t.Run("TokenGuardTest::test_no_client_is_returned_when_oauth_throws_exception", func(t *testing.T) {
 		p := newOAuthServer()
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := oauthserver.NewTokenGuard(p, tokens, &inventoryErrorClientStore{err: errors.New("client lookup failed")}, &stubProvider{users: map[string]cauth.Authenticatable{"user-1": newStubUser("user-1")}})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
@@ -1058,6 +1125,7 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		}
 
 		client, err := guard.Client(ctx)
+
 		if err == nil || client != nil {
 			t.Fatalf("expected client lookup error, got client=%#v err=%v", client, err)
 		}
@@ -1066,9 +1134,11 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 	t.Run("TokenGuardTest::test_client_is_resolved_only_once", func(t *testing.T) {
 		p := newOAuthServer()
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "client-1", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		clients := &inventoryCountingClientStore{client: &oauthserver.Client{ID: "client-1", Name: "Worker", Secret: "secret"}}
 		guard := oauthserver.NewTokenGuard(p, tokens, clients, &stubProvider{users: map[string]cauth.Authenticatable{"user-1": newStubUser("user-1")}})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -1078,9 +1148,11 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		if _, err := guard.User(ctx); err != nil {
 			t.Fatal(err)
 		}
+
 		if _, err := guard.Client(ctx); err != nil {
 			t.Fatal(err)
 		}
+
 		if _, err := guard.Client(ctx); err != nil {
 			t.Fatal(err)
 		}
@@ -1094,18 +1166,22 @@ func TestOAuthServerInventoryGuardAndMiddlewareParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("user-1")
 		tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+
 		if err := tokens.Save(ctx, newTestToken("token-1", "user-1", "missing-client", []string{"read"})); err != nil {
 			t.Fatal(err)
 		}
+
 		guard := newGuard(p, tokens, oauthserver.NewMemoryClientStore(), map[string]cauth.Authenticatable{"user-1": user})
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token-1")
 		guard.SetRequest(req)
+
 		if _, err := guard.User(ctx); err != nil {
 			t.Fatal(err)
 		}
 
 		client, err := guard.Client(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1331,10 +1407,12 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("user-1")
 		p.ActingAs(user, oauthserver.NewAccessToken(newTestToken("token-1", "user-1", "client-1", []string{"read"}), p), []string{"read"})
+
 		defer p.ClearActing()
 
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		got, err := guard.User(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1348,7 +1426,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("user-1")
 		p.ActingAs(user, oauthserver.NewAccessToken(newTestToken("token-1", "user-1", "client-1", []string{"read"}), p), []string{"read"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1365,7 +1445,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		p := newOAuthServer()
 		user := newStubUser("user-1")
 		p.ActingAs(user, oauthserver.NewAccessToken(newTestToken("token-1", "user-1", "client-1", []string{"read"}), p), []string{"read"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1383,7 +1465,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		user := newStubUser("user-1")
 		token := newTestToken("token-1", "user-1", "client-1", []string{"orders"}).WithOAuthServer(p)
 		p.ActingAs(user, oauthserver.NewAccessToken(token, p), []string{"orders"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1401,7 +1485,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		user := newStubUser("user-1")
 		token := newTestToken("token-1", "user-1", "client-1", []string{"orders"}).WithOAuthServer(p)
 		p.ActingAs(user, oauthserver.NewAccessToken(token, p), []string{"orders"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1417,10 +1503,13 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 	t.Run("ActingAsClientTest::testActingAsClientSetsTheClientOnTheGuard", func(t *testing.T) {
 		p := newOAuthServer()
 		p.ActingAsClient(&oauthserver.Client{ID: "client-1", Scopes: []string{"read"}}, []string{"read"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 
 		client, err := guard.Client(ctx)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1434,7 +1523,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 	t.Run("ActingAsClientTest::testActingAsClientWhenTheRouteIsProtectedByCheckTokenMiddleware", func(t *testing.T) {
 		p := newOAuthServer()
 		p.ActingAsClient(&oauthserver.Client{ID: "client-1"}, []string{"orders:read"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1451,7 +1542,9 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 	t.Run("ActingAsClientTest::testActingAsClientWhenTheRouteIsProtectedByCheckTokenForAnyScope", func(t *testing.T) {
 		p := newOAuthServer()
 		p.ActingAsClient(&oauthserver.Client{ID: "client-1"}, []string{"orders:read"})
+
 		defer p.ClearActing()
+
 		guard := newGuard(p, oauthserver.NewMemoryTokenStore(), oauthserver.NewMemoryClientStore(), nil)
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		guard.SetRequest(req)
@@ -1469,11 +1562,13 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		result, err := oauthserver.NewPersonalAccessTokenFactory(p, nil, store).
 			Create(ctx, newStubUser("user-1"), "CI", []string{"read"})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, result.AccessToken)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1488,11 +1583,13 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		result, err := oauthserver.NewPersonalAccessTokenFactory(p, nil, store).
 			Create(ctx, newStubUser("user-1"), "CI", []string{"*"})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, result.AccessToken)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1525,6 +1622,7 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		result, err := oauthserver.NewPersonalAccessTokenFactory(p, server, oauthserver.NewMemoryTokenStore()).
 			WithEventDispatcher(dispatcher).
 			Create(ctx, newStubUser("user-1"), "CI", []string{"read"})
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1540,14 +1638,17 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("PersonalAccessTokenControllerTest::test_tokens_can_be_retrieved_for_users", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-1", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Save(ctx, newTestToken("token-2", "user-2", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
 
 		tokens, err := store.ForUser(ctx, "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1561,16 +1662,19 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
 		token := newTestToken("token-1", "user-1", "client-1", nil)
 		token.Name = "Original"
+
 		if err := store.Save(ctx, token); err != nil {
 			t.Fatal(err)
 		}
 
 		token.Name = "Renamed"
+
 		if err := store.Save(ctx, token); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindForUser(ctx, "token-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1582,14 +1686,17 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("PersonalAccessTokenControllerTest::test_tokens_can_be_deleted", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-1", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "token-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		token, err := store.FindForUser(ctx, "token-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1601,11 +1708,13 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("PersonalAccessTokenControllerTest::test_not_found_response_is_returned_if_user_doesnt_have_token", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-2", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
 
 		token, err := store.FindForUser(ctx, "token-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1617,14 +1726,17 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("AuthorizedAccessTokenControllerTest::test_tokens_can_be_retrieved_for_users", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-1", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Save(ctx, newTestToken("token-2", "user-2", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
 
 		tokens, err := store.ForUser(ctx, "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1636,14 +1748,17 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("AuthorizedAccessTokenControllerTest::test_tokens_can_be_deleted", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-1", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Revoke(ctx, "token-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		token, err := store.FindForUser(ctx, "token-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1655,11 +1770,13 @@ func TestOAuthServerInventoryActingAsAndPersonalAccessParity(t *testing.T) {
 
 	t.Run("AuthorizedAccessTokenControllerTest::test_not_found_response_is_returned_if_user_doesnt_have_token", func(t *testing.T) {
 		store := oauthserver.NewMemoryTokenStore()
+
 		if err := store.Save(ctx, newTestToken("token-1", "user-2", "client-1", nil)); err != nil {
 			t.Fatal(err)
 		}
 
 		token, err := store.FindForUser(ctx, "token-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1676,11 +1793,13 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 	t.Run("BridgeClientRepositoryTest::test_can_get_client", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
 		client, err := store.CreateAuthCodeClient(ctx, "user-1", "Web App", "https://example.com/callback", "users")
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, client.ID)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1693,6 +1812,7 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 	t.Run("BridgeClientRepositoryTest::test_can_validate_client", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
 		client, err := store.CreatePersonalAccessClient(ctx, "user-1", "Personal", "users")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1702,11 +1822,13 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 		}
 
 		revoked := &oauthserver.Client{ID: "client-2", Name: "Revoked", Secret: "secret", Revoked: true}
+
 		if err := store.Create(ctx, revoked); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindActive(ctx, revoked.ID)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1718,14 +1840,17 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 
 	t.Run("ClientControllerTest::test_all_the_clients_for_the_current_user_can_be_retrieved", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
+
 		if err := store.Create(ctx, &oauthserver.Client{ID: "client-1", UserID: "user-1", Name: "CLI"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Create(ctx, &oauthserver.Client{ID: "client-2", UserID: "user-2", Name: "Worker"}); err != nil {
 			t.Fatal(err)
 		}
 
 		clients, err := store.ForUser(ctx, "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1738,11 +1863,13 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 	t.Run("ClientControllerTest::test_clients_can_be_stored", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
 		client, err := store.CreateAuthCodeClient(ctx, "user-1", "Web", "https://example.com/callback", "users")
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindForUser(ctx, client.ID, "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1755,11 +1882,13 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 	t.Run("ClientControllerTest::test_public_clients_can_be_stored", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
 		client := &oauthserver.Client{ID: "client-1", UserID: "user-1", Name: "Mobile", RedirectURIs: []string{"bedrock://callback"}}
+
 		if err := store.Create(ctx, client); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindForUser(ctx, "client-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1772,17 +1901,20 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 	t.Run("ClientControllerTest::test_clients_can_be_updated", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
 		client := &oauthserver.Client{ID: "client-1", UserID: "user-1", Name: "Original", Secret: "secret"}
+
 		if err := store.Create(ctx, client); err != nil {
 			t.Fatal(err)
 		}
 
 		client.Name = "Renamed"
 		client.RedirectURIs = []string{"https://example.com/new"}
+
 		if err := store.Update(ctx, client); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindForUser(ctx, "client-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1794,11 +1926,13 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 
 	t.Run("ClientControllerTest::test_404_response_if_client_doesnt_belong_to_user", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
+
 		if err := store.Create(ctx, &oauthserver.Client{ID: "client-1", UserID: "user-2", Name: "Other"}); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindForUser(ctx, "client-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1810,14 +1944,17 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 
 	t.Run("ClientControllerTest::test_clients_can_be_deleted", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
+
 		if err := store.Create(ctx, &oauthserver.Client{ID: "client-1", UserID: "user-1", Name: "CLI"}); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := store.Delete(ctx, "client-1"); err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.FindActive(ctx, "client-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1829,22 +1966,27 @@ func TestOAuthServerInventoryClientRepositoryParity(t *testing.T) {
 
 	t.Run("ClientControllerTest::test_404_response_if_client_doesnt_belong_to_user_on_delete", func(t *testing.T) {
 		store := oauthserver.NewMemoryClientStore()
+
 		if err := store.Create(ctx, &oauthserver.Client{ID: "client-1", UserID: "user-2", Name: "Other"}); err != nil {
 			t.Fatal(err)
 		}
 
 		owned, err := store.FindForUser(ctx, "client-1", "user-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if owned != nil {
 			t.Fatalf("expected no client for different owner, got %#v", owned)
 		}
 
 		other, err := store.FindForUser(ctx, "client-1", "user-2")
+
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if other == nil || other.Revoked {
 			t.Fatalf("expected other user's client to remain active, got %#v", other)
 		}
@@ -1920,11 +2062,13 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 		}
 
 		payload, err := json.Marshal(code)
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		var got oauthserver.DeviceCode
+
 		if err := json.Unmarshal(payload, &got); err != nil {
 			t.Fatal(err)
 		}
@@ -1951,11 +2095,13 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 		}
 
 		payload, err := json.Marshal(req)
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		var got oauthserver.AuthorizationRequest
+
 		if err := json.Unmarshal(payload, &got); err != nil {
 			t.Fatal(err)
 		}
@@ -1977,6 +2123,7 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 		}
 
 		got, err := server.ValidateAuthorizationRequest(ctx, req)
+
 		if err == nil {
 			t.Fatal("expected validation stub to report not implemented")
 		}
@@ -1992,6 +2139,7 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 		repo := oauthserver.NewScopeRepository(p, nil)
 
 		scopes, err := repo.FinalizeScopes(ctx, []string{"read", "missing"}, oauthserver.GrantAuthorizationCode, "")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2009,6 +2157,7 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 			AccessTokenID: "access-1",
 			ExpiresAt:     time.Now().Add(time.Hour),
 		}
+
 		if err := store.Save(ctx, refresh); err != nil {
 			t.Fatal(err)
 		}
@@ -2018,6 +2167,7 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 		}
 
 		revoked, err := store.IsRevoked(ctx, "refresh-1")
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2034,11 +2184,13 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 
 		result, err := oauthserver.NewPersonalAccessTokenFactory(p, nil, store).
 			Create(ctx, newStubUser("user-1"), "CLI", []string{"read"})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		found, err := store.Find(ctx, result.AccessToken)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2056,6 +2208,7 @@ func TestOAuthServerInventoryAdditionalRepositoryParity(t *testing.T) {
 
 		result, err := oauthserver.NewPersonalAccessTokenFactory(p, server, store).
 			Create(ctx, newStubUser("user-1"), "CLI", []string{"read"})
+
 		if err == nil || result != nil {
 			t.Fatalf("expected issue error, got result=%#v err=%v", result, err)
 		}

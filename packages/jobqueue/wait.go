@@ -15,11 +15,13 @@ type QueueWaitTime struct {
 // WaitTimes estimates queue clear times from snapshot throughput.
 func WaitTimes(snapshot Snapshot, queues ...string) []QueueWaitTime {
 	filter := make(map[string]struct{}, len(queues))
+
 	for _, queue := range queues {
 		filter[queue] = struct{}{}
 	}
 
 	times := make([]QueueWaitTime, 0, len(snapshot.Queues))
+
 	for _, queue := range snapshot.Queues {
 		if len(filter) > 0 {
 			if _, ok := filter[queue.Name]; !ok {

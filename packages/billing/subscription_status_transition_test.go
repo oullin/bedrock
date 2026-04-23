@@ -22,9 +22,11 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 		if !sub.MarkPastDue(now) {
 			t.Fatalf("MarkPastDue returned false")
 		}
+
 		if sub.Status != billing.StatusPastDue {
 			t.Fatalf("status = %s, want past_due", sub.Status)
 		}
+
 		if !sub.Valid() || !sub.Status.GrantsAccess() {
 			t.Fatalf("past_due subscription should still grant access")
 		}
@@ -36,9 +38,11 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 		if !sub.Activate(now) {
 			t.Fatalf("Activate returned false")
 		}
+
 		if sub.Status != billing.StatusActive {
 			t.Fatalf("status = %s, want active", sub.Status)
 		}
+
 		if !sub.Valid() || !sub.Status.GrantsAccess() {
 			t.Fatalf("active subscription should grant access")
 		}
@@ -50,6 +54,7 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 		if !sub.Pause(now) {
 			t.Fatalf("Pause returned false")
 		}
+
 		if sub.Status != billing.StatusPaused || sub.Valid() {
 			t.Fatalf("paused subscription should be inactive: %#v", sub)
 		}
@@ -57,12 +62,15 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 
 	t.Run("reactivating a paused subscription restores access", func(t *testing.T) {
 		sub := &billing.Subscription{Status: billing.StatusActive}
+
 		if !sub.Pause(now) {
 			t.Fatalf("Pause returned false")
 		}
+
 		if !sub.Activate(now.Add(time.Hour)) {
 			t.Fatalf("Activate returned false")
 		}
+
 		if sub.Status != billing.StatusActive || !sub.Valid() {
 			t.Fatalf("reactivated subscription should be active: %#v", sub)
 		}
@@ -74,6 +82,7 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 		if !sub.Cancel(now) {
 			t.Fatalf("Cancel returned false")
 		}
+
 		if sub.Status != billing.StatusCanceled || sub.Valid() || sub.OnGracePeriod() {
 			t.Fatalf("canceled subscription should not grant access: %#v", sub)
 		}
@@ -85,6 +94,7 @@ func TestMadoraSubscriptionStatusTransitions(t *testing.T) {
 		if !sub.Cancel(now) {
 			t.Fatalf("Cancel returned false")
 		}
+
 		if sub.Status != billing.StatusCanceled || sub.Valid() || sub.OnGracePeriod() {
 			t.Fatalf("canceled past_due subscription should not grant access: %#v", sub)
 		}
@@ -99,18 +109,22 @@ func TestMadoraSubscriptionConstructionIsDeterministic(t *testing.T) {
 
 	firstPending := billing.NewPendingSubscription(billable, "starter", now)
 	secondPending := billing.NewPendingSubscription(billable, "starter", now)
+
 	if firstPending.Status != billing.StatusPending || secondPending.Status != billing.StatusPending {
 		t.Fatalf("pending subscriptions should start in pending status")
 	}
+
 	if !firstPending.PendingExpiresAt.Equal(*secondPending.PendingExpiresAt) {
 		t.Fatalf("pending expiry timestamps should match: %#v %#v", firstPending.PendingExpiresAt, secondPending.PendingExpiresAt)
 	}
 
 	firstTrial := billing.NewTrialSubscription(billable, "starter", 14, now)
 	secondTrial := billing.NewTrialSubscription(billable, "starter", 14, now)
+
 	if firstTrial.Status != billing.StatusTrialing || secondTrial.Status != billing.StatusTrialing {
 		t.Fatalf("trial subscriptions should start in trialing status")
 	}
+
 	if !firstTrial.TrialEndsAt.Equal(*secondTrial.TrialEndsAt) {
 		t.Fatalf("trial expiry timestamps should match: %#v %#v", firstTrial.TrialEndsAt, secondTrial.TrialEndsAt)
 	}

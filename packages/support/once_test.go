@@ -76,17 +76,21 @@ func TestOnceDisableAndTemporaryDisable(t *testing.T) {
 	}
 
 	DisableOnce()
+
 	if got := Once("disabled", next); got != 1 {
 		t.Fatalf("Once disabled first = %d", got)
 	}
+
 	if got := Once("disabled", next); got != 2 {
 		t.Fatalf("Once disabled second = %d", got)
 	}
+
 	EnableOnce()
 
 	if got := Once("enabled", next); got != 3 {
 		t.Fatalf("Once enabled first = %d", got)
 	}
+
 	if got := Once("enabled", next); got != 3 {
 		t.Fatalf("Once enabled second = %d", got)
 	}
@@ -118,6 +122,7 @@ func TestOnceClosureGlobalRecursiveAndNilResults(t *testing.T) {
 	}
 
 	var recursive func(int) int
+
 	recursive = func(value int) int {
 		if value == 0 {
 			return Once("recursive-base", func() int { return 1 })

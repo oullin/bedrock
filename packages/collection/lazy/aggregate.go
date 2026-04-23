@@ -24,6 +24,7 @@ func Reduce[T any, R any](lc *Collection[T], callback func(R, T, int) R, initial
 // Sum returns the sum of all numeric values in the lazy collection.
 func Sum[T support.Numeric](lc *Collection[T]) T {
 	var total T
+
 	lc.source(func(item T) bool {
 		total += item
 
@@ -43,6 +44,7 @@ func Avg[T support.Numeric](lc *Collection[T]) float64 {
 
 		return true
 	})
+
 	if count == 0 {
 		return 0
 	}

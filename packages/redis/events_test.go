@@ -85,9 +85,11 @@ func TestCommandFailedDispatchedAndListened(t *testing.T) {
 	c, _ := newConn(t)
 
 	var executed int
+
 	c.Listen(func(redis.CommandExecuted) { executed++ })
 
 	var failed []redis.CommandFailed
+
 	c.ListenForFailures(func(e redis.CommandFailed) {
 		failed = append(failed, e)
 	})

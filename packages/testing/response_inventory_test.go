@@ -190,6 +190,7 @@ func TestResponseInventoryFailures(t *testing.T) {
 		expectMockFailure(t, func(m *mockTB) {
 			packagetesting.AssertResponse(m, rec).JSONPath("age", func(v any) bool {
 				n, ok := v.(json.Number)
+
 				return ok && n.String() == "18"
 			})
 		})
@@ -232,6 +233,7 @@ func TestResponseInventoryFailures(t *testing.T) {
 				WithSession(map[string]any{"user": map[string]any{"age": 30}}).
 				SessionMissingValue("user.age", func(v any) bool {
 					n, ok := v.(int)
+
 					return ok && n == 30
 				})
 		})
@@ -527,6 +529,7 @@ func TestFluentJSONInventoryFailures(t *testing.T) {
 		expectMockFailure(t, func(m *mockTB) {
 			packagetesting.AssertResponse(m, rec).FluentJSON().WhereNot("age", func(v any) bool {
 				n, ok := v.(json.Number)
+
 				return ok && n == "30"
 			})
 		})

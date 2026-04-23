@@ -72,9 +72,11 @@ func ReduceSpread[T any, R any](c *Collection[T], callback func([]R, T, int) []R
 
 	for i, item := range c.items {
 		next := callback(append([]R(nil), result...), item, i)
+
 		if len(next) != len(result) {
 			return nil, ErrReduceSpreadLength
 		}
+
 		result = append(result[:0], next...)
 	}
 
@@ -110,6 +112,7 @@ func Percentage[T any](c *Collection[T], predicate func(T, int) bool) (float64, 
 	}
 
 	matches := 0
+
 	for i, item := range c.items {
 		if predicate(item, i) {
 			matches++

@@ -31,9 +31,11 @@ func newWebSocketHarnessWithManagers(t *testing.T, cfg websockets.AppConfig) (*h
 
 	apps := websockets.NewAppManager([]websockets.AppConfig{cfg})
 	app, err := apps.FindByID(cfg.ID)
+
 	if err != nil {
 		t.Fatalf("find configured app: %v", err)
 	}
+
 	channels := websockets.NewChannelManager(apps)
 	conns := websockets.NewConnectionManager()
 	dispatcher := websockets.NewSyncDispatcher(channels)
@@ -62,6 +64,7 @@ func dialWebSocket(t *testing.T, ts *httptest.Server, path, origin string) (*web
 			"Origin": {origin},
 		},
 	})
+
 	if err != nil {
 		t.Fatalf("dial websocket %s: %v", wsURL, err)
 	}
@@ -77,11 +80,13 @@ func readEnvelope(t *testing.T, ctx context.Context, conn *websocket.Conn) wsEnv
 	t.Helper()
 
 	_, raw, err := conn.Read(ctx)
+
 	if err != nil {
 		t.Fatalf("read websocket frame: %v", err)
 	}
 
 	var env wsEnvelope
+
 	if err := json.Unmarshal(raw, &env); err != nil {
 		t.Fatalf("decode websocket frame: %v", err)
 	}
@@ -93,6 +98,7 @@ func writeJSONMessage(t *testing.T, ctx context.Context, conn *websocket.Conn, p
 	t.Helper()
 
 	raw, err := json.Marshal(payload)
+
 	if err != nil {
 		t.Fatalf("encode websocket frame: %v", err)
 	}
@@ -122,6 +128,7 @@ func assertErrorCode(t *testing.T, env wsEnvelope, code string) {
 	t.Helper()
 
 	assertEvent(t, env, "pusher:error")
+
 	if !strings.Contains(env.Data, `"code":`+code) {
 		t.Fatalf("error payload = %q, want code %s", env.Data, code)
 	}
@@ -131,9 +138,11 @@ func assertNoFrame(t *testing.T, conn *websocket.Conn) {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 75*time.Millisecond)
+
 	defer cancel()
 
 	_, _, err := conn.Read(ctx)
+
 	if err == nil {
 		t.Fatal("expected no websocket frame")
 	}
@@ -147,6 +156,7 @@ func assertEventsUnordered(t *testing.T, ctx context.Context, conn *websocket.Co
 	}
 
 	seen := make(map[string]int, len(want))
+
 	for range want {
 		env := readEnvelope(t, ctx, conn)
 		seen[env.Event]++
@@ -163,9 +173,11 @@ func subscribeFrame(channel string, auth string, channelData string) map[string]
 	payload := map[string]any{
 		"channel": channel,
 	}
+
 	if auth != "" {
 		payload["auth"] = auth
 	}
+
 	if channelData != "" {
 		payload["channel_data"] = channelData
 	}
@@ -183,6 +195,7 @@ func readEstablishedSocketID(t *testing.T, ctx context.Context, conn *websocket.
 	assertEvent(t, env, "pusher:connection_established")
 
 	var established websockets.ConnectionEstablishedData
+
 	if err := json.Unmarshal([]byte(env.Data), &established); err != nil {
 		t.Fatalf("decode connection established payload: %v", err)
 	}
@@ -198,10 +211,12 @@ func waitForChannelRemoval(t *testing.T, channels *websockets.ChannelManager, ap
 	t.Helper()
 
 	deadline := time.Now().Add(2 * time.Second)
+
 	for time.Now().Before(deadline) {
 		if _, ok := channels.Get(appID, name); !ok {
 			return
 		}
+
 		time.Sleep(10 * time.Millisecond)
 	}
 
@@ -374,14 +389,17 @@ func TestInventoryServerEnforcesConnectionAndMessageLimits(t *testing.T) {
 	readEstablishedSocketID(t, firstCtx, first)
 
 	limitCtx, cancelLimit := context.WithTimeout(context.Background(), 5*time.Second)
+
 	defer cancelLimit()
 
 	_, resp, err := websocket.Dial(limitCtx, "ws"+strings.TrimPrefix(ts.URL, "http")+"/app/"+app.Key(), &websocket.DialOptions{
 		HTTPHeader: http.Header{"Origin": {"https://app.example.com"}},
 	})
+
 	if err == nil {
 		t.Fatal("expected second websocket dial to fail over max connection limit")
 	}
+
 	if resp == nil || resp.StatusCode != http.StatusServiceUnavailable {
 		t.Fatalf("connection limit status = %v, want %d", resp, http.StatusServiceUnavailable)
 	}
@@ -390,6 +408,7 @@ func TestInventoryServerEnforcesConnectionAndMessageLimits(t *testing.T) {
 	assertEvent(t, readEnvelope(t, firstCtx, first), "pusher:pong")
 
 	writeTextFrame(t, firstCtx, first, `{"event":"pusher:ping","data":{"padding":"`+strings.Repeat("x", 96)+`"}}`)
+
 	if _, _, err := first.Read(firstCtx); err == nil {
 		t.Fatal("expected oversized websocket message to close the connection")
 	}
@@ -419,9 +438,11 @@ func TestInventoryServerInactiveConnectionJobs(t *testing.T) {
 	assertEvent(t, readEnvelope(t, ctx, conn), "pusher:ping")
 
 	websockets.PruneStaleConnections(ctx, conns, apps)
+
 	if _, _, err := conn.Read(ctx); err == nil {
 		t.Fatal("expected stale websocket connection to be closed")
 	}
+
 	if conns.Count(app.ID()) != 0 {
 		t.Fatalf("stale connection count = %d, want 0", conns.Count(app.ID()))
 	}
@@ -457,6 +478,7 @@ func TestInventoryServerPublicWebSocketFlow(t *testing.T) {
 
 	senderSocketID := readEstablishedSocketID(t, senderCtx, sender)
 	observerSocketID := readEstablishedSocketID(t, observerCtx, observer)
+
 	if senderSocketID == observerSocketID {
 		t.Fatalf("expected unique socket ids, got %q", senderSocketID)
 	}
@@ -487,6 +509,7 @@ func TestInventoryServerPublicWebSocketFlow(t *testing.T) {
 	req := signedRequest(t, http.MethodPost, "/apps/"+app.ID()+"/events", app.Secret(), triggerBody)
 	rec := httptest.NewRecorder()
 	ts.Config.Handler.ServeHTTP(rec, req)
+
 	if rec.Result().StatusCode != http.StatusOK {
 		t.Fatalf("trigger status = %d", rec.Result().StatusCode)
 	}
@@ -592,18 +615,21 @@ func TestInventoryServerMultiAppAndMultiChannelFlow(t *testing.T) {
 	if err := dispatcher.Dispatch(aliceCtx, app1.ID, contractsWebSockets.Event{Event: "app1-first", Data: `{}`, Channel: channelOne}); err != nil {
 		t.Fatalf("dispatch app1 channelOne: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "app1-first")
 	assertEvent(t, readEnvelope(t, bobCtx, bob), "app1-first")
 
 	if err := dispatcher.Dispatch(aliceCtx, app1.ID, contractsWebSockets.Event{Event: "app1-second", Data: `{}`, Channel: channelTwo}); err != nil {
 		t.Fatalf("dispatch app1 channelTwo: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "app1-second")
 	assertEvent(t, readEnvelope(t, bobCtx, bob), "app1-second")
 
 	if err := dispatcher.Dispatch(charlieCtx, app2.ID, contractsWebSockets.Event{Event: "app2-first", Data: `{}`, Channel: channelOne}); err != nil {
 		t.Fatalf("dispatch app2 channelOne: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, charlieCtx, charlie), "app2-first")
 	assertNoFrame(t, alice)
 	assertNoFrame(t, bob)
@@ -649,6 +675,7 @@ func TestInventoryServerPresenceAndCacheJoinFlow(t *testing.T) {
 	))
 	env := readEnvelope(t, aliceCtx, alice)
 	assertEvent(t, env, "pusher_internal:subscription_succeeded")
+
 	if !strings.Contains(env.Data, `"count":1`) {
 		t.Fatalf("alice presence payload = %q", env.Data)
 	}
@@ -661,6 +688,7 @@ func TestInventoryServerPresenceAndCacheJoinFlow(t *testing.T) {
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "pusher_internal:member_added")
 	env = readEnvelope(t, bobCtx, bob)
 	assertEvent(t, env, "pusher_internal:subscription_succeeded")
+
 	if !strings.Contains(env.Data, `"count":2`) || !strings.Contains(env.Data, `"Alice"`) || !strings.Contains(env.Data, `"Bob"`) {
 		t.Fatalf("bob presence payload = %q", env.Data)
 	}
@@ -679,6 +707,7 @@ func TestInventoryServerPresenceAndCacheJoinFlow(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("dispatch cache event: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "cache-event")
 
 	cacheObserver, cacheObserverCtx := dialWebSocket(t, ts, "/app/"+app.Key(), "https://app.example.com")
@@ -701,6 +730,7 @@ func TestInventoryServerPresenceAndCacheJoinFlow(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("dispatch private cache event: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "private-cache-event")
 
 	writeJSONMessage(t, cacheObserverCtx, cacheObserver, subscribeFrame(
@@ -726,6 +756,7 @@ func TestInventoryServerPresenceAndCacheJoinFlow(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("dispatch presence cache event: %v", err)
 	}
+
 	assertEvent(t, readEnvelope(t, aliceCtx, alice), "presence-cache-event")
 
 	writeJSONMessage(t, cacheObserverCtx, cacheObserver, subscribeFrame(
@@ -768,6 +799,7 @@ func TestInventoryServerRejectsInvalidApplicationsAndAuth(t *testing.T) {
 	badReq.Header.Set("Origin", "https://app.example.com")
 	badRec := httptest.NewRecorder()
 	ts.Config.Handler.ServeHTTP(badRec, badReq)
+
 	if badRec.Result().StatusCode != http.StatusNotFound {
 		t.Fatalf("invalid app status = %d", badRec.Result().StatusCode)
 	}
@@ -781,6 +813,7 @@ func TestInventoryServerRejectsInvalidApplicationsAndAuth(t *testing.T) {
 		writeJSONMessage(t, ctx, conn, payload)
 		env := readEnvelope(t, ctx, conn)
 		assertEvent(t, env, "pusher:error")
+
 		if !strings.Contains(env.Data, `"code":4009`) {
 			t.Fatalf("%s error payload = %q", name, env.Data)
 		}
