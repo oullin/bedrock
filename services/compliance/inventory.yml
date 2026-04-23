@@ -90,13 +90,12 @@ framework:
 
   - id: framework.console
     upstream: Framework\Console
-    bedrock: null
-    status: missing
+    bedrock: console
+    status: mapped
     repo: upstream/framework
     branch: 13.x
     tests_path: tests/Console
     inventory: inventories/framework-console.txt
-    rationale: No Bedrock console package exists yet.
 
   - id: framework.container
     upstream: Framework\Container
@@ -242,13 +241,12 @@ framework:
 
   - id: framework.process
     upstream: Framework\Process
-    bedrock: null
-    status: missing
+    bedrock: process
+    status: mapped
     repo: upstream/framework
     branch: 13.x
     tests_path: tests/Process
     inventory: inventories/framework-process.txt
-    rationale: No Bedrock process package exists yet.
 
   - id: framework.queue
     upstream: Framework\Queue
@@ -318,12 +316,8 @@ framework:
   - id: framework.testing
     upstream: Framework\Testing
     bedrock: null
-    status: missing
-    repo: upstream/framework
-    branch: 13.x
-    tests_path: tests/Testing
-    inventory: inventories/framework-testing.txt
-    rationale: No Bedrock testing package exists yet.
+    status: excluded-permanent
+    rationale: Product boundary; standalone Upstream testing helpers are intentionally excluded from Bedrock.
 
   - id: framework.translation
     upstream: Framework\Translation
@@ -492,14 +486,14 @@ packages:
     inventory: inventories/package-socialauth.txt
 
   - id: package.billing
-    upstream: upstream/billing
+    upstream: upstream/billing-paddle
     bedrock: billing
     status: mapped
     repo: local:/Users/gocanto/Sites/madora
     branch: local
     tests_path: tests/Feature/Billing
     inventory: inventories/package-billing.txt
-    rationale: Billing is distributed through the local madora checkout; use the available billing/Billing integration tests as the local Billing compliance inventory.
+    rationale: Local Madora composer resolution of upstream/billing-paddle:^6.0 from https://billing.upstream.com at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle; upstream/cashier-paddle is its dependency, and tests/Feature/Billing remains the local product integration inventory.
 
   - id: package.debugbar
     upstream: upstream/debugbar

@@ -14,55 +14,55 @@ import (
 	"github.com/bedrock/packages/validation"
 )
 
-// Port of ValidationValidatorTest::testPassesReturnsTrueIfNoFailingRules
+// ValidationValidatorTest::testPassesReturnsTrueIfNoFailingRules
 
-// Port of ValidationValidatorTest::testFailsReturnsFalseIfFailingRules
+// ValidationValidatorTest::testFailsReturnsFalseIfFailingRules
 
-// Port of ValidationValidatorTest::testHasFailedRules
+// ValidationValidatorTest::testHasFailedRules
 
-// Port of ValidationValidatorTest::testValidateRequired
+// ValidationValidatorTest::testValidateRequired
 
-// Port of ValidationValidatorTest::testValidateRequiredIf
+// ValidationValidatorTest::testValidateRequiredIf
 
 // required_if:other,value — field is required when other == value
 
-// Port of ValidationValidatorTest::testValidateRequiredUnless
+// ValidationValidatorTest::testValidateRequiredUnless
 
 // required_unless:other,value — required unless other is one of the values
 
-// Port of ValidationValidatorTest::testValidateRequiredWith
+// ValidationValidatorTest::testValidateRequiredWith
 
 // required_with:other — required when 'other' is present and not empty
 
-// Port of ValidationValidatorTest::testValidateRequiredWithout
+// ValidationValidatorTest::testValidateRequiredWithout
 
 // required_without:other — required when 'other' is absent/empty
 
-// Port of ValidationValidatorTest::testValidatePresent
+// ValidationValidatorTest::testValidatePresent
 
 // present — field must exist even if blank
 
-// Port of ValidationValidatorTest::testValidateFilled
+// ValidationValidatorTest::testValidateFilled
 
 // filled — if present, must not be blank
 
 // absent field is OK for filled
 
-// Port of ValidationValidatorTest::testValidateMissing
+// ValidationValidatorTest::testValidateMissing
 
-// Port of ValidationValidatorTest::testValidateProhibited
+// ValidationValidatorTest::testValidateProhibited
 
-// Port of ValidationValidatorTest::testValidateProhibitedIf
+// ValidationValidatorTest::testValidateProhibitedIf
 
 // prohibited_if:other,value
 
-// Port of ValidationValidatorTest::testValidateAccepted
+// ValidationValidatorTest::testValidateAccepted
 
-// Port of ValidationValidatorTest::testValidateIn
+// ValidationValidatorTest::testValidateIn
 
-// Port of ValidationValidatorTest::testValidateNotIn
+// ValidationValidatorTest::testValidateNotIn
 
-// Port of ValidationValidatorTest::testValidateMin
+// ValidationValidatorTest::testValidateMin
 
 // string: min characters
 
@@ -70,59 +70,59 @@ import (
 
 // array: min items
 
-// Port of ValidationValidatorTest::testValidateMax
+// ValidationValidatorTest::testValidateMax
 
-// Port of ValidationValidatorTest::testValidateBetween
+// ValidationValidatorTest::testValidateBetween
 
-// Port of ValidationValidatorTest::testValidateSize
+// ValidationValidatorTest::testValidateSize
 
-// Port of ValidationValidatorTest::testValidateEmail
+// ValidationValidatorTest::testValidateEmail
 
-// Port of ValidationValidatorTest::testValidateUrl
+// ValidationValidatorTest::testValidateUrl
 
-// Port of ValidationValidatorTest::testValidateIp
+// ValidationValidatorTest::testValidateIp
 
-// Port of ValidationValidatorTest::testValidateAlpha
+// ValidationValidatorTest::testValidateAlpha
 
-// Port of ValidationValidatorTest::testValidateAlphaDash
+// ValidationValidatorTest::testValidateAlphaDash
 
-// Port of ValidationValidatorTest::testValidateAlphaNum
+// ValidationValidatorTest::testValidateAlphaNum
 
-// Port of ValidationValidatorTest::testValidateNumeric
+// ValidationValidatorTest::testValidateNumeric
 
-// Port of ValidationValidatorTest::testValidateInteger
+// ValidationValidatorTest::testValidateInteger
 
-// Port of ValidationValidatorTest::testValidateBoolean
+// ValidationValidatorTest::testValidateBoolean
 
-// Port of ValidationValidatorTest::testValidateDate
+// ValidationValidatorTest::testValidateDate
 
-// Port of ValidationValidatorTest::testValidateDateFormat
+// ValidationValidatorTest::testValidateDateFormat
 
-// Port of ValidationValidatorTest::testValidateBefore
+// ValidationValidatorTest::testValidateBefore
 
-// Port of ValidationValidatorTest::testValidateAfter
+// ValidationValidatorTest::testValidateAfter
 
-// Port of ValidationValidatorTest::testValidateSame
+// ValidationValidatorTest::testValidateSame
 
-// Port of ValidationValidatorTest::testValidateDifferent
+// ValidationValidatorTest::testValidateDifferent
 
-// Port of ValidationValidatorTest::testValidateConfirmed
+// ValidationValidatorTest::testValidateConfirmed
 
-// Port of ValidationValidatorTest::testValidateDistinct
+// ValidationValidatorTest::testValidateDistinct
 
-// Port of ValidationValidatorTest::testValidateArray
+// ValidationValidatorTest::testValidateArray
 
-// Port of ValidationValidatorTest::testValidateBail
+// ValidationValidatorTest::testValidateBail
 
 // With bail: only 1 error per field should appear
 
-// Port of ValidationValidatorTest::testValidateNullable
+// ValidationValidatorTest::testValidateNullable
 
 // nil value with nullable passes other rules
 
 // non-nil value still validated
 
-// Port of ValidationValidatorTest::testSometimesWorksOnNestedArrays
+// ValidationValidatorTest::testSometimesWorksOnNestedArrays
 
 // "sometimes" means: only validate if the field is present in the data
 
@@ -130,7 +130,7 @@ import (
 
 // name is present but blank → fails required
 
-// Port of ValidationValidatorTest::testCustomValidationRules
+// ValidationValidatorTest::testCustomValidationRules
 
 // ValidationRule object that rejects the value "forbidden"
 
@@ -271,6 +271,40 @@ func TestValidateRequiredWithout(t *testing.T) {
 	assertPasses(t, v2)
 }
 
+// ValidationValidatorTest::testValidateRequiredAcceptedIf
+func TestValidateRequiredAcceptedIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "yes", "email": ""},
+		map[string]any{"email": "required_if_accepted:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "no", "email": ""},
+		map[string]any{"email": "required_if_accepted:notify"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateRequiredIfDeclined
+func TestValidateRequiredIfDeclined(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "no", "email": ""},
+		map[string]any{"email": "required_if_declined:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "yes", "email": ""},
+		map[string]any{"email": "required_if_declined:notify"},
+	)
+	assertPasses(t, v2)
+}
+
 func TestValidatePresent(t *testing.T) {
 	t.Parallel()
 
@@ -279,6 +313,142 @@ func TestValidatePresent(t *testing.T) {
 
 	v2 := makeValidator(map[string]any{}, map[string]any{"field": "present"})
 	assertFails(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentIf
+func TestValidatePresentIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin"},
+		map[string]any{"token": "present_if:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "user"},
+		map[string]any{"token": "present_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentUnless
+func TestValidatePresentUnless(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin"},
+		map[string]any{"token": "present_unless:type,guest"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "guest"},
+		map[string]any{"token": "present_unless:type,guest"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentWith
+func TestValidatePresentWith(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor"},
+		map[string]any{"token": "present_with:name"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{},
+		map[string]any{"token": "present_with:name"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidatePresentWithAll
+func TestValidatePresentWithAll(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "email": "user@example.com"},
+		map[string]any{"token": "present_with_all:name,email"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"name": "Taylor"},
+		map[string]any{"token": "present_with_all:name,email"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingIf
+func TestValidateMissingIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "admin", "token": "present"},
+		map[string]any{"token": "missing_if:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "user", "token": "present"},
+		map[string]any{"token": "missing_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingUnless
+func TestValidateMissingUnless(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"type": "user", "token": "present"},
+		map[string]any{"token": "missing_unless:type,admin"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"type": "admin", "token": "present"},
+		map[string]any{"token": "missing_unless:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingWith
+func TestValidateMissingWith(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "token": "present"},
+		map[string]any{"token": "missing_with:name"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"token": "present"},
+		map[string]any{"token": "missing_with:name"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateMissingWithAll
+func TestValidateMissingWithAll(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"name": "Taylor", "email": "user@example.com", "token": "present"},
+		map[string]any{"token": "missing_with_all:name,email"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"name": "Taylor", "token": "present"},
+		map[string]any{"token": "missing_with_all:name,email"},
+	)
+	assertPasses(t, v2)
 }
 
 func TestValidateFilled(t *testing.T) {
@@ -329,6 +499,23 @@ func TestValidateProhibitedIf(t *testing.T) {
 	v2 := makeValidator(
 		map[string]any{"type": "user", "secret": "s3cr3t"},
 		map[string]any{"secret": "prohibited_if:type,admin"},
+	)
+	assertPasses(t, v2)
+}
+
+// ValidationValidatorTest::testValidateProhibitedDeclinedIf
+func TestValidateProhibitedDeclinedIf(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"notify": "no", "secret": "s3cr3t"},
+		map[string]any{"secret": "prohibited_if_declined:notify"},
+	)
+	assertFails(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"notify": "yes", "secret": "s3cr3t"},
+		map[string]any{"secret": "prohibited_if_declined:notify"},
 	)
 	assertPasses(t, v2)
 }
@@ -710,6 +897,40 @@ func TestValidateArray(t *testing.T) {
 	assertFails(t, v2)
 }
 
+// ValidationValidatorTest::testValidateList
+func TestValidateList(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"items": []any{"a", "b", "c"}},
+		map[string]any{"items": "list"},
+	)
+	assertPasses(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"items": map[string]any{"0": "a", "1": "b"}},
+		map[string]any{"items": "list"},
+	)
+	assertFails(t, v2)
+}
+
+// ValidationValidatorTest::testValidateArrayKeys
+func TestValidateArrayKeys(t *testing.T) {
+	t.Parallel()
+
+	v := makeValidator(
+		map[string]any{"profile": map[string]any{"name": "Taylor", "email": "user@example.com"}},
+		map[string]any{"profile": "array:name,email"},
+	)
+	assertPasses(t, v)
+
+	v2 := makeValidator(
+		map[string]any{"profile": map[string]any{"name": "Taylor", "email": "user@example.com", "admin": true}},
+		map[string]any{"profile": "array:name,email"},
+	)
+	assertFails(t, v2)
+}
+
 func TestValidateBail(t *testing.T) {
 	t.Parallel()
 
@@ -787,7 +1008,7 @@ func (r *rejectForbiddenRule) Validate(attribute string, value any, fail func(st
 	}
 }
 
-// Port of ValidationValidatorTest::testWildcardNestedRules
+// ValidationValidatorTest::testWildcardNestedRules
 func TestWildcardNestedRules(t *testing.T) {
 	t.Parallel()
 
@@ -824,7 +1045,7 @@ func TestWildcardNestedRules(t *testing.T) {
 	assertPasses(t, v2)
 }
 
-// Port of ValidationValidatorTest::testConditionalRules
+// ValidationValidatorTest::testConditionalRules
 func TestConditionalRules(t *testing.T) {
 	t.Parallel()
 
@@ -855,7 +1076,7 @@ func TestConditionalRules(t *testing.T) {
 	_ = v
 }
 
-// Port of ValidationValidatorTest::testValidateRegex
+// ValidationValidatorTest::testValidateRegex
 func TestValidateRegex(t *testing.T) {
 	t.Parallel()
 
@@ -872,7 +1093,7 @@ func TestValidateRegex(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateUUID
+// ValidationValidatorTest::testValidateUUID
 func TestValidateUUID(t *testing.T) {
 	t.Parallel()
 
@@ -889,7 +1110,7 @@ func TestValidateUUID(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateJson
+// ValidationValidatorTest::testValidateJson
 func TestValidateJson(t *testing.T) {
 	t.Parallel()
 
@@ -906,7 +1127,7 @@ func TestValidateJson(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateStartsWith
+// ValidationValidatorTest::testValidateStartsWith
 func TestValidateStartsWith(t *testing.T) {
 	t.Parallel()
 
@@ -923,7 +1144,7 @@ func TestValidateStartsWith(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateEndsWith
+// ValidationValidatorTest::testValidateEndsWith
 func TestValidateEndsWith(t *testing.T) {
 	t.Parallel()
 
@@ -940,7 +1161,7 @@ func TestValidateEndsWith(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateInArray
+// ValidationValidatorTest::testValidateInArray
 func TestValidateInArray(t *testing.T) {
 	t.Parallel()
 
@@ -957,7 +1178,7 @@ func TestValidateInArray(t *testing.T) {
 	assertFails(t, v2)
 }
 
-// Port of ValidationValidatorTest::testValidateHexColor
+// ValidationValidatorTest::testValidateHexColor
 func TestValidateHexColor(t *testing.T) {
 	t.Parallel()
 
@@ -978,7 +1199,7 @@ func TestValidateHexColor(t *testing.T) {
 	}
 }
 
-// Port of ValidationValidatorTest::testValidateTimezone
+// ValidationValidatorTest::testValidateTimezone
 func TestValidateTimezone(t *testing.T) {
 	t.Parallel()
 

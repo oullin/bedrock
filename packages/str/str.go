@@ -720,9 +720,9 @@ func globToRegex(pattern string) string {
 	for _, r := range pattern {
 		switch r {
 		case '*':
-			sb.WriteString(".*")
+			sb.WriteString(`[\s\S]*`)
 		case '?':
-			sb.WriteString(".")
+			sb.WriteString(`[\s\S]`)
 		case '.', '+', '(', ')', '[', ']', '{', '}', '^', '$', '|', '\\':
 			sb.WriteRune('\\')
 			sb.WriteRune(r)
@@ -792,10 +792,22 @@ func StrIsUrl(value string, protocols ...string) bool {
 	return true
 }
 
-func StrIsUuid(value string) bool {
+func StrIsUuid(value string, version ...int) bool {
 	re := regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
-	return re.MatchString(value)
+	if !re.MatchString(value) {
+		return false
+	}
+
+	if len(version) == 0 {
+		return true
+	}
+
+	if version[0] < 1 || version[0] > 8 {
+		return false
+	}
+
+	return int(value[14]-'0') == version[0]
 }
 
 func StrIsUlid(value string) bool {
@@ -835,13 +847,25 @@ func StrWords(value string, words int, end ...string) string {
 		suffix = end[0]
 	}
 
-	wordList := regexp.MustCompile(`\s+`).Split(strings.TrimSpace(value), -1)
+	if words <= 0 {
+		return value
+	}
+
+	trimmed := strings.TrimSpace(value)
+
+	if trimmed == "" {
+		return value
+	}
+
+	wordList := regexp.MustCompile(`\s+`).Split(trimmed, -1)
 
 	if len(wordList) <= words {
 		return value
 	}
 
-	return strings.Join(wordList[:words], " ") + suffix
+	leading := regexp.MustCompile(`^\s*`).FindString(value)
+
+	return leading + strings.Join(wordList[:words], " ") + suffix
 }
 
 func StrLower(value string) string {
@@ -1658,7 +1682,9 @@ func StrRandom(length ...int) string {
 		return val
 	}
 
-	_ = fallback
+	if fallback != nil {
+		return fallback(l)
+	}
 
 	return generateRandom(l)
 }
@@ -1827,8 +1853,27 @@ func (s *StringBuilder) EndsWith(suffixes ...string) bool {
 func (s *StringBuilder) Is(pattern string, ignoreCase ...bool) bool {
 	return StrIs(pattern, s.value, ignoreCase...)
 }
-func (s *StringBuilder) IsAscii() bool    { return StrIsAscii(s.value) }
-func (s *StringBuilder) IsJson() bool     { return StrIsJson(s.value) }
+func (s *StringBuilder) ClassBasename() *StringBuilder {
+	name := strings.Trim(s.value, "\\/")
+
+	if idx := strings.LastIndexAny(name, "\\/"); idx >= 0 {
+		name = name[idx+1:]
+	}
+
+	return &StringBuilder{value: name}
+}
+func (s *StringBuilder) IsMatch(patterns ...string) bool {
+	return StrIsMatch(patterns, s.value)
+}
+func (s *StringBuilder) IsAscii() bool { return StrIsAscii(s.value) }
+func (s *StringBuilder) IsJson() bool  { return StrIsJson(s.value) }
+func (s *StringBuilder) IsUrl(protocols ...string) bool {
+	return StrIsUrl(s.value, protocols...)
+}
+func (s *StringBuilder) IsUuid(version ...int) bool {
+	return StrIsUuid(s.value, version...)
+}
+func (s *StringBuilder) IsUlid() bool     { return StrIsUlid(s.value) }
 func (s *StringBuilder) IsEmpty() bool    { return s.value == "" }
 func (s *StringBuilder) IsNotEmpty() bool { return s.value != "" }
 func (s *StringBuilder) Length() int      { return StrLength(s.value) }
@@ -1846,6 +1891,11 @@ func (s *StringBuilder) Match(pattern string) *StringBuilder {
 }
 func (s *StringBuilder) MatchAll(pattern string) []string {
 	return StrMatchAll(pattern, s.value)
+}
+func (s *StringBuilder) Test(pattern string) bool {
+	matched, err := regexp.MatchString(pattern, s.value)
+
+	return err == nil && matched
 }
 func (s *StringBuilder) Replace(search, replace any, caseSensitive ...bool) *StringBuilder {
 	return &StringBuilder{value: StrReplace(search, replace, s.value, caseSensitive...)}
@@ -1935,6 +1985,12 @@ func (s *StringBuilder) FromBase64() (*StringBuilder, error) {
 }
 func (s *StringBuilder) Plural(count ...int) *StringBuilder {
 	return &StringBuilder{value: StrPlural(s.value, count...)}
+}
+func (s *StringBuilder) PluralStudly(count ...int) *StringBuilder {
+	return &StringBuilder{value: StrPluralStudly(s.value, count...)}
+}
+func (s *StringBuilder) PluralPascal(count ...int) *StringBuilder {
+	return &StringBuilder{value: StrPluralPascal(s.value, count...)}
 }
 func (s *StringBuilder) Singular() *StringBuilder {
 	return &StringBuilder{value: StrSingular(s.value)}

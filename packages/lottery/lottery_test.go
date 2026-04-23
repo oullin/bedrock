@@ -1,173 +1,355 @@
 package lottery
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 )
 
-// Port of Framework\Tests\Support\LotteryTest::it_can_always_win
-func TestLotteryAlwaysWin(t *testing.T) {
-	t.Parallel()
+func mustPanic(t *testing.T, want string, fn func()) {
+	t.Helper()
 
+	defer func() {
+		recovered := recover()
+
+		if recovered == nil {
+			t.Fatalf("expected panic %q", want)
+		}
+
+		if got := fmt.Sprint(recovered); got != want {
+			t.Fatalf("panic = %q, want %q", got, want)
+		}
+	}()
+
+	fn()
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanWin.
+func TestItCanWin(t *testing.T) {
 	won := false
-	NewLottery(1, 100).
-		Always().
-		Winner(func(...any) any { won = true; return nil }).
-		Run()
+
+	result := NewLottery(1, 1).
+		Winner(func(...any) any {
+			won = true
+
+			return nil
+		}).
+		Choose()
 
 	if !won {
-		t.Error("Always() should always win")
+		t.Fatal("winner callback was not invoked")
+	}
+
+	if result != nil {
+		t.Fatalf("Choose() = %v, want nil from winner callback", result)
 	}
 }
 
-// Port of Framework\Tests\Support\LotteryTest::it_can_always_lose
-func TestLotteryAlwaysLose(t *testing.T) {
-	t.Parallel()
-
+// Port of Framework\Tests\Support\LotteryTest::testItCanLose.
+func TestItCanLose(t *testing.T) {
+	won := false
 	lost := false
-	NewLottery(99, 100).
-		Never().
-		Loser(func(...any) any { lost = true; return nil }).
-		Run()
+
+	result := NewLottery(0, 1).
+		Winner(func(...any) any {
+			won = true
+
+			return nil
+		}).
+		Loser(func(...any) any {
+			lost = true
+
+			return nil
+		}).
+		Choose()
+
+	if won {
+		t.Fatal("winner callback should not be invoked")
+	}
 
 	if !lost {
-		t.Error("Never() should always lose")
+		t.Fatal("loser callback was not invoked")
+	}
+
+	if result != nil {
+		t.Fatalf("Choose() = %v, want nil from loser callback", result)
 	}
 }
 
-// Port of Framework\Tests\Support\LotteryTest::it_can_reset_force
-func TestLotteryResetForce(t *testing.T) {
-	t.Parallel()
+// Port of Framework\Tests\Support\LotteryTest::testItCanReturnValues.
+func TestItCanReturnValues(t *testing.T) {
+	win := NewLottery(1, 1).
+		Winner(func(...any) any {
+			return "win"
+		}).
+		Choose()
 
-	l := NewLottery(1, 1) // 100% odds
-	l.ForceWin()
-	l.ResetForce()
+	if win != "win" {
+		t.Fatalf("win = %v, want %q", win, "win")
+	}
 
-	// With 100% odds, should still win after reset
-	if !l.Choose() {
-		t.Error("after reset, 1/1 lottery should win")
+	lose := NewLottery(0, 1).
+		Loser(func(...any) any {
+			return "lose"
+		}).
+		Choose()
+
+	if lose != "lose" {
+		t.Fatalf("lose = %v, want %q", lose, "lose")
 	}
 }
 
-// Port of Framework\Tests\Support\LotteryTest::it_can_force_win
-func TestLotteryForceWin(t *testing.T) {
-	t.Parallel()
+// Port of Framework\Tests\Support\LotteryTest::testItCanChooseSeveralTimes.
+func TestItCanChooseSeveralTimes(t *testing.T) {
+	winResults := NewLottery(1, 1).
+		Winner(func(...any) any {
+			return "win"
+		}).
+		Choose(2)
 
-	l := NewLottery(0, 100) // 0% odds
-	l.ForceWin()
+	if !reflect.DeepEqual(winResults, []any{"win", "win"}) {
+		t.Fatalf("winResults = %#v, want %#v", winResults, []any{"win", "win"})
+	}
 
-	if !l.Choose() {
-		t.Error("ForceWin() should override zero odds")
+	loseResults := NewLottery(0, 1).
+		Loser(func(...any) any {
+			return "lose"
+		}).
+		Choose(2)
+
+	if !reflect.DeepEqual(loseResults, []any{"lose", "lose"}) {
+		t.Fatalf("loseResults = %#v, want %#v", loseResults, []any{"lose", "lose"})
 	}
 }
 
-// Port of Framework\Tests\Support\LotteryTest::it_can_force_lose
-func TestLotteryForceLose(t *testing.T) {
-	t.Parallel()
-
-	l := NewLottery(100, 100) // 100% odds
-	l.ForceLose()
-
-	if l.Choose() {
-		t.Error("ForceLose() should override full odds")
-	}
-}
-
-// Port of Framework\Tests\Support\LotteryTest::it_runs_the_winner_callback
-func TestLotteryWinnerCallback(t *testing.T) {
-	t.Parallel()
-
-	var result string
-
-	NewLottery(1, 1).
+// Port of Framework\Tests\Support\LotteryTest::testItCanBePassedAsCallable.
+func TestItCanBePassedAsCallable(t *testing.T) {
+	result := func(callable func(...any) any) any {
+		return callable("winner-chicken", "-dinner")
+	}(NewLottery(1, 1).
 		Winner(func(args ...any) any {
-			result = "won"
+			return "winner-" + args[0].(string) + args[1].(string)
+		}).
+		Run)
+
+	if result != "winner-winner-chicken-dinner" {
+		t.Fatalf("result = %v, want %q", result, "winner-winner-chicken-dinner")
+	}
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testWithoutSpecifiedClosuresBooleansAreReturned.
+func TestWithoutSpecifiedClosuresBooleansAreReturned(t *testing.T) {
+	win := NewLottery(1, 1).Choose()
+
+	if win != true {
+		t.Fatalf("win = %v, want true", win)
+	}
+
+	lose := NewLottery(0, 1).Choose()
+
+	if lose != false {
+		t.Fatalf("lose = %v, want false", lose)
+	}
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanForceWinningResultInTests.
+func TestItCanForceWinningResultInTests(t *testing.T) {
+	t.Cleanup(DetermineResultsNormally)
+
+	var result any
+
+	AlwaysWin(func() {
+		result = NewLottery(1, 2).
+			Winner(func(...any) any {
+				return "winner"
+			}).
+			Choose(10)
+	})
+
+	want := []any{
+		"winner", "winner", "winner", "winner", "winner",
+		"winner", "winner", "winner", "winner", "winner",
+	}
+
+	if !reflect.DeepEqual(result, want) {
+		t.Fatalf("result = %#v, want %#v", result, want)
+	}
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanForceLosingResultInTests.
+func TestItCanForceLosingResultInTests(t *testing.T) {
+	t.Cleanup(DetermineResultsNormally)
+
+	var result any
+
+	AlwaysLose(func() {
+		result = NewLottery(1, 2).
+			Loser(func(...any) any {
+				return "loser"
+			}).
+			Choose(10)
+	})
+
+	want := []any{
+		"loser", "loser", "loser", "loser", "loser",
+		"loser", "loser", "loser", "loser", "loser",
+	}
+
+	if !reflect.DeepEqual(result, want) {
+		t.Fatalf("result = %#v, want %#v", result, want)
+	}
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanForceTheResultViaSequence.
+func TestItCanForceTheResultViaSequence(t *testing.T) {
+	t.Cleanup(DetermineResultsNormally)
+
+	sequence := map[int]bool{
+		0: true,
+		1: false,
+		2: true,
+		3: false,
+		4: true,
+		5: false,
+		6: true,
+		7: false,
+		8: true,
+		9: false,
+	}
+
+	ForceResultWithSequence(sequence, nil)
+
+	result := NewLottery(1, 100).
+		Winner(func(...any) any {
+			return "winner"
+		}).
+		Loser(func(...any) any {
+			return "loser"
+		}).
+		Choose(10)
+
+	want := []any{
+		"winner", "loser", "winner", "loser", "winner",
+		"loser", "winner", "loser", "winner", "loser",
+	}
+
+	if !reflect.DeepEqual(result, want) {
+		t.Fatalf("result = %#v, want %#v", result, want)
+	}
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanHandleMissingSequenceItems.
+func TestItCanHandleMissingSequenceItems(t *testing.T) {
+	t.Cleanup(DetermineResultsNormally)
+
+	ForceResultWithSequence(map[int]bool{
+		0: true,
+		1: true,
+		3: true,
+	}, func(float64, *int) bool {
+		panic("Missing key in sequence.")
+	})
+
+	first := NewLottery(1, 10000).
+		Winner(func(...any) any {
+			return "winner"
+		}).
+		Loser(func(...any) any {
+			return "loser"
+		}).
+		Choose()
+
+	if first != "winner" {
+		t.Fatalf("first = %v, want %q", first, "winner")
+	}
+
+	second := NewLottery(1, 10000).
+		Winner(func(...any) any {
+			return "winner"
+		}).
+		Loser(func(...any) any {
+			return "loser"
+		}).
+		Choose()
+
+	if second != "winner" {
+		t.Fatalf("second = %v, want %q", second, "winner")
+	}
+
+	mustPanic(t, "Missing key in sequence.", func() {
+		NewLottery(1, 10000).
+			Winner(func(...any) any {
+				return "winner"
+			}).
+			Loser(func(...any) any {
+				return "loser"
+			}).
+			Choose()
+	})
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItThrowsForFloatsOverOne.
+func TestItThrowsForFloatsOverOne(t *testing.T) {
+	mustPanic(t, "Float must not be greater than 1.", func() {
+		NewLottery(1.1)
+	})
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItThrowsForOutOfLessThanOne.
+func TestItThrowsForOutOfLessThanOne(t *testing.T) {
+	mustPanic(t, "outOf must be at least 1", func() {
+		NewLottery(1, 0)
+	})
+}
+
+// Port of Framework\Tests\Support\LotteryTest::testItCanWinWithFloat.
+func TestItCanWinWithFloat(t *testing.T) {
+	wins := false
+
+	result := LotteryOdds(1.0).
+		Winner(func(...any) any {
+			wins = true
 
 			return nil
 		}).
-		Run()
+		Choose()
 
-	if result != "won" {
-		t.Errorf("winner callback not invoked: %q", result)
+	if !wins {
+		t.Fatal("winner callback was not invoked for float odds")
+	}
+
+	if result != nil {
+		t.Fatalf("Choose() = %v, want nil from winner callback", result)
 	}
 }
 
-// Port of Framework\Tests\Support\LotteryTest::it_runs_the_loser_callback
-func TestLotteryLoserCallback(t *testing.T) {
-	t.Parallel()
+// Port of Framework\Tests\Support\LotteryTest::testItCanLoseWithFloat.
+func TestItCanLoseWithFloat(t *testing.T) {
+	wins := false
+	loses := false
 
-	var result string
-
-	NewLottery(0, 1).
-		Loser(func(args ...any) any {
-			result = "lost"
+	result := LotteryOdds(0.0).
+		Winner(func(...any) any {
+			wins = true
 
 			return nil
 		}).
-		Run()
-
-	if result != "lost" {
-		t.Errorf("loser callback not invoked: %q", result)
-	}
-}
-
-// Port of Framework\Tests\Support\LotteryTest::it_passes_arguments_to_callback
-func TestLotteryPassesArgs(t *testing.T) {
-	t.Parallel()
-
-	var received []any
-
-	NewLottery(1, 1).
-		Winner(func(args ...any) any {
-			received = args
+		Loser(func(...any) any {
+			loses = true
 
 			return nil
 		}).
-		Run("hello", 42)
+		Choose()
 
-	if len(received) != 2 || received[0] != "hello" || received[1] != 42 {
-		t.Errorf("unexpected args: %v", received)
-	}
-}
-
-// Port of Framework\Tests\Support\LotteryTest::it_can_use_a_fixed_sequence
-func TestLotteryFixedSequence(t *testing.T) {
-	t.Parallel()
-
-	l := NewLottery(1, 2)
-	fixed := l.Fix([]bool{true, false, true})
-
-	results := []bool{
-		fixed.Run(),
-		fixed.Run(),
-		fixed.Run(),
+	if wins {
+		t.Fatal("winner callback should not be invoked for float odds")
 	}
 
-	if results[0] != true || results[1] != false || results[2] != true {
-		t.Errorf("unexpected sequence: %v", results)
+	if !loses {
+		t.Fatal("loser callback was not invoked for float odds")
 	}
-}
 
-// Port of Framework\Tests\Support\LotteryTest::it_returns_false_when_sequence_is_exhausted
-func TestLotterySequenceExhausted(t *testing.T) {
-	t.Parallel()
-
-	fixed := NewLottery(1, 1).Fix([]bool{true})
-	fixed.Run() // consume the only item
-
-	// Beyond the sequence: returns false (default)
-	if fixed.Run() {
-		t.Error("exhausted sequence should return false")
-	}
-}
-
-// Port of Framework\Tests\Support\LotteryTest::odds_alias
-func TestLotteryOdds(t *testing.T) {
-	t.Parallel()
-
-	l := LotteryOdds(1, 1)
-	l.ForceWin()
-
-	if !l.Choose() {
-		t.Error("LotteryOdds alias should work")
+	if result != nil {
+		t.Fatalf("Choose() = %v, want nil from loser callback", result)
 	}
 }

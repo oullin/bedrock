@@ -1,6 +1,10 @@
 package routing
 
-import "github.com/bedrock/packages/routing/matching"
+import (
+	"strings"
+
+	"github.com/bedrock/packages/routing/matching"
+)
 
 // CompiledRouteCollection is the production-mode counterpart to
 // [RouteCollection]. In Upstream/Symfony it is backed by a dumped matcher; in
@@ -47,6 +51,8 @@ func (c *CompiledRouteCollection) Add(route *Route) *Route {
 
 	if v, ok := route.ActionMap["controller"]; ok {
 		if s, ok := v.(string); ok && s != "" {
+			s = strings.TrimLeft(s, `\`)
+
 			if _, ok := c.actionList[s]; !ok {
 				c.actionList[s] = route
 			}
@@ -76,6 +82,8 @@ func (c *CompiledRouteCollection) RefreshActionLookups() {
 	for _, r := range c.routes {
 		if v, ok := r.ActionMap["controller"]; ok {
 			if s, ok := v.(string); ok && s != "" {
+				s = strings.TrimLeft(s, `\`)
+
 				if _, ok := c.actionList[s]; !ok {
 					c.actionList[s] = r
 				}

@@ -12,6 +12,7 @@ type mockGLAgent struct{ path string }
 
 func (m *mockGLAgent) GuidelinesPath() string { return m.path }
 
+// GuidelineWriterTest::test_it_writes_guidelines_to_new_file
 func TestInstallGuidelineWriterCreatesFile(t *testing.T) {
 	t.Parallel()
 
@@ -34,16 +35,25 @@ func TestInstallGuidelineWriterCreatesFile(t *testing.T) {
 	}
 }
 
-func TestInstallGuidelineWriterEmptyPathErrors(t *testing.T) {
+// GuidelineWriterTest::test_it_throws_exception_when_directory_creation_fails
+func TestInstallGuidelineWriterDirectoryCreationFails(t *testing.T) {
 	t.Parallel()
+
+	tmp := t.TempDir()
+	blocker := filepath.Join(tmp, "blocked")
+
+	if err := os.WriteFile(blocker, []byte("file"), 0o644); err != nil {
+		t.Fatalf("write blocker file: %v", err)
+	}
 
 	w := install.NewGuidelineWriter()
 
-	if err := w.Write(&mockGLAgent{path: ""}, "content"); err == nil {
-		t.Error("expected error for empty guidelines path")
+	if err := w.Write(&mockGLAgent{path: filepath.Join(blocker, "AGENTS.md")}, "content"); err == nil {
+		t.Fatal("expected error when parent directory cannot be created")
 	}
 }
 
+// GuidelineWriterTest::test_it_creates_directory_when_it_does_not_exist
 func TestInstallGuidelineWriterCreatesParentDirs(t *testing.T) {
 	t.Parallel()
 

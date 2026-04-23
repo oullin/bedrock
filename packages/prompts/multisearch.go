@@ -1,6 +1,9 @@
 package prompts
 
-import "strings"
+import (
+	"sort"
+	"strings"
+)
 
 // MultiSearchOption configures a MultiSearchPrompt.
 type MultiSearchOption func(*MultiSearchPrompt)
@@ -128,6 +131,10 @@ func MultiSearch(label string, options func(string) map[string]string, opts ...M
 			p.Scrollable.HighlightPrevious(1)
 		case IsDownKey(key):
 			p.Scrollable.HighlightNext(1)
+		case OneOfKey(KeyHome, key):
+			p.Scrollable.HighlightFirst()
+		case OneOfKey(KeyEnd, key):
+			p.Scrollable.HighlightLast()
 		case key == KeyPageUp:
 			p.Scrollable.HighlightPrevious(p.scroll)
 		case key == KeyPageDown:
@@ -165,8 +172,16 @@ func (p *MultiSearchPrompt) refreshMatches() {
 	result := p.optionsFn(p.searchValue)
 	p.currentMatches = nil
 
-	for k, v := range result {
-		p.currentMatches = append(p.currentMatches, OptionItem{Key: k, Label: v})
+	keys := make([]string, 0, len(result))
+
+	for key := range result {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		p.currentMatches = append(p.currentMatches, OptionItem{Key: key, Label: result[key]})
 	}
 
 	p.Scrollable.InitScrolling(len(p.currentMatches), p.scroll)

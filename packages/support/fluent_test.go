@@ -2,6 +2,7 @@ package support
 
 import (
 	"encoding/json"
+	"iter"
 	"testing"
 )
 
@@ -17,6 +18,38 @@ func TestFluentAttributesSetByConstructor(t *testing.T) {
 
 	if f.Get("age") != 30 {
 		t.Errorf("expected 30, got %v", f.Get("age"))
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenstdClass
+func TestFluentAttributesSetByConstructorFromStruct(t *testing.T) {
+	t.Parallel()
+
+	type sample struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	f := NewFluent(sample{Name: "Taylor", Age: 30})
+
+	if f.Get("name") != "Taylor" || f.Get("age") != 30 {
+		t.Fatalf("constructor from struct = %v", f.All())
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenArrayIterator
+func TestFluentAttributesSetByConstructorFromIterator(t *testing.T) {
+	t.Parallel()
+
+	input := iter.Seq2[string, any](func(yield func(string, any) bool) {
+		_ = yield("name", "Taylor")
+		_ = yield("age", 30)
+	})
+
+	f := NewFluent(input)
+
+	if f.Get("name") != "Taylor" || f.Get("age") != 30 {
+		t.Fatalf("constructor from iterator = %v", f.All())
 	}
 }
 
@@ -83,6 +116,22 @@ func TestFluentToJSON(t *testing.T) {
 
 	if result["key"] != "value" {
 		t.Errorf("JSON key = %v", result["key"])
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testToPrettyJson
+func TestFluentToPrettyJSON(t *testing.T) {
+	t.Parallel()
+
+	f := NewFluent(map[string]any{"key": "value"})
+	data, err := f.ToPrettyJSON()
+
+	if err != nil {
+		t.Fatalf("ToPrettyJSON error: %v", err)
+	}
+
+	if data != "{\n  \"key\": \"value\"\n}" {
+		t.Fatalf("ToPrettyJSON = %q", data)
 	}
 }
 
@@ -158,7 +207,9 @@ func TestFluentFloat(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportFluentTest::testIsEmptyAndIsNotEmpty
+// Ports of:
+// - Framework\Tests\Support\SupportFluentTest::testFluentIsEmpty
+// - Framework\Tests\Support\SupportFluentTest::testFluentIsNotEmpty
 func TestFluentIsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -180,6 +231,53 @@ func TestFluentIsEmpty(t *testing.T) {
 
 	if !nonempty.IsNotEmpty() {
 		t.Error("non-empty Fluent should be not-empty")
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testScope
+func TestFluentScope(t *testing.T) {
+	t.Parallel()
+
+	f := NewFluent(map[string]any{
+		"meta.name": "Taylor",
+		"meta.role": "admin",
+		"plain":     "value",
+	})
+
+	scoped := f.Scope("meta")
+
+	if scoped.Get("name") != "Taylor" {
+		t.Errorf("Scope(meta).Get(name) = %v", scoped.Get("name"))
+	}
+
+	if scoped.Get("role") != "admin" {
+		t.Errorf("Scope(meta).Get(role) = %v", scoped.Get("role"))
+	}
+
+	if scoped.Get("plain") != nil {
+		t.Errorf("Scope(meta) should exclude unscoped keys, got %v", scoped.Get("plain"))
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testStringMethod
+func TestFluentString(t *testing.T) {
+	t.Parallel()
+
+	f := NewFluent(map[string]any{
+		"name":  "Taylor",
+		"bytes": []byte("Upstream"),
+	})
+
+	if got := f.String("name"); got != "Taylor" {
+		t.Errorf("String(name) = %q", got)
+	}
+
+	if got := f.String("bytes"); got != "Upstream" {
+		t.Errorf("String(bytes) = %q", got)
+	}
+
+	if got := f.String("missing", "default"); got != "default" {
+		t.Errorf("String(missing, default) = %q", got)
 	}
 }
 
@@ -274,5 +372,17 @@ func TestFluentHasMissing(t *testing.T) {
 
 	if !f.Missing("absent") {
 		t.Error("Missing should return true for absent key")
+	}
+}
+
+// Port of Framework\Tests\Support\SupportFluentTest::testArrayMethod
+func TestFluentArray(t *testing.T) {
+	t.Parallel()
+
+	f := NewFluent(map[string]any{"a": 1})
+	result := f.Array()
+
+	if len(result) != 1 || result["a"] != 1 {
+		t.Fatalf("Array() = %v", result)
 	}
 }

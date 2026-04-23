@@ -115,6 +115,10 @@ func DataTable(headers []string, rows [][]string, opts ...DataTableOption) (stri
 			p.Scrollable.HighlightPrevious(1)
 		case IsDownKey(key):
 			p.Scrollable.HighlightNext(1)
+		case OneOfKey(KeyHome, key):
+			p.Scrollable.HighlightFirst()
+		case OneOfKey(KeyEnd, key):
+			p.Scrollable.HighlightLast()
 		case key == KeyPageUp:
 			p.Scrollable.HighlightPrevious(p.scroll)
 		case key == KeyPageDown:

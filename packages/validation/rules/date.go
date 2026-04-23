@@ -38,6 +38,21 @@ func parseDate(value any) (time.Time, bool) {
 
 	s = strings.TrimSpace(s)
 
+	switch strings.ToLower(s) {
+	case "today":
+		now := time.Now().UTC()
+
+		return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC), true
+	case "tomorrow":
+		now := time.Now().UTC().AddDate(0, 0, 1)
+
+		return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC), true
+	case "yesterday":
+		now := time.Now().UTC().AddDate(0, 0, -1)
+
+		return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC), true
+	}
+
 	for _, layout := range commonDateLayouts {
 		t, err := time.Parse(layout, s)
 

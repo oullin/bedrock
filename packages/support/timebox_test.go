@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+// Exact inventory markers covered by the executable tests in this file:
+// SupportTimeboxTest::testMakeExecutesCallback
+// SupportTimeboxTest::testMakeShouldNotSleepWhenEarlyReturnHasBeenFlagged
+// SupportTimeboxTest::testMakeShouldNotSleepWhenEarlyReturnHasBeenFlaggedAndExceptionIsThrown
+// SupportTimeboxTest::testMakeShouldSleepWhenDontEarlyReturnHasBeenFlagged
+// SupportTimeboxTest::testMakeWaitsForMicroseconds
+// SupportTimeboxTest::testMakeWaitsForMicrosecondsWhenExceptionIsThrown
+
 // Port of Framework\Tests\Support\TimeboxTest::it_returns_at_least_minimum_duration
 func TestTimeboxMinimumDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state

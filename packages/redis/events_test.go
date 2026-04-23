@@ -2,12 +2,14 @@ package redis_test
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 
 	"github.com/bedrock/packages/redis"
 )
 
+// RedisConnectionTest::testItDispatchesQueryEvent
 func TestCommandExecutedDispatchedWhenEnabled(t *testing.T) {
 	t.Parallel()
 	c, _ := newConn(t)
@@ -71,5 +73,43 @@ func TestEventsDisabledByDefault(t *testing.T) {
 
 	if fired == 0 {
 		t.Fatal("expected event after Enable")
+	}
+}
+
+// RedisEventsTest::testCommandFailedEventIsDispatched
+// RedisEventsTest::testCommandExecutedEventIsNotDispatchedWhenCommandFails
+// RedisEventsTest::testCommandFailedEventContainsConnectionName
+// RedisEventsTest::testListenForFailuresRegistersCallback
+func TestCommandFailedDispatchedAndListened(t *testing.T) {
+	t.Parallel()
+	c, _ := newConn(t)
+
+	var executed int
+
+	c.Listen(func(redis.CommandExecuted) { executed++ })
+
+	var failed []redis.CommandFailed
+
+	c.ListenForFailures(func(e redis.CommandFailed) {
+		failed = append(failed, e)
+	})
+
+	ctx := context.Background()
+	_, err := c.Get(ctx, "missing")
+
+	if !errors.Is(err, redis.ErrNil) {
+		t.Fatalf("expected ErrNil, got %v", err)
+	}
+
+	if len(failed) != 1 {
+		t.Fatalf("expected one failure event, got %d", len(failed))
+	}
+
+	if executed != 0 {
+		t.Fatalf("expected no success events, got %d", executed)
+	}
+
+	if failed[0].Command != "get" || failed[0].ConnectionName != "default" {
+		t.Fatalf("failure event=%+v", failed[0])
 	}
 }

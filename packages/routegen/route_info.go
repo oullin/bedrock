@@ -140,6 +140,10 @@ func (r *RouteInfo) FullURI() string {
 	// Apply defaults: mark defaulted parameters as optional in the URI.
 	uri := r.URI
 
+	if uri == "" {
+		return jsonString("")
+	}
+
 	if !strings.HasPrefix(uri, "/") {
 		uri = "/" + uri
 	}

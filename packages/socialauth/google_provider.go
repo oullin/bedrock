@@ -2,7 +2,11 @@ package socialauth
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 )
 
 // GoogleProvider handles OAuth2 authentication via Google.
@@ -30,7 +34,31 @@ func (g *GoogleProvider) GetTokenURL() string {
 }
 
 func (g *GoogleProvider) GetUserByToken(ctx context.Context, token string) (map[string]any, error) {
+	if IsJWT(token) {
+		return DecodeJWTClaims(token)
+	}
+
 	return g.getWithBearer(ctx, "https://www.googleapis.com/oauth2/v3/userinfo", token)
+}
+
+// UserFromIDToken maps an OpenID Connect ID token without calling userinfo.
+func (g *GoogleProvider) UserFromIDToken(_ context.Context, idToken string) (*User, error) {
+	raw, err := DecodeJWTClaims(idToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return g.MapUserToObject(raw).SetRaw(raw).SetToken(idToken), nil
+}
+
+// UserFromToken accepts either an access token or an OpenID Connect ID token.
+func (g *GoogleProvider) UserFromToken(ctx context.Context, token string) (*User, error) {
+	if IsJWT(token) {
+		return g.UserFromIDToken(ctx, token)
+	}
+
+	return g.AbstractProvider.UserFromToken(ctx, token)
 }
 
 func (g *GoogleProvider) MapUserToObject(raw map[string]any) *User {
@@ -50,4 +78,46 @@ func (g *GoogleProvider) MapUserToObject(raw map[string]any) *User {
 	u.Attributes["link"] = raw["profile"]
 
 	return u
+}
+
+// IsJWT reports whether token has the three base64url segments of a JWT.
+func IsJWT(token string) bool {
+	parts := strings.Split(token, ".")
+
+	if len(parts) != 3 {
+		return false
+	}
+
+	for _, part := range parts {
+		if part == "" {
+			return false
+		}
+	}
+
+	return true
+}
+
+// DecodeJWTClaims decodes JWT claims without performing provider signature
+// verification. Production verification belongs at the provider boundary; this
+// helper only mirrors SocialAuth's testable mapping path for already trusted
+// OpenID Connect ID tokens.
+func DecodeJWTClaims(token string) (map[string]any, error) {
+	if !IsJWT(token) {
+		return nil, errors.New("socialauth: token is not a jwt")
+	}
+
+	parts := strings.Split(token, ".")
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims := map[string]any{}
+
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return nil, err
+	}
+
+	return claims, nil
 }

@@ -73,6 +73,7 @@ var _ contract.Engine = (*fakeEngine)(nil)
 
 func TestMakeSearchableHandle(t *testing.T) {
 	t.Parallel()
+	// MakeSearchableTest::test_handle_passes_the_collection_to_engine
 	engine := &fakeEngine{}
 	models := []contract.Searchable{
 		&testModel{id: 1, table: "posts"},

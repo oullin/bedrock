@@ -3,6 +3,7 @@ package socialauth
 import (
 	"context"
 	"net/http"
+	"strings"
 )
 
 // LinkedInProvider handles OAuth2 authentication via LinkedIn.
@@ -65,10 +66,30 @@ func (l *LinkedInProvider) GetUserByToken(ctx context.Context, token string) (ma
 
 func (l *LinkedInProvider) MapUserToObject(raw map[string]any) *User {
 	u := &User{}
+
 	u.ID = stringify(raw["id"])
-	u.Name = stringify(raw["localizedFirstName"]) + " " + stringify(raw["localizedLastName"])
+
+	if u.ID == "" {
+		u.ID = stringify(raw["sub"])
+	}
+
+	u.Name = strings.TrimSpace(stringify(raw["localizedFirstName"]) + " " + stringify(raw["localizedLastName"]))
+
+	if u.Name == "" {
+		u.Name = stringify(raw["name"])
+	}
+
 	u.Email = stringify(raw["emailAddress"])
+
+	if u.Email == "" {
+		u.Email = stringify(raw["email"])
+	}
+
 	u.Avatar = l.extractAvatar(raw)
+
+	if u.Avatar == "" {
+		u.Avatar = stringify(raw["picture"])
+	}
 
 	return u
 }

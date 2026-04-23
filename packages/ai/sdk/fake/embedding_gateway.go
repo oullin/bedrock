@@ -56,7 +56,7 @@ func (g *EmbeddingGateway) PreventStray() {
 func (g *EmbeddingGateway) GenerateEmbeddings(ctx context.Context, req contractsgw.EmbeddingGenerateRequest) (*contractsgw.EmbeddingGenerateResult, error) {
 	prompt := &prompts.EmbeddingsPrompt{
 		Inputs:  req.Inputs,
-		Timeout: req.Timeout,
+		Timeout: timeoutOrDefault(req.Timeout, DefaultMediaTimeout),
 	}
 
 	if req.Dimensions > 0 {

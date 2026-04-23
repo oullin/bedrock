@@ -46,7 +46,7 @@ func (o *ModelObserver) Saved(ctx context.Context, event dbevents.Saved) {
 
 	if model.ShouldBeSearchable() {
 		o.makeSearchable(ctx, model)
-	} else {
+	} else if WasSearchableBeforeUpdate(model) {
 		o.removeFromSearch(ctx, model)
 	}
 }
@@ -64,10 +64,18 @@ func (o *ModelObserver) Deleted(ctx context.Context, event dbevents.Deleted) {
 		return
 	}
 
+	if !WasSearchableBeforeDelete(model) {
+		return
+	}
+
 	if o.config.SoftDelete && model.UsesSoftDelete() {
-		// When soft deletes are enabled, update the model in the index
-		// (so it includes the soft-delete metadata) instead of removing it.
-		o.makeSearchable(ctx, model)
+		if model.ShouldBeSearchable() {
+			// When soft deletes are enabled, update the model in the index
+			// (so it includes the soft-delete metadata) instead of removing it.
+			o.makeSearchable(ctx, model)
+		} else {
+			o.removeFromSearch(ctx, model)
+		}
 
 		return
 	}

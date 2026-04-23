@@ -73,6 +73,38 @@ func toInt64(v any) (int64, error) {
 	}
 }
 
+// toFloat64 coerces a reply value to float64.
+func toFloat64(v any) (float64, error) {
+	switch x := v.(type) {
+	case nil:
+		return 0, ErrNil
+	case float64:
+		return x, nil
+	case int64:
+		return float64(x), nil
+	case int:
+		return float64(x), nil
+	case string:
+		n, err := strconv.ParseFloat(x, 64)
+
+		if err != nil {
+			return 0, ErrUnexpectedReply
+		}
+
+		return n, nil
+	case []byte:
+		n, err := strconv.ParseFloat(string(x), 64)
+
+		if err != nil {
+			return 0, ErrUnexpectedReply
+		}
+
+		return n, nil
+	default:
+		return 0, ErrUnexpectedReply
+	}
+}
+
 // toSlice coerces a reply value to []any.
 func toSlice(v any) ([]any, error) {
 	switch x := v.(type) {

@@ -149,6 +149,38 @@ func TestTokenGuardClientReturnsClientForToken(t *testing.T) {
 	}
 }
 
+func TestTokenGuardClientResolvesBearerTokenWithoutUserResolution(t *testing.T) {
+	p := newOAuthServer()
+	tokens := oauthserver.NewMemoryTokenStore().WithOAuthServer(p)
+	clients := oauthserver.NewMemoryClientStore()
+
+	client := &oauthserver.Client{ID: "c1", Name: "Worker", Secret: "s"}
+	_ = clients.Create(context.Background(), client)
+
+	tok := newTestToken("tok-client", "", "c1", []string{"jobs:run"})
+	_ = tokens.Save(context.Background(), tok)
+
+	guard := newGuard(p, tokens, clients, map[string]cauth.Authenticatable{})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Bearer tok-client")
+	guard.SetRequest(req)
+
+	got, err := guard.Client(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got == nil {
+		t.Fatal("expected client credentials token to resolve a client")
+	}
+
+	if got.ID != "c1" {
+		t.Errorf("client id = %q, want %q", got.ID, "c1")
+	}
+}
+
 func TestTokenGuardClientReturnsNilForRevokedToken(t *testing.T) {
 	p := newOAuthServer()
 	tokens := oauthserver.NewMemoryTokenStore()

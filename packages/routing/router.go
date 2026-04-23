@@ -149,13 +149,7 @@ func (r *Router) Resource(name, controller string, options map[string]any) *Pend
 // ApiResource starts a fluent registration that excludes the create and edit
 // form actions (the JSON-API subset).
 func (r *Router) ApiResource(name, controller string, options map[string]any) *PendingResourceRegistration {
-	if options == nil {
-		options = map[string]any{}
-	}
-
-	if _, ok := options["only"]; !ok {
-		options["except"] = []string{"create", "edit"}
-	}
+	options = withAPIExceptDefaults(options, []string{"create", "edit"})
 
 	return r.Resource(name, controller, options)
 }
@@ -167,15 +161,46 @@ func (r *Router) Singleton(name, controller string, options map[string]any) *Pen
 
 // ApiSingleton is the JSON-API counterpart of [Router.Singleton].
 func (r *Router) ApiSingleton(name, controller string, options map[string]any) *PendingSingletonResourceRegistration {
-	if options == nil {
-		options = map[string]any{}
-	}
-
-	if _, ok := options["only"]; !ok {
-		options["except"] = []string{"edit"}
-	}
+	options = withAPIExceptDefaults(options, []string{"create", "edit"})
 
 	return r.Singleton(name, controller, options)
+}
+
+func withAPIExceptDefaults(options map[string]any, defaults []string) map[string]any {
+	out := map[string]any{}
+
+	for k, v := range options {
+		out[k] = v
+	}
+
+	if _, ok := out["only"]; ok {
+		return out
+	}
+
+	existing, _ := out["except"].([]string)
+	out["except"] = appendUniqueStrings(defaults, existing...)
+
+	return out
+}
+
+func appendUniqueStrings(base []string, values ...string) []string {
+	out := append([]string(nil), base...)
+	seen := map[string]bool{}
+
+	for _, v := range out {
+		seen[v] = true
+	}
+
+	for _, v := range values {
+		if seen[v] {
+			continue
+		}
+
+		out = append(out, v)
+		seen[v] = true
+	}
+
+	return out
 }
 
 // Resources iterates name → controller pairs, registering each as a resource.

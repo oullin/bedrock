@@ -2,10 +2,14 @@ package collection
 
 import (
 	"cmp"
+	"errors"
 	"slices"
 
 	"github.com/bedrock/packages/collection/support"
 )
+
+// ErrReduceSpreadLength is returned when a spread reducer changes the accumulator arity.
+var ErrReduceSpreadLength = errors.New("collection: reduce spread callback must return the same number of values")
 
 // Median returns the median value of a float64 collection.
 func Median(c *Collection[float64]) float64 {
@@ -62,6 +66,23 @@ func Mode[T comparable](c *Collection[T]) []T {
 	return result
 }
 
+// ReduceSpread reduces a collection while carrying multiple accumulator values.
+func ReduceSpread[T any, R any](c *Collection[T], callback func([]R, T, int) []R, initial ...R) ([]R, error) {
+	result := append([]R(nil), initial...)
+
+	for i, item := range c.items {
+		next := callback(append([]R(nil), result...), item, i)
+
+		if len(next) != len(result) {
+			return nil, ErrReduceSpreadLength
+		}
+
+		result = append(result[:0], next...)
+	}
+
+	return result, nil
+}
+
 // Sum returns the sum of all items in a numeric collection.
 func Sum[T support.Numeric](c *Collection[T]) T {
 	var total T
@@ -82,6 +103,23 @@ func SumBy[T any, N support.Numeric](c *Collection[T], valueFunc func(T) N) N {
 	}
 
 	return total
+}
+
+// Percentage returns the percentage of items matching the predicate.
+func Percentage[T any](c *Collection[T], predicate func(T, int) bool) (float64, bool) {
+	if len(c.items) == 0 {
+		return 0, false
+	}
+
+	matches := 0
+
+	for i, item := range c.items {
+		if predicate(item, i) {
+			matches++
+		}
+	}
+
+	return float64(matches) / float64(len(c.items)) * 100, true
 }
 
 // Avg returns the arithmetic mean of all items in a numeric collection.

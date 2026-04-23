@@ -19,6 +19,7 @@ type mockMcpAgent struct {
 func (m *mockMcpAgent) McpConfigPath() string { return m.configPath }
 func (m *mockMcpAgent) McpConfigKey() string  { return m.configKey }
 
+// McpWriterTest::it_installs_boost_mcp_successfully_without_sail
 func TestMcpWriterCreatesFile(t *testing.T) {
 	t.Parallel()
 
@@ -135,6 +136,8 @@ func TestMcpWriterMergesExistingKeys(t *testing.T) {
 	}
 }
 
+// Mcp/FileWriterTest::test_save_method_returns_boolean
+// McpWriterTest::it_throws_exception_when_boost_mcp_installation_returns_false
 func TestMcpWriterMissingConfigPathReturnsSentinel(t *testing.T) {
 	t.Parallel()
 
