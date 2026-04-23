@@ -69,18 +69,23 @@ func NewHTTPHandler(apps *AppManager, conns *ConnectionManager, channels *Channe
 func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/up" {
 		h.handleHealth(w)
+
 		return
 	}
 
 	appPath, ok := appPathFromRequest(r.URL.Path)
+
 	if !ok {
 		http.Error(w, "not found", http.StatusNotFound)
+
 		return
 	}
 
 	parts := strings.Split(strings.TrimPrefix(appPath, "/apps/"), "/")
+
 	if len(parts) < 2 {
 		http.Error(w, "not found", http.StatusNotFound)
+
 		return
 	}
 
@@ -88,8 +93,10 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resource := parts[1]
 
 	app, err := h.apps.FindByID(appID)
+
 	if err != nil {
 		http.Error(w, "app not found", http.StatusNotFound)
+
 		return
 	}
 
@@ -125,6 +132,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func appPathFromRequest(path string) (string, bool) {
 	idx := strings.Index(path, "/apps/")
+
 	if idx < 0 {
 		return "", false
 	}
@@ -136,6 +144,7 @@ func (h *HTTPHandler) authenticate(w http.ResponseWriter, r *http.Request, app *
 	q := r.URL.Query()
 	signature := q.Get("auth_signature")
 	normalizedPath, ok := appPathFromRequest(r.URL.Path)
+
 	if !ok {
 		normalizedPath = r.URL.Path
 	}
@@ -195,8 +204,10 @@ func (h *HTTPHandler) handleTrigger(w http.ResponseWriter, r *http.Request, app 
 	}
 
 	info := requestedInfo(r)
+
 	if len(info) == 0 {
 		writeJSON(w, http.StatusOK, map[string]any{})
+
 		return
 	}
 
@@ -239,8 +250,10 @@ func (h *HTTPHandler) handleBatchTrigger(w http.ResponseWriter, r *http.Request,
 	}
 
 	info := requestedInfo(r)
+
 	if len(info) == 0 {
 		writeJSON(w, http.StatusOK, map[string]any{})
+
 		return
 	}
 
@@ -274,10 +287,12 @@ func (h *HTTPHandler) handleChannel(w http.ResponseWriter, r *http.Request, app 
 	if len(r.URL.Query().Get("info")) == 0 {
 		if len(ch.Connections()) == 0 {
 			writeJSON(w, http.StatusOK, map[string]any{"occupied": false})
+
 			return
 		}
 
 		writeJSON(w, http.StatusOK, map[string]any{"occupied": true})
+
 		return
 	}
 
@@ -286,13 +301,16 @@ func (h *HTTPHandler) handleChannel(w http.ResponseWriter, r *http.Request, app 
 
 func requestedInfo(r *http.Request) map[string]struct{} {
 	raw := r.URL.Query().Get("info")
+
 	if raw == "" {
 		return nil
 	}
 
 	info := make(map[string]struct{})
+
 	for _, part := range strings.Split(raw, ",") {
 		part = strings.TrimSpace(part)
+
 		if part != "" {
 			info[part] = struct{}{}
 		}
@@ -373,6 +391,7 @@ func cachedEventData(event *contractsReverb.Event) any {
 	}
 
 	var data any
+
 	if err := json.Unmarshal([]byte(event.Data), &data); err == nil {
 		return data
 	}
@@ -390,23 +409,29 @@ func parseUserID(id string) any {
 
 func (h *HTTPHandler) handleChannelUsers(w http.ResponseWriter, app *App, name string) {
 	ch, ok := h.channels.Get(app.ID(), name)
+
 	if !ok {
 		http.Error(w, "presence channel not found", http.StatusBadRequest)
+
 		return
 	}
 
 	pc, ok := ch.(contractsReverb.PresenceChanneler)
+
 	if !ok {
 		http.Error(w, "presence channel not found", http.StatusBadRequest)
+
 		return
 	}
 
 	if len(pc.Connections()) == 0 {
 		http.Error(w, "presence channel not occupied", http.StatusNotFound)
+
 		return
 	}
 
 	users := make([]map[string]any, 0, len(pc.MemberIDs()))
+
 	for _, id := range pc.MemberIDs() {
 		users = append(users, map[string]any{"id": parseUserID(id)})
 	}
@@ -430,9 +455,11 @@ func (h *HTTPHandler) eventResponse(app *App, channels []string, info map[string
 		if _, ok := seen[chanName]; ok {
 			continue
 		}
+
 		seen[chanName] = struct{}{}
 
 		ch, ok := h.channels.Get(app.ID(), chanName)
+
 		if !ok {
 			continue
 		}
@@ -470,17 +497,21 @@ func projectEventInfo(chanName string, ch contractsReverb.Channel, info map[stri
 
 func flattenBatchChannels(batch []TriggerRequest) []string {
 	channels := make([]string, 0)
+
 	for _, item := range batch {
 		channels = append(channels, item.Channels...)
 	}
+
 	return channels
 }
 
 // writeJSON encodes v as JSON and writes it with the given status code.
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	payload, err := json.Marshal(v)
+
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+
 		return
 	}
 

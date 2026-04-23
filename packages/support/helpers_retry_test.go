@@ -109,6 +109,7 @@ func TestRetryWithPassingSleepCallback(t *testing.T) {
 
 	err := Retry(3, func(attempt int) error {
 		attempts++
+
 		if attempts < 3 {
 			return errors.New("retry")
 		}
@@ -136,6 +137,7 @@ func TestRetryWithPassingWhenCallback(t *testing.T) {
 	attempts := 0
 	err := RetryWhen(3, func(attempt int) error {
 		attempts++
+
 		if attempts < 2 {
 			return errors.New("retry")
 		}
@@ -217,9 +219,11 @@ func TestSupportHelpersThrowDefaultException(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, nil)
+
 	if err == nil {
 		t.Fatalf("expected default exception")
 	}
+
 	if err.Error() == "" {
 		t.Fatalf("expected non-empty default exception message")
 	}
@@ -230,6 +234,7 @@ func TestSupportHelpersThrowExceptionWithMessage(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, errors.New("boom"))
+
 	if err == nil || err.Error() != "boom" {
 		t.Fatalf("expected 'boom', got %v", err)
 	}
@@ -240,6 +245,7 @@ func TestSupportHelpersThrowExceptionAsStringWithMessage(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, "boom")
+
 	if err == nil || err.Error() != "boom" {
 		t.Fatalf("expected 'boom', got %v", err)
 	}
@@ -250,6 +256,7 @@ func TestSupportHelpersThrowClosureException(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, func() error { return errors.New("closure boom") })
+
 	if err == nil || err.Error() != "closure boom" {
 		t.Fatalf("expected 'closure boom', got %v", err)
 	}
@@ -260,6 +267,7 @@ func TestSupportHelpersThrowClosureWithParamsException(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, func(arg string) error { return fmt.Errorf("%s boom", arg) }, "first")
+
 	if err == nil || err.Error() != "first boom" {
 		t.Fatalf("expected 'first boom', got %v", err)
 	}
@@ -270,6 +278,7 @@ func TestSupportHelpersThrowClosureStringWithParamsException(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(true, func(arg string) string { return arg + " string" }, "first")
+
 	if err == nil || err.Error() != "first string" {
 		t.Fatalf("expected 'first string', got %v", err)
 	}
@@ -280,14 +289,17 @@ func TestSupportHelpersThrowUnlessDefaultException(t *testing.T) {
 	t.Parallel()
 
 	err := ThrowUnless(false, nil)
+
 	if err == nil {
 		t.Fatalf("expected default exception")
 	}
+
 	if err.Error() == "" {
 		t.Fatalf("expected non-empty default exception message")
 	}
 
 	err = ThrowUnless(true, errors.New("boom"))
+
 	if err != nil {
 		t.Fatalf("expected nil when condition is true, got %v", err)
 	}
@@ -298,6 +310,7 @@ func TestSupportHelpersThrowUnlessExceptionWithMessage(t *testing.T) {
 	t.Parallel()
 
 	err := ThrowUnless(false, errors.New("boom"))
+
 	if err == nil || err.Error() != "boom" {
 		t.Fatalf("expected 'boom', got %v", err)
 	}
@@ -308,6 +321,7 @@ func TestSupportHelpersThrowUnlessExceptionAsStringWithMessage(t *testing.T) {
 	t.Parallel()
 
 	err := ThrowUnless(false, "boom")
+
 	if err == nil || err.Error() != "boom" {
 		t.Fatalf("expected 'boom', got %v", err)
 	}
@@ -318,6 +332,7 @@ func TestSupportHelpersThrowReturnIfNotThrown(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(false, errors.New("unexpected"))
+
 	if err != nil {
 		t.Fatalf("expected nil when condition is false, got %v", err)
 	}
@@ -328,11 +343,13 @@ func TestSupportHelpersThrowWithString(t *testing.T) {
 	t.Parallel()
 
 	err := Throw(false, "boom")
+
 	if err != nil {
 		t.Fatalf("expected nil when condition is false, got %v", err)
 	}
 
 	err = Throw(true, "first:%d", 7)
+
 	if err == nil || err.Error() != "first:7" {
 		t.Fatalf("expected formatted message, got %v", err)
 	}

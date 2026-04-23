@@ -16,12 +16,15 @@ func TestInventoryServerContextAndCapabilityParity(t *testing.T) {
 
 	// ServerContextTest::it_clamps_perpage_to_default_and_max_values
 	ctx := mcp.ExportServerContext(mcp.NewServer("srv", "1.0.0", mcp.WithPagination(3, 5)))
+
 	if got := ctx.PerPage(0); got != 3 {
 		t.Fatalf("expected default per-page value 3, got %d", got)
 	}
+
 	if got := ctx.PerPage(2); got != 2 {
 		t.Fatalf("expected requested per-page value 2, got %d", got)
 	}
+
 	if got := ctx.PerPage(9); got != 5 {
 		t.Fatalf("expected max-clamped per-page value 5, got %d", got)
 	}
@@ -73,9 +76,11 @@ func TestInventoryReadResourceTemplateParity(t *testing.T) {
 			default:
 				t.Fatalf("expected session id to survive template dispatch, got %q", req.SessionID)
 			}
+
 			if req.URI == "" {
 				t.Fatal("expected request URI to be set")
 			}
+
 			if req.URIVars["id"] == "" {
 				t.Fatalf("expected extracted URI variable, got %#v", req.URIVars)
 			}
@@ -96,11 +101,13 @@ func TestInventoryReadResourceTemplateParity(t *testing.T) {
 		},
 	}
 	payload, err := json.Marshal(rawRequest)
+
 	if err != nil {
 		t.Fatalf("unexpected marshal error: %v", err)
 	}
 
 	raw, err := srv.Handle(context.Background(), string(payload), "session-1")
+
 	if err != nil {
 		t.Fatalf("unexpected handle error: %v", err)
 	}
@@ -108,13 +115,17 @@ func TestInventoryReadResourceTemplateParity(t *testing.T) {
 	first := decodeJSON(t, raw)
 	result := mustResult(t, first)
 	contents, _ := result["contents"].([]any)
+
 	if len(contents) != 1 {
 		t.Fatalf("expected one resource content item, got %#v", contents)
 	}
+
 	content := contents[0].(map[string]any)
+
 	if content["uri"] != "file://users/7" {
 		t.Fatalf("expected actual requested uri in response, got %v", content["uri"])
 	}
+
 	if !strings.Contains(content["text"].(string), "file://users/7") {
 		t.Fatalf("expected requested uri in content text, got %#v", content["text"])
 	}
@@ -128,11 +139,13 @@ func TestInventoryReadResourceTemplateParity(t *testing.T) {
 		},
 	}
 	secondPayload, err := json.Marshal(secondRequest)
+
 	if err != nil {
 		t.Fatalf("unexpected second marshal error: %v", err)
 	}
 
 	secondRaw, err := srv.Handle(context.Background(), string(secondPayload), "session-2")
+
 	if err != nil {
 		t.Fatalf("unexpected second handle error: %v", err)
 	}
@@ -140,13 +153,17 @@ func TestInventoryReadResourceTemplateParity(t *testing.T) {
 	second := decodeJSON(t, secondRaw)
 	secondResult := mustResult(t, second)
 	secondContents, _ := secondResult["contents"].([]any)
+
 	if len(secondContents) != 1 {
 		t.Fatalf("expected one resource content item on second read, got %#v", secondContents)
 	}
+
 	secondContent := secondContents[0].(map[string]any)
+
 	if secondContent["uri"] != "file://users/8" {
 		t.Fatalf("expected second requested uri in response, got %v", secondContent["uri"])
 	}
+
 	if !strings.Contains(secondContent["text"].(string), "file://users/8") {
 		t.Fatalf("expected second requested uri in content text, got %#v", secondContent["text"])
 	}
@@ -164,6 +181,7 @@ func TestInventoryResourceTemplateOrderingParity(t *testing.T) {
 	srv.AddResource(mcp.NewResourceTemplate("second", "Second template", "file://dup/{id}", "text/plain",
 		func(_ context.Context, _ *mcp.Request) (*mcp.Response, error) {
 			t.Fatal("expected first matching template to be selected before later templates")
+
 			return nil, nil
 		}))
 
@@ -203,14 +221,19 @@ func TestInventoryJSONRPCValidationParity(t *testing.T) {
 
 	// JsonRpcResponseTest::it_converts_empty_array_params_in_notification_to_object
 	notification, err := mcp.NotificationResponse("notifications/progress", nil).ToJSON()
+
 	if err != nil {
 		t.Fatalf("unexpected notification encode error: %v", err)
 	}
+
 	var decoded map[string]any
+
 	if err := json.Unmarshal(notification, &decoded); err != nil {
 		t.Fatalf("unexpected notification decode error: %v", err)
 	}
+
 	params := decoded["result"].(map[string]any)["params"].(map[string]any)
+
 	if len(params) != 0 {
 		t.Fatalf("expected empty notification params object, got %#v", params)
 	}
@@ -218,10 +241,13 @@ func TestInventoryJSONRPCValidationParity(t *testing.T) {
 	// JsonRpcResponseTest::it_includes_meta_in_result_when_provided_in_result_array
 	// JsonRpcResponseTest::it_does_not_include_meta_when_not_in_result
 	withMeta := mustResult(t, decodeJSONBytes(t, mustJSON(t, mcp.ResultResponse(1, map[string]any{"_meta": map[string]any{"trace": "abc"}}))))
+
 	if withMeta["_meta"].(map[string]any)["trace"] != "abc" {
 		t.Fatalf("expected result meta to be preserved, got %#v", withMeta)
 	}
+
 	withoutMeta := mustResult(t, decodeJSONBytes(t, mustJSON(t, mcp.ResultResponse(1, map[string]any{"ok": true}))))
+
 	if _, ok := withoutMeta["_meta"]; ok {
 		t.Fatalf("expected no meta when result has none, got %#v", withoutMeta)
 	}
@@ -229,10 +255,13 @@ func TestInventoryJSONRPCValidationParity(t *testing.T) {
 	// JsonRpcExceptionTest::it_converts_to_jsonrpc_error_with_id_and_without_data
 	// JsonRpcExceptionTest::it_converts_to_jsonrpc_error_without_id_and_with_data
 	withID := mustError(t, decodeJSONBytes(t, mustJSON(t, mcp.ErrorResponse(9, mcp.CodeInvalidParams, "invalid"))))
+
 	if withID["message"] != "invalid" || withID["data"] != nil {
 		t.Fatalf("expected error with id and no data, got %#v", withID)
 	}
+
 	withData := mustError(t, decodeJSONBytes(t, mustJSON(t, mcp.ErrorResponse(nil, mcp.CodeInvalidParams, "invalid", map[string]any{"field": "name"}))))
+
 	if withData["data"].(map[string]any)["field"] != "name" {
 		t.Fatalf("expected error data to be preserved, got %#v", withData)
 	}
@@ -245,16 +274,19 @@ func TestInventoryListToolsRequestedPerPageParity(t *testing.T) {
 	// ListToolsTest::it_respects_per_page_when_bigger_than_default
 	// ListToolsTest::it_caps_per_page_at_max_pagination_length
 	srv := mcp.NewServer("inventory", "1.0.0", mcp.WithPagination(2, 4))
+
 	for i := 0; i < 6; i++ {
 		srv.AddTool(indexedTool(i))
 	}
 
 	requested := mustResult(t, sendRaw(t, srv, "tools/list", map[string]any{"perPage": 3}))
+
 	if tools := requested["tools"].([]any); len(tools) != 3 {
 		t.Fatalf("expected requested perPage to return 3 tools, got %#v", tools)
 	}
 
 	capped := mustResult(t, sendRaw(t, srv, "tools/list", map[string]any{"perPage": 99}))
+
 	if tools := capped["tools"].([]any); len(tools) != 4 {
 		t.Fatalf("expected perPage to be capped at max 4, got %#v", tools)
 	}
@@ -274,6 +306,7 @@ func TestInventoryHTTPResourceAndMethodParity(t *testing.T) {
 		"method":  "resources/list",
 		"params":  map[string]any{},
 	})
+
 	if resourcesResp.Code != http.StatusOK || !strings.Contains(resourcesResp.Body.String(), `"resources"`) {
 		t.Fatalf("unexpected HTTP resources/list response: code=%d body=%s", resourcesResp.Code, resourcesResp.Body.String())
 	}
@@ -285,6 +318,7 @@ func TestInventoryHTTPResourceAndMethodParity(t *testing.T) {
 		"method":  "resources/read",
 		"params":  map[string]any{"uri": "file://static/config.json"},
 	})
+
 	if readResp.Code != http.StatusOK || !strings.Contains(readResp.Body.String(), "config data") {
 		t.Fatalf("unexpected HTTP resources/read response: code=%d body=%s", readResp.Code, readResp.Body.String())
 	}
@@ -296,9 +330,11 @@ func TestInventoryHTTPResourceAndMethodParity(t *testing.T) {
 		"method":  "tools/list",
 		"params":  map[string]any{},
 	})
+
 	if !strings.Contains(before.Body.String(), `"echo"`) {
 		t.Fatalf("expected initial tool list to include echo, got %s", before.Body.String())
 	}
+
 	srv.AddTool(greetTool())
 	after := serveJSONRPC(t, srv, http.MethodPost, map[string]any{
 		"jsonrpc": "2.0",
@@ -306,18 +342,21 @@ func TestInventoryHTTPResourceAndMethodParity(t *testing.T) {
 		"method":  "tools/list",
 		"params":  map[string]any{},
 	})
+
 	if !strings.Contains(after.Body.String(), `"greet"`) {
 		t.Fatalf("expected dynamically added tool to be listed, got %s", after.Body.String())
 	}
 
 	// StartCommandTest::it_returns_405_for_get_requests_to_mcp_web_routes
 	getResp := serveJSONRPC(t, srv, http.MethodGet, nil)
+
 	if getResp.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("expected GET to return 405, got code=%d body=%s", getResp.Code, getResp.Body.String())
 	}
 
 	// StartCommandTest::it_returns_405_for_delete_requests_to_mcp_web_routes
 	deleteResp := serveJSONRPC(t, srv, http.MethodDelete, nil)
+
 	if deleteResp.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("expected DELETE to return 405, got code=%d body=%s", deleteResp.Code, deleteResp.Body.String())
 	}
@@ -330,20 +369,26 @@ func TestInventoryResourceTemplateUnitParity(t *testing.T) {
 	// ResourceTemplateTest::it_extracts_variables_from_matching_uri
 	// ResourceTemplateTest::it_handles_template_with_single_variable
 	single, err := mcp.NewUriTemplate("file://users/{id}")
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	singleVars, ok := single.Match("file://users/42")
+
 	if !ok || singleVars["id"] != "42" {
 		t.Fatalf("expected single-variable template match, got vars=%#v ok=%v", singleVars, ok)
 	}
 
 	// ResourceTemplateTest::it_handles_complex_uri_templates_with_multiple_path_segments
 	complex, err := mcp.NewUriTemplate("file://orgs/{org}/users/{user}/files/{file}")
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	complexVars, ok := complex.Match("file://orgs/bedrock/users/ada/files/report")
+
 	if !ok || complexVars["org"] != "bedrock" || complexVars["user"] != "ada" || complexVars["file"] != "report" {
 		t.Fatalf("expected complex template variables, got vars=%#v ok=%v", complexVars, ok)
 	}
@@ -367,6 +412,7 @@ func TestInventoryResourceTemplateUnitParity(t *testing.T) {
 func mustJSON(t testing.TB, resp *mcp.JsonRpcResponse) []byte {
 	t.Helper()
 	b, err := resp.ToJSON()
+
 	if err != nil {
 		t.Fatalf("unexpected JSON encode error: %v", err)
 	}
@@ -378,6 +424,7 @@ func decodeJSONBytes(t testing.TB, raw []byte) map[string]any {
 	t.Helper()
 
 	var out map[string]any
+
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatalf("invalid JSON %q: %v", raw, err)
 	}
@@ -389,13 +436,16 @@ func serveJSONRPC(t testing.TB, srv *mcp.Server, method string, payload map[stri
 	t.Helper()
 
 	var body *strings.Reader
+
 	if payload == nil {
 		body = strings.NewReader("")
 	} else {
 		b, err := json.Marshal(payload)
+
 		if err != nil {
 			t.Fatalf("unexpected request marshal error: %v", err)
 		}
+
 		body = strings.NewReader(string(b))
 	}
 

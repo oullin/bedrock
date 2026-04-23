@@ -9,12 +9,9 @@ import (
 // BalanceStrategy controls how queue load is weighted during auto scaling.
 type BalanceStrategy string
 
-const (
-	// BalanceByTime weights queues by their estimated time to clear.
-	BalanceByTime BalanceStrategy = "time"
-	// BalanceBySize weights queues by pending job count.
-	BalanceBySize BalanceStrategy = "size"
-)
+// BalanceByTime weights queues by their estimated time to clear.
+
+// BalanceBySize weights queues by pending job count.
 
 // AutoScaleOptions contains process boundaries for queue balancing.
 type AutoScaleOptions struct {
@@ -30,9 +27,16 @@ type ProcessRecommendation struct {
 	Processes int
 }
 
+const (
+	BalanceByTime BalanceStrategy = "time"
+
+	BalanceBySize BalanceStrategy = "size"
+)
+
 // RecommendProcesses returns deterministic per-queue process recommendations.
 func RecommendProcesses(snapshot Snapshot, current map[string]int, options AutoScaleOptions) []ProcessRecommendation {
 	queues := append([]QueueStatus(nil), snapshot.Queues...)
+
 	sort.SliceStable(queues, func(i, j int) bool {
 		return queues[i].Name < queues[j].Name
 	})
@@ -42,17 +46,21 @@ func RecommendProcesses(snapshot Snapshot, current map[string]int, options AutoS
 	}
 
 	minProcesses := options.MinProcesses
+
 	if minProcesses <= 0 {
 		minProcesses = 1
 	}
 
 	desiredTotal := minProcesses * len(queues)
+
 	if hasPendingJobs(queues) && options.MaxProcesses > desiredTotal {
 		desiredTotal = options.MaxProcesses
 	}
+
 	if options.MaxProcesses > 0 && desiredTotal > options.MaxProcesses {
 		desiredTotal = options.MaxProcesses
 	}
+
 	if desiredTotal < minProcesses*len(queues) {
 		desiredTotal = minProcesses * len(queues)
 	}
@@ -62,6 +70,7 @@ func RecommendProcesses(snapshot Snapshot, current map[string]int, options AutoS
 
 	for _, queue := range queues {
 		processes := targets[queue.Name]
+
 		if options.MaxShift > 0 && current != nil {
 			processes = limitShift(processes, current[queue.Name], options.MaxShift, minProcesses)
 		}
@@ -81,17 +90,20 @@ func RecommendProcesses(snapshot Snapshot, current map[string]int, options AutoS
 
 func allocateProcesses(queues []QueueStatus, total, minProcesses int, strategy BalanceStrategy) map[string]int {
 	targets := make(map[string]int, len(queues))
+
 	for _, queue := range queues {
 		targets[queue.Name] = minProcesses
 	}
 
 	remaining := total - minProcesses*len(queues)
+
 	if remaining <= 0 {
 		return targets
 	}
 
 	weights := make([]float64, len(queues))
 	totalWeight := 0.0
+
 	for i, queue := range queues {
 		weights[i] = queueWeight(queue, strategy)
 		totalWeight += weights[i]
@@ -112,6 +124,7 @@ func allocateProcesses(queues []QueueStatus, total, minProcesses int, strategy B
 
 	remainders := make([]remainder, 0, len(queues))
 	assigned := 0
+
 	for i, weight := range weights {
 		share := (weight / totalWeight) * float64(remaining)
 		extra := int(math.Floor(share))
@@ -173,6 +186,7 @@ func limitShift(target, current, maxShift, minProcesses int) int {
 
 	upper := current + maxShift
 	lower := current - maxShift
+
 	if lower < minProcesses {
 		lower = minProcesses
 	}
@@ -180,6 +194,7 @@ func limitShift(target, current, maxShift, minProcesses int) int {
 	if target > upper {
 		return upper
 	}
+
 	if target < lower {
 		return lower
 	}

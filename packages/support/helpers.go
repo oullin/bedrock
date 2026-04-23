@@ -212,6 +212,7 @@ func ClassBasename(value any) string {
 
 	if name, ok := value.(string); ok {
 		name = strings.Trim(name, "\\/")
+
 		if idx := strings.LastIndexAny(name, "\\/"); idx >= 0 {
 			return name[idx+1:]
 		}
@@ -220,6 +221,7 @@ func ClassBasename(value any) string {
 	}
 
 	typ := reflect.TypeOf(value)
+
 	for typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}

@@ -15,6 +15,10 @@ type explicitBindingModel struct {
 	trashed bool
 }
 
+type explicitBindingContainer struct {
+	model *explicitBindingModel
+}
+
 func (m *explicitBindingModel) ResolveRouteBinding(value, field string) (any, error) {
 	if m.trashed {
 		return nil, nil
@@ -36,10 +40,6 @@ func (m *explicitBindingModel) ResolveSoftDeletableRouteBinding(value, field str
 }
 
 func (m *explicitBindingModel) IsSoftDeletable() bool { return true }
-
-type explicitBindingContainer struct {
-	model *explicitBindingModel
-}
 
 func (c explicitBindingContainer) Make(abstract string) (any, error) {
 	return c.model, nil

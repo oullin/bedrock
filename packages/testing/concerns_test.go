@@ -13,6 +13,7 @@ func TestViewConcernHelpers(t *testing.T) {
 
 	t.Run("TestViewsTest::testCompiledViewPathAppendsToken", func(t *testing.T) {
 		got := packagetesting.CompiledViewPath("/tmp/views", "abc123")
+
 		if got != "/tmp/views/abc123" {
 			t.Fatalf("expected compiled view path to append token, got %q", got)
 		}
@@ -20,6 +21,7 @@ func TestViewConcernHelpers(t *testing.T) {
 
 	t.Run("TestViewsTest::testCompiledViewPathTrimsTrailingSlash", func(t *testing.T) {
 		got := packagetesting.CompiledViewPath("/tmp/views/", "abc123")
+
 		if got != "/tmp/views/abc123" {
 			t.Fatalf("expected trailing slash to be trimmed, got %q", got)
 		}
@@ -36,11 +38,13 @@ func TestViewConcernHelpers(t *testing.T) {
 		updated := packagetesting.SwitchToCompiledViewPath(config, "abc123")
 
 		view := updated["view"].(map[string]any)
+
 		if view["compiled"] != "/tmp/views/abc123" {
 			t.Fatalf("expected compiled view path to update, got %v", view["compiled"])
 		}
 
 		original := config["view"].(map[string]any)
+
 		if original["compiled"] != "/tmp/views" {
 			t.Fatalf("expected original config to remain unchanged, got %v", original["compiled"])
 		}
@@ -51,6 +55,7 @@ func TestViewConcernHelpers(t *testing.T) {
 		updated := packagetesting.SwitchToCompiledViewPath(config, "xyz789")
 
 		view := updated["view"].(map[string]any)
+
 		if view["compiled"] != "/tmp/views/xyz789" {
 			t.Fatalf("expected compiler cache path to update, got %v", view["compiled"])
 		}
@@ -58,6 +63,7 @@ func TestViewConcernHelpers(t *testing.T) {
 
 	t.Run("TestViewsTest::testCompiledViewPathWithDifferentToken", func(t *testing.T) {
 		got := packagetesting.CompiledViewPath("/tmp/views", "xyz789")
+
 		if got != "/tmp/views/xyz789" {
 			t.Fatalf("expected compiled view path to use the new token, got %q", got)
 		}
@@ -65,6 +71,7 @@ func TestViewConcernHelpers(t *testing.T) {
 
 	t.Run("TestViewsTest::testCompiledViewPath", func(t *testing.T) {
 		got := packagetesting.CompiledViewPath("/tmp/views", "token")
+
 		if got != "/tmp/views/token" {
 			t.Fatalf("expected compiled view path to resolve, got %q", got)
 		}
@@ -73,6 +80,7 @@ func TestViewConcernHelpers(t *testing.T) {
 	t.Run("TestViewsTest::testTearDownProcessDeletesCompiledViewDirectory", func(t *testing.T) {
 		dir := t.TempDir()
 		file := dir + "/compiled.php"
+
 		if err := os.WriteFile(file, []byte("<?php"), 0o600); err != nil {
 			t.Fatalf("failed to create compiled file: %v", err)
 		}
@@ -107,6 +115,7 @@ func TestCacheConcernHelpers(t *testing.T) {
 		updated := packagetesting.SwitchToCachePrefix(config, "abc123")
 
 		cache := updated["cache"].(map[string]any)
+
 		if cache["prefix"] != "cache-prefix-abc123" {
 			t.Fatalf("expected cache prefix to update, got %v", cache["prefix"])
 		}
@@ -123,6 +132,7 @@ func TestCacheConcernHelpers(t *testing.T) {
 
 		cache := updated["cache"].(map[string]any)
 		resolved := cache["resolvedDrivers"].(map[string]any)
+
 		if resolved["redis"] != true {
 			t.Fatalf("expected resolved drivers to remain intact, got %v", resolved)
 		}
@@ -167,6 +177,7 @@ func TestDatabaseAndConfigHelpers(t *testing.T) {
 		updated := packagetesting.SwitchToDatabase(config, "")
 
 		database := updated["database"].(map[string]any)
+
 		if database["url"] != "" {
 			t.Fatalf("expected empty database URL, got %v", database["url"])
 		}
@@ -177,6 +188,7 @@ func TestDatabaseAndConfigHelpers(t *testing.T) {
 		updated := packagetesting.SwitchToDatabase(config, "sqlite://:memory:")
 
 		database := updated["database"].(map[string]any)
+
 		if database["url"] != "sqlite://:memory:" {
 			t.Fatalf("expected database URL to update, got %v", database["url"])
 		}
@@ -189,6 +201,7 @@ func TestDatabaseAndConfigHelpers(t *testing.T) {
 		}
 
 		got, err := packagetesting.RenderConfigShow(config, "")
+
 		if err != nil {
 			t.Fatalf("expected config render to succeed, got %v", err)
 		}
@@ -205,6 +218,7 @@ func TestDatabaseAndConfigHelpers(t *testing.T) {
 		}
 
 		got, err := packagetesting.RenderConfigShow(config, "cache")
+
 		if err != nil {
 			t.Fatalf("expected nested config render to succeed, got %v", err)
 		}
@@ -218,6 +232,7 @@ func TestDatabaseAndConfigHelpers(t *testing.T) {
 		config := map[string]any{"app": "bedrock"}
 
 		value, ok := packagetesting.ResolveConfigValue(config, "app")
+
 		if !ok || value != "bedrock" {
 			t.Fatalf("expected single config value, got %v (ok=%v)", value, ok)
 		}
@@ -290,6 +305,7 @@ func TestOperationalHelpers(t *testing.T) {
 		state.SetOption("cache", "redis")
 
 		options := state.Options()
+
 		if options["cache"] != "redis" {
 			t.Fatalf("expected parallel testing option to be stored, got %v", options)
 		}

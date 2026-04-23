@@ -962,48 +962,63 @@ func TestSupportStringablePredicateAndPluralParity(t *testing.T) {
 	if !Of("hello").IsAscii() {
 		t.Fatal("expected ASCII string")
 	}
+
 	if got := Of("App\\Models\\User").ClassBasename().Value(); got != "User" {
 		t.Fatalf("ClassBasename = %q", got)
 	}
+
 	if !Of("https://laravel.com/docs").IsUrl("https") {
 		t.Fatal("expected https URL")
 	}
+
 	if !Of("550e8400-e29b-41d4-a716-446655440000").IsUuid(4) {
 		t.Fatal("expected UUID v4")
 	}
+
 	if !Of("01ARYZ6S41TSV4RRFFQ69G5FAV").IsUlid() {
 		t.Fatal("expected ULID")
 	}
+
 	if !Of(`{"framework":"bedrock"}`).IsJson() {
 		t.Fatal("expected JSON")
 	}
+
 	if !Of("Taylor Otwell").IsMatch(`Taylor\s+Otwell`) {
 		t.Fatal("expected regex match")
 	}
+
 	if !Of("").IsEmpty() || !Of("Bedrock").IsNotEmpty() {
 		t.Fatal("expected empty and non-empty predicates")
 	}
+
 	if got := Of("UserStatus").PluralStudly().Value(); got != "UserStatuses" {
 		t.Fatalf("PluralStudly = %q", got)
 	}
+
 	if got := Of("UserStatus").PluralPascal().Value(); got != "UserStatuses" {
 		t.Fatalf("PluralPascal = %q", got)
 	}
+
 	if got := Of("abc123").Match(`\d+`).Value(); got != "123" {
 		t.Fatalf("Match = %q", got)
 	}
+
 	if got := Of("abcdef").Take(-3).Value(); got != "def" {
 		t.Fatalf("Take = %q", got)
 	}
+
 	if !Of("bedrock").Test(`^bed`) {
 		t.Fatal("expected Test regex to match")
 	}
+
 	if got := Of("  hello  ").Trim().Value(); got != "hello" {
 		t.Fatalf("Trim = %q", got)
 	}
+
 	if got := Of("  hello  ").Ltrim().Value(); got != "hello  " {
 		t.Fatalf("Ltrim = %q", got)
 	}
+
 	if got := Of("  hello  ").Rtrim().Value(); got != "  hello" {
 		t.Fatalf("Rtrim = %q", got)
 	}
@@ -1336,29 +1351,38 @@ func TestSupportStringableInventoryCloseout(t *testing.T) {
 	if got := Of("hello world").Words(1).Value(); got != "hello..." {
 		t.Fatalf("Words = %q", got)
 	}
+
 	if got := Of("hello world").Title().Value(); got != "Hello World" {
 		t.Fatalf("Title = %q", got)
 	}
+
 	if !Of("bedrock").Contains("rock") || !Of("bedrock").ContainsAll([]string{"bed", "rock"}) {
 		t.Fatal("contains predicates failed")
 	}
+
 	if got := Of("LaravelFramework").Snake().Value(); got != "laravel_framework" {
 		t.Fatalf("Snake = %q", got)
 	}
+
 	if got := Of("laravel framework").Studly().Value(); got != "LaravelFramework" {
 		t.Fatalf("Studly = %q", got)
 	}
+
 	if got := Of("laravel framework").Camel().Value(); got != "laravelFramework" {
 		t.Fatalf("Camel = %q", got)
 	}
+
 	if got := Of("hello").PadBoth(9, "-").Value(); got != "--hello--" {
 		t.Fatalf("PadBoth = %q", got)
 	}
+
 	if got := Of("abc123").Numbers().Value(); got != "123" {
 		t.Fatalf("Numbers = %q", got)
 	}
+
 	encoded := Of("bedrock").ToBase64()
 	decoded, err := encoded.FromBase64()
+
 	if err != nil || decoded.Value() != "bedrock" {
 		t.Fatalf("base64 round trip = %q, %v", decoded.Value(), err)
 	}

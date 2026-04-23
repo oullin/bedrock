@@ -31,6 +31,75 @@ type fortifyUser struct {
 	unverified bool
 }
 
+type fortifyGuard struct {
+	authenticated cauth.Authenticatable
+
+	loggedIn         cauth.Authenticatable
+	loggedInRemember bool
+	pendingTwoFactor bool
+	loggedOut        bool
+}
+
+type fortifyProvider struct {
+	user          cauth.Authenticatable
+	validPassword string
+}
+
+type fortifyHasher struct{}
+
+type fortifyEvents struct {
+	dispatched []any
+}
+
+type fortifyResponder struct {
+	login, logout, register, resetLink, reset, updatePassword, confirmPassword bool
+	profile, verification, twoFactorChallenge, twoFactorEnabled, twoFactorOff  bool
+}
+
+type fortifyLimiter struct {
+	tooMany bool
+	hits    []string
+	cleared []string
+}
+
+type createUsersAction struct {
+	user cauth.Authenticatable
+	err  error
+}
+
+type passwordBroker struct {
+	err        error
+	sent       bool
+	reset      bool
+	credential map[string]string
+}
+
+type resetPasswordsAction struct {
+	password string
+	called   bool
+}
+
+type updatePasswordsAction struct {
+	input map[string]string
+	err   error
+}
+
+type confirmPasswordsAction struct {
+	password string
+	err      error
+}
+
+type updateProfileAction struct {
+	err error
+}
+
+type verifier struct {
+	sent bool
+	id   string
+	hash string
+	err  error
+}
+
 func (u *fortifyUser) GetAuthIdentifierName() string       { return "id" }
 func (u *fortifyUser) GetAuthIdentifier() string           { return u.id }
 func (u *fortifyUser) GetAuthPasswordName() string         { return "password" }
@@ -59,15 +128,6 @@ func (u *fortifyUser) GetEmailForPasswordReset() string {
 	return u.email
 }
 
-type fortifyGuard struct {
-	authenticated cauth.Authenticatable
-
-	loggedIn         cauth.Authenticatable
-	loggedInRemember bool
-	pendingTwoFactor bool
-	loggedOut        bool
-}
-
 func (g *fortifyGuard) Name() string { return "web" }
 func (g *fortifyGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return g.authenticated, nil
@@ -90,11 +150,6 @@ func (g *fortifyGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.
 	return nil
 }
 
-type fortifyProvider struct {
-	user          cauth.Authenticatable
-	validPassword string
-}
-
 func (p *fortifyProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
@@ -114,17 +169,11 @@ func (p *fortifyProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Au
 	return nil
 }
 
-type fortifyHasher struct{}
-
 func (h fortifyHasher) Hash(_ context.Context, password string) (string, error) { return password, nil }
 func (h fortifyHasher) Check(_ context.Context, password string, hash string) (bool, error) {
 	return password == hash, nil
 }
 func (h fortifyHasher) NeedsRehash(_ string) bool { return false }
-
-type fortifyEvents struct {
-	dispatched []any
-}
 
 func (e *fortifyEvents) Listen(_ any, _ ...events.Listener)          {}
 func (e *fortifyEvents) HasListeners(_ any) bool                     { return false }
@@ -140,11 +189,6 @@ func (e *fortifyEvents) Dispatch(_ context.Context, event any) ([]any, error) {
 	e.dispatched = append(e.dispatched, event)
 
 	return nil, nil
-}
-
-type fortifyResponder struct {
-	login, logout, register, resetLink, reset, updatePassword, confirmPassword bool
-	profile, verification, twoFactorChallenge, twoFactorEnabled, twoFactorOff  bool
 }
 
 func (r *fortifyResponder) LoginResponse(w http.ResponseWriter, _ *http.Request) {
@@ -196,12 +240,6 @@ func (r *fortifyResponder) TwoFactorDisabledResponse(w http.ResponseWriter, _ *h
 	w.WriteHeader(http.StatusOK)
 }
 
-type fortifyLimiter struct {
-	tooMany bool
-	hits    []string
-	cleared []string
-}
-
 func (l *fortifyLimiter) TooManyAttempts(_ string, _ int) bool { return l.tooMany }
 func (l *fortifyLimiter) Hit(key string, _ time.Duration) int {
 	l.hits = append(l.hits, key)
@@ -213,20 +251,8 @@ func (l *fortifyLimiter) Clear(key string) {
 }
 func (l *fortifyLimiter) AvailableIn(_ string) time.Duration { return 0 }
 
-type createUsersAction struct {
-	user cauth.Authenticatable
-	err  error
-}
-
 func (a createUsersAction) Create(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return a.user, a.err
-}
-
-type passwordBroker struct {
-	err        error
-	sent       bool
-	reset      bool
-	credential map[string]string
 }
 
 func (b *passwordBroker) SendResetLink(_ context.Context, credentials map[string]string) error {
@@ -246,21 +272,11 @@ func (b *passwordBroker) Reset(_ context.Context, credentials map[string]string,
 	return callback(&fortifyUser{id: "reset-user", email: credentials["email"]}, credentials["password"])
 }
 
-type resetPasswordsAction struct {
-	password string
-	called   bool
-}
-
 func (a *resetPasswordsAction) Reset(_ context.Context, _ cauth.Authenticatable, password string) error {
 	a.called = true
 	a.password = password
 
 	return nil
-}
-
-type updatePasswordsAction struct {
-	input map[string]string
-	err   error
 }
 
 func (a *updatePasswordsAction) Update(_ context.Context, _ cauth.Authenticatable, input map[string]string) error {
@@ -269,19 +285,10 @@ func (a *updatePasswordsAction) Update(_ context.Context, _ cauth.Authenticatabl
 	return a.err
 }
 
-type confirmPasswordsAction struct {
-	password string
-	err      error
-}
-
 func (a *confirmPasswordsAction) Confirm(_ context.Context, _ cauth.Authenticatable, password string) error {
 	a.password = password
 
 	return a.err
-}
-
-type updateProfileAction struct {
-	err error
 }
 
 func (a updateProfileAction) Update(_ context.Context, user cauth.Authenticatable, input map[string]string) error {
@@ -294,13 +301,6 @@ func (a updateProfileAction) Update(_ context.Context, user cauth.Authenticatabl
 	}
 
 	return nil
-}
-
-type verifier struct {
-	sent bool
-	id   string
-	hash string
-	err  error
 }
 
 func (v *verifier) SendVerificationNotification(_ context.Context, _ cauth.Authenticatable) error {
@@ -342,6 +342,7 @@ func newApp(t *testing.T, configure func(*inception.Config), options ...func(*in
 	}
 
 	app, err := builder.Build()
+
 	if err != nil {
 		t.Fatalf("build fortify app: %v", err)
 	}
@@ -379,18 +380,23 @@ func TestAuthenticatedSessionControllerAuthenticatesUser(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !responder.login {
 		t.Fatal("expected Fortify login response")
 	}
+
 	if guard.loggedIn == nil || guard.loggedIn.GetAuthIdentifier() != "1" {
 		t.Fatalf("logged in user = %#v, want id 1", guard.loggedIn)
 	}
+
 	if !guard.loggedInRemember {
 		t.Fatal("remember selection should be forwarded to the guard")
 	}
+
 	if len(events.dispatched) != 2 {
 		t.Fatalf("events = %d, want login attempted and succeeded", len(events.dispatched))
 	}
+
 	if len(limiter.cleared) != 1 || limiter.cleared[0] != "1|127.0.0.1" {
 		t.Fatalf("cleared throttle keys = %#v", limiter.cleared)
 	}
@@ -406,9 +412,11 @@ func TestAuthenticatedSessionControllerReturnsValidationFailure(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if guard.loggedIn != nil {
 		t.Fatal("user should not be logged in after invalid credentials")
 	}
+
 	if _, ok := events.dispatched[len(events.dispatched)-1].(inception.LoginFailedPayload); !ok {
 		t.Fatalf("last event = %T, want LoginFailedPayload", events.dispatched[len(events.dispatched)-1])
 	}
@@ -428,7 +436,9 @@ func TestAuthenticatedSessionControllerThrottlesLoginAttempts(t *testing.T) {
 	if recorder.Code != http.StatusTooManyRequests {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusTooManyRequests)
 	}
+
 	key := inception.ThrottleKey("User+Alias@example.com", "127.0.0.1")
+
 	if key != "user+alias@example.com|127.0.0.1" {
 		t.Fatalf("throttle key = %q", key)
 	}
@@ -446,9 +456,11 @@ func TestAuthenticatedSessionControllerLogsOut(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !guard.loggedOut || !responder.logout {
 		t.Fatalf("loggedOut = %v responder.logout = %v", guard.loggedOut, responder.logout)
 	}
+
 	if _, ok := events.dispatched[0].(inception.LoggedOutPayload); !ok {
 		t.Fatalf("event = %T, want LoggedOutPayload", events.dispatched[0])
 	}
@@ -467,9 +479,11 @@ func TestAuthenticatedSessionControllerLogoutRequiresSessionMiddlewareInHostAppl
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !logoutGuard.loggedOut {
 		t.Fatal("logout should still be delegated to the guard")
 	}
+
 	if !responder.logout || len(events.dispatched) != 0 {
 		t.Fatalf("response = %v events = %#v", responder.logout, events.dispatched)
 	}
@@ -497,6 +511,7 @@ func TestAuthenticatedSessionControllerRedirectsToTwoFactorChallenge(t *testing.
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !guard.pendingTwoFactor || !responder.twoFactorChallenge {
 		t.Fatalf("pending = %v challenge response = %v", guard.pendingTwoFactor, responder.twoFactorChallenge)
 	}
@@ -516,9 +531,11 @@ func TestAuthenticatedSessionControllerSkipsUnconfirmedTwoFactorChallenge(t *tes
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if guard.pendingTwoFactor || responder.twoFactorChallenge {
 		t.Fatal("unconfirmed two-factor user should complete normal login")
 	}
+
 	if guard.loggedIn == nil || !responder.login {
 		t.Fatal("expected normal login response")
 	}
@@ -528,6 +545,7 @@ func TestAuthenticatedSessionControllerSkipsUnconfirmedTwoFactorChallenge(t *tes
 // AuthenticatedSessionControllerWithTwoFactorTest::test_two_factor_authentication_preserves_remember_me_selection
 func TestTwoFactorChallengePassesViaCode(t *testing.T) {
 	secret, err := twofactor.GenerateSecret(0)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -547,6 +565,7 @@ func TestTwoFactorChallengePassesViaCode(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !guard.loggedInRemember || !responder.login {
 		t.Fatalf("remember = %v login response = %v", guard.loggedInRemember, responder.login)
 	}
@@ -569,18 +588,22 @@ func TestTwoFactorChallengeUsesRecoveryCodeOnce(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if guard.loggedIn == nil {
 		t.Fatal("expected recovered user to be logged in")
 	}
+
 	if len(user.twoFactorCodes) != 1 || user.twoFactorCodes[0] != "eeee-ffff" {
 		t.Fatalf("recovery codes = %#v", user.twoFactorCodes)
 	}
+
 	if events.dispatched[0] != inception.EventRecoveryCodeUsed {
 		t.Fatalf("event = %#v, want recovery code event", events.dispatched[0])
 	}
 
 	failed := httptest.NewRecorder()
 	inception.NewTwoFactorChallengeHandler(app).ServeHTTP(failed, formRequest(http.MethodPost, "/two-factor-challenge", "recovery_code=cccc-dddd"))
+
 	if failed.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("reuse status = %d, want %d", failed.Code, http.StatusUnprocessableEntity)
 	}
@@ -589,6 +612,7 @@ func TestTwoFactorChallengeUsesRecoveryCodeOnce(t *testing.T) {
 // AuthenticatedSessionControllerWithTwoFactorTest::test_two_factor_challenge_fails_for_old_otp_and_zero_window
 func TestTwoFactorChallengeRejectsCodeOutsideAcceptedSkew(t *testing.T) {
 	secret, err := twofactor.GenerateSecret(0)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -644,9 +668,11 @@ func TestConfirmablePasswordControllerConfirmsPassword(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if action.password != "secret" || !responder.confirmPassword {
 		t.Fatalf("password = %q response = %v", action.password, responder.confirmPassword)
 	}
+
 	if inception.GetPasswordConfirmedAt(request) == nil {
 		t.Fatal("expected request to be marked password-confirmed")
 	}
@@ -668,6 +694,7 @@ func TestConfirmablePasswordControllerFailsInvalidPassword(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if responder.confirmPassword {
 		t.Fatal("confirmation response should not run on invalid password")
 	}
@@ -683,6 +710,7 @@ func TestConfirmablePasswordControllerStatusMiddlewareRequiresFreshConfirmation(
 
 	notConfirmed := httptest.NewRecorder()
 	handler.ServeHTTP(notConfirmed, formRequest(http.MethodGet, "/confirmed-password-status", ""))
+
 	if notConfirmed.Code != http.StatusLocked {
 		t.Fatalf("not confirmed status = %d, want %d", notConfirmed.Code, http.StatusLocked)
 	}
@@ -691,6 +719,7 @@ func TestConfirmablePasswordControllerStatusMiddlewareRequiresFreshConfirmation(
 	expiredRequest = expiredRequest.WithContext(inception.WithPasswordConfirmedAt(expiredRequest.Context(), time.Now().Add(-4*time.Hour)))
 	expired := httptest.NewRecorder()
 	handler.ServeHTTP(expired, expiredRequest)
+
 	if expired.Code != http.StatusLocked {
 		t.Fatalf("expired status = %d, want %d", expired.Code, http.StatusLocked)
 	}
@@ -699,6 +728,7 @@ func TestConfirmablePasswordControllerStatusMiddlewareRequiresFreshConfirmation(
 	freshRequest = freshRequest.WithContext(inception.WithPasswordConfirmedAt(freshRequest.Context(), time.Now()))
 	fresh := httptest.NewRecorder()
 	handler.ServeHTTP(fresh, freshRequest)
+
 	if fresh.Code != http.StatusOK {
 		t.Fatalf("fresh status = %d, want %d", fresh.Code, http.StatusOK)
 	}
@@ -720,9 +750,11 @@ func TestRegisteredUserControllerCreatesUser(t *testing.T) {
 	if recorder.Code != http.StatusCreated {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusCreated)
 	}
+
 	if guard.loggedIn.GetAuthIdentifier() != "new" || !responder.register {
 		t.Fatalf("logged in = %#v register response = %v", guard.loggedIn, responder.register)
 	}
+
 	if _, ok := events.dispatched[0].(inception.RegisteredPayload); !ok {
 		t.Fatalf("event = %T, want RegisteredPayload", events.dispatched[0])
 	}
@@ -765,6 +797,7 @@ func TestPasswordResetLinkRequestControllerSendsResetLink(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !broker.sent || broker.credential["username"] != "taylor" || !responder.resetLink {
 		t.Fatalf("broker.sent = %v credential = %#v response = %v", broker.sent, broker.credential, responder.resetLink)
 	}
@@ -789,9 +822,11 @@ func TestPasswordResetLinkRequestControllerCaseInsensitiveUsernameThrottleKey(t 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if got, want := limiter.hits[0], "password_reset|taylor|127.0.0.1"; got != want {
 		t.Fatalf("throttle key = %q, want %q", got, want)
 	}
+
 	if broker.credential["username"] != "Taylor" {
 		t.Fatalf("broker username = %q, want original casing", broker.credential["username"])
 	}
@@ -814,6 +849,7 @@ func TestPasswordResetLinkRequestControllerFails(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if responder.resetLink {
 		t.Fatal("reset link response should not run on broker failure")
 	}
@@ -838,9 +874,11 @@ func TestNewPasswordControllerResetsPassword(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !broker.reset || !action.called || action.password != "new" || !responder.reset {
 		t.Fatalf("broker.reset = %v action = %#v response = %v", broker.reset, action, responder.reset)
 	}
+
 	if events.dispatched[0] != inception.EventPasswordReset {
 		t.Fatalf("event = %#v, want password reset", events.dispatched[0])
 	}
@@ -863,6 +901,7 @@ func TestNewPasswordControllerResetCanFail(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if responder.reset {
 		t.Fatal("reset response should not run on broker failure")
 	}
@@ -884,6 +923,7 @@ func TestNewPasswordControllerRequiresPassword(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if broker.reset || responder.reset {
 		t.Fatalf("broker.reset = %v responder.reset = %v", broker.reset, responder.reset)
 	}
@@ -904,9 +944,11 @@ func TestPasswordControllerUpdatesPassword(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if action.input["current_password"] != "old" || !responder.updatePassword {
 		t.Fatalf("input = %#v response = %v", action.input, responder.updatePassword)
 	}
+
 	if events.dispatched[0] != inception.EventPasswordUpdated {
 		t.Fatalf("event = %#v, want password updated", events.dispatched[0])
 	}
@@ -927,6 +969,7 @@ func TestPasswordControllerUpdateCanFail(t *testing.T) {
 	if recorder.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusUnprocessableEntity)
 	}
+
 	if responder.updatePassword {
 		t.Fatal("password update response should not run on validation failure")
 	}
@@ -952,9 +995,11 @@ func TestProfileInformationControllerUpdatesContactInformation(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if user.email != "New@Example.com" || !user.unverified || !verifier.sent || !responder.profile {
 		t.Fatalf("user = %#v verifier.sent = %v response = %v", user, verifier.sent, responder.profile)
 	}
+
 	if events.dispatched[0] != inception.EventProfileUpdated {
 		t.Fatalf("event = %#v, want profile updated", events.dispatched[0])
 	}
@@ -975,6 +1020,7 @@ func TestEmailVerificationNotificationControllerSendsNotification(t *testing.T) 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !verifier.sent || !responder.verification {
 		t.Fatalf("verifier.sent = %v response = %v", verifier.sent, responder.verification)
 	}
@@ -998,6 +1044,7 @@ func TestEmailVerificationNotificationControllerSkipsVerifiedUser(t *testing.T) 
 	if recorder.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusNoContent)
 	}
+
 	if verifier.sent || responder.verification {
 		t.Fatal("verified users should not receive another notification")
 	}
@@ -1023,9 +1070,11 @@ func TestVerifyEmailControllerVerifiesSignedPathValues(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if verifier.id != "1" || verifier.hash != "hash" {
 		t.Fatalf("verification args = %q %q", verifier.id, verifier.hash)
 	}
+
 	if events.dispatched[0] != inception.EventVerified {
 		t.Fatalf("event = %#v, want verified", events.dispatched[0])
 	}
@@ -1051,6 +1100,7 @@ func TestVerifyEmailControllerSkipsAlreadyVerifiedUser(t *testing.T) {
 	if recorder.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusNoContent)
 	}
+
 	if verifier.id != "" || verifier.hash != "" || len(events.dispatched) != 0 {
 		t.Fatalf("verifier = %#v events = %#v", verifier, events.dispatched)
 	}
@@ -1072,9 +1122,11 @@ func TestTwoFactorAuthenticationControllerEnablesTwoFactor(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !user.twoFactorEnabled || user.twoFactorSecret == "" || len(user.twoFactorCodes) == 0 || !responder.twoFactorEnabled {
 		t.Fatalf("user = %#v response = %v", user, responder.twoFactorEnabled)
 	}
+
 	if events.dispatched[0] != inception.EventTwoFactorEnabled {
 		t.Fatalf("event = %#v, want two factor enabled", events.dispatched[0])
 	}
@@ -1084,18 +1136,22 @@ func TestTwoFactorAuthenticationControllerEnablesTwoFactor(t *testing.T) {
 
 	preserved := httptest.NewRecorder()
 	inception.NewEnableTwoFactorHandler(app).ServeHTTP(preserved, formRequest(http.MethodPost, "/user/two-factor-authentication", ""))
+
 	if preserved.Code != http.StatusOK {
 		t.Fatalf("preserved status = %d, want %d", preserved.Code, http.StatusOK)
 	}
+
 	if user.twoFactorSecret != previousSecret || strings.Join(user.twoFactorCodes, ",") != strings.Join(previousCodes, ",") {
 		t.Fatalf("two-factor state should not be overwritten without force: %#v", user)
 	}
 
 	forced := httptest.NewRecorder()
 	inception.NewEnableTwoFactorHandler(app).ServeHTTP(forced, formRequest(http.MethodPost, "/user/two-factor-authentication", "force=1"))
+
 	if forced.Code != http.StatusOK {
 		t.Fatalf("forced status = %d, want %d", forced.Code, http.StatusOK)
 	}
+
 	if user.twoFactorSecret == previousSecret {
 		t.Fatal("force should rotate the two-factor secret")
 	}
@@ -1124,9 +1180,11 @@ func TestTwoFactorAuthenticationControllerDoesNotOverwriteWithoutForce(t *testin
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if user.twoFactorSecret != "EXISTINGSECRET" || user.twoFactorConfirmed != &now || strings.Join(user.twoFactorCodes, ",") != "aaaa-bbbb" {
 		t.Fatalf("two-factor state was overwritten: %#v", user)
 	}
+
 	if !responder.twoFactorEnabled || len(events.dispatched) != 0 {
 		t.Fatalf("response = %v events = %#v", responder.twoFactorEnabled, events.dispatched)
 	}
@@ -1149,6 +1207,7 @@ func TestTwoFactorAuthenticationControllerSecretCanBeRetrievedThroughProvisionin
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if !strings.Contains(recorder.Body.String(), "secret=JBSWY3DPEHPK3PXP") {
 		t.Fatalf("response does not contain provisioning secret: %s", recorder.Body.String())
 	}
@@ -1169,9 +1228,11 @@ func TestRecoveryCodeControllerGeneratesNewRecoveryCodes(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if len(user.twoFactorCodes) != twofactor.DefaultRecoveryCodeCount {
 		t.Fatalf("recovery codes = %#v, want %d", user.twoFactorCodes, twofactor.DefaultRecoveryCodeCount)
 	}
+
 	if user.twoFactorCodes[0] == "aaaa-bbbb" {
 		t.Fatalf("recovery codes were not regenerated: %#v", user.twoFactorCodes)
 	}
@@ -1181,6 +1242,7 @@ func TestRecoveryCodeControllerGeneratesNewRecoveryCodes(t *testing.T) {
 // TwoFactorAuthenticationControllerTest::test_two_factor_authentication_can_not_be_confirmed_with_invalid_code
 func TestTwoFactorAuthenticationControllerConfirmsTwoFactor(t *testing.T) {
 	secret, err := twofactor.GenerateSecret(0)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1198,15 +1260,18 @@ func TestTwoFactorAuthenticationControllerConfirmsTwoFactor(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if user.twoFactorConfirmed == nil {
 		t.Fatal("expected two-factor confirmation timestamp")
 	}
+
 	if events.dispatched[0] != inception.EventTwoFactorConfirmed {
 		t.Fatalf("event = %#v, want two factor confirmed", events.dispatched[0])
 	}
 
 	failed := httptest.NewRecorder()
 	inception.NewConfirmTwoFactorHandler(app).ServeHTTP(failed, formRequest(http.MethodPost, "/user/confirmed-two-factor-authentication", "code=000000"))
+
 	if failed.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("invalid status = %d, want %d", failed.Code, http.StatusUnprocessableEntity)
 	}
@@ -1235,9 +1300,11 @@ func TestTwoFactorAuthenticationControllerDisablesTwoFactor(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
 	}
+
 	if user.twoFactorEnabled || user.twoFactorSecret != "" || user.twoFactorConfirmed != nil || len(user.twoFactorCodes) != 0 {
 		t.Fatalf("two-factor state was not cleared: %#v", user)
 	}
+
 	if !responder.twoFactorOff || events.dispatched[0] != inception.EventTwoFactorDisabled {
 		t.Fatalf("response = %v event = %#v", responder.twoFactorOff, events.dispatched[0])
 	}
@@ -1255,6 +1322,7 @@ func TestPasswordRule(t *testing.T) {
 	}, map[string]any{
 		"password": rule,
 	}, nil, nil)
+
 	if validator.Fails() {
 		t.Fatalf("strong password errors = %v", validator.Errors().All())
 	}
@@ -1264,6 +1332,7 @@ func TestPasswordRule(t *testing.T) {
 	}, map[string]any{
 		"password": rule,
 	}, nil, nil)
+
 	if !validator.Fails() {
 		t.Fatal("password without numeric and special characters should fail")
 	}

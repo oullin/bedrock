@@ -37,6 +37,7 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 	resolver := func(r *http.Request) (spark.Billable, error) {
 		return billable, nil
 	}
+
 	invoices := handler.NewDownloadInvoiceHandler(store, resolver)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /agreement/invoices/{transaction}/download", invoices.Download)
@@ -44,6 +45,7 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_current/download", nil)
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusOK {
 		t.Fatalf("current team invoice status = %d, want 200", rec.Code)
 	}
@@ -51,6 +53,7 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 	req = httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_foreign/download", nil)
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("foreign invoice status = %d, want 404", rec.Code)
 	}
@@ -59,6 +62,7 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 	req.Header.Set("X-Team-ID", "20")
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
+
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("tampered team header status = %d, want 404", rec.Code)
 	}

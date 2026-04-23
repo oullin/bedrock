@@ -76,6 +76,7 @@ func (w *LogWatcher) ShouldRecord(level string) bool {
 
 func (w *LogWatcher) enabled() bool {
 	raw, ok := w.Options["enabled"]
+
 	if !ok {
 		return true
 	}
@@ -85,9 +86,11 @@ func (w *LogWatcher) enabled() bool {
 		return v
 	case map[string]bool:
 		enabled, ok := v["log"]
+
 		return !ok || enabled
 	case map[string]any:
 		enabled, ok := v["log"].(bool)
+
 		return !ok || enabled
 	default:
 		return true

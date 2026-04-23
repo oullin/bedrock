@@ -41,6 +41,7 @@ func TestTextContentStringReturnsRawText(t *testing.T) {
 	// TextTest::it_casts_to_string_as_raw_text
 	content := mcp.Text("hello world").Contents()[0]
 	stringer, ok := content.(interface{ String() string })
+
 	if !ok {
 		t.Fatalf("expected text content to implement String")
 	}
@@ -108,6 +109,7 @@ func TestImageContentDefaultsAndString(t *testing.T) {
 	// ImageTest::it_defaults_mimetype_to_image_png
 	content := mcp.Image("base64data==", "").Contents()[0]
 	stringer, ok := content.(interface{ String() string })
+
 	if !ok {
 		t.Fatalf("expected image content to implement String")
 	}
@@ -148,6 +150,7 @@ func TestAudioContentDefaultsAndString(t *testing.T) {
 	// AudioTest::it_defaults_mimetype_to_audio_wav
 	content := mcp.Audio("audiodata==", "").Contents()[0]
 	stringer, ok := content.(interface{ String() string })
+
 	if !ok {
 		t.Fatalf("expected audio content to implement String")
 	}
@@ -170,9 +173,11 @@ func TestBlobContentToResourceEncodesBase64(t *testing.T) {
 	resp := mcp.Blob(raw, "application/octet-stream")
 	content := resp.Contents()[0]
 	stringer, ok := content.(interface{ String() string })
+
 	if !ok {
 		t.Fatalf("expected blob content to implement String")
 	}
+
 	if stringer.String() != "binary data" {
 		t.Fatalf("expected raw blob string, got %q", stringer.String())
 	}

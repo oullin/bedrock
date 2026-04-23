@@ -263,6 +263,7 @@ func TestInventoryValidator_ExcludeValuesAreReallyRemoved(t *testing.T) {
 	)
 
 	got, err := v.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated() returned error: %v", err)
 	}
@@ -282,6 +283,7 @@ func TestInventoryValidator_ExcludeWithValuesAreReallyRemoved(t *testing.T) {
 	)
 
 	got, err := v.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated() returned error: %v", err)
 	}
@@ -301,6 +303,7 @@ func TestInventoryExcludeIfRule_Validation(t *testing.T) {
 	)
 
 	got, err := v.Validated()
+
 	if err != nil {
 		t.Fatalf("Validated() returned error: %v", err)
 	}

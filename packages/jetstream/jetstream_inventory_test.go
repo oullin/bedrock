@@ -45,13 +45,6 @@ import (
 // UpdateTeamTest::test_team_name_can_be_updated
 // UpdateTeamTest::test_name_is_required
 
-var (
-	errRequiredName     = errors.New("name is required")
-	errUnknownEmail     = errors.New("email address must exist")
-	errAlreadyOnTeam    = errors.New("user already belongs to team")
-	errOwnerSelfRemoval = errors.New("team owners cannot remove themselves")
-)
-
 type testUser struct {
 	id            string
 	teams         []inception.Team
@@ -63,6 +56,64 @@ type testUser struct {
 	profilePhoto  string
 	knownUserByID map[string]bool
 }
+
+type testGuard struct {
+	user cauth.Authenticatable
+}
+
+type testProvider struct {
+	user cauth.Authenticatable
+}
+
+type testHasher struct{}
+
+type testResponder struct{}
+
+type teamRepo struct {
+	teams       map[string]*inception.Team
+	memberships map[string]map[string]inception.Membership
+	deleted     []string
+}
+
+type invitationRepo struct {
+	invitations map[string]*inception.TeamInvitation
+	deleted     []string
+}
+
+type eventRecorder struct {
+	dispatched []any
+}
+
+type createTeamAction struct{}
+
+type updateTeamAction struct{}
+
+type deleteTeamAction struct{}
+
+type addMemberAction struct {
+	knownEmails map[string]string
+	repo        *teamRepo
+}
+
+type removeMemberAction struct{}
+
+type inviteMemberAction struct {
+	repo *teamRepo
+}
+
+type deleteUserAction struct{}
+
+type sessionRepo struct {
+	sessions []inception.BrowserSession
+	deleted  bool
+}
+
+var (
+	errRequiredName     = errors.New("name is required")
+	errUnknownEmail     = errors.New("email address must exist")
+	errAlreadyOnTeam    = errors.New("user already belongs to team")
+	errOwnerSelfRemoval = errors.New("team owners cannot remove themselves")
+)
 
 func (u *testUser) GetAuthIdentifierName() string { return "id" }
 func (u *testUser) GetAuthIdentifier() string     { return u.id }
@@ -125,10 +176,6 @@ func (u *testUser) SetCurrentAccessToken(token *inception.PersonalAccessToken) {
 	u.accessToken = token
 }
 
-type testGuard struct {
-	user cauth.Authenticatable
-}
-
 func (g *testGuard) Name() string { return "web" }
 func (g *testGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return g.user, nil
@@ -141,10 +188,6 @@ func (g *testGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.Response
 }
 func (g *testGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
 	return nil
-}
-
-type testProvider struct {
-	user cauth.Authenticatable
 }
 
 func (p *testProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
@@ -166,8 +209,6 @@ func (p *testProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authe
 	return nil
 }
 
-type testHasher struct{}
-
 func (h *testHasher) Hash(_ context.Context, password string) (string, error) {
 	return "hash:" + password, nil
 }
@@ -175,8 +216,6 @@ func (h *testHasher) Check(_ context.Context, _ string, _ string) (bool, error) 
 	return true, nil
 }
 func (h *testHasher) NeedsRehash(_ string) bool { return false }
-
-type testResponder struct{}
 
 func (r *testResponder) LoginResponse(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
@@ -215,12 +254,6 @@ func (r *testResponder) TwoFactorDisabledResponse(w http.ResponseWriter, _ *http
 	w.WriteHeader(http.StatusOK)
 }
 
-type teamRepo struct {
-	teams       map[string]*inception.Team
-	memberships map[string]map[string]inception.Membership
-	deleted     []string
-}
-
 func newTeamRepo(teams ...*inception.Team) *teamRepo {
 	repo := &teamRepo{
 		teams:       make(map[string]*inception.Team),
@@ -237,6 +270,7 @@ func newTeamRepo(teams ...*inception.Team) *teamRepo {
 
 func (r *teamRepo) Create(_ context.Context, team *inception.Team) error {
 	r.teams[team.ID] = team
+
 	return nil
 }
 func (r *teamRepo) FindByID(_ context.Context, id string) (*inception.Team, error) {
@@ -244,63 +278,71 @@ func (r *teamRepo) FindByID(_ context.Context, id string) (*inception.Team, erro
 }
 func (r *teamRepo) Update(_ context.Context, team *inception.Team) error {
 	r.teams[team.ID] = team
+
 	return nil
 }
 func (r *teamRepo) Delete(_ context.Context, id string) error {
 	r.deleted = append(r.deleted, id)
 	delete(r.teams, id)
+
 	return nil
 }
 func (r *teamRepo) FindByOwner(_ context.Context, ownerID string) ([]inception.Team, error) {
 	var teams []inception.Team
+
 	for _, team := range r.teams {
 		if team.OwnerID == ownerID {
 			teams = append(teams, *team)
 		}
 	}
+
 	return teams, nil
 }
 func (r *teamRepo) Members(_ context.Context, teamID string) ([]inception.Membership, error) {
 	var members []inception.Membership
+
 	for _, member := range r.memberships[teamID] {
 		members = append(members, member)
 	}
+
 	return members, nil
 }
 func (r *teamRepo) AddMember(_ context.Context, membership *inception.Membership) error {
 	if r.memberships[membership.TeamID] == nil {
 		r.memberships[membership.TeamID] = make(map[string]inception.Membership)
 	}
+
 	r.memberships[membership.TeamID][membership.UserID] = *membership
+
 	return nil
 }
 func (r *teamRepo) UpdateMemberRole(_ context.Context, teamID string, userID string, role string) error {
 	member := r.memberships[teamID][userID]
 	member.Role = role
 	r.memberships[teamID][userID] = member
+
 	return nil
 }
 func (r *teamRepo) RemoveMember(_ context.Context, teamID string, userID string) error {
 	delete(r.memberships[teamID], userID)
-	return nil
-}
 
-type invitationRepo struct {
-	invitations map[string]*inception.TeamInvitation
-	deleted     []string
+	return nil
 }
 
 func newInvitationRepo(invitations ...*inception.TeamInvitation) *invitationRepo {
 	repo := &invitationRepo{invitations: make(map[string]*inception.TeamInvitation)}
+
 	for _, invitation := range invitations {
 		copy := *invitation
 		repo.invitations[invitation.ID] = &copy
 	}
+
 	return repo
 }
 
 func (r *invitationRepo) Create(_ context.Context, invitation *inception.TeamInvitation) error {
 	r.invitations[invitation.ID] = invitation
+
 	return nil
 }
 func (r *invitationRepo) FindByID(_ context.Context, id string) (*inception.TeamInvitation, error) {
@@ -308,11 +350,13 @@ func (r *invitationRepo) FindByID(_ context.Context, id string) (*inception.Team
 }
 func (r *invitationRepo) FindByTeam(_ context.Context, teamID string) ([]inception.TeamInvitation, error) {
 	var invitations []inception.TeamInvitation
+
 	for _, invitation := range r.invitations {
 		if invitation.TeamID == teamID {
 			invitations = append(invitations, *invitation)
 		}
 	}
+
 	return invitations, nil
 }
 func (r *invitationRepo) FindByEmail(_ context.Context, teamID string, email string) (*inception.TeamInvitation, error) {
@@ -321,16 +365,14 @@ func (r *invitationRepo) FindByEmail(_ context.Context, teamID string, email str
 			return invitation, nil
 		}
 	}
+
 	return nil, nil
 }
 func (r *invitationRepo) Delete(_ context.Context, id string) error {
 	r.deleted = append(r.deleted, id)
 	delete(r.invitations, id)
-	return nil
-}
 
-type eventRecorder struct {
-	dispatched []any
+	return nil
 }
 
 func (e *eventRecorder) Listen(_ any, _ ...events.Listener)          {}
@@ -345,10 +387,9 @@ func (e *eventRecorder) ForgetPushed()                               {}
 func (e *eventRecorder) GetListeners(_ any) []events.Listener        { return nil }
 func (e *eventRecorder) Dispatch(_ context.Context, event any) ([]any, error) {
 	e.dispatched = append(e.dispatched, event)
+
 	return nil, nil
 }
-
-type createTeamAction struct{}
 
 func (a createTeamAction) Create(_ context.Context, user inception.HasTeams, input map[string]string) (*inception.Team, error) {
 	if strings.TrimSpace(input["name"]) == "" {
@@ -358,30 +399,23 @@ func (a createTeamAction) Create(_ context.Context, user inception.HasTeams, inp
 	return &inception.Team{ID: "created-team", Name: input["name"], OwnerID: user.GetAuthIdentifier()}, nil
 }
 
-type updateTeamAction struct{}
-
 func (a updateTeamAction) Update(_ context.Context, _ inception.HasTeams, team *inception.Team, input map[string]string) error {
 	if strings.TrimSpace(input["name"]) == "" {
 		return errRequiredName
 	}
 
 	team.Name = input["name"]
+
 	return nil
 }
-
-type deleteTeamAction struct{}
 
 func (a deleteTeamAction) Delete(_ context.Context, _ inception.HasTeams, _ *inception.Team) error {
 	return nil
 }
 
-type addMemberAction struct {
-	knownEmails map[string]string
-	repo        *teamRepo
-}
-
 func (a addMemberAction) Add(ctx context.Context, _ inception.HasTeams, team *inception.Team, email string, role string) error {
 	userID, ok := a.knownEmails[email]
+
 	if !ok {
 		return errUnknownEmail
 	}
@@ -395,8 +429,6 @@ func (a addMemberAction) Add(ctx context.Context, _ inception.HasTeams, team *in
 	return a.repo.AddMember(ctx, &inception.Membership{TeamID: team.ID, UserID: userID, Role: role})
 }
 
-type removeMemberAction struct{}
-
 func (a removeMemberAction) Remove(_ context.Context, user inception.HasTeams, team *inception.Team, memberID string) error {
 	if team.OwnerID == memberID {
 		return errOwnerSelfRemoval
@@ -409,10 +441,6 @@ func (a removeMemberAction) Remove(_ context.Context, user inception.HasTeams, t
 	return nil
 }
 
-type inviteMemberAction struct {
-	repo *teamRepo
-}
-
 func (a inviteMemberAction) Invite(_ context.Context, _ inception.HasTeams, team *inception.Team, email string, role string) (*inception.TeamInvitation, error) {
 	for _, member := range a.repo.memberships[team.ID] {
 		if member.UserID == email {
@@ -423,8 +451,6 @@ func (a inviteMemberAction) Invite(_ context.Context, _ inception.HasTeams, team
 	return &inception.TeamInvitation{ID: "inv-1", TeamID: team.ID, Email: email, Role: role}, nil
 }
 
-type deleteUserAction struct{}
-
 func (a deleteUserAction) Delete(_ context.Context, user inception.HasTeams) error {
 	if u, ok := user.(*testUser); ok {
 		u.deleted = true
@@ -433,16 +459,12 @@ func (a deleteUserAction) Delete(_ context.Context, user inception.HasTeams) err
 	return nil
 }
 
-type sessionRepo struct {
-	sessions []inception.BrowserSession
-	deleted  bool
-}
-
 func (r *sessionRepo) FindByUser(_ context.Context, _ string) ([]inception.BrowserSession, error) {
 	return r.sessions, nil
 }
 func (r *sessionRepo) DeleteOthers(_ context.Context, _ string, _ string) error {
 	r.deleted = true
+
 	return nil
 }
 
@@ -452,9 +474,11 @@ func buildJetstreamApp(t *testing.T, user *testUser, teams *teamRepo, invitation
 	if user == nil {
 		user = &testUser{id: "1"}
 	}
+
 	if teams == nil {
 		teams = newTeamRepo()
 	}
+
 	if invitations == nil {
 		invitations = newInvitationRepo()
 	}
@@ -493,6 +517,7 @@ func buildJetstreamApp(t *testing.T, user *testUser, teams *teamRepo, invitation
 			roles.SetDefault("editor")
 		}).
 		Build()
+
 	if err != nil {
 		t.Fatalf("build jetstream app: %v", err)
 	}
@@ -503,6 +528,7 @@ func buildJetstreamApp(t *testing.T, user *testUser, teams *teamRepo, invitation
 func request(method string, target string, body string) (*httptest.ResponseRecorder, *http.Request) {
 	req := httptest.NewRequest(method, target, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	return httptest.NewRecorder(), req
 }
 
@@ -510,14 +536,17 @@ func TestJetstreamRolesAndFeatureFlags(t *testing.T) {
 	app, _ := buildJetstreamApp(t, nil, nil, nil)
 
 	admin := app.Roles().Find("admin")
+
 	if admin == nil || !admin.HasPermission("delete") {
 		t.Fatalf("expected admin role with delete permission")
 	}
 
 	encoded, err := json.Marshal(admin)
+
 	if err != nil {
 		t.Fatalf("marshal role: %v", err)
 	}
+
 	if !strings.Contains(string(encoded), `"Key":"admin"`) {
 		t.Fatalf("expected JSON role key, got %s", encoded)
 	}
@@ -531,6 +560,7 @@ func TestJetstreamRolesAndFeatureFlags(t *testing.T) {
 		WithHasher(&testHasher{}).
 		WithResponder(&testResponder{}).
 		Build()
+
 	if err != nil {
 		t.Fatalf("build disabled app: %v", err)
 	}
@@ -538,6 +568,7 @@ func TestJetstreamRolesAndFeatureFlags(t *testing.T) {
 	if appWithoutTeams.Features().Teams {
 		t.Fatal("expected Teams feature to be disabled")
 	}
+
 	if !app.Features().Teams {
 		t.Fatal("expected Teams feature to be enabled")
 	}
@@ -561,36 +592,43 @@ func TestTeamLifecycleHandlers(t *testing.T) {
 
 	w, r := request(http.MethodPost, "/teams", "name=Roadmap")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusCreated {
 		t.Fatalf("create team: expected 201, got %d: %s", w.Code, w.Body.String())
 	}
 
 	w, r = request(http.MethodPost, "/teams", "name=")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("create without name: expected 422, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodPut, "/teams/team-1", "name=Renamed")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("update team: expected 200, got %d: %s", w.Code, w.Body.String())
 	}
+
 	if teams.teams["team-1"].Name != "Renamed" {
 		t.Fatalf("expected team rename to persist, got %q", teams.teams["team-1"].Name)
 	}
 
 	w, r = request(http.MethodPut, "/teams/team-1", "name=")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("update without name: expected 422, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodPut, "/current-team", "team_id=team-1")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("switch team: expected 200, got %d", w.Code)
 	}
+
 	if user.CurrentTeam() == nil || user.CurrentTeam().ID != "team-1" {
 		t.Fatalf("expected current team to switch without refreshing user")
 	}
@@ -598,12 +636,14 @@ func TestTeamLifecycleHandlers(t *testing.T) {
 	teams.teams["other-team"] = &inception.Team{ID: "other-team", OwnerID: "2", Name: "Other"}
 	w, r = request(http.MethodPut, "/current-team", "team_id=other-team")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("switch unauthorized team: expected 403, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodDelete, "/teams/team-1", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("delete team: expected 200, got %d", w.Code)
 	}
@@ -612,6 +652,7 @@ func TestTeamLifecycleHandlers(t *testing.T) {
 	teams.teams["personal"] = personal
 	w, r = request(http.MethodDelete, "/teams/personal", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("delete personal team: expected 422, got %d", w.Code)
 	}
@@ -619,6 +660,7 @@ func TestTeamLifecycleHandlers(t *testing.T) {
 	teams.teams["foreign"] = &inception.Team{ID: "foreign", OwnerID: "2", Name: "Foreign"}
 	w, r = request(http.MethodDelete, "/teams/foreign", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("delete non-owned team: expected 403, got %d", w.Code)
 	}
@@ -648,30 +690,36 @@ func TestTeamMembershipAndInvitationHandlers(t *testing.T) {
 
 	w, r := request(http.MethodPost, "/teams/team-1/members", "email=member@example.com&role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("add member: expected 200, got %d: %s", w.Code, w.Body.String())
 	}
+
 	if teams.memberships["team-1"]["member-1"].Role != "editor" {
 		t.Fatalf("expected member role editor, got %q", teams.memberships["team-1"]["member-1"].Role)
 	}
 
 	w, r = request(http.MethodPost, "/teams/team-1/members", "email=missing@example.com&role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("add unknown email: expected 422, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodPost, "/teams/team-1/members", "email=member@example.com&role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("add existing member: expected 422, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodPut, "/teams/team-1/members/member-1", "role=admin")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("update member role: expected 200, got %d", w.Code)
 	}
+
 	if teams.memberships["team-1"]["member-1"].Role != "admin" {
 		t.Fatalf("expected updated role admin, got %q", teams.memberships["team-1"]["member-1"].Role)
 	}
@@ -679,6 +727,7 @@ func TestTeamMembershipAndInvitationHandlers(t *testing.T) {
 	user.permissions["updateTeamMember"] = false
 	w, r = request(http.MethodPut, "/teams/team-1/members/member-1", "role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("owner can still update member role: expected 200, got %d", w.Code)
 	}
@@ -686,34 +735,41 @@ func TestTeamMembershipAndInvitationHandlers(t *testing.T) {
 	user.id = "not-owner"
 	w, r = request(http.MethodPut, "/teams/team-1/members/member-1", "role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("non-owner without permission cannot update member role: expected 403, got %d", w.Code)
 	}
+
 	user.id = "1"
 
 	w, r = request(http.MethodPost, "/teams/team-1/invitations", "email=invitee@example.com&role=editor")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusCreated {
 		t.Fatalf("invite member: expected 201, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodGet, "/team-invitations/invite-1/accept", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("accept invitation: expected 200, got %d", w.Code)
 	}
+
 	if len(invitations.deleted) != 1 || invitations.deleted[0] != "invite-1" {
 		t.Fatalf("expected accepted invitation to be deleted, got %#v", invitations.deleted)
 	}
 
 	w, r = request(http.MethodDelete, "/teams/team-1/members/member-1", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("remove member: expected 200, got %d", w.Code)
 	}
 
 	w, r = request(http.MethodDelete, "/teams/team-1/members/1", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("owner self-removal: expected 422, got %d", w.Code)
 	}
@@ -722,6 +778,7 @@ func TestTeamMembershipAndInvitationHandlers(t *testing.T) {
 	user.permissions["removeTeamMember"] = false
 	w, r = request(http.MethodDelete, "/teams/team-1/members/member-2", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("unauthorized remove: expected 403, got %d", w.Code)
 	}
@@ -739,6 +796,7 @@ func TestTeamPermissionChecksCanUseCurrentAccessToken(t *testing.T) {
 	if user.HasTeamPermission(team, "manageApi") {
 		t.Fatal("expected direct team permissions to be false")
 	}
+
 	if !user.CurrentAccessToken().HasPermission("manageApi") {
 		t.Fatal("expected current access token to grant manageApi")
 	}
@@ -762,23 +820,28 @@ func TestAccountDeletionAndBrowserSessions(t *testing.T) {
 
 	w, r := request(http.MethodGet, "/user/sessions", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("list sessions: expected 200, got %d", w.Code)
 	}
 
 	var listed []inception.BrowserSession
+
 	if err := json.NewDecoder(w.Body).Decode(&listed); err != nil {
 		t.Fatalf("decode sessions: %v", err)
 	}
+
 	if len(listed) != 1 || listed[0].UserAgent != "Agent Browser" {
 		t.Fatalf("expected browser session to round trip, got %#v", listed)
 	}
 
 	w, r = request(http.MethodDelete, "/user", "")
 	mux.ServeHTTP(w, r)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("delete user: expected 200, got %d", w.Code)
 	}
+
 	if !user.deleted {
 		t.Fatal("expected delete user action to run")
 	}

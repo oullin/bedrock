@@ -21,10 +21,17 @@ import (
 // ToolRegistryTest::it_can_get_tool_names
 // ToolRegistryTest::it_can_clear_cache
 
+type inventoryEchoTool struct{}
+
+type inventorySlowTool struct{}
+
+type inventoryWriteTool struct{}
+
 func TestInventoryMcpRegistryAndExecutor(t *testing.T) {
 	t.Parallel()
 
 	registry := mcp.NewRegistry()
+
 	if len(registry.GetAvailableTools()) != 9 {
 		t.Fatalf("default tool count = %d, want 9", len(registry.GetAvailableTools()))
 	}
@@ -41,23 +48,28 @@ func TestInventoryMcpRegistryAndExecutor(t *testing.T) {
 	}
 
 	registry.ClearCache()
+
 	if len(registry.GetToolNames()) < 10 {
 		t.Fatal("ClearCache should restore all default and custom tool names")
 	}
 
 	executor := mcp.NewExecutor(registry)
 	resp, err := executor.Execute("inventory_echo", map[string]any{"value": "ok"})
+
 	if err != nil {
 		t.Fatalf("Execute: %v", err)
 	}
+
 	if resp.IsError || resp.Content[0].Data.(map[string]any)["value"] != "ok" {
 		t.Fatalf("Execute response = %#v", resp)
 	}
 
 	missing, err := executor.Execute("", nil)
+
 	if err != nil {
 		t.Fatalf("Execute missing name: %v", err)
 	}
+
 	if !missing.IsError || !strings.Contains(missing.Content[0].Text, "tool not found") {
 		t.Fatalf("missing tool response = %#v", missing)
 	}
@@ -71,23 +83,25 @@ func TestInventoryMcpExecutorTimeoutAndReadOnly(t *testing.T) {
 	registry.Register(&inventoryWriteTool{})
 
 	timeoutResp, err := mcp.NewExecutor(registry).WithTimeout(time.Nanosecond).Execute("inventory_slow", nil)
+
 	if err != nil {
 		t.Fatalf("Execute timeout: %v", err)
 	}
+
 	if !timeoutResp.IsError {
 		t.Fatal("expected timeout response to be an MCP error")
 	}
 
 	blocked, err := mcp.NewExecutor(registry).ExecuteReadOnly("inventory_write", nil, true)
+
 	if err != nil {
 		t.Fatalf("ExecuteReadOnly: %v", err)
 	}
+
 	if !blocked.IsError {
 		t.Fatal("writable tool should be blocked in read-only mode")
 	}
 }
-
-type inventoryEchoTool struct{}
 
 func (t *inventoryEchoTool) Name() string           { return "inventory_echo" }
 func (t *inventoryEchoTool) Description() string    { return "echo" }
@@ -97,18 +111,15 @@ func (t *inventoryEchoTool) Handle(req tools.McpRequest) (tools.McpResponse, err
 	return tools.OkResponse(req.Args), nil
 }
 
-type inventorySlowTool struct{}
-
 func (t *inventorySlowTool) Name() string           { return "inventory_slow" }
 func (t *inventorySlowTool) Description() string    { return "slow" }
 func (t *inventorySlowTool) Schema() map[string]any { return nil }
 func (t *inventorySlowTool) IsReadOnly() bool       { return true }
 func (t *inventorySlowTool) Handle(tools.McpRequest) (tools.McpResponse, error) {
 	time.Sleep(10 * time.Millisecond)
+
 	return tools.TextResponse("done"), nil
 }
-
-type inventoryWriteTool struct{}
 
 func (t *inventoryWriteTool) Name() string           { return "inventory_write" }
 func (t *inventoryWriteTool) Description() string    { return "write" }

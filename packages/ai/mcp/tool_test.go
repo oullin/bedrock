@@ -248,11 +248,13 @@ func TestToolsCallStructuredContentWithMeta(t *testing.T) {
 		"arguments": map[string]any{},
 	})
 	result := mustResult(t, resp)
+
 	if result["_meta"].(map[string]any)["trace"] != "abc" {
 		t.Fatalf("expected result meta to survive tools/call, got %#v", result["_meta"])
 	}
 
 	structured, ok := result["structuredContent"].(map[string]any)
+
 	if !ok || structured["answer"] != float64(42) {
 		t.Fatalf("expected structured content in tool result, got %#v", result["structuredContent"])
 	}

@@ -39,6 +39,7 @@ func TestViewErrorBagStorage(t *testing.T) {
 
 	if !errors.HasBag("new") {
 		created := errors.Get("new")
+
 		if created == nil || !errors.HasBag("new") {
 			t.Fatal("expected Get to create missing bag")
 		}
@@ -53,6 +54,7 @@ func TestViewErrorBagAnyCountAndString(t *testing.T) {
 	t.Parallel()
 
 	empty := NewViewErrorBag()
+
 	if empty.Any() {
 		t.Fatal("empty ViewErrorBag should not have any messages")
 	}
@@ -62,6 +64,7 @@ func TestViewErrorBagAnyCountAndString(t *testing.T) {
 	}
 
 	withEmptyBag := NewViewErrorBag().Put("default", NewMessageBag())
+
 	if withEmptyBag.Any() {
 		t.Fatal("ViewErrorBag with empty MessageBag should not have any messages")
 	}

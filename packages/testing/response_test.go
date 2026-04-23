@@ -21,6 +21,11 @@ type mockTB struct {
 	messages []string
 }
 
+type viewUser struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
 func (m *mockTB) Attr(string, string)      {}
 func (m *mockTB) ArtifactDir() string      { return "" }
 func (m *mockTB) Cleanup(func())           {}
@@ -60,11 +65,6 @@ func (m *mockTB) TempDir() string {
 	return dir
 }
 func (m *mockTB) Output() io.Writer { return io.Discard }
-
-type viewUser struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-}
 
 func newRecorder() *httptest.ResponseRecorder {
 	return httptest.NewRecorder()
@@ -376,6 +376,7 @@ func TestResponseRedirectAndViewAssertions(t *testing.T) {
 			WithView("profile", map[string]any{"age": 30}).
 			ViewHas("age", func(v any) bool {
 				n, ok := v.(int)
+
 				return ok && n >= 18
 			})
 	})
@@ -601,6 +602,7 @@ func TestResponseHeaderCookieSessionValidationAssertions(t *testing.T) {
 			WithSession(map[string]any{"user": map[string]any{"age": 30}}).
 			SessionMissingValue("user.age", func(v any) bool {
 				n, ok := v.(int)
+
 				return ok && n < 18
 			})
 	})
@@ -640,6 +642,7 @@ func TestResponseHeaderCookieSessionValidationAssertions(t *testing.T) {
 			}).
 			SessionHas("email", func(v any) bool {
 				s, ok := v.(string)
+
 				return ok && strings.Contains(s, "@")
 			})
 	})
@@ -874,6 +877,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).See("goodbye")
+
 		if !m.failed {
 			t.Fatal("expected See to fail when content is missing")
 		}
@@ -885,6 +889,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeEscaped("3 < 4")
+
 		if !m.failed {
 			t.Fatal("expected SeeEscaped to fail when escaped content is missing")
 		}
@@ -896,6 +901,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeHtml("<em>goodbye</em>")
+
 		if !m.failed {
 			t.Fatal("expected SeeHtml to fail when HTML fragment is missing")
 		}
@@ -907,6 +913,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeInOrder("alpha", "beta", "gamma")
+
 		if !m.failed {
 			t.Fatal("expected SeeInOrder to fail when order is wrong")
 		}
@@ -918,6 +925,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeInOrder("alpha", "gamma")
+
 		if !m.failed {
 			t.Fatal("expected SeeInOrder to fail when a fragment is missing")
 		}
@@ -929,6 +937,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeHtmlInOrder("<p>alpha</p>", "<p>beta</p>", "<p>gamma</p>")
+
 		if !m.failed {
 			t.Fatal("expected SeeHtmlInOrder to fail when order is wrong")
 		}
@@ -940,6 +949,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeHtmlInOrder("<p>alpha</p>", "<p>gamma</p>")
+
 		if !m.failed {
 			t.Fatal("expected SeeHtmlInOrder to fail when a fragment is missing")
 		}
@@ -951,6 +961,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeText("goodbye")
+
 		if !m.failed {
 			t.Fatal("expected SeeText to fail when text is missing")
 		}
@@ -962,6 +973,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeText("3 < 4")
+
 		if !m.failed {
 			t.Fatal("expected SeeText to fail when escaped text is missing")
 		}
@@ -973,6 +985,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeTextInOrder("alpha", "beta", "gamma")
+
 		if !m.failed {
 			t.Fatal("expected SeeTextInOrder to fail when order is wrong")
 		}
@@ -984,6 +997,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).SeeTextInOrder("alpha", "gamma")
+
 		if !m.failed {
 			t.Fatal("expected SeeTextInOrder to fail when a fragment is missing")
 		}
@@ -995,6 +1009,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).DontSee("world")
+
 		if !m.failed {
 			t.Fatal("expected DontSee to fail when the body contains the string")
 		}
@@ -1006,6 +1021,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).DontSeeEscaped("1 < 2")
+
 		if !m.failed {
 			t.Fatal("expected DontSeeEscaped to fail when the body contains the string")
 		}
@@ -1017,6 +1033,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).DontSeeHtml("<strong>hello</strong>")
+
 		if !m.failed {
 			t.Fatal("expected DontSeeHtml to fail when the HTML fragment is present")
 		}
@@ -1028,6 +1045,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).DontSeeText("world")
+
 		if !m.failed {
 			t.Fatal("expected DontSeeText to fail when text is present")
 		}
@@ -1039,6 +1057,7 @@ func TestResponseBodyVisibilityAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).DontSeeText("1 < 2")
+
 		if !m.failed {
 			t.Fatal("expected DontSeeText to fail when escaped text is present")
 		}
@@ -1156,6 +1175,7 @@ func TestFluentJSONAssertions(t *testing.T) {
 		packagetesting.AssertResponse(t, rec).FluentJSON().
 			WhereNot("age", func(v any) bool {
 				n, ok := v.(json.Number)
+
 				if !ok {
 					return false
 				}
@@ -1415,6 +1435,7 @@ func TestResponseCoreAndJSONAssertions(t *testing.T) {
 			FluentJSON().
 			Has("name").
 			Assert()
+
 		if !m.failed {
 			t.Fatal("expected fluent JSON to fail when a top-level prop is not inspected")
 		}
@@ -1472,6 +1493,7 @@ func TestResponseCoreAndJSONAssertions(t *testing.T) {
 
 		packagetesting.AssertResponse(t, rec).JSONPath("age", func(v any) bool {
 			n, ok := v.(json.Number)
+
 			return ok && n.String() == "30"
 		})
 	})
@@ -1516,6 +1538,7 @@ func TestResponseCoreAndJSONAssertions(t *testing.T) {
 		rec.Write([]byte(`{"name":"Taylor"}`))
 
 		value := packagetesting.AssertResponse(t, rec).JSONValue()
+
 		if got := value.(map[string]any)["name"]; got != "Taylor" {
 			t.Fatalf("expected decoded JSON helper to return Taylor, got %v", got)
 		}
@@ -1526,6 +1549,7 @@ func TestResponseCoreAndJSONAssertions(t *testing.T) {
 		rec.Write([]byte(`["alpha","beta"]`))
 
 		got := packagetesting.AssertResponse(t, rec).JSONCollection()
+
 		if got.Count() != 2 {
 			t.Fatalf("expected 2 collection items, got %d", got.Count())
 		}
@@ -1540,8 +1564,10 @@ func TestResponseCoreAndJSONAssertions(t *testing.T) {
 		rec.Write([]byte(`{"name":"Taylor"}`))
 
 		var tapped bool
+
 		packagetesting.AssertResponse(t, rec).Tap(func(a *packagetesting.Assertions) {
 			tapped = true
+
 			if a == nil {
 				t.Fatal("expected assertion helper in Tap callback")
 			}
@@ -1711,6 +1737,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 		packagetesting.AssertResponse(m, rec).ExactJSON(map[string]any{
 			"user": map[string]any{"name": "Taylor"},
 		})
+
 		if !m.failed {
 			t.Fatal("expected ExactJSON to fail when keys are missing")
 		}
@@ -1750,6 +1777,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).JSONValidationErrors(map[string][]string{})
+
 		if !m.failed {
 			t.Fatal("expected empty validation error expectation to fail")
 		}
@@ -1790,6 +1818,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 		packagetesting.AssertResponse(m, rec).JSONValidationErrors(map[string][]string{
 			"email": []string{"The email must be valid."},
 		})
+
 		if !m.failed {
 			t.Fatal("expected validation message mismatch to fail")
 		}
@@ -1803,6 +1832,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 		packagetesting.AssertResponse(m, rec).JSONValidationErrors(map[string][]string{
 			"name": []string{"The name field is required."},
 		})
+
 		if !m.failed {
 			t.Fatal("expected validation key mismatch to fail")
 		}
@@ -1825,6 +1855,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 		packagetesting.AssertResponse(m, rec).JSONValidationErrors(map[string][]string{
 			"email": []string{"The email field is required."},
 		})
+
 		if !m.failed {
 			t.Fatal("expected missing validation message to fail")
 		}
@@ -1849,6 +1880,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 			"email": []string{"The email field is required."},
 			"name":  []string{"The name field is required."},
 		})
+
 		if !m.failed {
 			t.Fatal("expected mixed validation message mismatch to fail")
 		}
@@ -1875,6 +1907,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 			"name":     []string{"required"},
 			"password": []string{"min"},
 		})
+
 		if !m.failed {
 			t.Fatal("expected missing validation error key to fail")
 		}
@@ -1930,6 +1963,7 @@ func TestResponseAdditionalAssertions(t *testing.T) {
 		if got := packagetesting.AssertResponse(t, rec).JSONValue(); got != false {
 			t.Fatalf("JSONValue = %#v, want false", got)
 		}
+
 		packagetesting.AssertResponse(t, rec).JSON(false)
 	})
 
@@ -2000,6 +2034,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				packagetesting.AssertResponse(t, rec).FluentJSON().
 					Where("age", func(v any) bool {
 						n, ok := v.(json.Number)
+
 						return ok && n.String() == "30"
 					}).
 					Assert()
@@ -2031,6 +2066,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 
 				packagetesting.AssertResponse(t, rec).FluentJSON().WhereNot("age", func(v any) bool {
 					n, ok := v.(float64)
+
 					return ok && n < 18
 				})
 			},
@@ -2077,6 +2113,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				packagetesting.AssertResponse(t, rec).FluentJSON().
 					Where("items", func(v any) bool {
 						items, ok := v.([]any)
+
 						return ok && len(items) == 2
 					})
 			},
@@ -2090,6 +2127,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().
 					Where("user", map[string]any{"name": "Alyssa", "age": 30})
+
 				if !m.failed {
 					t.Fatal("expected map value mismatch to fail")
 				}
@@ -2115,6 +2153,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().
 					Where("user.profile.name", "Alyssa")
+
 				if !m.failed {
 					t.Fatal("expected nested Where mismatch to fail")
 				}
@@ -2141,6 +2180,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().
 					WhereAll(map[string]any{"name": "Taylor", "age": 31})
+
 				if !m.failed {
 					t.Fatal("expected WhereAll mismatch to fail")
 				}
@@ -2233,6 +2273,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().WhereContains("items", []any{})
+
 				if !m.failed {
 					t.Fatal("expected empty WhereContains value to fail")
 				}
@@ -2247,8 +2288,10 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().WhereContains("items", func(v any) bool {
 					item, ok := v.(map[string]any)
+
 					return ok && item["name"] == "Alyssa"
 				})
+
 				if !m.failed {
 					t.Fatal("expected closure value mismatch to fail")
 				}
@@ -2283,6 +2326,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 
 				packagetesting.AssertResponse(t, rec).FluentJSON().WhereContains("items", func(v any) bool {
 					item, ok := v.(map[string]any)
+
 					return ok && item["name"] == "Taylor"
 				})
 			},
@@ -2295,10 +2339,13 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 
 				packagetesting.AssertResponse(t, rec).FluentJSON().WhereContains("items", func(v any) bool {
 					item, ok := v.(map[string]any)
+
 					if !ok {
 						return false
 					}
+
 					profile, ok := item["profile"].(map[string]any)
+
 					return ok && profile["name"] == "Taylor"
 				})
 			},
@@ -2311,6 +2358,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 
 				packagetesting.AssertResponse(t, rec).FluentJSON().WhereContains("items", func(v any) bool {
 					item, ok := v.(map[string]any)
+
 					return ok && item["name"] == "Taylor" && item["active"] == true
 				})
 			},
@@ -2324,8 +2372,10 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				m := &mockTB{}
 				packagetesting.AssertResponse(m, rec).FluentJSON().WhereContains("items", func(v any) bool {
 					item, ok := v.(map[string]any)
+
 					return ok && item["name"] == "Alyssa"
 				})
+
 				if !m.failed {
 					t.Fatal("expected WhereContains closure mismatch to fail")
 				}
@@ -2352,6 +2402,7 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 						scoped.AllowMissingInteractions()
 					}).
 					Assert()
+
 				if !m.failed {
 					t.Fatal("expected parent scope interaction check to remain enabled")
 				}
@@ -2364,12 +2415,14 @@ func TestFluentJSONAdditionalAssertions(t *testing.T) {
 				rec.Write([]byte(`{"name":"Taylor"}`))
 
 				var tapped bool
+
 				packagetesting.AssertResponse(t, rec).FluentJSON().
 					Tap(func(assert *packagetesting.AssertableJSON) {
 						tapped = true
 						assert.Where("name", "Taylor")
 					}).
 					Assert()
+
 				if !tapped {
 					t.Fatal("expected fluent JSON Tap callback")
 				}
@@ -2418,6 +2471,7 @@ func TestResponseRemainingInventoryAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).Status(http.StatusOK)
+
 		if !m.failed || !strings.Contains(strings.Join(m.messages, "\n"), "500") {
 			t.Fatalf("expected status failure to include handled status, got %#v", m.messages)
 		}
@@ -2431,6 +2485,7 @@ func TestResponseRemainingInventoryAssertions(t *testing.T) {
 		packagetesting.AssertResponse(m, rec).JSONValidationErrors(map[string][]string{
 			"email": []string{"email"},
 		})
+
 		if !m.failed || !strings.Contains(strings.Join(m.messages, "\n"), "required") {
 			t.Fatalf("expected validation failure to include errors, got %#v", m.messages)
 		}
@@ -2442,6 +2497,7 @@ func TestResponseRemainingInventoryAssertions(t *testing.T) {
 
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).JSON(map[string]any{})
+
 		if !m.failed || !strings.Contains(strings.Join(m.messages, "\n"), "invalid") {
 			t.Fatalf("expected JSON failure to include decode error, got %#v", m.messages)
 		}
@@ -2454,8 +2510,10 @@ func TestResponseRemainingInventoryAssertions(t *testing.T) {
 		m := &mockTB{}
 		packagetesting.AssertResponse(m, rec).FluentJSON().WhereContains("items", func(v any) bool {
 			item, ok := v.(map[string]any)
+
 			return ok && item["name"] == "Taylor" && item["active"] == true
 		})
+
 		if !m.failed {
 			t.Fatal("expected closure predicate to fail when extra expectation is not satisfied")
 		}

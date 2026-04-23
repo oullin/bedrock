@@ -5,20 +5,14 @@ import (
 	"strings"
 )
 
-const defaultRedisPrefix = "horizon:"
-
 // ErrUnknownRedisConnection is returned when a named Redis connection is not registered.
-var ErrUnknownRedisConnection = errors.New("horizon: redis connection not registered")
 
 // RedisConnectionKind identifies where a Horizon Redis connection is registered.
 type RedisConnectionKind string
 
-const (
-	// RedisStandalone is a non-clustered Redis connection.
-	RedisStandalone RedisConnectionKind = "standalone"
-	// RedisCluster is a clustered Redis connection.
-	RedisCluster RedisConnectionKind = "cluster"
-)
+// RedisStandalone is a non-clustered Redis connection.
+
+// RedisCluster is a clustered Redis connection.
 
 // RedisConnectionConfig stores the Redis connection metadata Horizon needs.
 type RedisConnectionConfig struct {
@@ -36,6 +30,16 @@ type RedisConnectionRegistry struct {
 	standalone     map[string]RedisConnectionConfig
 	clusters       map[string]RedisConnectionConfig
 }
+
+const defaultRedisPrefix = "horizon:"
+
+var ErrUnknownRedisConnection = errors.New("horizon: redis connection not registered")
+
+const (
+	RedisStandalone RedisConnectionKind = "standalone"
+
+	RedisCluster RedisConnectionKind = "cluster"
+)
 
 // NewRedisConnectionRegistry creates an empty Redis connection registry.
 func NewRedisConnectionRegistry(fallbackPrefix string) *RedisConnectionRegistry {
@@ -56,6 +60,7 @@ func (r *RedisConnectionRegistry) Register(config RedisConnectionConfig) {
 
 	if normalized.Kind == RedisCluster && normalized.SupportsCluster {
 		r.clusters[normalized.Name] = normalized
+
 		return
 	}
 
@@ -68,6 +73,7 @@ func (r *RedisConnectionRegistry) Use(name string) (RedisConnectionConfig, error
 	if config, ok := r.clusters[name]; ok {
 		return cloneRedisConnectionConfig(config), nil
 	}
+
 	if config, ok := r.standalone[name]; ok {
 		return cloneRedisConnectionConfig(config), nil
 	}
@@ -91,12 +97,15 @@ func (r *RedisConnectionRegistry) Cluster(name string) bool {
 
 func normalizeRedisConnection(config RedisConnectionConfig, fallbackPrefix string) RedisConnectionConfig {
 	normalized := cloneRedisConnectionConfig(config)
+
 	if normalized.Prefix == "" {
 		normalized.Prefix = fallbackPrefix
 	}
+
 	if normalized.Kind == "" {
 		normalized.Kind = RedisStandalone
 	}
+
 	if normalized.Kind == RedisCluster {
 		normalized.Prefix = hashTaggedPrefix(normalized.Prefix)
 	}
@@ -108,6 +117,7 @@ func hashTaggedPrefix(prefix string) string {
 	if prefix == "" {
 		prefix = defaultRedisPrefix
 	}
+
 	if strings.HasPrefix(prefix, "{") {
 		return prefix
 	}
@@ -130,6 +140,7 @@ func cloneStringMap(values map[string]string) map[string]string {
 	}
 
 	cloned := make(map[string]string, len(values))
+
 	for key, value := range values {
 		cloned[key] = value
 	}

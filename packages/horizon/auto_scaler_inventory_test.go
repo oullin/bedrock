@@ -115,6 +115,7 @@ func TestAutoScalerInventoryParity(t *testing.T) {
 
 func recommendationsByQueue(recommendations []ProcessRecommendation) map[string]int {
 	byQueue := make(map[string]int, len(recommendations))
+
 	for _, recommendation := range recommendations {
 		byQueue[recommendation.Queue] = recommendation.Processes
 	}
@@ -124,6 +125,7 @@ func recommendationsByQueue(recommendations []ProcessRecommendation) map[string]
 
 func totalProcesses(recommendations []ProcessRecommendation) int {
 	total := 0
+
 	for _, recommendation := range recommendations {
 		total += recommendation.Processes
 	}

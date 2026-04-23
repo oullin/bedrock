@@ -8,12 +8,6 @@ import (
 // PlanPricingMode describes how a plan period price should be displayed.
 type PlanPricingMode string
 
-const (
-	PlanPricingModeMoney  PlanPricingMode = "money"
-	PlanPricingModeFree   PlanPricingMode = "free"
-	PlanPricingModeCustom PlanPricingMode = "custom"
-)
-
 // PlanPeriodPrice represents a versioned catalog price for a plan period.
 type PlanPeriodPrice struct {
 	ID              int64
@@ -24,6 +18,12 @@ type PlanPeriodPrice struct {
 	ProviderPriceID string
 	Active          bool
 }
+
+const (
+	PlanPricingModeMoney  PlanPricingMode = "money"
+	PlanPricingModeFree   PlanPricingMode = "free"
+	PlanPricingModeCustom PlanPricingMode = "custom"
+)
 
 // DisplayAmount returns the user-facing amount for the price.
 func (p PlanPeriodPrice) DisplayAmount() string {

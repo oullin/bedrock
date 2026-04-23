@@ -40,6 +40,7 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 		withFake(t, "B", "e", "d", "r", "o", "c", "k", KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Laravel"})
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -50,6 +51,7 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Laravel"})
 			requireNoError(t, err)
+
 			if got != "Laravel" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -66,6 +68,7 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 				return nil
 			})
 			requireNoError(t, err)
+
 			if got != "Laravel" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -76,6 +79,7 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 		withFake(t, "l", KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Laravel"}, AutocompleteWithTransform(strings.ToUpper))
 			requireNoError(t, err)
+
 			if got != "L" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -92,6 +96,7 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("autocomplete = %q", got)
 			}
@@ -100,10 +105,12 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 
 	t.Run("returns empty string when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		got, err := Autocomplete("Framework?", []string{"Laravel"})
 		requireNoError(t, err)
+
 		if got != "" {
 			t.Fatalf("autocomplete = %q", got)
 		}
@@ -111,10 +118,12 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 
 	t.Run("returns default when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		got, err := Autocomplete("Framework?", []string{"Laravel"}, AutocompleteWithDefault("Bedrock"))
 		requireNoError(t, err)
+
 		if got != "Bedrock" {
 			t.Fatalf("autocomplete = %q", got)
 		}
@@ -122,12 +131,14 @@ func TestInventoryAutoCompletePromptMarkers(t *testing.T) {
 
 	t.Run("validates default when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		_, err := Autocomplete("Framework?", []string{"Laravel"},
 			AutocompleteWithDefault("x"),
 			AutocompleteWithValidate(func(string) string { return "blocked" }),
 		)
+
 		if !errors.Is(err, ErrValidation) {
 			t.Fatalf("err = %v, want ErrValidation", err)
 		}
@@ -139,6 +150,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, KeyCtrlN, KeySpace, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []string{"Laravel", "Bedrock"})
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -149,6 +161,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, KeyEnd[0], KeySpace, KeyHome[0], KeySpace, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []string{"Laravel", "Bedrock", "Symfony"})
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Laravel", "Symfony"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -165,6 +178,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if !reflect.DeepEqual(got, []string{"Laravel", "Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
@@ -175,6 +189,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, "5", KeyCtrlP, KeyCtrlN, KeyEnter, func(*TestPrompts) {
 			got, err := Number("Count?")
 			requireNoError(t, err)
+
 			if got != 5 {
 				t.Fatalf("number = %d", got)
 			}
@@ -183,9 +198,11 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 
 	t.Run("number validates default when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		_, err := Number("Count?", NumberWithDefault(5), NumberWithValidate(func(string) string { return "blocked" }))
+
 		if !errors.Is(err, ErrValidation) {
 			t.Fatalf("err = %v, want ErrValidation", err)
 		}
@@ -201,6 +218,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "laravel" {
 				t.Fatalf("search = %q", got)
 			}
@@ -211,6 +229,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, KeyCtrlN, KeyEnter, func(*TestPrompts) {
 			got, err := Search("Framework?", inventorySearchOptions())
 			requireNoError(t, err)
+
 			if got != "laravel" {
 				t.Fatalf("search = %q", got)
 			}
@@ -221,6 +240,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := Select("Framework?", []string{"", "Bedrock"})
 			requireNoError(t, err)
+
 			if got != "" {
 				t.Fatalf("select = %q", got)
 			}
@@ -229,12 +249,14 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 
 	t.Run("select validates default when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		_, err := Select("Framework?", []string{"Laravel", "Bedrock"},
 			SelectWithDefault("Bedrock"),
 			SelectWithValidate(func(string) string { return "blocked" }),
 		)
+
 		if !errors.Is(err, ErrValidation) {
 			t.Fatalf("err = %v, want ErrValidation", err)
 		}
@@ -250,6 +272,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("select = %q", got)
 			}
@@ -263,6 +286,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 				{Key: "0", Label: "No"},
 			}, SelectWithDefault("0"))
 			requireNoError(t, err)
+
 			if got != "0" {
 				t.Fatalf("select = %q", got)
 			}
@@ -279,6 +303,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 				return ""
 			}))
 			requireNoError(t, err)
+
 			if got != "Bedrock" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -289,6 +314,7 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 		withFake(t, "a", KeyCtrlN, KeyEnter, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Laravel", "Laminas"})
 			requireNoError(t, err)
+
 			if got != "Laminas" {
 				t.Fatalf("suggest = %q", got)
 			}
@@ -297,10 +323,12 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 
 	t.Run("suggest returns empty string when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		got, err := Suggest("Framework?", []string{"Laravel"})
 		requireNoError(t, err)
+
 		if got != "" {
 			t.Fatalf("suggest = %q", got)
 		}
@@ -308,12 +336,14 @@ func TestInventorySelectMultiSelectNumberSearchAndSuggestMarkers(t *testing.T) {
 
 	t.Run("suggest validates default when non-interactive", func(t *testing.T) {
 		cleanup := FakeNonInteractive()
+
 		defer cleanup()
 
 		_, err := Suggest("Framework?", []string{"Laravel"},
 			SuggestWithDefault("x"),
 			SuggestWithValidate(func(string) string { return "blocked" }),
 		)
+
 		if !errors.Is(err, ErrValidation) {
 			t.Fatalf("err = %v, want ErrValidation", err)
 		}

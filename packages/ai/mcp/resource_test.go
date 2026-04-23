@@ -98,9 +98,11 @@ func TestResourcesReadMatchesURITemplate(t *testing.T) {
 		"application/json",
 		func(_ context.Context, req *mcp.Request) (*mcp.Response, error) {
 			uid := req.URIVars["userId"]
+
 			if req.URI != "file://users/42" {
 				t.Fatalf("expected request URI to be preserved, got %q", req.URI)
 			}
+
 			if req.Get("userId") != "42" {
 				t.Fatalf("expected extracted URI variable to be available via request getters, got %#v", req.Get("userId"))
 			}
@@ -152,11 +154,13 @@ func TestResourcesReadReturnsBlobContentPayload(t *testing.T) {
 	resp := sendRaw(t, srv, "resources/read", map[string]any{"uri": "file://binary/blob"})
 	result := mustResult(t, resp)
 	contents, _ := result["contents"].([]any)
+
 	if len(contents) != 1 {
 		t.Fatalf("expected one blob content item, got %#v", contents)
 	}
 
 	content := contents[0].(map[string]any)
+
 	if content["uri"] != "file://binary/blob" {
 		t.Fatalf("expected blob resource uri to be preserved, got %#v", content["uri"])
 	}
@@ -166,6 +170,7 @@ func TestResourcesReadReturnsBlobContentPayload(t *testing.T) {
 	}
 
 	blob, _ := content["blob"].(string)
+
 	if blob == "" {
 		t.Fatal("expected blob payload to be present")
 	}
@@ -202,6 +207,7 @@ func TestResourcesReadMissingURIReturnsError(t *testing.T) {
 	srv := mcp.NewServer("srv", "1.0.0")
 
 	resp := sendRaw(t, srv, "resources/read", map[string]any{})
+
 	if _, ok := resp["error"].(map[string]any); !ok {
 		t.Fatalf("expected missing resource uri to return an error, got %#v", resp)
 	}

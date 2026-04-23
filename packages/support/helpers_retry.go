@@ -185,6 +185,7 @@ func resolveThrowable(throwable any, args ...any) error {
 	default:
 		if len(args) > 0 {
 			reflected, ok := callSingleArgThrowable(reflect.ValueOf(throwable), args[0])
+
 			if ok {
 				return reflected
 			}
@@ -206,6 +207,7 @@ func callSingleArgThrowable(fn reflect.Value, arg any) (error, bool) {
 	}
 
 	fnType := fn.Type()
+
 	if fnType.NumIn() != 1 || fnType.NumOut() != 1 {
 		return nil, false
 	}
@@ -213,10 +215,12 @@ func callSingleArgThrowable(fn reflect.Value, arg any) (error, bool) {
 	inType := fnType.In(0)
 
 	var callArg reflect.Value
+
 	if arg == nil {
 		callArg = reflect.Zero(inType)
 	} else {
 		argValue := reflect.ValueOf(arg)
+
 		if !argValue.IsValid() {
 			callArg = reflect.Zero(inType)
 		} else if argValue.Type().AssignableTo(inType) {
@@ -236,6 +240,7 @@ func callSingleArgThrowable(fn reflect.Value, arg any) (error, bool) {
 	result := results[0].Interface()
 
 	err, ok := result.(error)
+
 	if ok {
 		return err, true
 	}

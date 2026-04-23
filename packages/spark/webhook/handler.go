@@ -142,11 +142,13 @@ func (h *Handler) syncSubscription(ctx context.Context, payload map[string]any, 
 	}
 
 	subscription, err := h.subscriptions.FindByProviderID(ctx, paddleID)
+
 	if err != nil || subscription == nil {
 		return
 	}
 
 	status := fallback
+
 	if value := stringField(data, "status"); value != "" {
 		status = spark.SubscriptionStatus(value)
 	}
@@ -188,21 +190,25 @@ func (h *Handler) syncTransaction(ctx context.Context, payload map[string]any, f
 	}
 
 	transaction, err := h.transactions.FindByProviderID(ctx, paddleID)
+
 	if err != nil {
 		return
 	}
 
 	create := transaction == nil
+
 	if transaction == nil {
 		transaction = &spark.Transaction{PaddleID: paddleID}
 	}
 
 	status := fallback
+
 	if value := stringField(data, "status"); value != "" {
 		status = spark.TransactionStatus(value)
 	}
 
 	total, tax, currency, err := transactionMoney(data)
+
 	if err != nil {
 		return
 	}
@@ -235,6 +241,7 @@ func (h *Handler) syncTransaction(ctx context.Context, payload map[string]any, f
 
 func payloadData(payload map[string]any) map[string]any {
 	data, _ := payload["data"].(map[string]any)
+
 	if data == nil {
 		return map[string]any{}
 	}
@@ -251,24 +258,29 @@ func stringField(data map[string]any, key string) string {
 func transactionMoney(data map[string]any) (int64, int64, string, error) {
 	details, _ := data["details"].(map[string]any)
 	totals, _ := details["totals"].(map[string]any)
+
 	if totals == nil {
 		return 0, 0, "", spark.ValidationErrors{{Field: "details.totals", Message: "is required"}}
 	}
 
 	total, err := spark.ParseMinorAmount(totals["total"])
+
 	if err != nil {
 		return 0, 0, "", err
 	}
 
 	tax, err := spark.ParseMinorAmount(totals["tax"])
+
 	if err != nil {
 		return 0, 0, "", err
 	}
 
 	currency := stringField(totals, "currency_code")
+
 	if currency == "" {
 		currency = stringField(data, "currency_code")
 	}
+
 	currency = strings.ToUpper(strings.TrimSpace(currency))
 
 	if err := spark.ValidateTransactionMoney(total, tax, currency); err != nil {
@@ -284,21 +296,25 @@ func subscriptionItems(subscriptionID int64, data map[string]any) []spark.Subscr
 
 	for _, raw := range rawItems {
 		item, _ := raw.(map[string]any)
+
 		if item == nil {
 			continue
 		}
 
 		price, _ := item["price"].(map[string]any)
+
 		if price == nil {
 			continue
 		}
 
 		priceID := stringField(price, "id")
+
 		if priceID == "" {
 			continue
 		}
 
 		quantity := 1
+
 		if rawQuantity, ok := item["quantity"].(float64); ok && rawQuantity > 0 {
 			quantity = int(rawQuantity)
 		}

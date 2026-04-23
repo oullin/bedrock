@@ -36,6 +36,7 @@ func TestMonitorInventoryParityAdditional(t *testing.T) {
 		}
 
 		snapshot, err := monitor.Capture(context.Background())
+
 		if err != nil {
 			t.Fatalf("Capture returned error: %v", err)
 		}
@@ -52,6 +53,7 @@ func TestMonitorInventoryParityAdditional(t *testing.T) {
 		}))
 
 		_, err := monitor.Capture(context.Background())
+
 		if !errors.Is(err, want) {
 			t.Fatalf("Capture error = %v, want %v", err, want)
 		}
@@ -64,6 +66,7 @@ func TestMonitorInventoryParityAdditional(t *testing.T) {
 		}))
 
 		_, err := monitor.Capture(context.Background())
+
 		if !errors.Is(err, want) {
 			t.Fatalf("Capture error = %v, want %v", err, want)
 		}
@@ -74,12 +77,14 @@ func TestMonitorInventoryParityAdditional(t *testing.T) {
 
 		canceledRecord, cancelRecord := context.WithCancel(context.Background())
 		cancelRecord()
+
 		if err := repository.Record(canceledRecord, Snapshot{}); !errors.Is(err, context.Canceled) {
 			t.Fatalf("Record error = %v, want context.Canceled", err)
 		}
 
 		canceledLatest, cancelLatest := context.WithCancel(context.Background())
 		cancelLatest()
+
 		if _, err := repository.Latest(canceledLatest); !errors.Is(err, context.Canceled) {
 			t.Fatalf("Latest error = %v, want context.Canceled", err)
 		}
@@ -179,6 +184,7 @@ func TestWaitTimeCalculatorInventoryParityAdditional(t *testing.T) {
 
 	t.Run("time to clear uses the recorded wait when present", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:default")
+
 		if len(times) != 1 || times[0].Duration != 5*time.Minute {
 			t.Fatalf("times = %#v", times)
 		}
@@ -186,6 +192,7 @@ func TestWaitTimeCalculatorInventoryParityAdditional(t *testing.T) {
 
 	t.Run("time to clear filters out unknown queues", func(t *testing.T) {
 		times := WaitTimes(snapshot, "redis:missing")
+
 		if len(times) != 0 {
 			t.Fatalf("times = %#v, want empty", times)
 		}
@@ -197,6 +204,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 
 	t.Run("job repository uses the current time when no clock is provided", func(t *testing.T) {
 		fallback := NewJobRepository(nil)
+
 		if fallback == nil || fallback.now == nil {
 			t.Fatal("expected fallback repository clock to be initialized")
 		}
@@ -207,6 +215,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 		repository.StorePending(JobRecord{ID: "job-default", Queue: "default"})
 
 		pending := repository.Pending("default", 0, 10)
+
 		if len(pending) != 1 {
 			t.Fatalf("pending jobs = %#v", pending)
 		}
@@ -226,6 +235,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 		repository.StorePending(JobRecord{ID: "job-a", Queue: "default", PushedAt: now.Add(time.Second)})
 
 		pending := repository.Pending("default", 0, 10)
+
 		if got, want := pending[0].ID, "job-a"; got != want {
 			t.Fatalf("first pending job = %q, want %q", got, want)
 		}
@@ -239,6 +249,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 		repository.MarkComplete("job-recent-2", true, now.Add(5*time.Second))
 
 		recent := repository.Recent(1)
+
 		if len(recent) != 1 || recent[0].ID != "job-recent-2" {
 			t.Fatalf("recent jobs = %#v", recent)
 		}
@@ -258,6 +269,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 
 	t.Run("mark reserved returns false when the job does not exist", func(t *testing.T) {
 		repository := NewJobRepository(func() time.Time { return now })
+
 		if repository.MarkReserved("missing", now) {
 			t.Fatal("expected missing job not to be reserved")
 		}
@@ -265,6 +277,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 
 	t.Run("mark complete returns false when the job does not exist", func(t *testing.T) {
 		repository := NewJobRepository(func() time.Time { return now })
+
 		if repository.MarkComplete("missing", true, now) {
 			t.Fatal("expected missing job not to be completed")
 		}
@@ -272,6 +285,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 
 	t.Run("mark failed returns false when the job does not exist", func(t *testing.T) {
 		repository := NewJobRepository(func() time.Time { return now })
+
 		if repository.MarkFailed("missing", now, time.Hour) {
 			t.Fatal("expected missing job not to be failed")
 		}
@@ -279,6 +293,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 
 	t.Run("release returns false when the job does not exist", func(t *testing.T) {
 		repository := NewJobRepository(func() time.Time { return now })
+
 		if repository.Release("missing", now.Add(time.Minute)) {
 			t.Fatal("expected missing job not to be released")
 		}
@@ -351,6 +366,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 	t.Run("FailedJobTest::test_temporary_failed_job_should_be_deleted_when_the_main_job_is_deleted", func(t *testing.T) {
 		repository := NewJobRepository(func() time.Time { return now })
 		repository.StorePending(JobRecord{ID: "job-failed", Queue: "default", Tags: []string{"failed-tag"}, PushedAt: now.Add(7 * time.Second)})
+
 		if !repository.MarkFailed("job-failed", now.Add(8*time.Second), time.Hour) {
 			t.Fatal("expected failed job to be stored")
 		}
@@ -368,6 +384,7 @@ func TestJobRepositoryInventoryParityAdditional(t *testing.T) {
 func TestRedisJobRepositoryInventoryParityAdditional(t *testing.T) {
 	t.Run("RedisJobRepositoryTest::test_it_saves_microseconds_as_a_float_and_disregards_the_locale", func(t *testing.T) {
 		at := time.Unix(1, 234_567_890).UTC()
+
 		if got, want := microsecondsFloat(at), 1_234_567.89; got != want {
 			t.Fatalf("microseconds float = %v, want %v", got, want)
 		}

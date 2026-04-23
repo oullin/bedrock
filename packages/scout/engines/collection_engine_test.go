@@ -9,15 +9,15 @@ import (
 	"github.com/bedrock/packages/scout/engines"
 )
 
+type makeSearchableUsingModel struct {
+	*testModel
+}
+
 func makeBuilder(model contract.Searchable, query string, models []contract.Searchable) *scout.Builder {
 	b := scout.NewBuilder(model, query).
 		WithOptions(map[string]any{"__models": models})
 
 	return b
-}
-
-type makeSearchableUsingModel struct {
-	*testModel
 }
 
 func (m *makeSearchableUsingModel) MakeSearchableUsing(models []contract.Searchable) []contract.Searchable {

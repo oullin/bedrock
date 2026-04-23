@@ -11,6 +11,140 @@ import (
 
 // ArrAccessible reports whether value is a map, slice, array, or string.
 // Mirrors Arr::accessible().
+
+// ArrMap maps each item in a slice.
+// Mirrors Arr::map().
+
+// ArrMapWithKeys maps each item into key/value pairs.
+// Mirrors Arr::mapWithKeys().
+
+// ArrString returns a string value for the key.
+// Mirrors Arr::string().
+
+// ArrInteger returns an integer value for the key.
+// Mirrors Arr::integer().
+
+// ArrFloat returns a float64 value for the key.
+// Mirrors Arr::float().
+
+// ArrBoolean returns a boolean value for the key.
+// Mirrors Arr::boolean().
+
+// ArrArray returns a []any value for the key.
+// Mirrors Arr::array().
+
+// ArrReject filters a map by rejecting values accepted by predicate.
+// Mirrors Arr::reject().
+
+// ArrWhereKey filters a map by key predicate.
+// Mirrors Arr::whereKey().
+
+// ArrFrom converts supported values into a []any.
+// Mirrors Arr::from().
+
+// ArrKeyBy returns a map keyed by each item's selected value.
+// Mirrors Arr::keyBy().
+
+// ArrPrependKeysWith prefixes every key in the map.
+// Mirrors Arr::prependKeysWith().
+
+// ArrSelect returns a slice of maps containing only the selected keys.
+// Mirrors Arr::select().
+
+// ArrIsAssoc reports whether a map has non-list integer keys or string keys.
+// Mirrors Arr::isAssoc().
+
+// ArrIsList reports whether value is a zero-based list.
+// Mirrors Arr::isList().
+
+// ArrAdd adds a key/value pair to the map if the key does not already exist.
+// Supports dot-notation keys for nested access.
+// Mirrors Arr::add().
+
+// ArrGet retrieves a value from a nested map using dot-notation.
+// Returns the default value if the key is not found.
+// Mirrors Arr::get().
+
+// ArrSet sets a value in a nested map using dot-notation, creating intermediate
+// maps as needed. Mutates m and returns it for chaining.
+// Mirrors Arr::set().
+
+// ArrHas checks whether the given key(s) exist in the map using dot-notation.
+// Returns true only if ALL keys exist.
+// Mirrors Arr::has().
+
+// ArrHasAny checks whether any of the given keys exist in the map.
+// Mirrors Arr::hasAny().
+
+// ArrForget removes one or more keys from the map using dot-notation.
+// Mirrors Arr::forget().
+
+// ArrExists checks whether the given key exists in the map.
+// Supports dot-notation keys for nested access.
+// Mirrors Arr::exists().
+
+// ArrWhereNotNull returns a copy of the map without nil values.
+// Mirrors Arr::whereNotNull().
+
+// ArrExceptValues returns all key/value pairs whose values are not in the excluded list.
+// Mirrors Arr::except() for value-based filtering.
+
+// ArrUndot expands dot-notation keys into nested maps.
+// Mirrors Arr::undot().
+
+// ArrJoin joins the slice into a string, using the final glue for the last separator when provided.
+// Mirrors Arr::join().
+
+// ArrTake returns the first n items, or the last -n items when count is negative.
+// Mirrors Arr::take().
+
+// ArrPush appends values to the end of the slice.
+// Mirrors Arr::push().
+
+// ArrQuery encodes a map into a query string.
+// Mirrors Arr::query().
+
+// ArrPull gets a value from the map and removes it.
+// Returns the default if the key is not found.
+// Mirrors Arr::pull().
+
+// ArrDot flattens a nested map into a single-level map with dot-notation keys.
+// Mirrors Arr::dot().
+
+// ArrExcept returns all key/value pairs except those with the specified keys.
+// Mirrors Arr::except().
+
+// ArrOnly returns a map containing only the specified keys.
+// Mirrors Arr::only().
+
+// ArrOnlyValues returns values for the selected keys, preserving key order.
+// Mirrors Arr::only() value-focused assertions.
+
+// ArrDivide splits a map into two slices: one of keys and one of values.
+// Keys are returned in sorted order for deterministic output.
+// Mirrors Arr::divide().
+
+// ArrPluck extracts a list of values for a given key from a slice of maps.
+// If indexKey is provided, the result is a map[string]any keyed by that field.
+// Otherwise, the result is []any.
+// Mirrors Arr::pluck().
+
+// ArrSortDesc returns a reverse-sorted copy of items.
+// Mirrors Arr::sortDesc().
+
+// SortDirection controls an ArrSortByMany sort clause.
+type SortDirection string
+
+// SortAsc sorts a clause in ascending order.
+
+// SortDesc sorts a clause in descending order.
+
+// SortClause describes one key and direction for ArrSortByMany.
+type SortClause struct {
+	Key       string
+	Direction SortDirection
+}
+
 func ArrAccessible(value any) bool {
 	if value == nil {
 		return false
@@ -22,6 +156,7 @@ func ArrAccessible(value any) bool {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	switch rv.Kind() {
 	case reflect.Map, reflect.Slice, reflect.Array:
 		return true
@@ -30,10 +165,9 @@ func ArrAccessible(value any) bool {
 	}
 }
 
-// ArrMap maps each item in a slice.
-// Mirrors Arr::map().
 func ArrMap[T any, R any](items []T, mapper func(T) R) []R {
 	result := make([]R, 0, len(items))
+
 	for _, item := range items {
 		result = append(result, mapper(item))
 	}
@@ -41,10 +175,9 @@ func ArrMap[T any, R any](items []T, mapper func(T) R) []R {
 	return result
 }
 
-// ArrMapWithKeys maps each item into key/value pairs.
-// Mirrors Arr::mapWithKeys().
 func ArrMapWithKeys[T any](items []T, mapper func(T) map[string]any) map[string]any {
 	result := make(map[string]any, len(items))
+
 	for _, item := range items {
 		for key, value := range mapper(item) {
 			result[key] = value
@@ -54,10 +187,9 @@ func ArrMapWithKeys[T any](items []T, mapper func(T) map[string]any) map[string]
 	return result
 }
 
-// ArrString returns a string value for the key.
-// Mirrors Arr::string().
 func ArrString(m map[string]any, key string, def ...string) string {
 	value := ArrGet(m, key)
+
 	if value == nil {
 		if len(def) > 0 {
 			return def[0]
@@ -69,10 +201,9 @@ func ArrString(m map[string]any, key string, def ...string) string {
 	return fmt.Sprint(value)
 }
 
-// ArrInteger returns an integer value for the key.
-// Mirrors Arr::integer().
 func ArrInteger(m map[string]any, key string, def ...int) int {
 	value := ArrGet(m, key)
+
 	switch v := value.(type) {
 	case int:
 		return v
@@ -93,10 +224,9 @@ func ArrInteger(m map[string]any, key string, def ...int) int {
 	return 0
 }
 
-// ArrFloat returns a float64 value for the key.
-// Mirrors Arr::float().
 func ArrFloat(m map[string]any, key string, def ...float64) float64 {
 	value := ArrGet(m, key)
+
 	switch v := value.(type) {
 	case float64:
 		return v
@@ -117,10 +247,9 @@ func ArrFloat(m map[string]any, key string, def ...float64) float64 {
 	return 0
 }
 
-// ArrBoolean returns a boolean value for the key.
-// Mirrors Arr::boolean().
 func ArrBoolean(m map[string]any, key string, def ...bool) bool {
 	value := ArrGet(m, key)
+
 	switch v := value.(type) {
 	case bool:
 		return v
@@ -137,10 +266,9 @@ func ArrBoolean(m map[string]any, key string, def ...bool) bool {
 	return false
 }
 
-// ArrArray returns a []any value for the key.
-// Mirrors Arr::array().
 func ArrArray(m map[string]any, key string, def ...[]any) []any {
 	value := ArrGet(m, key)
+
 	if items, ok := anySlice(value); ok {
 		return items
 	}
@@ -152,18 +280,15 @@ func ArrArray(m map[string]any, key string, def ...[]any) []any {
 	return []any{}
 }
 
-// ArrReject filters a map by rejecting values accepted by predicate.
-// Mirrors Arr::reject().
 func ArrReject[T any](items []T, predicate func(T, int) bool) []T {
 	return ArrWhere(items, func(item T, index int) bool {
 		return !predicate(item, index)
 	})
 }
 
-// ArrWhereKey filters a map by key predicate.
-// Mirrors Arr::whereKey().
 func ArrWhereKey(m map[string]any, predicate func(string) bool) map[string]any {
 	result := make(map[string]any)
+
 	for key, value := range m {
 		if predicate(key) {
 			result[key] = value
@@ -173,8 +298,6 @@ func ArrWhereKey(m map[string]any, predicate func(string) bool) map[string]any {
 	return result
 }
 
-// ArrFrom converts supported values into a []any.
-// Mirrors Arr::from().
 func ArrFrom(value any) []any {
 	if value == nil {
 		return []any{}
@@ -187,10 +310,9 @@ func ArrFrom(value any) []any {
 	return []any{value}
 }
 
-// ArrKeyBy returns a map keyed by each item's selected value.
-// Mirrors Arr::keyBy().
 func ArrKeyBy(items []map[string]any, key string) map[string]map[string]any {
 	result := make(map[string]map[string]any, len(items))
+
 	for _, item := range items {
 		result[fmt.Sprint(ArrGet(item, key))] = item
 	}
@@ -198,10 +320,9 @@ func ArrKeyBy(items []map[string]any, key string) map[string]map[string]any {
 	return result
 }
 
-// ArrPrependKeysWith prefixes every key in the map.
-// Mirrors Arr::prependKeysWith().
 func ArrPrependKeysWith(m map[string]any, prefix string) map[string]any {
 	result := make(map[string]any, len(m))
+
 	for key, value := range m {
 		result[prefix+key] = value
 	}
@@ -209,10 +330,9 @@ func ArrPrependKeysWith(m map[string]any, prefix string) map[string]any {
 	return result
 }
 
-// ArrSelect returns a slice of maps containing only the selected keys.
-// Mirrors Arr::select().
 func ArrSelect(items []map[string]any, keys ...string) []map[string]any {
 	result := make([]map[string]any, 0, len(items))
+
 	for _, item := range items {
 		result = append(result, ArrOnly(item, keys...))
 	}
@@ -220,8 +340,6 @@ func ArrSelect(items []map[string]any, keys ...string) []map[string]any {
 	return result
 }
 
-// ArrIsAssoc reports whether a map has non-list integer keys or string keys.
-// Mirrors Arr::isAssoc().
 func ArrIsAssoc(value any) bool {
 	switch v := value.(type) {
 	case map[string]any:
@@ -233,8 +351,6 @@ func ArrIsAssoc(value any) bool {
 	}
 }
 
-// ArrIsList reports whether value is a zero-based list.
-// Mirrors Arr::isList().
 func ArrIsList(value any) bool {
 	switch v := value.(type) {
 	case []any:
@@ -253,6 +369,7 @@ func ArrIsList(value any) bool {
 		return true
 	default:
 		rv := reflect.ValueOf(value)
+
 		switch rv.Kind() {
 		case reflect.Slice, reflect.Array:
 			return true
@@ -262,9 +379,6 @@ func ArrIsList(value any) bool {
 	}
 }
 
-// ArrAdd adds a key/value pair to the map if the key does not already exist.
-// Supports dot-notation keys for nested access.
-// Mirrors Arr::add().
 func ArrAdd(m map[string]any, key string, value any) map[string]any {
 	if !dotHas(m, key) {
 		dotSet(m, key, value)
@@ -273,9 +387,6 @@ func ArrAdd(m map[string]any, key string, value any) map[string]any {
 	return m
 }
 
-// ArrGet retrieves a value from a nested map using dot-notation.
-// Returns the default value if the key is not found.
-// Mirrors Arr::get().
 func ArrGet(m map[string]any, key string, def ...any) any {
 	val, ok := dotGet(m, key)
 
@@ -290,18 +401,12 @@ func ArrGet(m map[string]any, key string, def ...any) any {
 	return nil
 }
 
-// ArrSet sets a value in a nested map using dot-notation, creating intermediate
-// maps as needed. Mutates m and returns it for chaining.
-// Mirrors Arr::set().
 func ArrSet(m map[string]any, key string, value any) map[string]any {
 	dotSet(m, key, value)
 
 	return m
 }
 
-// ArrHas checks whether the given key(s) exist in the map using dot-notation.
-// Returns true only if ALL keys exist.
-// Mirrors Arr::has().
 func ArrHas(m map[string]any, keys ...string) bool {
 	if len(keys) == 0 {
 		return false
@@ -316,8 +421,6 @@ func ArrHas(m map[string]any, keys ...string) bool {
 	return true
 }
 
-// ArrHasAny checks whether any of the given keys exist in the map.
-// Mirrors Arr::hasAny().
 func ArrHasAny(m map[string]any, keys ...string) bool {
 	for _, key := range keys {
 		if dotHas(m, key) {
@@ -328,23 +431,16 @@ func ArrHasAny(m map[string]any, keys ...string) bool {
 	return false
 }
 
-// ArrForget removes one or more keys from the map using dot-notation.
-// Mirrors Arr::forget().
 func ArrForget(m map[string]any, keys ...string) {
 	for _, key := range keys {
 		dotForget(m, key)
 	}
 }
 
-// ArrExists checks whether the given key exists in the map.
-// Supports dot-notation keys for nested access.
-// Mirrors Arr::exists().
 func ArrExists(m map[string]any, key string) bool {
 	return dotHas(m, key)
 }
 
-// ArrWhereNotNull returns a copy of the map without nil values.
-// Mirrors Arr::whereNotNull().
 func ArrWhereNotNull(m map[string]any) map[string]any {
 	result := make(map[string]any, len(m))
 
@@ -357,8 +453,6 @@ func ArrWhereNotNull(m map[string]any) map[string]any {
 	return result
 }
 
-// ArrExceptValues returns all key/value pairs whose values are not in the excluded list.
-// Mirrors Arr::except() for value-based filtering.
 func ArrExceptValues(m map[string]any, values ...any) map[string]any {
 	result := make(map[string]any, len(m))
 
@@ -371,8 +465,6 @@ func ArrExceptValues(m map[string]any, values ...any) map[string]any {
 	return result
 }
 
-// ArrUndot expands dot-notation keys into nested maps.
-// Mirrors Arr::undot().
 func ArrUndot(m map[string]any) map[string]any {
 	result := make(map[string]any, len(m))
 
@@ -383,8 +475,6 @@ func ArrUndot(m map[string]any) map[string]any {
 	return result
 }
 
-// ArrJoin joins the slice into a string, using the final glue for the last separator when provided.
-// Mirrors Arr::join().
 func ArrJoin(items []string, glue string, finalGlue ...string) string {
 	switch len(items) {
 	case 0:
@@ -406,8 +496,6 @@ func ArrJoin(items []string, glue string, finalGlue ...string) string {
 	return strings.Join(items[:len(items)-1], glue) + finalGlue[0] + items[len(items)-1]
 }
 
-// ArrTake returns the first n items, or the last -n items when count is negative.
-// Mirrors Arr::take().
 func ArrTake[T any](items []T, count int) []T {
 	if count == 0 {
 		return []T{}
@@ -422,6 +510,7 @@ func ArrTake[T any](items []T, count int) []T {
 	}
 
 	n := -count
+
 	if n >= len(items) {
 		return append([]T(nil), items...)
 	}
@@ -429,14 +518,10 @@ func ArrTake[T any](items []T, count int) []T {
 	return append([]T(nil), items[len(items)-n:]...)
 }
 
-// ArrPush appends values to the end of the slice.
-// Mirrors Arr::push().
 func ArrPush[T any](items []T, values ...T) []T {
 	return append(items, values...)
 }
 
-// ArrQuery encodes a map into a query string.
-// Mirrors Arr::query().
 func ArrQuery(m map[string]any) string {
 	if len(m) == 0 {
 		return ""
@@ -456,6 +541,7 @@ func ArrQuery(m map[string]any) string {
 			}
 		default:
 			rv := reflect.ValueOf(value)
+
 			if rv.IsValid() && rv.Kind() == reflect.Slice {
 				for i := 0; i < rv.Len(); i++ {
 					values.Add(key, fmt.Sprint(rv.Index(i).Interface()))
@@ -471,9 +557,6 @@ func ArrQuery(m map[string]any) string {
 	return values.Encode()
 }
 
-// ArrPull gets a value from the map and removes it.
-// Returns the default if the key is not found.
-// Mirrors Arr::pull().
 func ArrPull(m map[string]any, key string, def ...any) any {
 	val := ArrGet(m, key, def...)
 	ArrForget(m, key)
@@ -481,8 +564,6 @@ func ArrPull(m map[string]any, key string, def ...any) any {
 	return val
 }
 
-// ArrDot flattens a nested map into a single-level map with dot-notation keys.
-// Mirrors Arr::dot().
 func ArrDot(m map[string]any, prepend ...string) map[string]any {
 	p := ""
 
@@ -496,8 +577,6 @@ func ArrDot(m map[string]any, prepend ...string) map[string]any {
 	return result
 }
 
-// ArrExcept returns all key/value pairs except those with the specified keys.
-// Mirrors Arr::except().
 func ArrExcept(m map[string]any, keys ...string) map[string]any {
 	exclude := make(map[string]struct{}, len(keys))
 
@@ -516,8 +595,6 @@ func ArrExcept(m map[string]any, keys ...string) map[string]any {
 	return result
 }
 
-// ArrOnly returns a map containing only the specified keys.
-// Mirrors Arr::only().
 func ArrOnly(m map[string]any, keys ...string) map[string]any {
 	result := make(map[string]any, len(keys))
 
@@ -530,10 +607,9 @@ func ArrOnly(m map[string]any, keys ...string) map[string]any {
 	return result
 }
 
-// ArrOnlyValues returns values for the selected keys, preserving key order.
-// Mirrors Arr::only() value-focused assertions.
 func ArrOnlyValues(m map[string]any, keys ...string) []any {
 	result := make([]any, 0, len(keys))
+
 	for _, key := range keys {
 		if value, ok := m[key]; ok {
 			result = append(result, value)
@@ -543,9 +619,6 @@ func ArrOnlyValues(m map[string]any, keys ...string) []any {
 	return result
 }
 
-// ArrDivide splits a map into two slices: one of keys and one of values.
-// Keys are returned in sorted order for deterministic output.
-// Mirrors Arr::divide().
 func ArrDivide(m map[string]any) ([]string, []any) {
 	keys := make([]string, 0, len(m))
 
@@ -564,10 +637,6 @@ func ArrDivide(m map[string]any) ([]string, []any) {
 	return keys, values
 }
 
-// ArrPluck extracts a list of values for a given key from a slice of maps.
-// If indexKey is provided, the result is a map[string]any keyed by that field.
-// Otherwise, the result is []any.
-// Mirrors Arr::pluck().
 func ArrPluck(items []map[string]any, valueKey string, indexKey ...string) any {
 	if len(indexKey) > 0 && indexKey[0] != "" {
 		result := make(map[string]any, len(items))
@@ -590,10 +659,9 @@ func ArrPluck(items []map[string]any, valueKey string, indexKey ...string) any {
 	return result
 }
 
-// ArrSortDesc returns a reverse-sorted copy of items.
-// Mirrors Arr::sortDesc().
 func ArrSortDesc[T ~string | ~int | ~int64 | ~float64](items []T) []T {
 	result := append([]T(nil), items...)
+
 	sort.Slice(result, func(i, j int) bool {
 		return result[i] > result[j]
 	})
@@ -601,30 +669,22 @@ func ArrSortDesc[T ~string | ~int | ~int64 | ~float64](items []T) []T {
 	return result
 }
 
-// SortDirection controls an ArrSortByMany sort clause.
-type SortDirection string
-
 const (
-	// SortAsc sorts a clause in ascending order.
 	SortAsc SortDirection = "asc"
-	// SortDesc sorts a clause in descending order.
+
 	SortDesc SortDirection = "desc"
 )
-
-// SortClause describes one key and direction for ArrSortByMany.
-type SortClause struct {
-	Key       string
-	Direction SortDirection
-}
 
 // ArrSortByMany sorts maps by multiple dot-notation keys.
 // Mirrors Arr::sort by multiple comparison callbacks.
 func ArrSortByMany(items []map[string]any, clauses ...SortClause) []map[string]any {
 	result := append([]map[string]any(nil), items...)
+
 	sort.SliceStable(result, func(i, j int) bool {
 		for _, clause := range clauses {
 			left := fmt.Sprint(ArrGet(result[i], clause.Key))
 			right := fmt.Sprint(ArrGet(result[j], clause.Key))
+
 			if left == right {
 				continue
 			}
@@ -706,6 +766,7 @@ func anySlice(value any) ([]any, bool) {
 	}
 
 	rv := reflect.ValueOf(value)
+
 	if !rv.IsValid() {
 		return nil, false
 	}
@@ -713,6 +774,7 @@ func anySlice(value any) ([]any, bool) {
 	switch rv.Kind() {
 	case reflect.Slice, reflect.Array:
 		result := make([]any, rv.Len())
+
 		for i := 0; i < rv.Len(); i++ {
 			result[i] = rv.Index(i).Interface()
 		}

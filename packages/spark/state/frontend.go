@@ -168,9 +168,11 @@ func (f *FrontendState) subscriptionState(sub *spark.Subscription, plan *spark.P
 
 	state["status"] = string(sub.Status)
 	state["plan_code"] = sub.Plan
+
 	if plan != nil {
 		state["plan_name"] = plan.Name
 	}
+
 	state["pending_expires_at"] = sub.PendingExpiresAt
 	state["payment_ready_at"] = sub.PaymentReadyAt
 
@@ -193,6 +195,7 @@ func (f *FrontendState) ctaState(sub *spark.Subscription, plan *spark.Plan, now 
 	}
 
 	portalURL := f.portalURL(sub, plan)
+
 	if portalURL == "" {
 		return cta
 	}
@@ -220,6 +223,7 @@ func (f *FrontendState) portalURL(sub *spark.Subscription, plan *spark.Plan) str
 	}
 
 	path := strings.Trim(f.config.Path, "/")
+
 	if path == "" {
 		return "/"
 	}

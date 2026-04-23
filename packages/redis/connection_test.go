@@ -318,6 +318,7 @@ func TestConnectionZSetMutators(t *testing.T) {
 	)
 
 	rank, err := c.ZRank(ctx, "z", "b")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -327,6 +328,7 @@ func TestConnectionZSetMutators(t *testing.T) {
 	}
 
 	score, err := c.ZScore(ctx, "z", "c")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -370,6 +372,7 @@ func TestConnectionZRangeByScoreAndStore(t *testing.T) {
 	)
 
 	ranged, err := c.ZRangeByScore(ctx, "src", "2", "3")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -379,6 +382,7 @@ func TestConnectionZRangeByScoreAndStore(t *testing.T) {
 	}
 
 	rev, err := c.ZRevRangeByScore(ctx, "src", "3", "2")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -457,9 +461,11 @@ func TestConnectionPopAndScanFamilies(t *testing.T) {
 
 	_, _ = c.SAdd(ctx, "set", "a", "b", "c")
 	popped, err := c.SPop(ctx, "set", 2)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(popped) != 2 {
 		t.Fatalf("SPop %+v", popped)
 	}
@@ -467,36 +473,44 @@ func TestConnectionPopAndScanFamilies(t *testing.T) {
 	_ = c.Set(ctx, "user:1", "a", 0)
 	_ = c.Set(ctx, "user:2", "b", 0)
 	scanned, err := c.Scan(ctx, 0, "user:*", 10)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if scanned.Cursor != 0 || len(scanned.Values) != 2 {
 		t.Fatalf("Scan %+v", scanned)
 	}
 
 	_, _ = c.HSet(ctx, "hash", "f1", "v1", "f2", "v2")
 	hscan, err := c.HScan(ctx, "hash", 0, "*", 10)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if hscan.Cursor != 0 || len(hscan.Values) != 4 {
 		t.Fatalf("HScan %+v", hscan)
 	}
 
 	_, _ = c.SAdd(ctx, "scan-set", "x", "y")
 	sscan, err := c.SScan(ctx, "scan-set", 0, "*", 10)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if sscan.Cursor != 0 || len(sscan.Values) != 2 {
 		t.Fatalf("SScan %+v", sscan)
 	}
 
 	_, _ = c.ZAdd(ctx, "scan-zset", redis.ZMember{Score: 1, Member: "m1"}, redis.ZMember{Score: 2, Member: "m2"})
 	zscan, err := c.ZScan(ctx, "scan-zset", 0, "*", 10)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if zscan.Cursor != 0 || len(zscan.Values) != 4 {
 		t.Fatalf("ZScan %+v", zscan)
 	}
@@ -516,11 +530,13 @@ func TestConnectionRenameAndPersist(t *testing.T) {
 	}
 
 	v, err := c.Get(ctx, "new")
+
 	if err != nil || v != "v" {
 		t.Fatalf("Rename result=%q err=%v", v, err)
 	}
 
 	ok, err := c.Persist(ctx, "new")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -537,6 +553,7 @@ func TestConnectionEvalReturnsValue(t *testing.T) {
 	ctx := context.Background()
 
 	v, err := c.Eval(ctx, "return 1", nil)
+
 	if err != nil {
 		t.Fatal(err)
 	}

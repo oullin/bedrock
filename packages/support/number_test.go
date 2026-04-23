@@ -82,6 +82,7 @@ func TestNumberClampPairsTrimAndParse(t *testing.T) {
 	}
 
 	pairs := NumberPairs(1234567)
+
 	if len(pairs) != 4 || pairs[0] != "1" || pairs[1] != "23" || pairs[2] != "45" || pairs[3] != "67" {
 		t.Fatalf("NumberPairs = %v", pairs)
 	}
@@ -91,16 +92,19 @@ func TestNumberClampPairsTrimAndParse(t *testing.T) {
 	}
 
 	parsed, err := NumberParse("1,234.5")
+
 	if err != nil || parsed != 1234.5 {
 		t.Fatalf("NumberParse = %v, %v", parsed, err)
 	}
 
 	parsedInt, err := NumberParseInt("1,234")
+
 	if err != nil || parsedInt != 1234 {
 		t.Fatalf("NumberParseInt = %v, %v", parsedInt, err)
 	}
 
 	parsedFloat, err := NumberParseFloat("9,876.5")
+
 	if err != nil || parsedFloat != 9876.5 {
 		t.Fatalf("NumberParseFloat = %v, %v", parsedFloat, err)
 	}

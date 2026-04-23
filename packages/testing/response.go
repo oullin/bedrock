@@ -19,8 +19,6 @@ import (
 	collectionpkg "github.com/bedrock/packages/collection/collection"
 )
 
-var htmlTagRe = regexp.MustCompile(`<[^>]*>`)
-
 type helperT interface {
 	Helper()
 	Fatalf(format string, args ...any)
@@ -38,13 +36,248 @@ type Assertions struct {
 }
 
 // AssertResponse creates a fluent assertion helper for a response recorder.
+
+// WithSession attaches a session snapshot for session assertions.
+
+// WithView attaches a view snapshot for view assertions.
+
+// WithRouteResolver attaches a resolver used by route-based redirect
+// assertions.
+
+// Status asserts the exact status code.
+
+// Ok asserts a 200 response.
+
+// Created asserts a 201 response.
+
+// Accepted asserts a 202 response.
+
+// NoContent asserts a 204 response or the supplied alternate status.
+
+// BadRequest asserts a 400 response.
+
+// NotFound asserts a 404 response.
+
+// MethodNotAllowed asserts a 405 response.
+
+// NotAcceptable asserts a 406 response.
+
+// Forbidden asserts a 403 response.
+
+// Unauthorized asserts a 401 response.
+
+// RequestTimeout asserts a 408 response.
+
+// PaymentRequired asserts a 402 response.
+
+// MovedPermanently asserts a 301 response.
+
+// Found asserts a 302 response.
+
+// NotModified asserts a 304 response.
+
+// TemporaryRedirect asserts a 307 response.
+
+// PermanentRedirect asserts a 308 response.
+
+// Conflict asserts a 409 response.
+
+// Gone asserts a 410 response.
+
+// Unprocessable asserts a 422 response.
+
+// TooManyRequests asserts a 429 response.
+
+// FailedDependency asserts a 424 response.
+
+// ClientError asserts any 4xx response.
+
+// Header asserts that a header has the expected value.
+
+// HeaderContains asserts that a header contains a substring.
+
+// HasHeader asserts that a header is present.
+
+// MissingHeader asserts that a header is absent.
+
+// Location asserts the redirect location header.
+
+// Redirect asserts that the response is a redirect to the expected location.
+
+// RedirectToAction asserts a redirect to a resolved action URL.
+
+// RedirectToRoute asserts a redirect to a resolved route URL.
+
+// RedirectToSignedRoute asserts a redirect to a resolved signed route URL.
+//
+// This is a narrow Go adaptation: the caller supplies the final resolved URL
+// either through the optional route resolver or by passing a literal path.
+
+// RedirectToTemporarySignedRoute asserts a redirect to a resolved temporary
+// signed route URL.
+
+// RedirectContains asserts that the redirect location contains a substring.
+
+// RedirectBack asserts a redirect to the request referrer when present.
+
+// BodyEquals asserts the response body exactly matches the expected string.
+
+// BodyContains asserts the response body contains the expected string.
+
+// See asserts that the response body contains the expected string.
+
+// DontSee asserts that the response body does not contain the expected string.
+
+// SeeEscaped asserts that the response body contains the escaped string.
+
+// DontSeeEscaped asserts that the response body does not contain the escaped
+// string.
+
+// SeeHtml asserts that the response body contains the raw HTML fragment.
+
+// DontSeeHtml asserts that the response body does not contain the raw HTML
+// fragment.
+
+// SeeText asserts that the rendered text contains the expected text after
+// stripping HTML tags and normalizing whitespace.
+
+// DontSeeText asserts that the rendered text does not contain the expected
+// text after stripping HTML tags and normalizing whitespace.
+
+// SeeInOrder asserts that every string appears in the response body in order.
+
+// SeeHtmlInOrder asserts that every HTML fragment appears in order.
+
+// SeeTextInOrder asserts that every text fragment appears in order after HTML
+// stripping and whitespace normalization.
+
+// JSON asserts that the response body matches the expected JSON structure.
+
+// JSONStructure is a narrow alias for JSON assertions in the Go test surface.
+
+// SimilarJSON is an alias for JSON equality after normalising values.
+
+// ExactJSON asserts that the decoded body exactly matches the expected JSON.
+
+// JSONPath asserts that a JSON path exists with the expected value.
+
+// JSONPathCanonicalizing asserts that a JSON path matches after canonicalizing
+// array order recursively.
+
+// JSONFragment asserts that the response body contains the fragment anywhere
+// within the decoded JSON structure.
+
+// JSONMissingPath asserts that a JSON path is absent.
+
+// JSONIsArray asserts that the decoded JSON body is an array.
+
+// JSONIsObject asserts that the decoded JSON body is an object.
+
+// ViewIs asserts that the attached view name matches.
+
+// ViewHas asserts that the attached view data contains the expected key and
+// optional value.
+
+// ViewHasAll asserts that the attached view data contains all the provided
+// keys.
+
+// ViewMissing asserts that the attached view data is missing a key.
+
+// ViewData returns a resolved value from the attached view data.
+
+// FluentJSON returns an AssertableJSON helper for fluent assertions.
+
+// Cookie asserts that the response contains a cookie with the expected value.
+
+// PlainCookie is an alias for Cookie.
+
+// CookieMissing asserts that a cookie is absent.
+
+// CookieExpired asserts that a cookie has expired.
+
+// CookieNotExpired asserts that a cookie is still valid.
+
+// SessionHas asserts that the attached session contains a key/value pair.
+
+// SessionHasInput asserts that the attached session contains an input value.
+
+// SessionHasAll asserts that the attached session contains all provided keys.
+
+// SessionMissing asserts that the attached session is missing a key.
+
+// SessionDoesntHaveErrors is an alias for SessionHasNoErrors.
+
+// SessionHasErrors asserts that the attached session contains validation
+// errors under the conventional "errors" key.
+
+// SessionHasErrorsAt asserts that the attached session contains validation
+// errors under the supplied key path.
+
+// SessionHasNoErrors asserts that the session does not contain validation
+// errors.
+
+// SessionHasNoErrorsAt asserts that the supplied session key path does not
+// contain validation errors.
+
+// SessionMissingValue asserts that the attached session contains a key whose
+// value does not match the supplied expectation. A missing key also passes.
+
+// JSONValidationErrors asserts that the response body contains validation
+// errors under an "errors" JSON payload key.
+
+// JSONValidationErrorsAt asserts that the response body contains validation
+// errors under the supplied key path.
+
+// JSONMissingValidationErrors asserts that the response body does not contain
+// validation errors.
+
+// JSONMissingValidationErrorsAt asserts that the response body does not
+// contain validation errors under the supplied key path.
+
+// JSONValue returns the decoded JSON body.
+
+// JSONCollection returns the decoded JSON body as a collection when the body
+// is a JSON array.
+
+// Tap invokes the callback with the current assertion helper and returns the
+// helper for chaining.
+
+// PrecognitionSuccessful asserts that the response indicates precognition
+// success.
+
+// Streamed asserts that the response looks like a streamed response.
+
+// NotStreamed asserts that the response is not marked as streamed.
+
+// StreamedContent asserts the body of a streamed response.
+
+// StreamedJSONContent asserts the body of a streamed JSON response.
+
+// Download asserts that the response offers a file download with the expected
+// filename. Pass an empty filename to only assert that a download is offered.
+
+// StreamedBinaryFile asserts that a streamed response offers a download.
+
+// StreamedJSONFile asserts that a streamed JSON response also offers a
+// download.
+
+// AssertableJSON provides fluent JSON assertions and interaction tracking.
+type AssertableJSON struct {
+	t        helperT
+	root     any
+	topLevel map[string]struct{}
+	seen     map[string]struct{}
+	skipped  bool
+}
+
+var htmlTagRe = regexp.MustCompile(`<[^>]*>`)
+
 func AssertResponse(t helperT, rec *httptest.ResponseRecorder) *Assertions {
 	t.Helper()
 
 	return &Assertions{t: t, rec: rec}
 }
 
-// WithSession attaches a session snapshot for session assertions.
 func (a *Assertions) WithSession(session map[string]any) *Assertions {
 	a.t.Helper()
 
@@ -53,7 +286,6 @@ func (a *Assertions) WithSession(session map[string]any) *Assertions {
 	return a
 }
 
-// WithView attaches a view snapshot for view assertions.
 func (a *Assertions) WithView(name string, data map[string]any) *Assertions {
 	a.t.Helper()
 
@@ -63,8 +295,6 @@ func (a *Assertions) WithView(name string, data map[string]any) *Assertions {
 	return a
 }
 
-// WithRouteResolver attaches a resolver used by route-based redirect
-// assertions.
 func (a *Assertions) WithRouteResolver(resolver func(name string, params map[string]string) string) *Assertions {
 	a.t.Helper()
 
@@ -83,19 +313,14 @@ func (a *Assertions) status(expected int) *Assertions {
 	return a
 }
 
-// Status asserts the exact status code.
 func (a *Assertions) Status(expected int) *Assertions { return a.status(expected) }
 
-// Ok asserts a 200 response.
 func (a *Assertions) Ok() *Assertions { return a.status(http.StatusOK) }
 
-// Created asserts a 201 response.
 func (a *Assertions) Created() *Assertions { return a.status(http.StatusCreated) }
 
-// Accepted asserts a 202 response.
 func (a *Assertions) Accepted() *Assertions { return a.status(http.StatusAccepted) }
 
-// NoContent asserts a 204 response or the supplied alternate status.
 func (a *Assertions) NoContent(expected ...int) *Assertions {
 	if len(expected) > 0 {
 		return a.status(expected[0])
@@ -104,61 +329,42 @@ func (a *Assertions) NoContent(expected ...int) *Assertions {
 	return a.status(http.StatusNoContent)
 }
 
-// BadRequest asserts a 400 response.
 func (a *Assertions) BadRequest() *Assertions { return a.status(http.StatusBadRequest) }
 
-// NotFound asserts a 404 response.
 func (a *Assertions) NotFound() *Assertions { return a.status(http.StatusNotFound) }
 
-// MethodNotAllowed asserts a 405 response.
 func (a *Assertions) MethodNotAllowed() *Assertions { return a.status(http.StatusMethodNotAllowed) }
 
-// NotAcceptable asserts a 406 response.
 func (a *Assertions) NotAcceptable() *Assertions { return a.status(http.StatusNotAcceptable) }
 
-// Forbidden asserts a 403 response.
 func (a *Assertions) Forbidden() *Assertions { return a.status(http.StatusForbidden) }
 
-// Unauthorized asserts a 401 response.
 func (a *Assertions) Unauthorized() *Assertions { return a.status(http.StatusUnauthorized) }
 
-// RequestTimeout asserts a 408 response.
 func (a *Assertions) RequestTimeout() *Assertions { return a.status(http.StatusRequestTimeout) }
 
-// PaymentRequired asserts a 402 response.
 func (a *Assertions) PaymentRequired() *Assertions { return a.status(http.StatusPaymentRequired) }
 
-// MovedPermanently asserts a 301 response.
 func (a *Assertions) MovedPermanently() *Assertions { return a.status(http.StatusMovedPermanently) }
 
-// Found asserts a 302 response.
 func (a *Assertions) Found() *Assertions { return a.status(http.StatusFound) }
 
-// NotModified asserts a 304 response.
 func (a *Assertions) NotModified() *Assertions { return a.status(http.StatusNotModified) }
 
-// TemporaryRedirect asserts a 307 response.
 func (a *Assertions) TemporaryRedirect() *Assertions { return a.status(http.StatusTemporaryRedirect) }
 
-// PermanentRedirect asserts a 308 response.
 func (a *Assertions) PermanentRedirect() *Assertions { return a.status(http.StatusPermanentRedirect) }
 
-// Conflict asserts a 409 response.
 func (a *Assertions) Conflict() *Assertions { return a.status(http.StatusConflict) }
 
-// Gone asserts a 410 response.
 func (a *Assertions) Gone() *Assertions { return a.status(http.StatusGone) }
 
-// Unprocessable asserts a 422 response.
 func (a *Assertions) Unprocessable() *Assertions { return a.status(http.StatusUnprocessableEntity) }
 
-// TooManyRequests asserts a 429 response.
 func (a *Assertions) TooManyRequests() *Assertions { return a.status(http.StatusTooManyRequests) }
 
-// FailedDependency asserts a 424 response.
 func (a *Assertions) FailedDependency() *Assertions { return a.status(http.StatusFailedDependency) }
 
-// ClientError asserts any 4xx response.
 func (a *Assertions) ClientError() *Assertions {
 	a.t.Helper()
 
@@ -169,7 +375,6 @@ func (a *Assertions) ClientError() *Assertions {
 	return a
 }
 
-// Header asserts that a header has the expected value.
 func (a *Assertions) Header(key, expected string) *Assertions {
 	a.t.Helper()
 
@@ -182,7 +387,6 @@ func (a *Assertions) Header(key, expected string) *Assertions {
 	return a
 }
 
-// HeaderContains asserts that a header contains a substring.
 func (a *Assertions) HeaderContains(key, expected string) *Assertions {
 	a.t.Helper()
 
@@ -195,7 +399,6 @@ func (a *Assertions) HeaderContains(key, expected string) *Assertions {
 	return a
 }
 
-// HasHeader asserts that a header is present.
 func (a *Assertions) HasHeader(key string) *Assertions {
 	a.t.Helper()
 
@@ -206,7 +409,6 @@ func (a *Assertions) HasHeader(key string) *Assertions {
 	return a
 }
 
-// MissingHeader asserts that a header is absent.
 func (a *Assertions) MissingHeader(key string) *Assertions {
 	a.t.Helper()
 
@@ -217,14 +419,12 @@ func (a *Assertions) MissingHeader(key string) *Assertions {
 	return a
 }
 
-// Location asserts the redirect location header.
 func (a *Assertions) Location(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.Header("Location", expected)
 }
 
-// Redirect asserts that the response is a redirect to the expected location.
 func (a *Assertions) Redirect(expected string) *Assertions {
 	a.t.Helper()
 
@@ -235,39 +435,30 @@ func (a *Assertions) Redirect(expected string) *Assertions {
 	return a.Location(expected)
 }
 
-// RedirectToAction asserts a redirect to a resolved action URL.
 func (a *Assertions) RedirectToAction(action string, params ...map[string]string) *Assertions {
 	a.t.Helper()
 
 	return a.Redirect(a.resolveRouteLocation(action, params...))
 }
 
-// RedirectToRoute asserts a redirect to a resolved route URL.
 func (a *Assertions) RedirectToRoute(route string, params ...map[string]string) *Assertions {
 	a.t.Helper()
 
 	return a.Redirect(a.resolveRouteLocation(route, params...))
 }
 
-// RedirectToSignedRoute asserts a redirect to a resolved signed route URL.
-//
-// This is a narrow Go adaptation: the caller supplies the final resolved URL
-// either through the optional route resolver or by passing a literal path.
 func (a *Assertions) RedirectToSignedRoute(route string, params ...map[string]string) *Assertions {
 	a.t.Helper()
 
 	return a.Redirect(a.resolveRouteLocation(route, params...))
 }
 
-// RedirectToTemporarySignedRoute asserts a redirect to a resolved temporary
-// signed route URL.
 func (a *Assertions) RedirectToTemporarySignedRoute(route string, params ...map[string]string) *Assertions {
 	a.t.Helper()
 
 	return a.Redirect(a.resolveRouteLocation(route, params...))
 }
 
-// RedirectContains asserts that the redirect location contains a substring.
 func (a *Assertions) RedirectContains(expected string) *Assertions {
 	a.t.Helper()
 
@@ -278,7 +469,6 @@ func (a *Assertions) RedirectContains(expected string) *Assertions {
 	return a.HeaderContains("Location", expected)
 }
 
-// RedirectBack asserts a redirect to the request referrer when present.
 func (a *Assertions) RedirectBack() *Assertions {
 	a.t.Helper()
 
@@ -293,7 +483,6 @@ func (a *Assertions) RedirectBack() *Assertions {
 	return a.Redirect("/")
 }
 
-// BodyEquals asserts the response body exactly matches the expected string.
 func (a *Assertions) BodyEquals(expected string) *Assertions {
 	a.t.Helper()
 
@@ -304,7 +493,6 @@ func (a *Assertions) BodyEquals(expected string) *Assertions {
 	return a
 }
 
-// BodyContains asserts the response body contains the expected string.
 func (a *Assertions) BodyContains(expected string) *Assertions {
 	a.t.Helper()
 
@@ -315,14 +503,12 @@ func (a *Assertions) BodyContains(expected string) *Assertions {
 	return a
 }
 
-// See asserts that the response body contains the expected string.
 func (a *Assertions) See(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.BodyContains(expected)
 }
 
-// DontSee asserts that the response body does not contain the expected string.
 func (a *Assertions) DontSee(expected string) *Assertions {
 	a.t.Helper()
 
@@ -333,38 +519,30 @@ func (a *Assertions) DontSee(expected string) *Assertions {
 	return a
 }
 
-// SeeEscaped asserts that the response body contains the escaped string.
 func (a *Assertions) SeeEscaped(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.See(html.EscapeString(expected))
 }
 
-// DontSeeEscaped asserts that the response body does not contain the escaped
-// string.
 func (a *Assertions) DontSeeEscaped(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.DontSee(html.EscapeString(expected))
 }
 
-// SeeHtml asserts that the response body contains the raw HTML fragment.
 func (a *Assertions) SeeHtml(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.See(expected)
 }
 
-// DontSeeHtml asserts that the response body does not contain the raw HTML
-// fragment.
 func (a *Assertions) DontSeeHtml(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.DontSee(expected)
 }
 
-// SeeText asserts that the rendered text contains the expected text after
-// stripping HTML tags and normalizing whitespace.
 func (a *Assertions) SeeText(expected string) *Assertions {
 	a.t.Helper()
 
@@ -378,8 +556,6 @@ func (a *Assertions) SeeText(expected string) *Assertions {
 	return a
 }
 
-// DontSeeText asserts that the rendered text does not contain the expected
-// text after stripping HTML tags and normalizing whitespace.
 func (a *Assertions) DontSeeText(expected string) *Assertions {
 	a.t.Helper()
 
@@ -393,27 +569,24 @@ func (a *Assertions) DontSeeText(expected string) *Assertions {
 	return a
 }
 
-// SeeInOrder asserts that every string appears in the response body in order.
 func (a *Assertions) SeeInOrder(expected ...string) *Assertions {
 	a.t.Helper()
 
 	return a.seeInOrder(a.rec.Body.String(), expected...)
 }
 
-// SeeHtmlInOrder asserts that every HTML fragment appears in order.
 func (a *Assertions) SeeHtmlInOrder(expected ...string) *Assertions {
 	a.t.Helper()
 
 	return a.SeeInOrder(expected...)
 }
 
-// SeeTextInOrder asserts that every text fragment appears in order after HTML
-// stripping and whitespace normalization.
 func (a *Assertions) SeeTextInOrder(expected ...string) *Assertions {
 	a.t.Helper()
 
 	body := normalizeRenderedText(a.rec.Body.String())
 	normalized := make([]string, 0, len(expected))
+
 	for _, item := range expected {
 		normalized = append(normalized, normalizeRenderedText(item))
 	}
@@ -423,11 +596,14 @@ func (a *Assertions) SeeTextInOrder(expected ...string) *Assertions {
 
 func (a *Assertions) seeInOrder(body string, expected ...string) *Assertions {
 	cursor := 0
+
 	for _, item := range expected {
 		idx := strings.Index(body[cursor:], item)
+
 		if idx < 0 {
 			a.t.Fatalf("expected body to contain %q in order, got %q", item, body)
 		}
+
 		cursor += idx + len(item)
 	}
 
@@ -437,10 +613,10 @@ func (a *Assertions) seeInOrder(body string, expected ...string) *Assertions {
 func normalizeRenderedText(body string) string {
 	body = htmlTagRe.ReplaceAllString(body, " ")
 	body = html.UnescapeString(body)
+
 	return strings.Join(strings.Fields(body), " ")
 }
 
-// JSON asserts that the response body matches the expected JSON structure.
 func (a *Assertions) JSON(expected any) *Assertions {
 	a.t.Helper()
 
@@ -454,22 +630,18 @@ func (a *Assertions) JSON(expected any) *Assertions {
 	return a
 }
 
-// JSONStructure is a narrow alias for JSON assertions in the Go test surface.
 func (a *Assertions) JSONStructure(expected any) *Assertions {
 	return a.JSON(expected)
 }
 
-// SimilarJSON is an alias for JSON equality after normalising values.
 func (a *Assertions) SimilarJSON(expected any) *Assertions {
 	return a.JSON(expected)
 }
 
-// ExactJSON asserts that the decoded body exactly matches the expected JSON.
 func (a *Assertions) ExactJSON(expected any) *Assertions {
 	return a.JSON(expected)
 }
 
-// JSONPath asserts that a JSON path exists with the expected value.
 func (a *Assertions) JSONPath(key string, expected any) *Assertions {
 	a.t.Helper()
 
@@ -478,6 +650,7 @@ func (a *Assertions) JSONPath(key string, expected any) *Assertions {
 
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
+
 		return a
 	}
 
@@ -488,15 +661,15 @@ func (a *Assertions) JSONPath(key string, expected any) *Assertions {
 	return a
 }
 
-// JSONPathCanonicalizing asserts that a JSON path matches after canonicalizing
-// array order recursively.
 func (a *Assertions) JSONPathCanonicalizing(key string, expected any) *Assertions {
 	a.t.Helper()
 
 	got := a.mustJSONBody()
 	value, ok := lookupJSON(got, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
+
 		return a
 	}
 
@@ -510,8 +683,6 @@ func (a *Assertions) JSONPathCanonicalizing(key string, expected any) *Assertion
 	return a
 }
 
-// JSONFragment asserts that the response body contains the fragment anywhere
-// within the decoded JSON structure.
 func (a *Assertions) JSONFragment(fragment any) *Assertions {
 	a.t.Helper()
 
@@ -525,7 +696,6 @@ func (a *Assertions) JSONFragment(fragment any) *Assertions {
 	return a
 }
 
-// JSONMissingPath asserts that a JSON path is absent.
 func (a *Assertions) JSONMissingPath(key string) *Assertions {
 	a.t.Helper()
 
@@ -536,7 +706,6 @@ func (a *Assertions) JSONMissingPath(key string) *Assertions {
 	return a
 }
 
-// JSONIsArray asserts that the decoded JSON body is an array.
 func (a *Assertions) JSONIsArray() *Assertions {
 	a.t.Helper()
 
@@ -547,7 +716,6 @@ func (a *Assertions) JSONIsArray() *Assertions {
 	return a
 }
 
-// JSONIsObject asserts that the decoded JSON body is an object.
 func (a *Assertions) JSONIsObject() *Assertions {
 	a.t.Helper()
 
@@ -558,7 +726,6 @@ func (a *Assertions) JSONIsObject() *Assertions {
 	return a
 }
 
-// ViewIs asserts that the attached view name matches.
 func (a *Assertions) ViewIs(expected string) *Assertions {
 	a.t.Helper()
 
@@ -569,8 +736,6 @@ func (a *Assertions) ViewIs(expected string) *Assertions {
 	return a
 }
 
-// ViewHas asserts that the attached view data contains the expected key and
-// optional value.
 func (a *Assertions) ViewHas(key string, expected ...any) *Assertions {
 	a.t.Helper()
 
@@ -579,6 +744,7 @@ func (a *Assertions) ViewHas(key string, expected ...any) *Assertions {
 	}
 
 	value, ok := lookupMap(a.viewData, key)
+
 	if !ok {
 		a.t.Fatalf("expected view key %q to be present", key)
 	}
@@ -592,8 +758,6 @@ func (a *Assertions) ViewHas(key string, expected ...any) *Assertions {
 	return a
 }
 
-// ViewHasAll asserts that the attached view data contains all the provided
-// keys.
 func (a *Assertions) ViewHasAll(keys ...string) *Assertions {
 	a.t.Helper()
 
@@ -604,7 +768,6 @@ func (a *Assertions) ViewHasAll(keys ...string) *Assertions {
 	return a
 }
 
-// ViewMissing asserts that the attached view data is missing a key.
 func (a *Assertions) ViewMissing(key string) *Assertions {
 	a.t.Helper()
 
@@ -619,7 +782,6 @@ func (a *Assertions) ViewMissing(key string) *Assertions {
 	return a
 }
 
-// ViewData returns a resolved value from the attached view data.
 func (a *Assertions) ViewData(key string) (any, bool) {
 	a.t.Helper()
 
@@ -630,18 +792,17 @@ func (a *Assertions) ViewData(key string) (any, bool) {
 	return lookupMap(a.viewData, key)
 }
 
-// FluentJSON returns an AssertableJSON helper for fluent assertions.
 func (a *Assertions) FluentJSON() *AssertableJSON {
 	a.t.Helper()
 
 	return newAssertableJSON(a.t, a.mustJSONBody())
 }
 
-// Cookie asserts that the response contains a cookie with the expected value.
 func (a *Assertions) Cookie(name string, expected ...string) *Assertions {
 	a.t.Helper()
 
 	cookie, ok := a.findCookie(name)
+
 	if !ok {
 		a.t.Fatalf("expected cookie %s to be present", name)
 	}
@@ -653,12 +814,10 @@ func (a *Assertions) Cookie(name string, expected ...string) *Assertions {
 	return a
 }
 
-// PlainCookie is an alias for Cookie.
 func (a *Assertions) PlainCookie(name string, expected ...string) *Assertions {
 	return a.Cookie(name, expected...)
 }
 
-// CookieMissing asserts that a cookie is absent.
 func (a *Assertions) CookieMissing(name string) *Assertions {
 	a.t.Helper()
 
@@ -669,11 +828,11 @@ func (a *Assertions) CookieMissing(name string) *Assertions {
 	return a
 }
 
-// CookieExpired asserts that a cookie has expired.
 func (a *Assertions) CookieExpired(name string) *Assertions {
 	a.t.Helper()
 
 	cookie, ok := a.findCookie(name)
+
 	if !ok {
 		a.t.Fatalf("expected cookie %s to be present", name)
 	}
@@ -685,11 +844,11 @@ func (a *Assertions) CookieExpired(name string) *Assertions {
 	return a
 }
 
-// CookieNotExpired asserts that a cookie is still valid.
 func (a *Assertions) CookieNotExpired(name string) *Assertions {
 	a.t.Helper()
 
 	cookie, ok := a.findCookie(name)
+
 	if !ok {
 		a.t.Fatalf("expected cookie %s to be present", name)
 	}
@@ -701,7 +860,6 @@ func (a *Assertions) CookieNotExpired(name string) *Assertions {
 	return a
 }
 
-// SessionHas asserts that the attached session contains a key/value pair.
 func (a *Assertions) SessionHas(key string, expected any) *Assertions {
 	a.t.Helper()
 
@@ -710,6 +868,7 @@ func (a *Assertions) SessionHas(key string, expected any) *Assertions {
 	}
 
 	value, ok := lookupMap(a.session, key)
+
 	if !ok {
 		a.t.Fatalf("expected session key %q to be present", key)
 	}
@@ -721,12 +880,10 @@ func (a *Assertions) SessionHas(key string, expected any) *Assertions {
 	return a
 }
 
-// SessionHasInput asserts that the attached session contains an input value.
 func (a *Assertions) SessionHasInput(key string, expected any) *Assertions {
 	return a.SessionHas(key, expected)
 }
 
-// SessionHasAll asserts that the attached session contains all provided keys.
 func (a *Assertions) SessionHasAll(keys ...string) *Assertions {
 	a.t.Helper()
 
@@ -743,7 +900,6 @@ func (a *Assertions) SessionHasAll(keys ...string) *Assertions {
 	return a
 }
 
-// SessionMissing asserts that the attached session is missing a key.
 func (a *Assertions) SessionMissing(key string) *Assertions {
 	a.t.Helper()
 
@@ -758,19 +914,14 @@ func (a *Assertions) SessionMissing(key string) *Assertions {
 	return a
 }
 
-// SessionDoesntHaveErrors is an alias for SessionHasNoErrors.
 func (a *Assertions) SessionDoesntHaveErrors() *Assertions {
 	return a.SessionHasNoErrors()
 }
 
-// SessionHasErrors asserts that the attached session contains validation
-// errors under the conventional "errors" key.
 func (a *Assertions) SessionHasErrors(expected map[string][]string) *Assertions {
 	return a.SessionHasErrorsAt("errors", expected)
 }
 
-// SessionHasErrorsAt asserts that the attached session contains validation
-// errors under the supplied key path.
 func (a *Assertions) SessionHasErrorsAt(key string, expected map[string][]string) *Assertions {
 	a.t.Helper()
 
@@ -779,13 +930,16 @@ func (a *Assertions) SessionHasErrorsAt(key string, expected map[string][]string
 	}
 
 	got, ok := lookupMap(a.session, key)
+
 	if !ok {
 		a.t.Fatalf("expected session validation errors")
+
 		return a
 	}
 
 	if raw, ok := got.(string); ok {
 		var decoded any
+
 		if err := json.Unmarshal([]byte(raw), &decoded); err == nil {
 			got = decoded
 		}
@@ -798,14 +952,10 @@ func (a *Assertions) SessionHasErrorsAt(key string, expected map[string][]string
 	return a
 }
 
-// SessionHasNoErrors asserts that the session does not contain validation
-// errors.
 func (a *Assertions) SessionHasNoErrors() *Assertions {
 	return a.SessionHasNoErrorsAt("errors")
 }
 
-// SessionHasNoErrorsAt asserts that the supplied session key path does not
-// contain validation errors.
 func (a *Assertions) SessionHasNoErrorsAt(key string) *Assertions {
 	a.t.Helper()
 
@@ -820,8 +970,6 @@ func (a *Assertions) SessionHasNoErrorsAt(key string) *Assertions {
 	return a
 }
 
-// SessionMissingValue asserts that the attached session contains a key whose
-// value does not match the supplied expectation. A missing key also passes.
 func (a *Assertions) SessionMissingValue(key string, expected any) *Assertions {
 	a.t.Helper()
 
@@ -830,6 +978,7 @@ func (a *Assertions) SessionMissingValue(key string, expected any) *Assertions {
 	}
 
 	got, ok := lookupMap(a.session, key)
+
 	if !ok {
 		return a
 	}
@@ -841,20 +990,18 @@ func (a *Assertions) SessionMissingValue(key string, expected any) *Assertions {
 	return a
 }
 
-// JSONValidationErrors asserts that the response body contains validation
-// errors under an "errors" JSON payload key.
 func (a *Assertions) JSONValidationErrors(expected map[string][]string) *Assertions {
 	return a.JSONValidationErrorsAt("errors", expected)
 }
 
-// JSONValidationErrorsAt asserts that the response body contains validation
-// errors under the supplied key path.
 func (a *Assertions) JSONValidationErrorsAt(key string, expected map[string][]string) *Assertions {
 	a.t.Helper()
 
 	value, ok := lookupJSON(a.mustJSONBody(), key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON validation errors")
+
 		return a
 	}
 
@@ -865,14 +1012,10 @@ func (a *Assertions) JSONValidationErrorsAt(key string, expected map[string][]st
 	return a
 }
 
-// JSONMissingValidationErrors asserts that the response body does not contain
-// validation errors.
 func (a *Assertions) JSONMissingValidationErrors() *Assertions {
 	return a.JSONMissingValidationErrorsAt("errors")
 }
 
-// JSONMissingValidationErrorsAt asserts that the response body does not
-// contain validation errors under the supplied key path.
 func (a *Assertions) JSONMissingValidationErrorsAt(key string) *Assertions {
 	a.t.Helper()
 
@@ -883,15 +1026,12 @@ func (a *Assertions) JSONMissingValidationErrorsAt(key string) *Assertions {
 	return a
 }
 
-// JSONValue returns the decoded JSON body.
 func (a *Assertions) JSONValue() any {
 	a.t.Helper()
 
 	return a.mustJSONBody()
 }
 
-// JSONCollection returns the decoded JSON body as a collection when the body
-// is a JSON array.
 func (a *Assertions) JSONCollection() *collectionpkg.Collection[any] {
 	a.t.Helper()
 
@@ -902,8 +1042,6 @@ func (a *Assertions) JSONCollection() *collectionpkg.Collection[any] {
 	return collectionpkg.Empty[any]()
 }
 
-// Tap invokes the callback with the current assertion helper and returns the
-// helper for chaining.
 func (a *Assertions) Tap(callback func(*Assertions)) *Assertions {
 	a.t.Helper()
 
@@ -914,8 +1052,6 @@ func (a *Assertions) Tap(callback func(*Assertions)) *Assertions {
 	return a
 }
 
-// PrecognitionSuccessful asserts that the response indicates precognition
-// success.
 func (a *Assertions) PrecognitionSuccessful() *Assertions {
 	a.t.Helper()
 
@@ -926,7 +1062,6 @@ func (a *Assertions) PrecognitionSuccessful() *Assertions {
 	return a
 }
 
-// Streamed asserts that the response looks like a streamed response.
 func (a *Assertions) Streamed() *Assertions {
 	a.t.Helper()
 
@@ -937,7 +1072,6 @@ func (a *Assertions) Streamed() *Assertions {
 	return a
 }
 
-// NotStreamed asserts that the response is not marked as streamed.
 func (a *Assertions) NotStreamed() *Assertions {
 	a.t.Helper()
 
@@ -948,31 +1082,29 @@ func (a *Assertions) NotStreamed() *Assertions {
 	return a
 }
 
-// StreamedContent asserts the body of a streamed response.
 func (a *Assertions) StreamedContent(expected string) *Assertions {
 	a.t.Helper()
 
 	return a.Streamed().BodyEquals(expected)
 }
 
-// StreamedJSONContent asserts the body of a streamed JSON response.
 func (a *Assertions) StreamedJSONContent(expected any) *Assertions {
 	a.t.Helper()
 
 	return a.Streamed().JSON(expected)
 }
 
-// Download asserts that the response offers a file download with the expected
-// filename. Pass an empty filename to only assert that a download is offered.
 func (a *Assertions) Download(filename ...string) *Assertions {
 	a.t.Helper()
 
 	value := a.rec.Header().Get("Content-Disposition")
+
 	if value == "" {
 		a.t.Fatalf("expected Content-Disposition header to be present")
 	}
 
 	disposition, params, err := mime.ParseMediaType(value)
+
 	if err != nil {
 		a.t.Fatalf("expected valid Content-Disposition header: %v", err)
 	}
@@ -984,6 +1116,7 @@ func (a *Assertions) Download(filename ...string) *Assertions {
 	if len(filename) > 0 && filename[0] != "" {
 		want := filename[0]
 		got := params["filename"]
+
 		if got != want {
 			a.t.Fatalf("expected download filename %q, got %q", want, got)
 		}
@@ -992,15 +1125,12 @@ func (a *Assertions) Download(filename ...string) *Assertions {
 	return a
 }
 
-// StreamedBinaryFile asserts that a streamed response offers a download.
 func (a *Assertions) StreamedBinaryFile(filename string) *Assertions {
 	a.t.Helper()
 
 	return a.Streamed().Download(filename)
 }
 
-// StreamedJSONFile asserts that a streamed JSON response also offers a
-// download.
 func (a *Assertions) StreamedJSONFile(expected any, filename string) *Assertions {
 	a.t.Helper()
 
@@ -1011,6 +1141,7 @@ func (a *Assertions) mustJSONBody() any {
 	a.t.Helper()
 
 	decoded, err := decodeJSON(a.rec.Body.Bytes())
+
 	if err != nil {
 		a.t.Fatalf("expected valid JSON body: %v", err)
 	}
@@ -1048,6 +1179,7 @@ func isStreamed(rec *httptest.ResponseRecorder) bool {
 	}
 
 	header := rec.Header()
+
 	if strings.Contains(strings.ToLower(header.Get("Transfer-Encoding")), "chunked") {
 		return true
 	}
@@ -1066,15 +1198,19 @@ func lookupMap(data map[string]any, key string) (any, bool) {
 		switch node := current.(type) {
 		case map[string]any:
 			value, ok := node[segment]
+
 			if !ok {
 				return nil, false
 			}
+
 			current = value
 		case []any:
 			idx, err := strconv.Atoi(segment)
+
 			if err != nil || idx < 0 || idx >= len(node) {
 				return nil, false
 			}
+
 			current = node[idx]
 		default:
 			return nil, false
@@ -1092,6 +1228,7 @@ func valueMatches(t helperT, got, expected any) bool {
 		return want(got)
 	case func(any):
 		want(got)
+
 		return true
 	default:
 		return reflect.DeepEqual(mustNormalizedJSON(t, got), mustNormalizedJSON(t, expected))
@@ -1110,6 +1247,7 @@ func canonicalizeJSONNode(value any) any {
 	switch current := value.(type) {
 	case map[string]any:
 		out := make(map[string]any, len(current))
+
 		for key, item := range current {
 			out[key] = canonicalizeJSONNode(item)
 		}
@@ -1117,6 +1255,7 @@ func canonicalizeJSONNode(value any) any {
 		return out
 	case []any:
 		out := make([]any, len(current))
+
 		for i, item := range current {
 			out[i] = canonicalizeJSONNode(item)
 		}
@@ -1133,6 +1272,7 @@ func canonicalizeJSONNode(value any) any {
 
 func canonicalJSONString(value any) string {
 	data, err := json.Marshal(value)
+
 	if err != nil {
 		return fmt.Sprintf("%T:%v", value, value)
 	}
@@ -1142,6 +1282,7 @@ func canonicalJSONString(value any) string {
 
 func (a *Assertions) resolveRouteLocation(name string, params ...map[string]string) string {
 	merged := make(map[string]string)
+
 	if len(params) > 0 && params[0] != nil {
 		for key, value := range params[0] {
 			merged[key] = value
@@ -1169,12 +1310,15 @@ func buildRouteLocation(name string, params map[string]string) string {
 	}
 
 	keys := make([]string, 0, len(params))
+
 	for key := range params {
 		keys = append(keys, key)
 	}
+
 	sort.Strings(keys)
 
 	values := url.Values{}
+
 	for _, key := range keys {
 		values.Set(key, params[key])
 	}
@@ -1205,6 +1349,7 @@ func isEmptyValue(v any) bool {
 	}
 
 	rv := reflect.ValueOf(v)
+
 	switch rv.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map, reflect.String:
 		return rv.Len() == 0
@@ -1217,11 +1362,13 @@ func normalizeJSONValue(t helperT, value any) any {
 	t.Helper()
 
 	data, err := jsonMarshal(value)
+
 	if err != nil {
 		t.Fatalf("expected JSON-compatible value %T: %v", value, err)
 	}
 
 	decoded, err := decodeJSON(data)
+
 	if err != nil {
 		t.Fatalf("expected JSON-compatible value %T: %v", value, err)
 	}
@@ -1233,6 +1380,7 @@ func numericJSONValue(value any) (float64, bool) {
 	switch current := value.(type) {
 	case json.Number:
 		parsed, err := current.Float64()
+
 		return parsed, err == nil
 	case float64:
 		return current, true
@@ -1265,6 +1413,7 @@ func numericJSONValue(value any) (float64, bool) {
 
 func mustNormalizedJSON(t helperT, value any) any {
 	t.Helper()
+
 	return normalizeJSONValue(t, value)
 }
 
@@ -1272,6 +1421,7 @@ func jsonContains(node any, fragment any) bool {
 	switch frag := fragment.(type) {
 	case map[string]any:
 		current, ok := node.(map[string]any)
+
 		if ok && mapContains(current, frag) {
 			return true
 		}
@@ -1283,6 +1433,7 @@ func jsonContains(node any, fragment any) bool {
 		}
 	case []any:
 		current, ok := node.([]any)
+
 		if ok && sliceContains(current, frag) {
 			return true
 		}
@@ -1296,6 +1447,7 @@ func jsonContains(node any, fragment any) bool {
 		if reflect.DeepEqual(node, frag) {
 			return true
 		}
+
 		for _, child := range walkJSON(node) {
 			if jsonContains(child, frag) {
 				return true
@@ -1309,9 +1461,11 @@ func jsonContains(node any, fragment any) bool {
 func mapContains(have, want map[string]any) bool {
 	for key, expected := range want {
 		got, ok := have[key]
+
 		if !ok {
 			return false
 		}
+
 		if !reflect.DeepEqual(got, expected) {
 			return false
 		}
@@ -1330,18 +1484,23 @@ func sliceContains(have, want []any) bool {
 	}
 
 	used := make([]bool, len(have))
+
 	for _, expected := range want {
 		found := false
+
 		for i, item := range have {
 			if used[i] {
 				continue
 			}
+
 			if reflect.DeepEqual(item, expected) {
 				used[i] = true
 				found = true
+
 				break
 			}
 		}
+
 		if !found {
 			return false
 		}
@@ -1354,9 +1513,11 @@ func walkJSON(node any) []any {
 	switch value := node.(type) {
 	case map[string]any:
 		children := make([]any, 0, len(value))
+
 		for _, child := range value {
 			children = append(children, child)
 		}
+
 		return children
 	case []any:
 		return append([]any(nil), value...)
@@ -1370,6 +1531,7 @@ func decodeJSON(data []byte) (any, error) {
 	decoder.UseNumber()
 
 	var value any
+
 	if err := decoder.Decode(&value); err != nil {
 		return nil, err
 	}
@@ -1388,15 +1550,19 @@ func lookupJSON(data any, key string) (any, bool) {
 		switch node := current.(type) {
 		case map[string]any:
 			value, ok := node[segment]
+
 			if !ok {
 				return nil, false
 			}
+
 			current = value
 		case []any:
 			idx, err := strconv.Atoi(segment)
+
 			if err != nil || idx < 0 || idx >= len(node) {
 				return nil, false
 			}
+
 			current = node[idx]
 		default:
 			return nil, false
@@ -1404,15 +1570,6 @@ func lookupJSON(data any, key string) (any, bool) {
 	}
 
 	return current, true
-}
-
-// AssertableJSON provides fluent JSON assertions and interaction tracking.
-type AssertableJSON struct {
-	t        helperT
-	root     any
-	topLevel map[string]struct{}
-	seen     map[string]struct{}
-	skipped  bool
 }
 
 func newAssertableJSON(t helperT, root any) *AssertableJSON {
@@ -1426,6 +1583,7 @@ func newAssertableJSON(t helperT, root any) *AssertableJSON {
 
 	if obj, ok := root.(map[string]any); ok {
 		a.topLevel = make(map[string]struct{}, len(obj))
+
 		for key := range obj {
 			a.topLevel[key] = struct{}{}
 		}
@@ -1467,6 +1625,7 @@ func (a *AssertableJSON) HasAny(keys ...string) *AssertableJSON {
 	for _, key := range keys {
 		if _, ok := lookupJSON(a.root, key); ok {
 			a.mark(key)
+
 			return a
 		}
 	}
@@ -1482,6 +1641,7 @@ func (a *AssertableJSON) HasOnly(keys ...string) *AssertableJSON {
 	a.t.Helper()
 
 	root, ok := a.root.(map[string]any)
+
 	if !ok {
 		a.t.Fatalf("expected JSON object root")
 	}
@@ -1491,6 +1651,7 @@ func (a *AssertableJSON) HasOnly(keys ...string) *AssertableJSON {
 	}
 
 	allowed := make(map[string]struct{}, len(keys))
+
 	for _, key := range keys {
 		allowed[key] = struct{}{}
 	}
@@ -1537,6 +1698,7 @@ func (a *AssertableJSON) Where(key string, expected any) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
@@ -1577,6 +1739,7 @@ func (a *AssertableJSON) WhereNot(key string, expected any) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
@@ -1602,6 +1765,7 @@ func (a *AssertableJSON) WhereNotNull(key string) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
@@ -1620,11 +1784,13 @@ func (a *AssertableJSON) WhereContains(key string, expected any) *AssertableJSON
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
 
 	want := expected
+
 	switch expected.(type) {
 	case func(any) bool, func(any):
 	default:
@@ -1657,6 +1823,7 @@ func (a *AssertableJSON) WhereType(key, wantType string) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
@@ -1675,11 +1842,13 @@ func (a *AssertableJSON) Count(key string, expected int) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
 
 	arr, ok := got.([]any)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to be an array, got %T", key, got)
 	}
@@ -1699,21 +1868,25 @@ func (a *AssertableJSON) Between(key string, lower, upper any) *AssertableJSON {
 	a.t.Helper()
 
 	got, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
 
 	value, ok := numericJSONValue(got)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to be numeric, got %T", key, got)
 	}
 
 	min, ok := numericJSONValue(lower)
+
 	if !ok {
 		a.t.Fatalf("expected lower bound for JSON path %q to be numeric, got %T", key, lower)
 	}
 
 	max, ok := numericJSONValue(upper)
+
 	if !ok {
 		a.t.Fatalf("expected upper bound for JSON path %q to be numeric, got %T", key, upper)
 	}
@@ -1733,6 +1906,7 @@ func (a *AssertableJSON) Scope(key string, callback func(*AssertableJSON)) *Asse
 	a.t.Helper()
 
 	value, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
@@ -1755,17 +1929,20 @@ func (a *AssertableJSON) FirstScope(key string, callback func(*AssertableJSON)) 
 	a.t.Helper()
 
 	value, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
 
 	items, ok := value.([]any)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to be an array, got %T", key, value)
 	}
 
 	if len(items) == 0 {
 		a.t.Fatalf("expected JSON path %q to contain at least one item", key)
+
 		return a
 	}
 
@@ -1780,11 +1957,13 @@ func (a *AssertableJSON) EachScope(key string, callback func(*AssertableJSON)) *
 	a.t.Helper()
 
 	value, ok := lookupJSON(a.root, key)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to exist", key)
 	}
 
 	items, ok := value.([]any)
+
 	if !ok {
 		a.t.Fatalf("expected JSON path %q to be an array, got %T", key, value)
 	}
@@ -1847,6 +2026,7 @@ func (a *AssertableJSON) Tap(callback func(*AssertableJSON)) *AssertableJSON {
 // Any returns true when the given path exists.
 func (a *AssertableJSON) Any(key string) bool {
 	_, ok := lookupJSON(a.root, key)
+
 	if ok {
 		a.mark(key)
 	}
@@ -1860,6 +2040,7 @@ func (a *AssertableJSON) mark(key string) {
 	}
 
 	top := key
+
 	if idx := strings.Index(top, "."); idx >= 0 {
 		top = top[:idx]
 	}
@@ -1885,11 +2066,13 @@ func jsonTypeOf(v any) string {
 		if strings.Contains(v.String(), ".") {
 			return "double"
 		}
+
 		return "integer"
 	case float64:
 		if float64(int64(v)) == v {
 			return "integer"
 		}
+
 		return "double"
 	case []any:
 		return "array"
@@ -1928,12 +2111,14 @@ func jsonValueContains(have any, want any) bool {
 		}
 
 		predicate(have)
+
 		return true
 	}
 
 	switch current := have.(type) {
 	case string:
 		needle, ok := want.(string)
+
 		return ok && strings.Contains(current, needle)
 	case []any:
 		if expectedSlice, ok := want.([]any); ok {
@@ -1946,9 +2131,11 @@ func jsonValueContains(have any, want any) bool {
 				if predicate(item) {
 					return true
 				}
+
 				continue
 			case func(any):
 				predicate(item)
+
 				return true
 			}
 

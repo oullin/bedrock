@@ -53,7 +53,7 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsReverb.C
 
 	var cd struct {
 		UserID   json.RawMessage `json:"user_id"`
-		UserInfo any    `json:"user_info"`
+		UserInfo any             `json:"user_info"`
 	}
 
 	_ = json.Unmarshal([]byte(channelData), &cd)
@@ -73,6 +73,7 @@ func (ch *PresenceChannel) Subscribe(ctx context.Context, conn contractsReverb.C
 	}
 
 	ch.members[conn.SocketID()] = presenceMember{UserKey: userKey, UserInfo: cd.UserInfo}
+
 	if isNewUser {
 		ch.order = append(ch.order, userKey)
 	}
@@ -146,6 +147,7 @@ func (ch *PresenceChannel) Unsubscribe(ctx context.Context, conn contractsReverb
 			for i, key := range ch.order {
 				if key == member.UserKey {
 					ch.order = append(ch.order[:i], ch.order[i+1:]...)
+
 					break
 				}
 			}
@@ -200,6 +202,7 @@ func (ch *PresenceChannel) MemberCount() int {
 // MemberIDs returns the unique user IDs of all subscribers.
 func (ch *PresenceChannel) MemberIDs() []string {
 	ch.mu.RLock()
+
 	defer ch.mu.RUnlock()
 
 	ids := make([]string, len(ch.order))
@@ -222,11 +225,13 @@ func (ch *PresenceChannel) subscriptionData() PresenceMemberData {
 
 func presenceUserKey(raw json.RawMessage) string {
 	trimmed := strings.TrimSpace(string(raw))
+
 	if trimmed == "" {
 		return ""
 	}
 
 	var parsed any
+
 	if err := json.Unmarshal(raw, &parsed); err == nil {
 		return fmt.Sprint(parsed)
 	}

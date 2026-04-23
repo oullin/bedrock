@@ -8,6 +8,12 @@ import (
 	"sync"
 )
 
+// BinaryCodecFormat contains binary encode/decode functions.
+type BinaryCodecFormat struct {
+	Encode func([]byte) string
+	Decode func(string) ([]byte, error)
+}
+
 var (
 	ErrBinaryCodecFormat = errors.New("support: unknown binary codec format")
 
@@ -28,18 +34,14 @@ var (
 	}
 )
 
-// BinaryCodecFormat contains binary encode/decode functions.
-type BinaryCodecFormat struct {
-	Encode func([]byte) string
-	Decode func(string) ([]byte, error)
-}
-
 // BinaryCodecFormats returns registered format names.
 func BinaryCodecFormats() []string {
 	binaryCodecMu.RLock()
+
 	defer binaryCodecMu.RUnlock()
 
 	formats := make([]string, 0, len(binaryCodecFormats))
+
 	for name := range binaryCodecFormats {
 		formats = append(formats, name)
 	}
@@ -50,6 +52,7 @@ func BinaryCodecFormats() []string {
 // RegisterBinaryCodec registers or overrides a binary codec format.
 func RegisterBinaryCodec(name string, format BinaryCodecFormat) {
 	binaryCodecMu.Lock()
+
 	defer binaryCodecMu.Unlock()
 
 	binaryCodecFormats[name] = format
@@ -64,6 +67,7 @@ func BinaryEncode(format string, value []byte) (string, error) {
 	binaryCodecMu.RLock()
 	codec, ok := binaryCodecFormats[format]
 	binaryCodecMu.RUnlock()
+
 	if !ok {
 		return "", ErrBinaryCodecFormat
 	}
@@ -80,6 +84,7 @@ func BinaryDecode(format string, value string) ([]byte, error) {
 	binaryCodecMu.RLock()
 	codec, ok := binaryCodecFormats[format]
 	binaryCodecMu.RUnlock()
+
 	if !ok {
 		return nil, ErrBinaryCodecFormat
 	}
@@ -156,14 +161,17 @@ func decodeULID(value string) ([]byte, error) {
 
 	for _, r := range normalized {
 		idx := strings.IndexRune(crockfordAlphabet, r)
+
 		if idx < 0 {
 			return nil, hex.InvalidByteError(r)
 		}
+
 		n.Mul(n, base)
 		n.Add(n, big.NewInt(int64(idx)))
 	}
 
 	out := n.Bytes()
+
 	if len(out) > 16 {
 		return nil, ErrBinaryCodecFormat
 	}

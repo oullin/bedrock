@@ -43,6 +43,7 @@ func (v *ViewErrorBag) Get(name string) *MessageBag {
 // Bags returns a shallow copy of the named message bags.
 func (v *ViewErrorBag) Bags() map[string]*MessageBag {
 	bags := make(map[string]*MessageBag, len(v.bags))
+
 	for key, bag := range v.bags {
 		bags[key] = bag
 	}
@@ -64,6 +65,7 @@ func (v *ViewErrorBag) Any() bool {
 // Count returns the total number of messages across all bags.
 func (v *ViewErrorBag) Count() int {
 	total := 0
+
 	for _, bag := range v.bags {
 		total += bag.Count()
 	}

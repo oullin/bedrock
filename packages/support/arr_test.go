@@ -101,6 +101,7 @@ func TestArrString(t *testing.T) {
 	t.Parallel()
 
 	got := ArrString(map[string]any{"name": "Taylor"}, "name")
+
 	if got != "Taylor" {
 		t.Fatalf("ArrString = %q", got)
 	}
@@ -111,6 +112,7 @@ func TestArrInteger(t *testing.T) {
 	t.Parallel()
 
 	got := ArrInteger(map[string]any{"count": "10"}, "count")
+
 	if got != 10 {
 		t.Fatalf("ArrInteger = %d", got)
 	}
@@ -121,6 +123,7 @@ func TestArrFloat(t *testing.T) {
 	t.Parallel()
 
 	got := ArrFloat(map[string]any{"price": "10.50"}, "price")
+
 	if got != 10.50 {
 		t.Fatalf("ArrFloat = %f", got)
 	}
@@ -131,6 +134,7 @@ func TestArrBoolean(t *testing.T) {
 	t.Parallel()
 
 	got := ArrBoolean(map[string]any{"active": "true"}, "active")
+
 	if !got {
 		t.Fatal("ArrBoolean should parse true")
 	}
@@ -141,6 +145,7 @@ func TestArrArray(t *testing.T) {
 	t.Parallel()
 
 	got := ArrArray(map[string]any{"items": []string{"a", "b"}}, "items")
+
 	if !reflect.DeepEqual(got, []any{"a", "b"}) {
 		t.Fatalf("ArrArray = %#v", got)
 	}
@@ -221,6 +226,7 @@ func TestArrHasAllMethod(t *testing.T) {
 	t.Parallel()
 
 	m := map[string]any{"user": map[string]any{"name": "Taylor", "email": "taylor@example.com"}}
+
 	if !ArrHas(m, "user.name", "user.email") {
 		t.Fatal("ArrHas should require all keys")
 	}
@@ -231,6 +237,7 @@ func TestArrHasAnyMethod(t *testing.T) {
 	t.Parallel()
 
 	m := map[string]any{"user": map[string]any{"name": "Taylor"}}
+
 	if !ArrHasAny(m, "user.email", "user.name") {
 		t.Fatal("ArrHasAny should return true when one key exists")
 	}
@@ -566,6 +573,7 @@ func TestArrOnlyValues(t *testing.T) {
 	t.Parallel()
 
 	got := ArrOnlyValues(map[string]any{"name": "Taylor", "age": 40}, "age", "name")
+
 	if !reflect.DeepEqual(got, []any{40, "Taylor"}) {
 		t.Fatalf("ArrOnlyValues = %#v", got)
 	}
@@ -625,6 +633,7 @@ func TestArrPluckWithArrayValue(t *testing.T) {
 	got := ArrPluck([]map[string]any{
 		{"name": []string{"Taylor", "Otwell"}},
 	}, "name").([]any)
+
 	if !reflect.DeepEqual(got[0], []string{"Taylor", "Otwell"}) {
 		t.Fatalf("ArrPluck array value = %#v", got)
 	}
@@ -638,6 +647,7 @@ func TestArrPluckWithKeys(t *testing.T) {
 		{"account": map[string]any{"id": "a"}, "name": "Taylor"},
 		{"account": map[string]any{"id": "b"}, "name": "Abigail"},
 	}, "name", "account.id").(map[string]any)
+
 	if got["a"] != "Taylor" || got["b"] != "Abigail" {
 		t.Fatalf("ArrPluck nested keys = %#v", got)
 	}
@@ -651,6 +661,7 @@ func TestArrPluckWithNestedKeys(t *testing.T) {
 		{"user": map[string]any{"name": "Taylor"}},
 		{"user": map[string]any{"name": "Abigail"}},
 	}, "user.name").([]any)
+
 	if !reflect.DeepEqual(got, []any{"Taylor", "Abigail"}) {
 		t.Fatalf("ArrPluck nested values = %#v", got)
 	}
@@ -663,6 +674,7 @@ func TestArrPluckWithNestedArrays(t *testing.T) {
 	got := ArrPluck([]map[string]any{
 		{"users": map[string]any{"names": []string{"Taylor"}}},
 	}, "users.names").([]any)
+
 	if !reflect.DeepEqual(got[0], []string{"Taylor"}) {
 		t.Fatalf("ArrPluck nested arrays = %#v", got)
 	}
@@ -675,6 +687,7 @@ func TestArrMap(t *testing.T) {
 	got := ArrMap([]int{1, 2, 3}, func(item int) int {
 		return item * 2
 	})
+
 	if !reflect.DeepEqual(got, []int{2, 4, 6}) {
 		t.Fatalf("ArrMap = %v", got)
 	}
@@ -687,6 +700,7 @@ func TestArrMapWithEmptyArray(t *testing.T) {
 	got := ArrMap([]int{}, func(item int) int {
 		return item * 2
 	})
+
 	if len(got) != 0 {
 		t.Fatalf("ArrMap empty = %v", got)
 	}
@@ -703,6 +717,7 @@ func TestArrMapNullValues(t *testing.T) {
 
 		return item
 	})
+
 	if !reflect.DeepEqual(got, []any{"missing", "Taylor"}) {
 		t.Fatalf("ArrMap null values = %#v", got)
 	}
@@ -715,6 +730,7 @@ func TestArrMapWithKeys(t *testing.T) {
 	got := ArrMapWithKeys([]string{"Taylor", "Abigail"}, func(item string) map[string]any {
 		return map[string]any{item: len(item)}
 	})
+
 	if got["Taylor"] != 6 || got["Abigail"] != 7 {
 		t.Fatalf("ArrMapWithKeys = %v", got)
 	}
@@ -775,6 +791,7 @@ func TestArrSortDesc(t *testing.T) {
 	t.Parallel()
 
 	got := ArrSortDesc([]int{1, 3, 2})
+
 	if !reflect.DeepEqual(got, []int{3, 2, 1}) {
 		t.Fatalf("ArrSortDesc = %v", got)
 	}
@@ -803,6 +820,7 @@ func TestArrKeyBy(t *testing.T) {
 		{"id": 1, "name": "Taylor"},
 		{"id": 2, "name": "Abigail"},
 	}, "id")
+
 	if got["1"]["name"] != "Taylor" || got["2"]["name"] != "Abigail" {
 		t.Fatalf("ArrKeyBy = %v", got)
 	}
@@ -813,6 +831,7 @@ func TestArrPrependKeysWith(t *testing.T) {
 	t.Parallel()
 
 	got := ArrPrependKeysWith(map[string]any{"name": "Taylor"}, "user.")
+
 	if got["user.name"] != "Taylor" {
 		t.Fatalf("ArrPrependKeysWith = %v", got)
 	}
@@ -826,6 +845,7 @@ func TestArrSelect(t *testing.T) {
 		{"name": "Taylor", "email": "taylor@example.com"},
 		{"name": "Abigail", "email": "abigail@example.com"},
 	}, "name")
+
 	if len(got) != 2 || got[0]["name"] != "Taylor" || got[0]["email"] != nil {
 		t.Fatalf("ArrSelect = %v", got)
 	}
@@ -838,6 +858,7 @@ func TestArrReject(t *testing.T) {
 	got := ArrReject([]int{1, 2, 3}, func(value int, _ int) bool {
 		return value > 1
 	})
+
 	if !reflect.DeepEqual(got, []int{1}) {
 		t.Fatalf("ArrReject = %v", got)
 	}
@@ -850,6 +871,7 @@ func TestArrWhereKey(t *testing.T) {
 	got := ArrWhereKey(map[string]any{"name": "Taylor", "email": "taylor@example.com"}, func(key string) bool {
 		return key == "email"
 	})
+
 	if len(got) != 1 || got["email"] != "taylor@example.com" {
 		t.Fatalf("ArrWhereKey = %v", got)
 	}
@@ -860,11 +882,13 @@ func TestArrFrom(t *testing.T) {
 	t.Parallel()
 
 	got := ArrFrom([]string{"a", "b"})
+
 	if !reflect.DeepEqual(got, []any{"a", "b"}) {
 		t.Fatalf("ArrFrom slice = %#v", got)
 	}
 
 	got = ArrFrom("a")
+
 	if !reflect.DeepEqual(got, []any{"a"}) {
 		t.Fatalf("ArrFrom scalar = %#v", got)
 	}

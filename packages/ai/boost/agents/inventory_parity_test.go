@@ -120,6 +120,7 @@ func TestInventoryAgentDescriptorsAndDefaults(t *testing.T) {
 			}
 
 			guidelinesAgent, ok := tt.agent.(boost.SupportsGuidelines)
+
 			if !ok {
 				t.Fatalf("%s should support guidelines", tt.name)
 			}
@@ -129,6 +130,7 @@ func TestInventoryAgentDescriptorsAndDefaults(t *testing.T) {
 			}
 
 			skillsAgent, ok := tt.agent.(boost.SupportsSkills)
+
 			if !ok {
 				t.Fatalf("%s should support skills", tt.name)
 			}
@@ -141,6 +143,7 @@ func TestInventoryAgentDescriptorsAndDefaults(t *testing.T) {
 				if got := tt.agent.GoBinaryPath(false); !filepath.IsAbs(got) || filepath.Base(got) != "go" {
 					t.Fatalf("Junie GoBinaryPath(false) = %q, want absolute go binary", got)
 				}
+
 				if got := tt.agent.EntryPointPath(false); !filepath.IsAbs(got) || filepath.Base(got) != "main.go" {
 					t.Fatalf("Junie EntryPointPath(false) = %q, want absolute main.go path", got)
 				}
@@ -163,14 +166,17 @@ func TestInventoryAgentPathOverridesAndServerConfig(t *testing.T) {
 	t.Parallel()
 
 	cursor := agents.NewCursor(agents.AgentOptions{GoBinary: "php", EntryPoint: "artisan"})
+
 	if cursor.GoBinaryPath(false) != "php" || cursor.GoBinaryPath(true) != "php" {
 		t.Fatalf("configured binary should win for forced and relative paths")
 	}
+
 	if cursor.EntryPointPath(false) != "artisan" {
 		t.Fatalf("EntryPointPath(false) = %q, want artisan", cursor.EntryPointPath(false))
 	}
 
 	absEntryPoint, err := filepath.Abs("artisan")
+
 	if err != nil {
 		t.Fatalf("filepath.Abs(artisan): %v", err)
 	}
@@ -180,23 +186,27 @@ func TestInventoryAgentPathOverridesAndServerConfig(t *testing.T) {
 	}
 
 	claude := agents.NewClaudeCode(agents.AgentOptions{McpConfigPath: "custom/.mcp.json"})
+
 	if claude.McpConfigPath() != "custom/.mcp.json" {
 		t.Fatalf("McpConfigPath override = %q", claude.McpConfigPath())
 	}
 
 	base := agents.NewBaseAgent(agents.AgentOptions{})
 	httpConfig := base.HttpMcpServerConfig("http://127.0.0.1:8090/mcp")
+
 	if httpConfig["type"] != "http" || httpConfig["url"] != "http://127.0.0.1:8090/mcp" {
 		t.Fatalf("base HTTP MCP config = %#v", httpConfig)
 	}
 
 	cursorHTTP := cursor.HttpMcpServerConfig("https://app.test/mcp")
 	args, ok := cursorHTTP["args"].([]string)
+
 	if cursorHTTP["command"] != "npx" || !ok || strings.Join(args, " ") != "-y mcp-remote https://app.test/mcp" {
 		t.Fatalf("Cursor HTTP MCP config = %#v", cursorHTTP)
 	}
 
 	opencodeHTTP := agents.NewOpenCode().HttpMcpServerConfig("https://app.test/mcp")
+
 	if opencodeHTTP["type"] != "http" || opencodeHTTP["url"] != "https://app.test/mcp" {
 		t.Fatalf("OpenCode HTTP MCP config = %#v", opencodeHTTP)
 	}
@@ -207,22 +217,26 @@ func TestInventoryAgentForcedAbsolutePathsAndConfiguredJuniePaths(t *testing.T) 
 
 	cursor := agents.NewCursor()
 	goPath := cursor.GoBinaryPath(true)
+
 	if !filepath.IsAbs(goPath) || filepath.Base(goPath) != "go" {
 		t.Fatalf("GoBinaryPath(true) = %q, want absolute go binary", goPath)
 	}
 
 	entryPointPath := cursor.EntryPointPath(true)
+
 	if !filepath.IsAbs(entryPointPath) || filepath.Base(entryPointPath) != "main.go" {
 		t.Fatalf("EntryPointPath(true) = %q, want absolute main.go path", entryPointPath)
 	}
 
 	defaultJunie := agents.NewJunie()
 	junieGoPath := defaultJunie.GoBinaryPath(false)
+
 	if junieGoPath != defaultJunie.GoBinaryPath(true) || !filepath.IsAbs(junieGoPath) {
 		t.Fatalf("Junie GoBinaryPath should remain absolute regardless of force flag, got %q and %q", junieGoPath, defaultJunie.GoBinaryPath(true))
 	}
 
 	junieEntryPoint := defaultJunie.EntryPointPath(false)
+
 	if junieEntryPoint != defaultJunie.EntryPointPath(true) || !filepath.IsAbs(junieEntryPoint) {
 		t.Fatalf("Junie EntryPointPath should remain absolute regardless of force flag, got %q and %q", junieEntryPoint, defaultJunie.EntryPointPath(true))
 	}
@@ -235,6 +249,7 @@ func TestInventoryAgentForcedAbsolutePathsAndConfiguredJuniePaths(t *testing.T) 
 	if junie.GoBinaryPath(false) != configuredGo || junie.GoBinaryPath(true) != configuredGo {
 		t.Fatalf("configured Junie Go path should be preserved for relative and forced resolution")
 	}
+
 	if junie.EntryPointPath(false) != configuredEntryPoint || junie.EntryPointPath(true) != configuredEntryPoint {
 		t.Fatalf("configured Junie entry point should be preserved for relative and forced resolution")
 	}
@@ -248,45 +263,55 @@ func TestInventoryAgentInstallMcpNormalizesCommandsAndWritesConfig(t *testing.T)
 	agent := agents.NewClaudeCode(agents.AgentOptions{McpConfigPath: path})
 
 	ok, err := agent.InstallMcp("boost", "docker exec app go", []string{"run", "."}, map[string]string{"APP_ENV": "local"})
+
 	if err != nil {
 		t.Fatalf("InstallMcp: %v", err)
 	}
+
 	if !ok {
 		t.Fatal("InstallMcp should report success for a new entry")
 	}
 
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
 
 	var root map[string]map[string]map[string]any
+
 	if err := json.Unmarshal(data, &root); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
 
 	server := root["mcpServers"]["boost"]
+
 	if server["command"] != "docker" {
 		t.Fatalf("command = %v, want docker", server["command"])
 	}
 
 	gotArgs := make([]string, 0)
+
 	for _, value := range server["args"].([]any) {
 		gotArgs = append(gotArgs, value.(string))
 	}
+
 	if strings.Join(gotArgs, " ") != "exec app go run ." {
 		t.Fatalf("args = %v", gotArgs)
 	}
 
 	ok, err = agent.InstallHttpMcp("boost-http", "https://app.test/mcp")
+
 	if err != nil {
 		t.Fatalf("InstallHttpMcp: %v", err)
 	}
+
 	if !ok {
 		t.Fatal("InstallHttpMcp should report success for a new entry")
 	}
 
 	data, err = os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile http config: %v", err)
 	}
@@ -296,20 +321,24 @@ func TestInventoryAgentInstallMcpNormalizesCommandsAndWritesConfig(t *testing.T)
 	}
 
 	httpServer := root["mcpServers"]["boost-http"]
+
 	if httpServer["type"] != "http" || httpServer["url"] != "https://app.test/mcp" {
 		t.Fatalf("HTTP MCP config = %#v", httpServer)
 	}
 
 	absoluteCommand := filepath.Join(tmp, "bin with spaces", "go")
 	ok, err = agent.InstallMcp("absolute", absoluteCommand, []string{"run", "."}, nil)
+
 	if err != nil {
 		t.Fatalf("InstallMcp absolute command: %v", err)
 	}
+
 	if !ok {
 		t.Fatal("InstallMcp should report success for an absolute command entry")
 	}
 
 	data, err = os.ReadFile(path)
+
 	if err != nil {
 		t.Fatalf("ReadFile absolute command config: %v", err)
 	}
@@ -319,6 +348,7 @@ func TestInventoryAgentInstallMcpNormalizesCommandsAndWritesConfig(t *testing.T)
 	}
 
 	absoluteServer := root["mcpServers"]["absolute"]
+
 	if absoluteServer["command"] != absoluteCommand {
 		t.Fatalf("absolute command = %v, want %q", absoluteServer["command"], absoluteCommand)
 	}
@@ -329,18 +359,22 @@ func TestInventoryAgentInstallMcpMissingConfigPaths(t *testing.T) {
 
 	amp := agents.NewAmp()
 	ok, err := amp.InstallMcp("boost", "go", []string{"run", "."}, nil)
+
 	if ok {
 		t.Fatal("InstallMcp should return false when the agent has no MCP config path")
 	}
+
 	if !errors.Is(err, boost.ErrNoMcpConfigPath) {
 		t.Fatalf("InstallMcp error = %v, want ErrNoMcpConfigPath", err)
 	}
 
 	base := agents.NewBaseAgent(agents.AgentOptions{})
 	ok, err = base.InstallHttpMcp("boost-http", "https://app.test/mcp")
+
 	if ok {
 		t.Fatal("InstallHttpMcp should return false when the agent has no MCP config path")
 	}
+
 	if !errors.Is(err, boost.ErrNoMcpConfigPath) {
 		t.Fatalf("InstallHttpMcp error = %v, want ErrNoMcpConfigPath", err)
 	}
@@ -352,6 +386,7 @@ func TestInventoryAgentProjectDetectionMarkers(t *testing.T) {
 	tmp := t.TempDir()
 	mustMkdir := func(path string) {
 		t.Helper()
+
 		if err := os.MkdirAll(filepath.Join(tmp, path), 0o755); err != nil {
 			t.Fatalf("mkdir %s: %v", path, err)
 		}

@@ -33,6 +33,7 @@ func BuildRedisPayload(options RedisPayloadOptions) RedisPayload {
 	}
 
 	tags := append([]string(nil), options.ExistingTags...)
+
 	if options.ExplicitTags != nil {
 		tags = append(tags, options.ExplicitTags...)
 	} else {
@@ -52,6 +53,7 @@ func payloadName(options RedisPayloadOptions) string {
 	if options.Listener != "" {
 		return options.Listener
 	}
+
 	if options.Event != "" && options.Job == "" {
 		return options.Event
 	}
@@ -63,6 +65,7 @@ func payloadType(options RedisPayloadOptions) string {
 	if options.Type != "" {
 		return options.Type
 	}
+
 	if options.Listener != "" {
 		return "listener"
 	}
@@ -78,6 +81,7 @@ func uniqueStrings(values []string) []string {
 		if value == "" {
 			continue
 		}
+
 		if _, ok := seen[value]; ok {
 			continue
 		}
@@ -95,6 +99,7 @@ func hasAnyString(values, candidates []string) bool {
 	}
 
 	set := make(map[string]struct{}, len(values))
+
 	for _, value := range values {
 		set[value] = struct{}{}
 	}

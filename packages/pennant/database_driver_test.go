@@ -209,7 +209,9 @@ func (m *inMemoryDB) handleInsert(query string, args ...any) (sql.Result, error)
 	name := fmt.Sprintf("%v", args[0])
 	scope := fmt.Sprintf("%v", args[1])
 	value := fmt.Sprintf("%v", args[2])
+
 	var timestamp any
+
 	if len(args) > 3 {
 		timestamp = args[3]
 	}

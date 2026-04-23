@@ -170,6 +170,7 @@ func TestCollectionEngineInventoryWhereComparisons(t *testing.T) {
 			}
 
 			ids := engine.MapIds(result)
+
 			if len(ids) != len(tt.expected) {
 				t.Fatalf("expected ids %v, got %v", tt.expected, ids)
 			}

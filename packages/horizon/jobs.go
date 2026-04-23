@@ -9,16 +9,13 @@ import (
 // JobStatus describes where a queue job sits in the Horizon lifecycle.
 type JobStatus string
 
-const (
-	// JobPending indicates a job is waiting to be processed.
-	JobPending JobStatus = "pending"
-	// JobReserved indicates a worker has reserved the job.
-	JobReserved JobStatus = "reserved"
-	// JobCompleted indicates a job finished successfully.
-	JobCompleted JobStatus = "completed"
-	// JobFailed indicates a job failed.
-	JobFailed JobStatus = "failed"
-)
+// JobPending indicates a job is waiting to be processed.
+
+// JobReserved indicates a worker has reserved the job.
+
+// JobCompleted indicates a job finished successfully.
+
+// JobFailed indicates a job failed.
 
 // JobRecord stores queue job metadata tracked by Horizon.
 type JobRecord struct {
@@ -48,6 +45,16 @@ type JobRepository struct {
 	tagJobs map[string]map[string]struct{}
 }
 
+const (
+	JobPending JobStatus = "pending"
+
+	JobReserved JobStatus = "reserved"
+
+	JobCompleted JobStatus = "completed"
+
+	JobFailed JobStatus = "failed"
+)
+
 // NewJobRepository creates an empty in-memory job repository.
 func NewJobRepository(now func() time.Time) *JobRepository {
 	if now == nil {
@@ -65,11 +72,13 @@ func NewJobRepository(now func() time.Time) *JobRepository {
 // StorePending records a pending job.
 func (r *JobRepository) StorePending(job JobRecord) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if job.Status == "" {
 		job.Status = JobPending
 	}
+
 	if job.PushedAt.IsZero() {
 		job.PushedAt = r.now()
 	}
@@ -82,17 +91,21 @@ func (r *JobRepository) StorePending(job JobRecord) {
 // Pending returns pending jobs for a queue with cursor-style pagination.
 func (r *JobRepository) Pending(queue string, offset, limit int) []JobRecord {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	jobs := make([]JobRecord, 0, len(r.jobs))
 	now := r.now()
+
 	for _, job := range r.jobs {
 		if job.Queue != queue || job.Status != JobPending {
 			continue
 		}
+
 		if !job.DelayUntil.IsZero() && job.DelayUntil.After(now) {
 			continue
 		}
+
 		jobs = append(jobs, cloneJob(job))
 	}
 
@@ -104,14 +117,17 @@ func (r *JobRepository) Pending(queue string, offset, limit int) []JobRecord {
 // Recent returns recent completed jobs.
 func (r *JobRepository) Recent(limit int) []JobRecord {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	jobs := make([]JobRecord, len(r.recent))
+
 	for i, job := range r.recent {
 		jobs[i] = cloneJob(job)
 	}
 
 	sortJobs(jobs)
+
 	if limit > 0 && len(jobs) > limit {
 		jobs = jobs[len(jobs)-limit:]
 	}
@@ -122,6 +138,7 @@ func (r *JobRepository) Recent(limit int) []JobRecord {
 // TrimRecent keeps only the most recent completed jobs.
 func (r *JobRepository) TrimRecent(max int) {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if max < 0 {
@@ -129,6 +146,7 @@ func (r *JobRepository) TrimRecent(max int) {
 	}
 
 	sortJobs(r.recent)
+
 	if len(r.recent) > max {
 		r.recent = append([]JobRecord(nil), r.recent[len(r.recent)-max:]...)
 	}
@@ -137,9 +155,11 @@ func (r *JobRepository) TrimRecent(max int) {
 // MarkReserved marks a pending job as reserved.
 func (r *JobRepository) MarkReserved(id string, at time.Time) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	job, ok := r.jobs[id]
+
 	if !ok {
 		return false
 	}
@@ -154,9 +174,11 @@ func (r *JobRepository) MarkReserved(id string, at time.Time) bool {
 // MigrateStaleReserved returns stale reserved jobs to pending.
 func (r *JobRepository) MigrateStaleReserved(before time.Time) int {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	migrated := 0
+
 	for id, job := range r.jobs {
 		if job.Status != JobReserved || job.ReservedAt.After(before) {
 			continue
@@ -174,9 +196,11 @@ func (r *JobRepository) MigrateStaleReserved(before time.Time) int {
 // MarkComplete moves a job out of pending storage and optionally stores it as recent.
 func (r *JobRepository) MarkComplete(id string, storeCompletion bool, at time.Time) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	job, ok := r.jobs[id]
+
 	if !ok {
 		return false
 	}
@@ -197,9 +221,11 @@ func (r *JobRepository) MarkComplete(id string, storeCompletion bool, at time.Ti
 // MarkFailed moves a job into failed storage and retains its tags.
 func (r *JobRepository) MarkFailed(id string, at time.Time, tagTTL time.Duration) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	job, ok := r.jobs[id]
+
 	if !ok {
 		return false
 	}
@@ -209,9 +235,11 @@ func (r *JobRepository) MarkFailed(id string, at time.Time, tagTTL time.Duration
 
 	job.Status = JobFailed
 	job.FailedAt = at
+
 	if tagTTL > 0 {
 		job.FailedTagsExpireAt = at.Add(tagTTL)
 	}
+
 	r.failed[id] = cloneJob(job)
 
 	return true
@@ -220,9 +248,11 @@ func (r *JobRepository) MarkFailed(id string, at time.Time, tagTTL time.Duration
 // FindFailed returns a failed job by id.
 func (r *JobRepository) FindFailed(id string) (JobRecord, bool) {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	job, ok := r.failed[id]
+
 	if !ok {
 		return JobRecord{}, false
 	}
@@ -233,6 +263,7 @@ func (r *JobRepository) FindFailed(id string) (JobRecord, bool) {
 // DeleteFailed deletes a failed job.
 func (r *JobRepository) DeleteFailed(id string) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	if _, ok := r.failed[id]; !ok {
@@ -247,9 +278,11 @@ func (r *JobRepository) DeleteFailed(id string) bool {
 // Release delays a job until the provided time.
 func (r *JobRepository) Release(id string, until time.Time) bool {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	job, ok := r.jobs[id]
+
 	if !ok {
 		return false
 	}
@@ -264,9 +297,11 @@ func (r *JobRepository) Release(id string, until time.Time) bool {
 // MigrateReleased clears delays for jobs due at or before now.
 func (r *JobRepository) MigrateReleased(now time.Time) int {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	migrated := 0
+
 	for id, job := range r.jobs {
 		if job.DelayUntil.IsZero() || job.DelayUntil.After(now) {
 			continue
@@ -283,17 +318,22 @@ func (r *JobRepository) MigrateReleased(now time.Time) int {
 // PurgeQueue removes recent jobs for a queue.
 func (r *JobRepository) PurgeQueue(queue string) int {
 	r.mu.Lock()
+
 	defer r.mu.Unlock()
 
 	kept := r.recent[:0]
 	removed := 0
+
 	for _, job := range r.recent {
 		if job.Queue == queue {
 			removed++
+
 			continue
 		}
+
 		kept = append(kept, job)
 	}
+
 	r.recent = kept
 
 	return removed
@@ -302,13 +342,16 @@ func (r *JobRepository) PurgeQueue(queue string) int {
 // JobIDsForTag returns pending job ids indexed for a tag.
 func (r *JobRepository) JobIDsForTag(tag string, offset, limit int) []string {
 	r.mu.RLock()
+
 	defer r.mu.RUnlock()
 
 	tagged := r.tagJobs[tag]
 	ids := make([]string, 0, len(tagged))
+
 	for id := range tagged {
 		ids = append(ids, id)
 	}
+
 	sort.Strings(ids)
 
 	if offset >= len(ids) {
@@ -316,6 +359,7 @@ func (r *JobRepository) JobIDsForTag(tag string, offset, limit int) []string {
 	}
 
 	end := len(ids)
+
 	if limit > 0 && offset+limit < end {
 		end = offset + limit
 	}
@@ -328,6 +372,7 @@ func (r *JobRepository) indexTags(job JobRecord) {
 		if r.tagJobs[tag] == nil {
 			r.tagJobs[tag] = make(map[string]struct{})
 		}
+
 		r.tagJobs[tag][job.ID] = struct{}{}
 	}
 }
@@ -335,6 +380,7 @@ func (r *JobRepository) indexTags(job JobRecord) {
 func (r *JobRepository) unindexTags(job JobRecord) {
 	for _, tag := range job.Tags {
 		delete(r.tagJobs[tag], job.ID)
+
 		if len(r.tagJobs[tag]) == 0 {
 			delete(r.tagJobs, tag)
 		}
@@ -357,6 +403,7 @@ func pageJobs(jobs []JobRecord, offset, limit int) []JobRecord {
 	}
 
 	end := len(jobs)
+
 	if limit > 0 && offset+limit < end {
 		end = offset + limit
 	}

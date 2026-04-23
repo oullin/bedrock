@@ -88,6 +88,7 @@ func TestPromptsGetMissingNameReturnsError(t *testing.T) {
 	srv := mcp.NewServer("srv", "1.0.0")
 
 	resp := sendRaw(t, srv, "prompts/get", map[string]any{})
+
 	if _, ok := resp["error"].(map[string]any); !ok {
 		t.Fatalf("expected missing prompt name to return an error, got %#v", resp)
 	}

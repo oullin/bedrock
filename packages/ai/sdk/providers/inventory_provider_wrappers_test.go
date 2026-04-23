@@ -201,15 +201,19 @@ func TestInventoryProviderWrapperTextDefaultsAndDelegation(t *testing.T) {
 			t.Parallel()
 
 			provider := spec.factory(nil)
+
 			if provider.Name() != spec.name {
 				t.Fatalf("Name() = %q, want %q", provider.Name(), spec.name)
 			}
+
 			if provider.DefaultTextModel() != spec.text {
 				t.Fatalf("DefaultTextModel() = %q, want %q", provider.DefaultTextModel(), spec.text)
 			}
+
 			if provider.CheapestTextModel() != spec.cheapest {
 				t.Fatalf("CheapestTextModel() = %q, want %q", provider.CheapestTextModel(), spec.cheapest)
 			}
+
 			if provider.SmartestTextModel() != spec.smartest {
 				t.Fatalf("SmartestTextModel() = %q, want %q", provider.SmartestTextModel(), spec.smartest)
 			}
@@ -241,12 +245,15 @@ func TestInventoryProviderWrapperTextDefaultsAndDelegation(t *testing.T) {
 				Messages:     []any{"user message"},
 				Timeout:      21,
 			})
+
 			if err != nil {
 				t.Fatalf("Prompt() returned error: %v", err)
 			}
+
 			if got.InvocationID != "inv-1" || got.Text != "reply" {
 				t.Fatalf("Prompt() result = %#v", got)
 			}
+
 			if got.Usage.PromptTokens != 3 || got.Usage.CompletionTokens != 5 {
 				t.Fatalf("Prompt() usage = %#v", got.Usage)
 			}
@@ -258,6 +265,7 @@ func TestInventoryProviderWrapperTextDefaultsAndDelegation(t *testing.T) {
 				Messages:     []any{"user message"},
 				Timeout:      21,
 			}
+
 			if !reflect.DeepEqual(textGW.generateReq, wantReq) {
 				t.Fatalf("GenerateText request mismatch:\n got: %#v\nwant: %#v", textGW.generateReq, wantReq)
 			}
@@ -268,14 +276,17 @@ func TestInventoryProviderWrapperTextDefaultsAndDelegation(t *testing.T) {
 				Model:        &model,
 				Timeout:      13,
 			})
+
 			if err != nil {
 				t.Fatalf("Stream() returned error: %v", err)
 			}
+
 			if streamed.InvocationID != "inv-stream" {
 				t.Fatalf("Stream() invocation ID = %q, want %q", streamed.InvocationID, "inv-stream")
 			}
 
 			var gotEvents []contractsgw.StreamEvent
+
 			streamed.Events(func(event contractsgw.StreamEvent) bool {
 				gotEvents = append(gotEvents, event)
 
@@ -286,15 +297,18 @@ func TestInventoryProviderWrapperTextDefaultsAndDelegation(t *testing.T) {
 				contractsgw.StreamEvent(streamEvent("text.delta", "hello", nil)),
 				contractsgw.StreamEvent(streamEvent("stream.end", "stream", nil)),
 			}
+
 			if !reflect.DeepEqual(gotEvents, wantEvents) {
 				t.Fatalf("Stream() events mismatch:\n got: %#v\nwant: %#v", gotEvents, wantEvents)
 			}
 
 			wantErr := errors.New("text gateway failed")
 			provider.UseTextGateway(&textGatewayStub{generateErr: wantErr, streamErr: wantErr})
+
 			if _, err := provider.Prompt(ctx, contractsprovider.TextPromptRequest{}); !errors.Is(err, wantErr) {
 				t.Fatalf("Prompt() error = %v, want %v", err, wantErr)
 			}
+
 			if _, err := provider.Stream(ctx, contractsprovider.TextPromptRequest{}); !errors.Is(err, wantErr) {
 				t.Fatalf("Stream() error = %v, want %v", err, wantErr)
 			}
@@ -332,9 +346,11 @@ func TestInventoryGroqTranscriptionWrapper(t *testing.T) {
 		Model:    &model,
 		Timeout:  14,
 	})
+
 	if err != nil {
 		t.Fatalf("Transcribe() returned error: %v", err)
 	}
+
 	if !reflect.DeepEqual(got, gw.result) {
 		t.Fatalf("Transcribe() response mismatch:\n got: %#v\nwant: %#v", got, gw.result)
 	}
@@ -346,12 +362,14 @@ func TestInventoryGroqTranscriptionWrapper(t *testing.T) {
 		Diarize:  true,
 		Timeout:  14,
 	}
+
 	if !reflect.DeepEqual(gw.req, wantReq) {
 		t.Fatalf("GenerateTranscription request mismatch:\n got: %#v\nwant: %#v", gw.req, wantReq)
 	}
 
 	wantErr := errors.New("transcription gateway failed")
 	provider.UseTranscriptionGateway(&transcriptionGatewayStub{err: wantErr})
+
 	if _, err := provider.Transcribe(ctx, contractsprovider.TranscriptionRequest{}); !errors.Is(err, wantErr) {
 		t.Fatalf("Transcribe() error = %v, want %v", err, wantErr)
 	}
@@ -467,6 +485,7 @@ func TestInventoryProviderEmbeddingWrappers(t *testing.T) {
 			if tc.provider.DefaultEmbeddingsModel() != tc.model {
 				t.Fatalf("DefaultEmbeddingsModel() = %q, want %q", tc.provider.DefaultEmbeddingsModel(), tc.model)
 			}
+
 			if tc.provider.DefaultEmbeddingsDimensions() != tc.dimensions {
 				t.Fatalf("DefaultEmbeddingsDimensions() = %d, want %d", tc.provider.DefaultEmbeddingsDimensions(), tc.dimensions)
 			}
@@ -486,12 +505,15 @@ func TestInventoryProviderEmbeddingWrappers(t *testing.T) {
 				Model:      &tc.model,
 				Timeout:    12,
 			})
+
 			if err != nil {
 				t.Fatalf("Embeddings() returned error: %v", err)
 			}
+
 			if !reflect.DeepEqual(got, gw.result) {
 				t.Fatalf("Embeddings() response mismatch:\n got: %#v\nwant: %#v", got, gw.result)
 			}
+
 			if len(got.Embeddings) != 2 {
 				t.Fatalf("Embeddings() count = %d, want 2", len(got.Embeddings))
 			}
@@ -502,12 +524,14 @@ func TestInventoryProviderEmbeddingWrappers(t *testing.T) {
 				Dimensions: tc.dimensions,
 				Timeout:    12,
 			}
+
 			if !reflect.DeepEqual(gw.req, wantReq) {
 				t.Fatalf("GenerateEmbeddings request mismatch:\n got: %#v\nwant: %#v", gw.req, wantReq)
 			}
 
 			wantErr := errors.New("embedding gateway failed")
 			tc.provider.UseEmbeddingGateway(&embeddingGatewayStub{err: wantErr})
+
 			if _, err := tc.provider.Embeddings(ctx, contractsprovider.EmbeddingRequest{}); !errors.Is(err, wantErr) {
 				t.Fatalf("Embeddings() error = %v, want %v", err, wantErr)
 			}
@@ -532,22 +556,26 @@ func TestInventoryProviderEmbeddingWrappers(t *testing.T) {
 		} else if !reflect.DeepEqual(got, fileGW.getResult) {
 			t.Fatalf("GetFile() response mismatch:\n got: %#v\nwant: %#v", got, fileGW.getResult)
 		}
+
 		if fileGW.getID != "file-1" {
 			t.Fatalf("GetFile() ID = %q, want %q", fileGW.getID, "file-1")
 		}
 
 		put := contractsgw.StorableFile{Content: []byte("abc"), Filename: "notes.txt", MimeType: "text/plain"}
+
 		if got, err := provider.PutFile(ctx, put); err != nil {
 			t.Fatalf("PutFile() returned error: %v", err)
 		} else if !reflect.DeepEqual(got, fileGW.putResult) {
 			t.Fatalf("PutFile() response mismatch:\n got: %#v\nwant: %#v", got, fileGW.putResult)
 		}
+
 		if !reflect.DeepEqual(fileGW.putFile, put) {
 			t.Fatalf("PutFile() request mismatch:\n got: %#v\nwant: %#v", fileGW.putFile, put)
 		}
 
 		wantErr := errors.New("file gateway failed")
 		provider.UseFileGateway(&fileGatewayStub{err: wantErr})
+
 		if err := provider.DeleteFile(ctx, "file-9"); !errors.Is(err, wantErr) {
 			t.Fatalf("DeleteFile() error = %v, want %v", err, wantErr)
 		}
@@ -620,6 +648,7 @@ func TestInventoryProviderRerankingWrappers(t *testing.T) {
 				Limit:     &limit,
 				Model:     &tc.model,
 			})
+
 			if err != nil {
 				t.Fatalf("Rerank() returned error: %v", err)
 			}
@@ -630,15 +659,18 @@ func TestInventoryProviderRerankingWrappers(t *testing.T) {
 				Query:     "match",
 				Limit:     &limit,
 			}
+
 			if !reflect.DeepEqual(gw.req, wantReq) {
 				t.Fatalf("Rerank request mismatch:\n got: %#v\nwant: %#v", gw.req, wantReq)
 			}
+
 			if !reflect.DeepEqual(got, gw.result) {
 				t.Fatalf("Rerank() response mismatch:\n got: %#v\nwant: %#v", got, gw.result)
 			}
 
 			wantErr := errors.New("reranking gateway failed")
 			tc.provider.UseRerankingGateway(&rerankingGatewayStub{err: wantErr})
+
 			if _, err := tc.provider.Rerank(ctx, contractsprovider.RerankingRequest{}); !errors.Is(err, wantErr) {
 				t.Fatalf("Rerank() error = %v, want %v", err, wantErr)
 			}

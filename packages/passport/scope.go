@@ -46,9 +46,12 @@ func (r *ScopeRepository) FinalizeScopes(ctx context.Context, requested []string
 	}
 
 	var client *Client
+
 	if r.clients != nil && clientID != "" {
 		var err error
+
 		client, err = r.clients.Find(ctx, clientID)
+
 		if err != nil {
 			return nil, err
 		}
@@ -58,6 +61,7 @@ func (r *ScopeRepository) FinalizeScopes(ctx context.Context, requested []string
 
 	for _, id := range requested {
 		scope := r.scopeForGrant(id, grantType)
+
 		if scope == nil {
 			continue
 		}

@@ -278,6 +278,7 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 	})
 
 	dec, err := m.DefaultDecorator()
+
 	if err != nil {
 		t.Fatalf("DefaultDecorator: %v", err)
 	}
@@ -288,11 +289,13 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 
 	// FeatureManagerTest::test_the_authenticated_user_is_the_default_scope
 	scoped, err := m.For()
+
 	if err != nil {
 		t.Fatalf("For: %v", err)
 	}
 
 	val, err := scoped.Value(context.Background(), "flag")
+
 	if err != nil {
 		t.Fatalf("Value: %v", err)
 	}

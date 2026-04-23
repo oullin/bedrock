@@ -13,6 +13,7 @@ type URI struct {
 // ParseURI parses a URI string.
 func ParseURI(raw string) (URI, error) {
 	parsed, err := url.Parse(raw)
+
 	if err != nil {
 		return URI{}, err
 	}
@@ -23,6 +24,7 @@ func ParseURI(raw string) (URI, error) {
 // MustParseURI parses a URI string and panics on invalid input.
 func MustParseURI(raw string) URI {
 	uri, err := ParseURI(raw)
+
 	if err != nil {
 		panic(err)
 	}
@@ -61,9 +63,11 @@ func (u URI) WithoutFragment() URI {
 func (u URI) WithQuery(values map[string]string) URI {
 	next := u.clone()
 	query := next.value.Query()
+
 	for key, value := range values {
 		query.Set(key, value)
 	}
+
 	next.value.RawQuery = query.Encode()
 
 	return next
@@ -73,11 +77,13 @@ func (u URI) WithQuery(values map[string]string) URI {
 func (u URI) WithQueryIfMissing(values map[string]string) URI {
 	next := u.clone()
 	query := next.value.Query()
+
 	for key, value := range values {
 		if _, ok := query[key]; !ok {
 			query.Set(key, value)
 		}
 	}
+
 	next.value.RawQuery = query.Encode()
 
 	return next
@@ -99,12 +105,14 @@ func (u URI) PathSegments() []string {
 	}
 
 	parts := strings.Split(strings.Trim(u.value.EscapedPath(), "/"), "/")
+
 	if len(parts) == 1 && parts[0] == "" {
 		return nil
 	}
 
 	for i, part := range parts {
 		decoded, err := url.PathUnescape(part)
+
 		if err == nil {
 			parts[i] = decoded
 		}
@@ -120,6 +128,7 @@ func (u URI) Decoded() string {
 	}
 
 	decoded, err := url.QueryUnescape(u.value.String())
+
 	if err != nil {
 		return u.value.String()
 	}
