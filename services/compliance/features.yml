@@ -312,9 +312,9 @@ features:
     name: Testing utilities
     upstream: Framework\Testing assertions and test response helpers
     bedrock: null
-    status: missing
+    status: excluded
     docs: null
-    notes: No standalone Bedrock testing package exists yet.
+    notes: Standalone Upstream testing helpers are intentionally excluded from Bedrock.
 
   - id: framework.translation.loader
     source_id: framework.translation

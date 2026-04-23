@@ -6,7 +6,8 @@ GO_FMT_BIN := /usr/local/bin/go-fmt
 GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
 PACKAGE_FMT := pnpm fmt
 MARKDOWN_FILES := $(shell git ls-files '*.md')
-GO_MODULE_DIRS := $(shell git ls-files 'packages/**/go.mod' 'services/**/go.mod' | sed 's|/go.mod$$||')
+GO_MODULE_EXCLUDED_DIRS := packages/testing
+GO_MODULE_DIRS := $(filter-out $(GO_MODULE_EXCLUDED_DIRS),$(shell git ls-files 'packages/**/go.mod' 'services/**/go.mod' | sed 's|/go.mod$$||'))
 GO_MODULE_ABS_DIRS := $(addprefix $(ROOT_PATH)/,$(GO_MODULE_DIRS))
 GO_WORK_FILE := $(ROOT_PATH)/storage/.cache/go.work
 GO_CMD := GOWORK=$(GO_WORK_FILE) go

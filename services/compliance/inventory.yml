@@ -316,12 +316,8 @@ framework:
   - id: framework.testing
     upstream: Framework\Testing
     bedrock: null
-    status: missing
-    repo: upstream/framework
-    branch: 13.x
-    tests_path: tests/Testing
-    inventory: inventories/framework-testing.txt
-    rationale: No Bedrock testing package exists yet.
+    status: excluded-permanent
+    rationale: Product boundary; standalone Upstream testing helpers are intentionally excluded from Bedrock.
 
   - id: framework.translation
     upstream: Framework\Translation
