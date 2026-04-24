@@ -1,0 +1,98 @@
+name: Go
+
+on:
+  workflow_call:
+    inputs:
+      run_binary_validation:
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+          cache: true
+          cache-dependency-path: |
+            packages/**/go.sum
+            services/**/go.sum
+
+      - name: Vet
+        run: make vet
+
+      - name: Test with coverage
+        run: make go-coverage
+
+      - name: Build
+        run: make go-build
+
+      - name: Windows portability build
+        if: inputs.run_binary_validation
+        run: |
+          (cd packages/filesystem && GOWORK=off GOOS=windows GOARCH=amd64 go build ./...)
+          (cd packages/ai/boost && GOWORK=off GOOS=windows GOARCH=amd64 go build . ./agents ./install ./internal/jsonconfig)
+
+      - name: Verify Go coverage reports
+        run: |
+          set -euo pipefail
+
+          find storage/.cache/coverage/go -type f | sort
+
+          if ! find storage/.cache/coverage/go -type f \( \
+            -name 'coverage.out' -o \
+            -name 'lcov.info' -o \
+            -name 'coverage-summary.json' -o \
+            -name '*.lcov' \
+          \) | grep -q .; then
+            echo "No recognizable Go coverage reports found in storage/.cache/coverage/go" >&2
+            exit 1
+          fi
+
+      - name: Upload Go coverage to Codecov (attempt 1)
+        id: codecov_1
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/coverage/go
+          flags: go
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload Go coverage to Codecov (attempt 2)
+        if: steps.codecov_1.outcome == 'failure'
+        id: codecov_2
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/coverage/go
+          flags: go
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload Go coverage to Codecov (attempt 3)
+        if: steps.codecov_2.outcome == 'failure'
+        uses: codecov/codecov-action@v6
+        with:
+          directory: storage/.cache/coverage/go
+          flags: go
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
