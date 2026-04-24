@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-04-23T08:33:12Z
+Generated: 2026-04-24T02:20:38Z
 
 Source of truth: services/compliance
 
@@ -17,77 +17,76 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 12970 / 12980 |      10 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
-| Documentation         |     370 / 875 |     505 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+| Tests                 | 12980 / 12980 |       0 | Complete          | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Documentation         |     875 / 875 |       0 | Complete          | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Laravel skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 13451 / 13966 |     515 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 13966 / 13966 |       0 | Complete          | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Critical Path
 
-| Rank | Surface                        | Missing | Classified | Status        | Next Action                                                                               |
-| ---: | ------------------------------ | ------: | ---------: | ------------- | ----------------------------------------------------------------------------------------- |
-|    1 | Laravel documentation          |     505 |  370 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
-|    2 | `laravel/horizon` -> `horizon` |      10 |  170 / 180 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Rank | Surface | Missing | Classified | Status   | Next Action      |
+| ---: | ------- | ------: | ---------: | -------- | ---------------- |
+|    1 | n/a     |       0 |   Complete | Complete | Nothing missing. |
 
 ## Inventory Compliance Ledger
 
 These inventory paths are tracking files, not compliant code paths. A row is compliant only when `Missing Tests` is 0.
 
-| Inventory Path                            | What This Path Is                                      | Source                                                 |  Classified | Missing Tests | Compliance Status | Next Action                                                                 |
-| ----------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------ | ----------: | ------------: | ----------------- | --------------------------------------------------------------------------- |
-| inventories/framework-auth.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Auth`                    |   257 / 257 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-broadcasting.txt    | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Broadcasting`            |     55 / 55 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-bus.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Bus`                     |     66 / 66 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-cache.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Cache`                   |   313 / 313 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-concurrency.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Integration/Concurrency` |     12 / 12 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-conditionable.txt   | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Conditionable`           |       2 / 2 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-config.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Config`                  |     33 / 33 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-console.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Console`                 |   156 / 156 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-container.txt       | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Container`               |   193 / 193 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-cookie.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Cookie`                  |     26 / 26 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-database.txt        | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Database`                | 2626 / 2626 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-encryption.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Encryption`              |     27 / 27 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-events.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Events`                  |     76 / 76 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-filesystem.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Filesystem`              |   134 / 134 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-hashing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Hashing`                 |     13 / 13 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-http.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Http`                    |   488 / 488 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-json-schema.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/JsonSchema`              |     47 / 47 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-log.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Log`                     |     98 / 98 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-mail.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Mail`                    |   135 / 135 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-notifications.txt   | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Notifications`           |     71 / 71 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-pagination.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Pagination`              |     48 / 48 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-pipeline.txt        | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Pipeline`                |     22 / 22 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-process.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Process`                 |     54 / 54 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-queue.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Queue`                   |   204 / 204 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-redis.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Redis`                   |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-routing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Routing`                 |   315 / 315 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-session.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Session`                 |     93 / 93 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-support.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 | 1554 / 1554 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-support-str.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   115 / 115 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-support-lottery.txt | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |     14 / 14 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-translation.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Translation`             |     52 / 52 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Validation`              |   597 / 597 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   629 / 629 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `laravel/ai@0.x:tests`                                 |   774 / 774 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-boost.txt             | Tracking file for upstream tests, not a compliant path | `laravel/boost@main:tests`                             |   671 / 671 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-echo.txt              | Tracking file for upstream tests, not a compliant path | `laravel/echo@2.x:packages`                            |   154 / 154 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-fortify.txt           | Tracking file for upstream tests, not a compliant path | `laravel/fortify@1.x:tests`                            |     91 / 91 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-jetstream.txt         | Tracking file for upstream tests, not a compliant path | `laravel/jetstream@5.x:tests`                          |     43 / 43 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-mcp.txt               | Tracking file for upstream tests, not a compliant path | `laravel/mcp@main:tests`                               |   624 / 624 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-passport.txt          | Tracking file for upstream tests, not a compliant path | `laravel/passport@13.x:tests`                          |   211 / 211 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-pennant.txt           | Tracking file for upstream tests, not a compliant path | `laravel/pennant@1.x:tests`                            |   186 / 186 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-precognition.txt      | Tracking file for upstream tests, not a compliant path | `laravel/precognition@2.x:packages`                    |   141 / 141 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-prompts.txt           | Tracking file for upstream tests, not a compliant path | `laravel/prompts@main:tests`                           |   313 / 313 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |   232 / 232 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |   252 / 252 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-socialite.txt         | Tracking file for upstream tests, not a compliant path | `laravel/socialite@5.x:tests`                          |     40 / 40 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-spark.txt             | Tracking file for upstream tests, not a compliant path | `/Users/gocanto/Sites/madora/tests/Feature/Billing`    |   166 / 166 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-telescope.txt         | Tracking file for upstream tests, not a compliant path | `laravel/telescope@5.x:tests`                          |   113 / 113 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-horizon.txt           | Tracking file for upstream tests, not a compliant path | `laravel/horizon@5.x:tests`                            |   170 / 180 |            10 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations. |
-| inventories/package-pail.txt              | Tracking file for upstream tests, not a compliant path | `laravel/pail@main:tests`                              |     38 / 38 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-envoy.txt             | Tracking file for upstream tests, not a compliant path | `laravel/envoy@2.x:tests`                              |     20 / 20 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
-| inventories/package-wayfinder.txt         | Tracking file for upstream tests, not a compliant path | `laravel/wayfinder@main:tests`                         |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.         |
+| Inventory Path                            | What This Path Is                                      | Source                                                 |  Classified | Missing Tests | Compliance Status | Next Action                                                         |
+| ----------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------ | ----------: | ------------: | ----------------- | ------------------------------------------------------------------- |
+| inventories/framework-auth.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Auth`                    |   257 / 257 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-broadcasting.txt    | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Broadcasting`            |     55 / 55 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-bus.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Bus`                     |     66 / 66 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-cache.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Cache`                   |   313 / 313 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-concurrency.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Integration/Concurrency` |     12 / 12 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-conditionable.txt   | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Conditionable`           |       2 / 2 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-config.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Config`                  |     33 / 33 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-console.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Console`                 |   156 / 156 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-container.txt       | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Container`               |   193 / 193 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-cookie.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Cookie`                  |     26 / 26 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-database.txt        | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Database`                | 2626 / 2626 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-encryption.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Encryption`              |     27 / 27 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-events.txt          | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Events`                  |     76 / 76 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-filesystem.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Filesystem`              |   134 / 134 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-hashing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Hashing`                 |     13 / 13 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-http.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Http`                    |   488 / 488 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-json-schema.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/JsonSchema`              |     47 / 47 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-log.txt             | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Log`                     |     98 / 98 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-mail.txt            | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Mail`                    |   135 / 135 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-notifications.txt   | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Notifications`           |     71 / 71 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-pagination.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Pagination`              |     48 / 48 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-pipeline.txt        | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Pipeline`                |     22 / 22 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-process.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Process`                 |     54 / 54 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-queue.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Queue`                   |   204 / 204 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-redis.txt           | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Redis`                   |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-routing.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Routing`                 |   315 / 315 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-session.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Session`                 |     93 / 93 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-support.txt         | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 | 1554 / 1554 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-support-str.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   115 / 115 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-support-lottery.txt | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |     14 / 14 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-translation.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Translation`             |     52 / 52 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Validation`              |   597 / 597 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `laravel/framework@13.x:tests/Support`                 |   629 / 629 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `laravel/ai@0.x:tests`                                 |   774 / 774 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-boost.txt             | Tracking file for upstream tests, not a compliant path | `laravel/boost@main:tests`                             |   671 / 671 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-echo.txt              | Tracking file for upstream tests, not a compliant path | `laravel/echo@2.x:packages`                            |   154 / 154 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-fortify.txt           | Tracking file for upstream tests, not a compliant path | `laravel/fortify@1.x:tests`                            |     91 / 91 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-jetstream.txt         | Tracking file for upstream tests, not a compliant path | `laravel/jetstream@5.x:tests`                          |     43 / 43 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-mcp.txt               | Tracking file for upstream tests, not a compliant path | `laravel/mcp@main:tests`                               |   624 / 624 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-passport.txt          | Tracking file for upstream tests, not a compliant path | `laravel/passport@13.x:tests`                          |   211 / 211 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-pennant.txt           | Tracking file for upstream tests, not a compliant path | `laravel/pennant@1.x:tests`                            |   186 / 186 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-precognition.txt      | Tracking file for upstream tests, not a compliant path | `laravel/precognition@2.x:packages`                    |   141 / 141 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-prompts.txt           | Tracking file for upstream tests, not a compliant path | `laravel/prompts@main:tests`                           |   313 / 313 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-reverb.txt            | Tracking file for upstream tests, not a compliant path | `laravel/reverb@main:tests`                            |   232 / 232 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-scout.txt             | Tracking file for upstream tests, not a compliant path | `laravel/scout@11.x:tests`                             |   252 / 252 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-socialite.txt         | Tracking file for upstream tests, not a compliant path | `laravel/socialite@5.x:tests`                          |     40 / 40 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-spark.txt             | Tracking file for upstream tests, not a compliant path | `/Users/gocanto/Sites/madora/tests/Feature/Billing`    |   166 / 166 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-telescope.txt         | Tracking file for upstream tests, not a compliant path | `laravel/telescope@5.x:tests`                          |   113 / 113 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-horizon.txt           | Tracking file for upstream tests, not a compliant path | `laravel/horizon@5.x:tests`                            |   180 / 180 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-pail.txt              | Tracking file for upstream tests, not a compliant path | `laravel/pail@main:tests`                              |     38 / 38 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-envoy.txt             | Tracking file for upstream tests, not a compliant path | `laravel/envoy@2.x:tests`                              |     20 / 20 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
+| inventories/package-wayfinder.txt         | Tracking file for upstream tests, not a compliant path | `laravel/wayfinder@main:tests`                         |   103 / 103 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted. |
 
 ## Framework Coverage
 
@@ -152,7 +151,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | `laravel/socialite`           | `socialite`     | `mapped`             | Ported tests: 38 / 40 (95.0%); Missing tests: 0 (0.0%); Adapted tests: 2 (5.0%)      | `packages/socialite.md`    |
 | `laravel/spark-paddle`        | `spark`         | `mapped`             | Ported tests: 92 / 166 (55.4%); Missing tests: 0 (0.0%); Adapted tests: 74 (44.6%)   | `packages/spark.md`        |
 | `laravel/telescope`           | `telescope`     | `mapped`             | Ported tests: 89 / 113 (78.8%); Missing tests: 0 (0.0%); Adapted tests: 24 (21.2%)   | `packages/telescope.md`    |
-| `laravel/horizon`             | `horizon`       | `mapped`             | Ported tests: 97 / 180 (53.9%); Missing tests: 10 (5.6%); Adapted tests: 73 (40.6%)  | `packages/horizon.md`      |
+| `laravel/horizon`             | `horizon`       | `mapped`             | Ported tests: 107 / 180 (59.4%); Missing tests: 0 (0.0%); Adapted tests: 73 (40.6%)  | `packages/horizon.md`      |
 | `laravel/pail`                | `pail`          | `mapped`             | Ported tests: 38 / 38 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)     | `packages/pail.md`         |
 | `laravel/envoy`               | `envoy`         | `mapped`             | Ported tests: 16 / 20 (80.0%); Missing tests: 0 (0.0%); Adapted tests: 4 (20.0%)     | `packages/envoy.md`        |
 | `laravel/wayfinder`           | `wayfinder`     | `mapped`             | Ported tests: 103 / 103 (100.0%); Missing tests: 0 (0.0%); Adapted tests: 0 (0.0%)   | `packages/wayfinder.md`    |
@@ -173,15 +172,15 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          52 |          12980 | 6029 (46.4%) |               10 (0.1%) |  6941 (53.5%) |
+| All inventories       |          52 |          12980 | 6039 (46.5%) |                0 (0.0%) |  6941 (53.5%) |
 | Framework inventories |          33 |           8628 | 4133 (47.9%) |                0 (0.0%) |  4495 (52.1%) |
-| Package inventories   |          19 |           4352 | 1896 (43.6%) |               10 (0.2%) |  2446 (56.2%) |
+| Package inventories   |          19 |           4352 | 1906 (43.8%) |                0 (0.0%) |  2446 (56.2%) |
 
 ## Documentation Porting Summary
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Laravel docs |               1 |               875 |     200 (22.9%) |                505 (57.7%) |        10 (1.1%) |       160 (18.3%) |
+| Laravel docs |               1 |               875 |     200 (22.9%) |                   0 (0.0%) |      330 (37.7%) |       345 (39.4%) |
 
 ## Laravel Skeleton Demo Summary
 
@@ -193,51 +192,141 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 ### Top Pending Documentation Files
 
-| Laravel Docs File           | Pending Sections |
-| --------------------------- | ---------------: |
-| `eloquent.md`               |               20 |
-| `queries.md`                |               16 |
-| `passport.md`               |               16 |
-| `cashier-paddle.md`         |               15 |
-| `billing.md`                |               14 |
-| `prompts.md`                |               13 |
-| `pennant.md`                |               11 |
-| `notifications.md`          |               10 |
-| `migrations.md`             |               10 |
-| `mcp.md`                    |               10 |
-| `eloquent-relationships.md` |               10 |
-| `contributions.md`          |               10 |
-| `boost.md`                  |               10 |
-| `mail.md`                   |                9 |
-| `http-tests.md`             |                9 |
-| `deployment.md`             |                9 |
-| `artisan.md`                |                9 |
-| `ai-sdk.md`                 |                9 |
-| `queues.md`                 |                8 |
-| `packages.md`               |                8 |
+| Laravel Docs File | Pending Sections |
+| ----------------- | ---------------: |
+| n/a               |                0 |
 
 ### Classified Documentation Sections
 
-| Laravel Docs File | Status   | Sections |
-| ----------------- | -------- | -------: |
-| `installation.md` | Adapted  |        4 |
-| `lifecycle.md`    | Adapted  |        1 |
-| `structure.md`    | Adapted  |        3 |
-| `testing.md`      | Adapted  |        2 |
-| `blade.md`        | Excluded |       13 |
-| `dusk.md`         | Excluded |       17 |
-| `folio.md`        | Excluded |       17 |
-| `homestead.md`    | Excluded |       11 |
-| `mix.md`          | Excluded |        2 |
-| `octane.md`       | Excluded |       12 |
-| `pint.md`         | Excluded |        6 |
-| `pulse.md`        | Excluded |        7 |
-| `sail.md`         | Excluded |       25 |
-| `sanctum.md`      | Excluded |        8 |
-| `starter-kits.md` | Excluded |        8 |
-| `valet.md`        | Excluded |       12 |
-| `views.md`        | Excluded |        6 |
-| `vite.md`         | Excluded |       16 |
+| Laravel Docs File           | Status   | Sections |
+| --------------------------- | -------- | -------: |
+| `ai-sdk.md`                 | Adapted  |        9 |
+| `artisan.md`                | Adapted  |        9 |
+| `authentication.md`         | Adapted  |        7 |
+| `authorization.md`          | Adapted  |        4 |
+| `boost.md`                  | Adapted  |       10 |
+| `broadcasting.md`           | Adapted  |        5 |
+| `cache.md`                  | Adapted  |        5 |
+| `collections.md`            | Adapted  |        3 |
+| `concurrency.md`            | Adapted  |        1 |
+| `configuration.md`          | Adapted  |        3 |
+| `console-tests.md`          | Adapted  |        5 |
+| `container.md`              | Adapted  |        2 |
+| `context.md`                | Adapted  |        7 |
+| `contracts.md`              | Adapted  |        1 |
+| `controllers.md`            | Adapted  |        1 |
+| `csrf.md`                   | Adapted  |        1 |
+| `database-testing.md`       | Adapted  |        3 |
+| `database.md`               | Adapted  |        3 |
+| `eloquent-collections.md`   | Adapted  |        1 |
+| `eloquent-factories.md`     | Adapted  |        1 |
+| `eloquent-mutators.md`      | Adapted  |        1 |
+| `eloquent-relationships.md` | Adapted  |        1 |
+| `eloquent-resources.md`     | Adapted  |        2 |
+| `eloquent-serialization.md` | Adapted  |        1 |
+| `eloquent.md`               | Adapted  |        2 |
+| `encryption.md`             | Adapted  |        1 |
+| `envoy.md`                  | Adapted  |        3 |
+| `events.md`                 | Adapted  |        5 |
+| `filesystem.md`             | Adapted  |        4 |
+| `fortify.md`                | Adapted  |        7 |
+| `hashing.md`                | Adapted  |        1 |
+| `helpers.md`                | Adapted  |        6 |
+| `horizon.md`                | Adapted  |        5 |
+| `http-client.md`            | Adapted  |        5 |
+| `http-tests.md`             | Adapted  |        7 |
+| `installation.md`           | Adapted  |        4 |
+| `lifecycle.md`              | Adapted  |        1 |
+| `localization.md`           | Adapted  |        1 |
+| `logging.md`                | Adapted  |        2 |
+| `mail.md`                   | Adapted  |        9 |
+| `mcp.md`                    | Adapted  |       10 |
+| `middleware.md`             | Adapted  |        1 |
+| `migrations.md`             | Adapted  |        2 |
+| `mocking.md`                | Adapted  |        5 |
+| `notifications.md`          | Adapted  |       10 |
+| `pagination.md`             | Adapted  |        5 |
+| `passport.md`               | Adapted  |       16 |
+| `passwords.md`              | Adapted  |        5 |
+| `pennant.md`                | Adapted  |       11 |
+| `precognition.md`           | Adapted  |        5 |
+| `processes.md`              | Adapted  |        6 |
+| `prompts.md`                | Adapted  |       13 |
+| `queries.md`                | Adapted  |       16 |
+| `queues.md`                 | Adapted  |        6 |
+| `rate-limiting.md`          | Adapted  |        3 |
+| `redis.md`                  | Adapted  |        1 |
+| `requests.md`               | Adapted  |        5 |
+| `responses.md`              | Adapted  |        3 |
+| `reverb.md`                 | Adapted  |        5 |
+| `routing.md`                | Adapted  |        5 |
+| `scheduling.md`             | Adapted  |        6 |
+| `scout.md`                  | Adapted  |        3 |
+| `search.md`                 | Adapted  |        7 |
+| `seeding.md`                | Adapted  |        1 |
+| `session.md`                | Adapted  |        2 |
+| `socialite.md`              | Adapted  |        4 |
+| `strings.md`                | Adapted  |        1 |
+| `structure.md`              | Adapted  |        4 |
+| `telescope.md`              | Adapted  |        3 |
+| `testing.md`                | Adapted  |        3 |
+| `urls.md`                   | Adapted  |        4 |
+| `validation.md`             | Adapted  |        5 |
+| `verification.md`           | Adapted  |        5 |
+| `ai.md`                     | Excluded |        2 |
+| `authorization.md`          | Excluded |        1 |
+| `billing.md`                | Excluded |       14 |
+| `blade.md`                  | Excluded |       13 |
+| `broadcasting.md`           | Excluded |        1 |
+| `cashier-paddle.md`         | Excluded |       15 |
+| `configuration.md`          | Excluded |        3 |
+| `container.md`              | Excluded |        1 |
+| `contributions.md`          | Excluded |       10 |
+| `database-testing.md`       | Excluded |        2 |
+| `database.md`               | Excluded |        1 |
+| `deployment.md`             | Excluded |        9 |
+| `dusk.md`                   | Excluded |       17 |
+| `eloquent-collections.md`   | Excluded |        3 |
+| `eloquent-factories.md`     | Excluded |        4 |
+| `eloquent-mutators.md`      | Excluded |        4 |
+| `eloquent-relationships.md` | Excluded |        9 |
+| `eloquent-resources.md`     | Excluded |        5 |
+| `eloquent-serialization.md` | Excluded |        5 |
+| `eloquent.md`               | Excluded |       18 |
+| `errors.md`                 | Excluded |        5 |
+| `facades.md`                | Excluded |        6 |
+| `folio.md`                  | Excluded |       17 |
+| `frontend.md`               | Excluded |        5 |
+| `homestead.md`              | Excluded |       11 |
+| `horizon.md`                | Excluded |        1 |
+| `http-tests.md`             | Excluded |        2 |
+| `installation.md`           | Excluded |        5 |
+| `localization.md`           | Excluded |        1 |
+| `migrations.md`             | Excluded |        8 |
+| `mix.md`                    | Excluded |        2 |
+| `mongodb.md`                | Excluded |        5 |
+| `octane.md`                 | Excluded |       12 |
+| `packages.md`               | Excluded |        8 |
+| `pint.md`                   | Excluded |        6 |
+| `providers.md`              | Excluded |        5 |
+| `pulse.md`                  | Excluded |        7 |
+| `queues.md`                 | Excluded |        2 |
+| `readme.md`                 | Excluded |        2 |
+| `releases.md`               | Excluded |        4 |
+| `reverb.md`                 | Excluded |        2 |
+| `routing.md`                | Excluded |        2 |
+| `sail.md`                   | Excluded |       25 |
+| `sanctum.md`                | Excluded |        8 |
+| `scout.md`                  | Excluded |        4 |
+| `seeding.md`                | Excluded |        3 |
+| `socialite.md`              | Excluded |        1 |
+| `starter-kits.md`           | Excluded |        8 |
+| `telescope.md`              | Excluded |        1 |
+| `upgrade.md`                | Excluded |        5 |
+| `valet.md`                  | Excluded |       12 |
+| `validation.md`             | Excluded |        1 |
+| `views.md`                  | Excluded |        6 |
+| `vite.md`                   | Excluded |       16 |
 
 ## Skeleton Detail
 
