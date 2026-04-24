@@ -27,7 +27,7 @@ function submit() {
   <Head title="Log in" />
 
   <AuthLayout
-    title="Inertia.js Kitchen Sink"
+    title="Bedrock Inertia Demo"
     description="Explore the Go port of the official demo with the seeded account below."
   >
     <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">

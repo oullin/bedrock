@@ -6,10 +6,10 @@ locales:
     name: "English"
     direction: "ltr"
     head:
-      title: "Progressive Oullin"
+      title: "Bedrock Inertia Demo"
       meta:
         - name: "description"
-          content: "A progressive dashboard application"
+          content: "A secondary Bedrock demo for Inertia protocol flows"
         - property: "og:locale"
           content: "en_US"
 
@@ -17,9 +17,9 @@ locales:
     name: "Español"
     direction: "ltr"
     head:
-      title: "Progressive Oullin"
+      title: "Bedrock Inertia Demo"
       meta:
         - name: "description"
-          content: "Una aplicación de panel progresiva"
+          content: "Una demostración secundaria de Bedrock para flujos de protocolo Inertia"
         - property: "og:locale"
           content: "es_ES"
