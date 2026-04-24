@@ -19,7 +19,7 @@ func NewHandler(router *routing.Router) http.Handler {
 		req := httpx.NewRequest(r)
 		req.SetRouteResolver(router)
 
-		result, err := router.Dispatch(req)
+		dispatch, err := router.Dispatch(req)
 
 		if err != nil {
 			writeError(w, err)
@@ -27,9 +27,9 @@ func NewHandler(router *routing.Router) http.Handler {
 			return
 		}
 
-		applyRouteParameters(r, router.Current())
+		applyRouteParameters(r, dispatch.Route)
 
-		if err := writeResult(w, r, result); err != nil {
+		if err := writeResult(w, r, dispatch.Value); err != nil {
 			writeError(w, err)
 		}
 	})

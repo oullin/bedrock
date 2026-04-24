@@ -1,9 +1,11 @@
 package routingx_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/bedrock/packages/httpx/routingx"
@@ -33,8 +35,8 @@ func TestNewHandlerBindsRouteParametersFromHttpxRequest(t *testing.T) {
 	t.Parallel()
 
 	router := routing.NewRouter(nil, nil)
-	router.Get("/users/{user}", func() any {
-		return router.Current().Parameter("user", "")
+	router.Get("/users/{user}", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(r.PathValue("user")))
 	})
 
 	rec := perform(router, http.MethodGet, "/users/taylor%20otwell")
@@ -45,6 +47,46 @@ func TestNewHandlerBindsRouteParametersFromHttpxRequest(t *testing.T) {
 
 	if rec.Body.String() != "taylor otwell" {
 		t.Fatalf("body = %q, want decoded route parameter", rec.Body.String())
+	}
+}
+
+func TestNewHandlerBindsRouteParametersFromRequestScopedRoute(t *testing.T) {
+	router := routing.NewRouter(nil, nil)
+	firstStarted := make(chan struct{})
+	releaseFirst := make(chan struct{})
+
+	var calls atomic.Int32
+
+	router.Get("/billables/{type}/{id}", func() any {
+		if calls.Add(1) == 1 {
+			close(firstStarted)
+			<-releaseFirst
+		}
+
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, _ = fmt.Fprintf(w, "%s:%s", r.PathValue("type"), r.PathValue("id"))
+		})
+	})
+
+	handler := routingx.NewHandler(router)
+	firstDone := make(chan *httptest.ResponseRecorder, 1)
+
+	go func() {
+		firstDone <- performWithHandler(handler, http.MethodGet, "/billables/team/1")
+	}()
+
+	<-firstStarted
+
+	second := performWithHandler(handler, http.MethodGet, "/billables/user/2")
+	close(releaseFirst)
+	first := <-firstDone
+
+	if second.Body.String() != "user:2" {
+		t.Fatalf("second body = %q, want user:2", second.Body.String())
+	}
+
+	if first.Body.String() != "team:1" {
+		t.Fatalf("first body = %q, want team:1", first.Body.String())
 	}
 }
 
@@ -186,7 +228,10 @@ func TestNewHandlerDispatchesHTTPHandlerFunc(t *testing.T) {
 }
 
 func perform(router *routing.Router, method, target string) *httptest.ResponseRecorder {
-	handler := routingx.NewHandler(router)
+	return performWithHandler(routingx.NewHandler(router), method, target)
+}
+
+func performWithHandler(handler http.Handler, method, target string) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(method, target, nil)
 	handler.ServeHTTP(rec, req)
