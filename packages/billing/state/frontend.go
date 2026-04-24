@@ -137,11 +137,11 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 		"invoices":           invoices,
 		"lastPayment":        lastPayment,
 		"message":            "",
-		"monthlyPlans":       monthlyPlans,
+		"monthlyPlans":       plansToMaps(monthlyPlans),
 		"nextPayment":        nextPayment,
 		"paddleSellerId":     f.config.SellerID(),
-		"yearlyPlans":        yearlyPlans,
-		"plan":               activePlan,
+		"yearlyPlans":        plansToMaps(yearlyPlans),
+		"plan":               planToMap(activePlan),
 		"pwAuth":             f.config.RetainKey(),
 		"pwCustomer":         providerCustomerID(customer),
 		"seatName":           f.manager.SeatName(billableType),
@@ -182,7 +182,7 @@ func (f *FrontendState) invoicesForBillable(ctx context.Context, billable billin
 		}
 
 		invoice := map[string]any{
-			"id":          transaction.PaddleID,
+			"id":          invoiceID(transaction),
 			"total":       transaction.TotalFormatted(),
 			"invoice_url": f.invoiceURL(billable, transaction),
 		}
@@ -195,6 +195,14 @@ func (f *FrontendState) invoicesForBillable(ctx context.Context, billable billin
 	}
 
 	return invoices, nil
+}
+
+func invoiceID(transaction billing.Transaction) string {
+	if transaction.PaddleID != "" {
+		return transaction.PaddleID
+	}
+
+	return transaction.InvoiceNumber
 }
 
 func (f *FrontendState) paymentState(ctx context.Context, sub *billing.Subscription) (map[string]any, map[string]any, error) {
@@ -215,6 +223,28 @@ func (f *FrontendState) paymentState(ctx context.Context, sub *billing.Subscript
 	}
 
 	return paymentToMap(last, f.dateFormat()), paymentToMap(next, f.dateFormat()), nil
+}
+
+func plansToMaps(plans []*billing.Plan) []map[string]any {
+	payload := make([]map[string]any, 0, len(plans))
+
+	for _, plan := range plans {
+		if plan == nil {
+			continue
+		}
+
+		payload = append(payload, plan.ToMap())
+	}
+
+	return payload
+}
+
+func planToMap(plan *billing.Plan) map[string]any {
+	if plan == nil {
+		return nil
+	}
+
+	return plan.ToMap()
 }
 
 func paymentToMap(payment *billing.Payment, dateFormat string) map[string]any {
