@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/js/components/ui/card";
 
 withDefaults(defineProps<{ title?: string; description?: string }>(), {
-  title: "Inertia.js Kitchen Sink",
+  title: "Bedrock Inertia Demo",
   description: "",
 });
 </script>

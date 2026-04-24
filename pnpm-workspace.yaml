@@ -1,4 +1,5 @@
 packages:
   - services/storage
   - services/docs
+  - services/demo/inertia/app
   - services/spark
