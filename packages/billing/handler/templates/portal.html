@@ -10,6 +10,7 @@
       window.__SPARK_ASSET_BASE_URL__ = {{ printf "%q" .AssetBaseURL }};
       window.__SPARK_ROUTES__ = {{ .Routes }};
     </script>
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
     <script type="module" src="{{ .AssetBaseURL }}app.js"></script>
     <link rel="stylesheet" href="{{ .AssetBaseURL }}app.css" />
   </head>
