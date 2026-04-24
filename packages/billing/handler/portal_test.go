@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
 	"github.com/bedrock/packages/billing/state"
+	"github.com/bedrock/packages/routegen"
 )
 
 func newPortalHandler(allow bool, subs []*billing.Subscription) *handler.PortalHandler {
@@ -261,5 +263,62 @@ func assertTeamPortalState(t *testing.T, resp map[string]any) {
 
 	if _, ok := plan["ID"]; ok {
 		t.Fatalf("monthly plan exposed raw struct ID key: %#v", plan)
+	}
+}
+
+func TestPortalHandler_State_ResolverError(t *testing.T) {
+	mgr := billing.NewManager()
+	frontend := state.NewFrontendState(mgr, nil, &testSubStore{})
+
+	h := handler.NewPortalHandler(mgr, frontend, func(*http.Request) (billing.Billable, error) {
+		return nil, errors.New("no billable")
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/state", nil)
+	rec := httptest.NewRecorder()
+	h.State(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("code = %d, want 400", rec.Code)
+	}
+}
+
+func TestPortalHandler_WithRoutes_NilIsIgnored(t *testing.T) {
+	mgr := billing.NewManager()
+	frontend := state.NewFrontendState(mgr, nil, &testSubStore{})
+
+	h := handler.NewPortalHandler(mgr, frontend, func(*http.Request) (billing.Billable, error) {
+		return &stubBillable{id: 1, btype: "team"}, nil
+	})
+
+	returned := h.WithRoutes(nil)
+
+	if returned != h {
+		t.Fatal("WithRoutes should return the same handler")
+	}
+}
+
+func TestPortalHandler_WithRoutes_PropagatesToFrontend(t *testing.T) {
+	mgr := billing.NewManager()
+	frontend := state.NewFrontendState(mgr, nil, &testSubStore{})
+
+	h := handler.NewPortalHandler(mgr, frontend, func(*http.Request) (billing.Billable, error) {
+		return &stubBillable{id: 1, btype: "team"}, nil
+	})
+
+	routes := routegen.New()
+
+	routes.Add(billing.RouteState, "GET", "/custom/state")
+
+	if got := h.WithRoutes(routes); got != h {
+		t.Fatal("WithRoutes should return same handler")
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/billing", nil)
+	rec := httptest.NewRecorder()
+	h.Show(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("Show with custom routes = %d, want 200", rec.Code)
 	}
 }
