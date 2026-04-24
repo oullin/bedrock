@@ -22,13 +22,13 @@ go get github.com/bedrock/packages/passport@latest
 
 ## Grants
 
-| Grant              | Description                                     |
-| ------------------ | ----------------------------------------------- |
+| Grant              | Description                                                          |
+| ------------------ | -------------------------------------------------------------------- |
 | Authorization Code | Redirect-based OAuth 2 flow for first-party and third-party clients. |
-| Client Credentials | Machine-to-machine token issuance for service clients. |
-| Personal Access    | Long-lived API tokens issued directly for an authenticated account. |
-| Device Code        | Device authorization flow for limited-input devices. |
-| Refresh Token      | Exchange a refresh token for a new access token. |
+| Client Credentials | Machine-to-machine token issuance for service clients.               |
+| Personal Access    | Long-lived API tokens issued directly for an authenticated account.  |
+| Device Code        | Device authorization flow for limited-input devices.                 |
+| Refresh Token      | Exchange a refresh token for a new access token.                     |
 
 ## Clients
 
