@@ -494,7 +494,7 @@ features:
     bedrock: billing
     status: ported
     docs: packages/billing.md
-    notes: Plans and prices, billable owner resolution, subscription creation and upgrades, trial handling, customer billing portal entry points, invoice and order retrieval, Paddle webhook handling, tax and proration helpers, and developer fakes are implemented in Bedrock; public compliance treats Billing as feature-audited only because upstream upstream/billing-paddle test evidence requires private product access until a reproducible pinned source artifact is available. Upstream service providers, Template billing portal views, Orm billable traits, and Cashier facade plumbing are represented through explicit Go interfaces and caller-owned HTTP wiring.
+    notes: The audit uses the private local artifact at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle because upstream/billing-paddle is closed source. The artifact contains no upstream tests, but its source surfaces are covered: billable configuration and resolution, plan registration and serialization, billing portal frontend state, subscription creation/update/cancel/resume, pending checkout tracking, payment-method updates, invoice downloads, subscribed middleware, install/provider wiring, and Paddle subscription-created cleanup. Bedrock implements those behaviors through explicit Go interfaces, caller-owned HTTP wiring, provider-agnostic billing services, Paddle webhook handling, tax and proration helpers, orders/invoices, and developer fakes; Upstream service providers, Template/Inertia views, Orm traits, and Cashier facade plumbing are represented by Go adaptation rules and executable Bedrock tests.
 
   - id: package.debugbar.observability
     source_id: package.debugbar

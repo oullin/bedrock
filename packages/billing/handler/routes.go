@@ -10,6 +10,7 @@ type Handlers struct {
 	UpdateSub     *UpdateSubscriptionHandler
 	CancelSub     *CancelSubscriptionHandler
 	ResumeSub     *ResumeSubscriptionHandler
+	Pending       *PendingCheckoutHandler
 	Checkout      *CheckoutHandler
 	PaddleBilling *PaddleBillingHandler
 	Order         *OrderHandler
@@ -28,6 +29,7 @@ func RegisterRoutes(mux *http.ServeMux, h *Handlers) {
 	mux.HandleFunc("PUT /billing/subscription", h.UpdateSub.Update)
 	mux.HandleFunc("PUT /billing/subscription/cancel", h.CancelSub.Cancel)
 	mux.HandleFunc("PUT /billing/subscription/resume", h.ResumeSub.Resume)
+	mux.HandleFunc("POST /billing/pending-checkout", h.Pending.Create)
 
 	// Billing portal.
 	mux.HandleFunc("GET /billing", h.Portal.Show)
@@ -50,6 +52,7 @@ func RegisterRoutes(mux *http.ServeMux, h *Handlers) {
 	mux.HandleFunc("GET /billing/{type}/{id}/invoices/{transaction}/download", h.Invoice.Download)
 
 	// Payment methods.
+	mux.HandleFunc("PUT /billing/subscription/payment-method", h.PaymentMethod.Setup)
 	mux.HandleFunc("POST /billing/payment-method/setup", h.PaymentMethod.Setup)
 	mux.HandleFunc("PUT /billing/payment-method/default", h.PaymentMethod.SetDefault)
 	mux.HandleFunc("DELETE /billing/payment-method", h.PaymentMethod.Delete)
