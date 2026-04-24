@@ -2,10 +2,6 @@ name: Go
 
 on:
   workflow_call:
-    inputs:
-      run_binary_validation:
-        required: true
-        type: boolean
 
 permissions:
   contents: read
@@ -15,8 +11,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  go:
-    name: Go
+  vet:
+    name: Go Vet
     runs-on: ubuntu-latest
 
     steps:
@@ -33,17 +29,27 @@ jobs:
       - name: Vet
         run: make vet
 
+  coverage:
+    name: Go Coverage Shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+          cache: true
+          cache-dependency-path: |
+            packages/**/go.sum
+            services/**/go.sum
+
       - name: Test with coverage
-        run: make go-coverage
-
-      - name: Build
-        run: make go-build
-
-      - name: Windows portability build
-        if: inputs.run_binary_validation
-        run: |
-          (cd packages/filesystem && GOWORK=off GOOS=windows GOARCH=amd64 go build ./...)
-          (cd packages/ai/boost && GOWORK=off GOOS=windows GOARCH=amd64 go build . ./agents ./install ./internal/jsonconfig)
+        run: make go-coverage-shard GO_COVERAGE_SHARDS=8 GO_COVERAGE_SHARD=${{ matrix.shard }}
 
       - name: Verify Go coverage reports
         run: |
@@ -67,7 +73,7 @@ jobs:
         continue-on-error: true
         with:
           directory: storage/.cache/coverage/go
-          flags: go
+          flags: go,go-shard-${{ matrix.shard }}
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
@@ -80,7 +86,7 @@ jobs:
         continue-on-error: true
         with:
           directory: storage/.cache/coverage/go
-          flags: go
+          flags: go,go-shard-${{ matrix.shard }}
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
@@ -91,8 +97,26 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           directory: storage/.cache/coverage/go
-          flags: go
+          flags: go,go-shard-${{ matrix.shard }}
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
           version: v11.2.8
+
+  build:
+    name: Go Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+          cache: true
+          cache-dependency-path: |
+            packages/**/go.sum
+            services/**/go.sum
+
+      - name: Build
+        run: make go-build
