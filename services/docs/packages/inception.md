@@ -16,10 +16,10 @@ contracts.
 Unlike `auth`, `fortify`, and `jetstream` — which are composable primitives —
 `inception` is a ready-made "battery-included" scaffold you enable per feature.
 
-**Module:** `github.com/gocanto/bedrock/packages/inception`
+**Module:** `github.com/bedrock/packages/inception`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/inception@latest
+go get github.com/bedrock/packages/inception@latest
 ```
 
 ## Features

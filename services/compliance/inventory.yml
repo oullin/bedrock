@@ -487,11 +487,11 @@ packages:
     laravel: laravel/spark-paddle
     bedrock: spark
     status: mapped
-    repo: local:/Users/gocanto/Sites/madora
-    branch: local
-    tests_path: tests/Feature/Billing
-    inventory: inventories/package-spark.txt
-    rationale: Local Madora composer resolution of laravel/spark-paddle:^6.0 from https://spark.laravel.com at /Users/gocanto/Sites/madora/vendor/laravel/spark-paddle; laravel/cashier-paddle is its dependency, and tests/Feature/Billing remains the local product integration inventory.
+    repo: null
+    branch: null
+    tests_path: null
+    inventory: null
+    rationale: Spark product-integration parity depends on private/local laravel/spark-paddle access and is intentionally excluded from the public Laravel compliance inventory until a reproducible pinned source artifact is available.
 
   - id: package.telescope
     laravel: laravel/telescope

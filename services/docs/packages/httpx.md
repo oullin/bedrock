@@ -14,10 +14,10 @@ HTTP utilities, middleware, and testing helpers.
 The `httpx` package provides rich HTTP request and response primitives built
 on Go's `net/http`, inspired by Laravel's HTTP layer.
 
-**Module:** `github.com/gocanto/bedrock/packages/httpx`
+**Module:** `github.com/bedrock/packages/httpx`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/httpx@latest
+go get github.com/bedrock/packages/httpx@latest
 ```
 
 ## Request

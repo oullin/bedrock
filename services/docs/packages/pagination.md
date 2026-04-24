@@ -13,10 +13,10 @@ The `pagination` package provides three generic paginators that mirror Laravel's
 pagination layer. Each paginates a Go slice and generates URL windows for
 rendering page-link ranges.
 
-**Module:** `github.com/gocanto/bedrock/packages/pagination`
+**Module:** `github.com/bedrock/packages/pagination`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/pagination@latest
+go get github.com/bedrock/packages/pagination@latest
 ```
 
 ## Paginator Types

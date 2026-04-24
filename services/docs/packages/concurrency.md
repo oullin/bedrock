@@ -12,10 +12,10 @@ The `concurrency` package provides a `Manager` that runs collections of tasks
 either in parallel (via goroutines) or sequentially (for testing). It mirrors
 `Illuminate\Concurrency`.
 
-**Module:** `github.com/gocanto/bedrock/packages/concurrency`
+**Module:** `github.com/bedrock/packages/concurrency`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/concurrency@latest
+go get github.com/bedrock/packages/concurrency@latest
 ```
 
 ## Drivers

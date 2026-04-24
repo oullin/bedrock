@@ -11,10 +11,10 @@ The `cookie` package provides Laravel-inspired cookie management with a
 queuing jar, factory interfaces, and HTTP middleware for transparent
 encryption and decryption.
 
-**Module:** `github.com/gocanto/bedrock/packages/cookie`
+**Module:** `github.com/bedrock/packages/cookie`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/cookie@latest
+go get github.com/bedrock/packages/cookie@latest
 ```
 
 ## Components

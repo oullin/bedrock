@@ -14,10 +14,10 @@ The `redis` package is a 1:1 Go port of `Illuminate\Redis`. It provides a
 [go-redis](https://github.com/redis/go-redis). Every command dispatches a
 `CommandExecuted` event for logging and monitoring.
 
-**Module:** `github.com/gocanto/bedrock/packages/redis`
+**Module:** `github.com/bedrock/packages/redis`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/redis@latest
+go get github.com/bedrock/packages/redis@latest
 ```
 
 ## Connection Drivers

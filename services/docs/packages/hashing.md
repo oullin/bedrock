@@ -13,10 +13,10 @@ The `hashing` package provides a `HashManager` that delegates to a pluggable
 hashing driver. It implements the `contracts/hashing.Hasher` interface and
 supports bcrypt, Argon2i, and Argon2id algorithms.
 
-**Module:** `github.com/gocanto/bedrock/packages/hashing`
+**Module:** `github.com/bedrock/packages/hashing`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/hashing@latest
+go get github.com/bedrock/packages/hashing@latest
 ```
 
 ## Drivers

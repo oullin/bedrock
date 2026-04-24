@@ -14,10 +14,10 @@ Each channel delegates to a configurable `Handler` (stream, rotating file,
 stderr, syslog, or null). Channels can be stacked to write to multiple
 destinations simultaneously.
 
-**Module:** `github.com/gocanto/bedrock/packages/log`
+**Module:** `github.com/bedrock/packages/log`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/log@latest
+go get github.com/bedrock/packages/log@latest
 ```
 
 ## Handlers

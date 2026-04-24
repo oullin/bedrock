@@ -15,10 +15,10 @@ be registered by event name, struct type, or wildcard pattern. Events can be
 dispatched synchronously, queued, or deferred until a database transaction
 commits.
 
-**Module:** `github.com/gocanto/bedrock/packages/events`
+**Module:** `github.com/bedrock/packages/events`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/events@latest
+go get github.com/bedrock/packages/events@latest
 ```
 
 ## Creating a Dispatcher

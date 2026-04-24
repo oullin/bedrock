@@ -15,10 +15,10 @@ The `routing` package is a faithful Go port of `laravel/framework`'s
 `Illuminate/Routing` package. Naming, layout, and behaviour mirror the upstream
 PHP source as closely as Go allows.
 
-**Module:** `github.com/gocanto/bedrock/packages/routing`
+**Module:** `github.com/bedrock/packages/routing`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/routing@latest
+go get github.com/bedrock/packages/routing@latest
 ```
 
 ## Features
