@@ -10,10 +10,10 @@ The `jsonx` package provides type-safe builders for JSON Schema primitives. It
 mirrors Upstream's `JsonSchemaTypeFactory` and is primarily used when defining
 validation schemas for AI model structured outputs or API contracts.
 
-**Module:** `github.com/gocanto/bedrock/packages/jsonx`
+**Module:** `github.com/bedrock/packages/jsonx`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/jsonx@latest
+go get github.com/bedrock/packages/jsonx@latest
 ```
 
 ## Schema Types

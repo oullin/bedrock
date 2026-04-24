@@ -15,10 +15,10 @@ The `validation` package provides a `Factory` that creates `Validator` instances
 It ports 80+ Upstream validation rules, pipe-delimited rule syntax, custom
 messages, and the `MessageBag` error collection.
 
-**Module:** `github.com/gocanto/bedrock/packages/validation`
+**Module:** `github.com/bedrock/packages/validation`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/validation@latest
+go get github.com/bedrock/packages/validation@latest
 ```
 
 ## Quick Start

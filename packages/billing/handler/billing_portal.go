@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/state"
+	"github.com/bedrock/packages/routegen"
 )
 
 // PortalHandler renders the billing portal frontend state.
@@ -14,39 +15,108 @@ type PortalHandler struct {
 	manager  *billing.Manager
 	frontend *state.FrontendState
 	resolver billing.ResolverFunc
+	routes   *routegen.Registry
 }
 
 // NewPortalHandler creates a PortalHandler.
 func NewPortalHandler(mgr *billing.Manager, fs *state.FrontendState, resolver billing.ResolverFunc) *PortalHandler {
-	return &PortalHandler{manager: mgr, frontend: fs, resolver: resolver}
+	routes := billing.NewRouteRegistry()
+	fs.WithRoutes(routes)
+
+	return &PortalHandler{manager: mgr, frontend: fs, resolver: resolver, routes: routes}
+}
+
+// WithRoutes sets the route registry used by the portal shell.
+func (h *PortalHandler) WithRoutes(routes *routegen.Registry) *PortalHandler {
+	if routes != nil {
+		h.routes = routes
+
+		if h.frontend != nil {
+			h.frontend.WithRoutes(routes)
+		}
+	}
+
+	return h
 }
 
 // Show returns the billing portal state as JSON.
 func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
-	billableType := h.manager.DefaultBillableType()
+	data, ok := h.portalState(w, r)
 
-	billable, err := h.resolver(r)
-
-	if err != nil {
-		http.Error(w, billing.ErrBillableRequired.Error(), http.StatusBadRequest)
-
+	if !ok {
 		return
 	}
 
-	if !h.manager.IsAuthorized(billable, r) {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	renderPortalShell(w, r, h.routes, "Billing", data)
+}
 
+// State returns the billing portal state as JSON for the Vue portal.
+func (h *PortalHandler) State(w http.ResponseWriter, r *http.Request) {
+	data, ok := h.portalState(w, r)
+
+	if !ok {
 		return
+	}
+
+	jsonResponse(w, http.StatusOK, data)
+}
+
+func (h *PortalHandler) portalState(w http.ResponseWriter, r *http.Request) (map[string]any, bool) {
+	billable, err := h.resolver(r)
+
+	if err != nil {
+		errorResponse(w, http.StatusBadRequest, billing.ErrBillableRequired.Error())
+
+		return nil, false
+	}
+
+	billableType := billable.BillableType()
+
+	if !portalRouteMatchesBillable(r, billable) {
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+
+		return nil, false
+	}
+
+	if !h.manager.IsAuthorized(billable, r) {
+		errorResponse(w, http.StatusForbidden, "Forbidden")
+
+		return nil, false
 	}
 
 	data, err := h.frontend.Current(r.Context(), billableType, billable)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
-		return
+		return nil, false
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	return data, true
+}
+
+func portalRouteMatchesBillable(r *http.Request, billable billing.Billable) bool {
+	routeType := r.PathValue("type")
+
+	if routeType == "" {
+		return true
+	}
+
+	if routeType != billable.BillableType() {
+		return false
+	}
+
+	routeID := r.PathValue("id")
+
+	if routeID == "" {
+		return true
+	}
+
+	id, err := strconv.ParseInt(routeID, 10, 64)
+
+	if err != nil {
+		return false
+	}
+
+	return id == billable.BillableID()
 }
