@@ -164,6 +164,27 @@ func TestNewHandlerWritesJSONResponse(t *testing.T) {
 	}
 }
 
+func TestNewHandlerDispatchesHTTPHandlerFunc(t *testing.T) {
+	t.Parallel()
+
+	router := routing.NewRouter(nil, nil)
+	router.Get("/users/{user}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(r.PathValue("user")))
+	})
+
+	rec := perform(router, http.MethodGet, "/users/taylor%20otwell")
+
+	if rec.Code != http.StatusAccepted {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusAccepted)
+	}
+
+	if rec.Body.String() != "taylor otwell" {
+		t.Fatalf("body = %q, want path value", rec.Body.String())
+	}
+}
+
 func perform(router *routing.Router, method, target string) *httptest.ResponseRecorder {
 	handler := routingx.NewHandler(router)
 	rec := httptest.NewRecorder()

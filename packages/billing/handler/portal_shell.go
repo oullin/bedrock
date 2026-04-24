@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"html/template"
 	"net/http"
+
+	"github.com/bedrock/packages/httpx"
+	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/routegen"
 )
 
 //go:embed templates/portal.html
@@ -14,25 +19,48 @@ type portalShellData struct {
 	Title        string
 	StatePath    string
 	AssetBaseURL string
+	Routes       template.JS
 	InitialState template.JS
 }
 
 var portalTemplate = template.Must(template.ParseFS(portalTemplates, "templates/portal.html"))
 
-func renderPortalShell(w http.ResponseWriter, r *http.Request, title string, state map[string]any) {
+func renderPortalShell(w http.ResponseWriter, r *http.Request, routes *routegen.Registry, title string, state map[string]any) {
 	payload, err := json.Marshal(state)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	portalTemplate.Execute(w, portalShellData{
+	if routes == nil {
+		routes = billing.NewRouteRegistry()
+	}
+
+	manifest, err := json.Marshal(routes.Export())
+
+	if err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	var body bytes.Buffer
+
+	if err := portalTemplate.Execute(&body, portalShellData{
 		Title:        title,
-		StatePath:    "/billing/state",
+		StatePath:    routes.URL(billing.RouteState, nil),
 		AssetBaseURL: "/billing/assets/",
+		Routes:       template.JS(manifest),
 		InitialState: template.JS(payload),
-	})
+	}); err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	_ = httpx.NewResponse(w).
+		Header("Content-Type", "text/html; charset=utf-8").
+		Send(body.Bytes())
 }

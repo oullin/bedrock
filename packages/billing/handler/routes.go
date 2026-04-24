@@ -1,39 +1,77 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
 
-// Handlers bundles all HTTP handler instances for route registration.
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
+	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/routegen"
+)
+
+// Handlers bundles all canonical Billing HTTP handler instances.
 type Handlers struct {
-	Gateway       *GatewayHandler
 	Portal        *PortalHandler
 	NewSub        *NewSubscriptionHandler
 	UpdateSub     *UpdateSubscriptionHandler
 	CancelSub     *CancelSubscriptionHandler
 	ResumeSub     *ResumeSubscriptionHandler
 	Pending       *PendingCheckoutHandler
-	Checkout      *CheckoutHandler
-	PaddleBilling *PaddleBillingHandler
-	Order         *OrderHandler
 	Invoice       *DownloadInvoiceHandler
 	PaymentMethod *PaymentMethodsHandler
 }
 
-// RegisterRoutes registers all Billing routes on the given ServeMux.
-func RegisterRoutes(mux *http.ServeMux, h *Handlers) {
-	// Billing subscription API.
-	mux.HandleFunc("POST /billing/subscription", h.NewSub.Create)
-	mux.HandleFunc("PUT /billing/subscription", h.UpdateSub.Update)
-	mux.HandleFunc("PUT /billing/subscription/cancel", h.CancelSub.Cancel)
-	mux.HandleFunc("PUT /billing/subscription/resume", h.ResumeSub.Resume)
-	mux.HandleFunc("PUT /billing/subscription/payment-method", h.PaymentMethod.Setup)
-	mux.HandleFunc("POST /billing/pending-checkout", h.Pending.Create)
+// RouteSet exposes Billing's router, route registry, and dispatch handler.
+type RouteSet struct {
+	Router   *routing.Router
+	Registry *routegen.Registry
+	Handler  http.Handler
+}
 
-	// Invoices.
-	mux.HandleFunc("GET /billing/{type}/{id}/invoices/{transaction}/download", h.Invoice.Download)
+// NewRouteSet builds the canonical Billing route set.
+func NewRouteSet(h *Handlers) *RouteSet {
+	registry := billing.NewRouteRegistry()
+	router := routing.NewRouter(nil, nil)
 
-	// Billing portal.
-	mux.HandleFunc("GET /billing", h.Portal.Show)
-	mux.HandleFunc("GET /billing/{type}", h.Portal.Show)
-	mux.HandleFunc("GET /billing/{type}/{id}", h.Portal.Show)
-	mux.HandleFunc("GET /billing/state", h.Portal.State)
+	RegisterRoutes(router, registry, h)
+
+	return &RouteSet{
+		Router:   router,
+		Registry: registry,
+		Handler:  routingx.NewHandler(router),
+	}
+}
+
+// RegisterRoutes registers all canonical Billing routes.
+func RegisterRoutes(router *routing.Router, registry *routegen.Registry, h *Handlers) {
+	if registry == nil {
+		registry = billing.NewRouteRegistry()
+	}
+
+	if h.Portal != nil {
+		h.Portal.WithRoutes(registry)
+	}
+
+	router.Post(routePattern(registry, billing.RouteSubscriptionStore), h.NewSub.Create).Name(billing.RouteSubscriptionStore)
+	router.Put(routePattern(registry, billing.RouteSubscriptionUpdate), h.UpdateSub.Update).Name(billing.RouteSubscriptionUpdate)
+	router.Put(routePattern(registry, billing.RouteSubscriptionCancel), h.CancelSub.Cancel).Name(billing.RouteSubscriptionCancel)
+	router.Put(routePattern(registry, billing.RouteSubscriptionResume), h.ResumeSub.Resume).Name(billing.RouteSubscriptionResume)
+	router.Put(routePattern(registry, billing.RouteSubscriptionPaymentMethod), h.PaymentMethod.Setup).Name(billing.RouteSubscriptionPaymentMethod)
+	router.Post(routePattern(registry, billing.RoutePendingCheckout), h.Pending.Create).Name(billing.RoutePendingCheckout)
+	router.Get(routePattern(registry, billing.RouteInvoiceDownload), h.Invoice.Download).Name(billing.RouteInvoiceDownload)
+	router.Get(routePattern(registry, billing.RoutePortal), h.Portal.Show).Name(billing.RoutePortal)
+	router.Get(routePattern(registry, billing.RoutePortalForType), h.Portal.Show).Name(billing.RoutePortalForType)
+	router.Get(routePattern(registry, billing.RoutePortalForBillable), h.Portal.Show).Name(billing.RoutePortalForBillable)
+	router.Get(routePattern(registry, billing.RouteState), h.Portal.State).Name(billing.RouteState)
+	router.Get(routePattern(registry, billing.RouteRouteGen), routegen.Handler(registry).ServeHTTP).Name(billing.RouteRouteGen)
+}
+
+func routePattern(registry *routegen.Registry, name string) string {
+	route, ok := registry.Lookup(name)
+
+	if !ok {
+		return ""
+	}
+
+	return route.Pattern
 }
