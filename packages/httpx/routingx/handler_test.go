@@ -227,6 +227,49 @@ func TestNewHandlerDispatchesHTTPHandlerFunc(t *testing.T) {
 	}
 }
 
+func TestNewHandlerDispatchesReturnedHandlerFuncValue(t *testing.T) {
+	t.Parallel()
+
+	router := routing.NewRouter(nil, nil)
+	router.Get("/fn/{id}", func() any {
+		return func(w http.ResponseWriter, r *http.Request) {
+			_, _ = w.Write([]byte("id=" + r.PathValue("id")))
+		}
+	})
+
+	rec := perform(router, http.MethodGet, "/fn/42")
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+
+	if rec.Body.String() != "id=42" {
+		t.Fatalf("body = %q, want id=42", rec.Body.String())
+	}
+}
+
+func TestNewHandlerDispatchesReturnedHTTPHandler(t *testing.T) {
+	t.Parallel()
+
+	router := routing.NewRouter(nil, nil)
+	router.Get("/handler", func() any {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("X-From-Handler", "yes")
+			_, _ = w.Write([]byte("handler"))
+		})
+	})
+
+	rec := perform(router, http.MethodGet, "/handler")
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+
+	if rec.Header().Get("X-From-Handler") != "yes" {
+		t.Fatalf("missing X-From-Handler header")
+	}
+}
+
 func perform(router *routing.Router, method, target string) *httptest.ResponseRecorder {
 	return performWithHandler(routingx.NewHandler(router), method, target)
 }

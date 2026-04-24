@@ -3,8 +3,10 @@ package handler_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/bedrock/packages/billing"
@@ -13,10 +15,12 @@ import (
 
 type paymentMethodSubStore struct {
 	sub *billing.Subscription
+	err error
 }
 
 type paymentMethodProvider struct {
 	options map[string]any
+	err     error
 }
 
 func (s paymentMethodSubStore) FindByID(context.Context, int64) (*billing.Subscription, error) {
@@ -28,7 +32,7 @@ func (s paymentMethodSubStore) FindByProviderID(context.Context, string) (*billi
 }
 
 func (s paymentMethodSubStore) CurrentForBillable(context.Context, string, int64) (*billing.Subscription, error) {
-	return s.sub, nil
+	return s.sub, s.err
 }
 
 func (s paymentMethodSubStore) ActiveForBillable(context.Context, string, int64) ([]*billing.Subscription, error) {
@@ -41,6 +45,10 @@ func (s paymentMethodSubStore) Delete(context.Context, int64) error             
 
 func (p *paymentMethodProvider) CreatePaymentMethodUpdateTransaction(_ context.Context, _ billing.Billable, _ *billing.Subscription, options map[string]any) (*billing.PaymentMethodUpdateTransaction, error) {
 	p.options = options
+
+	if p.err != nil {
+		return nil, p.err
+	}
 
 	return &billing.PaymentMethodUpdateTransaction{
 		ID:   "txn_123",
@@ -85,5 +93,127 @@ func TestPaymentMethodsHandlerReturnsProviderTransaction(t *testing.T) {
 
 	if provider.options["return_url"] != "/billing" {
 		t.Fatalf("options = %#v, want return_url", provider.options)
+	}
+}
+
+func TestPaymentMethodsHandler_Setup_ErrorPaths(t *testing.T) {
+	okResolver := func(*http.Request) (billing.Billable, error) {
+		return &stubBillable{id: 10, btype: "team"}, nil
+	}
+
+	tests := []struct {
+		name     string
+		resolver billing.ResolverFunc
+		store    paymentMethodSubStore
+		provider *paymentMethodProvider
+		wantCode int
+		wantBody string
+	}{
+		{
+			name:     "resolver error",
+			resolver: func(*http.Request) (billing.Billable, error) { return nil, errors.New("no auth") },
+			store:    paymentMethodSubStore{},
+			provider: &paymentMethodProvider{},
+			wantCode: http.StatusUnauthorized,
+			wantBody: "Unauthorized",
+		},
+		{
+			name:     "store error",
+			resolver: okResolver,
+			store:    paymentMethodSubStore{err: errors.New("db")},
+			provider: &paymentMethodProvider{},
+			wantCode: http.StatusInternalServerError,
+			wantBody: "db",
+		},
+		{
+			name:     "no subscription",
+			resolver: okResolver,
+			store:    paymentMethodSubStore{},
+			provider: &paymentMethodProvider{},
+			wantCode: http.StatusBadRequest,
+			wantBody: billing.ErrNotSubscribed.Error(),
+		},
+		{
+			name:     "provider error",
+			resolver: okResolver,
+			store:    paymentMethodSubStore{sub: &billing.Subscription{}},
+			provider: &paymentMethodProvider{err: errors.New("provider down")},
+			wantCode: http.StatusInternalServerError,
+			wantBody: "provider down",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := handler.NewPaymentMethodsHandler(tt.resolver, tt.store, tt.provider, nil)
+
+			req := httptest.NewRequest(http.MethodPut, "/billing/subscription/payment-method", nil)
+			rec := httptest.NewRecorder()
+			h.Setup(rec, req)
+
+			if rec.Code != tt.wantCode {
+				t.Fatalf("code = %d, want %d", rec.Code, tt.wantCode)
+			}
+
+			if !strings.Contains(rec.Body.String(), tt.wantBody) {
+				t.Fatalf("body = %q, want contains %q", rec.Body.String(), tt.wantBody)
+			}
+		})
+	}
+}
+
+func TestPaymentMethodsHandler_SetDefault(t *testing.T) {
+	h := handler.NewPaymentMethodsHandler(
+		func(*http.Request) (billing.Billable, error) {
+			return &stubBillable{id: 1, btype: "team"}, nil
+		},
+		paymentMethodSubStore{}, &paymentMethodProvider{}, nil,
+	)
+
+	rec := httptest.NewRecorder()
+	h.SetDefault(rec, httptest.NewRequest(http.MethodPut, "/p", nil))
+
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("SetDefault ok code = %d, want 204", rec.Code)
+	}
+
+	denied := handler.NewPaymentMethodsHandler(
+		func(*http.Request) (billing.Billable, error) { return nil, errors.New("no") },
+		paymentMethodSubStore{}, &paymentMethodProvider{}, nil,
+	)
+
+	rec = httptest.NewRecorder()
+	denied.SetDefault(rec, httptest.NewRequest(http.MethodPut, "/p", nil))
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("SetDefault denied code = %d, want 401", rec.Code)
+	}
+}
+
+func TestPaymentMethodsHandler_Delete(t *testing.T) {
+	h := handler.NewPaymentMethodsHandler(
+		func(*http.Request) (billing.Billable, error) {
+			return &stubBillable{id: 1, btype: "team"}, nil
+		},
+		paymentMethodSubStore{}, &paymentMethodProvider{}, nil,
+	)
+
+	rec := httptest.NewRecorder()
+	h.Delete(rec, httptest.NewRequest(http.MethodDelete, "/p", nil))
+
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("Delete ok code = %d, want 204", rec.Code)
+	}
+
+	denied := handler.NewPaymentMethodsHandler(
+		func(*http.Request) (billing.Billable, error) { return nil, errors.New("no") },
+		paymentMethodSubStore{}, &paymentMethodProvider{}, nil,
+	)
+
+	rec = httptest.NewRecorder()
+	denied.Delete(rec, httptest.NewRequest(http.MethodDelete, "/p", nil))
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("Delete denied code = %d, want 401", rec.Code)
 	}
 }

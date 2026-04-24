@@ -6,8 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
+	"github.com/bedrock/packages/routegen"
 )
 
 func TestRouteSetUsesCanonicalRouteGenRoutes(t *testing.T) {
@@ -59,4 +61,49 @@ func TestRouteSetServesRouteGenManifest(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), billing.RouteSubscriptionPaymentMethod) {
 		t.Fatalf("manifest does not contain payment method route: %s", rec.Body.String())
 	}
+}
+
+func TestNewRouteSet_ReturnsRouterRegistryAndHandler(t *testing.T) {
+	t.Parallel()
+
+	set := handler.NewRouteSet(&handler.Handlers{
+		Portal: &handler.PortalHandler{},
+	})
+
+	if set.Router == nil {
+		t.Fatal("Router is nil")
+	}
+
+	if set.Registry == nil {
+		t.Fatal("Registry is nil")
+	}
+
+	if set.Handler == nil {
+		t.Fatal("Handler is nil")
+	}
+
+	if _, ok := set.Registry.Lookup(billing.RoutePortal); !ok {
+		t.Fatal("registry missing RoutePortal")
+	}
+}
+
+func TestRegisterRoutes_NilRegistryFallsBackToDefault(t *testing.T) {
+	t.Parallel()
+
+	router := routing.NewRouter(nil, nil)
+
+	handler.RegisterRoutes(router, nil, &handler.Handlers{
+		Portal: &handler.PortalHandler{},
+	})
+}
+
+func TestRegisterRoutes_EmptyRegistryUsesBlankPatterns(t *testing.T) {
+	t.Parallel()
+
+	router := routing.NewRouter(nil, nil)
+	empty := routegen.New()
+
+	handler.RegisterRoutes(router, empty, &handler.Handlers{
+		Portal: &handler.PortalHandler{},
+	})
 }

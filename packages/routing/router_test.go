@@ -487,3 +487,129 @@ func TestFiltersControllerMiddleware(t *testing.T) {
 		}
 	})
 }
+
+func TestRouter_ActionReferencesController(t *testing.T) {
+	r := NewRouter(nil, nil)
+
+	if r.actionReferencesController(nil) {
+		t.Error("nil should not be a controller action")
+	}
+
+	if r.actionReferencesController(42) {
+		t.Error("int should not be a controller action")
+	}
+
+	if r.actionReferencesController(func() {}) {
+		t.Error("func should not be a controller action")
+	}
+
+	if !r.actionReferencesController("Controller@action") {
+		t.Error("string should be a controller action")
+	}
+
+	if !r.actionReferencesController(map[string]any{"uses": "X@y"}) {
+		t.Error("map with string uses should be a controller action")
+	}
+
+	if r.actionReferencesController(map[string]any{"uses": func() {}}) {
+		t.Error("map with non-string uses should not be a controller action")
+	}
+
+	if r.actionReferencesController(map[string]any{}) {
+		t.Error("map without uses should not be a controller action")
+	}
+}
+
+func TestRouter_PrependGroupNamespace_EmptyAndLeadingBackslash(t *testing.T) {
+	r := NewRouter(nil, nil)
+
+	if got := r.prependGroupNamespace("Foo"); got != "Foo" {
+		t.Errorf("no stack = %q, want Foo", got)
+	}
+
+	r.updateGroupStack(map[string]any{})
+
+	if got := r.prependGroupNamespace("Foo"); got != "Foo" {
+		t.Errorf("no namespace = %q, want Foo", got)
+	}
+
+	r.updateGroupStack(map[string]any{"namespace": "App\\Http"})
+
+	if got := r.prependGroupNamespace(`\Foo`); got != `\Foo` {
+		t.Errorf("leading backslash = %q, want \\Foo", got)
+	}
+
+	if got := r.prependGroupNamespace(`App\Http\Bar`); got != `App\Http\Bar` {
+		t.Errorf("already prefixed = %q, want App\\Http\\Bar", got)
+	}
+
+	if got := r.prependGroupNamespace("Bar"); got != `App\Http\Bar` {
+		t.Errorf("prefixed = %q", got)
+	}
+}
+
+func TestRouter_PrependGroupController_AlreadyHasAtSign(t *testing.T) {
+	r := NewRouter(nil, nil)
+
+	if got := r.prependGroupController("X@y"); got != "X@y" {
+		t.Errorf("no stack = %q", got)
+	}
+
+	r.updateGroupStack(map[string]any{})
+
+	if got := r.prependGroupController("y"); got != "y" {
+		t.Errorf("no controller = %q", got)
+	}
+
+	r.updateGroupStack(map[string]any{"controller": "UserController"})
+
+	if got := r.prependGroupController("Other@index"); got != "Other@index" {
+		t.Errorf("class with @ = %q", got)
+	}
+
+	if got := r.prependGroupController("show"); got != "UserController@show" {
+		t.Errorf("prefixed = %q", got)
+	}
+}
+
+func TestRoute_CompileRoute_NilMutexGuard(t *testing.T) {
+	route := &Route{
+		Uri:           "foo",
+		HTTPMethods:   []string{"GET"},
+		DefaultValues: map[string]any{},
+		Wheres:        map[string]string{},
+		bindingFields: map[string]string{},
+	}
+	route.CreatesRegularExpressionRouteConstraints.Bind(route)
+
+	if _, err := route.CompileRoute(); err != nil {
+		t.Fatalf("CompileRoute: %v", err)
+	}
+}
+
+func TestRoute_Compiled_SwallowsError(t *testing.T) {
+	route := NewRoute("GET", "/{1bad}", func() {})
+
+	if got := route.Compiled(); got != nil {
+		t.Error("Compiled should return nil on compile error")
+	}
+}
+
+func TestRoute_Bind_CompileError(t *testing.T) {
+	route := NewRoute("GET", "/{1bad}", func() {})
+
+	if _, err := route.Bind(fakeRequest{method: "GET", path: "/anything"}); err == nil {
+		t.Error("Bind should return error when compile fails")
+	}
+}
+
+func TestRouter_FindRoute_NotFoundError(t *testing.T) {
+	r := NewRouter(nil, nil)
+	r.Get("/known", func() {})
+
+	_, err := r.findRoute(fakeRequest{method: "GET", path: "/unknown"})
+
+	if !errors.Is(err, ErrRouteNotFound) {
+		t.Errorf("err = %v, want ErrRouteNotFound", err)
+	}
+}
