@@ -89,7 +89,13 @@ func main() {
 
 	csrfMiddleware := middleware.CSRF(csrfCfg, cryptoKey)
 
-	db, err := database.Open("beacon.db")
+	dbPath, err := resolveDatabasePath()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db, err := database.Open(dbPath)
 
 	if err != nil {
 		log.Fatal(err)
@@ -179,6 +185,33 @@ func resolveDistPath() (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to locate demo app dist directory")
+}
+
+func resolveDatabasePath() (string, error) {
+	if path := strings.TrimSpace(os.Getenv("BEDROCK_DEMO_DB")); path != "" {
+		return filepath.Clean(path), nil
+	}
+
+	candidates := []string{
+		filepath.Join("services", "storage", "demo", "beacon.db"),
+		filepath.Join("..", "..", "..", "storage", "demo", "beacon.db"),
+		filepath.Join("storage", "demo", "beacon.db"),
+	}
+
+	for _, candidate := range candidates {
+		dir := filepath.Dir(candidate)
+		parent := filepath.Dir(dir)
+
+		if info, err := os.Stat(parent); err == nil && info.IsDir() {
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				return "", err
+			}
+
+			return filepath.Clean(candidate), nil
+		}
+	}
+
+	return "", fmt.Errorf("failed to resolve demo database path")
 }
 
 func resolveResourcePath(name string) (string, error) {

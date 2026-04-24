@@ -12,10 +12,10 @@ Subscription billing, checkout, and entitlement management.
 The `billing` package provides subscription billing and entitlement management
 inspired by Upstream Billing.
 
-**Module:** `github.com/gocanto/bedrock/packages/billing`
+**Module:** `github.com/bedrock/packages/billing`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/billing@latest
+go get github.com/bedrock/packages/billing@latest
 ```
 
 ## Core Concepts

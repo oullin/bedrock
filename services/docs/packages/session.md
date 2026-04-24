@@ -12,10 +12,10 @@ Session management with multiple storage handlers.
 The `session` package provides Upstream-inspired HTTP session management with
 flash data, CSRF tokens, and swappable storage backends.
 
-**Module:** `github.com/gocanto/bedrock/packages/session`
+**Module:** `github.com/bedrock/packages/session`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/session@latest
+go get github.com/bedrock/packages/session@latest
 ```
 
 ## Session Store
