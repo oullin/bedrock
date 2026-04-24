@@ -2,6 +2,7 @@ package routing
 
 import (
 	"errors"
+	"sync"
 	"testing"
 )
 
@@ -150,14 +151,14 @@ func TestRouter_Dispatch(t *testing.T) {
 	t.Run("test_dispatch_returns_value", func(t *testing.T) {
 		r := NewRouter(nil, nil)
 		r.Get("/answer", func() any { return 42 })
-		got, err := r.Dispatch(fakeRequest{method: "GET", path: "/answer"})
+		dispatch, err := r.Dispatch(fakeRequest{method: "GET", path: "/answer"})
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if got != 42 {
-			t.Errorf("got %v, want 42", got)
+		if dispatch.Value != 42 {
+			t.Errorf("got %v, want 42", dispatch.Value)
 		}
 	})
 
@@ -208,6 +209,58 @@ func TestRouter_Dispatch(t *testing.T) {
 
 		if !r.CurrentRouteUses("UserController@show") {
 			t.Errorf("current route action = %q", r.CurrentRouteAction())
+		}
+	})
+
+	t.Run("test_dispatch_returns_request_scoped_route_instances", func(t *testing.T) {
+		r := NewRouter(nil, nil)
+		registered := r.Get("/billables/{type}/{id}", func() {})
+
+		var wg sync.WaitGroup
+		results := make(chan *DispatchResult, 2)
+
+		for _, path := range []string{"/billables/team/1", "/billables/user/2"} {
+			wg.Add(1)
+			go func(path string) {
+				defer wg.Done()
+
+				dispatch, err := r.Dispatch(fakeRequest{method: "GET", path: path})
+
+				if err != nil {
+					t.Errorf("Dispatch(%q): %v", path, err)
+
+					return
+				}
+
+				results <- dispatch
+			}(path)
+		}
+
+		wg.Wait()
+		close(results)
+
+		var dispatches []*DispatchResult
+
+		for dispatch := range results {
+			dispatches = append(dispatches, dispatch)
+		}
+
+		if len(dispatches) != 2 {
+			t.Fatalf("dispatches = %d, want 2", len(dispatches))
+		}
+
+		if dispatches[0].Route == registered || dispatches[1].Route == registered {
+			t.Fatal("dispatch returned the registered shared route instance")
+		}
+
+		if dispatches[0].Route == dispatches[1].Route {
+			t.Fatal("dispatches returned the same route instance")
+		}
+
+		dispatches[0].Route.SetParameter("id", "changed")
+
+		if dispatches[1].Route.Parameter("id", "") == "changed" {
+			t.Fatal("dispatch route parameter maps are shared")
 		}
 	})
 }

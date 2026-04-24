@@ -255,7 +255,11 @@ func assertTeamPortalState(t *testing.T, resp map[string]any) {
 		t.Fatalf("monthly plan = %#v, want map", monthlyPlans[0])
 	}
 
-	if plan["ID"] != "pri_team_monthly" {
-		t.Fatalf("monthly plan ID = %v, want pri_team_monthly", plan["ID"])
+	if plan["id"] != "pri_team_monthly" {
+		t.Fatalf("monthly plan id = %v, want pri_team_monthly", plan["id"])
+	}
+
+	if _, ok := plan["ID"]; ok {
+		t.Fatalf("monthly plan exposed raw struct ID key: %#v", plan)
 	}
 }
