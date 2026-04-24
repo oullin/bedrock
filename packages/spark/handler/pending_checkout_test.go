@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/bedrock/packages/spark"
@@ -13,9 +15,12 @@ import (
 )
 
 type pendingCheckoutCustomerStore struct {
-	customer *spark.Customer
-	created  *spark.Customer
-	saved    *spark.Customer
+	customer  *spark.Customer
+	findErr   error
+	createErr error
+	saveErr   error
+	created   *spark.Customer
+	saved     *spark.Customer
 }
 
 func (s *pendingCheckoutCustomerStore) FindByProviderID(context.Context, string) (*spark.Customer, error) {
@@ -23,10 +28,14 @@ func (s *pendingCheckoutCustomerStore) FindByProviderID(context.Context, string)
 }
 
 func (s *pendingCheckoutCustomerStore) FindByBillable(context.Context, string, int64) (*spark.Customer, error) {
-	return s.customer, nil
+	return s.customer, s.findErr
 }
 
 func (s *pendingCheckoutCustomerStore) Create(_ context.Context, customer *spark.Customer) error {
+	if s.createErr != nil {
+		return s.createErr
+	}
+
 	s.created = customer
 	s.customer = customer
 
@@ -34,6 +43,10 @@ func (s *pendingCheckoutCustomerStore) Create(_ context.Context, customer *spark
 }
 
 func (s *pendingCheckoutCustomerStore) Save(_ context.Context, customer *spark.Customer) error {
+	if s.saveErr != nil {
+		return s.saveErr
+	}
+
 	s.saved = customer
 	s.customer = customer
 
@@ -94,5 +107,85 @@ func TestPendingCheckoutHandlerUpdatesExistingCustomer(t *testing.T) {
 
 	if store.saved.PendingCheckoutID != "chk_456" {
 		t.Fatalf("pending checkout = %q, want chk_456", store.saved.PendingCheckoutID)
+	}
+}
+
+func TestPendingCheckoutHandler_ErrorPaths(t *testing.T) {
+	body := func() []byte {
+		b, _ := json.Marshal(map[string]string{"checkout_id": "chk_1"})
+
+		return b
+	}
+
+	okResolver := func(*http.Request) (spark.Billable, error) {
+		return &stubBillable{id: 10, btype: "team"}, nil
+	}
+
+	tests := []struct {
+		name     string
+		resolver spark.ResolverFunc
+		store    *pendingCheckoutCustomerStore
+		body     []byte
+		wantCode int
+		wantBody string
+	}{
+		{
+			name:     "resolver error",
+			resolver: func(*http.Request) (spark.Billable, error) { return nil, errors.New("no billable") },
+			store:    &pendingCheckoutCustomerStore{},
+			body:     body(),
+			wantCode: http.StatusBadRequest,
+			wantBody: spark.ErrBillableRequired.Error(),
+		},
+		{
+			name:     "malformed json",
+			resolver: okResolver,
+			store:    &pendingCheckoutCustomerStore{},
+			body:     []byte("{not json"),
+			wantCode: http.StatusBadRequest,
+			wantBody: "invalid request body",
+		},
+		{
+			name:     "FindByBillable error",
+			resolver: okResolver,
+			store:    &pendingCheckoutCustomerStore{findErr: errors.New("db down")},
+			body:     body(),
+			wantCode: http.StatusInternalServerError,
+			wantBody: "db down",
+		},
+		{
+			name:     "Create error",
+			resolver: okResolver,
+			store:    &pendingCheckoutCustomerStore{createErr: errors.New("create fail")},
+			body:     body(),
+			wantCode: http.StatusInternalServerError,
+			wantBody: "create fail",
+		},
+		{
+			name:     "Save error",
+			resolver: okResolver,
+			store:    &pendingCheckoutCustomerStore{customer: &spark.Customer{}, saveErr: errors.New("save fail")},
+			body:     body(),
+			wantCode: http.StatusInternalServerError,
+			wantBody: "save fail",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := handler.NewPendingCheckoutHandler(tt.store, tt.resolver)
+			req := httptest.NewRequest(http.MethodPost, "/spark/pending-checkout", bytes.NewReader(tt.body))
+			rec := httptest.NewRecorder()
+
+			h.Create(rec, req)
+
+			if rec.Code != tt.wantCode {
+				t.Fatalf("code = %d, want %d", rec.Code, tt.wantCode)
+			}
+
+			if !strings.Contains(rec.Body.String(), tt.wantBody) {
+				t.Fatalf("body = %q, want contains %q", rec.Body.String(), tt.wantBody)
+			}
+		})
 	}
 }
