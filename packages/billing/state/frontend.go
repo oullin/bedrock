@@ -4,11 +4,11 @@ package state
 import (
 	"context"
 	"math"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/routegen"
 )
 
 // FrontendState builds the data shared with the billing portal frontend.
@@ -16,6 +16,7 @@ import (
 type FrontendState struct {
 	manager       *billing.Manager
 	config        *billing.Config
+	routes        *routegen.Registry
 	subscriptions billing.SubscriptionStore
 	customers     billing.CustomerStore
 	transactions  billing.TransactionStore
@@ -24,11 +25,25 @@ type FrontendState struct {
 
 // NewFrontendState creates a FrontendState builder.
 func NewFrontendState(mgr *billing.Manager, cfg *billing.Config, subs billing.SubscriptionStore) *FrontendState {
+	if cfg == nil {
+		cfg = billing.DefaultConfig()
+	}
+
 	return &FrontendState{
 		manager:       mgr,
 		config:        cfg,
+		routes:        billing.NewRouteRegistry(),
 		subscriptions: subs,
 	}
+}
+
+// WithRoutes sets the route registry used to generate portal URLs.
+func (f *FrontendState) WithRoutes(routes *routegen.Registry) *FrontendState {
+	if routes != nil {
+		f.routes = routes
+	}
+
+	return f
 }
 
 // WithCustomerStore enables customer-backed portal state, including pending
@@ -108,14 +123,14 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 	}
 
 	data := map[string]any{
-		"appLogo":            f.config.BrandLogo,
+		"appLogo":            f.config.BrandLogo(),
 		"appName":            f.appName(),
-		"sandbox":            f.config.Sandbox,
+		"sandbox":            f.config.Sandbox(),
 		"billableId":         billable.BillableID(),
 		"billableName":       billable.BillableName(),
 		"billableType":       billableType,
 		"brandColor":         f.brandColor(),
-		"clientSideToken":    f.config.ClientSideToken,
+		"clientSideToken":    f.config.ClientSideToken(),
 		"dashboardUrl":       f.dashboardURL(),
 		"defaultInterval":    f.defaultInterval(billableType),
 		"genericTrialEndsAt": f.genericTrialEndsAt(customer),
@@ -124,17 +139,17 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 		"message":            "",
 		"monthlyPlans":       monthlyPlans,
 		"nextPayment":        nextPayment,
-		"paddleSellerId":     f.config.SellerID,
+		"paddleSellerId":     f.config.SellerID(),
 		"yearlyPlans":        yearlyPlans,
 		"plan":               activePlan,
-		"pwAuth":             f.config.RetainKey,
+		"pwAuth":             f.config.RetainKey(),
 		"pwCustomer":         providerCustomerID(customer),
 		"seatName":           f.manager.SeatName(billableType),
-		"sparkPath":          f.config.Path,
+		"sparkPath":          f.config.Path(),
 		"state":              state,
 		"subscription":       subscription,
 		"cta":                cta,
-		"termsUrl":           f.config.TermsURL,
+		"termsUrl":           f.config.TermsURL(),
 	}
 
 	return data, nil
@@ -279,32 +294,32 @@ func subscriptionIsActiveOrPastDue(sub *billing.Subscription) bool {
 }
 
 func (f *FrontendState) brandColor() string {
-	if f.config.BrandColor != "" {
-		return f.config.BrandColor
+	if f.config.BrandColor() != "" {
+		return f.config.BrandColor()
 	}
 
 	return "bg-gray-800"
 }
 
 func (f *FrontendState) appName() string {
-	if f.config.AppName != "" {
-		return f.config.AppName
+	if f.config.AppName() != "" {
+		return f.config.AppName()
 	}
 
 	return "Upstream"
 }
 
 func (f *FrontendState) dashboardURL() string {
-	if f.config.DashboardURL != "" {
-		return f.config.DashboardURL
+	if f.config.DashboardURL() != "" {
+		return f.config.DashboardURL()
 	}
 
 	return "/"
 }
 
 func (f *FrontendState) dateFormat() string {
-	if f.config.DateFormat != "" {
-		return f.config.DateFormat
+	if f.config.DateFormat() != "" {
+		return f.config.DateFormat()
 	}
 
 	return "January 2, 2006"
@@ -327,18 +342,12 @@ func providerCustomerID(customer *billing.Customer) any {
 }
 
 func (f *FrontendState) invoiceURL(billable billing.Billable, transaction billing.Transaction) string {
-	id := transaction.PaddleID
-
-	if id == "" {
-		id = transaction.InvoiceNumber
-	}
-
-	return "/billing/" + billable.BillableType() + "/" + strconv.FormatInt(billable.BillableID(), 10) + "/invoices/" + id + "/download"
+	return billing.InvoiceDownloadURL(f.routes, billable, transaction)
 }
 
 func (f *FrontendState) defaultInterval(billableType string) string {
-	if f.config.Billables != nil {
-		if cfg, ok := f.config.Billables[billableType]; ok && cfg.DefaultInterval != "" {
+	if billables := f.config.Billables(); billables != nil {
+		if cfg, ok := billables[billableType]; ok && cfg.DefaultInterval != "" {
 			return cfg.DefaultInterval
 		}
 	}
@@ -417,7 +426,7 @@ func (f *FrontendState) portalURL(sub *billing.Subscription, plan *billing.Plan)
 		return ""
 	}
 
-	path := strings.Trim(f.config.Path, "/")
+	path := strings.Trim(f.config.Path(), "/")
 
 	if path == "" {
 		return "/"

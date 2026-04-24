@@ -27,6 +27,8 @@ func NewHandler(router *routing.Router) http.Handler {
 			return
 		}
 
+		applyRouteParameters(r, router.Current())
+
 		if err := writeResult(w, r, result); err != nil {
 			writeError(w, err)
 		}
@@ -65,6 +67,14 @@ func writeResult(w http.ResponseWriter, r *http.Request, result any) error {
 	switch value := result.(type) {
 	case nil:
 		return httpx.NewResponse(w).NoContent()
+	case http.Handler:
+		value.ServeHTTP(w, r)
+
+		return nil
+	case func(http.ResponseWriter, *http.Request):
+		value(w, r)
+
+		return nil
 	case *routing.HTTPResponse:
 		return writeRoutingResponse(w, value)
 	case routing.HTTPResponse:
@@ -85,6 +95,16 @@ func writeResult(w http.ResponseWriter, r *http.Request, result any) error {
 		}
 
 		return httpx.NewResponse(w).SendString(fmt.Sprint(value))
+	}
+}
+
+func applyRouteParameters(r *http.Request, route *routing.Route) {
+	if route == nil {
+		return
+	}
+
+	for name, value := range route.ParametersWithoutNulls() {
+		r.SetPathValue(name, value)
 	}
 }
 
