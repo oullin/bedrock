@@ -1211,6 +1211,11 @@ tests_display() {
   stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
   IFS=$'\t' read -r total ported adapted missing <<< "$stats"
 
+  if [ "$total" -eq 0 ]; then
+    printf 'No upstream tests found in configured inventory; source-surface audit only'
+    return 0
+  fi
+
   printf 'Ported tests: %s / %s (%s); Missing tests: %s (%s); Adapted tests: %s (%s)' \
     "$ported" \
     "$total" \
@@ -1296,20 +1301,26 @@ report() {
       local file
       file="$COMPLIANCE_PATH/$inventory"
 
-      local rel source stats total ported adapted missing classified action
+      local rel source stats total ported adapted missing classified action display_status
       rel="${file#$COMPLIANCE_PATH/}"
       source="$(inventory_source_display "$file" "$repo" "$branch" "$tests_path")"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
       classified=$((ported + adapted))
-      action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      if [ "$total" -eq 0 ]; then
+        display_status="No upstream tests"
+        action="Keep the local source-surface audit current; executable evidence lives in Bedrock tests and divergences.yml."
+      else
+        display_status="$(compliance_status "$missing")"
+        action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      fi
       printf '| %s | Tracking file for upstream tests, not a compliant path | `%s` | %s / %s | %s | %s | %s |\n' \
         "$rel" \
         "$(markdown_cell "$source")" \
         "$classified" \
         "$total" \
         "$missing" \
-        "$(compliance_status "$missing")" \
+        "$display_status" \
         "$action"
     done
 
@@ -1473,6 +1484,17 @@ report() {
 
       printf '| `%s` | `%s` | %s | %s |\n' "$laravel" "$bedrock" "$tracking" "$reason"
     done
+
+    if compgen -G "$COMPLIANCE_PATH/source-inventories/*.md" >/dev/null; then
+      echo
+      echo "## Source Codebase Inventories"
+      echo
+
+      for source_inventory in "$COMPLIANCE_PATH"/source-inventories/*.md; do
+        sed -n '1,$p' "$source_inventory"
+        echo
+      done
+    fi
 
     echo
     echo "## Permanent Exclusions"

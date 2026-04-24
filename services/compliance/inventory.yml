@@ -487,11 +487,11 @@ packages:
     laravel: laravel/spark-paddle
     bedrock: spark
     status: mapped
-    repo: null
-    branch: null
-    tests_path: null
-    inventory: null
-    rationale: Spark product-integration parity depends on private/local laravel/spark-paddle access and is intentionally excluded from the public Laravel compliance inventory until a reproducible pinned source artifact is available.
+    repo: local:/Users/gocanto/Sites/madora/vendor/laravel/spark-paddle
+    branch: local
+    tests_path: .
+    inventory: inventories/package-spark.txt
+    rationale: Spark product-integration parity is audited from the private local Composer artifact because laravel/spark-paddle is closed source; the installed package contains no upstream test files, so executable parity evidence lives in Bedrock tests and PHP-only behavior is recorded in divergences.yml.
 
   - id: package.telescope
     laravel: laravel/telescope

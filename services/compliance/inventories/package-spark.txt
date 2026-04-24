@@ -1,0 +1,33 @@
+# Laravel compliance test inventory.
+# Source: /Users/gocanto/Sites/madora/vendor/laravel/spark-paddle/.
+# Format: <file>::<test method name>
+# Generated: 2026-04-24
+#
+# laravel/spark-paddle is private and closed source. The local Composer vendor
+# artifact is the available source baseline for this compliance pass.
+#
+# No upstream test files are shipped in this artifact. The artifact contains
+# testbench.yaml, PHP source, routes, migrations, views, and Vue/CSS/JS assets,
+# but no tests directory and no *Test.php, *.test.*, or *.spec.* files.
+#
+# Source-surface audit:
+# - config/spark.php
+# - routes/web.php
+# - src/Actions/GenerateCheckoutSession.php
+# - src/Billable.php
+# - src/BillableConfigurationBuilder.php
+# - src/Contracts/Actions/GeneratesCheckoutSessions.php
+# - src/FrontendState.php
+# - src/GuessesBillableTypes.php
+# - src/Http/Controllers/*
+# - src/Http/Middleware/*
+# - src/Listeners/SubscriptionCreatedListener.php
+# - src/Plan.php
+# - src/Spark.php
+# - src/SparkManager.php
+# - src/SparkServiceProvider.php
+# - src/ValidPlan.php
+#
+# Executable Bedrock evidence is tracked by package spark tests. PHP-only
+# Laravel integration behavior is listed under package-spark entries in
+# services/compliance/divergences.yml.

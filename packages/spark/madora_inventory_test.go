@@ -31,6 +31,11 @@ type madoraSubStore struct {
 	deleted []int64
 }
 
+type madoraCustomerStore struct {
+	customer *spark.Customer
+	saved    *spark.Customer
+}
+
 type madoraOrderStore struct{}
 
 type madoraProductStore struct{}
@@ -119,6 +124,27 @@ func (s *madoraSubStore) Delete(_ context.Context, id int64) error {
 			return nil
 		}
 	}
+
+	return nil
+}
+
+func (s *madoraCustomerStore) FindByProviderID(context.Context, string) (*spark.Customer, error) {
+	return nil, nil
+}
+
+func (s *madoraCustomerStore) FindByBillable(context.Context, string, int64) (*spark.Customer, error) {
+	return s.customer, nil
+}
+
+func (s *madoraCustomerStore) Create(_ context.Context, customer *spark.Customer) error {
+	s.customer = customer
+
+	return nil
+}
+
+func (s *madoraCustomerStore) Save(_ context.Context, customer *spark.Customer) error {
+	s.saved = customer
+	s.customer = customer
 
 	return nil
 }
@@ -357,6 +383,51 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 
 	if active == nil || active.Subscription.Status != spark.StatusPastDue {
 		t.Fatalf("accessible subscription = %#v, want past_due", active)
+	}
+}
+
+// FrontendStateTest::test_state_is_pending_when_customer_has_pending_checkout
+// FrontendStateTest::test_pending_checkout_is_cleared_when_subscription_becomes_active
+func TestMadoraFrontendStatePendingCheckout(t *testing.T) {
+	customer := &madoraCustomerStore{
+		customer: &spark.Customer{BillableType: "team", BillableID: 10, PendingCheckoutID: "chk_123"},
+	}
+	frontend := state.NewFrontendState(
+		testSparkManager(),
+		&spark.Config{Path: "billing"},
+		&madoraSubStore{},
+	).WithCustomerStore(customer)
+
+	current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
+	if err != nil {
+		t.Fatalf("frontend state: %v", err)
+	}
+
+	if current["state"] != "pending" {
+		t.Fatalf("state = %v, want pending", current["state"])
+	}
+
+	active := &spark.Subscription{BillableType: "team", BillableID: 10, Status: spark.StatusActive}
+	customer.customer.PendingCheckoutID = "chk_456"
+	frontend = state.NewFrontendState(
+		testSparkManager(),
+		&spark.Config{Path: "billing"},
+		&madoraSubStore{subs: []*spark.Subscription{active}},
+	).WithCustomerStore(customer)
+
+	current, err = frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
+	if err != nil {
+		t.Fatalf("frontend state: %v", err)
+	}
+
+	if current["state"] != "active" {
+		t.Fatalf("state = %v, want active", current["state"])
+	}
+
+	if customer.saved == nil || customer.saved.PendingCheckoutID != "" {
+		t.Fatalf("saved customer = %#v, want cleared pending checkout", customer.saved)
 	}
 }
 
