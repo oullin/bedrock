@@ -1,4 +1,4 @@
-name: Go
+name: Services
 
 on:
   workflow_call:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   vet:
-    name: Go Vet
+    name: Service Vet
     runs-on: ubuntu-latest
 
     steps:
@@ -27,15 +27,11 @@ jobs:
             services/**/go.sum
 
       - name: Vet
-        run: make go-package-vet
+        run: make go-service-vet
 
   coverage:
-    name: Go Coverage Shard ${{ matrix.shard }}
+    name: Service Coverage
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7]
 
     steps:
       - uses: actions/checkout@v6
@@ -49,62 +45,62 @@ jobs:
             services/**/go.sum
 
       - name: Test with coverage
-        run: make go-package-coverage-shard GO_COVERAGE_SHARDS=8 GO_COVERAGE_SHARD=${{ matrix.shard }}
+        run: make go-service-coverage
 
-      - name: Verify Go coverage reports
+      - name: Verify service coverage reports
         run: |
           set -euo pipefail
 
-          find storage/.cache/coverage/go -type f | sort
+          find storage/.cache/coverage/go/services -type f | sort
 
-          if ! find storage/.cache/coverage/go -type f \( \
+          if ! find storage/.cache/coverage/go/services -type f \( \
             -name 'coverage.out' -o \
             -name 'lcov.info' -o \
             -name 'coverage-summary.json' -o \
             -name '*.lcov' \
           \) | grep -q .; then
-            broadcastclient "No recognizable Go coverage reports found in storage/.cache/coverage/go" >&2
+            broadcastclient "No recognizable service coverage reports found in storage/.cache/coverage/go/services" >&2
             exit 1
           fi
 
-      - name: Upload Go coverage to Codecov (attempt 1)
+      - name: Upload service coverage to Codecov (attempt 1)
         id: codecov_1
         uses: codecov/codecov-action@v6
         continue-on-error: true
         with:
-          directory: storage/.cache/coverage/go
-          flags: go,go-shard-${{ matrix.shard }}
+          directory: storage/.cache/coverage/go/services
+          flags: services
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
           version: v11.2.8
 
-      - name: Upload Go coverage to Codecov (attempt 2)
+      - name: Upload service coverage to Codecov (attempt 2)
         if: steps.codecov_1.outcome == 'failure'
         id: codecov_2
         uses: codecov/codecov-action@v6
         continue-on-error: true
         with:
-          directory: storage/.cache/coverage/go
-          flags: go,go-shard-${{ matrix.shard }}
+          directory: storage/.cache/coverage/go/services
+          flags: services
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
           version: v11.2.8
 
-      - name: Upload Go coverage to Codecov (attempt 3)
+      - name: Upload service coverage to Codecov (attempt 3)
         if: steps.codecov_2.outcome == 'failure'
         uses: codecov/codecov-action@v6
         with:
-          directory: storage/.cache/coverage/go
-          flags: go,go-shard-${{ matrix.shard }}
+          directory: storage/.cache/coverage/go/services
+          flags: services
           slug: oullin/bedrock
           use_oidc: true
           fail_ci_if_error: true
           version: v11.2.8
 
   build:
-    name: Go Build
+    name: Service Build
     runs-on: ubuntu-latest
 
     steps:
@@ -119,4 +115,4 @@ jobs:
             services/**/go.sum
 
       - name: Build
-        run: make go-package-build
+        run: make go-service-build
