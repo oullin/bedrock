@@ -2,8 +2,8 @@ package billing
 
 // CheckoutItem represents a single price/quantity pair for checkout.
 type CheckoutItem struct {
-	PriceID  string
-	Quantity int
+	PriceID  string `json:"priceId"`
+	Quantity int    `json:"quantity"`
 }
 
 // Checkout represents a checkout session configuration.

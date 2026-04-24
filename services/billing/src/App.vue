@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   cancelSubscription,
   createSubscription,
   fetchBillingState,
+  markPendingCheckout,
   resumeSubscription,
   updatePaymentMethod,
   updateSubscription,
 } from "./api";
+import {
+  checkoutOpenOptions,
+  handlePaddleCheckoutEvent,
+  initializePaddle,
+  openPaddleCheckout,
+  type CheckoutMode,
+} from "./checkout";
 import { planPrice, statusLabel as formatStatusLabel } from "./format";
 import type { BillingPlan, BillingPortalState } from "./types";
 
@@ -44,6 +52,7 @@ const fallbackState: BillingPortalState = {
 const state = ref<BillingPortalState>(window.__SPARK_STATE__ ?? fallbackState);
 const interval = ref(state.value.defaultInterval === "yearly" ? "yearly" : "monthly");
 const busyAction = ref<string | null>(null);
+const checkoutMode = ref<CheckoutMode>(null);
 const notice = ref(state.value.message ?? "");
 const error = ref("");
 
@@ -74,6 +83,25 @@ async function run(action: string, callback: () => Promise<void>) {
   }
 }
 
+onMounted(() => {
+  initializePaddle(state.value, (event) => {
+    void handlePaddleCheckoutEvent(event, {
+      getMode: () => checkoutMode.value,
+      markPendingCheckout,
+      refresh,
+      setMode: (mode) => {
+        checkoutMode.value = mode;
+      },
+      setPendingState: () => {
+        state.value.state = "pending";
+      },
+    }).catch((err: unknown) => {
+      error.value = err instanceof Error ? err.message : "Something went wrong.";
+      checkoutMode.value = null;
+    });
+  });
+});
+
 function subscribeLabel(plan: BillingPlan) {
   if (state.value.state === "active" || state.value.state === "past_due") {
     return activePlanId.value === plan.id ? "Current" : "Switch";
@@ -99,21 +127,16 @@ async function choosePlan(plan: BillingPlan) {
     }
 
     const checkout = await createSubscription(plan.id);
-    const transaction = checkout.transaction as { id?: string } | undefined;
-
-    if (transaction?.id) {
-      await refresh("Checkout created.");
-      return;
-    }
-
-    await refresh("Subscription checkout created.");
+    checkoutMode.value = "subscription";
+    openPaddleCheckout(checkoutOpenOptions(checkout));
   });
 }
 
 async function updatePayment() {
   await run("payment-method", async () => {
     const transaction = await updatePaymentMethod();
-    await refresh(`Payment method update transaction ${transaction.transaction_id} created.`);
+    checkoutMode.value = "payment-method";
+    openPaddleCheckout(checkoutOpenOptions(transaction));
   });
 }
 
