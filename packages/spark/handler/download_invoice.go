@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/bedrock/packages/httpx"
 	"github.com/bedrock/packages/spark"
 )
 
@@ -27,13 +28,13 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		errorResponse(w, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
 
 	if !routeMatchesBillable(r, billable) {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
@@ -41,7 +42,7 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	transactionID := r.PathValue("transaction")
 
 	if transactionID == "" {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
@@ -49,13 +50,13 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	txn, err := h.transactions.FindByProviderID(r.Context(), transactionID)
 
 	if err != nil || txn == nil {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
 
 	if txn.BillableType != "" && (txn.BillableType != billable.BillableType() || txn.BillableID != billable.BillableID()) {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
@@ -63,7 +64,7 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	download, err := h.downloader.DownloadInvoice(r.Context(), txn)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
@@ -82,13 +83,18 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 		fileName = fmt.Sprintf("invoice-%s.pdf", txn.PaddleID)
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName))
-	w.WriteHeader(http.StatusOK)
+	body, err := io.ReadAll(download.Body)
 
-	if _, err := io.Copy(w, download.Body); err != nil {
+	if err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
 		return
 	}
+
+	_ = httpx.NewResponse(w).
+		Header("Content-Type", contentType).
+		Header("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName)).
+		Send(body)
 }
 
 func routeMatchesBillable(r *http.Request, billable spark.Billable) bool {

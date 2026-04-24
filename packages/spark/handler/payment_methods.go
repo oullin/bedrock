@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/bedrock/packages/spark"
@@ -36,7 +35,7 @@ func (h *PaymentMethodsHandler) Setup(w http.ResponseWriter, r *http.Request) {
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		errorResponse(w, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
@@ -44,13 +43,13 @@ func (h *PaymentMethodsHandler) Setup(w http.ResponseWriter, r *http.Request) {
 	subscription, err := h.subscriptions.CurrentForBillable(r.Context(), billable.BillableType(), billable.BillableID())
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
 	if subscription == nil {
-		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, spark.ErrNotSubscribed.Error())
 
 		return
 	}
@@ -66,13 +65,12 @@ func (h *PaymentMethodsHandler) Setup(w http.ResponseWriter, r *http.Request) {
 	transaction, err := h.provider.CreatePaymentMethodUpdateTransaction(r.Context(), billable, subscription, options)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
+	jsonResponse(w, http.StatusOK, map[string]any{
 		"transaction_id": transaction.ID,
 		"transaction":    transaction.Data,
 	})
@@ -83,12 +81,12 @@ func (h *PaymentMethodsHandler) SetDefault(w http.ResponseWriter, r *http.Reques
 	_, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		errorResponse(w, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
 
 // Delete removes a payment method.
@@ -96,10 +94,10 @@ func (h *PaymentMethodsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	_, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		errorResponse(w, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }

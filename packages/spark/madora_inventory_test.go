@@ -255,14 +255,14 @@ func testSparkManager() *spark.Manager {
 // BillingLifecycleTest::test_plan_seeder_persists_plans_and_features
 func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 	mgr := testSparkManager()
-	cfg := spark.Config{
-		Path:         "billing",
-		DashboardURL: "/agreement",
-		BrandColor:   "bg-gray-800",
-		Billables: map[string]spark.BillableConfig{
+	cfg := spark.NewConfigFromValues(map[string]any{
+		"spark.path":          "billing",
+		"spark.dashboard_url": "/agreement",
+		"spark.brand_color":   "bg-gray-800",
+		"spark.billables": map[string]spark.BillableConfig{
 			"team": {DefaultInterval: "monthly"},
 		},
-	}
+	})
 	billable := madoraBillable{id: 10, typ: "team", name: "Acme", seats: 4}
 	subscriptions := &madoraSubStore{subs: []*spark.Subscription{{
 		ID:           99,
@@ -276,7 +276,7 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 		}},
 	}}}
 
-	frontend := state.NewFrontendState(mgr, &cfg, subscriptions)
+	frontend := state.NewFrontendState(mgr, cfg, subscriptions)
 	current, err := frontend.Current(context.Background(), "team", billable)
 
 	if err != nil {
@@ -357,7 +357,7 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 				subs = append(subs, tt.sub)
 			}
 
-			frontend := state.NewFrontendState(testSparkManager(), &spark.Config{Path: "billing"}, &madoraSubStore{subs: subs})
+			frontend := state.NewFrontendState(testSparkManager(), spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}), &madoraSubStore{subs: subs})
 			current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
 
 			if err != nil {
@@ -394,7 +394,7 @@ func TestMadoraFrontendStatePendingCheckout(t *testing.T) {
 	}
 	frontend := state.NewFrontendState(
 		testSparkManager(),
-		&spark.Config{Path: "billing"},
+		spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}),
 		&madoraSubStore{},
 	).WithCustomerStore(customer)
 
@@ -412,7 +412,7 @@ func TestMadoraFrontendStatePendingCheckout(t *testing.T) {
 	customer.customer.PendingCheckoutID = "chk_456"
 	frontend = state.NewFrontendState(
 		testSparkManager(),
-		&spark.Config{Path: "billing"},
+		spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}),
 		&madoraSubStore{subs: []*spark.Subscription{active}},
 	).WithCustomerStore(customer)
 
@@ -536,7 +536,10 @@ func TestMadoraBillingStatePortalAndCTA(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			frontend := state.NewFrontendState(
 				testSparkManager(),
-				&spark.Config{Path: "billing", Billables: map[string]spark.BillableConfig{"team": {DefaultInterval: "monthly"}}},
+				spark.NewConfigFromValues(map[string]any{
+					"spark.path":      "billing",
+					"spark.billables": map[string]spark.BillableConfig{"team": {DefaultInterval: "monthly"}},
+				}),
 				&madoraSubStore{subs: []*spark.Subscription{tt.sub}},
 			)
 			current, err := frontend.CurrentAt(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"}, now)

@@ -20,7 +20,10 @@ func newPortalHandler(allow bool, subs []*spark.Subscription) *handler.PortalHan
 
 	frontend := state.NewFrontendState(
 		mgr,
-		&spark.Config{Path: "billing", DashboardURL: "/agreement"},
+		spark.NewConfigFromValues(map[string]any{
+			"spark.path":          "billing",
+			"spark.dashboard_url": "/agreement",
+		}),
 		&testSubStore{subs: subs},
 	)
 

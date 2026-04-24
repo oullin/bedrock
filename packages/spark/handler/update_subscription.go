@@ -32,7 +32,7 @@ func (h *UpdateSubscriptionHandler) Update(w http.ResponseWriter, r *http.Reques
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, spark.ErrBillableRequired.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, spark.ErrBillableRequired.Error())
 
 		return
 	}
@@ -42,7 +42,7 @@ func (h *UpdateSubscriptionHandler) Update(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, "invalid request body")
 
 		return
 	}
@@ -50,7 +50,7 @@ func (h *UpdateSubscriptionHandler) Update(w http.ResponseWriter, r *http.Reques
 	sub, err := h.subscriptions.CurrentForBillable(r.Context(), billable.BillableType(), billable.BillableID())
 
 	if err != nil || sub == nil {
-		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, spark.ErrNotSubscribed.Error())
 
 		return
 	}
@@ -68,22 +68,16 @@ func (h *UpdateSubscriptionHandler) Update(w http.ResponseWriter, r *http.Reques
 	}
 
 	if plan == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(map[string]any{
-			"errors": map[string][]string{
-				"plan": {"The selected plan is invalid."},
-			},
-		})
+		validationErrors(w, map[string][]string{"plan": {"The selected plan is invalid."}})
 
 		return
 	}
 
 	if err := h.updater.Execute(r.Context(), sub, plan); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }

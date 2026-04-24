@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/handler"
 )
@@ -51,29 +53,30 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 	}
 
 	invoices := handler.NewDownloadInvoiceHandler(store, resolver, invoiceDownloader{})
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /agreement/invoices/{transaction}/download", invoices.Download)
+	router := routing.NewRouter(nil, nil)
+	router.Get("/spark/{type}/{id}/invoices/{transaction}/download", invoices.Download).Name(spark.RouteInvoiceDownload)
+	dispatcher := routingx.NewHandler(router)
 
-	req := httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_current/download", nil)
+	req := httptest.NewRequest(http.MethodGet, "/spark/team/10/invoices/txn_current/download", nil)
 	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("current team invoice status = %d, want 200", rec.Code)
 	}
 
-	req = httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_foreign/download", nil)
+	req = httptest.NewRequest(http.MethodGet, "/spark/team/10/invoices/txn_foreign/download", nil)
 	rec = httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("foreign invoice status = %d, want 404", rec.Code)
 	}
 
-	req = httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_foreign/download", nil)
+	req = httptest.NewRequest(http.MethodGet, "/spark/team/20/invoices/txn_foreign/download", nil)
 	req.Header.Set("X-Team-ID", "20")
 	rec = httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("tampered team header status = %d, want 404", rec.Code)

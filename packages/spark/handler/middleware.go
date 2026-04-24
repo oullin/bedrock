@@ -4,13 +4,14 @@ package handler
 import (
 	"net/http"
 
+	"github.com/bedrock/packages/httpx"
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/service"
 )
 
 // VerifyBillableIsSubscribed is middleware that checks whether the
 // resolved billable has a valid subscription. If not, it redirects
-// HTML requests to the billing gateway or returns 402 for JSON/XHR.
+// HTML requests to the billing portal or returns 402 for JSON/XHR.
 // Mirrors Spark\Http\Middleware\VerifyBillableIsSubscribed and
 // app/Http/Middleware/EnsureTeamSubscribed.
 func VerifyBillableIsSubscribed(
@@ -46,12 +47,10 @@ func VerifyBillableIsSubscribed(
 func redirectToBilling(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Accept") == "application/json" ||
 		r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusPaymentRequired)
-		w.Write([]byte(`{"message":"Payment required"}`))
+		jsonResponse(w, http.StatusPaymentRequired, map[string]string{"message": "Payment required"})
 
 		return
 	}
 
-	http.Redirect(w, r, "/billing/choose-provider", http.StatusFound)
+	_ = httpx.NewRedirectResponse(w, r, spark.NewRouteRegistry().URL(spark.RoutePortal, nil), http.StatusFound).Send()
 }

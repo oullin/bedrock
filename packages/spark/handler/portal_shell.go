@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"html/template"
 	"net/http"
+
+	"github.com/bedrock/packages/httpx"
+	"github.com/bedrock/packages/spark"
+	"github.com/bedrock/packages/wayfinder"
 )
 
 //go:embed templates/portal.html
@@ -14,25 +19,48 @@ type portalShellData struct {
 	Title        string
 	StatePath    string
 	AssetBaseURL string
+	Routes       template.JS
 	InitialState template.JS
 }
 
 var portalTemplate = template.Must(template.ParseFS(portalTemplates, "templates/portal.html"))
 
-func renderPortalShell(w http.ResponseWriter, r *http.Request, title string, state map[string]any) {
+func renderPortalShell(w http.ResponseWriter, r *http.Request, routes *wayfinder.Registry, title string, state map[string]any) {
 	payload, err := json.Marshal(state)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	portalTemplate.Execute(w, portalShellData{
+	if routes == nil {
+		routes = spark.NewRouteRegistry()
+	}
+
+	manifest, err := json.Marshal(routes.Export())
+
+	if err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	var body bytes.Buffer
+
+	if err := portalTemplate.Execute(&body, portalShellData{
 		Title:        title,
-		StatePath:    "/spark/state",
+		StatePath:    routes.URL(spark.RouteState, nil),
 		AssetBaseURL: "/spark/assets/",
+		Routes:       template.JS(manifest),
 		InitialState: template.JS(payload),
-	})
+	}); err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	_ = httpx.NewResponse(w).
+		Header("Content-Type", "text/html; charset=utf-8").
+		Send(body.Bytes())
 }
