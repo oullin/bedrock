@@ -8,10 +8,15 @@ type Config struct {
 	Prorates          bool                      // enable subscription proration
 	ProrationBehavior string                    // explicit proration behavior override
 	DateFormat        string                    // Go reference time layout
+	AppName           string                    // application name shown in the billing portal
 	DashboardURL      string                    // URL of the main dashboard
 	TermsURL          string                    // URL of terms of service
 	BrandLogo         string                    // path or inline SVG for brand logo
 	BrandColor        string                    // CSS class or hex colour for brand
+	Sandbox           bool                      // provider sandbox mode
+	ClientSideToken   string                    // Paddle client-side token
+	SellerID          int                       // Paddle seller ID
+	RetainKey         string                    // Paddle retain key
 	Billables         map[string]BillableConfig // keyed by billable type name
 	FeatureFlags      map[string]FeatureConfig  // keyed by feature name
 }
@@ -42,6 +47,7 @@ func DefaultConfig() Config {
 		Path:       "billing",
 		Prorates:   true,
 		DateFormat: "January 2, 2006",
+		AppName:    "Upstream",
 		BrandColor: "bg-gray-800",
 	}
 }
