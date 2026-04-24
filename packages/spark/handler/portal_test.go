@@ -48,6 +48,19 @@ func TestPortalHandler_Show_BillingAccessAndState(t *testing.T) {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
 
+	if got := rec.Header().Get("Content-Type"); got != "text/html; charset=utf-8" {
+		t.Fatalf("content type = %q, want html", got)
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/spark/state", nil)
+	req.Header.Set("X-Portal-Allow", "1")
+	rec = httptest.NewRecorder()
+	handler.State(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("state status = %d, want 200", rec.Code)
+	}
+
 	var resp map[string]any
 
 	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {

@@ -10,17 +10,30 @@ import (
 // PaymentMethodsHandler handles payment method operations.
 // Mirrors Spark\Http\Controllers\PaymentMethodsController.
 type PaymentMethodsHandler struct {
-	resolver spark.ResolverFunc
+	resolver      spark.ResolverFunc
+	subscriptions spark.SubscriptionStore
+	provider      spark.PaymentMethodUpdater
+	manager       *spark.Manager
 }
 
 // NewPaymentMethodsHandler creates a PaymentMethodsHandler.
-func NewPaymentMethodsHandler(resolver spark.ResolverFunc) *PaymentMethodsHandler {
-	return &PaymentMethodsHandler{resolver: resolver}
+func NewPaymentMethodsHandler(
+	resolver spark.ResolverFunc,
+	subscriptions spark.SubscriptionStore,
+	provider spark.PaymentMethodUpdater,
+	manager *spark.Manager,
+) *PaymentMethodsHandler {
+	return &PaymentMethodsHandler{
+		resolver:      resolver,
+		subscriptions: subscriptions,
+		provider:      provider,
+		manager:       manager,
+	}
 }
 
-// Setup creates a checkout session for adding a payment method.
+// Setup creates a provider transaction for updating the current payment method.
 func (h *PaymentMethodsHandler) Setup(w http.ResponseWriter, r *http.Request) {
-	_, err := h.resolver(r)
+	billable, err := h.resolver(r)
 
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -28,9 +41,41 @@ func (h *PaymentMethodsHandler) Setup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Provider-specific setup would go here.
+	subscription, err := h.subscriptions.CurrentForBillable(r.Context(), billable.BillableType(), billable.BillableID())
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	if subscription == nil {
+		http.Error(w, spark.ErrNotSubscribed.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	options := map[string]any{}
+
+	if h.manager != nil {
+		if callback := h.manager.PaymentMethodSessionOptions(billable.BillableType()); callback != nil {
+			options = callback(billable)
+		}
+	}
+
+	transaction, err := h.provider.CreatePaymentMethodUpdateTransaction(r.Context(), billable, subscription, options)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	json.NewEncoder(w).Encode(map[string]any{
+		"transaction_id": transaction.ID,
+		"transaction":    transaction.Data,
+	})
 }
 
 // SetDefault sets the default payment method.

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -12,11 +14,12 @@ import (
 type DownloadInvoiceHandler struct {
 	transactions spark.TransactionStore
 	resolver     spark.ResolverFunc
+	downloader   spark.InvoiceDownloader
 }
 
 // NewDownloadInvoiceHandler creates a DownloadInvoiceHandler.
-func NewDownloadInvoiceHandler(txns spark.TransactionStore, resolver spark.ResolverFunc) *DownloadInvoiceHandler {
-	return &DownloadInvoiceHandler{transactions: txns, resolver: resolver}
+func NewDownloadInvoiceHandler(txns spark.TransactionStore, resolver spark.ResolverFunc, downloader spark.InvoiceDownloader) *DownloadInvoiceHandler {
+	return &DownloadInvoiceHandler{transactions: txns, resolver: resolver, downloader: downloader}
 }
 
 // Download serves an invoice PDF for the given transaction.
@@ -57,10 +60,35 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// In a full implementation, this would fetch the PDF from the
-	// provider and stream it. For now, return the transaction data.
-	w.Header().Set("Content-Type", "application/json")
+	download, err := h.downloader.DownloadInvoice(r.Context(), txn)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	defer download.Body.Close()
+
+	contentType := download.ContentType
+
+	if contentType == "" {
+		contentType = "application/pdf"
+	}
+
+	fileName := download.FileName
+
+	if fileName == "" {
+		fileName = fmt.Sprintf("invoice-%s.pdf", txn.PaddleID)
+	}
+
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName))
 	w.WriteHeader(http.StatusOK)
+
+	if _, err := io.Copy(w, download.Body); err != nil {
+		return
+	}
 }
 
 func routeMatchesBillable(r *http.Request, billable spark.Billable) bool {

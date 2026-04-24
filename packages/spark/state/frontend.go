@@ -4,6 +4,7 @@ package state
 import (
 	"context"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,8 @@ type FrontendState struct {
 	config        *spark.Config
 	subscriptions spark.SubscriptionStore
 	customers     spark.CustomerStore
+	transactions  spark.TransactionStore
+	payments      spark.PaymentReporter
 }
 
 // NewFrontendState creates a FrontendState builder.
@@ -32,6 +35,20 @@ func NewFrontendState(mgr *spark.Manager, cfg *spark.Config, subs spark.Subscrip
 // checkout detection.
 func (f *FrontendState) WithCustomerStore(customers spark.CustomerStore) *FrontendState {
 	f.customers = customers
+
+	return f
+}
+
+// WithTransactionStore enables invoice list state.
+func (f *FrontendState) WithTransactionStore(transactions spark.TransactionStore) *FrontendState {
+	f.transactions = transactions
+
+	return f
+}
+
+// WithPaymentReporter enables last and next payment state.
+func (f *FrontendState) WithPaymentReporter(payments spark.PaymentReporter) *FrontendState {
+	f.payments = payments
 
 	return f
 }
@@ -78,23 +95,46 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 
 	subscription := f.subscriptionState(sub, activePlan)
 	cta := f.ctaState(sub, activePlan, now)
+	invoices, err := f.invoicesForBillable(ctx, billable)
+
+	if err != nil {
+		return nil, err
+	}
+
+	lastPayment, nextPayment, err := f.paymentState(ctx, sub)
+
+	if err != nil {
+		return nil, err
+	}
 
 	data := map[string]any{
-		"billableId":      billable.BillableID(),
-		"billableName":    billable.BillableName(),
-		"billableType":    billableType,
-		"brandColor":      f.brandColor(),
-		"dashboardUrl":    f.dashboardURL(),
-		"defaultInterval": f.defaultInterval(billableType),
-		"monthlyPlans":    monthlyPlans,
-		"yearlyPlans":     yearlyPlans,
-		"plan":            activePlan,
-		"seatName":        f.manager.SeatName(billableType),
-		"sparkPath":       f.config.Path,
-		"state":           state,
-		"subscription":    subscription,
-		"cta":             cta,
-		"termsUrl":        f.config.TermsURL,
+		"appLogo":            f.config.BrandLogo,
+		"appName":            f.appName(),
+		"sandbox":            f.config.Sandbox,
+		"billableId":         billable.BillableID(),
+		"billableName":       billable.BillableName(),
+		"billableType":       billableType,
+		"brandColor":         f.brandColor(),
+		"clientSideToken":    f.config.ClientSideToken,
+		"dashboardUrl":       f.dashboardURL(),
+		"defaultInterval":    f.defaultInterval(billableType),
+		"genericTrialEndsAt": f.genericTrialEndsAt(customer),
+		"invoices":           invoices,
+		"lastPayment":        lastPayment,
+		"message":            "",
+		"monthlyPlans":       monthlyPlans,
+		"nextPayment":        nextPayment,
+		"paddleSellerId":     f.config.SellerID,
+		"yearlyPlans":        yearlyPlans,
+		"plan":               activePlan,
+		"pwAuth":             f.config.RetainKey,
+		"pwCustomer":         providerCustomerID(customer),
+		"seatName":           f.manager.SeatName(billableType),
+		"sparkPath":          f.config.Path,
+		"state":              state,
+		"subscription":       subscription,
+		"cta":                cta,
+		"termsUrl":           f.config.TermsURL,
 	}
 
 	return data, nil
@@ -106,6 +146,72 @@ func (f *FrontendState) customerForBillable(ctx context.Context, billable spark.
 	}
 
 	return f.customers.FindByBillable(ctx, billable.BillableType(), billable.BillableID())
+}
+
+func (f *FrontendState) invoicesForBillable(ctx context.Context, billable spark.Billable) ([]map[string]any, error) {
+	if f.transactions == nil {
+		return []map[string]any{}, nil
+	}
+
+	transactions, err := f.transactions.FindByBillable(ctx, billable.BillableType(), billable.BillableID(), 10)
+
+	if err != nil {
+		return nil, err
+	}
+
+	invoices := make([]map[string]any, 0, len(transactions))
+
+	for _, transaction := range transactions {
+		if transaction.Total <= 0 {
+			continue
+		}
+
+		invoice := map[string]any{
+			"id":          transaction.PaddleID,
+			"total":       transaction.TotalFormatted(),
+			"invoice_url": f.invoiceURL(billable, transaction),
+		}
+
+		if transaction.BilledAt != nil {
+			invoice["billed_at"] = transaction.BilledAt.Format(f.dateFormat())
+		}
+
+		invoices = append(invoices, invoice)
+	}
+
+	return invoices, nil
+}
+
+func (f *FrontendState) paymentState(ctx context.Context, sub *spark.Subscription) (map[string]any, map[string]any, error) {
+	if f.payments == nil || !subscriptionIsActiveOrPastDue(sub) {
+		return nil, nil, nil
+	}
+
+	last, err := f.payments.LastPayment(ctx, sub)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	next, err := f.payments.NextPayment(ctx, sub)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return paymentToMap(last, f.dateFormat()), paymentToMap(next, f.dateFormat()), nil
+}
+
+func paymentToMap(payment *spark.Payment, dateFormat string) map[string]any {
+	if payment == nil {
+		return nil
+	}
+
+	return map[string]any{
+		"amount":   payment.FormattedAmount(),
+		"currency": payment.Currency,
+		"date":     payment.Date.Format(dateFormat),
+	}
 }
 
 func planForSubscription(plans []*spark.Plan, sub *spark.Subscription) *spark.Plan {
@@ -180,12 +286,54 @@ func (f *FrontendState) brandColor() string {
 	return "bg-gray-800"
 }
 
+func (f *FrontendState) appName() string {
+	if f.config.AppName != "" {
+		return f.config.AppName
+	}
+
+	return "Laravel"
+}
+
 func (f *FrontendState) dashboardURL() string {
 	if f.config.DashboardURL != "" {
 		return f.config.DashboardURL
 	}
 
 	return "/"
+}
+
+func (f *FrontendState) dateFormat() string {
+	if f.config.DateFormat != "" {
+		return f.config.DateFormat
+	}
+
+	return "January 2, 2006"
+}
+
+func (f *FrontendState) genericTrialEndsAt(customer *spark.Customer) any {
+	if customer == nil || !customer.OnGenericTrial() || customer.TrialEndsAt == nil {
+		return nil
+	}
+
+	return customer.TrialEndsAt.Format(f.dateFormat())
+}
+
+func providerCustomerID(customer *spark.Customer) any {
+	if customer == nil || customer.PaddleID == "" {
+		return nil
+	}
+
+	return customer.PaddleID
+}
+
+func (f *FrontendState) invoiceURL(billable spark.Billable, transaction spark.Transaction) string {
+	id := transaction.PaddleID
+
+	if id == "" {
+		id = transaction.InvoiceNumber
+	}
+
+	return "/spark/" + billable.BillableType() + "/" + strconv.FormatInt(billable.BillableID(), 10) + "/invoices/" + id + "/download"
 }
 
 func (f *FrontendState) defaultInterval(billableType string) string {

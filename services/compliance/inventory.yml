@@ -491,7 +491,7 @@ packages:
     branch: local
     tests_path: .
     inventory: inventories/package-spark.txt
-    rationale: Spark product-integration parity is audited from the private local Composer artifact because laravel/spark-paddle is closed source; the installed package contains no upstream test files, so executable parity evidence lives in Bedrock tests and PHP-only behavior is recorded in divergences.yml.
+    rationale: Spark product-integration parity is audited from the private local Composer artifact because laravel/spark-paddle is closed source; the installed package contains no upstream test files, so executable parity evidence lives in Bedrock tests, services/spark frontend tests, and the hard-cut source inventory.
 
   - id: package.telescope
     laravel: laravel/telescope

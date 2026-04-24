@@ -2,8 +2,10 @@ package handler_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/bedrock/packages/spark"
@@ -13,6 +15,8 @@ import (
 type invoiceTransactionStore struct {
 	transactions map[string]*spark.Transaction
 }
+
+type invoiceDownloader struct{}
 
 func (s invoiceTransactionStore) FindByProviderID(_ context.Context, providerID string) (*spark.Transaction, error) {
 	return s.transactions[providerID], nil
@@ -24,6 +28,14 @@ func (s invoiceTransactionStore) FindByBillable(context.Context, string, int64, 
 
 func (s invoiceTransactionStore) Create(context.Context, *spark.Transaction) error { return nil }
 func (s invoiceTransactionStore) Save(context.Context, *spark.Transaction) error   { return nil }
+
+func (invoiceDownloader) DownloadInvoice(context.Context, *spark.Transaction) (*spark.InvoiceDownload, error) {
+	return &spark.InvoiceDownload{
+		FileName:    "invoice.pdf",
+		ContentType: "application/pdf",
+		Body:        io.NopCloser(strings.NewReader("%PDF")),
+	}, nil
+}
 
 // AgreementControllerTest::test_invoice_download_route_exists
 // AgreementControllerTest::test_invoice_download_is_scoped_to_the_current_team
@@ -38,7 +50,7 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 		return billable, nil
 	}
 
-	invoices := handler.NewDownloadInvoiceHandler(store, resolver)
+	invoices := handler.NewDownloadInvoiceHandler(store, resolver, invoiceDownloader{})
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /agreement/invoices/{transaction}/download", invoices.Download)
 

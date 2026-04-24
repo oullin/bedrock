@@ -87,9 +87,13 @@
       "url": "https://github.com/laravel/socialite/tree/5.x"
     },
     {
+      "id": "package.spark",
       "repo": "local:/Users/gocanto/Sites/madora/vendor/laravel/spark-paddle",
       "branch": "local",
       "commit": "9609a65d6c26e35177417339017c1cb17b2dfa95",
+      "source_type": "private-local-package",
+      "file_count": 61,
+      "content_sha256": "e56c134e10c4e2808b069e5e97acef0b991342041890bb60a7f4e1ae8a0589b2",
       "url": "/Users/gocanto/Sites/madora/vendor/laravel/spark-paddle"
     },
     {
