@@ -8,10 +8,10 @@ The `conditionable` package provides generic `When` and `Unless` functions for
 conditional branching without breaking a fluent call chain. It mirrors
 `Framework\Support\Traits\Conditionable`.
 
-**Module:** `github.com/gocanto/bedrock/packages/conditionable`
+**Module:** `github.com/bedrock/packages/conditionable`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/conditionable@latest
+go get github.com/bedrock/packages/conditionable@latest
 ```
 
 ## When

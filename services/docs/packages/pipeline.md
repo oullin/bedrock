@@ -9,10 +9,10 @@ through an ordered sequence of stages (pipes). Each pipe can transform the
 payload or short-circuit the chain. A `Hub` stores named pipeline configurations
 for reuse.
 
-**Module:** `github.com/gocanto/bedrock/packages/pipeline`
+**Module:** `github.com/bedrock/packages/pipeline`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/pipeline@latest
+go get github.com/bedrock/packages/pipeline@latest
 ```
 
 ## Pipeline
