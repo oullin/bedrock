@@ -12,10 +12,10 @@ Caching layer with multiple driver support.
 The `cache` package provides a two-level caching abstraction inspired by
 Upstream's cache system.
 
-**Module:** `github.com/gocanto/bedrock/packages/cache`
+**Module:** `github.com/bedrock/packages/cache`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/cache@latest
+go get github.com/bedrock/packages/cache@latest
 ```
 
 ## Abstraction Levels

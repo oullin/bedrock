@@ -398,7 +398,11 @@ func TestRouteCollection_Match(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if got != concrete {
+		if got == concrete {
+			t.Error("match should return a request-scoped route instance")
+		}
+
+		if got.Uri != concrete.Uri {
 			t.Error("concrete route should win over fallback")
 		}
 
@@ -408,7 +412,11 @@ func TestRouteCollection_Match(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if got != fallback {
+		if got == fallback {
+			t.Error("match should return a request-scoped fallback instance")
+		}
+
+		if got.Uri != fallback.Uri {
 			t.Error("fallback should match unhandled paths")
 		}
 	})
@@ -432,8 +440,16 @@ func TestCompiledRouteCollection(t *testing.T) {
 
 		got, err := c.Match(fakeRequest{method: "GET", path: "/users"})
 
-		if err != nil || got != routes[0] {
+		if err != nil {
 			t.Errorf("match failed: %v %v", got, err)
+		}
+
+		if got == routes[0] {
+			t.Error("match should return a request-scoped route instance")
+		}
+
+		if got.Uri != routes[0].Uri {
+			t.Errorf("matched URI = %q, want %q", got.Uri, routes[0].Uri)
 		}
 	})
 

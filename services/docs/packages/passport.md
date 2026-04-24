@@ -20,16 +20,40 @@ access, device code, and refresh token grant types.
 go get github.com/bedrock/packages/oauthserver@latest
 ```
 
-## Supported Grant Types
+## Grants
 
-| Grant              | Description                                     |
-| ------------------ | ----------------------------------------------- |
-| Authorization Code | Standard redirect-based OAuth 2 flow            |
-| Client Credentials | Machine-to-machine token issuance               |
-| Personal Access    | Long-lived tokens for API access                |
-| Device Code        | OAuth 2 device authorization flow               |
-| Refresh Token      | Exchange a refresh token for a new access token |
+| Grant              | Description                                                          |
+| ------------------ | -------------------------------------------------------------------- |
+| Authorization Code | Redirect-based OAuth 2 flow for first-party and third-party clients. |
+| Client Credentials | Machine-to-machine token issuance for service clients.               |
+| Personal Access    | Long-lived API tokens issued directly for an authenticated account.  |
+| Device Code        | Device authorization flow for limited-input devices.                 |
+| Refresh Token      | Exchange a refresh token for a new access token.                     |
 
-## Coming Soon
+## Clients
 
-Full documentation is in progress.
+Register clients through the package store and pass the resulting client ID and
+secret into the grant handler that matches the workflow. Public clients should
+use PKCE with the authorization-code flow. Confidential clients can use client
+credentials when the caller is another trusted service.
+
+## Tokens
+
+Access tokens are signed JWTs. Configure the signing key set, issuer, audience,
+expiry, and refresh-token policy in application code, then persist issued tokens
+through the package repository interfaces. Revocation is explicit: revoke a token
+or client record, then enforce that state during introspection and guarded route
+checks.
+
+## Scopes
+
+Scopes are represented as string abilities attached to the token. Route guards
+should require the exact scopes needed for the endpoint and reject tokens whose
+scope set is missing one of those abilities.
+
+## Maintenance
+
+Expired and revoked token records should be purged from storage on a schedule.
+Upstream's CLI purge flags are represented as caller-owned cleanup options in
+Go so applications can wire the command into their scheduler or background job
+system.

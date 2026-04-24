@@ -25,7 +25,7 @@ func newMiddleware(resolver billing.ResolverFunc, subs []*billing.Subscription) 
 	return handler.VerifyBillableIsSubscribed(mgr, billing)
 }
 
-// EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_gateway
+// EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_portal
 func TestVerifyBillableIsSubscribed_Unsubscribed_Redirects(t *testing.T) {
 	billable := &stubBillable{id: 1, btype: "team"}
 	resolver := func(r *http.Request) (billing.Billable, error) {
@@ -48,8 +48,8 @@ func TestVerifyBillableIsSubscribed_Unsubscribed_Redirects(t *testing.T) {
 
 	location := rec.Header().Get("Location")
 
-	if location != "/billing/choose-provider" {
-		t.Errorf("Location = %q, want /billing/choose-provider", location)
+	if location != "/billing" {
+		t.Errorf("Location = %q, want /billing", location)
 	}
 }
 

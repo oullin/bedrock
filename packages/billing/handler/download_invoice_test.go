@@ -2,19 +2,34 @@ package handler_test
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
 )
 
 type invoiceTransactionStore struct {
 	transactions map[string]*billing.Transaction
+	err          error
+}
+
+type invoiceDownloader struct {
+	download *billing.InvoiceDownload
+	err      error
 }
 
 func (s invoiceTransactionStore) FindByProviderID(_ context.Context, providerID string) (*billing.Transaction, error) {
+	if s.err != nil {
+		return nil, s.err
+	}
+
 	return s.transactions[providerID], nil
 }
 
@@ -24,6 +39,22 @@ func (s invoiceTransactionStore) FindByBillable(context.Context, string, int64, 
 
 func (s invoiceTransactionStore) Create(context.Context, *billing.Transaction) error { return nil }
 func (s invoiceTransactionStore) Save(context.Context, *billing.Transaction) error   { return nil }
+
+func (d invoiceDownloader) DownloadInvoice(context.Context, *billing.Transaction) (*billing.InvoiceDownload, error) {
+	if d.err != nil {
+		return nil, d.err
+	}
+
+	if d.download != nil {
+		return d.download, nil
+	}
+
+	return &billing.InvoiceDownload{
+		FileName:    "invoice.pdf",
+		ContentType: "application/pdf",
+		Body:        io.NopCloser(strings.NewReader("%PDF")),
+	}, nil
+}
 
 // AgreementControllerTest::test_invoice_download_route_exists
 // AgreementControllerTest::test_invoice_download_is_scoped_to_the_current_team
@@ -38,32 +69,134 @@ func TestDownloadInvoiceHandlerScopesInvoicesToResolvedBillable(t *testing.T) {
 		return billable, nil
 	}
 
-	invoices := handler.NewDownloadInvoiceHandler(store, resolver)
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /agreement/invoices/{transaction}/download", invoices.Download)
+	invoices := handler.NewDownloadInvoiceHandler(store, resolver, invoiceDownloader{})
+	router := routing.NewRouter(nil, nil)
+	router.Get("/billing/{type}/{id}/invoices/{transaction}/download", invoices.Download).Name(billing.RouteInvoiceDownload)
+	dispatcher := routingx.NewHandler(router)
 
-	req := httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_current/download", nil)
+	req := httptest.NewRequest(http.MethodGet, "/billing/team/10/invoices/txn_current/download", nil)
 	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("current team invoice status = %d, want 200", rec.Code)
 	}
 
-	req = httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_foreign/download", nil)
+	req = httptest.NewRequest(http.MethodGet, "/billing/team/10/invoices/txn_foreign/download", nil)
 	rec = httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("foreign invoice status = %d, want 404", rec.Code)
 	}
 
-	req = httptest.NewRequest(http.MethodGet, "/agreement/invoices/txn_foreign/download", nil)
+	req = httptest.NewRequest(http.MethodGet, "/billing/team/20/invoices/txn_foreign/download", nil)
 	req.Header.Set("X-Team-ID", "20")
 	rec = httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
+	dispatcher.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("tampered team header status = %d, want 404", rec.Code)
+	}
+}
+
+func TestDownloadInvoiceHandler_ResolverError(t *testing.T) {
+	h := handler.NewDownloadInvoiceHandler(
+		invoiceTransactionStore{},
+		func(*http.Request) (billing.Billable, error) { return nil, errors.New("no") },
+		invoiceDownloader{},
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/team/1/invoices/tx/download", nil)
+	rec := httptest.NewRecorder()
+	h.Download(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("code = %d, want 401", rec.Code)
+	}
+}
+
+func TestDownloadInvoiceHandler_EmptyTransactionID(t *testing.T) {
+	h := handler.NewDownloadInvoiceHandler(
+		invoiceTransactionStore{},
+		func(*http.Request) (billing.Billable, error) { return &stubBillable{id: 1, btype: "team"}, nil },
+		invoiceDownloader{},
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/download", nil)
+	rec := httptest.NewRecorder()
+	h.Download(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("code = %d, want 404", rec.Code)
+	}
+}
+
+func TestDownloadInvoiceHandler_StoreError(t *testing.T) {
+	h := handler.NewDownloadInvoiceHandler(
+		invoiceTransactionStore{err: errors.New("boom")},
+		func(*http.Request) (billing.Billable, error) { return &stubBillable{id: 1, btype: "team"}, nil },
+		invoiceDownloader{},
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/download", nil)
+	req.SetPathValue("transaction", "tx_1")
+	rec := httptest.NewRecorder()
+	h.Download(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("code = %d, want 404", rec.Code)
+	}
+}
+
+func TestDownloadInvoiceHandler_DownloaderError(t *testing.T) {
+	store := invoiceTransactionStore{transactions: map[string]*billing.Transaction{
+		"tx_1": {PaddleID: "tx_1", BillableType: "team", BillableID: 10},
+	}}
+
+	h := handler.NewDownloadInvoiceHandler(
+		store,
+		func(*http.Request) (billing.Billable, error) { return &stubBillable{id: 10, btype: "team"}, nil },
+		invoiceDownloader{err: errors.New("down")},
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/download", nil)
+	req.SetPathValue("transaction", "tx_1")
+	rec := httptest.NewRecorder()
+	h.Download(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("code = %d, want 500", rec.Code)
+	}
+}
+
+func TestDownloadInvoiceHandler_DefaultContentTypeAndFileName(t *testing.T) {
+	store := invoiceTransactionStore{transactions: map[string]*billing.Transaction{
+		"tx_1": {PaddleID: "tx_1", BillableType: "team", BillableID: 10},
+	}}
+
+	h := handler.NewDownloadInvoiceHandler(
+		store,
+		func(*http.Request) (billing.Billable, error) { return &stubBillable{id: 10, btype: "team"}, nil },
+		invoiceDownloader{download: &billing.InvoiceDownload{
+			Body: io.NopCloser(strings.NewReader("%PDF")),
+		}},
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/billing/download", nil)
+	req.SetPathValue("transaction", "tx_1")
+	rec := httptest.NewRecorder()
+	h.Download(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("code = %d, want 200", rec.Code)
+	}
+
+	if got := rec.Header().Get("Content-Type"); got != "application/pdf" {
+		t.Fatalf("content-type = %q, want application/pdf", got)
+	}
+
+	if got := rec.Header().Get("Content-Disposition"); !strings.Contains(got, "invoice-tx_1.pdf") {
+		t.Fatalf("content-disposition = %q", got)
 	}
 }

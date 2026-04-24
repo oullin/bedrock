@@ -26,7 +26,7 @@ func (h *NewSubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) 
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, billing.ErrBillableRequired.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, billing.ErrBillableRequired.Error())
 
 		return
 	}
@@ -36,19 +36,13 @@ func (h *NewSubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, "invalid request body")
 
 		return
 	}
 
 	if !billing.ValidPlan(h.manager, billable.BillableType(), input.Plan) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(map[string]any{
-			"errors": map[string][]string{
-				"plan": {"The selected plan is invalid."},
-			},
-		})
+		validationErrors(w, map[string][]string{"plan": {"The selected plan is invalid."}})
 
 		return
 	}
@@ -68,11 +62,10 @@ func (h *NewSubscriptionHandler) Create(w http.ResponseWriter, r *http.Request) 
 	checkout, err := h.creator.Execute(r.Context(), billable, plan, nil)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(checkout.ToMap())
+	jsonResponse(w, http.StatusOK, checkout.ToMap())
 }

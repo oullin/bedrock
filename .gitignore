@@ -1,7 +1,7 @@
 node_modules/
 .pnpm-store/
 .turbo/
-service/storage/.bin/
+services/storage/.bin/
 coverage/
 *.tsbuildinfo
 
@@ -43,13 +43,17 @@ storage/.cache/**
 !storage/.cache/
 !storage/.cache/.gitkeep
 
-service/storage/.cache/**
-!service/storage/.cache/
-!service/storage/.cache/.gitkeep
+services/storage/.cache/**
+!services/storage/.cache/
+!services/storage/.cache/.gitkeep
 
-service/storage/.turbo/**
-!service/storage/.turbo/
-!service/storage/.turbo/.gitkeep
+services/storage/.turbo/**
+!services/storage/.turbo/
+!services/storage/.turbo/.gitkeep
+
+services/storage/demo/**
+!services/storage/demo/
+!services/storage/demo/.gitkeep
 
 services/storage/dist/
 services/jobqueue/app/dist/
