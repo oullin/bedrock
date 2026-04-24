@@ -26,6 +26,13 @@ jobs:
       contents: read
       id-token: write
 
+  services:
+    name: Services
+    uses: ./.github/workflows/services.yml
+    permissions:
+      contents: read
+      id-token: write
+
   frontend:
     name: Frontend
     uses: ./.github/workflows/frontend.yml
