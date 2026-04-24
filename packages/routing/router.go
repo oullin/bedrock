@@ -3,6 +3,7 @@ package routing
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/bedrock/packages/routing/matching"
 )
@@ -31,6 +32,7 @@ type Router struct {
 	routes                  RouteCollectionInterface
 	current                 *Route
 	currentRequest          matching.MatchableRequest
+	currentMu               sync.RWMutex
 	middleware              map[string]any   // alias name → class string or closure
 	middlewareGroups        map[string][]any // group name → middleware list
 	MiddlewarePriority      []string
@@ -38,6 +40,13 @@ type Router struct {
 	patterns                map[string]string
 	groupStack              []map[string]any
 	implicitBindingCallback any
+}
+
+// DispatchResult carries the request-scoped route and the route handler's
+// returned value for a dispatched request.
+type DispatchResult struct {
+	Route *Route
+	Value any
 }
 
 func (noopEvents) Dispatch(any) {}
@@ -436,23 +445,30 @@ func (r *Router) mergeGroupAttributesIntoRoute(route *Route) {
 // Dispatch
 // =====================================================================
 
-// Dispatch routes an incoming request to a Route and returns whatever the
-// handler returned. Response normalization is M8's responsibility.
-func (r *Router) Dispatch(request matching.MatchableRequest) (any, error) {
-	r.currentRequest = request
+// Dispatch routes an incoming request and returns both the request-scoped Route
+// and whatever the handler returned. Response normalization is M8's
+// responsibility.
+func (r *Router) Dispatch(request matching.MatchableRequest) (*DispatchResult, error) {
+	r.setCurrentRequest(request)
 
 	return r.DispatchToRoute(request)
 }
 
 // DispatchToRoute matches the request against the routes and runs the result.
-func (r *Router) DispatchToRoute(request matching.MatchableRequest) (any, error) {
+func (r *Router) DispatchToRoute(request matching.MatchableRequest) (*DispatchResult, error) {
 	route, err := r.findRoute(request)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return r.runRoute(request, route)
+	value, err := r.runRoute(request, route)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &DispatchResult{Route: route, Value: value}, nil
 }
 
 func (r *Router) findRoute(request matching.MatchableRequest) (*Route, error) {
@@ -462,7 +478,7 @@ func (r *Router) findRoute(request matching.MatchableRequest) (*Route, error) {
 		return nil, err
 	}
 
-	r.current = route
+	r.setCurrentRoute(route)
 	route.SetContainer(r.container)
 
 	return route, nil
@@ -622,30 +638,46 @@ func (r *Router) FlushMiddlewareGroups() *Router {
 // =====================================================================
 
 // Current returns the most recently dispatched route, or nil.
-func (r *Router) Current() *Route { return r.current }
+func (r *Router) Current() *Route {
+	r.currentMu.RLock()
+
+	defer r.currentMu.RUnlock()
+
+	return r.current
+}
 
 // GetCurrentRoute is a parity alias for [Router.Current].
-func (r *Router) GetCurrentRoute() *Route { return r.current }
+func (r *Router) GetCurrentRoute() *Route { return r.Current() }
 
 // GetCurrentRequest returns the most recently dispatched request.
-func (r *Router) GetCurrentRequest() matching.MatchableRequest { return r.currentRequest }
+func (r *Router) GetCurrentRequest() matching.MatchableRequest {
+	r.currentMu.RLock()
+
+	defer r.currentMu.RUnlock()
+
+	return r.currentRequest
+}
 
 // CurrentRouteName returns the name of the current route, or "".
 func (r *Router) CurrentRouteName() string {
-	if r.current == nil {
+	route := r.Current()
+
+	if route == nil {
 		return ""
 	}
 
-	return r.current.GetName()
+	return route.GetName()
 }
 
 // CurrentRouteAction returns the controller action of the current route.
 func (r *Router) CurrentRouteAction() string {
-	if r.current == nil {
+	route := r.Current()
+
+	if route == nil {
 		return ""
 	}
 
-	return r.current.GetActionName()
+	return route.GetActionName()
 }
 
 // Has reports whether every supplied name is registered.
@@ -662,11 +694,13 @@ func (r *Router) Has(names ...string) bool {
 // Is reports whether the current route name matches any of the given glob
 // patterns.
 func (r *Router) Is(patterns ...string) bool {
-	if r.current == nil {
+	route := r.Current()
+
+	if route == nil {
 		return false
 	}
 
-	return r.current.Named(patterns...)
+	return route.Named(patterns...)
 }
 
 // CurrentRouteNamed is an alias for [Router.Is] kept for parity.
@@ -676,11 +710,13 @@ func (r *Router) CurrentRouteNamed(patterns ...string) bool { return r.Is(patter
 // glob patterns. Useful in middleware that wants to scope behavior to a
 // controller namespace.
 func (r *Router) Uses(patterns ...string) bool {
-	if r.current == nil {
+	route := r.Current()
+
+	if route == nil {
 		return false
 	}
 
-	action := r.current.GetActionName()
+	action := route.GetActionName()
 
 	for _, p := range patterns {
 		if matchPattern(p, action) {
@@ -693,7 +729,25 @@ func (r *Router) Uses(patterns ...string) bool {
 
 // CurrentRouteUses reports whether the current route's action equals action.
 func (r *Router) CurrentRouteUses(action string) bool {
-	return r.current != nil && r.current.GetActionName() == action
+	route := r.Current()
+
+	return route != nil && route.GetActionName() == action
+}
+
+func (r *Router) setCurrentRequest(request matching.MatchableRequest) {
+	r.currentMu.Lock()
+
+	defer r.currentMu.Unlock()
+
+	r.currentRequest = request
+}
+
+func (r *Router) setCurrentRoute(route *Route) {
+	r.currentMu.Lock()
+
+	defer r.currentMu.Unlock()
+
+	r.current = route
 }
 
 // =====================================================================

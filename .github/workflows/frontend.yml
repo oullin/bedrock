@@ -1,0 +1,149 @@
+name: Frontend
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  TURBO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Restore Turborepo cache
+        id: turbo-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: services/storage/.turbo
+          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'package.json', 'packages/**/package.json', 'services/**/package.json', 'packages/**/go.mod', 'services/**/go.mod', 'packages/**/go.sum', 'services/**/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'package.json', 'packages/**/package.json', 'services/**/package.json', 'packages/**/go.mod', 'services/**/go.mod', 'packages/**/go.sum', 'services/**/go.sum') }}-
+            ${{ runner.os }}-turbo-
+
+      - name: Install compliance dependencies
+        run: |
+          if ! command -v rg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ripgrep
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Laravel compliance check
+        run: pnpm compliance
+
+      - name: Typecheck
+        run: pnpm exec turbo run typecheck
+
+      - name: Test
+        run: pnpm exec turbo run test
+
+      - name: Test with coverage
+        run: pnpm exec turbo run test:coverage
+
+      - name: Build
+        run: pnpm exec turbo run build
+
+      - name: Save Turborepo cache
+        if: steps.turbo-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: services/storage/.turbo
+          key: ${{ steps.turbo-cache.outputs.cache-primary-key }}
+
+      - name: Prepare frontend coverage reports
+        id: frontend_coverage
+        run: |
+          set -euo pipefail
+
+          rm -rf storage/.cache/codecov/frontend
+          mkdir -p storage/.cache/codecov/frontend
+
+          if [ ! -d storage/.cache/coverage ]; then
+            echo "No frontend coverage directory found; skipping frontend Codecov upload."
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          mapfile -t coverage_files < <(find storage/.cache/coverage -type f ! -path 'storage/.cache/coverage/go/*' | sort)
+
+          if [ "${#coverage_files[@]}" -eq 0 ]; then
+            echo "No frontend coverage files found; skipping frontend Codecov upload."
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          printf '%s\n' "${coverage_files[@]}"
+
+          for file in "${coverage_files[@]}"; do
+            relative_path="${file#storage/.cache/coverage/}"
+            mkdir -p "storage/.cache/codecov/frontend/$(dirname "$relative_path")"
+            cp "$file" "storage/.cache/codecov/frontend/$relative_path"
+          done
+
+          if ! find storage/.cache/codecov/frontend -type f \( \
+            -name 'coverage.out' -o \
+            -name 'lcov.info' -o \
+            -name 'coverage-summary.json' -o \
+            -name '*.lcov' \
+          \) | grep -q .; then
+            echo "No recognizable frontend coverage reports found in storage/.cache/coverage" >&2
+            exit 1
+          fi
+
+          echo "has_coverage=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload frontend coverage to Codecov (attempt 1)
+        if: steps.frontend_coverage.outputs.has_coverage == 'true'
+        id: codecov_1
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/codecov/frontend
+          flags: frontend
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload frontend coverage to Codecov (attempt 2)
+        if: steps.frontend_coverage.outputs.has_coverage == 'true' && steps.codecov_1.outcome == 'failure'
+        id: codecov_2
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
+        with:
+          directory: storage/.cache/codecov/frontend
+          flags: frontend
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8
+
+      - name: Upload frontend coverage to Codecov (attempt 3)
+        if: steps.frontend_coverage.outputs.has_coverage == 'true' && steps.codecov_2.outcome == 'failure'
+        uses: codecov/codecov-action@v6
+        with:
+          directory: storage/.cache/codecov/frontend
+          flags: frontend
+          slug: oullin/bedrock
+          use_oidc: true
+          fail_ci_if_error: true
+          version: v11.2.8

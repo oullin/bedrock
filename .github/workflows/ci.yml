@@ -19,111 +19,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
-    name: Typecheck, Test & Build
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
-    env:
-      TURBO_TELEMETRY_DISABLED: "1"
+  go:
+    name: Go
+    uses: ./.github/workflows/go.yml
+    permissions:
+      contents: read
+      id-token: write
 
-    steps:
-      - uses: actions/checkout@v6
+  services:
+    name: Services
+    uses: ./.github/workflows/services.yml
+    permissions:
+      contents: read
+      id-token: write
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version: "1.26"
-          cache: true
-          cache-dependency-path: |
-            packages/**/go.sum
-            services/**/go.sum
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Restore Turborepo cache
-        uses: actions/cache@v5
-        with:
-          path: services/storage/.turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
-
-      - name: Install compliance dependencies
-        run: |
-          if ! command -v rg >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ripgrep
-          fi
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Laravel compliance check
-        run: pnpm compliance
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Windows portability build
-        run: |
-          (cd packages/filesystem && GOWORK=off GOOS=windows GOARCH=amd64 go build ./...)
-          (cd packages/ai/boost && GOWORK=off GOOS=windows GOARCH=amd64 go build . ./agents ./install ./internal/jsonconfig)
-
-      - name: Test with coverage
-        run: pnpm test:coverage
-
-      - name: Verify coverage reports
-        run: |
-          set -euo pipefail
-
-          find storage/.cache/coverage -type f | sort
-
-          if ! find storage/.cache/coverage -type f \( \
-            -name 'coverage.out' -o \
-            -name 'lcov.info' -o \
-            -name 'coverage-summary.json' -o \
-            -name '*.lcov' \
-          \) | grep -q .; then
-            echo "No recognizable coverage reports found in storage/.cache/coverage" >&2
-            exit 1
-          fi
-
-      - name: Build
-        run: pnpm build
-
-      - name: Upload coverage to Codecov (attempt 1)
-        id: codecov_1
-        uses: codecov/codecov-action@v6
-        continue-on-error: true
-        with:
-          directory: storage/.cache/coverage
-          slug: oullin/bedrock
-          use_oidc: true
-          fail_ci_if_error: true
-          version: v11.2.8
-
-      - name: Upload coverage to Codecov (attempt 2)
-        if: steps.codecov_1.outcome == 'failure'
-        id: codecov_2
-        uses: codecov/codecov-action@v6
-        continue-on-error: true
-        with:
-          directory: storage/.cache/coverage
-          slug: oullin/bedrock
-          use_oidc: true
-          fail_ci_if_error: true
-          version: v11.2.8
-
-      - name: Upload coverage to Codecov (attempt 3)
-        if: steps.codecov_2.outcome == 'failure'
-        uses: codecov/codecov-action@v6
-        with:
-          directory: storage/.cache/coverage
-          slug: oullin/bedrock
-          use_oidc: true
-          fail_ci_if_error: true
-          version: v11.2.8
+  frontend:
+    name: Frontend
+    uses: ./.github/workflows/frontend.yml
+    permissions:
+      contents: read
+      id-token: write

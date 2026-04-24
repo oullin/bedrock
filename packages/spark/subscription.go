@@ -57,6 +57,9 @@ type Subscription struct {
 // FindItemByPrice returns the subscription item matching the given
 // price ID, or nil if not found.
 
+// Quantity returns the first subscription item quantity or 1 when no item is
+// attached. Spark Paddle stores seat quantity on the subscription item.
+
 // Prorate sets the proration behavior to prorate on the next billing period.
 
 // NoProrate sets the proration behavior to charge the full amount on the next billing period.
@@ -192,6 +195,18 @@ func (s *Subscription) FindItemByPrice(priceID string) *SubscriptionItem {
 	}
 
 	return nil
+}
+
+func (s *Subscription) Quantity() int {
+	if len(s.Items) == 0 {
+		return 1
+	}
+
+	if s.Items[0].Quantity < 1 {
+		return 1
+	}
+
+	return s.Items[0].Quantity
 }
 
 func (s *Subscription) Prorate() *Subscription {

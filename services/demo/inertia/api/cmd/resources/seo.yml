@@ -1,10 +1,10 @@
-title: "Progressive Oullin"
+title: "Bedrock Inertia Demo"
 lang: "en"
 
 meta:
   # Standard SEO
   - name: "description"
-    content: "A progressive dashboard application"
+    content: "A secondary Bedrock demo for Inertia protocol flows"
   - name: "keywords"
     content: ""
 
@@ -26,7 +26,7 @@ meta:
   - property: "og:type"
     content: "website"
   - property: "og:site_name"
-    content: "Progressive Oullin"
+    content: "Bedrock Inertia Demo"
   - property: "og:locale"
     content: "en_US"
 

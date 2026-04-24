@@ -14,10 +14,10 @@ The `notifications` package provides a `Manager` (analogous to Laravel's
 `NotificationSender`) that routes notifications across channels: mail, database,
 broadcast, and custom drivers. Notifications can be sent synchronously or queued.
 
-**Module:** `github.com/gocanto/bedrock/packages/notifications`
+**Module:** `github.com/bedrock/packages/notifications`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/notifications@latest
+go get github.com/bedrock/packages/notifications@latest
 ```
 
 ## Built-in Channels

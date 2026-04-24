@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/bedrock/packages/routing/compiler"
 	"github.com/bedrock/packages/routing/matching"
@@ -45,6 +46,7 @@ type Route struct {
 	bindingFields      map[string]string
 	missingHandler     any
 	boundModels        map[string]any // populated by ImplicitRouteBinding
+	compileMu          *sync.Mutex
 }
 
 // storeBoundModel records a resolved model instance so consumers can fetch
@@ -77,6 +79,7 @@ func NewRoute(methods any, uri string, action any) *Route {
 		DefaultValues: map[string]any{},
 		Wheres:        map[string]string{},
 		bindingFields: map[string]string{},
+		compileMu:     &sync.Mutex{},
 	}
 	r.CreatesRegularExpressionRouteConstraints.Bind(r)
 
@@ -128,6 +131,57 @@ func NewRoute(methods any, uri string, action any) *Route {
 	}
 
 	return r
+}
+
+func (r *Route) cloneForRequest() *Route {
+	clone := *r
+	clone.HTTPMethods = append([]string(nil), r.HTTPMethods...)
+	clone.ActionMap = cloneAnyMap(r.ActionMap)
+	clone.DefaultValues = cloneAnyMap(r.DefaultValues)
+	clone.Wheres = cloneStringMap(r.Wheres)
+	// Bound values are request state and must not leak across dispatches.
+	clone.Parameters = nil
+	clone.originalParameters = nil
+	clone.boundModels = nil
+
+	if clone.compileMu == nil {
+		clone.compileMu = &sync.Mutex{}
+	}
+
+	clone.bindingFields = cloneStringMap(r.bindingFields)
+	clone.computedMiddleware = append([]any(nil), r.computedMiddleware...)
+	clone.parameterNames = append([]string(nil), r.parameterNames...)
+	clone.CreatesRegularExpressionRouteConstraints.Bind(&clone)
+
+	return &clone
+}
+
+func cloneAnyMap(values map[string]any) map[string]any {
+	if values == nil {
+		return nil
+	}
+
+	out := make(map[string]any, len(values))
+
+	for key, value := range values {
+		out[key] = value
+	}
+
+	return out
+}
+
+func cloneStringMap(values map[string]string) map[string]string {
+	if values == nil {
+		return nil
+	}
+
+	out := make(map[string]string, len(values))
+
+	for key, value := range values {
+		out[key] = value
+	}
+
+	return out
 }
 
 func normalizeMethods(m any) []string {
@@ -230,6 +284,14 @@ func (r *Route) HasDefault(name string) bool {
 //
 // Mirrors Route::compileRoute.
 func (r *Route) CompileRoute() (*compiler.CompiledRoute, error) {
+	if r.compileMu == nil {
+		r.compileMu = &sync.Mutex{}
+	}
+
+	r.compileMu.Lock()
+
+	defer r.compileMu.Unlock()
+
 	if r.compiled != nil {
 		return r.compiled, nil
 	}

@@ -17,8 +17,8 @@ what you need.
 Add any Bedrock package directly with `go get`:
 
 ```bash
-go get github.com/gocanto/bedrock/packages/auth@latest
-go get github.com/gocanto/bedrock/packages/cache@latest
+go get github.com/bedrock/packages/auth@latest
+go get github.com/bedrock/packages/cache@latest
 ```
 
 ## Project Layout

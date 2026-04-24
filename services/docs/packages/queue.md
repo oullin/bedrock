@@ -14,10 +14,10 @@ Background job processing with pluggable drivers.
 The `queue` package provides Laravel-inspired job queue management with
 multiple driver implementations and a configurable Worker.
 
-**Module:** `github.com/gocanto/bedrock/packages/queue`
+**Module:** `github.com/bedrock/packages/queue`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/queue@latest
+go get github.com/bedrock/packages/queue@latest
 ```
 
 ## Interfaces

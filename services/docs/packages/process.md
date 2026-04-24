@@ -9,10 +9,10 @@ Process component. It supports direct executable commands, shell commands,
 timeouts, environment variables, stdin, asynchronous invocation, fakes,
 sequences, stray-process prevention, process pools, and process pipes.
 
-**Module:** `github.com/gocanto/bedrock/packages/process`
+**Module:** `github.com/bedrock/packages/process`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/process@latest
+go get github.com/bedrock/packages/process@latest
 ```
 
 ## Running Commands

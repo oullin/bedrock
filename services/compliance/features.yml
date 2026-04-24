@@ -403,7 +403,7 @@ features:
     laravel: laravel/fortify authentication scaffolding
     bedrock: inception
     status: ported
-    docs: packages/fortify.md
+    docs: packages/inception.md
     notes: Registration, authentication, password reset, password confirmation, email verification, profile updates, password updates, two-factor enablement/confirmation/disable/recovery, and the associated rate limiters and contracts are complete under classified parity through Inception's Fortify handlers; Laravel view factories, Responsable responses, intended-url session redirects, session old-input two-factor confirmation state, password rehash-on-login provider mechanics, and Eloquent two-factor-secret encrypter hooks are covered by Go adaptation rules in divergences.yml.
 
   - id: package.jetstream.teams
@@ -412,7 +412,7 @@ features:
     laravel: laravel/jetstream teams, profile management, and API tokens
     bedrock: inception
     status: ported
-    docs: packages/jetstream.md
+    docs: packages/inception.md
     notes: Team creation, membership and role management, team invitations, profile photo uploads, personal API token issuance and abilities, and browser-session management handlers are complete under classified parity through Inception; PHP user-agent parser browser detection, Eloquent team model traits and relationship helpers, and Inertia profile-page two-factor UI reload state are covered by Go adaptation rules in divergences.yml.
 
   - id: package.mcp.server
@@ -494,7 +494,7 @@ features:
     bedrock: spark
     status: ported
     docs: packages/spark.md
-    notes: Plans and prices, billable owner resolution, subscription creation and upgrades, trial handling, customer billing portal entry points, invoice and order retrieval, Paddle webhook handling, tax and proration helpers, and developer fakes are complete under classified parity with the local Madora laravel/spark-paddle:^6.0 resolution (dependency: laravel/cashier-paddle); the Billing tests in /Users/gocanto/Sites/madora/tests/Feature/Billing provide the local product integration coverage; Laravel service providers, Blade billing portal views, Eloquent billable traits, and Cashier facade plumbing are represented through explicit Go interfaces and caller-owned HTTP wiring.
+    notes: The audit uses the private local artifact at /Users/gocanto/Sites/madora/vendor/laravel/spark-paddle because laravel/spark-paddle is closed source. Spark is hard-cut ported across packages/spark and services/spark: billable configuration and resolution, customer bootstrap and generic trials, plan registration and serialization, Vue billing portal state and actions, Go-template portal shell, subscription creation/update/cancel/resume, pending checkout tracking, payment-method update transactions, invoice downloads, subscribed middleware, install/provider wiring, Paddle provider contracts, and subscription-created cleanup are represented by executable Bedrock code and tests. Spark now consumes shared Bedrock config, routing, httpx, and Wayfinder packages for config access, HTTP responses, route dispatch, named URL generation, and TypeScript route helpers instead of Spark-local glue. Only non-runtime metadata, local filesystem metadata, build scaffolding, release notes, and Testbench scaffolding are excluded in the source inventory.
 
   - id: package.telescope.observability
     source_id: package.telescope

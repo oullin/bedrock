@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/bedrock/packages/httpx"
 	"github.com/bedrock/packages/spark"
 )
 
@@ -12,11 +15,12 @@ import (
 type DownloadInvoiceHandler struct {
 	transactions spark.TransactionStore
 	resolver     spark.ResolverFunc
+	downloader   spark.InvoiceDownloader
 }
 
 // NewDownloadInvoiceHandler creates a DownloadInvoiceHandler.
-func NewDownloadInvoiceHandler(txns spark.TransactionStore, resolver spark.ResolverFunc) *DownloadInvoiceHandler {
-	return &DownloadInvoiceHandler{transactions: txns, resolver: resolver}
+func NewDownloadInvoiceHandler(txns spark.TransactionStore, resolver spark.ResolverFunc, downloader spark.InvoiceDownloader) *DownloadInvoiceHandler {
+	return &DownloadInvoiceHandler{transactions: txns, resolver: resolver, downloader: downloader}
 }
 
 // Download serves an invoice PDF for the given transaction.
@@ -24,13 +28,13 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		errorResponse(w, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
 
 	if !routeMatchesBillable(r, billable) {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
@@ -38,7 +42,7 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	transactionID := r.PathValue("transaction")
 
 	if transactionID == "" {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
@@ -46,21 +50,51 @@ func (h *DownloadInvoiceHandler) Download(w http.ResponseWriter, r *http.Request
 	txn, err := h.transactions.FindByProviderID(r.Context(), transactionID)
 
 	if err != nil || txn == nil {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
 
 	if txn.BillableType != "" && (txn.BillableType != billable.BillableType() || txn.BillableID != billable.BillableID()) {
-		http.NotFound(w, r)
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return
 	}
 
-	// In a full implementation, this would fetch the PDF from the
-	// provider and stream it. For now, return the transaction data.
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	download, err := h.downloader.DownloadInvoice(r.Context(), txn)
+
+	if err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	defer download.Body.Close()
+
+	contentType := download.ContentType
+
+	if contentType == "" {
+		contentType = "application/pdf"
+	}
+
+	fileName := download.FileName
+
+	if fileName == "" {
+		fileName = fmt.Sprintf("invoice-%s.pdf", txn.PaddleID)
+	}
+
+	body, err := io.ReadAll(download.Body)
+
+	if err != nil {
+		errorResponse(w, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	_ = httpx.NewResponse(w).
+		Header("Content-Type", contentType).
+		Header("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName)).
+		Send(body)
 }
 
 func routeMatchesBillable(r *http.Request, billable spark.Billable) bool {

@@ -13,10 +13,10 @@ The `mailx` package provides a `Manager` that creates named `Mailer` instances.
 Each mailer delegates to a swappable `Transport` for delivery. Lifecycle events
 are fired before and after each send.
 
-**Module:** `github.com/gocanto/bedrock/packages/mailx`
+**Module:** `github.com/bedrock/packages/mailx`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/mailx@latest
+go get github.com/bedrock/packages/mailx@latest
 ```
 
 ## Transports

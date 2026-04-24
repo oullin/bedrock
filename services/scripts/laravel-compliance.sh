@@ -21,9 +21,10 @@ usage() {
 Usage: services/scripts/laravel-compliance.sh <command>
 
 Commands:
-  refresh   Clone configured upstream sources and regenerate inventory files.
-  check     Validate compliance source-of-truth rules.
-  report    Generate services/compliance/report.md from current inventories.
+  refresh          Clone configured upstream sources and regenerate inventory files.
+  check            Validate compliance source-of-truth rules.
+  check-freshness  Validate sources.lock.json against configured upstream heads.
+  report           Generate services/compliance/report.md from current inventories.
 USAGE
 }
 
@@ -722,28 +723,81 @@ generic_summary_row() {
 build_status_index() {
   local ported_index="$1"
   local adapted_index="$2"
+  local duplicate_key_index="$ported_index.duplicate-keys"
 
   {
-    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/packages" -g '*_test.go' 2>/dev/null || true
-  } | sort -u > "$ported_index"
+    rg -o --no-filename '[^[:space:]`"'"'"'(),]+::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/packages" -g '*_test.go' 2>/dev/null || true
+    rg -o --no-filename '[^[:space:]`"'"'"'(),]+::[A-Za-z_][A-Za-z0-9_]*' "$ROOT_PATH/services" -g '*_test.go' 2>/dev/null || true
+  } | awk '
+    function marker_kind(value) {
+      return (value ~ /\// || value ~ /\.[A-Za-z0-9]+::/) ? "FULL" : "LEGACY"
+    }
+    {
+      sub(/[.;:]+$/, "")
+      print marker_kind($0) "\t" $0
+    }
+  ' | sort -u > "$ported_index"
 
   {
-    rg -o --no-filename '[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*' "$DIVERGENCES_FILE" 2>/dev/null || true
-  } | sort -u > "$adapted_index"
+    rg -o --no-filename '[^[:space:]`"'"'"'(),]+::[A-Za-z_][A-Za-z0-9_]*' "$DIVERGENCES_FILE" 2>/dev/null || true
+  } | awk '
+    function marker_kind(value) {
+      return (value ~ /\// || value ~ /\.[A-Za-z0-9]+::/) ? "FULL" : "LEGACY"
+    }
+    {
+      sub(/[.;:]+$/, "")
+      print marker_kind($0) "\t" $0
+    }
+  ' | sort -u > "$adapted_index"
+
+  {
+    while IFS="$RECORD_SEPARATOR" read -r id status repo branch tests_path inventory filter laravel bedrock; do
+      [ -n "$inventory" ] && [ "$inventory" != "null" ] || continue
+      awk '
+        /^[[:space:]]*$/ || /^#/ || $0 !~ /::/ { next }
+        {
+          entry = $0
+          php_file = entry
+          method = entry
+          sub(/::.*/, "", php_file)
+          sub(/.*::/, "", method)
+
+          class = php_file
+          sub(/^.*\//, "", class)
+          sub(/\.php$/, "", class)
+          sub(/\.(test|spec)\.(ts|tsx|js|jsx)$/, "", class)
+          print class "::" method
+        }
+      ' "$COMPLIANCE_PATH/$inventory"
+    done < <(list_records)
+  } | sort | uniq -d > "$duplicate_key_index"
 }
 
 inventory_stats() {
   local file="$1"
   local ported_index="$2"
   local adapted_index="$3"
+  local duplicate_key_index="$ported_index.duplicate-keys"
 
   awk '
     FILENAME == ARGV[1] {
-      ported[$0] = 1
+      if ($1 == "FULL") {
+        ported[$2] = 1
+      } else if ($1 == "LEGACY") {
+        legacy_ported[$2] = 1
+      }
       next
     }
     FILENAME == ARGV[2] {
-      adapted[$0] = 1
+      if ($1 == "FULL") {
+        adapted[$2] = 1
+      } else if ($1 == "LEGACY") {
+        legacy_adapted[$2] = 1
+      }
+      next
+    }
+    FILENAME == ARGV[3] {
+      duplicate_key[$0] = 1
       next
     }
     /^[[:space:]]*$/ || /^#/ || $0 !~ /::/ {
@@ -764,9 +818,13 @@ inventory_stats() {
       sub(/\.(test|spec)\.(ts|tsx|js|jsx)$/, "", class)
       key = class "::" method
 
-      if (key in ported) {
+      if (entry in ported) {
         ported_count++
-      } else if (key in adapted) {
+      } else if (entry in adapted) {
+        adapted_count++
+      } else if (!(key in duplicate_key) && key in legacy_ported) {
+        ported_count++
+      } else if (!(key in duplicate_key) && key in legacy_adapted) {
         adapted_count++
       } else {
         missing++
@@ -775,7 +833,7 @@ inventory_stats() {
     END {
       printf "%d\t%d\t%d\t%d\n", total + 0, ported_count + 0, adapted_count + 0, missing + 0
     }
-  ' "$ported_index" "$adapted_index" "$file"
+  ' "$ported_index" "$adapted_index" "$duplicate_key_index" "$file"
 }
 
 percent_display() {
@@ -1054,6 +1112,54 @@ markdown_cell() {
   printf '%s' "$value"
 }
 
+sources_lock_rows() {
+  awk '
+    function trim(value) {
+      gsub(/^[ \t]+|[ \t]+$/, "", value)
+      return value
+    }
+    function json_value(line) {
+      sub(/^[^:]+:[ \t]*"/, "", line)
+      sub(/",?[ \t]*$/, "", line)
+      return line
+    }
+    /"repo":/ {
+      repo = json_value($0)
+      next
+    }
+    /"branch":/ {
+      branch = json_value($0)
+      next
+    }
+    /"commit":/ {
+      commit = json_value($0)
+      next
+    }
+    /"url":/ {
+      url = json_value($0)
+      if (repo != "") {
+        print repo "\034" branch "\034" commit "\034" url
+      }
+      repo = ""; branch = ""; commit = ""; url = ""
+    }
+  ' "$SOURCES_LOCK_FILE"
+}
+
+source_baseline_rows() {
+  if [ ! -f "$SOURCES_LOCK_FILE" ]; then
+    echo "| n/a | n/a | n/a | n/a |"
+    return 0
+  fi
+
+  sources_lock_rows | while IFS="$RECORD_SEPARATOR" read -r repo branch commit url; do
+    printf '| `%s` | `%s` | `%s` | %s |\n' \
+      "$(markdown_cell "$repo")" \
+      "$(markdown_cell "$branch")" \
+      "$(markdown_cell "$commit")" \
+      "$(markdown_cell "$url")"
+  done
+}
+
 docs_file_for() {
   local bedrock="$1"
   local docs="$2"
@@ -1105,6 +1211,11 @@ tests_display() {
   stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
   IFS=$'\t' read -r total ported adapted missing <<< "$stats"
 
+  if [ "$total" -eq 0 ]; then
+    printf 'No upstream tests found in configured inventory; source-surface audit only'
+    return 0
+  fi
+
   printf 'Ported tests: %s / %s (%s); Missing tests: %s (%s); Adapted tests: %s (%s)' \
     "$ported" \
     "$total" \
@@ -1148,6 +1259,8 @@ report() {
     echo
     echo "Source of truth: services/compliance"
     echo
+    echo "Completeness is measured against the pinned upstream commits in \`services/compliance/sources.lock.json\`; moving upstream branches must pass \`services/scripts/laravel-compliance.sh check-freshness\` before a current-branch completeness claim is made."
+    echo
     echo "## Compliance Workflow Requirements"
     echo
     echo "- Every mapped Bedrock package compliance pass must include an upstream feature audit: \`make sure we also have all the upstream features for <package>\`."
@@ -1162,6 +1275,12 @@ report() {
     echo "| Area | Classified | Missing | Compliance Status | Fastest Next Move |"
     echo "| --- | ---: | ---: | --- | --- |"
     command_center_rows "$ported_index" "$adapted_index" "$docs_ported_index" "$docs_adapted_index" "$docs_excluded_index" "$skeleton_ported_index" "$skeleton_adapted_index" "$skeleton_excluded_index"
+    echo
+    echo "## Pinned Source Baseline"
+    echo
+    echo "| Source | Branch | Commit | URL |"
+    echo "| --- | --- | --- | --- |"
+    source_baseline_rows
     echo
     echo "## Critical Path"
     echo
@@ -1182,20 +1301,26 @@ report() {
       local file
       file="$COMPLIANCE_PATH/$inventory"
 
-      local rel source stats total ported adapted missing classified action
+      local rel source stats total ported adapted missing classified action display_status
       rel="${file#$COMPLIANCE_PATH/}"
       source="$(inventory_source_display "$file" "$repo" "$branch" "$tests_path")"
       stats="$(inventory_stats "$file" "$ported_index" "$adapted_index")"
       IFS=$'\t' read -r total ported adapted missing <<< "$stats"
       classified=$((ported + adapted))
-      action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      if [ "$total" -eq 0 ]; then
+        display_status="No upstream tests"
+        action="Keep the local source-surface audit current; executable evidence lives in Bedrock tests and divergences.yml."
+      else
+        display_status="$(compliance_status "$missing")"
+        action="$(inventory_next_action "$status" "$bedrock" "$missing")"
+      fi
       printf '| %s | Tracking file for upstream tests, not a compliant path | `%s` | %s / %s | %s | %s | %s |\n' \
         "$rel" \
         "$(markdown_cell "$source")" \
         "$classified" \
         "$total" \
         "$missing" \
-        "$(compliance_status "$missing")" \
+        "$display_status" \
         "$action"
     done
 
@@ -1360,6 +1485,17 @@ report() {
       printf '| `%s` | `%s` | %s | %s |\n' "$laravel" "$bedrock" "$tracking" "$reason"
     done
 
+    if compgen -G "$COMPLIANCE_PATH/source-inventories/*.md" >/dev/null; then
+      echo
+      echo "## Source Codebase Inventories"
+      echo
+
+      for source_inventory in "$COMPLIANCE_PATH"/source-inventories/*.md; do
+        sed -n '1,$p' "$source_inventory"
+        echo
+      done
+    fi
+
     echo
     echo "## Permanent Exclusions"
     echo
@@ -1461,6 +1597,21 @@ check_no_inline_exclusions() {
     printf '%s\n' "$inline_exclusions" >&2
     return 1
   fi
+}
+
+check_inventory_parity_tests_have_grouped_evidence() {
+  local failed=0
+
+  while IFS= read -r file; do
+    rg -q 'func TestInventoryParityMarkers' "$file" || continue
+
+    if ! rg -q 'Grouped parity evidence:' "$file"; then
+      echo "Inventory parity marker file must name grouped executable evidence: ${file#$ROOT_PATH/}" >&2
+      failed=1
+    fi
+  done < <(find "$ROOT_PATH/packages" "$ROOT_PATH/services" -type f -name 'inventory_parity_test.go' 2>/dev/null | sort)
+
+  return "$failed"
 }
 
 check_inventory_files_configured() {
@@ -1615,6 +1766,33 @@ check_features_format() {
   ' "$FEATURES_FILE"
 }
 
+check_feature_docs_substantive() {
+  local feature_id="$1"
+  local docs_file="$2"
+  local failed=0 line_count
+
+  line_count="$(awk '
+    /^[[:space:]]*$/ { next }
+    /^[[:space:]]*<!--/ { next }
+    /^[[:space:]]*---[[:space:]]*$/ { next }
+    /^[[:space:]]*title:[[:space:]]*/ { next }
+    { count++ }
+    END { print count + 0 }
+  ' "$docs_file")"
+
+  if [ "$line_count" -lt 12 ]; then
+    echo "Feature $feature_id docs path is too small to be substantive parity evidence: ${docs_file#$ROOT_PATH/}" >&2
+    failed=1
+  fi
+
+  if rg -qi 'merged into|see .*inception|superseded by|redirect' "$docs_file" && [ "$line_count" -lt 24 ]; then
+    echo "Feature $feature_id docs path looks like a redirect/stub, not substantive parity evidence: ${docs_file#$ROOT_PATH/}" >&2
+    failed=1
+  fi
+
+  return "$failed"
+}
+
 check_features() {
   local failed=0 count=0 source_ids feature_ids required_source_ids audited_source_ids missing_audits
   source_ids="$(mktemp "${TMPDIR:-/tmp}/bedrock-compliance-source-ids.XXXXXX")"
@@ -1673,6 +1851,8 @@ check_features() {
         if [ ! -f "$docs_file" ]; then
           echo "Feature $id docs path does not exist: ${docs_file#$ROOT_PATH/}" >&2
           failed=1
+        else
+          check_feature_docs_substantive "$id" "$docs_file" || failed=1
         fi
       fi
     fi
@@ -1693,6 +1873,62 @@ check_features() {
   fi
 
   rm -f "$source_ids" "$feature_ids" "$required_source_ids" "$audited_source_ids"
+  return "$failed"
+}
+
+check_spark_source_inventory_hard_cut() {
+  local inventory_file="$COMPLIANCE_PATH/source-inventories/package-spark.md"
+  local failed=0
+
+  [ -f "$inventory_file" ] || {
+    echo "Missing Spark source inventory: ${inventory_file#$ROOT_PATH/}" >&2
+    return 1
+  }
+
+  awk -F '|' '
+    function trim(value) {
+      gsub(/^[ \t]+|[ \t]+$/, "", value)
+      return value
+    }
+    /^\| `/ {
+      path = trim($2)
+      status = trim($3)
+      evidence = trim($4)
+      notes = trim($5)
+      gsub(/^`|`$/, "", path)
+
+      if (status == "adapted" || status == "missing") {
+        print "Spark runtime source is not hard-cut ported: " path " (" status ")" > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "ported" && (evidence == "" || evidence == "n/a")) {
+        print "Spark ported source lacks Bedrock evidence: " path > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "ported" && notes ~ /host-owned|provider-owned|not part of|does not own/) {
+        print "Spark ported source still uses adaptation language: " path > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "excluded") {
+        allowed = path == ".DS_Store" ||
+          path == "RELEASE.md" ||
+          path == "postcss.config.js" ||
+          path == "testbench.yaml" ||
+          path == "vite.config.js" ||
+          path == "src/Contracts/.DS_Store"
+
+        if (!allowed) {
+          print "Spark source exclusion is not allowed under hard cutoff: " path > "/dev/stderr"
+          failed = 1
+        }
+      }
+    }
+    END { exit failed ? 1 : 0 }
+  ' "$inventory_file" || failed=1
+
   return "$failed"
 }
 
@@ -1727,6 +1963,37 @@ check_report_current() {
   return "$failed"
 }
 
+check_sources_freshness() {
+  need git
+
+  local failed=0 repo branch commit url current
+
+  while IFS="$RECORD_SEPARATOR" read -r repo branch commit url; do
+    [ -n "$repo" ] || continue
+
+    case "$repo" in
+      local:*|/*) continue ;;
+    esac
+
+    [ -n "$branch" ] && [ "$branch" != "local" ] || continue
+
+    current="$(git ls-remote "https://github.com/$repo.git" "refs/heads/$branch" | awk '{ print $1 }')"
+
+    if [ -z "$current" ]; then
+      echo "Unable to resolve upstream head for $repo@$branch." >&2
+      failed=1
+      continue
+    fi
+
+    if [ "$current" != "$commit" ]; then
+      echo "Stale source baseline: $repo@$branch is pinned to $commit but upstream head is $current." >&2
+      failed=1
+    fi
+  done < <(sources_lock_rows)
+
+  return "$failed"
+}
+
 check() {
   need rg
 
@@ -1741,10 +2008,15 @@ check() {
   check_excluded_not_implemented
   check_laravel_test_files_have_source_context
   check_no_inline_exclusions
+  check_inventory_parity_tests_have_grouped_evidence
   check_inventory_files_configured
   check_inventory_format
   check_docs_and_skeleton_tracking
   check_features
+  check_spark_source_inventory_hard_cut
+  if [ "${BEDROCK_COMPLIANCE_SKIP_FRESHNESS:-0}" != "1" ]; then
+    check_sources_freshness
+  fi
   check_report_current
 }
 
@@ -1755,6 +2027,9 @@ case "${1:-}" in
     ;;
   check)
     check
+    ;;
+  check-freshness)
+    check_sources_freshness
     ;;
   report)
     report

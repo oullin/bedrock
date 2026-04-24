@@ -12,10 +12,10 @@ Subscription billing, checkout, and entitlement management.
 The `spark` package provides subscription billing and entitlement management
 inspired by Laravel Spark.
 
-**Module:** `github.com/gocanto/bedrock/packages/spark`
+**Module:** `github.com/bedrock/packages/spark`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/spark@latest
+go get github.com/bedrock/packages/spark@latest
 ```
 
 ## Core Concepts

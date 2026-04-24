@@ -31,14 +31,20 @@ type madoraSubStore struct {
 	deleted []int64
 }
 
+type madoraCustomerStore struct {
+	customer *spark.Customer
+	saved    *spark.Customer
+}
+
 type madoraOrderStore struct{}
 
 type madoraProductStore struct{}
 
 type madoraTransactionStore struct {
-	transactions map[string]*spark.Transaction
-	created      []*spark.Transaction
-	saved        []*spark.Transaction
+	transactions         map[string]*spark.Transaction
+	billableTransactions []spark.Transaction
+	created              []*spark.Transaction
+	saved                []*spark.Transaction
 }
 
 type madoraExpirableStore struct {
@@ -123,6 +129,27 @@ func (s *madoraSubStore) Delete(_ context.Context, id int64) error {
 	return nil
 }
 
+func (s *madoraCustomerStore) FindByProviderID(context.Context, string) (*spark.Customer, error) {
+	return nil, nil
+}
+
+func (s *madoraCustomerStore) FindByBillable(context.Context, string, int64) (*spark.Customer, error) {
+	return s.customer, nil
+}
+
+func (s *madoraCustomerStore) Create(_ context.Context, customer *spark.Customer) error {
+	s.customer = customer
+
+	return nil
+}
+
+func (s *madoraCustomerStore) Save(_ context.Context, customer *spark.Customer) error {
+	s.saved = customer
+	s.customer = customer
+
+	return nil
+}
+
 func (s madoraOrderStore) FindByID(context.Context, int64) (*spark.Order, error) { return nil, nil }
 func (s madoraOrderStore) FindByBillable(context.Context, int64, int) ([]spark.Order, error) {
 	return nil, nil
@@ -147,7 +174,7 @@ func (s *madoraTransactionStore) FindByProviderID(_ context.Context, providerID 
 }
 
 func (s *madoraTransactionStore) FindByBillable(context.Context, string, int64, int) ([]spark.Transaction, error) {
-	return nil, nil
+	return s.billableTransactions, nil
 }
 
 func (s *madoraTransactionStore) Create(_ context.Context, tx *spark.Transaction) error {
@@ -229,14 +256,14 @@ func testSparkManager() *spark.Manager {
 // BillingLifecycleTest::test_plan_seeder_persists_plans_and_features
 func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 	mgr := testSparkManager()
-	cfg := spark.Config{
-		Path:         "billing",
-		DashboardURL: "/agreement",
-		BrandColor:   "bg-gray-800",
-		Billables: map[string]spark.BillableConfig{
+	cfg := spark.NewConfigFromValues(map[string]any{
+		"spark.path":          "billing",
+		"spark.dashboard_url": "/agreement",
+		"spark.brand_color":   "bg-gray-800",
+		"spark.billables": map[string]spark.BillableConfig{
 			"team": {DefaultInterval: "monthly"},
 		},
-	}
+	})
 	billable := madoraBillable{id: 10, typ: "team", name: "Acme", seats: 4}
 	subscriptions := &madoraSubStore{subs: []*spark.Subscription{{
 		ID:           99,
@@ -250,7 +277,7 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 		}},
 	}}}
 
-	frontend := state.NewFrontendState(mgr, &cfg, subscriptions)
+	frontend := state.NewFrontendState(mgr, cfg, subscriptions)
 	current, err := frontend.Current(context.Background(), "team", billable)
 
 	if err != nil {
@@ -269,28 +296,64 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 		t.Fatalf("defaultInterval = %v, want monthly", current["defaultInterval"])
 	}
 
-	if got := len(current["monthlyPlans"].([]*spark.Plan)); got != 1 {
+	monthlyPlans, ok := current["monthlyPlans"].([]map[string]any)
+
+	if !ok {
+		t.Fatalf("monthlyPlans = %#v, want map slice", current["monthlyPlans"])
+	}
+
+	if got := len(monthlyPlans); got != 1 {
 		t.Fatalf("monthlyPlans = %d, want 1 active monthly plan", got)
 	}
 
-	if got := len(current["yearlyPlans"].([]*spark.Plan)); got != 1 {
+	monthlyPlan := monthlyPlans[0]
+
+	if monthlyPlan["id"] != "pri_starter_monthly" {
+		t.Fatalf("monthly plan id = %v, want pri_starter_monthly", monthlyPlan["id"])
+	}
+
+	if monthlyPlan["short_description"] != "Small team" {
+		t.Fatalf("monthly plan short_description = %v, want Small team", monthlyPlan["short_description"])
+	}
+
+	if _, ok := monthlyPlan["ID"]; ok {
+		t.Fatalf("monthly plan exposed raw struct ID key: %#v", monthlyPlan)
+	}
+
+	yearlyPlans, ok := current["yearlyPlans"].([]map[string]any)
+
+	if !ok {
+		t.Fatalf("yearlyPlans = %#v, want map slice", current["yearlyPlans"])
+	}
+
+	if got := len(yearlyPlans); got != 1 {
 		t.Fatalf("yearlyPlans = %d, want 1 active yearly plan", got)
 	}
 
-	activePlan := current["plan"].(*spark.Plan)
+	activePlan, ok := current["plan"].(map[string]any)
 
-	if activePlan.ID != "pri_starter_monthly" {
-		t.Fatalf("active plan = %s, want pri_starter_monthly", activePlan.ID)
+	if !ok {
+		t.Fatalf("active plan = %#v, want map", current["plan"])
 	}
 
-	planMap := activePlan.ToMap()
-
-	if planMap["price_includes_vat"] != true {
-		t.Fatalf("price_includes_vat = %v, want true", planMap["price_includes_vat"])
+	if activePlan["id"] != "pri_starter_monthly" {
+		t.Fatalf("active plan id = %v, want pri_starter_monthly", activePlan["id"])
 	}
 
-	if len(planMap["features"].([]string)) != 2 {
-		t.Fatalf("features were not serialised: %#v", planMap["features"])
+	if activePlan["short_description"] != "Small team" {
+		t.Fatalf("active plan short_description = %v, want Small team", activePlan["short_description"])
+	}
+
+	if activePlan["price_includes_vat"] != true {
+		t.Fatalf("price_includes_vat = %v, want true", activePlan["price_includes_vat"])
+	}
+
+	if len(activePlan["features"].([]string)) != 2 {
+		t.Fatalf("features were not serialised: %#v", activePlan["features"])
+	}
+
+	if _, ok := activePlan["ID"]; ok {
+		t.Fatalf("active plan exposed raw struct ID key: %#v", activePlan)
 	}
 
 	if mgr.SeatName("team") != "seat" || mgr.SeatCount("team", billable) != 4 {
@@ -331,7 +394,7 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 				subs = append(subs, tt.sub)
 			}
 
-			frontend := state.NewFrontendState(testSparkManager(), &spark.Config{Path: "billing"}, &madoraSubStore{subs: subs})
+			frontend := state.NewFrontendState(testSparkManager(), spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}), &madoraSubStore{subs: subs})
 			current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
 
 			if err != nil {
@@ -357,6 +420,94 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 
 	if active == nil || active.Subscription.Status != spark.StatusPastDue {
 		t.Fatalf("accessible subscription = %#v, want past_due", active)
+	}
+}
+
+// FrontendStateTest::test_state_is_pending_when_customer_has_pending_checkout
+// FrontendStateTest::test_pending_checkout_is_cleared_when_subscription_becomes_active
+func TestMadoraFrontendStatePendingCheckout(t *testing.T) {
+	customer := &madoraCustomerStore{
+		customer: &spark.Customer{BillableType: "team", BillableID: 10, PendingCheckoutID: "chk_123"},
+	}
+	frontend := state.NewFrontendState(
+		testSparkManager(),
+		spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}),
+		&madoraSubStore{},
+	).WithCustomerStore(customer)
+
+	current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
+	if err != nil {
+		t.Fatalf("frontend state: %v", err)
+	}
+
+	if current["state"] != "pending" {
+		t.Fatalf("state = %v, want pending", current["state"])
+	}
+
+	active := &spark.Subscription{BillableType: "team", BillableID: 10, Status: spark.StatusActive}
+	customer.customer.PendingCheckoutID = "chk_456"
+	frontend = state.NewFrontendState(
+		testSparkManager(),
+		spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}),
+		&madoraSubStore{subs: []*spark.Subscription{active}},
+	).WithCustomerStore(customer)
+
+	current, err = frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
+	if err != nil {
+		t.Fatalf("frontend state: %v", err)
+	}
+
+	if current["state"] != "active" {
+		t.Fatalf("state = %v, want active", current["state"])
+	}
+
+	if customer.saved == nil || customer.saved.PendingCheckoutID != "" {
+		t.Fatalf("saved customer = %#v, want cleared pending checkout", customer.saved)
+	}
+}
+
+func TestMadoraFrontendStateInvoiceIDFallsBackToInvoiceNumber(t *testing.T) {
+	transactions := &madoraTransactionStore{billableTransactions: []spark.Transaction{
+		{InvoiceNumber: "INV-2026-0001", Total: 2500, Currency: "USD"},
+		{PaddleID: "txn_123", InvoiceNumber: "INV-2026-0002", Total: 3500, Currency: "USD"},
+		{InvoiceNumber: "INV-2026-0003", Total: 0, Currency: "USD"},
+	}}
+	frontend := state.NewFrontendState(
+		testSparkManager(),
+		spark.NewConfigFromValues(map[string]any{"spark.path": "billing"}),
+		&madoraSubStore{},
+	).WithTransactionStore(transactions)
+
+	current, err := frontend.Current(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"})
+
+	if err != nil {
+		t.Fatalf("frontend state: %v", err)
+	}
+
+	invoices := current["invoices"].([]map[string]any)
+
+	if len(invoices) != 2 {
+		t.Fatalf("invoices = %#v, want two positive-total invoices", invoices)
+	}
+
+	invoice := invoices[0]
+
+	if invoice["id"] != "INV-2026-0001" {
+		t.Fatalf("invoice id = %v, want invoice number fallback", invoice["id"])
+	}
+
+	if invoice["invoice_url"] != "/spark/team/10/invoices/INV-2026-0001/download" {
+		t.Fatalf("invoice_url = %v, want invoice number route segment", invoice["invoice_url"])
+	}
+
+	if invoice["total"] != "USD 25.00" {
+		t.Fatalf("total = %v, want USD 25.00", invoice["total"])
+	}
+
+	if invoices[1]["id"] != "txn_123" {
+		t.Fatalf("paddle invoice id = %v, want paddle id", invoices[1]["id"])
 	}
 }
 
@@ -465,7 +616,10 @@ func TestMadoraBillingStatePortalAndCTA(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			frontend := state.NewFrontendState(
 				testSparkManager(),
-				&spark.Config{Path: "billing", Billables: map[string]spark.BillableConfig{"team": {DefaultInterval: "monthly"}}},
+				spark.NewConfigFromValues(map[string]any{
+					"spark.path":      "billing",
+					"spark.billables": map[string]spark.BillableConfig{"team": {DefaultInterval: "monthly"}},
+				}),
 				&madoraSubStore{subs: []*spark.Subscription{tt.sub}},
 			)
 			current, err := frontend.CurrentAt(context.Background(), "team", madoraBillable{id: 10, typ: "team", name: "Acme"}, now)

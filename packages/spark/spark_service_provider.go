@@ -6,12 +6,16 @@ import "github.com/bedrock/packages/container"
 // It mirrors Spark\SparkServiceProvider.
 type SparkServiceProvider struct {
 	app *container.Container
-	cfg Config
+	cfg *Config
 }
 
 // NewSparkServiceProvider constructs the provider.
 // cfg is the Spark configuration (see DefaultConfig() for sensible defaults).
-func NewSparkServiceProvider(app *container.Container, cfg Config) *SparkServiceProvider {
+func NewSparkServiceProvider(app *container.Container, cfg *Config) *SparkServiceProvider {
+	if cfg == nil {
+		cfg = DefaultConfig()
+	}
+
 	return &SparkServiceProvider{app: app, cfg: cfg}
 }
 
@@ -24,9 +28,9 @@ func (p *SparkServiceProvider) Register() {
 
 	p.app.Singleton("spark", func(_ *container.Container) (any, error) {
 		m := NewManager()
-		m.SetProrates(cfg.Prorates)
+		m.SetProrates(cfg.Prorates())
 
-		for billableType, billCfg := range cfg.Billables {
+		for billableType, billCfg := range cfg.Billables() {
 			c := billCfg
 			c.Model = billableType
 			m.RegisterBillable(c)

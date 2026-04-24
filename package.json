@@ -10,7 +10,8 @@
   "scripts": {
     "preinstall": "sh services/scripts/enforce-pnpm.sh",
     "build": "turbo run build && make go-build",
-    "compliance": "services/scripts/laravel-compliance.sh check",
+    "compliance": "BEDROCK_COMPLIANCE_SKIP_FRESHNESS=1 services/scripts/laravel-compliance.sh check",
+    "compliance:freshness": "services/scripts/laravel-compliance.sh check-freshness",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck && make vet",
     "test": "turbo run test && make go-test && pnpm run compliance",

@@ -16,10 +16,10 @@ The `filesystem` package provides a `Filesystem` type that wraps Go's `os` and
 move, delete, directory management, MIME detection, file hashing, and locked
 file access.
 
-**Module:** `github.com/gocanto/bedrock/packages/filesystem`
+**Module:** `github.com/bedrock/packages/filesystem`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/filesystem@latest
+go get github.com/bedrock/packages/filesystem@latest
 ```
 
 ## Creating a Filesystem

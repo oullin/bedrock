@@ -12,10 +12,10 @@ The `translation` package provides a `Translator` that resolves translation keys
 against a `Loader`, applies placeholder substitution, supports namespace/fallback
 locale chains, and delegates pluralisation to a CLDR-based `MessageSelector`.
 
-**Module:** `github.com/gocanto/bedrock/packages/translation`
+**Module:** `github.com/bedrock/packages/translation`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/translation@latest
+go get github.com/bedrock/packages/translation@latest
 ```
 
 ## Loaders
