@@ -86,13 +86,6 @@
       "commit": "3eb544639b26d6921bc04c3a63183fdd73d87710",
       "url": "https://github.com/upstream/socialauth/tree/5.x"
     },
-    {
-      "repo": "local:/Users/gocanto/Sites/madora",
-      "branch": "local",
-      "commit": "0a14a966da09776366e3fe03918f6bc95d5f9ac8",
-      "url": "/Users/gocanto/Sites/madora"
-    },
-    {
       "repo": "upstream/debugbar",
       "branch": "5.x",
       "commit": "74224f82d1e67a04029e6edc75c0ee36a4cd71e8",

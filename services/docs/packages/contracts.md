@@ -14,10 +14,10 @@ The `contracts` package is the interface hub of Bedrock. Every concrete package
 rather than on other concrete packages, enabling loose coupling, test doubles,
 and drop-in replacements.
 
-**Module:** `github.com/gocanto/bedrock/packages/contracts`
+**Module:** `github.com/bedrock/packages/contracts`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/contracts@latest
+go get github.com/bedrock/packages/contracts@latest
 ```
 
 This package has no runtime logic — only interface definitions.

@@ -10,10 +10,10 @@ The `bus` package provides Upstream-inspired command/job dispatching. It
 dispatches jobs synchronously, asynchronously via a queue, deferred
 after-response, in chains, and in batches.
 
-**Module:** `github.com/gocanto/bedrock/packages/bus`
+**Module:** `github.com/bedrock/packages/bus`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/bus@latest
+go get github.com/bedrock/packages/bus@latest
 ```
 
 ## Dispatch Modes

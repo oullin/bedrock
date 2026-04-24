@@ -487,11 +487,11 @@ packages:
     upstream: upstream/billing-paddle
     bedrock: billing
     status: mapped
-    repo: local:/Users/gocanto/Sites/madora
-    branch: local
-    tests_path: tests/Feature/Billing
-    inventory: inventories/package-billing.txt
-    rationale: Local Madora composer resolution of upstream/billing-paddle:^6.0 from https://billing.upstream.com at /Users/gocanto/Sites/madora/vendor/upstream/billing-paddle; upstream/cashier-paddle is its dependency, and tests/Feature/Billing remains the local product integration inventory.
+    repo: null
+    branch: null
+    tests_path: null
+    inventory: null
+    rationale: Billing product-integration parity depends on private/local upstream/billing-paddle access and is intentionally excluded from the public Upstream compliance inventory until a reproducible pinned source artifact is available.
 
   - id: package.debugbar
     upstream: upstream/debugbar

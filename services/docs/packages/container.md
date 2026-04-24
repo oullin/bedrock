@@ -14,10 +14,10 @@ manages service bindings, resolution, contextual bindings, tagging, extension,
 lifecycle callbacks, and method invocation. All methods are safe for concurrent
 use.
 
-**Module:** `github.com/gocanto/bedrock/packages/container`
+**Module:** `github.com/bedrock/packages/container`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/container@latest
+go get github.com/bedrock/packages/container@latest
 ```
 
 ## Container vs Application
@@ -103,7 +103,7 @@ app.Boot()                 // calls Boot() on providers that implement Bootable
 ```
 
 Implement the `provider.ServiceProvider` interface from
-`github.com/gocanto/bedrock/packages/contracts/provider`:
+`github.com/bedrock/packages/contracts/provider`:
 
 ```go
 type CacheProvider struct{ app *container.Application }

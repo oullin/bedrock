@@ -11,10 +11,10 @@ The `config` package provides a Upstream-inspired configuration store backed by
 [Viper](https://github.com/spf13/viper). It supports dot-notation key access,
 nested map values, YAML file loading, and environment variable binding.
 
-**Module:** `github.com/gocanto/bedrock/packages/config`
+**Module:** `github.com/bedrock/packages/config`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/config@latest
+go get github.com/bedrock/packages/config@latest
 ```
 
 ## Creating a Repository

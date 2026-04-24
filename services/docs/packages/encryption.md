@@ -13,10 +13,10 @@ values using AES. It supports both CBC mode (with HMAC-SHA256 MAC) and GCM mode
 (AEAD). The serialized payload is Base64-encoded JSON containing the IV,
 ciphertext, and authentication tag.
 
-**Module:** `github.com/gocanto/bedrock/packages/encryption`
+**Module:** `github.com/bedrock/packages/encryption`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/encryption@latest
+go get github.com/bedrock/packages/encryption@latest
 ```
 
 ## Ciphers
