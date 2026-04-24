@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/bedrock/packages/spark"
 	"github.com/bedrock/packages/spark/state"
@@ -61,12 +62,18 @@ func (h *PortalHandler) State(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PortalHandler) portalState(w http.ResponseWriter, r *http.Request) (map[string]any, bool) {
-	billableType := h.manager.DefaultBillableType()
-
 	billable, err := h.resolver(r)
 
 	if err != nil {
 		errorResponse(w, http.StatusBadRequest, spark.ErrBillableRequired.Error())
+
+		return nil, false
+	}
+
+	billableType := billable.BillableType()
+
+	if !portalRouteMatchesBillable(r, billable) {
+		errorResponse(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 
 		return nil, false
 	}
@@ -86,4 +93,30 @@ func (h *PortalHandler) portalState(w http.ResponseWriter, r *http.Request) (map
 	}
 
 	return data, true
+}
+
+func portalRouteMatchesBillable(r *http.Request, billable spark.Billable) bool {
+	routeType := r.PathValue("type")
+
+	if routeType == "" {
+		return true
+	}
+
+	if routeType != billable.BillableType() {
+		return false
+	}
+
+	routeID := r.PathValue("id")
+
+	if routeID == "" {
+		return true
+	}
+
+	id, err := strconv.ParseInt(routeID, 10, 64)
+
+	if err != nil {
+		return false
+	}
+
+	return id == billable.BillableID()
 }

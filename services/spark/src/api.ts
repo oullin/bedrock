@@ -42,8 +42,8 @@ export function fetchSparkState(): Promise<SparkPortalState> {
   return request<SparkPortalState>(statePath);
 }
 
-export function createSubscription(plan: string): Promise<Record<string, unknown>> {
-  return request<Record<string, unknown>>(sparkSubscriptionStore(), {
+export function createSubscription(plan: string): Promise<unknown> {
+  return request<unknown>(sparkSubscriptionStore(), {
     body: JSON.stringify({ plan }),
   });
 }
