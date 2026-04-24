@@ -24,7 +24,7 @@ func (h *PendingCheckoutHandler) Create(w http.ResponseWriter, r *http.Request) 
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, billing.ErrBillableRequired.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, billing.ErrBillableRequired.Error())
 
 		return
 	}
@@ -34,7 +34,7 @@ func (h *PendingCheckoutHandler) Create(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, "invalid request body")
 
 		return
 	}
@@ -42,7 +42,7 @@ func (h *PendingCheckoutHandler) Create(w http.ResponseWriter, r *http.Request) 
 	customer, err := h.customers.FindByBillable(r.Context(), billable.BillableType(), billable.BillableID())
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
@@ -57,12 +57,12 @@ func (h *PendingCheckoutHandler) Create(w http.ResponseWriter, r *http.Request) 
 		customer.PendingCheckoutID = input.CheckoutID
 
 		if err := h.customers.Create(r.Context(), customer); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			errorResponse(w, http.StatusInternalServerError, err.Error())
 
 			return
 		}
 
-		w.WriteHeader(http.StatusNoContent)
+		noContent(w)
 
 		return
 	}
@@ -70,10 +70,10 @@ func (h *PendingCheckoutHandler) Create(w http.ResponseWriter, r *http.Request) 
 	customer.PendingCheckoutID = input.CheckoutID
 
 	if err := h.customers.Save(r.Context(), customer); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse(w, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }

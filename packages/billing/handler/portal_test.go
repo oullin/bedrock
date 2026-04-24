@@ -20,7 +20,10 @@ func newPortalHandler(allow bool, subs []*billing.Subscription) *handler.PortalH
 
 	frontend := state.NewFrontendState(
 		mgr,
-		&billing.Config{Path: "billing", DashboardURL: "/agreement"},
+		billing.NewConfigFromValues(map[string]any{
+			"billing.path":          "billing",
+			"billing.dashboard_url": "/agreement",
+		}),
 		&testSubStore{subs: subs},
 	)
 
