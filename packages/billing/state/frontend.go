@@ -16,6 +16,7 @@ type FrontendState struct {
 	manager       *billing.Manager
 	config        *billing.Config
 	subscriptions billing.SubscriptionStore
+	customers     billing.CustomerStore
 }
 
 // NewFrontendState creates a FrontendState builder.
@@ -27,6 +28,14 @@ func NewFrontendState(mgr *billing.Manager, cfg *billing.Config, subs billing.Su
 	}
 }
 
+// WithCustomerStore enables customer-backed portal state, including pending
+// checkout detection.
+func (f *FrontendState) WithCustomerStore(customers billing.CustomerStore) *FrontendState {
+	f.customers = customers
+
+	return f
+}
+
 // Current returns the full frontend state for the billing portal.
 func (f *FrontendState) Current(ctx context.Context, billableType string, billable billing.Billable) (map[string]any, error) {
 	return f.CurrentAt(ctx, billableType, billable, time.Now())
@@ -36,6 +45,11 @@ func (f *FrontendState) Current(ctx context.Context, billableType string, billab
 // useful for billing DTOs that expose relative pending-window values.
 func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, billable billing.Billable, now time.Time) (map[string]any, error) {
 	sub, _ := f.subscriptions.CurrentForBillable(ctx, billable.BillableType(), billable.BillableID())
+	customer, err := f.customerForBillable(ctx, billable)
+
+	if err != nil {
+		return nil, err
+	}
 
 	plans := f.manager.Plans(billableType)
 
@@ -56,7 +70,12 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 
 	activePlan := planForSubscription(plans, sub)
 
-	state := resolveState(sub)
+	state, err := f.resolveState(ctx, sub, customer)
+
+	if err != nil {
+		return nil, err
+	}
+
 	subscription := f.subscriptionState(sub, activePlan)
 	cta := f.ctaState(sub, activePlan, now)
 
@@ -79,6 +98,14 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 	}
 
 	return data, nil
+}
+
+func (f *FrontendState) customerForBillable(ctx context.Context, billable billing.Billable) (*billing.Customer, error) {
+	if f.customers == nil {
+		return nil, nil
+	}
+
+	return f.customers.FindByBillable(ctx, billable.BillableType(), billable.BillableID())
 }
 
 func planForSubscription(plans []*billing.Plan, sub *billing.Subscription) *billing.Plan {
@@ -105,24 +132,44 @@ func planForSubscription(plans []*billing.Plan, sub *billing.Subscription) *bill
 	return nil
 }
 
-func resolveState(sub *billing.Subscription) string {
+func (f *FrontendState) resolveState(ctx context.Context, sub *billing.Subscription, customer *billing.Customer) (string, error) {
+	if subscriptionIsActiveOrPastDue(sub) {
+		if customer != nil && customer.PendingCheckoutID != "" {
+			customer.PendingCheckoutID = ""
+
+			if err := f.customers.Save(ctx, customer); err != nil {
+				return "", err
+			}
+		}
+	} else if customer != nil && customer.PendingCheckoutID != "" {
+		return "pending", nil
+	}
+
 	if sub == nil {
-		return "none"
+		return "none", nil
 	}
 
 	if sub.OnGracePeriod() {
-		return "onGracePeriod"
+		return "onGracePeriod", nil
 	}
 
 	if sub.Active() || sub.OnTrial() {
-		return "active"
+		return "active", nil
 	}
 
 	if sub.PastDue() {
-		return "past_due"
+		return "past_due", nil
 	}
 
-	return "none"
+	return "none", nil
+}
+
+func subscriptionIsActiveOrPastDue(sub *billing.Subscription) bool {
+	if sub == nil {
+		return false
+	}
+
+	return sub.Active() || sub.OnTrial() || sub.PastDue()
 }
 
 func (f *FrontendState) brandColor() string {
