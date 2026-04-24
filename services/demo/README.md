@@ -14,21 +14,21 @@ The app listens on `:8080` by default.
 
 ## Routes
 
-| Route                  | Purpose                         |
-| ---------------------- | ------------------------------- |
-| `/`                    | Skeleton welcome page           |
-| `/up`                  | Health check                    |
-| `/lottery`             | Lottery package smoke route     |
-| `/features/validation` | Validation and support example  |
+| Route                  | Purpose                        |
+| ---------------------- | ------------------------------ |
+| `/`                    | Skeleton welcome page          |
+| `/up`                  | Health check                   |
+| `/lottery`             | Lottery package smoke route    |
+| `/features/validation` | Validation and support example |
 
 ## Environment
 
-| Variable       | Purpose                                             |
-| -------------- | --------------------------------------------------- |
-| `PORT`         | Overrides the default HTTP port                     |
-| `PORTLESS_URL` | Prints the externally proxied URL when one is used  |
-| `APP_ENV`      | Sets the demo environment name                      |
-| `APP_KEY`      | Sets the demo application key for config bootstrap  |
+| Variable       | Purpose                                            |
+| -------------- | -------------------------------------------------- |
+| `PORT`         | Overrides the default HTTP port                    |
+| `PORTLESS_URL` | Prints the externally proxied URL when one is used |
+| `APP_ENV`      | Sets the demo environment name                     |
+| `APP_KEY`      | Sets the demo application key for config bootstrap |
 
 ## Test
 
