@@ -1,3 +1,4 @@
 packages:
   - services/storage
   - services/docs
+  - services/billing

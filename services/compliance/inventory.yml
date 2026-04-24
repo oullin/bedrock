@@ -491,7 +491,7 @@ packages:
     branch: local
     tests_path: .
     inventory: inventories/package-billing.txt
-    rationale: Billing product-integration parity is audited from the private local Composer artifact because upstream/billing-paddle is closed source; the installed package contains no upstream test files, so executable parity evidence lives in Bedrock tests and PHP-only behavior is recorded in divergences.yml.
+    rationale: Billing product-integration parity is audited from the private local Composer artifact because upstream/billing-paddle is closed source; the installed package contains no upstream test files, so executable parity evidence lives in Bedrock tests, services/billing frontend tests, and the hard-cut source inventory.
 
   - id: package.debugbar
     upstream: upstream/debugbar

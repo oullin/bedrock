@@ -1876,6 +1876,62 @@ check_features() {
   return "$failed"
 }
 
+check_spark_source_inventory_hard_cut() {
+  local inventory_file="$COMPLIANCE_PATH/source-inventories/package-billing.md"
+  local failed=0
+
+  [ -f "$inventory_file" ] || {
+    broadcastclient "Missing Billing source inventory: ${inventory_file#$ROOT_PATH/}" >&2
+    return 1
+  }
+
+  awk -F '|' '
+    function trim(value) {
+      gsub(/^[ \t]+|[ \t]+$/, "", value)
+      return value
+    }
+    /^\| `/ {
+      path = trim($2)
+      status = trim($3)
+      evidence = trim($4)
+      notes = trim($5)
+      gsub(/^`|`$/, "", path)
+
+      if (status == "adapted" || status == "missing") {
+        print "Billing runtime source is not hard-cut ported: " path " (" status ")" > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "ported" && (evidence == "" || evidence == "n/a")) {
+        print "Billing ported source lacks Bedrock evidence: " path > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "ported" && notes ~ /host-owned|provider-owned|not part of|does not own/) {
+        print "Billing ported source still uses adaptation language: " path > "/dev/stderr"
+        failed = 1
+      }
+
+      if (status == "excluded") {
+        allowed = path == ".DS_Store" ||
+          path == "RELEASE.md" ||
+          path == "postcss.config.js" ||
+          path == "testbench.yaml" ||
+          path == "vite.config.js" ||
+          path == "src/Contracts/.DS_Store"
+
+        if (!allowed) {
+          print "Billing source exclusion is not allowed under hard cutoff: " path > "/dev/stderr"
+          failed = 1
+        }
+      }
+    }
+    END { exit failed ? 1 : 0 }
+  ' "$inventory_file" || failed=1
+
+  return "$failed"
+}
+
 normalize_report() {
   sed 's/^Generated: .*/Generated: <normalized>/'
 }
@@ -1957,6 +2013,7 @@ check() {
   check_inventory_format
   check_docs_and_skeleton_tracking
   check_features
+  check_spark_source_inventory_hard_cut
   if [ "${BEDROCK_COMPLIANCE_SKIP_FRESHNESS:-0}" != "1" ]; then
     check_sources_freshness
   fi

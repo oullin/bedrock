@@ -23,6 +23,28 @@ func NewPortalHandler(mgr *billing.Manager, fs *state.FrontendState, resolver bi
 
 // Show returns the billing portal state as JSON.
 func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
+	data, ok := h.portalState(w, r)
+
+	if !ok {
+		return
+	}
+
+	renderPortalShell(w, r, "Billing", data)
+}
+
+// State returns the billing portal state as JSON for the Vue portal.
+func (h *PortalHandler) State(w http.ResponseWriter, r *http.Request) {
+	data, ok := h.portalState(w, r)
+
+	if !ok {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
+func (h *PortalHandler) portalState(w http.ResponseWriter, r *http.Request) (map[string]any, bool) {
 	billableType := h.manager.DefaultBillableType()
 
 	billable, err := h.resolver(r)
@@ -30,13 +52,13 @@ func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, billing.ErrBillableRequired.Error(), http.StatusBadRequest)
 
-		return
+		return nil, false
 	}
 
 	if !h.manager.IsAuthorized(billable, r) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 
-		return
+		return nil, false
 	}
 
 	data, err := h.frontend.Current(r.Context(), billableType, billable)
@@ -44,9 +66,8 @@ func (h *PortalHandler) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-		return
+		return nil, false
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	return data, true
 }
