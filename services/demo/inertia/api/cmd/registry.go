@@ -43,16 +43,16 @@ func (rt *runtime) withDemoProps(authApp auth.App, next http.Handler) http.Handl
 		ctx = inertia.SetProps(ctx, protocol.Props{
 			"sidebarOpen": sidebarOpen,
 			"app": map[string]any{
-				"name":        "Inertia.js Kitchen Sink",
-				"productLine": "Go Demo Port",
+				"name":        "Bedrock Inertia Demo",
+				"productLine": "Secondary Demo",
 				"environment": "Demo",
 			},
 			"auth": map[string]any{
 				"user": authApp.PublicUser(user),
 			},
 			"workspace": map[string]any{
-				"name": "Inertia Go",
-				"plan": "Porting",
+				"name": "Bedrock",
+				"plan": "Inertia Protocol",
 			},
 			"routes": rt.routes.ManifestProps(),
 		})

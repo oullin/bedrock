@@ -3,7 +3,7 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import "./styles/app.css";
 
 createInertiaApp({
-  title: (title) => (title ? `${title} - Inertia.js Kitchen Sink` : "Inertia.js Kitchen Sink"),
+  title: (title) => (title ? `${title} - Bedrock Inertia Demo` : "Bedrock Inertia Demo"),
   defaults: {
     visitOptions: (_href, options) => ({
       ...options,

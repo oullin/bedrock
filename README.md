@@ -28,9 +28,17 @@ Bedrock is a collection of foundational Go packages for building web application
 ## Project Structure
 
 ```
-packages/     Go library packages (listed above)
-services/     Internal services, docs, storage, and demo apps
+packages/                     Standalone Go library modules
+services/demo/                Primary Upstream-skeleton-style demo app
+services/demo/inertia/        Secondary Inertia protocol demo app
+services/docs/                VuePress documentation site
+services/compliance/          Upstream parity inventories and generated report
+services/storage/             Ignored build, cache, coverage, and demo runtime data
 ```
+
+The primary demo is the small skeleton app in `services/demo`. The Inertia demo
+is intentionally separate because it exercises a broader browser-facing stack
+with a Go API, CRM/auth flows, and a Vite/Vue frontend.
 
 ## Requirements
 
