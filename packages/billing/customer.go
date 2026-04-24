@@ -5,15 +5,16 @@ import "time"
 // Customer represents a payment-provider customer record linked to a
 // billable entity. Mirrors Upstream\Paddle\Customer.
 type Customer struct {
-	ID           int64
-	BillableType string
-	BillableID   int64
-	PaddleID     string
-	Name         string
-	Email        string
-	TrialEndsAt  *time.Time
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID                int64
+	BillableType      string
+	BillableID        int64
+	PaddleID          string
+	PendingCheckoutID string
+	Name              string
+	Email             string
+	TrialEndsAt       *time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 // OnGenericTrial reports whether the customer is currently on a

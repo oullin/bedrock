@@ -83,15 +83,17 @@ func (AbstractRouteCollection) MatchAgainstRoutes(
 
 	for _, route := range routes {
 		if route.Matches(request, includingMethod) {
+			candidate := route.cloneForRequest()
+
 			if route.IsFallback {
 				if fallback == nil {
-					fallback = route
+					fallback = candidate
 				}
 
 				continue
 			}
 
-			return route
+			return candidate
 		}
 	}
 

@@ -14,10 +14,10 @@ Authentication, authorization, and password management.
 The `auth` package provides Upstream-inspired HTTP authentication built on Go's
 `net/http`. It defines a `Manager` that creates named guards and user providers.
 
-**Module:** `github.com/gocanto/bedrock/packages/auth`
+**Module:** `github.com/bedrock/packages/auth`
 
 ```bash
-go get github.com/gocanto/bedrock/packages/auth@latest
+go get github.com/bedrock/packages/auth@latest
 ```
 
 ## Concepts

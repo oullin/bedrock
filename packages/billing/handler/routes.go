@@ -1,56 +1,77 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
 
-// Handlers bundles all HTTP handler instances for route registration.
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
+	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/routegen"
+)
+
+// Handlers bundles all canonical Billing HTTP handler instances.
 type Handlers struct {
-	Gateway       *GatewayHandler
 	Portal        *PortalHandler
 	NewSub        *NewSubscriptionHandler
 	UpdateSub     *UpdateSubscriptionHandler
 	CancelSub     *CancelSubscriptionHandler
 	ResumeSub     *ResumeSubscriptionHandler
-	Checkout      *CheckoutHandler
-	PaddleBilling *PaddleBillingHandler
-	Order         *OrderHandler
+	Pending       *PendingCheckoutHandler
 	Invoice       *DownloadInvoiceHandler
 	PaymentMethod *PaymentMethodsHandler
 }
 
-// RegisterRoutes registers all Billing routes on the given ServeMux.
-func RegisterRoutes(mux *http.ServeMux, h *Handlers) {
-	// Provider selection.
-	mux.HandleFunc("GET /billing/choose-provider", h.Gateway.Show)
-	mux.HandleFunc("POST /billing/choose-provider", h.Gateway.Store)
+// RouteSet exposes Billing's router, route registry, and dispatch handler.
+type RouteSet struct {
+	Router   *routing.Router
+	Registry *routegen.Registry
+	Handler  http.Handler
+}
 
-	// Billing subscription API.
-	mux.HandleFunc("POST /billing/subscription", h.NewSub.Create)
-	mux.HandleFunc("PUT /billing/subscription", h.UpdateSub.Update)
-	mux.HandleFunc("PUT /billing/subscription/cancel", h.CancelSub.Cancel)
-	mux.HandleFunc("PUT /billing/subscription/resume", h.ResumeSub.Resume)
+// NewRouteSet builds the canonical Billing route set.
+func NewRouteSet(h *Handlers) *RouteSet {
+	registry := billing.NewRouteRegistry()
+	router := routing.NewRouter(nil, nil)
 
-	// Billing portal.
-	mux.HandleFunc("GET /billing", h.Portal.Show)
+	RegisterRoutes(router, registry, h)
 
-	// Checkout routes.
-	mux.HandleFunc("POST /checkout/subscribe", h.Checkout.Subscribe)
-	mux.HandleFunc("POST /checkout/purchase", h.Checkout.Purchase)
-	mux.HandleFunc("GET /billing/success", h.Checkout.Success)
-	mux.HandleFunc("GET /billing/cancel", h.Checkout.Cancel)
+	return &RouteSet{
+		Router:   router,
+		Registry: registry,
+		Handler:  routingx.NewHandler(router),
+	}
+}
 
-	// Paddle billing portal.
-	mux.HandleFunc("GET /billing/paddle", h.PaddleBilling.Index)
-	mux.HandleFunc("POST /billing/paddle/cancel", h.PaddleBilling.Cancel)
-	mux.HandleFunc("POST /billing/paddle/resume", h.PaddleBilling.Resume)
+// RegisterRoutes registers all canonical Billing routes.
+func RegisterRoutes(router *routing.Router, registry *routegen.Registry, h *Handlers) {
+	if registry == nil {
+		registry = billing.NewRouteRegistry()
+	}
 
-	// Orders.
-	mux.HandleFunc("GET /billing/orders", h.Order.Index)
+	if h.Portal != nil {
+		h.Portal.WithRoutes(registry)
+	}
 
-	// Invoices.
-	mux.HandleFunc("GET /billing/{type}/{id}/invoices/{transaction}/download", h.Invoice.Download)
+	router.Post(routePattern(registry, billing.RouteSubscriptionStore), h.NewSub.Create).Name(billing.RouteSubscriptionStore)
+	router.Put(routePattern(registry, billing.RouteSubscriptionUpdate), h.UpdateSub.Update).Name(billing.RouteSubscriptionUpdate)
+	router.Put(routePattern(registry, billing.RouteSubscriptionCancel), h.CancelSub.Cancel).Name(billing.RouteSubscriptionCancel)
+	router.Put(routePattern(registry, billing.RouteSubscriptionResume), h.ResumeSub.Resume).Name(billing.RouteSubscriptionResume)
+	router.Put(routePattern(registry, billing.RouteSubscriptionPaymentMethod), h.PaymentMethod.Setup).Name(billing.RouteSubscriptionPaymentMethod)
+	router.Post(routePattern(registry, billing.RoutePendingCheckout), h.Pending.Create).Name(billing.RoutePendingCheckout)
+	router.Get(routePattern(registry, billing.RouteInvoiceDownload), h.Invoice.Download).Name(billing.RouteInvoiceDownload)
+	router.Get(routePattern(registry, billing.RoutePortal), h.Portal.Show).Name(billing.RoutePortal)
+	router.Get(routePattern(registry, billing.RoutePortalForType), h.Portal.Show).Name(billing.RoutePortalForType)
+	router.Get(routePattern(registry, billing.RoutePortalForBillable), h.Portal.Show).Name(billing.RoutePortalForBillable)
+	router.Get(routePattern(registry, billing.RouteState), h.Portal.State).Name(billing.RouteState)
+	router.Get(routePattern(registry, billing.RouteRouteGen), routegen.Handler(registry).ServeHTTP).Name(billing.RouteRouteGen)
+}
 
-	// Payment methods.
-	mux.HandleFunc("POST /billing/payment-method/setup", h.PaymentMethod.Setup)
-	mux.HandleFunc("PUT /billing/payment-method/default", h.PaymentMethod.SetDefault)
-	mux.HandleFunc("DELETE /billing/payment-method", h.PaymentMethod.Delete)
+func routePattern(registry *routegen.Registry, name string) string {
+	route, ok := registry.Lookup(name)
+
+	if !ok {
+		return ""
+	}
+
+	return route.Pattern
 }

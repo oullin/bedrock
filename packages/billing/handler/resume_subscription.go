@@ -24,16 +24,16 @@ func (h *ResumeSubscriptionHandler) Resume(w http.ResponseWriter, r *http.Reques
 	billable, err := h.resolver(r)
 
 	if err != nil {
-		http.Error(w, billing.ErrBillableRequired.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, billing.ErrBillableRequired.Error())
 
 		return
 	}
 
 	if err := h.billing.ResumeSubscription(r.Context(), billable.BillableType(), billable.BillableID()); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		errorResponse(w, http.StatusBadRequest, err.Error())
 
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
