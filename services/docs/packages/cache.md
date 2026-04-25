@@ -29,7 +29,7 @@ go get github.com/bedrock/packages/cache@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/cache/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cache/...
 ```
 
 ## Source Coverage
@@ -40,7 +40,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package cache provides Upstream-inspired caching primitives. It defines a two-level abstraction: Store (low-level backend operations) and Repository (high-level helpers including remember, tags, and distributed locks). Multiple concrete store implementations are provided under stores/.
+The cache reference is organized around the exported Go surface for package `cache`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -116,7 +116,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/cache/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cache/...
 ```
 
 Upstream parity is tracked by these tests:

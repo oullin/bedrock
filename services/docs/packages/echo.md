@@ -26,7 +26,7 @@ go get github.com/bedrock/packages/broadcastclient@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
 ```
 
 ## Source Coverage
@@ -37,7 +37,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package broadcastclient is a Go port of the Upstream BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
+The broadcastclient reference is organized around the exported Go surface for package `broadcastclient`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -111,7 +111,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
 ```
 
 Upstream parity is tracked by these tests:

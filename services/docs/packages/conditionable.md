@@ -26,7 +26,7 @@ go get github.com/bedrock/packages/conditionable@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/conditionable/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/conditionable/...
 ```
 
 ## Source Coverage
@@ -37,7 +37,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package conditionable provides Upstream-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Upstream's HigherOrderWhenProxy, adapted for Go's static type system.
+The conditionable reference is organized around the exported Go surface for package `conditionable`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -111,7 +111,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/conditionable/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/conditionable/...
 ```
 
 Upstream parity is tracked by these tests:

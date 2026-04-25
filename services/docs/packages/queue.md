@@ -28,7 +28,7 @@ go get github.com/bedrock/packages/queue@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/queue/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/queue/...
 ```
 
 ## Source Coverage
@@ -42,7 +42,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package queue provides Upstream-inspired job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs.
+The queue reference is organized around the exported Go surface for package `queue`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -123,7 +123,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/queue/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/queue/...
 ```
 
 Upstream parity is tracked by these tests:

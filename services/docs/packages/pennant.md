@@ -28,7 +28,7 @@ go get github.com/bedrock/packages/featureflags@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/featureflags/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/featureflags/...
 ```
 
 ## Source Coverage
@@ -39,7 +39,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package featureflags provides Upstream-inspired feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API.
+The featureflags reference is organized around the exported Go surface for package `featureflags`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -115,7 +115,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/featureflags/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/featureflags/...
 ```
 
 Upstream parity is tracked by these tests:
