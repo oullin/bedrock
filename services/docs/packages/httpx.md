@@ -28,7 +28,7 @@ go get github.com/bedrock/packages/httpx@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/httpx/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/httpx/...
 ```
 
 ## Source Coverage
@@ -45,7 +45,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package httpx provides Upstream-inspired HTTP request and response primitives built on Go's net/http. It wraps \*http.Request with rich input, content-type, flash-data and precognitive helpers, offers fluent Response, JsonResponse, RedirectResponse and StreamedEvent writers, and includes file-upload handling with pluggable storage. Sub-packages supply HTTP middleware, an outbound HTTP client with testing fakes, JSON API resources, and test-double utilities.
+The HTTP reference is organized around the exported Go surface for package `httpx`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -124,7 +124,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/httpx/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/httpx/...
 ```
 
 Upstream parity is tracked by these tests:

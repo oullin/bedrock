@@ -26,7 +26,7 @@ go get github.com/bedrock/packages/pipeline@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pipeline/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pipeline/...
 ```
 
 ## Source Coverage
@@ -37,7 +37,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package pipeline provides a middleware-style processing chain. It allows sending a value through a series of pipes, where each pipe can inspect, transform, or short-circuit the chain.
+The pipeline reference is organized around the exported Go surface for package `pipeline`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -111,7 +111,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pipeline/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pipeline/...
 ```
 
 Upstream parity is tracked by these tests:

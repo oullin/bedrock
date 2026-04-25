@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/remotetasks@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package remotetasks provides task planning and execution primitives inspired by Upstream RemoteTasks.
+The remotetasks reference is organized around the exported Go surface for package `remotetasks`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -112,7 +112,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
 ```
 
 No dedicated Upstream inventory test was detected for this package. Use the ordinary package tests and exported API as the documentation source of truth.
