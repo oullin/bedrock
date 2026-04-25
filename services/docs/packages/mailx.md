@@ -1,106 +1,288 @@
-# mailx
+# Mail
 
-<!-- upstream-docs: mail.md#mail -->
-<!-- upstream-docs: mail.md#custom-transports -->
-<!-- upstream-docs: mail.md#sending-mail -->
-<!-- upstream-docs: mail.md#testing -->
+<!-- upstream-docs: mail.md#introduction -->
+<!-- upstream-docs: mail.md#generating-mailables -->
+<!-- upstream-docs: mail.md#events -->
 
-Driver-based email sending.
+Package mailx provides driver-based email sending with support for SMTP, log, and array (testing) transports. It mirrors Upstream's Mail component, offering a unified API through the MailManager and individual mailers for each transport type. The package supports rich message construction including HTML and plain-text bodies, file attachments, inline embeds, custom headers, metadata, and tags. Events are dispatched before and after sending for observability and interception.
 
-## Overview
+<div class="docs-callout docs-callout-upstream">
+  <strong>Upstream baseline.</strong>
+  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
+</div>
 
-The `mailx` package provides a `Manager` that creates named `Mailer` instances.
-Each mailer delegates to a swappable `Transport` for delivery. Lifecycle events
-are fired before and after each send.
+<div class="docs-callout docs-callout-go">
+  <strong>Go adaptation.</strong>
+  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
+</div>
 
-**Module:** `github.com/bedrock/packages/mailx`
+## Installation
+
+Install this module directly in applications that consume packages independently:
 
 ```bash
 go get github.com/bedrock/packages/mailx@latest
 ```
 
-## Transports
+When working inside this monorepo, use the repository workspace:
 
-| Transport        | Description                                   |
-| ---------------- | --------------------------------------------- |
-| `SmtpTransport`  | Production SMTP delivery                      |
-| `LogTransport`   | Writes message to a logger (development)      |
-| `ArrayTransport` | Stores messages in memory (testing / preview) |
-
-## Creating a Mailer
-
-```go
-transport := mailx.NewSmtpTransport(mailx.SmtpConfig{
-    Host:     "smtp.example.com",
-    Port:     587,
-    Username: "user@example.com",
-    Password: "secret",
-})
-
-mailer := mailx.NewMailer("default", transport)
+```bash
+GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/mailx/...
 ```
 
-## Sending Mail
+## Source Coverage
 
-Implement `mailx.Mailable` to describe a message:
+| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mailx` | Package mailx provides driver-based email sending with support for SMTP, log, and array (testing) transports. It mirrors Upstream's Mail component, offering a unified API through the MailManager and individual mailers for each transport type. The package supports rich message construction including HTML and plain-text bodies, file attachments, inline embeds, custom headers, metadata, and tags. Events are dispatched before and after sending for observability and interception. |
+
+## Core Concepts
+
+Package mailx provides driver-based email sending with support for SMTP, log, and array (testing) transports. It mirrors Upstream's Mail component, offering a unified API through the MailManager and individual mailers for each transport type. The package supports rich message construction including HTML and plain-text bodies, file attachments, inline embeds, custom headers, metadata, and tags. Events are dispatched before and after sending for observability and interception.
+
+### Public Surface
+
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `APIEmailClient`, `APIEmailPayload`, `APIEmailResult`, `ArrayTransport`, `FailoverTransport`, `LogTransport`, `MailFromConfig`, `MailManager`, `MailProviderConfig`, `MailServiceProvider`, `Mailable`, `Mailer`, `MailerOption`, `ManagerOption`, `MessageSending`, `MessageSent`, `PendingMail`, `RoundRobinTransport`, `SMTPOption`, `SMTPTransport`, and 3 more |
+| Constructors and functions | `AddBCC`, `AddCC`, `AddHeader`, `AddReplyTo`, `AddTo`, `AlwaysFrom`, `AlwaysReplyTo`, `AlwaysReturnPath`, `AlwaysTo`, `AssertFrom`, `AssertHasAttachment`, `AssertHasBCC`, `AssertHasCC`, `AssertHasMetadata`, `AssertHasNoAttachments`, `AssertHasReplyTo`, `AssertHasSubject`, `AssertHasTag`, `AssertTo`, `Attach`, and 95 more                                  |
+| Variables                  | `ErrInvalidAddress`, `ErrInvalidDriver`, `ErrMailerNotFound`, `ErrNoContent`, `ErrNoQueue`, `ErrNoRecipients`, `ErrSendFailed`, `ErrTransportClosed`                                                                                                                                                                                                                |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                                                                                                                               |
+
+### Capability Matrix
+
+| Capability                       | Documentation note                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Drivers and managers             | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Queue, async, or background work | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+
+## Usage
+
+Start with the package constructor or manager type when one is exported. Bedrock keeps dependencies explicit, so callers should pass repositories, stores, handlers, dispatchers, clocks, or clients directly instead of relying on global framework state.
 
 ```go
-type WelcomeMail struct {
-    User *User
+package main
+
+import (
+    _ "github.com/bedrock/packages/mailx"
+)
+
+func main() {
+    // Import the package you use, then wire the exported constructors,
+    // managers, stores, handlers, or helpers required by your application.
 }
-
-func (m *WelcomeMail) Envelope() *cmail.Envelope {
-    return &cmail.Envelope{
-        Subject: "Welcome to Bedrock!",
-        To:      []cmail.Address{{Email: m.User.Email, Name: m.User.Name}},
-    }
-}
-
-func (m *WelcomeMail) Content() *cmail.Content {
-    return &cmail.Content{HtmlBody: "<h1>Welcome</h1>"}
-}
-
-func (m *WelcomeMail) Attachments() []cmail.Attachment { return nil }
 ```
 
-```go
-err := mailer.Send(ctx, &WelcomeMail{User: user})
-```
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/mailx` cover the supported creation paths, default values, and Upstream parity behavior.
 
-## Global Overrides
+## Configuration
 
-```go
-mailer.AlwaysFrom("noreply@example.com", "Bedrock")
-mailer.AlwaysReplyTo("support@example.com")
+Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-// Force all mail to a single address (useful in staging)
-mailer.AlwaysTo("dev@example.com")
-```
+| Upstream shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
+| Service providers | Go service-provider structs or direct application wiring |
+| Runtime helpers   | Package functions and interfaces                         |
 
-## Using the Manager
+Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
-```go
-manager := mailx.NewManager(map[string]mailx.MailerFactory{
-    "default": func() (*mailx.Mailer, error) {
-        return mailx.NewMailer("default", smtpTransport), nil
-    },
-    "log": func() (*mailx.Mailer, error) {
-        return mailx.NewMailer("log", mailx.NewLogTransport(logger)), nil
-    },
-})
+## Advanced Features
 
-m, err := manager.Mailer("log")
-m.Send(ctx, mailable)
-```
+The package reference should be read through these Upstream parity lenses:
+
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+
+## Edge Cases
+
+- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
+- Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
+- For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
+- For test fakes, document whether assertions inspect recorded calls, stored payloads, emitted events, or rendered output.
 
 ## Testing
 
-Use `ArrayTransport` to capture sent messages in tests:
+Run the package tests before changing examples:
 
-```go
-arr := mailx.NewArrayTransport()
-mailer := mailx.NewMailer("test", arr)
-mailer.Send(ctx, &WelcomeMail{})
-
-sent := arr.Messages() // []*mailx.SentMessage
+```bash
+GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/mailx/...
 ```
+
+Upstream parity is tracked by these tests:
+
+- `packages/mailx/mail_laravel_test.go`
+
+## API Reference
+
+### Exported Types
+
+| Type                  | Notes                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `APIEmailClient`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `APIEmailPayload`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `APIEmailResult`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ArrayTransport`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FailoverTransport`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LogTransport`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailFromConfig`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailManager`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailProviderConfig`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Mailable`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Mailer`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailerOption`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ManagerOption`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MessageSending`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MessageSent`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PendingMail`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RoundRobinTransport` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SMTPOption`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SMTPTransport`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TextMessage`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Transport`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TransportFactory`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+### Exported Functions
+
+| Function                       | Notes                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `AddBCC`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddCC`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddHeader`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddReplyTo`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddTo`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysFrom`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysReplyTo`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysReturnPath`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysTo`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertFrom`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasAttachment`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasBCC`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasCC`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasMetadata`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasNoAttachments`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasReplyTo`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasSubject`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertHasTag`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertTo`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Attach`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AttachData`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AttachFromPath`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AttachFromStorage`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AttachFromStorageDisk`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AttachMany`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BCC`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Build`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CC`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Embed`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EmbedData`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Extend`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flush`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForgetMailers`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetAttachments`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetCallbacks`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetContent`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetDefaultDriver`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetEnvelope`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetHeaders`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetLocale`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetMailerName`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetMailers`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTransport`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HTML`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAttachment`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAttachmentFromPath`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAttachmentFromStorage`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAttachmentFromStorageDisk` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasBCC`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasCC`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasFrom`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasMetadata`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasReplyTo`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasSubject`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasTag`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasTo`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Later`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Locale`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Logger`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Mailer`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Messages`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Name`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewArrayTransport`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewCloudflareTransport`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFailoverTransport`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewLogTransport`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMailServiceProvider`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMailer`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewManager`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewRoundRobinTransport`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSESTransport`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSESV2Transport`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSMTPTransport`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewTextMessage`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Plain`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Purge`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Queue`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Raw`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Render`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Send`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SendNow`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetBCC`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetCC`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetDefaultDriver`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetFrom`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetHTML`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetHTMLView`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetLocale`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMailer`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMarkdown`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMessageID`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMetadata`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetPriority`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetReferences`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetReplyTo`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetSubject`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetText`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetTo`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetTransport`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Tag`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Tap`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `To`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `With`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithCallback`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithData`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithDefaultMailer`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithDispatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithEncryption`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithLocalName`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithLogger`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithManagerDispatcher`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+### Exported Errors, Variables, and Constants
+
+| Name                 | Notes                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| `ErrInvalidAddress`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrInvalidDriver`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrMailerNotFound`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrNoContent`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrNoQueue`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrNoRecipients`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrSendFailed`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrTransportClosed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+## Upstream Parity Notes
+
+This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.
