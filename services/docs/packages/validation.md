@@ -1,139 +1,252 @@
 # validation
 
-<!-- laravel-docs: validation.md#validation -->
-<!-- laravel-docs: validation.md#validation-quickstart -->
-<!-- laravel-docs: validation.md#manually-creating-validators -->
-<!-- laravel-docs: validation.md#custom-validation-rules -->
-<!-- laravel-docs: validation.md#working-with-error-messages -->
+<!-- laravel-docs: validation.md#introduction -->
 <!-- laravel-docs: validation.md#available-validation-rules -->
+<!-- laravel-docs: validation.md#working-with-validated-input -->
+<!-- laravel-docs: validation.md#validating-files -->
 
-Rule-based input validation — a 1:1 Go port of Laravel's validator.
+Package validation is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required|email|max:255"), and collects failures into a MessageBag.
 
-## Overview
+<div class="docs-callout docs-callout-laravel">
+  <strong>Laravel baseline.</strong>
+  This page follows the Laravel 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
+</div>
 
-The `validation` package provides a `Factory` that creates `Validator` instances.
-It ports 80+ Laravel validation rules, pipe-delimited rule syntax, custom
-messages, and the `MessageBag` error collection.
+<div class="docs-callout docs-callout-go">
+  <strong>Go adaptation.</strong>
+  Bedrock replaces Laravel facades, service container magic, PHP traits, and Artisan commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
+</div>
 
-**Module:** `github.com/bedrock/packages/validation`
+## Installation
+
+Install this module directly in applications that consume packages independently:
 
 ```bash
 go get github.com/bedrock/packages/validation@latest
 ```
 
-## Quick Start
+When working inside this monorepo, use the repository workspace:
+
+```bash
+GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/validation/...
+```
+
+## Source Coverage
+
+| Package      | Purpose                                                                                                                                                                                                                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `validation` | Package validation is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required\|email\|max:255"), and collects failures into a MessageBag. |
+| `rules`      | Public rules API surface for this module.                                                                                                                                                                                                                                                                   |
+
+## Core Concepts
+
+Package validation is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required|email|max:255"), and collects failures into a MessageBag.
+
+### Public Surface
+
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Types                      | `ArrayRule`, `CallbackExcludeIfRule`, `CallbackProhibitedIfRule`, `CallbackRequiredIfRule`, `ConditionalRule`, `Factory`, `InRule`, `MessageBag`, `NotInRule`, `ParsedRule`, `PasswordOptions`, `PasswordRule`, `PresenceVerifier`, `RuleContext`, `RuleFunc`, `ValidatedInput`, `ValidationException`, `ValidationServiceProvider`, `Validator` |
+| Constructors and functions | `ActiveRules`, `Add`, `AddExtension`, `AddImplicitExtension`, `AddRules`, `All`, `Array`, `CheckPassword`, `Count`, `Error`, `Errors`, `Except`, `ExcludeIf`, `ExpandWildcards`, `Explode`, `Extend`, `ExtendImplicit`, `Failed`, `Fails`, `First`, and 60 more                                                                                  |
+| Variables                  | `DefaultMessages`, `ErrValidationFailed`, `Rule`                                                                                                                                                                                                                                                                                                 |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                                                                                                            |
+
+### Capability Matrix
+
+| Capability                            | Documentation note                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Database-backed persistence           | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Security-sensitive behavior           | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+
+## Usage
+
+Start with the package constructor or manager type when one is exported. Bedrock keeps dependencies explicit, so callers should pass repositories, stores, handlers, dispatchers, clocks, or clients directly instead of relying on global framework state.
 
 ```go
-factory := validation.NewFactory()
+package main
 
-v := factory.Make(
-    // data to validate
-    map[string]any{
-        "name":  "Alice",
-        "email": "alice@example.com",
-        "age":   17,
-    },
-    // rules (pipe-delimited string, slice, or ValidationRule object)
-    map[string]any{
-        "name":  "required|string|max:255",
-        "email": "required|email",
-        "age":   "required|integer|min:18",
-    },
-    nil, // custom messages (optional)
-    nil, // attribute display names (optional)
+import (
+    _ "github.com/bedrock/packages/validation"
 )
 
-if v.Fails() {
-    errs := v.Errors() // *validation.MessageBag
-    fmt.Println(errs.All())
+func main() {
+    // Import the package you use, then wire the exported constructors,
+    // managers, stores, handlers, or helpers required by your application.
 }
 ```
 
-## Validate (shorthand)
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/validation` cover the supported creation paths, default values, and Laravel parity behavior.
 
-`Validate` creates and runs the validator in one call, returning validated data
-or a `*ValidationException` on failure:
+## Configuration
 
-```go
-data, err := factory.Validate(
-    map[string]any{"email": "bad"},
-    map[string]any{"email": "required|email"},
-    nil, nil,
-)
+Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
+| Service providers | Go service-provider structs or direct application wiring |
+| Runtime helpers   | Package functions and interfaces                         |
+
+Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
+
+## Advanced Features
+
+The package reference should be read through these Laravel parity lenses:
+
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+
+## Edge Cases
+
+- Do not translate PHP-only behavior literally. If Laravel depends on PHP traits, request globals, Blade, Artisan, or Eloquent magic, document the Bedrock Go equivalent instead.
+- Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
+- Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
+- For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
+- For test fakes, document whether assertions inspect recorded calls, stored payloads, emitted events, or rendered output.
+
+## Testing
+
+Run the package tests before changing examples:
+
+```bash
+GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/validation/...
 ```
 
-## Rule Syntax
+Laravel parity is tracked by these tests:
 
-Rules are expressed as pipe-delimited strings, slices, or objects:
+- `packages/validation/inventory_parity_executable_test.go`
+- `packages/validation/inventory_parity_more_test.go`
+- `packages/validation/rule_parser_parity_additional_test.go`
+- `packages/validation/validation_focus_parity_test.go`
+- `packages/validation/validator_laravel_test.go`
+- `packages/validation/validator_parity_additional_test.go`
 
-```go
-// String
-"required|string|max:255"
+## API Reference
 
-// Slice of strings
-[]string{"required", "string", "max:255"}
+### Exported Types
 
-// Mixed slice (strings + rule objects)
-[]any{"required", rules.Min(18)}
-```
+| Type                        | Notes                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| `ArrayRule`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CallbackExcludeIfRule`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CallbackProhibitedIfRule`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CallbackRequiredIfRule`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ConditionalRule`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Factory`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `InRule`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MessageBag`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NotInRule`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ParsedRule`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PasswordOptions`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PasswordRule`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PresenceVerifier`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RuleContext`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RuleFunc`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ValidatedInput`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ValidationException`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ValidationServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Validator`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 
-## Custom Messages
+### Exported Functions
 
-```go
-factory.Make(data, rules, map[string]string{
-    "email.required": "An e-mail address is required.",
-    "email.email":    "Please enter a valid e-mail.",
-}, nil)
-```
+| Function                       | Notes                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `ActiveRules`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Add`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddExtension`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddImplicitExtension`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddRules`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `All`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Array`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CheckPassword`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Count`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Error`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Errors`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Except`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ExcludeIf`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ExpandWildcards`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Explode`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Extend`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ExtendImplicit`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Failed`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fails`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `First`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FlattenData`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetData`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetFormat`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOriginalData`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetPresenceVerifier`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetRules`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetValue`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Has`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasRule`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `In`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsEmpty`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsImplicit`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsNotEmpty`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsObject`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsPresent`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsSometimes`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Keys`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Letters`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Lookup`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Make`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Max`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Merge`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MessageTypeForSize`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Min`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MixedCase`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFactory`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMessageBag`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewValidationServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NotIn`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Numbers`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Only`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Parse`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Passes`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Password`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ProhibitedIf`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RegisterImplicit`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RequiredIf`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Safe`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetAttributeNames`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetCustomMessages`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetData`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetFormat`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMessage`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetPresenceVerifier`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetRules`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShouldExclude`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StringifyValue`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StudlyCase`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Symbols`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToJSON`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToMap`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unless`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unwrap`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Validate`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Validated`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `When`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
 
-## Custom Attribute Names
+### Exported Errors, Variables, and Constants
 
-```go
-factory.Make(data, rules, nil, map[string]string{
-    "email": "E-mail Address",
-})
-```
+| Name                  | Notes                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `DefaultMessages`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrValidationFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Rule`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 
-## Custom Rules
+## Laravel Parity Notes
 
-Register an extension on the factory:
-
-```go
-factory.Extend("uppercase", func(attr, value string, params []string, v *validation.Validator) bool {
-    return value == strings.ToUpper(value)
-})
-```
-
-Use `ExtendImplicit` for rules that should run even when the field is absent.
-
-## MessageBag
-
-```go
-bag := v.Errors()
-
-bag.Has("email")        // bool
-bag.Get("email")        // []string{"The email field is required."}
-bag.First("email")      // "The email field is required."
-bag.All()               // map[string][]string
-bag.ToJSON()            // JSON bytes
-```
-
-## Selected Built-in Rules
-
-| Rule                  | Description                          |
-| --------------------- | ------------------------------------ |
-| `required`            | Field must be present and non-empty  |
-| `string`              | Must be a string                     |
-| `integer` / `int`     | Must be an integer                   |
-| `numeric`             | Must be a number                     |
-| `email`               | Must be a valid e-mail               |
-| `url`                 | Must be a valid URL                  |
-| `min:N`               | Minimum value / length / count       |
-| `max:N`               | Maximum value / length / count       |
-| `between:N,M`         | Value between N and M                |
-| `in:a,b,c`            | Must be one of the listed values     |
-| `unique:table,column` | Must not exist in the database       |
-| `confirmed`           | Must match `{field}_confirmation`    |
-| `date`                | Must be a parseable date             |
-| `regex:pattern`       | Must match the regular expression    |
-| `nullable`            | Allow null values to pass validation |
+This page should stay aligned with the official Laravel 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Laravel feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Laravel feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

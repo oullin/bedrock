@@ -1,5 +1,11 @@
 version: 1
 
+# Package reference coverage is generated from Bedrock source facts by
+# `services/docs/scripts/enrich-package-docs.mjs`. Keep the upstream Laravel
+# section classifications below for compliance accounting; each generated
+# package page also carries `<!-- laravel-docs: ... -->` markers for the
+# relevant Laravel 13.x source sections.
+
 ported: []
 
 adapted:
