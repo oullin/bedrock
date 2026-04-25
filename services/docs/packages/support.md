@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/support@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/support/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/support/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package support provides Go ports of Upstream's Framework/Support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox).
+The support reference is organized around the exported Go surface for package `support`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
 ### Public Surface
 
@@ -113,7 +113,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/support/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/support/...
 ```
 
 Upstream parity is tracked by these tests:

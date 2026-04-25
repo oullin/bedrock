@@ -223,6 +223,14 @@ function tableRows(items, empty) {
   return items.map((item) => `| \`${item}\` | Source-backed public surface. See the Go package for exact signature and behavior. |`).join('\n') + '\n'
 }
 
+function monorepoTestCommand(slug) {
+  return `GOWORK=./storage/.cache/go.work go test -count=1 ./packages/${slug}/...`
+}
+
+function coreConceptsFor(title, packageName) {
+  return `The ${title} reference is organized around the exported Go surface for package \`${packageName}\`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.`
+}
+
 function packageMapTable(subdocs, sourceRoot) {
   if (subdocs.length === 0) {
     return '| Package | Purpose |\n| --- | --- |\n| Root package | Primary public API for this module. |\n'
@@ -255,6 +263,7 @@ function guideFor(slug) {
   const modulePath = `github.com/bedrock/packages/${slug}`
   const packageName = slug.split('/').at(-1)
   const title = titleFor(slug)
+  const coreConcepts = coreConceptsFor(title, packageName)
 
   return `# ${title}
 
@@ -283,7 +292,7 @@ go get ${modulePath}@latest
 When working inside this monorepo, use the repository workspace:
 
 \`\`\`bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/${slug}/...
+${monorepoTestCommand(slug)}
 \`\`\`
 
 ## Source Coverage
@@ -291,7 +300,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 ${packageMapTable(subdocs, sourceRoot)}
 ## Core Concepts
 
-${summary}
+${coreConcepts}
 
 ### Public Surface
 
@@ -365,7 +374,7 @@ The package reference should be read through these Upstream parity lenses:
 Run the package tests before changing examples:
 
 \`\`\`bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/${slug}/...
+${monorepoTestCommand(slug)}
 \`\`\`
 
 ${inventories.length > 0 ? `Upstream parity is tracked by these tests:\n\n${inventories.map((file) => `- \`${file}\``).join('\n')}` : 'No dedicated Upstream inventory test was detected for this package. Use the ordinary package tests and exported API as the documentation source of truth.'}
