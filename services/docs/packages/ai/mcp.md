@@ -6,7 +6,7 @@
 <!-- laravel-docs: mcp.md#prompts -->
 <!-- laravel-docs: mcp.md#testing-servers -->
 
-Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioural port of the Laravel MCP package, adapted idiomatically to Go.
+Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioral port of the Laravel MCP package, adapted idiomatically to Go.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -29,18 +29,18 @@ go get github.com/bedrock/packages/ai/mcp@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/mcp/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/mcp/...
 ```
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                       |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mcp`   | Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioural port of the Laravel MCP package, adapted idiomatically to Go. |
+| Package | Purpose                                                                                                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mcp`   | Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioral port of the Laravel MCP package, adapted idiomatically to Go. |
 
 ## Core Concepts
 
-Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioural port of the Laravel MCP package, adapted idiomatically to Go.
+The mcp reference is organized around the exported Go surface for package `mcp`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -117,7 +117,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/mcp/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/mcp/...
 ```
 
 Laravel parity is tracked by these tests:

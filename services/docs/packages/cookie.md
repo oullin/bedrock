@@ -25,7 +25,7 @@ go get github.com/bedrock/packages/cookie@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/cookie/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cookie/...
 ```
 
 ## Source Coverage
@@ -36,7 +36,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package cookie provides Laravel-inspired cookie management primitives. It includes a queuing cookie jar, factory interfaces, and HTTP middleware for transparent cookie encryption/decryption and automatic attachment of queued cookies to responses.
+The cookie reference is organized around the exported Go surface for package `cookie`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -111,7 +111,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/cookie/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cookie/...
 ```
 
 Laravel parity is tracked by these tests:

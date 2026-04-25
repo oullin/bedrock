@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/pagination@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pagination/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pagination/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package pagination provides offset-based and cursor-based paginators mirroring Laravel's Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
+The pagination reference is organized around the exported Go surface for package `pagination`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -112,7 +112,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pagination/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pagination/...
 ```
 
 Laravel parity is tracked by these tests:

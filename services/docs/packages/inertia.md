@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/inertia@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/inertia/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/inertia/...
 ```
 
 ## Source Coverage
@@ -44,7 +44,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package inertia is the server-side Go adapter for the Inertia.js protocol. It renders Inertia pages (JSON on XHR visits, HTML on the first request), merges shared and per-request props, manages the head (title, meta, links), and integrates with CSRF, i18n, precognition, and flash middleware.
+The inertia reference is organized around the exported Go surface for package `inertia`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -121,7 +121,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/inertia/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/inertia/...
 ```
 
 No dedicated Laravel inventory test was detected for this package. Use the ordinary package tests and exported API as the documentation source of truth.

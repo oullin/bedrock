@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/console@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/console/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/console/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package console provides Laravel-inspired command, output, prompt, signal, mutex, and scheduler primitives for Bedrock applications.
+The console reference is organized around the exported Go surface for package `console`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -112,7 +112,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/console/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/console/...
 ```
 
 Laravel parity is tracked by these tests:

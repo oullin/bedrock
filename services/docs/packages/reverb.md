@@ -27,7 +27,7 @@ go get github.com/bedrock/packages/reverb@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/reverb/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/reverb/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package reverb implements a Go port of the Laravel Reverb WebSocket server.
+The reverb reference is organized around the exported Go surface for package `reverb`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -113,7 +113,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/reverb/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/reverb/...
 ```
 
 Laravel parity is tracked by these tests:

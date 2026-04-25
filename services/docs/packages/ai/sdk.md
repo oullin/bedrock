@@ -29,7 +29,7 @@ go get github.com/bedrock/packages/ai/sdk@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
 ```
 
 ## Source Coverage
@@ -62,7 +62,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the laravel/ai (0.x) package, offering 100% functional parity adapted idiomatically to Go.
+The sdk reference is organized around the exported Go surface for package `sdk`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -142,7 +142,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
 ```
 
 Laravel parity is tracked by these tests:

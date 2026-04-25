@@ -25,7 +25,7 @@ go get github.com/bedrock/packages/telescope@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/telescope/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/telescope/...
 ```
 
 ## Source Coverage
@@ -39,7 +39,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package telescope provides a debugging and introspection tool for Go applications, mirroring Laravel Telescope. It captures HTTP requests, database queries, exceptions, log messages, events, queued jobs, cache operations, mail, notifications, model changes, views, commands, scheduled tasks, Redis commands, authorization gates, outbound HTTP client calls, and debug dumps. Every captured item is a typed, UUID-keyed entry grouped into batches and persisted via a pluggable repository contract.
+The telescope reference is organized around the exported Go surface for package `telescope`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -114,7 +114,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/telescope/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/telescope/...
 ```
 
 Laravel parity is tracked by these tests:

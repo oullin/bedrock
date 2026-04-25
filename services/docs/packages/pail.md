@@ -25,7 +25,7 @@ go get github.com/bedrock/packages/pail@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pail/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pail/...
 ```
 
 ## Source Coverage
@@ -36,7 +36,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package pail provides log tailing and filtering primitives inspired by Laravel Pail.
+The pail reference is organized around the exported Go surface for package `pail`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -110,7 +110,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/pail/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pail/...
 ```
 
 No dedicated Laravel inventory test was detected for this package. Use the ordinary package tests and exported API as the documentation source of truth.

@@ -28,7 +28,7 @@ go get github.com/bedrock/packages/ai/boost@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
 ```
 
 ## Source Coverage
@@ -48,7 +48,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package boost provides a Go port of laravel/boost — an IDE coding-assistant integration layer. It includes agent detection and MCP configuration writing for nine AI coding agents (Cursor, Claude Code, Copilot, Codex, Gemini, Amp, Junie, Kiro, OpenCode), guidelines and skills file management, nine MCP server tools (application info, database introspection, log reading, docs search), and install utilities for writing config/guideline/skill files to disk.
+The boost reference is organized around the exported Go surface for package `boost`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -124,7 +124,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
 ```
 
 Laravel parity is tracked by these tests:

@@ -26,7 +26,7 @@ go get github.com/bedrock/packages/translation@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/translation/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/translation/...
 ```
 
 ## Source Coverage
@@ -37,7 +37,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-Package translation provides Laravel-inspired i18n support: key-based message lookup with namespace/fallback resolution, CLDR pluralization, file-based and in-memory loaders, and atomic placeholder substitution.
+The translation reference is organized around the exported Go surface for package `translation`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -111,7 +111,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/translation/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/translation/...
 ```
 
 Laravel parity is tracked by these tests:

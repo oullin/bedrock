@@ -28,7 +28,7 @@ go get github.com/bedrock/packages/fortify@latest
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/fortify/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/fortify/...
 ```
 
 ## Source Coverage
@@ -39,7 +39,7 @@ GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./pa
 
 ## Core Concepts
 
-The fortify package provides Bedrock's Go implementation for this Laravel-aligned surface.
+The fortify reference is organized around the exported Go surface for package `fortify`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
 
 ### Public Surface
 
@@ -113,7 +113,7 @@ The package reference should be read through these Laravel parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=/Users/gocanto/Sites/bedrock/storage/.cache/go.work go test -count=1 ./packages/fortify/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/fortify/...
 ```
 
 Laravel parity is tracked by these tests:
