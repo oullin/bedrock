@@ -1,103 +1,171 @@
-# jsonx
+# JSON Schema
 
-<!-- upstream-docs: validation.md#validating-arrays -->
+<!-- upstream-docs: validation.md#working-with-validated-input -->
 
-Fluent JSON Schema builder.
+Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Upstream's Framework\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition.
 
-## Overview
+<div class="docs-callout docs-callout-upstream">
+  <strong>Upstream baseline.</strong>
+  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
+</div>
 
-The `jsonx` package provides type-safe builders for JSON Schema primitives. It
-mirrors Upstream's `JsonSchemaTypeFactory` and is primarily used when defining
-validation schemas for AI model structured outputs or API contracts.
+<div class="docs-callout docs-callout-go">
+  <strong>Go adaptation.</strong>
+  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
+</div>
 
-**Module:** `github.com/bedrock/packages/jsonx`
+## Installation
+
+Install this module directly in applications that consume packages independently:
 
 ```bash
 go get github.com/bedrock/packages/jsonx@latest
 ```
 
-## Schema Types
+When working inside this monorepo, use the repository workspace:
 
-| Builder     | JSON Schema type    |
-| ----------- | ------------------- |
-| `Object(…)` | `"type": "object"`  |
-| `Array()`   | `"type": "array"`   |
-| `String()`  | `"type": "string"`  |
-| `Integer()` | `"type": "integer"` |
-| `Number()`  | `"type": "number"`  |
-| `Boolean()` | `"type": "boolean"` |
-
-## Building a Schema
-
-```go
-schema := jsonx.Object(map[string]jsonx.SchemaType{
-    "name":  jsonx.String().MinLength(1).MaxLength(255),
-    "age":   jsonx.Integer().Minimum(0).Maximum(150),
-    "email": jsonx.String().Format("email"),
-    "score": jsonx.Number().Minimum(0.0).Maximum(100.0),
-    "active": jsonx.Boolean(),
-    "tags":  jsonx.Array().Items(jsonx.String()),
-})
+```bash
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jsonx/...
 ```
 
-## Closure Syntax
+## Source Coverage
 
-Build properties inline using the `Factory`:
+| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `jsonx` | Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Upstream's Framework\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition. |
 
-```go
-schema := jsonx.Object(func(f jsonx.Factory) map[string]jsonx.SchemaType {
-    return map[string]jsonx.SchemaType{
-        "title":   f.String().MinLength(1),
-        "count":   f.Integer().Minimum(1),
-        "enabled": f.Boolean(),
-    }
-})
-```
+## Core Concepts
 
-## Serialization
+The JSON Schema reference is organized around the exported Go surface for package `jsonx`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
 
-```go
-out, err := schema.Serialize() // map[string]any ready for JSON encoding
-data, err := json.Marshal(out)
-```
+### Public Surface
 
-## String Constraints
+| Surface                    | Exported API                                                                                                                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `ArrayType`, `BooleanType`, `Factory`, `IntegerType`, `NumberType`, `ObjectType`, `SchemaType`, `StringType`, `TypeBuilder`                                                                                                |
+| Constructors and functions | `Array`, `Boolean`, `Default`, `Description`, `Enum`, `Format`, `Integer`, `Items`, `Max`, `Min`, `MultipleOf`, `Nullable`, `Number`, `Object`, `Pattern`, `Required`, `Serialize`, `String`, `Title`, `ToMap`, and 2 more |
+| Variables                  | `ErrUnknownType`                                                                                                                                                                                                           |
+| Constants                  | None exported from this package root.                                                                                                                                                                                      |
 
-```go
-jsonx.String().
-    MinLength(3).
-    MaxLength(50).
-    Pattern(`^[a-z]+$`).
-    Format("email")
-```
+### Capability Matrix
 
-## Numeric Constraints
+| Capability                            | Documentation note                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+
+## Usage
+
+Start with the package constructor or manager type when one is exported. Bedrock keeps dependencies explicit, so callers should pass repositories, stores, handlers, dispatchers, clocks, or clients directly instead of relying on global framework state.
 
 ```go
-jsonx.Integer().
-    Minimum(0).
-    Maximum(100).
-    MultipleOf(5)
+package main
 
-jsonx.Number().
-    ExclusiveMinimum(0.0).
-    ExclusiveMaximum(1.0)
+import (
+    _ "github.com/bedrock/packages/jsonx"
+)
+
+func main() {
+    // Import the package you use, then wire the exported constructors,
+    // managers, stores, handlers, or helpers required by your application.
+}
 ```
 
-## Array Constraints
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/jsonx` cover the supported creation paths, default values, and Upstream parity behavior.
 
-```go
-jsonx.Array().
-    Items(jsonx.String()).
-    MinItems(1).
-    MaxItems(10).
-    UniqueItems(true)
+## Configuration
+
+Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+
+| Upstream shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
+| Service providers | Go service-provider structs or direct application wiring |
+| Runtime helpers   | Package functions and interfaces                         |
+
+Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
+
+## Advanced Features
+
+The package reference should be read through these Upstream parity lenses:
+
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+
+## Edge Cases
+
+- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
+- Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
+- For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
+- For test fakes, document whether assertions inspect recorded calls, stored payloads, emitted events, or rendered output.
+
+## Testing
+
+Run the package tests before changing examples:
+
+```bash
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jsonx/...
 ```
 
-## Object Constraints
+Upstream parity is tracked by these tests:
 
-```go
-jsonx.Object(properties).
-    Required("name", "email").
-    AdditionalProperties(false)
-```
+- `packages/jsonx/json_schema_laravel_test.go`
+
+## API Reference
+
+### Exported Types
+
+| Type          | Notes                                                                              |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `ArrayType`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BooleanType` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Factory`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IntegerType` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NumberType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ObjectType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SchemaType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StringType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TypeBuilder` | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+### Exported Functions
+
+| Function                      | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `Array`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Boolean`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Default`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Description`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Enum`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Format`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Integer`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Items`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Max`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Min`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MultipleOf`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Nullable`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Number`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Object`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pattern`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Required`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Serialize`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Title`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToMap`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unique`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithoutAdditionalProperties` | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+### Exported Errors, Variables, and Constants
+
+| Name             | Notes                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `ErrUnknownType` | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+## Upstream Parity Notes
+
+This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

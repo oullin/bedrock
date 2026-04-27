@@ -1,5 +1,5 @@
 // Package mcp provides a complete Go implementation of the Model Context
-// Protocol (MCP) server specification. It is a behavioural port of the
+// Protocol (MCP) server specification. It is a behavioral port of the
 // Upstream MCP package, adapted idiomatically to Go.
 //
 // MCP allows applications to expose themselves as servers that AI agents
