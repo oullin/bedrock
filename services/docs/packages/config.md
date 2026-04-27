@@ -4,11 +4,7 @@
 <!-- laravel-docs: configuration.md#environment-configuration -->
 <!-- laravel-docs: configuration.md#accessing-configuration-values -->
 
-Package config provides a Laravel-inspired configuration repository backed
-by Viper. It stores key-value pairs in a nested map with dot-notation
-access, type-safe getters, and array manipulation helpers (prepend and
-push). Consumers get YAML file and environment variable support out of the
-box through the underlying Viper instance.
+Package config provides a Laravel-inspired configuration repository backed by Viper. It stores key-value pairs in a nested map with dot-notation access, type-safe getters, and array manipulation helpers (prepend and push). Consumers get YAML file and environment variable support out of the box through the underlying Viper instance.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -36,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/config/...
 
 ## Source Coverage
 
-| Package  | Purpose                                                                                                                                                                                                                                                                                                                                       |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package | Purpose |
+| --- | --- |
 | `config` | Package config provides a Laravel-inspired configuration repository backed by Viper. It stores key-value pairs in a nested map with dot-notation access, type-safe getters, and array manipulation helpers (prepend and push). Consumers get YAML file and environment variable support out of the box through the underlying Viper instance. |
 
 ## Core Concepts
@@ -46,18 +42,18 @@ The config reference is organized around the exported Go surface for package `co
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                    |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `Repository`                                                                                                                                                                                    |
+| Surface | Exported API |
+| --- | --- |
+| Types | `Repository` |
 | Constructors and functions | `All`, `Array`, `Boolean`, `Collection`, `Float`, `Get`, `GetMany`, `Has`, `Integer`, `New`, `NewFromViper`, `NewWithDefaults`, `Prepend`, `Push`, `Set`, `SetMany`, `String`, `Unset`, `Viper` |
-| Variables                  | `ErrInvalidType`                                                                                                                                                                                |
-| Constants                  | None exported from this package root.                                                                                                                                                           |
+| Variables | `ErrInvalidType` |
+| Constants | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability                            | Documentation note                                                                                                   |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Drivers and managers                  | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability | Documentation note |
+| --- | --- |
+| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -83,12 +79,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
-| ----------------- | -------------------------------------------------------- |
-| Config file keys  | Typed config structs, options, or constructor parameters |
-| Facade defaults   | Explicit manager/default-driver setup                    |
+| Laravel shape | Bedrock shape |
+| --- | --- |
+| Config file keys | Typed config structs, options, or constructor parameters |
+| Facade defaults | Explicit manager/default-driver setup |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers   | Package functions and interfaces                         |
+| Runtime helpers | Package functions and interfaces |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -96,13 +92,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area              | Documentation coverage                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------- |
+| Area | Documentation coverage |
+| --- | --- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
-| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
-| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
-| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
+| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
+| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
+| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
 
 ## Edge Cases
 
@@ -128,38 +124,38 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type         | Notes                                                                              |
-| ------------ | ---------------------------------------------------------------------------------- |
+| Type | Notes |
+| --- | --- |
 | `Repository` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function          | Notes                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| `All`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Array`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Boolean`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Collection`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Float`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetMany`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Has`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Integer`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewFromViper`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes |
+| --- | --- |
+| `All` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Array` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Boolean` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Collection` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Float` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Has` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Integer` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFromViper` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewWithDefaults` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Prepend`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Push`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Set`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetMany`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `String`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unset`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Viper`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Prepend` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Push` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Set` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unset` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Viper` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name             | Notes                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------- |
+| Name | Notes |
+| --- | --- |
 | `ErrInvalidType` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes

@@ -3,30 +3,7 @@
 <!-- laravel-docs: scout.md#introduction -->
 <!-- laravel-docs: search.md#search -->
 
-Package scout provides full-text search with pluggable engine backends.
-It is the Go port of Laravel's Scout package, adapted to Go idioms while
-maintaining 100% function parity.
-
-Scout integrates with Eloquent models through the Searchable interface and
-SearchableMixin, providing automatic index synchronisation on model
-create, update, and delete operations.
-
-Supported search engines:
-
-- Database: full-text search via SQL (MATCH/AGAINST, tsvector, LIKE)
-- Collection: in-memory filtering without external dependencies
-- Meilisearch: HTTP-based search via the Meilisearch Go client
-- Algolia: search via the Algolia Go client
-- Typesense: search via the Typesense Go client
-- Null: no-op engine for testing and development
-
-Key components:
-
-- Engine: abstract interface for search backends
-- Builder: fluent API for constructing search queries
-- EngineManager: Manager/Driver pattern for pluggable engines
-- ModelObserver: automatic model-to-index synchronisation
-- SearchableMixin: embeddable struct providing default Searchable behaviour
+Package scout provides full-text search with pluggable engine backends. It is the Go port of Laravel's Scout package, adapted to Go idioms while maintaining 100% function parity.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -54,16 +31,16 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/scout/...
 
 ## Source Coverage
 
-| Package               | Purpose                                                                                                                                                                            |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `scout`               | Package scout provides full-text search with pluggable engine backends. It is the Go port of Laravel's Scout package, adapted to Go idioms while maintaining 100% function parity. |
-| `engines`             | Public engines API surface for this module.                                                                                                                                        |
-| `engines/algolia`     | Public engines/algolia API surface for this module.                                                                                                                                |
-| `engines/meilisearch` | Public engines/meilisearch API surface for this module.                                                                                                                            |
-| `engines/typesense`   | Public engines/typesense API surface for this module.                                                                                                                              |
-| `events`              | Package events defines domain events dispatched by Scout during search index operations.                                                                                           |
-| `internal/scouterr`   | Public internal/scouterr API surface for this module.                                                                                                                              |
-| `jobs`                | Package jobs provides queueable jobs for asynchronous search index operations. MakeSearchable indexes models in the background, and RemoveFromSearch removes them.                 |
+| Package | Purpose |
+| --- | --- |
+| `scout` | Package scout provides full-text search with pluggable engine backends. It is the Go port of Laravel's Scout package, adapted to Go idioms while maintaining 100% function parity. |
+| `engines` | Public engines API surface for this module. |
+| `engines/algolia` | Public engines/algolia API surface for this module. |
+| `engines/meilisearch` | Public engines/meilisearch API surface for this module. |
+| `engines/typesense` | Public engines/typesense API surface for this module. |
+| `events` | Package events defines domain events dispatched by Scout during search index operations. |
+| `internal/scouterr` | Public internal/scouterr API surface for this module. |
+| `jobs` | Package jobs provides queueable jobs for asynchronous search index operations. MakeSearchable indexes models in the background, and RemoveFromSearch removes them. |
 
 ## Core Concepts
 
@@ -71,18 +48,18 @@ The scout reference is organized around the exported Go surface for package `sco
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                      |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `Builder`, `ChunkConfig`, `CollectionEngine`, `CollectionResult`, `Config`, `DatabaseEngine`, `DatabaseResult`, `DriverFactory`, `Engine`, `EngineManager`, `MakeSearchable`, `ModelObserver`, `ModelsFlushed`, `ModelsImported`, `NullEngine`, `NullResult`, `PaginatedResult`, `RawPaginatedResult`, `RemovableScoutCollection`, `RemoveFromSearch`, and 5 more |
-| Constructors and functions | `Boot`, `Build`, `BuildAndRegister`, `CreateIndex`, `Cursor`, `DefaultConfig`, `Delete`, `DeleteAllIndexes`, `DeleteIndex`, `Deleted`, `DisableSearchSyncing`, `Driver`, `EnableSearchSyncing`, `Engine`, `EngineConfig`, `Extend`, `Flush`, `ForceDeleted`, `ForgetDriver`, `Get`, and 94 more                                                                   |
-| Variables                  | `ErrDriverNotSupported`, `ErrEngineNotConfigured`, `ErrFlushFailed`, `ErrIndexNotFound`, `ErrIndexingFailed`, `ErrModelNotSearchable`, `ErrSearchFailed`                                                                                                                                                                                                          |
-| Constants                  | None exported from this package root.                                                                                                                                                                                                                                                                                                                             |
+| Surface | Exported API |
+| --- | --- |
+| Types | `Builder`, `ChunkConfig`, `CollectionEngine`, `CollectionResult`, `Config`, `DatabaseEngine`, `DatabaseResult`, `DriverFactory`, `Engine`, `EngineManager`, `MakeSearchable`, `ModelObserver`, `ModelsFlushed`, `ModelsImported`, `NullEngine`, `NullResult`, `PaginatedResult`, `RawPaginatedResult`, `RemovableScoutCollection`, `RemoveFromSearch`, and 5 more |
+| Constructors and functions | `Boot`, `Build`, `BuildAndRegister`, `CreateIndex`, `Cursor`, `DefaultConfig`, `Delete`, `DeleteAllIndexes`, `DeleteIndex`, `Deleted`, `DisableSearchSyncing`, `Driver`, `EnableSearchSyncing`, `Engine`, `EngineConfig`, `Extend`, `Flush`, `ForceDeleted`, `ForgetDriver`, `Get`, and 94 more |
+| Variables | `ErrDriverNotSupported`, `ErrEngineNotConfigured`, `ErrFlushFailed`, `ErrIndexNotFound`, `ErrIndexingFailed`, `ErrModelNotSearchable`, `ErrSearchFailed` |
+| Constants | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability                  | Documentation note                                                                                                   |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Drivers and managers        | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability | Documentation note |
+| --- | --- |
+| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Database-backed persistence | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -108,12 +85,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
-| ----------------- | -------------------------------------------------------- |
-| Config file keys  | Typed config structs, options, or constructor parameters |
-| Facade defaults   | Explicit manager/default-driver setup                    |
+| Laravel shape | Bedrock shape |
+| --- | --- |
+| Config file keys | Typed config structs, options, or constructor parameters |
+| Facade defaults | Explicit manager/default-driver setup |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers   | Package functions and interfaces                         |
+| Runtime helpers | Package functions and interfaces |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -121,13 +98,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area              | Documentation coverage                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------- |
+| Area | Documentation coverage |
+| --- | --- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
-| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
-| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
-| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
+| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
+| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
+| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
 
 ## Edge Cases
 
@@ -155,164 +132,164 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type                       | Notes                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `Builder`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ChunkConfig`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CollectionEngine`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CollectionResult`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Config`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DatabaseEngine`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DatabaseResult`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DriverFactory`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Engine`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EngineManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MakeSearchable`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ModelObserver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ModelsFlushed`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ModelsImported`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullEngine`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullResult`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PaginatedResult`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RawPaginatedResult`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type | Notes |
+| --- | --- |
+| `Builder` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ChunkConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CollectionEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CollectionResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Config` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DatabaseEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DatabaseResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DriverFactory` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Engine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EngineManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MakeSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ModelObserver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ModelsFlushed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ModelsImported` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PaginatedResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RawPaginatedResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RemovableScoutCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RemoveFromSearch`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScoutServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchableMixin`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchableModelDeleted`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchableModelUpdated`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchableScope`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RemoveFromSearch` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ScoutServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchableMixin` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchableModelDeleted` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchableModelUpdated` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchableScope` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function                      | Notes                                                                              |
-| ----------------------------- | ---------------------------------------------------------------------------------- |
-| `Boot`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Build`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BuildAndRegister`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CreateIndex`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Cursor`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DefaultConfig`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Delete`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DeleteAllIndexes`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DeleteIndex`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Deleted`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DisableSearchSyncing`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EnableSearchSyncing`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Engine`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EngineConfig`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Extend`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Flush`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForceDeleted`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForgetDriver`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetCallback`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetChunkSearchable`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetChunkUnsearchable`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetClient`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetDefaultDriver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetDrivers`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetEngine`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetEngines`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetIndex`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetIndexSettings`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetLimit`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetModel`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetModels`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetOptions`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetOrders`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetQuery`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetQueueableIDs`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutKey`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutMetadata`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetTotalCount`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetWhereIns`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetWhereNotIns`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetWheres`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Handle`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasCallback`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasMorePages`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsForceUpdating`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsSearchSyncingEnabled`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Keys`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LastPage`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Latest`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LazyMap`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MakeAllSearchable`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MakeSearchable`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Map`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MapIds`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Models`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewBuilder`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewCollectionEngine`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewDatabaseEngine`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewEngineManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewMakeSearchable`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewModelObserver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullEngine`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes |
+| --- | --- |
+| `Boot` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Build` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BuildAndRegister` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CreateIndex` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Cursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DefaultConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Delete` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DeleteAllIndexes` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DeleteIndex` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Deleted` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DisableSearchSyncing` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EnableSearchSyncing` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Engine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EngineConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Extend` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flush` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForceDeleted` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForgetDriver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetCallback` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetChunkSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetChunkUnsearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetClient` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetDefaultDriver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetDrivers` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetEngines` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetIndex` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetIndexSettings` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetLimit` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetModel` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetModels` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOrders` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetQuery` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetQueueableIDs` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetScoutKey` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetScoutKeyName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetScoutMetadata` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetScoutPrefix` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTotalCount` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetWhereIns` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetWhereNotIns` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetWheres` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Handle` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasCallback` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasMorePages` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsForceUpdating` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsSearchSyncingEnabled` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Keys` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LastPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Latest` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LazyMap` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MakeAllSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MakeSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Map` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MapIds` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Models` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewBuilder` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewCollectionEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewDatabaseEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEngineManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMakeSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewModelObserver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewRemovableScoutCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewRemoveFromSearch`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewScoutServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewSearchableScope`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Oldest`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OrderBy`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Paginate`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PaginateRaw`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PaginateUsingDatabase`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Purge`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Query`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Raw`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RemoveFromSearch`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Restored`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Saved`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScoutKeys`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Search`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchIndexShouldBeUpdated`  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Searchable`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SearchableAs`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetDefaultDriver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetEngine`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScoutKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScoutPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ShouldBeSearchable`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SimplePaginate`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SimplePaginateRaw`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewRemoveFromSearch` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewScoutServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSearchableScope` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Oldest` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OrderBy` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Paginate` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PaginateRaw` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PaginateUsingDatabase` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Purge` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Query` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Raw` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RemoveFromSearch` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Restored` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Saved` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ScoutKeys` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Search` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchIndexShouldBeUpdated` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Searchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchableAs` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetDefaultDriver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetEngine` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetScoutKeyName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetScoutPrefix` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShouldBeSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SimplePaginate` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SimplePaginateRaw` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SimplePaginateUsingDatabase` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Take`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToSearchableArray`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unsearchable`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Update`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UpdateIndexSettings`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UsesSoftDelete`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WasSearchableBeforeDelete`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WasSearchableBeforeUpdate`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Where`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhereIn`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhereNotIn`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhileForcingUpdate`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithOptions`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithQueryCallback`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithScoutMetadata`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Within`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithoutSyncingToSearch`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Take` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToSearchableArray` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unsearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Update` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UpdateIndexSettings` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UsesSoftDelete` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WasSearchableBeforeDelete` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WasSearchableBeforeUpdate` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Where` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhereIn` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhereNotIn` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhileForcingUpdate` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithQueryCallback` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithScoutMetadata` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Within` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithoutSyncingToSearch` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name                     | Notes                                                                              |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| `ErrDriverNotSupported`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name | Notes |
+| --- | --- |
+| `ErrDriverNotSupported` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrEngineNotConfigured` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrFlushFailed`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrIndexNotFound`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrIndexingFailed`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrModelNotSearchable`  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrSearchFailed`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrFlushFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrIndexNotFound` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrIndexingFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrModelNotSearchable` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrSearchFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

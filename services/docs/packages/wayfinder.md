@@ -4,25 +4,7 @@
 <!-- laravel-docs: routing.md#named-routes -->
 <!-- laravel-docs: frontend.md#using-react-svelte-or-vue -->
 
-Package wayfinder generates fully-typed, importable TypeScript functions
-for your Go routes.
-
-It is a Go port of the Laravel Wayfinder package, producing identical
-TypeScript output so the same vitest test suite can validate generated files.
-
-Usage:
-
-routes := wayfinder.FromRouteCollection(router.GetRoutes(), wayfinder.AdapterOptions{})
-err := wayfinder.Generate(routes, wayfinder.Options{
-Path: "resources/js",
-WithForm: true,
-})
-
-The generator writes three output directories:
-
-- {Path}/actions/ — per-controller TypeScript files, one function per route
-- {Path}/routes/ — named-route helpers grouped by name prefix
-- {Path}/wayfinder/ — the runtime TypeScript utility (index.ts)
+Package wayfinder generates fully-typed, importable TypeScript functions for your Go routes.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -50,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/wayfinder/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                      |
-| ----------- | -------------------------------------------------------------------------------------------- |
+| Package | Purpose |
+| --- | --- |
 | `wayfinder` | Package wayfinder generates fully-typed, importable TypeScript functions for your Go routes. |
 
 ## Core Concepts
@@ -60,17 +42,17 @@ The wayfinder reference is organized around the exported Go surface for package 
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                                                                                                                   |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `AdapterOptions`, `GenerateOptions`, `Group`, `Options`, `Param`, `Registry`, `Route`, `RouteInfo`, `Verb`                                                                                                                                                                                     |
+| Surface | Exported API |
+| --- | --- |
+| Types | `AdapterOptions`, `GenerateOptions`, `Group`, `Options`, `Param`, `Registry`, `Route`, `RouteInfo`, `Verb` |
 | Constructors and functions | `ActionMethod`, `Add`, `CleanUp`, `ControllerClass`, `DotNamespace`, `Export`, `FromRouteCollection`, `FullURI`, `Generate`, `GenerateFile`, `GenerateRouteCode`, `Group`, `Handle`, `Handler`, `HasController`, `JsMethod`, `Lookup`, `Manifest`, `ManifestProps`, `NamedMethod`, and 12 more |
-| Variables                  | None exported from this package root.                                                                                                                                                                                                                                                          |
-| Constants                  | None exported from this package root.                                                                                                                                                                                                                                                          |
+| Variables | None exported from this package root. |
+| Constants | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability                  | Documentation note                                                                                                   |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Capability | Documentation note |
+| --- | --- |
 | HTTP middleware or handlers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -96,12 +78,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
-| ----------------- | -------------------------------------------------------- |
-| Config file keys  | Typed config structs, options, or constructor parameters |
-| Facade defaults   | Explicit manager/default-driver setup                    |
+| Laravel shape | Bedrock shape |
+| --- | --- |
+| Config file keys | Typed config structs, options, or constructor parameters |
+| Facade defaults | Explicit manager/default-driver setup |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers   | Package functions and interfaces                         |
+| Runtime helpers | Package functions and interfaces |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -109,13 +91,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area              | Documentation coverage                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------- |
+| Area | Documentation coverage |
+| --- | --- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
-| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
-| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
-| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
+| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
+| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
+| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
 
 ## Edge Cases
 
@@ -139,60 +121,60 @@ No dedicated Laravel inventory test was detected for this package. Use the ordin
 
 ### Exported Types
 
-| Type              | Notes                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| `AdapterOptions`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type | Notes |
+| --- | --- |
+| `AdapterOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GenerateOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Group`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Options`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Param`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Registry`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Route`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RouteInfo`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Verb`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Group` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Options` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Param` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Registry` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Route` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RouteInfo` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Verb` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function              | Notes                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `ActionMethod`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Add`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CleanUp`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ControllerClass`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DotNamespace`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Export`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes |
+| --- | --- |
+| `ActionMethod` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Add` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CleanUp` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ControllerClass` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DotNamespace` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Export` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `FromRouteCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FullURI`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Generate`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GenerateFile`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GenerateRouteCode`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Group`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Handle`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Handler`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasController`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JsMethod`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Lookup`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Manifest`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ManifestProps`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NamedMethod`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewVerb`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OriginalJsMethod`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Params`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Placeholder`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QuoteIfNeeded`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SafeMethod`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SafeName`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TSTypes`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToJSON`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `URL`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Verbs`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FullURI` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Generate` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GenerateFile` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GenerateRouteCode` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Group` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Handle` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Handler` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasController` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JsMethod` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Lookup` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Manifest` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ManifestProps` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NamedMethod` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewVerb` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OriginalJsMethod` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Params` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Placeholder` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QuoteIfNeeded` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SafeMethod` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SafeName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TSTypes` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `URL` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Verbs` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name                                        | Notes |
-| ------------------------------------------- | ----- |
-| No exported variables or constants detected |       |
+| Name | Notes |
+| --- | --- |
+| No exported variables or constants detected | |
 
 ## Laravel Parity Notes
 

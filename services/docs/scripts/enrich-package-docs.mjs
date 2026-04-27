@@ -9,9 +9,6 @@ const docsInventoryPath = path.join(root, 'services/compliance/docs-inventories/
 const validLaravelSources = new Set(read(docsInventoryPath).split('\n').filter((line) => line && !line.startsWith('#')))
 
 const laravelSources = {
-  'ai/boost': ['boost.md#introduction', 'boost.md#installation', 'boost.md#mcp-server', 'boost.md#ai-guidelines', 'boost.md#agent-skills', 'boost.md#documentation-api', 'boost.md#extending-boost'],
-  'ai/mcp': ['mcp.md#introduction', 'mcp.md#installation', 'mcp.md#creating-servers', 'mcp.md#web-server', 'mcp.md#creating-resources', 'mcp.md#prompts', 'mcp.md#testing-servers', 'mcp.md#tools'],
-  'ai/sdk': ['ai-sdk.md#introduction', 'ai-sdk.md#installation', 'ai-sdk.md#agents', 'ai-sdk.md#images', 'ai-sdk.md#audio', 'ai-sdk.md#transcription', 'ai-sdk.md#embeddings', 'ai-sdk.md#reranking', 'ai-sdk.md#files', 'ai-sdk.md#vector-stores', 'ai-sdk.md#failover', 'ai-sdk.md#testing', 'ai-sdk.md#events'],
   auth: ['authentication.md#authentication', 'authentication.md#manually-authenticating-users', 'authentication.md#http-basic-authentication', 'authorization.md#authorization', 'passwords.md#resetting-passwords', 'verification.md#email-verification'],
   broadcasting: ['broadcasting.md#introduction', 'broadcasting.md#quickstart', 'broadcasting.md#client-side-installation'],
   bus: ['queues.md#creating-jobs', 'queues.md#job-batching', 'queues.md#chains-and-batches'],
@@ -257,7 +254,7 @@ function guideFor(slug) {
   const symbols = exportedSymbols(goFiles)
   const subdocs = subpackageDocs(sourceRoot)
   const rootDoc = subdocs.find((entry) => entry.rel === '.')?.comment ?? ''
-  const summary = rootDoc || firstParagraph(rootDoc, `The ${titleFor(slug)} package provides Bedrock's Go implementation for this Laravel-aligned surface.`)
+  const summary = firstParagraph(rootDoc, `The ${titleFor(slug)} package provides Bedrock's Go implementation for this Laravel-aligned surface.`)
   const inventories = testInventory(sourceRoot)
   const capabilities = detectCapabilities(sourceRoot, symbols)
   const modulePath = `github.com/bedrock/packages/${slug}`

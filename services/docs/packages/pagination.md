@@ -4,11 +4,7 @@
 <!-- laravel-docs: pagination.md#cursor-pagination -->
 <!-- laravel-docs: pagination.md#customizing-the-pagination-view -->
 
-Package pagination provides offset-based and cursor-based paginators
-mirroring Laravel's Illuminate\Pagination component. It includes simple
-paginators, length-aware paginators with total counts, cursor-based
-paginators for efficient keyset pagination, and URL window helpers for
-generating page link ranges.
+Package pagination provides offset-based and cursor-based paginators mirroring Laravel's Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -36,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pagination/...
 
 ## Source Coverage
 
-| Package      | Purpose                                                                                                                                                                                                                                                                                                              |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package | Purpose |
+| --- | --- |
 | `pagination` | Package pagination provides offset-based and cursor-based paginators mirroring Laravel's Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges. |
 
 ## Core Concepts
@@ -46,17 +42,17 @@ The pagination reference is organized around the exported Go surface for package
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                                                                                                  |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `CursorPaginator`, `LengthAwarePaginator`, `Paginator`, `UrlWindow`                                                                                                                                                                                                           |
+| Surface | Exported API |
+| --- | --- |
+| Types | `CursorPaginator`, `LengthAwarePaginator`, `Paginator`, `UrlWindow` |
 | Constructors and functions | `Appends`, `Count`, `CurrentPage`, `Cursor`, `FirstItem`, `Fragment`, `Get`, `GetCursorName`, `GetOptions`, `GetPageName`, `GetUrlRange`, `HasMorePages`, `HasMorePagesWhen`, `HasPages`, `IsEmpty`, `IsNotEmpty`, `Items`, `LastItem`, `LastPage`, `NextCursor`, and 25 more |
-| Variables                  | `ErrInvalidPage`, `ErrInvalidPerPage`                                                                                                                                                                                                                                         |
-| Constants                  | None exported from this package root.                                                                                                                                                                                                                                         |
+| Variables | `ErrInvalidPage`, `ErrInvalidPerPage` |
+| Constants | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability       | Documentation note                                                            |
-| ---------------- | ----------------------------------------------------------------------------- |
+| Capability | Documentation note |
+| --- | --- |
 | Core package API | The root constructors and exported types are the primary integration surface. |
 
 ## Usage
@@ -82,12 +78,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
-| ----------------- | -------------------------------------------------------- |
-| Config file keys  | Typed config structs, options, or constructor parameters |
-| Facade defaults   | Explicit manager/default-driver setup                    |
+| Laravel shape | Bedrock shape |
+| --- | --- |
+| Config file keys | Typed config structs, options, or constructor parameters |
+| Facade defaults | Explicit manager/default-driver setup |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers   | Package functions and interfaces                         |
+| Runtime helpers | Package functions and interfaces |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -95,13 +91,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area              | Documentation coverage                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------- |
+| Area | Documentation coverage |
+| --- | --- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
-| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
-| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
-| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
+| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
+| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
+| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
 
 ## Edge Cases
 
@@ -127,68 +123,68 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type                   | Notes                                                                              |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| `CursorPaginator`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type | Notes |
+| --- | --- |
+| `CursorPaginator` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `LengthAwarePaginator` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Paginator`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UrlWindow`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Paginator` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UrlWindow` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function               | Notes                                                                              |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| `Appends`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Count`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CurrentPage`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Cursor`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FirstItem`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fragment`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetCursorName`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetOptions`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetPageName`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetUrlRange`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasMorePages`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasMorePagesWhen`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasPages`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsEmpty`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsNotEmpty`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Items`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LastItem`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LastPage`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NextCursor`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NextPageUrl`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OnEachSide`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OnFirstPage`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OnLastPage`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Path`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PerPage`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PreviousCursor`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PreviousPageUrl`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes |
+| --- | --- |
+| `Appends` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Count` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CurrentPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Cursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FirstItem` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fragment` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetCursorName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetPageName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetUrlRange` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasMorePages` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasMorePagesWhen` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasPages` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsNotEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Items` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LastItem` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LastPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NextCursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NextPageUrl` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OnEachSide` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OnFirstPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OnLastPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Path` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PerPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PreviousCursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PreviousPageUrl` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ResolveCurrentCursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ResolveCurrentPage`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ResolveCurrentPath`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetCursorName`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetNextCursor`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetPageName`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetPath`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetPreviousCursor`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Through`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToJSON`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToMap`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToPrettyJSON`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Total`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TypedItems`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Url`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithPath`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithQueryString`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ResolveCurrentPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ResolveCurrentPath` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetCursorName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetNextCursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetPageName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetPath` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetPreviousCursor` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Through` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToMap` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToPrettyJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Total` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TypedItems` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Url` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithPath` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithQueryString` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name                | Notes                                                                              |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| `ErrInvalidPage`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name | Notes |
+| --- | --- |
+| `ErrInvalidPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrInvalidPerPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes

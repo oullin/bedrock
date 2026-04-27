@@ -31,13 +31,13 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/facades/...
 
 ## Source Coverage
 
-| Package  | Purpose                                    |
-| -------- | ------------------------------------------ |
-| `auth`   | Public auth API surface for this module.   |
-| `cache`  | Public cache API surface for this module.  |
+| Package | Purpose |
+| --- | --- |
+| `auth` | Public auth API surface for this module. |
+| `cache` | Public cache API surface for this module. |
 | `events` | Public events API surface for this module. |
-| `log`    | Public log API surface for this module.    |
-| `queue`  | Public queue API surface for this module.  |
+| `log` | Public log API surface for this module. |
+| `queue` | Public queue API surface for this module. |
 
 ## Core Concepts
 
@@ -45,21 +45,21 @@ The facades reference is organized around the exported Go surface for package `f
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                       |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | None exported from this package root.                                                                                                                                                              |
+| Surface | Exported API |
+| --- | --- |
+| Types | None exported from this package root. |
 | Constructors and functions | `Channel`, `Check`, `Connection`, `Debug`, `Dispatch`, `Dispatcher`, `Driver`, `Error`, `Forget`, `Guard`, `Info`, `Listen`, `Manager`, `Repository`, `Reset`, `Store`, `Until`, `User`, `Warning` |
-| Variables                  | None exported from this package root.                                                                                                                                                              |
-| Constants                  | None exported from this package root.                                                                                                                                                              |
+| Variables | None exported from this package root. |
+| Constants | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability                       | Documentation note                                                                                                   |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Drivers and managers             | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
-| Events and listeners             | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability | Documentation note |
+| --- | --- |
+| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Events and listeners | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Queue, async, or background work | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
-| Security-sensitive behavior      | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Security-sensitive behavior | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
 
@@ -84,12 +84,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
-| ----------------- | -------------------------------------------------------- |
-| Config file keys  | Typed config structs, options, or constructor parameters |
-| Facade defaults   | Explicit manager/default-driver setup                    |
+| Laravel shape | Bedrock shape |
+| --- | --- |
+| Config file keys | Typed config structs, options, or constructor parameters |
+| Facade defaults | Explicit manager/default-driver setup |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers   | Package functions and interfaces                         |
+| Runtime helpers | Package functions and interfaces |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -97,13 +97,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area              | Documentation coverage                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------- |
+| Area | Documentation coverage |
+| --- | --- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
-| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
-| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
-| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
+| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
+| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
+| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
 
 ## Edge Cases
 
@@ -127,39 +127,39 @@ No dedicated Laravel inventory test was detected for this package. Use the ordin
 
 ### Exported Types
 
-| Type                       | Notes |
-| -------------------------- | ----- |
-| No exported types detected |       |
+| Type | Notes |
+| --- | --- |
+| No exported types detected | |
 
 ### Exported Functions
 
-| Function     | Notes                                                                              |
-| ------------ | ---------------------------------------------------------------------------------- |
-| `Channel`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Check`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes |
+| --- | --- |
+| `Channel` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Check` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Connection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Debug`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dispatch`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Debug` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dispatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Dispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Error`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Forget`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Guard`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Info`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Listen`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Manager`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Error` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Forget` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Guard` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Info` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Listen` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Manager` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Repository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Reset`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Store`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Until`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `User`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Warning`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Reset` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Store` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Until` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `User` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Warning` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name                                        | Notes |
-| ------------------------------------------- | ----- |
-| No exported variables or constants detected |       |
+| Name | Notes |
+| --- | --- |
+| No exported variables or constants detected | |
 
 ## Laravel Parity Notes
 
