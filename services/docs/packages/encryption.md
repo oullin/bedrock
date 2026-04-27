@@ -1,77 +1,171 @@
 # encryption
 
-<!-- upstream-docs: encryption.md#encryption -->
+<!-- upstream-docs: encryption.md#introduction -->
 <!-- upstream-docs: encryption.md#using-the-encrypter -->
-<!-- upstream-docs: encryption.md#configuration -->
 
-AES encryption with CBC and GCM mode support.
+Package encryption provides AES encryption with CBC and GCM modes. It implements the Encrypter and StringEncrypter contracts with HMAC-SHA256 authentication for CBC and AEAD tags for GCM. Key rotation is supported via PreviousKeys.
 
-## Overview
+<div class="docs-callout docs-callout-upstream">
+  <strong>Upstream baseline.</strong>
+  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
+</div>
 
-The `encryption` package provides an `Encrypter` that encrypts and decrypts
-values using AES. It supports both CBC mode (with HMAC-SHA256 MAC) and GCM mode
-(AEAD). The serialized payload is Base64-encoded JSON containing the IV,
-ciphertext, and authentication tag.
+<div class="docs-callout docs-callout-go">
+  <strong>Go adaptation.</strong>
+  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
+</div>
 
-**Module:** `github.com/bedrock/packages/encryption`
+## Installation
+
+Install this module directly in applications that consume packages independently:
 
 ```bash
 go get github.com/bedrock/packages/encryption@latest
 ```
 
-## Ciphers
+When working inside this monorepo, use the repository workspace:
 
-| Constant               | Algorithm                 | Key size |
-| ---------------------- | ------------------------- | -------- |
-| `encryption.AES128CBC` | AES-128-CBC + HMAC-SHA256 | 16 bytes |
-| `encryption.AES256CBC` | AES-256-CBC + HMAC-SHA256 | 32 bytes |
-| `encryption.AES128GCM` | AES-128-GCM (AEAD)        | 16 bytes |
-| `encryption.AES256GCM` | AES-256-GCM (AEAD)        | 32 bytes |
+```bash
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/encryption/...
+```
 
-## Creating an Encrypter
+## Source Coverage
+
+| Package      | Purpose                                                                                                                                                                                                                                 |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `encryption` | Package encryption provides AES encryption with CBC and GCM modes. It implements the Encrypter and StringEncrypter contracts with HMAC-SHA256 authentication for CBC and AEAD tags for GCM. Key rotation is supported via PreviousKeys. |
+
+## Core Concepts
+
+The encryption reference is organized around the exported Go surface for package `encryption`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+
+### Public Surface
+
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Cipher`, `Encrypter`, `EncryptionServiceProvider`                                                                                                                                                                                                                                                      |
+| Constructors and functions | `AppearsEncrypted`, `Decrypt`, `DecryptString`, `Encrypt`, `EncryptString`, `GenerateKey`, `GetAllKeys`, `GetKey`, `GetPreviousKeys`, `IVLength`, `IsAEAD`, `KeyLength`, `NewEncrypter`, `NewEncryptionServiceProvider`, `ParseCipher`, `ParseKey`, `PreviousKeys`, `Provides`, `Register`, `Supported` |
+| Variables                  | `ErrDecryptFailed`, `ErrEncryptFailed`, `ErrInvalidPayload`, `ErrUnsupportedCipher`                                                                                                                                                                                                                     |
+| Constants                  | `AES128CBC`, `AES128GCM`, `AES256CBC`, `AES256GCM`                                                                                                                                                                                                                                                      |
+
+### Capability Matrix
+
+| Capability                  | Documentation note                                                                                                   |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Security-sensitive behavior | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+
+## Usage
+
+Start with the package constructor or manager type when one is exported. Bedrock keeps dependencies explicit, so callers should pass repositories, stores, handlers, dispatchers, clocks, or clients directly instead of relying on global framework state.
 
 ```go
-key := make([]byte, 32) // must match cipher key size
-_, _ = rand.Read(key)
+package main
 
-enc, err := encryption.NewEncrypter(key, encryption.AES256GCM)
-if err != nil {
-    // encryption.ErrUnsupportedCipher — key length doesn't match cipher
+import (
+    _ "github.com/bedrock/packages/encryption"
+)
+
+func main() {
+    // Import the package you use, then wire the exported constructors,
+    // managers, stores, handlers, or helpers required by your application.
 }
 ```
 
-## Encrypting
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/encryption` cover the supported creation paths, default values, and Upstream parity behavior.
 
-```go
-// Serialize any value (JSON-encodes before encryption)
-token, err := enc.Encrypt(map[string]any{"user_id": 42}, true)
+## Configuration
 
-// Raw string only (no JSON encoding)
-token, err := enc.Encrypt("secret", false)
+Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+
+| Upstream shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
+| Service providers | Go service-provider structs or direct application wiring |
+| Runtime helpers   | Package functions and interfaces                         |
+
+Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
+
+## Advanced Features
+
+The package reference should be read through these Upstream parity lenses:
+
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
+
+## Edge Cases
+
+- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
+- Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
+- For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
+- For test fakes, document whether assertions inspect recorded calls, stored payloads, emitted events, or rendered output.
+
+## Testing
+
+Run the package tests before changing examples:
+
+```bash
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/encryption/...
 ```
 
-## Decrypting
+Upstream parity is tracked by these tests:
 
-```go
-var out map[string]any
-err := enc.Decrypt(token, true, &out)
+- `packages/encryption/laravel_inventory_test.go`
 
-// Raw string
-var s string
-err := enc.Decrypt(token, false, &s)
-```
+## API Reference
 
-## Key Rotation
+### Exported Types
 
-Add previous keys so old tokens remain decryptable while new tokens use the
-current key:
+| Type                        | Notes                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| `Cipher`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Encrypter`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncryptionServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
-```go
-enc.WithPreviousKeys(oldKey1, oldKey2)
-```
+### Exported Functions
 
-## Supported Cipher Check
+| Function                       | Notes                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `AppearsEncrypted`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Decrypt`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DecryptString`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Encrypt`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncryptString`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GenerateKey`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetAllKeys`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetKey`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetPreviousKeys`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IVLength`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsAEAD`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `KeyLength`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEncrypter`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEncryptionServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ParseCipher`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ParseKey`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PreviousKeys`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Supported`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
-```go
-ok := encryption.Supported(key, encryption.AES256GCM) // true if lengths match
-```
+### Exported Errors, Variables, and Constants
+
+| Name                   | Notes                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `AES128CBC`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AES128GCM`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AES256CBC`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AES256GCM`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrDecryptFailed`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrEncryptFailed`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrInvalidPayload`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrUnsupportedCipher` | Source-backed public surface. See the Go package for exact signature and behavior. |
+
+## Upstream Parity Notes
+
+This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

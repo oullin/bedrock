@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-24T06:31:34Z
+Generated: 2026-04-25T04:20:16Z
 
 Source of truth: services/compliance
 
@@ -20,10 +20,10 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
 | Tests                 | 10317 / 12814 |    2497 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
-| Documentation         |     875 / 875 |       0 | Complete          | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+| Documentation         |     726 / 875 |     149 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Upstream skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 11303 / 13800 |    2497 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 11154 / 13800 |    2646 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Pinned Source Baseline
 
@@ -54,23 +54,23 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 ## Critical Path
 
-| Rank | Surface                                   | Missing | Classified | Status        | Next Action                                                                 |
-| ---: | ----------------------------------------- | ------: | ---------: | ------------- | --------------------------------------------------------------------------- |
-|    1 | `Framework\Support` -> `support`         |     822 | 732 / 1554 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    2 | `Framework\Collections` -> `collection`  |     629 |    0 / 629 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    3 | `upstream/ai` -> `ai/sdk`                  |     295 |  479 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    4 | `Framework\Queue` -> `queue`             |     195 |    9 / 204 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    5 | `upstream/mcp` -> `ai/mcp`                 |     136 |  488 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    6 | `Framework\Support\Str` -> `str`         |     115 |    0 / 115 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    7 | `Framework\Auth` -> `auth`               |      54 |  203 / 257 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    8 | `Framework\Bus` -> `bus`                 |      54 |    12 / 66 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|    9 | `upstream/routegen` -> `routegen`        |      54 |   49 / 103 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   10 | `Framework\Translation` -> `translation` |      52 |     0 / 52 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   11 | `upstream/logtail` -> `logtail`                  |      38 |     0 / 38 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   12 | `upstream/boost` -> `ai/boost`             |      17 |  654 / 671 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   13 | `Framework\Support\Lottery` -> `lottery` |      14 |     0 / 14 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   14 | `Framework\Session` -> `session`         |      10 |    83 / 93 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
-|   15 | `Framework\Concurrency` -> `concurrency` |       5 |     7 / 12 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations. |
+| Rank | Surface                                   | Missing | Classified | Status        | Next Action                                                                               |
+| ---: | ----------------------------------------- | ------: | ---------: | ------------- | ----------------------------------------------------------------------------------------- |
+|    1 | `Framework\Support` -> `support`         |     822 | 732 / 1554 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    2 | `Framework\Collections` -> `collection`  |     629 |    0 / 629 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    3 | `upstream/ai` -> `ai/sdk`                  |     295 |  479 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    4 | `Framework\Queue` -> `queue`             |     195 |    9 / 204 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    5 | Upstream documentation                     |     149 |  726 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+|    6 | `upstream/mcp` -> `ai/mcp`                 |     136 |  488 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    7 | `Framework\Support\Str` -> `str`         |     115 |    0 / 115 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    8 | `Framework\Auth` -> `auth`               |      54 |  203 / 257 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    9 | `Framework\Bus` -> `bus`                 |      54 |    12 / 66 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   10 | `upstream/routegen` -> `routegen`        |      54 |   49 / 103 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   11 | `Framework\Translation` -> `translation` |      52 |     0 / 52 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   12 | `upstream/logtail` -> `logtail`                  |      38 |     0 / 38 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   13 | `upstream/boost` -> `ai/boost`             |      17 |  654 / 671 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   14 | `Framework\Support\Lottery` -> `lottery` |      14 |     0 / 14 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|   15 | `Framework\Session` -> `session`         |      10 |    83 / 93 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 
 ## Inventory Compliance Ledger
 
@@ -223,7 +223,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Upstream docs |               1 |               875 |     200 (22.9%) |                   0 (0.0%) |      330 (37.7%) |       345 (39.4%) |
+| Upstream docs |               1 |               875 |     163 (18.6%) |                149 (17.0%) |      226 (25.8%) |       337 (38.5%) |
 
 ## Upstream Skeleton Demo Summary
 
@@ -235,9 +235,28 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 ### Top Pending Documentation Files
 
-| Upstream Docs File | Pending Sections |
-| ----------------- | ---------------: |
-| n/a               |                0 |
+| Upstream Docs File  | Pending Sections |
+| ------------------ | ---------------: |
+| `broadcasting.md`  |                8 |
+| `validation.md`    |                6 |
+| `queues.md`        |                6 |
+| `filesystem.md`    |                6 |
+| `jobqueue.md`       |                5 |
+| `ai-sdk.md`        |                5 |
+| `debugbar.md`     |                4 |
+| `session.md`       |                4 |
+| `prompts.md`       |                4 |
+| `oauthserver.md`      |                4 |
+| `notifications.md` |                4 |
+| `mcp.md`           |                4 |
+| `mail.md`          |                4 |
+| `events.md`        |                4 |
+| `contracts.md`     |                4 |
+| `billing.md`       |                4 |
+| `strings.md`       |                3 |
+| `socialauth.md`     |                3 |
+| `search.md`         |                3 |
+| `routing.md`       |                3 |
 
 ### Classified Documentation Sections
 
