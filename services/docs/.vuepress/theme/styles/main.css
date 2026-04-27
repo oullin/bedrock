@@ -233,6 +233,44 @@ body,
   color: var(--ink);
 }
 
+/* ── Package reference primitives ───────────────────────────────────────── */
+
+[vp-content] .docs-callout {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  margin: 1.25rem 0;
+  padding: 1rem 1.125rem;
+  color: var(--ink-2);
+  background: color-mix(in srgb, var(--panel-2) 70%, transparent);
+}
+
+[vp-content] .docs-callout strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+[vp-content] .docs-callout-laravel {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+[vp-content] .docs-callout-go {
+  border-color: color-mix(in srgb, #0ea5e9 34%, var(--line));
+  background: color-mix(in srgb, #0ea5e9 8%, transparent);
+}
+
+[vp-content] table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+[vp-content] th,
+[vp-content] td {
+  vertical-align: top;
+  word-break: break-word;
+}
+
 /* ─── Bedrock docs layout — scoped design tokens ────────────────────────────
    Active on Layout.vue (wraps in .bedrock-docs). Light mode mirrors the
    existing slate palette; dark mode matches the HTML template + landing page.
