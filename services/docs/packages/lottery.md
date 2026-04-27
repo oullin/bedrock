@@ -2,7 +2,8 @@
 
 <!-- laravel-docs: helpers.md#other-utilities -->
 
-Package lottery provides probabilistic execution helpers modeled after Laravel's Lottery API.
+Package lottery provides probabilistic execution helpers modeled after
+Laravel's Lottery API.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

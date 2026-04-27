@@ -4,7 +4,11 @@
 <!-- laravel-docs: logging.md#building-log-stacks -->
 <!-- laravel-docs: logging.md#writing-log-messages -->
 
-Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors Laravel's Log component, offering a unified API through the LogManager and individual handlers for each channel type.
+Package log provides driver-based logging with support for multiple
+channels, stack aggregation, shared context, event dispatching, and
+daily file rotation. It mirrors Laravel's Log component, offering a
+unified API through the LogManager and individual handlers for each
+channel type.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

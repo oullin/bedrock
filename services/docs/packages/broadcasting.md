@@ -4,7 +4,8 @@
 <!-- laravel-docs: broadcasting.md#quickstart -->
 <!-- laravel-docs: broadcasting.md#client-side-installation -->
 
-Package broadcasting provides Laravel-style server-side broadcasting for channel authorization, broadcast events, and broadcaster backends.
+Package broadcasting provides Laravel-style server-side broadcasting for
+channel authorization, broadcast events, and broadcaster backends.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

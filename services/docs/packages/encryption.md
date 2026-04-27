@@ -3,7 +3,10 @@
 <!-- laravel-docs: encryption.md#introduction -->
 <!-- laravel-docs: encryption.md#using-the-encrypter -->
 
-Package encryption provides AES encryption with CBC and GCM modes. It implements the Encrypter and StringEncrypter contracts with HMAC-SHA256 authentication for CBC and AEAD tags for GCM. Key rotation is supported via PreviousKeys.
+Package encryption provides AES encryption with CBC and GCM modes.
+It implements the Encrypter and StringEncrypter contracts with
+HMAC-SHA256 authentication for CBC and AEAD tags for GCM. Key
+rotation is supported via PreviousKeys.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

@@ -4,7 +4,11 @@
 <!-- laravel-docs: configuration.md#environment-configuration -->
 <!-- laravel-docs: configuration.md#accessing-configuration-values -->
 
-Package config provides a Laravel-inspired configuration repository backed by Viper. It stores key-value pairs in a nested map with dot-notation access, type-safe getters, and array manipulation helpers (prepend and push). Consumers get YAML file and environment variable support out of the box through the underlying Viper instance.
+Package config provides a Laravel-inspired configuration repository backed
+by Viper. It stores key-value pairs in a nested map with dot-notation
+access, type-safe getters, and array manipulation helpers (prepend and
+push). Consumers get YAML file and environment variable support out of the
+box through the underlying Viper instance.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

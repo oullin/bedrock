@@ -3,7 +3,11 @@
 <!-- laravel-docs: concurrency.md#introduction -->
 <!-- laravel-docs: concurrency.md#running-concurrent-tasks -->
 
-Package concurrency provides Laravel-inspired concurrent task execution. It defines a Driver interface with multiple implementations: GoroutineDriver for true parallel execution via goroutines, and SyncDriver for sequential execution useful in testing. A Manager handles named driver instances with lazy initialization and thread-safe access.
+Package concurrency provides Laravel-inspired concurrent task execution.
+It defines a Driver interface with multiple implementations: GoroutineDriver
+for true parallel execution via goroutines, and SyncDriver for sequential
+execution useful in testing. A Manager handles named driver instances with
+lazy initialization and thread-safe access.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

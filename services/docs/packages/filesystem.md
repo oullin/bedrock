@@ -1,9 +1,17 @@
 # filesystem
 
 <!-- laravel-docs: filesystem.md#introduction -->
+<!-- laravel-docs: filesystem.md#configuration -->
 <!-- laravel-docs: filesystem.md#obtaining-disk-instances -->
+<!-- laravel-docs: filesystem.md#retrieving-files -->
+<!-- laravel-docs: filesystem.md#storing-files -->
+<!-- laravel-docs: filesystem.md#deleting-files -->
+<!-- laravel-docs: filesystem.md#directories -->
 
-Package filesystem provides local filesystem operations including reading, writing, copying, moving, and deleting files and directories. It also supports file locking, MIME type detection, hashing, and permission management.
+Package filesystem provides local filesystem operations including reading,
+writing, copying, moving, and deleting files and directories. It also
+supports file locking, MIME type detection, hashing, and permission
+management.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

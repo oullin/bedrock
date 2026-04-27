@@ -107,6 +107,14 @@ pnpm run build --filter=@bedrock/docs
 | [mailx](/packages/mailx)                 | Driver-based email sending          |
 | [notifications](/packages/notifications) | Multi-channel notification delivery |
 
+### AI & Integrations
+
+| Package                        | Purpose                                            |
+| ------------------------------ | -------------------------------------------------- |
+| [ai/sdk](/packages/ai/sdk)     | Unified AI provider API, agents, and RAG tools     |
+| [ai/mcp](/packages/ai/mcp)     | Model Context Protocol (MCP) server implementation |
+| [ai/boost](/packages/ai/boost) | IDE coding-assistant and agent integration layer   |
+
 ### Support & Utilities
 
 | Package                                  | Purpose                                          |
@@ -135,6 +143,15 @@ pnpm run build --filter=@bedrock/docs
 | [inception](/packages/inception) | Unified auth scaffold — Fortify + Jetstream combined |
 | [jetstream](/packages/jetstream) | Team and organization management                     |
 | [spark](/packages/spark)         | Subscription billing, checkout, and entitlements     |
+
+## AI Assisted Development
+
+Bedrock is built from the ground up to be AI-friendly. By providing clear
+interfaces, predictable patterns, and explicit dependencies, Bedrock makes it
+easy for AI agents to understand and contribute to your codebase.
+
+Check out the [ai/boost](/packages/ai/boost) package to see how to integrate
+Bedrock with your IDE coding assistants and agents.
 
 ## Concept Guides
 

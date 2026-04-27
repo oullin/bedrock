@@ -2,7 +2,10 @@
 
 <!-- laravel-docs: encryption.md#introduction -->
 
-Package cookie provides Laravel-inspired cookie management primitives. It includes a queuing cookie jar, factory interfaces, and HTTP middleware for transparent cookie encryption/decryption and automatic attachment of queued cookies to responses.
+Package cookie provides Laravel-inspired cookie management primitives.
+It includes a queuing cookie jar, factory interfaces, and HTTP middleware
+for transparent cookie encryption/decryption and automatic attachment of
+queued cookies to responses.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

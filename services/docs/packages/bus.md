@@ -3,7 +3,10 @@
 <!-- laravel-docs: queues.md#creating-jobs -->
 <!-- laravel-docs: queues.md#job-batching -->
 
-Package bus provides Laravel-inspired command/job dispatching with support for synchronous dispatch, async queue dispatch, after-response deferred dispatch, job chaining, batch processing, pipeline middleware, and distributed unique-job locking.
+Package bus provides Laravel-inspired command/job dispatching with support
+for synchronous dispatch, async queue dispatch, after-response deferred
+dispatch, job chaining, batch processing, pipeline middleware, and
+distributed unique-job locking.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

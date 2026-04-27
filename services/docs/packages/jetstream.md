@@ -4,7 +4,8 @@
 <!-- laravel-docs: sanctum.md#spa-authentication -->
 <!-- laravel-docs: sanctum.md#api-token-authentication -->
 
-Package jetstream holds Laravel Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior.
+Package jetstream holds Laravel Jetstream parity tests for Bedrock's
+Inception-backed team, profile, browser-session, and API-token behavior.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

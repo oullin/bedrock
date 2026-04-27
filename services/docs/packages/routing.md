@@ -1,11 +1,26 @@
 # routing
 
+<!-- laravel-docs: routing.md#routing -->
 <!-- laravel-docs: routing.md#basic-routing -->
 <!-- laravel-docs: routing.md#route-parameters -->
 <!-- laravel-docs: routing.md#named-routes -->
 <!-- laravel-docs: routing.md#route-groups -->
+<!-- laravel-docs: routing.md#route-model-binding -->
+<!-- laravel-docs: routing.md#fallback-routes -->
+<!-- laravel-docs: routing.md#rate-limiting -->
 
 Package routing is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Routing.
+
+The directory layout, type names, method names, and behavior mirror the
+upstream PHP package as faithfully as Go allows. PHP traits are realized as
+embedded structs; PHP attributes are realized via the [controllers.HasMiddleware]
+interface; Symfony's RouteCompiler is reimplemented under [compiler] using the
+Go regexp/syntax package (RE2).
+
+The accompanying \_test.go files are translations of laravel/framework
+tests/Routing/\*.php — each PHP test method maps to a t.Run subtest with the
+same snake_case name so cross-referencing against the upstream test file is
+trivial.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

@@ -4,7 +4,11 @@
 <!-- laravel-docs: pagination.md#cursor-pagination -->
 <!-- laravel-docs: pagination.md#customizing-the-pagination-view -->
 
-Package pagination provides offset-based and cursor-based paginators mirroring Laravel's Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
+Package pagination provides offset-based and cursor-based paginators
+mirroring Laravel's Illuminate\Pagination component. It includes simple
+paginators, length-aware paginators with total counts, cursor-based
+paginators for efficient keyset pagination, and URL window helpers for
+generating page link ranges.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

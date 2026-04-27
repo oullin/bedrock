@@ -1,11 +1,16 @@
 # auth
 
 <!-- laravel-docs: authentication.md#authentication -->
+<!-- laravel-docs: authentication.md#manually-authenticating-users -->
+<!-- laravel-docs: authentication.md#http-basic-authentication -->
 <!-- laravel-docs: authorization.md#authorization -->
 <!-- laravel-docs: passwords.md#resetting-passwords -->
 <!-- laravel-docs: verification.md#email-verification -->
 
-Package auth provides Laravel-inspired HTTP authentication and authorization. It defines a Manager that creates named guards (session, token, request) and user providers (ORM, database). Access control is handled by the Gate in the access sub-package. Password resets are handled by the passwords sub-package.
+Package auth provides Laravel-inspired HTTP authentication and authorization.
+It defines a Manager that creates named guards (session, token, request) and
+user providers (ORM, database). Access control is handled by the Gate in the
+access sub-package. Password resets are handled by the passwords sub-package.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

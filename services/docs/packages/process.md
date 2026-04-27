@@ -5,7 +5,8 @@
 <!-- laravel-docs: processes.md#concurrent-processes -->
 <!-- laravel-docs: processes.md#testing -->
 
-Package process provides a small process runner with fakes, assertions, pools, and pipes inspired by Laravel's Process component.
+Package process provides a small process runner with fakes, assertions,
+pools, and pipes inspired by Laravel's Process component.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

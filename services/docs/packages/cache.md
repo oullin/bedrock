@@ -5,8 +5,12 @@
 <!-- laravel-docs: cache.md#cache-tags -->
 <!-- laravel-docs: cache.md#atomic-locks -->
 <!-- laravel-docs: cache.md#cache-failover -->
+<!-- laravel-docs: cache.md#events -->
 
-Package cache provides Laravel-inspired caching primitives. It defines a two-level abstraction: Store (low-level backend operations) and Repository (high-level helpers including remember, tags, and distributed locks). Multiple concrete store implementations are provided under stores/.
+Package cache provides Laravel-inspired caching primitives. It defines a
+two-level abstraction: Store (low-level backend operations) and Repository
+(high-level helpers including remember, tags, and distributed locks).
+Multiple concrete store implementations are provided under stores/.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

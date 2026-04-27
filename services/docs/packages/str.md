@@ -3,7 +3,9 @@
 <!-- laravel-docs: strings.md#introduction -->
 <!-- laravel-docs: helpers.md#available-methods -->
 
-Package str provides the string-oriented portion of Bedrock's Laravel support port. It includes the Str\* helpers, StringBuilder, pluralization, UUID and ULID helpers, transliteration, and Markdown rendering utilities.
+Package str provides the string-oriented portion of Bedrock's Laravel
+support port. It includes the Str\* helpers, StringBuilder, pluralization,
+UUID and ULID helpers, transliteration, and Markdown rendering utilities.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>

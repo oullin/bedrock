@@ -3,7 +3,10 @@
 <!-- laravel-docs: hashing.md#introduction -->
 <!-- laravel-docs: hashing.md#basic-usage -->
 
-Package hashing provides driver-based password hashing with support for bcrypt, argon2i, and argon2id algorithms. It mirrors Laravel's Hashing component, offering a unified API through the HashManager and individual hashers for each algorithm.
+Package hashing provides driver-based password hashing with support for
+bcrypt, argon2i, and argon2id algorithms. It mirrors Laravel's Hashing
+component, offering a unified API through the HashManager and individual
+hashers for each algorithm.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
