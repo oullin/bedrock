@@ -3,6 +3,9 @@
 <!-- laravel-docs: collections.md#higher-order-messages -->
 <!-- laravel-docs: helpers.md#other-utilities -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package conditionable provides Laravel-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Laravel's HigherOrderWhenProxy, adapted for Go's static type system.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,8 +34,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/conditionable/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package         | Purpose                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `conditionable` | Package conditionable provides Laravel-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Laravel's HigherOrderWhenProxy, adapted for Go's static type system. |
 
 ## Core Concepts
@@ -41,17 +44,17 @@ The conditionable reference is organized around the exported Go surface for pack
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Proxy` |
-| Constructors and functions | `Then`, `Truthy` |
-| Variables | None exported from this package root. |
-| Constants | None exported from this package root. |
+| Surface                    | Exported API                          |
+| -------------------------- | ------------------------------------- |
+| Types                      | `Proxy`                               |
+| Constructors and functions | `Then`, `Truthy`                      |
+| Variables                  | None exported from this package root. |
+| Constants                  | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability       | Documentation note                                                            |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Core package API | The root constructors and exported types are the primary integration surface. |
 
 ## Usage
@@ -77,12 +80,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +93,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -122,22 +125,22 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
+| Type    | Notes                                                                              |
+| ------- | ---------------------------------------------------------------------------------- |
 | `Proxy` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Then` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function | Notes                                                                              |
+| -------- | ---------------------------------------------------------------------------------- |
+| `Then`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Truthy` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| No exported variables or constants detected | |
+| Name                                        | Notes |
+| ------------------------------------------- | ----- |
+| No exported variables or constants detected |       |
 
 ## Laravel Parity Notes
 

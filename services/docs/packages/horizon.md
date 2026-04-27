@@ -3,6 +3,9 @@
 <!-- laravel-docs: horizon.md#introduction -->
 <!-- laravel-docs: horizon.md#balancing-strategies -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package horizon provides queue monitoring primitives inspired by Laravel Horizon.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,8 +34,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/horizon/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package   | Purpose                                                                           |
+| --------- | --------------------------------------------------------------------------------- |
 | `horizon` | Package horizon provides queue monitoring primitives inspired by Laravel Horizon. |
 
 ## Core Concepts
@@ -41,19 +44,19 @@ The horizon reference is organized around the exported Go surface for package `h
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `AutoScaleOptions`, `BalanceStrategy`, `CompletedJob`, `DashboardStats`, `InMemoryRepository`, `JobMeasurement`, `JobRecord`, `JobRepository`, `JobStatus`, `MetricSummary`, `MetricsRepository`, `MetricsSnapshot`, `Monitor`, `MonitoringRepository`, `ProcessRecommendation`, `QueueSource`, `QueueSourceFunc`, `QueueStatus`, `QueueWaitTime`, `RedisConnectionConfig`, and 8 more |
-| Constructors and functions | `BuildRedisPayload`, `Capture`, `Check`, `Cluster`, `CompletedJobs`, `CompletedJobsPage`, `DeleteFailed`, `Failed`, `FindFailed`, `IsMonitoring`, `Job`, `JobIDsForTag`, `Jobs`, `JobsProcessedPerMinuteSince`, `Latest`, `MarkComplete`, `MarkFailed`, `MarkReserved`, `MigrateReleased`, `MigrateStaleReserved`, and 31 more |
-| Variables | `ErrNoSnapshots`, `ErrUnknownRedisConnection` |
-| Constants | `BalanceBySize`, `BalanceByTime`, `JobCompleted`, `JobFailed`, `JobPending`, `JobReserved`, `RedisCluster`, `RedisStandalone` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `AutoScaleOptions`, `BalanceStrategy`, `CompletedJob`, `DashboardStats`, `InMemoryRepository`, `JobMeasurement`, `JobRecord`, `JobRepository`, `JobStatus`, `MetricSummary`, `MetricsRepository`, `MetricsSnapshot`, `Monitor`, `MonitoringRepository`, `ProcessRecommendation`, `QueueSource`, `QueueSourceFunc`, `QueueStatus`, `QueueWaitTime`, `RedisConnectionConfig`, and 8 more |
+| Constructors and functions | `BuildRedisPayload`, `Capture`, `Check`, `Cluster`, `CompletedJobs`, `CompletedJobsPage`, `DeleteFailed`, `Failed`, `FindFailed`, `IsMonitoring`, `Job`, `JobIDsForTag`, `Jobs`, `JobsProcessedPerMinuteSince`, `Latest`, `MarkComplete`, `MarkFailed`, `MarkReserved`, `MigrateReleased`, `MigrateStaleReserved`, and 31 more                                                         |
+| Variables                  | `ErrNoSnapshots`, `ErrUnknownRedisConnection`                                                                                                                                                                                                                                                                                                                                          |
+| Constants                  | `BalanceBySize`, `BalanceByTime`, `JobCompleted`, `JobFailed`, `JobPending`, `JobReserved`, `RedisCluster`, `RedisStandalone`                                                                                                                                                                                                                                                          |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
-| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
-| Queue, async, or background work | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability                        | Documentation note                                                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Drivers and managers              | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Queue, async, or background work  | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Redis or distributed coordination | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -79,12 +82,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -92,13 +95,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -128,107 +131,107 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `AutoScaleOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BalanceStrategy` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CompletedJob` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DashboardStats` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `InMemoryRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobMeasurement` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobRecord` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobStatus` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MetricSummary` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MetricsRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MetricsSnapshot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Monitor` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MonitoringRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ProcessRecommendation` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueSource` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueSourceFunc` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueStatus` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueWaitTime` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisConnectionConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisConnectionKind` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                      | Notes                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `AutoScaleOptions`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BalanceStrategy`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CompletedJob`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DashboardStats`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `InMemoryRepository`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobMeasurement`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobRecord`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobRepository`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobStatus`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MetricSummary`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MetricsRepository`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MetricsSnapshot`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Monitor`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MonitoringRepository`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ProcessRecommendation`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueSource`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueSourceFunc`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueStatus`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueWaitTime`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisConnectionConfig`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisConnectionKind`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RedisConnectionRegistry` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisPayload` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisPayloadOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Repository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Snapshot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Stopwatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SupervisorOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisPayload`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisPayloadOptions`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Repository`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Snapshot`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Stopwatch`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SupervisorOptions`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `BuildRedisPayload` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Capture` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Check` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Cluster` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CompletedJobs` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CompletedJobsPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DeleteFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Failed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FindFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsMonitoring` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Job` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobIDsForTag` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Jobs` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                      | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `BuildRedisPayload`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Capture`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Check`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Cluster`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CompletedJobs`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CompletedJobsPage`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DeleteFailed`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Failed`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FindFailed`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsMonitoring`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Job`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobIDsForTag`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Jobs`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `JobsProcessedPerMinuteSince` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Latest` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarkComplete` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarkFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarkReserved` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MigrateReleased` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MigrateStaleReserved` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Monitor` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Monitoring` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewInMemoryRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewJobRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewMetricsRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewMonitor` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewMonitoringRepository` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewRedisConnectionRegistry` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewStopwatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewSupervisorOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pending` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PurgeQueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Queue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Recent` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RecommendProcesses` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Record` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RecordCompletedJob` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RecordJob` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Release` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Snapshot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SnapshotPerformance` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Snapshots` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Standalone` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StatsForSnapshot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StopMonitoring` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StorePending` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Total` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TrimRecent` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Use` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WaitTimes` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Latest`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarkComplete`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarkFailed`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarkReserved`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MigrateReleased`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MigrateStaleReserved`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Monitor`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Monitoring`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewInMemoryRepository`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewJobRepository`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMetricsRepository`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMonitor`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewMonitoringRepository`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewRedisConnectionRegistry`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewStopwatch`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSupervisorOptions`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pending`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PurgeQueue`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Queue`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Recent`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RecommendProcesses`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Record`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RecordCompletedJob`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RecordJob`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Release`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Snapshot`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SnapshotPerformance`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Snapshots`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Standalone`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StatsForSnapshot`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StopMonitoring`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StorePending`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Total`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TrimRecent`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Use`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WaitTimes`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `BalanceBySize` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BalanceByTime` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrNoSnapshots` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name                        | Notes                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| `BalanceBySize`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BalanceByTime`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrNoSnapshots`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrUnknownRedisConnection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobCompleted` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobPending` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobReserved` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisCluster` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisStandalone` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobCompleted`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobFailed`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobPending`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobReserved`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisCluster`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisStandalone`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

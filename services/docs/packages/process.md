@@ -5,6 +5,9 @@
 <!-- laravel-docs: processes.md#concurrent-processes -->
 <!-- laravel-docs: processes.md#testing -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package process provides a small process runner with fakes, assertions, pools, and pipes inspired by Laravel's Process component.
 
 <div class="docs-callout docs-callout-laravel">
@@ -33,8 +36,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/process/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package   | Purpose                                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `process` | Package process provides a small process runner with fakes, assertions, pools, and pipes inspired by Laravel's Process component. |
 
 ## Core Concepts
@@ -43,18 +46,18 @@ The process reference is organized around the exported Go surface for package `p
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Command`, `InvokedProcess`, `Manager`, `PendingProcess`, `Pipe`, `Pool`, `ProcessError`, `Result` |
+| Surface                    | Exported API                                                                                                                                                                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Command`, `InvokedProcess`, `Manager`, `PendingProcess`, `Pipe`, `Pool`, `ProcessError`, `Result`                                                                                                                                              |
 | Constructors and functions | `Args`, `AssertNothingRan`, `AssertRan`, `Command`, `Env`, `Error`, `ErrorOutput`, `ExitCode`, `Failed`, `Fake`, `Input`, `LatestOutput`, `New`, `NewResult`, `Output`, `Path`, `Pipe`, `Pool`, `PreventStrayProcesses`, `Quietly`, and 13 more |
-| Variables | `ErrProcessFailed`, `ErrProcessTimedOut`, `ErrSequenceEmpty`, `ErrStrayProcess` |
-| Constants | None exported from this package root. |
+| Variables                  | `ErrProcessFailed`, `ErrProcessTimedOut`, `ErrSequenceEmpty`, `ErrStrayProcess`                                                                                                                                                                 |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                           |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
-| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability                            | Documentation note                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Drivers and managers                  | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -80,12 +83,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -93,13 +96,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -125,63 +128,63 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `Command` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type             | Notes                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `Command`        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `InvokedProcess` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Manager` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Manager`        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `PendingProcess` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipe` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pool` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ProcessError` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Result` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipe`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pool`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ProcessError`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Result`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Args` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AssertNothingRan` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AssertRan` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Command` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Env` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Error` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrorOutput` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ExitCode` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Failed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fake` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Input` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LatestOutput` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewResult` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Output` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Path` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipe` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pool` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                | Notes                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `Args`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertNothingRan`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AssertRan`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Command`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Env`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Error`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrorOutput`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ExitCode`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Failed`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fake`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Input`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LatestOutput`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewResult`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Output`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Path`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipe`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pool`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `PreventStrayProcesses` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Quietly` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Result` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Run` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Sequence` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Shell` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Start` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `String` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Successful` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Throw` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Timeout` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unwrap` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Wait` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WaitUntil` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Write` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Quietly`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Result`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Run`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Sequence`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Shell`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Start`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Successful`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Throw`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Timeout`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unwrap`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Wait`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WaitUntil`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Write`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `ErrProcessFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name                 | Notes                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| `ErrProcessFailed`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrProcessTimedOut` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrSequenceEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrStrayProcess` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrSequenceEmpty`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrStrayProcess`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

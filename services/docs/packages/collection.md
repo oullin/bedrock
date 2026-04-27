@@ -4,6 +4,9 @@
 <!-- laravel-docs: collections.md#method-listing -->
 <!-- laravel-docs: collections.md#higher-order-messages -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The collection package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">
@@ -32,14 +35,14 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/collection/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
-| `arr` | Package arr provides generic utility functions for working with slices. |
-| `collectible` | Package collectible provides an ordered map collection with a fluent, chainable API. |
-| `collection` | Package collection provides a fluent, generic wrapper for working with slices of data. |
-| `kv` | Package kv provides utility functions for working with maps. |
-| `lazy` | Package lazy provides lazily evaluated generic sequences backed by [iter.Seq]. |
-| `support` | Package support provides shared types and error definitions used across the collection family of packages. |
+| Package       | Purpose                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `arr`         | Package arr provides generic utility functions for working with slices.                                    |
+| `collectible` | Package collectible provides an ordered map collection with a fluent, chainable API.                       |
+| `collection`  | Package collection provides a fluent, generic wrapper for working with slices of data.                     |
+| `kv`          | Package kv provides utility functions for working with maps.                                               |
+| `lazy`        | Package lazy provides lazily evaluated generic sequences backed by [iter.Seq].                             |
+| `support`     | Package support provides shared types and error definitions used across the collection family of packages. |
 
 ## Core Concepts
 
@@ -47,17 +50,17 @@ The collection reference is organized around the exported Go surface for package
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Collection`, `ItemNotFoundError`, `MultipleItemsFoundError`, `Numeric`, `Pair` |
+| Surface                    | Exported API                                                                                                                                                                                                                                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Collection`, `ItemNotFoundError`, `MultipleItemsFoundError`, `Numeric`, `Pair`                                                                                                                                                                      |
 | Constructors and functions | `Accessible`, `Add`, `After`, `All`, `Before`, `Chunk`, `ChunkWhile`, `Collect`, `Concat`, `Contains`, `ContainsManyItems`, `ContainsOneItem`, `Copy`, `Count`, `DD`, `DiffKeys`, `DiffKeysUsing`, `DiffUsing`, `DoesntContain`, `Dot`, and 108 more |
-| Variables | `ErrReduceSpreadLength` |
-| Constants | None exported from this package root. |
+| Variables                  | `ErrReduceSpreadLength`                                                                                                                                                                                                                              |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability                  | Documentation note                                                                                                   |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Database-backed persistence | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -83,12 +86,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -96,13 +99,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -128,151 +131,151 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `Collection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ItemNotFoundError` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                      | Notes                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `Collection`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ItemNotFoundError`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `MultipleItemsFoundError` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Numeric` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pair` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Numeric`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pair`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Accessible` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Add` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `After` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `All` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Before` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Chunk` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ChunkWhile` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Collect` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Concat` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Contains` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function            | Notes                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `Accessible`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Add`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `After`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `All`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Before`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Chunk`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ChunkWhile`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Collect`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Concat`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Contains`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ContainsManyItems` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ContainsOneItem` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Copy` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Count` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DD` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DiffKeys` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DiffKeysUsing` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DiffUsing` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DoesntContain` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DotWithDepth` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dump` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Each` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EachSpread` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Eager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Ensure` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Error` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Every` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Except` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fill` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Filter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `First` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FirstOrFail` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Flatten` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FlattenAny` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Flip` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForPage` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Forget` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForgetMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetOrPut` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Has` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasAll` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasAny` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasSole` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Implode` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IntersectByKeys` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IntersectUsing` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsAssoc` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsNotEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Iter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Join` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Keys` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Last` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Len` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarshalJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Median` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Merge` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Multiply` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Nth` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Only` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pad` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PairIter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Partition` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pop` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PopMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Prepend` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pull` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Push` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Put` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Query` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Random` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Range` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Reject` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Remember` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Replace` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Reverse` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Search` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Set` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Shift` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ShiftMany` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Shuffle` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Skip` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SkipUntil` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SkipWhile` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Slice` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Sliding` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Sole` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Some` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Sort` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SortDesc` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SortKeysUsing` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SortRecursive` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Splice` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SpliceReplace` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Split` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SplitIn` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `String` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Take` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TakeUntil` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TakeUntilTimeout` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TakeWhile` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Tap` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TapEach` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Throttle` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToBase` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToCssClasses` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToCssStyles` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToPairs` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToPrettyJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToSlice` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Transform` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Undot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Union` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unless` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UnlessEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UnlessNotEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UnmarshalJSON` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unshift` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Values` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `When` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhenEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhenNotEmpty` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Where` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WhereNot` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ContainsOneItem`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Copy`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Count`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DD`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DiffKeys`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DiffKeysUsing`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DiffUsing`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DoesntContain`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dot`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DotWithDepth`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dump`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Each`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EachSpread`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Eager`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Ensure`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Error`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Every`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Except`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fill`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Filter`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `First`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FirstOrFail`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flatten`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FlattenAny`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flip`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForPage`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Forget`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForgetMany`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOrPut`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Has`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAll`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasAny`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasMany`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasSole`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Implode`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IntersectByKeys`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IntersectUsing`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsAssoc`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsEmpty`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsNotEmpty`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Iter`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Join`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Keys`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Last`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Len`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarshalJSON`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Median`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Merge`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Multiply`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Nth`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Only`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pad`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PairIter`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Partition`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pop`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PopMany`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Prepend`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pull`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Push`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Put`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Query`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Random`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Range`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Reject`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Remember`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Replace`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Reverse`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Search`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Set`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Shift`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShiftMany`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Shuffle`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Skip`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SkipUntil`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SkipWhile`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Slice`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Sliding`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Sole`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Some`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Sort`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SortDesc`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SortKeysUsing`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SortRecursive`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Splice`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SpliceReplace`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Split`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SplitIn`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Take`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TakeUntil`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TakeUntilTimeout`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TakeWhile`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Tap`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TapEach`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Throttle`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToBase`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToCssClasses`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToCssStyles`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToJSON`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToPairs`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToPrettyJSON`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToSlice`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Transform`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Undot`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Union`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unless`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UnlessEmpty`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UnlessNotEmpty`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UnmarshalJSON`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unshift`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Values`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `When`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhenEmpty`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhenNotEmpty`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Where`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WhereNot`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
+| Name                    | Notes                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------- |
 | `ErrReduceSpreadLength` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes

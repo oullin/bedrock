@@ -3,6 +3,9 @@
 <!-- laravel-docs: responses.md#creating-responses -->
 <!-- laravel-docs: frontend.md#frontend -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The seo package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,10 +34,10 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/seo/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
-| `seo` | Public seo API surface for this module. |
-| `i18n` | Public i18n API surface for this module. |
+| Package | Purpose                                  |
+| ------- | ---------------------------------------- |
+| `seo`   | Public seo API surface for this module.  |
+| `i18n`  | Public i18n API surface for this module. |
 
 ## Core Concepts
 
@@ -42,17 +45,17 @@ The seo reference is organized around the exported Go surface for package `seo`.
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Head`, `I18nConfig`, `LinkTag`, `Locale`, `MetaTag` |
+| Surface                    | Exported API                                                                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Head`, `I18nConfig`, `LinkTag`, `Locale`, `MetaTag`                                                                               |
 | Constructors and functions | `ApplyEnv`, `Codes`, `Default`, `DefaultI18n`, `LocaleFromContext`, `Lookup`, `MergeHead`, `Middleware`, `RenderHTML`, `SetLocale` |
-| Variables | None exported from this package root. |
-| Constants | None exported from this package root. |
+| Variables                  | None exported from this package root.                                                                                              |
+| Constants                  | None exported from this package root.                                                                                              |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability                  | Documentation note                                                                                                   |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | HTTP middleware or handlers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -78,12 +81,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -91,13 +94,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -121,34 +124,34 @@ No dedicated Laravel inventory test was detected for this package. Use the ordin
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `Head` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type         | Notes                                                                              |
+| ------------ | ---------------------------------------------------------------------------------- |
+| `Head`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `I18nConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LinkTag` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Locale` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MetaTag` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LinkTag`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Locale`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MetaTag`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `ApplyEnv` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Codes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Default` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DefaultI18n` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function            | Notes                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `ApplyEnv`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Codes`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Default`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DefaultI18n`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `LocaleFromContext` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Lookup` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MergeHead` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Middleware` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RenderHTML` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetLocale` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Lookup`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MergeHead`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Middleware`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RenderHTML`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetLocale`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| No exported variables or constants detected | |
+| Name                                        | Notes |
+| ------------------------------------------- | ----- |
+| No exported variables or constants detected |       |
 
 ## Laravel Parity Notes
 

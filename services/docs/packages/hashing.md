@@ -3,6 +3,99 @@
 <!-- laravel-docs: hashing.md#introduction -->
 <!-- laravel-docs: hashing.md#basic-usage -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The hashing package gives every Bedrock app a single, driver-pluggable
+password hashing surface. Pick a default algorithm at startup; rotate
+to a stronger one later by changing one line and rehashing on next
+login.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The hash manager is bound under `"hash"` by `HashingServiceProvider`. The
+canonical constructor takes the default driver name:
+
+```go
+// services/demo/api/bootstrap.go:139
+hashing.NewHashingServiceProviderWithDefaults(application.Container, o.HashDefaultDriver),
+```
+
+`o.HashDefaultDriver` is one of the `Driver` constants in
+[`packages/hashing/driver.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/driver.go):
+`DriverBcrypt`, `DriverArgon2i`, or `DriverArgon2id`.
+
+## Basic Usage
+
+```go
+hasher := container.Resolve[*hashing.HashManager]("hash")
+
+// Hash on signup
+hash, err := hasher.Make(plaintextPassword)
+
+// Verify on login
+ok, err := hasher.Check(plaintextPassword, storedHash)
+
+// Detect when a stored hash should be re-hashed (rotated default
+// algorithm or weakened cost)
+needs, _ := hasher.NeedsRehash(storedHash)
+```
+
+The manager itself implements the `contracts.Hasher` interface
+([`packages/hashing/manager.go:15`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/manager.go#L15)),
+so handler code that just wants "the default hasher" can accept the
+contract type and get any driver.
+
+## Drivers
+
+Built-in drivers:
+
+| Name       | Source                                                                                     | Notes                                       |
+| ---------- | ------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| `bcrypt`   | [`bcrypt.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/bcrypt.go)     | Sane production default; tunable cost       |
+| `argon2i`  | [`argon.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/argon.go)       | Memory-hard, side-channel resistant         |
+| `argon2id` | [`argon2id.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/argon2id.go) | Argon2 hybrid; current OWASP recommendation |
+
+Pick a non-default driver at runtime when you need to verify a hash
+produced by a different algorithm:
+
+```go
+argon, _ := hasher.Driver(hashing.DriverArgon2id)
+ok, _ := argon.Check(plaintext, storedArgonHash)
+```
+
+## Writing Custom Drivers
+
+Implement the `contracts.Hasher` interface
+([`packages/contracts/hashing/hasher.go`](https://github.com/gocanto/bedrock/blob/main/packages/contracts/hashing))
+and pass it into the manager via the constructor's `drivers` map:
+
+```go
+custom := myhasher.New(opts)
+
+mgr := hashing.NewManager(hashing.Driver("custom"), map[hashing.Driver]contract.Hasher{
+    hashing.DriverBcrypt: hashing.NewBcryptHasher(12),
+    hashing.Driver("custom"): custom,
+})
+
+application.Container.Instance("hash", mgr)
+```
+
+Unlike most other Bedrock managers, hashing does not expose `Extend(...)`.
+The driver map is set at construction time. To add a driver, build your
+own manager.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Auth](/packages/auth) — depends on this package for password
+verification.
+<!-- /BEDROCK:HAND -->
+
 Package hashing provides driver-based password hashing with support for bcrypt, argon2i, and argon2id algorithms. It mirrors Laravel's Hashing component, offering a unified API through the HashManager and individual hashers for each algorithm.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,8 +124,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/hashing/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package   | Purpose                                                                                                                                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `hashing` | Package hashing provides driver-based password hashing with support for bcrypt, argon2i, and argon2id algorithms. It mirrors Laravel's Hashing component, offering a unified API through the HashManager and individual hashers for each algorithm. |
 
 ## Core Concepts
@@ -41,17 +134,17 @@ The hashing reference is organized around the exported Go surface for package `h
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Argon2IdHasher`, `ArgonHasher`, `BcryptHasher`, `Driver`, `HashManager`, `HashingServiceProvider` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Argon2IdHasher`, `ArgonHasher`, `BcryptHasher`, `Driver`, `HashManager`, `HashingServiceProvider`                                                                                                                                                                                                                          |
 | Constructors and functions | `Check`, `DefaultDriver`, `Driver`, `Info`, `IsHashed`, `Make`, `Memory`, `NeedsRehash`, `NewArgon2IdHasher`, `NewArgonHasher`, `NewBcryptHasher`, `NewHashingServiceProvider`, `NewHashingServiceProviderWithDefaults`, `NewManager`, `Provides`, `Register`, `Rounds`, `SetMemory`, `SetRounds`, `SetThreads`, and 4 more |
-| Variables | `ErrAlgorithmMismatch`, `ErrInvalidHash`, `ErrPasswordTooLong`, `ErrUnsupportedDriver` |
-| Constants | `DriverArgon2i`, `DriverArgon2id`, `DriverBcrypt` |
+| Variables                  | `ErrAlgorithmMismatch`, `ErrInvalidHash`, `ErrPasswordTooLong`, `ErrUnsupportedDriver`                                                                                                                                                                                                                                      |
+| Constants                  | `DriverArgon2i`, `DriverArgon2id`, `DriverBcrypt`                                                                                                                                                                                                                                                                           |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability           | Documentation note                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -77,12 +170,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +183,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -122,54 +215,54 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `Argon2IdHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ArgonHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BcryptHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HashManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                     | Notes                                                                              |
+| ------------------------ | ---------------------------------------------------------------------------------- |
+| `Argon2IdHasher`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ArgonHasher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BcryptHasher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HashManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `HashingServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Check` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DefaultDriver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Info` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsHashed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Make` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Memory` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NeedsRehash` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewArgon2IdHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewArgonHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewBcryptHasher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewHashingServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                                | Notes                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| `Check`                                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DefaultDriver`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver`                                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Info`                                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsHashed`                              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Make`                                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Memory`                                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NeedsRehash`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewArgon2IdHasher`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewArgonHasher`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewBcryptHasher`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewHashingServiceProvider`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewHashingServiceProviderWithDefaults` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Rounds` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetMemory` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetRounds` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetThreads` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetTime` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Threads` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Time` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `VerifyConfiguration` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewManager`                            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Rounds`                                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetMemory`                             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetRounds`                             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetThreads`                            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetTime`                               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Threads`                               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Time`                                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `VerifyConfiguration`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `DriverArgon2i` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DriverArgon2id` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DriverBcrypt` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name                   | Notes                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `DriverArgon2i`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DriverArgon2id`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DriverBcrypt`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrAlgorithmMismatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrInvalidHash` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrPasswordTooLong` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrInvalidHash`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrPasswordTooLong`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrUnsupportedDriver` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes

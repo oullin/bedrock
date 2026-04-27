@@ -4,6 +4,9 @@
 <!-- laravel-docs: sanctum.md#spa-authentication -->
 <!-- laravel-docs: sanctum.md#api-token-authentication -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package jetstream holds Laravel Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior.
 
 <div class="docs-callout docs-callout-laravel">
@@ -32,8 +35,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jetstream/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package     | Purpose                                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `jetstream` | Package jetstream holds Laravel Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior. |
 
 ## Core Concepts
@@ -42,17 +45,17 @@ The jetstream reference is organized around the exported Go surface for package 
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | None exported from this package root. |
+| Surface                    | Exported API                          |
+| -------------------------- | ------------------------------------- |
+| Types                      | None exported from this package root. |
 | Constructors and functions | None exported from this package root. |
-| Variables | None exported from this package root. |
-| Constants | None exported from this package root. |
+| Variables                  | None exported from this package root. |
+| Constants                  | None exported from this package root. |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability       | Documentation note                                                            |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Core package API | The root constructors and exported types are the primary integration surface. |
 
 ## Usage
@@ -78,12 +81,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -91,13 +94,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -123,21 +126,21 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| No exported types detected | |
+| Type                       | Notes |
+| -------------------------- | ----- |
+| No exported types detected |       |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| No exported functions detected | |
+| Function                       | Notes |
+| ------------------------------ | ----- |
+| No exported functions detected |       |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| No exported variables or constants detected | |
+| Name                                        | Notes |
+| ------------------------------------------- | ----- |
+| No exported variables or constants detected |       |
 
 ## Laravel Parity Notes
 

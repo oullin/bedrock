@@ -3,6 +3,9 @@
 <!-- laravel-docs: broadcasting.md#client-side-installation -->
 <!-- laravel-docs: reverb.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package echo is a Go port of the Laravel Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,9 +34,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/echo/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
-| `echo` | Package echo is a Go port of the Laravel Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
+| Package | Purpose                                                                                                                                                                                                                                 |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `echo`  | Package echo is a Go port of the Laravel Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
 
 ## Core Concepts
 
@@ -41,17 +44,17 @@ The echo reference is organized around the exported Go surface for package `echo
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `AuthOptions`, `Callback`, `Channel`, `ConnectionStatus`, `Connector`, `DispatchChannel`, `Echo`, `EncryptedPrivateChannel`, `EventFormatter`, `NullChannel`, `NullConnector`, `NullEncryptedPrivateChannel`, `NullPresenceChannel`, `NullPrivateChannel`, `Options`, `PresenceChannel`, `PrivateChannel`, `PusherConnector`, `SocketIOConnector` |
-| Constructors and functions | `Channel`, `Connect`, `Connector`, `Disconnect`, `Dispatch`, `EncryptedPrivateChannel`, `Error`, `Format`, `Here`, `Joining`, `Leave`, `LeaveAllChannels`, `LeaveChannel`, `Leaving`, `Listen`, `ListenToAll`, `New`, `NewDispatchChannel`, `NewEventFormatter`, `NewNullChannel`, and 15 more |
-| Variables | `ErrUnsupportedBroadcaster` |
-| Constants | `ConnectionStatusConnected`, `ConnectionStatusConnecting`, `ConnectionStatusDisconnected`, `ConnectionStatusFailed`, `ConnectionStatusReconnecting` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `AuthOptions`, `Callback`, `Channel`, `ConnectionStatus`, `Connector`, `DispatchChannel`, `Echo`, `EncryptedPrivateChannel`, `EventFormatter`, `NullChannel`, `NullConnector`, `NullEncryptedPrivateChannel`, `NullPresenceChannel`, `NullPrivateChannel`, `Options`, `PresenceChannel`, `PrivateChannel`, `PusherConnector`, `SocketIOConnector` |
+| Constructors and functions | `Channel`, `Connect`, `Connector`, `Disconnect`, `Dispatch`, `EncryptedPrivateChannel`, `Error`, `Format`, `Here`, `Joining`, `Leave`, `LeaveAllChannels`, `LeaveChannel`, `Leaving`, `Listen`, `ListenToAll`, `New`, `NewDispatchChannel`, `NewEventFormatter`, `NewNullChannel`, and 15 more                                                    |
+| Variables                  | `ErrUnsupportedBroadcaster`                                                                                                                                                                                                                                                                                                                       |
+| Constants                  | `ConnectionStatusConnected`, `ConnectionStatusConnecting`, `ConnectionStatusDisconnected`, `ConnectionStatusFailed`, `ConnectionStatusReconnecting`                                                                                                                                                                                               |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability           | Documentation note                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -77,12 +80,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +93,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -122,78 +125,78 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `AuthOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Callback` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Channel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ConnectionStatus` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Connector` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DispatchChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Echo` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EncryptedPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EventFormatter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                          | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `AuthOptions`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Callback`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Channel`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ConnectionStatus`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Connector`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DispatchChannel`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Echo`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncryptedPrivateChannel`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EventFormatter`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullChannel`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullConnector`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NullEncryptedPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullPresenceChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Options` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PresenceChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PusherConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SocketIOConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullPresenceChannel`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullPrivateChannel`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Options`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PresenceChannel`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PrivateChannel`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PusherConnector`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SocketIOConnector`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Channel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Connect` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Connector` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Disconnect` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dispatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EncryptedPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Error` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Format` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Here` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Joining` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Leave` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LeaveAllChannels` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LeaveChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Leaving` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Listen` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ListenToAll` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewDispatchChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewEventFormatter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                         | Notes                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+| `Channel`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Connect`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Connector`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Disconnect`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dispatch`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncryptedPrivateChannel`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Error`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Format`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Here`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Joining`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Leave`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LeaveAllChannels`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LeaveChannel`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Leaving`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Listen`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ListenToAll`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New`                            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewDispatchChannel`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEventFormatter`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullChannel`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullConnector`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewNullEncryptedPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullPresenceChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullPrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPusherConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewSocketIOConnector` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `On` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PresenceChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PrivateChannel` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetNamespace` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SocketID` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StopListening` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StopListeningToAll` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Subscribed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Whisper` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullPresenceChannel`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullPrivateChannel`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewPusherConnector`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSocketIOConnector`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `On`                             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PresenceChannel`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PrivateChannel`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetNamespace`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SocketID`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StopListening`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StopListeningToAll`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Subscribed`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Whisper`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `ConnectionStatusConnected` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ConnectionStatusConnecting` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name                           | Notes                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `ConnectionStatusConnected`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ConnectionStatusConnecting`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ConnectionStatusDisconnected` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ConnectionStatusFailed` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ConnectionStatusFailed`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ConnectionStatusReconnecting` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrUnsupportedBroadcaster` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrUnsupportedBroadcaster`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

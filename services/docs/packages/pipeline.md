@@ -3,6 +3,9 @@
 <!-- laravel-docs: helpers.md#other-utilities -->
 <!-- laravel-docs: middleware.md#middleware -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package pipeline provides a middleware-style processing chain. It allows sending a value through a series of pipes, where each pipe can inspect, transform, or short-circuit the chain.
 
 <div class="docs-callout docs-callout-laravel">
@@ -31,8 +34,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pipeline/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package    | Purpose                                                                                                                                                                                 |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pipeline` | Package pipeline provides a middleware-style processing chain. It allows sending a value through a series of pipes, where each pipe can inspect, transform, or short-circuit the chain. |
 
 ## Core Concepts
@@ -41,17 +44,17 @@ The pipeline reference is organized around the exported Go surface for package `
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Hub`, `Option`, `Pipe`, `Pipeline`, `Piper`, `Resolver` |
+| Surface                    | Exported API                                                                                                                                                                                                                             |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Hub`, `Option`, `Pipe`, `Pipeline`, `Piper`, `Resolver`                                                                                                                                                                                 |
 | Constructors and functions | `Defaults`, `Finally`, `New`, `NewHub`, `Pipe`, `Pipeline`, `Pipes`, `Send`, `SetResolver`, `Then`, `ThenReturn`, `Through`, `Via`, `When`, `WithHandleCarry`, `WithHandleError`, `WithResolver`, `WithTransaction`, `WithinTransaction` |
-| Variables | None exported from this package root. |
-| Constants | None exported from this package root. |
+| Variables                  | None exported from this package root.                                                                                                                                                                                                    |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                    |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability       | Documentation note                                                            |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Core package API | The root constructors and exported types are the primary integration surface. |
 
 ## Usage
@@ -77,12 +80,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +93,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -122,44 +125,44 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `Hub` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Option` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipe` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type       | Notes                                                                              |
+| ---------- | ---------------------------------------------------------------------------------- |
+| `Hub`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Option`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipe`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Pipeline` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Piper` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Piper`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Resolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Defaults` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Finally` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewHub` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipe` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipeline` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pipes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Send` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Then` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ThenReturn` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Through` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Via` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `When` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithHandleCarry` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithHandleError` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithTransaction` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function            | Notes                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `Defaults`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Finally`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewHub`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipe`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipeline`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pipes`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Send`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetResolver`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Then`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ThenReturn`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Through`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Via`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `When`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithHandleCarry`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithHandleError`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithResolver`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithTransaction`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithinTransaction` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| No exported variables or constants detected | |
+| Name                                        | Notes |
+| ------------------------------------------- | ----- |
+| No exported variables or constants detected |       |
 
 ## Laravel Parity Notes
 

@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: encryption.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package cookie provides Laravel-inspired cookie management primitives. It includes a queuing cookie jar, factory interfaces, and HTTP middleware for transparent cookie encryption/decryption and automatic attachment of queued cookies to responses.
 
 <div class="docs-callout docs-callout-laravel">
@@ -30,8 +33,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cookie/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package  | Purpose                                                                                                                                                                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `cookie` | Package cookie provides Laravel-inspired cookie management primitives. It includes a queuing cookie jar, factory interfaces, and HTTP middleware for transparent cookie encryption/decryption and automatic attachment of queued cookies to responses. |
 
 ## Core Concepts
@@ -40,18 +43,18 @@ The cookie reference is organized around the exported Go surface for package `co
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `AttachQueued`, `CookieServiceProvider`, `EncryptCookies`, `Encrypter`, `Factory`, `Jar`, `Options`, `QueueingFactory` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                        |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `AttachQueued`, `CookieServiceProvider`, `EncryptCookies`, `Encrypter`, `Factory`, `Jar`, `Options`, `QueueingFactory`                                                                                                                                                              |
 | Constructors and functions | `BoolPtr`, `DefaultOptions`, `Defaults`, `Expire`, `Flush`, `Forever`, `Forget`, `GetQueued`, `HasQueued`, `Make`, `NewAttachQueued`, `NewCookieServiceProvider`, `NewEncryptCookies`, `NewJar`, `Provides`, `Queue`, `QueueForever`, `QueueMake`, `Queued`, `Register`, and 5 more |
-| Variables | `ErrEmptyName` |
-| Constants | `SameSiteDefault`, `SameSiteLax`, `SameSiteNone`, `SameSiteStrict` |
+| Variables                  | `ErrEmptyName`                                                                                                                                                                                                                                                                      |
+| Constants                  | `SameSiteDefault`, `SameSiteLax`, `SameSiteNone`, `SameSiteStrict`                                                                                                                                                                                                                  |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
-| HTTP middleware or handlers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability                       | Documentation note                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| HTTP middleware or handlers      | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Queue, async, or background work | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -77,12 +80,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +93,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -122,56 +125,56 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `AttachQueued` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                    | Notes                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `AttachQueued`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `CookieServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EncryptCookies` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Encrypter` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Factory` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Jar` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Options` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueingFactory` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncryptCookies`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Encrypter`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Factory`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Jar`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Options`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueingFactory`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `BoolPtr` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DefaultOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Defaults` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Expire` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Flush` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Forever` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Forget` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetQueued` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasQueued` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Make` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewAttachQueued` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                   | Notes                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `BoolPtr`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DefaultOptions`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Defaults`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Expire`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flush`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Forever`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Forget`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetQueued`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasQueued`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Make`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewAttachQueued`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewCookieServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewEncryptCookies` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewJar` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Queue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueForever` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueMake` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Queued` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetDefaults` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unqueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Wrap` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Write` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WriteHeader` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEncryptCookies`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewJar`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Queue`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueForever`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueMake`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Queued`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetDefaults`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unqueue`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Wrap`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Write`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WriteHeader`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `ErrEmptyName` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name              | Notes                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `ErrEmptyName`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SameSiteDefault` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SameSiteLax` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SameSiteNone` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SameSiteStrict` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SameSiteLax`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SameSiteNone`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SameSiteStrict`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

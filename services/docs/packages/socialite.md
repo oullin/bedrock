@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: socialite.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package socialite provides OAuth1 and OAuth2 social authentication, mirroring Laravel\Socialite in idiomatic Go.
 
 <div class="docs-callout docs-callout-laravel">
@@ -30,8 +33,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/socialite/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package     | Purpose                                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------------------------- |
 | `socialite` | Package socialite provides OAuth1 and OAuth2 social authentication, mirroring Laravel\Socialite in idiomatic Go. |
 
 ## Core Concepts
@@ -40,18 +43,18 @@ The socialite reference is organized around the exported Go surface for package 
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `AbstractProvider`, `BitbucketProvider`, `DriverFactory`, `FacebookProvider`, `FakeProvider`, `GithubProvider`, `GitlabProvider`, `GoogleProvider`, `HTTPDoer`, `LinkedInProvider`, `Manager`, `OAuth1Server`, `OneAbstractProvider`, `Provider`, `ProviderConfig`, `ProviderHooks`, `Session`, `SlackProvider`, `SocialiteServiceProvider`, `TemporaryCredentials`, and 4 more |
-| Constructors and functions | `AsBotUser`, `Boot`, `BuildAuthURLFromBase`, `ClearResolvedInstances`, `Driver`, `EnablePKCE`, `Extend`, `Fake`, `FakeWith`, `FetchAccessToken`, `Fields`, `ForgetDrivers`, `Get`, `GetAuthURL`, `GetAvatar`, `GetEmail`, `GetID`, `GetName`, `GetNickname`, `GetRaw`, and 45 more |
-| Variables | `ErrInvalidState`, `ErrMissingTemporaryCredentials`, `ErrMissingVerifier`, `Socialite` |
-| Constants | `EncodingRFC1738`, `EncodingRFC3986` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `AbstractProvider`, `BitbucketProvider`, `DriverFactory`, `FacebookProvider`, `FakeProvider`, `GithubProvider`, `GitlabProvider`, `GoogleProvider`, `HTTPDoer`, `LinkedInProvider`, `Manager`, `OAuth1Server`, `OneAbstractProvider`, `Provider`, `ProviderConfig`, `ProviderHooks`, `Session`, `SlackProvider`, `SocialiteServiceProvider`, `TemporaryCredentials`, and 4 more |
+| Constructors and functions | `AsBotUser`, `Boot`, `BuildAuthURLFromBase`, `ClearResolvedInstances`, `Driver`, `EnablePKCE`, `Extend`, `Fake`, `FakeWith`, `FetchAccessToken`, `Fields`, `ForgetDrivers`, `Get`, `GetAuthURL`, `GetAvatar`, `GetEmail`, `GetID`, `GetName`, `GetNickname`, `GetRaw`, and 45 more                                                                                              |
+| Variables                  | `ErrInvalidState`, `ErrMissingTemporaryCredentials`, `ErrMissingVerifier`, `Socialite`                                                                                                                                                                                                                                                                                          |
+| Constants                  | `EncodingRFC1738`, `EncodingRFC3986`                                                                                                                                                                                                                                                                                                                                            |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
-| Drivers and managers | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
+| Capability                            | Documentation note                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Drivers and managers                  | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 | Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -77,12 +80,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -90,13 +93,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -120,113 +123,113 @@ No dedicated Laravel inventory test was detected for this package. Use the ordin
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `AbstractProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BitbucketProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DriverFactory` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FacebookProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FakeProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GithubProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GitlabProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GoogleProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HTTPDoer` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LinkedInProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Manager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OAuth1Server` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OneAbstractProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ProviderConfig` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ProviderHooks` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Session` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SlackProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                       | Notes                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `AbstractProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BitbucketProvider`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DriverFactory`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FacebookProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FakeProvider`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GithubProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GitlabProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GoogleProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HTTPDoer`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LinkedInProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Manager`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OAuth1Server`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OneAbstractProvider`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provider`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ProviderConfig`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ProviderHooks`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Session`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SlackProvider`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SocialiteServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TemporaryCredentials` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TokenCredentials` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TokenFetcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TwitterProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `User` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TemporaryCredentials`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TokenCredentials`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TokenFetcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TwitterProvider`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `User`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `AsBotUser` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Boot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BuildAuthURLFromBase` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ClearResolvedInstances` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EnablePKCE` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Extend` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fake` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FakeWith` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FetchAccessToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fields` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForgetDrivers` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetAuthURL` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetAvatar` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetEmail` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetID` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetName` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetNickname` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetRaw` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScopes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetTokenFields` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetTokenURL` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetUser` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetUserByToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsStateless` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Map` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MapUserToObject` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewAbstractProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewBitbucketProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewFacebookProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewGithubProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewGitlabProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewGoogleProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewLinkedInProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewOneAbstractProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewSlackProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                      | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `AsBotUser`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Boot`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BuildAuthURLFromBase`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ClearResolvedInstances`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EnablePKCE`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Extend`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fake`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FakeWith`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FetchAccessToken`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fields`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForgetDrivers`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetAuthURL`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetAvatar`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetEmail`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetID`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetName`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetNickname`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetRaw`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetScopes`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTokenFields`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTokenURL`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetUser`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetUserByToken`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsStateless`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Map`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MapUserToObject`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewAbstractProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewBitbucketProvider`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFacebookProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewGithubProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewGitlabProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewGoogleProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewLinkedInProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewManager`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewOneAbstractProvider`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSlackProvider`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewSocialiteServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewTwitterProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Redirect` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedirectURL` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Scopes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetApprovedScopes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetExpiresIn` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetHost` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetOAuthToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetRaw` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetRefreshToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetRequest` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScopeSeparator` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScopes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetSession` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Stateless` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `User` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UserFromIDToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UserFromToken` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UsesPKCE` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UsingGraphVersion` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `With` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithBoot` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewTwitterProvider`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Redirect`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedirectURL`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Scopes`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetApprovedScopes`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetExpiresIn`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetHost`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetManager`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetOAuthToken`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetRaw`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetRefreshToken`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetRequest`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetScopeSeparator`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetScopes`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetSession`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetToken`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Stateless`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `User`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UserFromIDToken`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UserFromToken`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UsesPKCE`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UsingGraphVersion`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `With`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithBoot`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| `EncodingRFC1738` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EncodingRFC3986` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrInvalidState` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Name                             | Notes                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+| `EncodingRFC1738`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EncodingRFC3986`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrInvalidState`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ErrMissingTemporaryCredentials` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ErrMissingVerifier` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Socialite` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ErrMissingVerifier`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Socialite`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
 

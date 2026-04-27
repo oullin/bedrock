@@ -5,6 +5,9 @@
 <!-- laravel-docs: events.md#defining-listeners -->
 <!-- laravel-docs: events.md#queued-event-listeners -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package events provides Laravel-inspired event dispatching with support for named and typed events, wildcard pattern matching, event subscribers, synchronous and queued listeners, transaction-aware deferred dispatch, and a NullDispatcher for testing.
 
 <div class="docs-callout docs-callout-laravel">
@@ -33,8 +36,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/events/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package  | Purpose                                                                                                                                                                                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `events` | Package events provides Laravel-inspired event dispatching with support for named and typed events, wildcard pattern matching, event subscribers, synchronous and queued listeners, transaction-aware deferred dispatch, and a NullDispatcher for testing. |
 
 ## Core Concepts
@@ -43,17 +46,17 @@ The events reference is organized around the exported Go surface for package `ev
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `CallQueuedListener`, `EventDispatcher`, `EventsServiceProvider`, `InvokeQueuedClosure`, `Listener`, `ListenerOptions`, `NullDispatcher`, `QueueBackend`, `QueueResolver`, `QueuedClosure`, `ShouldDispatchAfterCommit`, `ShouldHandleEventsAfterCommit`, `ShouldQueue`, `Subscriber`, `TransactionManager`, `TransactionManagerResolver` |
-| Constructors and functions | `Boot`, `Catch`, `Defer`, `Dispatch`, `DisplayName`, `Failed`, `Flush`, `Forget`, `ForgetPushed`, `GetBackoff`, `GetCatchFn`, `GetConnection`, `GetDelay`, `GetListeners`, `GetMaxExceptions`, `GetQueue`, `GetRawListeners`, `GetTimeout`, `GetTries`, `Handle`, and 23 more |
-| Variables | `ErrInvalidEvent` |
-| Constants | None exported from this package root. |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `CallQueuedListener`, `EventDispatcher`, `EventsServiceProvider`, `InvokeQueuedClosure`, `Listener`, `ListenerOptions`, `NullDispatcher`, `QueueBackend`, `QueueResolver`, `QueuedClosure`, `ShouldDispatchAfterCommit`, `ShouldHandleEventsAfterCommit`, `ShouldQueue`, `Subscriber`, `TransactionManager`, `TransactionManagerResolver` |
+| Constructors and functions | `Boot`, `Catch`, `Defer`, `Dispatch`, `DisplayName`, `Failed`, `Flush`, `Forget`, `ForgetPushed`, `GetBackoff`, `GetCatchFn`, `GetConnection`, `GetDelay`, `GetListeners`, `GetMaxExceptions`, `GetQueue`, `GetRawListeners`, `GetTimeout`, `GetTries`, `Handle`, and 23 more                                                             |
+| Variables                  | `ErrInvalidEvent`                                                                                                                                                                                                                                                                                                                         |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                                                                                                     |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability           | Documentation note                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Events and listeners | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -79,12 +82,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -92,13 +95,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -124,77 +127,77 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `CallQueuedListener` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EventDispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EventsServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `InvokeQueuedClosure` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Listener` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ListenerOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NullDispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueBackend` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueueResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueuedClosure` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ShouldDispatchAfterCommit` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                            | Notes                                                                              |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| `CallQueuedListener`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EventDispatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EventsServiceProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `InvokeQueuedClosure`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Listener`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ListenerOptions`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NullDispatcher`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueBackend`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueueResolver`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueuedClosure`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShouldDispatchAfterCommit`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ShouldHandleEventsAfterCommit` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ShouldQueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Subscriber` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TransactionManager` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TransactionManagerResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShouldQueue`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Subscriber`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TransactionManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TransactionManagerResolver`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Boot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Catch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Defer` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dispatch` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DisplayName` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Failed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Flush` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Forget` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForgetPushed` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetBackoff` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetCatchFn` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetConnection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetDelay` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetListeners` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetMaxExceptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetQueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetRawListeners` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetTimeout` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetTries` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Handle` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasListeners` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasWildcardListeners` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Listen` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MakeListener` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewCallQueuedListener` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewDispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewEventsServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewNullDispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OnConnection` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OnQueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Push` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Queueable` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Resolve` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetQueueResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                        | Notes                                                                              |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| `Boot`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Catch`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Defer`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dispatch`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DisplayName`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Failed`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Flush`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Forget`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForgetPushed`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetBackoff`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetCatchFn`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetConnection`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetDelay`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetListeners`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetMaxExceptions`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetQueue`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetRawListeners`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTimeout`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetTries`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Handle`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasListeners`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasWildcardListeners`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Listen`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MakeListener`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewCallQueuedListener`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewDispatcher`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewEventsServiceProvider`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewNullDispatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OnConnection`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OnQueue`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Push`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Queueable`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Resolve`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetQueueResolver`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SetTransactionManagerResolver` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ShouldQueue` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Subscribe` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Until` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithBoot` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithDelay` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithOptions` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ShouldQueue`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Subscribe`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Until`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithBoot`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithDelay`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithOptions`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
+| Name              | Notes                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------- |
 | `ErrInvalidEvent` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes

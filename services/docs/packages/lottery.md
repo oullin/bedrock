@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: helpers.md#other-utilities -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package lottery provides probabilistic execution helpers modeled after Laravel's Lottery API.
 
 <div class="docs-callout docs-callout-laravel">
@@ -30,8 +33,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/lottery/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package   | Purpose                                                                                       |
+| --------- | --------------------------------------------------------------------------------------------- |
 | `lottery` | Package lottery provides probabilistic execution helpers modeled after Laravel's Lottery API. |
 
 ## Core Concepts
@@ -40,17 +43,17 @@ The lottery reference is organized around the exported Go surface for package `l
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `Lottery` |
+| Surface                    | Exported API                                                                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `Lottery`                                                                                                                                                                                                                                                         |
 | Constructors and functions | `Always`, `AlwaysLose`, `AlwaysWin`, `Choose`, `DetermineResultNormally`, `DetermineResultsNormally`, `Fix`, `ForceLose`, `ForceResultWithSequence`, `ForceWin`, `Loser`, `LotteryOdds`, `Never`, `NewLottery`, `ResetForce`, `Run`, `SetResultFactory`, `Winner` |
-| Variables | None exported from this package root. |
-| Constants | None exported from this package root. |
+| Variables                  | None exported from this package root.                                                                                                                                                                                                                             |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                             |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability       | Documentation note                                                            |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Core package API | The root constructors and exported types are the primary integration surface. |
 
 ## Usage
@@ -76,12 +79,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -89,13 +92,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -119,38 +122,38 @@ No dedicated Laravel inventory test was detected for this package. Use the ordin
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
+| Type      | Notes                                                                              |
+| --------- | ---------------------------------------------------------------------------------- |
 | `Lottery` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Always` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AlwaysLose` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AlwaysWin` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Choose` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DetermineResultNormally` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                   | Notes                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `Always`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysLose`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AlwaysWin`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Choose`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DetermineResultNormally`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DetermineResultsNormally` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Fix` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForceLose` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForceResultWithSequence` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ForceWin` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Loser` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LotteryOdds` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Never` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewLottery` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ResetForce` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Run` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetResultFactory` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Winner` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Fix`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForceLose`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForceResultWithSequence`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ForceWin`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Loser`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LotteryOdds`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Never`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewLottery`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ResetForce`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Run`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetResultFactory`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Winner`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
-| No exported variables or constants detected | |
+| Name                                        | Notes |
+| ------------------------------------------- | ----- |
+| No exported variables or constants detected |       |
 
 ## Laravel Parity Notes
 

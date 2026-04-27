@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: validation.md#working-with-validated-input -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Laravel's Illuminate\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition.
 
 <div class="docs-callout docs-callout-laravel">
@@ -30,8 +33,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jsonx/...
 
 ## Source Coverage
 
-| Package | Purpose |
-| --- | --- |
+| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `jsonx` | Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Laravel's Illuminate\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition. |
 
 ## Core Concepts
@@ -40,17 +43,17 @@ The JSON Schema reference is organized around the exported Go surface for packag
 
 ### Public Surface
 
-| Surface | Exported API |
-| --- | --- |
-| Types | `ArrayType`, `BooleanType`, `Factory`, `IntegerType`, `NumberType`, `ObjectType`, `SchemaType`, `StringType`, `TypeBuilder` |
+| Surface                    | Exported API                                                                                                                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `ArrayType`, `BooleanType`, `Factory`, `IntegerType`, `NumberType`, `ObjectType`, `SchemaType`, `StringType`, `TypeBuilder`                                                                                                |
 | Constructors and functions | `Array`, `Boolean`, `Default`, `Description`, `Enum`, `Format`, `Integer`, `Items`, `Max`, `Min`, `MultipleOf`, `Nullable`, `Number`, `Object`, `Pattern`, `Required`, `Serialize`, `String`, `Title`, `ToMap`, and 2 more |
-| Variables | `ErrUnknownType` |
-| Constants | None exported from this package root. |
+| Variables                  | `ErrUnknownType`                                                                                                                                                                                                           |
+| Constants                  | None exported from this package root.                                                                                                                                                                                      |
 
 ### Capability Matrix
 
-| Capability | Documentation note |
-| --- | --- |
+| Capability                            | Documentation note                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Testing fakes or null implementations | Supported by exported API and package tests; use the API reference and parity tests below when wiring this behavior. |
 
 ## Usage
@@ -76,12 +79,12 @@ Use package tests as executable examples when the exact constructor requires col
 
 Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
 
-| Laravel shape | Bedrock shape |
-| --- | --- |
-| Config file keys | Typed config structs, options, or constructor parameters |
-| Facade defaults | Explicit manager/default-driver setup |
+| Laravel shape     | Bedrock shape                                            |
+| ----------------- | -------------------------------------------------------- |
+| Config file keys  | Typed config structs, options, or constructor parameters |
+| Facade defaults   | Explicit manager/default-driver setup                    |
 | Service providers | Go service-provider structs or direct application wiring |
-| Runtime helpers | Package functions and interfaces |
+| Runtime helpers   | Package functions and interfaces                         |
 
 Prefer narrow interfaces at package boundaries. When a package exposes a manager, register drivers or providers at startup, set the default once, and resolve named instances per request or job.
 
@@ -89,13 +92,13 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 The package reference should be read through these Laravel parity lenses:
 
-| Area | Documentation coverage |
-| --- | --- |
+| Area              | Documentation coverage                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------- |
 | Drivers/providers | Available implementations, default selection, custom registration, and failure behavior |
-| Events | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction |
-| Errors | Exported sentinel errors, wrapping, and `errors.Is` compatibility |
-| Context | Which operations accept `context.Context` and how cancellation/deadlines propagate |
-| Testing | Fakes, null implementations, assertion helpers, and deterministic clocks/stores |
+| Events            | Emitted structs, dispatcher hooks, listener timing, transaction or queue interaction    |
+| Errors            | Exported sentinel errors, wrapping, and `errors.Is` compatibility                       |
+| Context           | Which operations accept `context.Context` and how cancellation/deadlines propagate      |
+| Testing           | Fakes, null implementations, assertion helpers, and deterministic clocks/stores         |
 
 ## Edge Cases
 
@@ -121,49 +124,49 @@ Laravel parity is tracked by these tests:
 
 ### Exported Types
 
-| Type | Notes |
-| --- | --- |
-| `ArrayType` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type          | Notes                                                                              |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `ArrayType`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `BooleanType` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Factory` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Factory`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `IntegerType` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NumberType` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ObjectType` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SchemaType` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StringType` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NumberType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ObjectType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SchemaType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StringType`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `TypeBuilder` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
-| Function | Notes |
-| --- | --- |
-| `Array` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Boolean` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Default` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Description` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Enum` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Format` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Integer` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Items` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Max` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Min` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MultipleOf` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Nullable` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Number` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Object` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Pattern` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Required` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Serialize` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `String` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Title` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ToMap` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unique` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                      | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `Array`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Boolean`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Default`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Description`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Enum`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Format`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Integer`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Items`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Max`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Min`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MultipleOf`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Nullable`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Number`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Object`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Pattern`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Required`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Serialize`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `String`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Title`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ToMap`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unique`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithoutAdditionalProperties` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 
-| Name | Notes |
-| --- | --- |
+| Name             | Notes                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
 | `ErrUnknownType` | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ## Laravel Parity Notes
