@@ -30,6 +30,8 @@ func NewDefaultProjectAnalyzer() *ProjectAnalyzer {
 			ChannelAnalyzer{},
 			FacadeAnalyzer{},
 			ContainerBindingAnalyzer{},
+			ValidationAnalyzer{},
+			InertiaAnalyzer{},
 		},
 	}
 }
