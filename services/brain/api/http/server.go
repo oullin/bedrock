@@ -21,12 +21,12 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/bedrock/packages/filesystem"
 	"github.com/bedrock/services/brain/api/ai"
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
@@ -151,7 +151,7 @@ func (s *Server) handleSource(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, errors.New("path outside target"))
 		return
 	}
-	body, err := os.ReadFile(abs)
+	body, err := filesystem.New().Get(abs)
 	if err != nil {
 		writeErr(w, http.StatusNotFound, err)
 		return
