@@ -43,9 +43,11 @@ func (g *Graph) AddNode(n *Node) *Node {
 	if existing, ok := g.nodeIndex[n.ID]; ok {
 		return existing
 	}
+
 	g.Nodes = append(g.Nodes, n)
 	g.nodeIndex[n.ID] = n
 	g.Meta.NodeCount = len(g.Nodes)
+
 	return n
 }
 
@@ -58,15 +60,19 @@ func (g *Graph) Node(id string) *Node {
 // are coalesced — upstream-brain does the same to keep the graph readable.
 func (g *Graph) AddEdge(e *Edge) *Edge {
 	key := e.Source + "->" + e.Target + "|" + string(e.Type) + "|" + e.Label
+
 	if _, dup := g.directedEdgeKeys[key]; dup {
 		return e
 	}
+
 	if e.ID == "" {
 		e.ID = "e" + key
 	}
+
 	g.directedEdgeKeys[key] = struct{}{}
 	g.Edges = append(g.Edges, e)
 	g.Meta.EdgeCount = len(g.Edges)
+
 	return e
 }
 

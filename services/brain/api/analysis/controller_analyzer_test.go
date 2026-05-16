@@ -23,20 +23,26 @@ func wire(r *router) {
 }
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatalf("load: %v", err)
 	}
+
 	g := graph.NewGraph("fixture")
 	ctx := &Context{Project: proj, Graph: g}
+
 	if err := (RouteAnalyzer{}).Analyze(ctx); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := (ControllerAnalyzer{}).Analyze(ctx); err != nil {
 		t.Fatal(err)
 	}
+
 	if g.Node("action:showhome") == nil {
 		t.Errorf("expected action node, got: %v", nodeIDs(g))
 	}
+
 	if !hasEdge(g, "route:get:/", "action:showhome", graph.EdgeTypeHandlesBy) {
 		t.Errorf("expected route→action edge, got edges: %v", g.Edges)
 	}
@@ -44,9 +50,11 @@ func wire(r *router) {
 
 func nodeIDs(g *graph.Graph) []string {
 	out := make([]string, 0, len(g.Nodes))
+
 	for _, n := range g.Nodes {
 		out = append(out, n.ID)
 	}
+
 	return out
 }
 
@@ -56,5 +64,6 @@ func hasEdge(g *graph.Graph, src, dst string, t graph.EdgeType) bool {
 			return true
 		}
 	}
+
 	return false
 }

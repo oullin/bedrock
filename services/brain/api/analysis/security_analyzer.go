@@ -37,14 +37,18 @@ func (s *SecurityAnalyzer) Analyze(ctx *Context) error {
 	return ctx.Project.EachFile(func(_ *packages.Package, file *ast.File, _ string) error {
 		ast.Inspect(file, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
+
 			if !ok {
 				return true
 			}
+
 			s.checkSQLInjection(ctx, call)
 			s.checkCommandInjection(ctx, call)
 			s.checkHardcodedSecret(ctx, call)
+
 			return true
 		})
+
 		return nil
 	})
 }
@@ -68,27 +72,34 @@ func (s *SecurityAnalyzer) raise(ctx *Context, rule, severity, msg string, pos a
 
 func (s *SecurityAnalyzer) checkSQLInjection(ctx *Context, call *ast.CallExpr) {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
+
 	if !ok {
 		return
 	}
+
 	switch sel.Sel.Name {
 	case "Query", "Exec", "QueryRow", "QueryContext", "ExecContext", "QueryRowContext":
 	default:
 		return
 	}
+
 	if len(call.Args) == 0 {
 		return
 	}
+
 	first := call.Args[0]
 	// Skip context.Context (first arg of *Context methods).
 	if ident, ok := first.(*ast.Ident); ok && ident.Name == "ctx" && len(call.Args) > 1 {
 		first = call.Args[1]
 	}
+
 	if isStringConcat(first) {
 		s.raise(ctx, "sql_injection", "high",
 			"SQL built via string concatenation; use parameter placeholders", call)
+
 		return
 	}
+
 	if isSprintfCall(first) {
 		s.raise(ctx, "sql_injection", "high",
 			"SQL built via fmt.Sprintf; use parameter placeholders", call)
@@ -97,23 +108,31 @@ func (s *SecurityAnalyzer) checkSQLInjection(ctx *Context, call *ast.CallExpr) {
 
 func (s *SecurityAnalyzer) checkCommandInjection(ctx *Context, call *ast.CallExpr) {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
+
 	if !ok {
 		return
 	}
+
 	if sel.Sel.Name != "Command" && sel.Sel.Name != "CommandContext" {
 		return
 	}
+
 	pkgIdent, ok := sel.X.(*ast.Ident)
+
 	if !ok || pkgIdent.Name != "exec" {
 		return
 	}
+
 	argIdx := 0
+
 	if sel.Sel.Name == "CommandContext" {
 		argIdx = 1
 	}
+
 	if argIdx >= len(call.Args) {
 		return
 	}
+
 	if _, isLit := call.Args[argIdx].(*ast.BasicLit); !isLit {
 		s.raise(ctx, "command_injection", "medium",
 			"exec.Command called with a non-literal program path", call)
@@ -122,27 +141,35 @@ func (s *SecurityAnalyzer) checkCommandInjection(ctx *Context, call *ast.CallExp
 
 func (s *SecurityAnalyzer) checkHardcodedSecret(ctx *Context, call *ast.CallExpr) {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
+
 	if !ok || sel.Sel.Name != "Setenv" {
 		return
 	}
+
 	pkgIdent, ok := sel.X.(*ast.Ident)
+
 	if !ok || pkgIdent.Name != "os" {
 		return
 	}
+
 	if len(call.Args) < 2 {
 		return
 	}
+
 	name, _ := stringLit(call.Args[0])
 	val, _ := stringLit(call.Args[1])
+
 	if name == "" || val == "" {
 		return
 	}
+
 	lower := strings.ToLower(name)
 	hot := strings.Contains(lower, "secret") ||
 		strings.Contains(lower, "password") ||
 		strings.Contains(lower, "token") ||
 		strings.Contains(lower, "key") ||
 		strings.Contains(lower, "apikey")
+
 	if hot {
 		s.raise(ctx, "hardcoded_secret", "high",
 			"os.Setenv stores a literal value into "+name+"; load from a secret manager instead", call)
@@ -151,6 +178,7 @@ func (s *SecurityAnalyzer) checkHardcodedSecret(ctx *Context, call *ast.CallExpr
 
 func isStringConcat(e ast.Expr) bool {
 	be, ok := e.(*ast.BinaryExpr)
+
 	if !ok || be.Op.String() != "+" {
 		return false
 	}
@@ -158,6 +186,7 @@ func isStringConcat(e ast.Expr) bool {
 	if _, ok := be.X.(*ast.BasicLit); ok {
 		return true
 	}
+
 	if _, ok := be.Y.(*ast.BasicLit); ok {
 		return true
 	}
@@ -167,16 +196,22 @@ func isStringConcat(e ast.Expr) bool {
 
 func isSprintfCall(e ast.Expr) bool {
 	call, ok := e.(*ast.CallExpr)
+
 	if !ok {
 		return false
 	}
+
 	sel, ok := call.Fun.(*ast.SelectorExpr)
+
 	if !ok {
 		return false
 	}
+
 	pkgIdent, ok := sel.X.(*ast.Ident)
+
 	if !ok || pkgIdent.Name != "fmt" {
 		return false
 	}
+
 	return sel.Sel.Name == "Sprintf"
 }

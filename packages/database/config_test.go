@@ -79,3 +79,41 @@ func TestParseDatabaseURL_SQLite(t *testing.T) {
 		t.Fatalf("expected database path/to/database.db, got %s", cfg.Database)
 	}
 }
+
+func TestParseDatabaseURL_ClickHouse(t *testing.T) {
+	t.Parallel()
+
+	cfg, err := database.ParseDatabaseURL("clickhouse://writer:secret@analytics.example.com:9000/metrics?compression=lz4&secure=true")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cfg.Driver != "clickhouse" {
+		t.Fatalf("expected driver clickhouse, got %s", cfg.Driver)
+	}
+
+	if cfg.Host != "analytics.example.com" {
+		t.Fatalf("expected host analytics.example.com, got %s", cfg.Host)
+	}
+
+	if cfg.Port != 9000 {
+		t.Fatalf("expected port 9000, got %d", cfg.Port)
+	}
+
+	if cfg.Database != "metrics" {
+		t.Fatalf("expected database metrics, got %s", cfg.Database)
+	}
+
+	if cfg.Username != "writer" {
+		t.Fatalf("expected username writer, got %s", cfg.Username)
+	}
+
+	if cfg.Options["compression"] != "lz4" {
+		t.Fatalf("expected compression lz4, got %v", cfg.Options["compression"])
+	}
+
+	if cfg.Options["secure"] != "true" {
+		t.Fatalf("expected secure true, got %v", cfg.Options["secure"])
+	}
+}

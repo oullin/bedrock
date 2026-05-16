@@ -24,11 +24,7 @@ const typeCounts = computed(() => {
     <ul>
       <li v-for="[t, n] in typeCounts" :key="t">
         <label>
-          <input
-            type="checkbox"
-            :checked="enabledTypes.has(t)"
-            @change="emit('toggle', t)"
-          />
+          <input type="checkbox" :checked="enabledTypes.has(t)" @change="emit('toggle', t)" />
           <span class="swatch" :style="{ background: nodeColor(t) }" />
           <span class="name">{{ t }}</span>
           <span class="count">{{ n }}</span>

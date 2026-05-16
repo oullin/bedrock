@@ -38,6 +38,7 @@ var ErrConflict = errors.New("rule target file already exists; pass force=true t
 // stay consistent with the rest of bedrock.
 func GenerateRules(root, body string, force bool) ([]string, error) {
 	fs := filesystem.New()
+
 	if !force {
 		for _, t := range Targets {
 			if fs.Exists(filepath.Join(root, t.Path)) {
@@ -45,14 +46,18 @@ func GenerateRules(root, body string, force bool) ([]string, error) {
 			}
 		}
 	}
+
 	written := make([]string, 0, len(Targets))
+
 	for _, t := range Targets {
 		full := filepath.Join(root, t.Path)
+
 		if err := fs.Put(full, []byte(body)); err != nil {
 			return written, err
 		}
+
 		written = append(written, t.Path)
 	}
+
 	return written, nil
 }
-

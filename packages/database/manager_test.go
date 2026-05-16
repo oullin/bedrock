@@ -59,8 +59,22 @@ func TestManagerSupportedDrivers(t *testing.T) {
 	m := database.NewManager()
 	drivers := m.SupportedDrivers()
 
-	if len(drivers) != 4 {
-		t.Fatalf("expected 4 drivers, got %d", len(drivers))
+	if len(drivers) != 5 {
+		t.Fatalf("expected 5 drivers, got %d", len(drivers))
+	}
+
+	want := map[string]bool{"mysql": true, "mariadb": true, "pgsql": true, "sqlite": true, "clickhouse": true}
+
+	for _, d := range drivers {
+		if !want[d] {
+			t.Fatalf("unexpected driver %q", d)
+		}
+
+		delete(want, d)
+	}
+
+	if len(want) > 0 {
+		t.Fatalf("missing drivers: %v", want)
 	}
 }
 
