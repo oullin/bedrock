@@ -76,7 +76,11 @@ func use(c *cache) {
 
 func mustWrite(t *testing.T, dir, name, body string) {
 	t.Helper()
-	if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+	full := filepath.Join(dir, name)
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		t.Fatalf("mkdir for %s: %v", name, err)
+	}
+	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", name, err)
 	}
 }
