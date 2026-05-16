@@ -74,7 +74,14 @@ watch(() => props.graph, () => {
             stroke="rgba(0,0,0,0.4)"
             stroke-width="1"
           />
-          <text :x="n.width / 2" :y="n.height / 2 + 4" text-anchor="middle" fill="#0e1116" font-size="12" font-weight="600">
+          <text
+            :x="n.width / 2"
+            :y="n.height / 2 + 4"
+            text-anchor="middle"
+            fill="#0e1116"
+            font-size="12"
+            font-weight="600"
+          >
             {{ n.label }}
           </text>
         </g>

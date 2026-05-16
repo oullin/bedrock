@@ -12,11 +12,14 @@ import (
 // created automatically.
 func writeJSON(path string, v any) error {
 	body, err := json.MarshalIndent(v, "", "  ")
+
 	if err != nil {
 		return fmt.Errorf("encode %s: %w", path, err)
 	}
+
 	if err := filesystem.New().Put(path, append(body, '\n')); err != nil {
 		return fmt.Errorf("write %s: %w", path, err)
 	}
+
 	return nil
 }

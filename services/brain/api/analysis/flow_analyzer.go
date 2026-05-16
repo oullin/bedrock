@@ -19,13 +19,13 @@ import (
 //
 // Recognised intra-body calls:
 //
-//   *.Query / Exec / QueryRow / QueryContext / ExecContext / Prepare → query edge
-//   *.Dispatch                                                       → dispatches
-//   *.Listen / Subscribe                                             → listens_to
-//   *.Validate / Make (with map literal)                             → validates
-//   *.Render (inertia page string)                                   → renders
-//   *.CreatePayloadFor / Push (job)                                  → queues
-//   *.Notify                                                         → notifies
+//	*.Query / Exec / QueryRow / QueryContext / ExecContext / Prepare → query edge
+//	*.Dispatch                                                       → dispatches
+//	*.Listen / Subscribe                                             → listens_to
+//	*.Validate / Make (with map literal)                             → validates
+//	*.Render (inertia page string)                                   → renders
+//	*.CreatePayloadFor / Push (job)                                  → queues
+//	*.Notify                                                         → notifies
 type FlowAnalyzer struct{}
 
 func (FlowAnalyzer) Name() string { return "flow" }
@@ -34,10 +34,13 @@ func (FlowAnalyzer) Analyze(ctx *Context) error {
 	return ctx.Project.EachFile(func(pkg *packages.Package, file *ast.File, _ string) error {
 		ast.Inspect(file, func(n ast.Node) bool {
 			fn, ok := n.(*ast.FuncDecl)
+
 			if !ok || fn.Body == nil {
 				return true
 			}
+
 			caller := callerNodeID(fn)
+
 			if caller == "" {
 				return true
 			}
@@ -45,16 +48,22 @@ func (FlowAnalyzer) Analyze(ctx *Context) error {
 			if ctx.Graph.Node(caller) == nil {
 				return true
 			}
+
 			ast.Inspect(fn.Body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
+
 				if !ok {
 					return true
 				}
+
 				traceCall(ctx, pkg, caller, call)
+
 				return true
 			})
+
 			return true
 		})
+
 		return nil
 	})
 }
@@ -65,18 +74,23 @@ func callerNodeID(fn *ast.FuncDecl) string {
 	if fn.Name == nil {
 		return ""
 	}
+
 	if fn.Recv == nil || len(fn.Recv.List) == 0 {
 		return "action:" + strings.ToLower(fn.Name.Name)
 	}
+
 	recv := recvTypeName(fn.Recv.List[0].Type)
+
 	return "action:" + strings.ToLower(recv+"."+fn.Name.Name)
 }
 
 func traceCall(ctx *Context, pkg *packages.Package, caller string, call *ast.CallExpr) {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
+
 	if !ok {
 		return
 	}
+
 	switch sel.Sel.Name {
 	case "Query", "Exec", "QueryRow", "QueryContext", "ExecContext", "QueryRowContext", "Prepare":
 		ctx.Graph.AddEdge(&graph.Edge{
@@ -105,6 +119,7 @@ func traceCall(ctx *Context, pkg *packages.Package, caller string, call *ast.Cal
 		if findRuleMap(call.Args) != nil {
 			pos := ctx.Project.Position(call)
 			target := "validation:" + pos
+
 			if ctx.Graph.Node(target) != nil {
 				ctx.Graph.AddEdge(&graph.Edge{
 					Source: caller, Target: target,
@@ -121,6 +136,7 @@ func traceCall(ctx *Context, pkg *packages.Package, caller string, call *ast.Cal
 						Type: graph.EdgeTypeRenders, Label: "render",
 					})
 				}
+
 				break
 			}
 		}
@@ -149,5 +165,6 @@ func lastArg(call *ast.CallExpr) ast.Expr {
 	if len(call.Args) == 0 {
 		return nil
 	}
+
 	return call.Args[len(call.Args)-1]
 }

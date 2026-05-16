@@ -39,35 +39,45 @@ func dashboard(c container, ww *w, rr *r) {
 }
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	g := graph.NewGraph("fixture")
 	ctx := &Context{Project: proj, Graph: g}
+
 	for _, a := range []Analyzer{ValidationAnalyzer{}, InertiaAnalyzer{}} {
 		if err := a.Analyze(ctx); err != nil {
 			t.Fatalf("%s: %v", a.Name(), err)
 		}
 	}
+
 	hasValidation := false
+
 	for _, n := range g.Nodes {
 		if n.Type == graph.NodeTypeValidationRequest {
 			hasValidation = true
 			fields, ok := n.Data["fields"].([]string)
+
 			if !ok || len(fields) != 2 {
 				t.Errorf("validation fields = %v, want [email name]", n.Data["fields"])
 			}
 		}
 	}
+
 	if !hasValidation {
 		t.Errorf("expected a validation_request node; got: %v", nodeIDs(g))
 	}
+
 	if g.Node("inertia_page:Dashboard/Index") == nil {
 		t.Errorf("expected inertia_page; got: %v", nodeIDs(g))
 	}
+
 	if g.Node("inertia_layout:Dashboard") == nil {
 		t.Errorf("expected inertia_layout:Dashboard")
 	}
+
 	if g.Node("inertia_prop:Dashboard/Index#user") == nil {
 		t.Errorf("expected inertia_prop user")
 	}

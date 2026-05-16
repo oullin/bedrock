@@ -19,10 +19,10 @@ type TabEntry struct {
 // Manifest is the top-level index emitted to .graph-manifest.json. The viewer
 // loads this first to know which subgraph files to fetch on demand.
 type Manifest struct {
-	Project      string     `json:"project"`
-	AnalyzedAt   time.Time  `json:"analyzedAt"`
-	TotalRoutes  int        `json:"totalRoutes"`
-	TotalNodes   int        `json:"totalNodes"`
-	TotalEdges   int        `json:"totalEdges"`
-	Tabs         []TabEntry `json:"tabs"`
+	Project     string     `json:"project"`
+	AnalyzedAt  time.Time  `json:"analyzedAt"`
+	TotalRoutes int        `json:"totalRoutes"`
+	TotalNodes  int        `json:"totalNodes"`
+	TotalEdges  int        `json:"totalEdges"`
+	Tabs        []TabEntry `json:"tabs"`
 }

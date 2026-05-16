@@ -29,19 +29,25 @@ func Run(ctx context.Context, opts Options, onChange func()) error {
 	if opts.Debounce == 0 {
 		opts.Debounce = 200 * time.Millisecond
 	}
+
 	if len(opts.IgnoreSegments) == 0 {
 		opts.IgnoreSegments = []string{
 			".git", "vendor", "node_modules", "storage", ".turbo", "dist",
 		}
 	}
+
 	if len(opts.Extensions) == 0 {
 		opts.Extensions = []string{".go"}
 	}
+
 	w, err := fsnotify.NewWatcher()
+
 	if err != nil {
 		return err
 	}
+
 	defer w.Close()
+
 	for _, root := range opts.Roots {
 		if err := addRecursive(w, root, opts.IgnoreSegments); err != nil {
 			return err
@@ -59,12 +65,15 @@ func Run(ctx context.Context, opts Options, onChange func()) error {
 			if !ok {
 				return nil
 			}
+
 			if !relevant(ev.Name, opts) {
 				continue
 			}
+
 			if timer != nil {
 				timer.Stop()
 			}
+
 			timer = time.AfterFunc(opts.Debounce, fire)
 			// follow newly-created directories
 			if ev.Op&fsnotify.Create != 0 {
@@ -80,15 +89,18 @@ func relevant(path string, opts Options) bool {
 		if strings.Contains(path, string(filepath.Separator)+seg+string(filepath.Separator)) {
 			return false
 		}
+
 		if strings.HasSuffix(path, string(filepath.Separator)+seg) {
 			return false
 		}
 	}
+
 	for _, ext := range opts.Extensions {
 		if strings.HasSuffix(path, ext) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -97,15 +109,19 @@ func addRecursive(w *fsnotify.Watcher, root string, ignore []string) error {
 		if err != nil {
 			return nil
 		}
+
 		if !d.IsDir() {
 			return nil
 		}
+
 		base := d.Name()
+
 		for _, seg := range ignore {
 			if base == seg {
 				return fs.SkipDir
 			}
 		}
+
 		return w.Add(path)
 	})
 }
