@@ -18,8 +18,11 @@ export default defineConfig({
       output: {
         entryFileNames: "index.js",
         chunkFileNames: "[name].js",
-        assetFileNames: (info) =>
-          info.name === "style.css" ? "index.css" : "[name][extname]",
+        assetFileNames: (info) => {
+          const name = info.name ?? "";
+          if (name.endsWith(".css")) return "index.css";
+          return "[name][extname]";
+        },
       },
     },
   },
