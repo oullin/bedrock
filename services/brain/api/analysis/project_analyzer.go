@@ -32,6 +32,8 @@ func NewDefaultProjectAnalyzer() *ProjectAnalyzer {
 			ContainerBindingAnalyzer{},
 			ValidationAnalyzer{},
 			InertiaAnalyzer{},
+			FlowAnalyzer{},
+			&SecurityAnalyzer{},
 		},
 	}
 }
