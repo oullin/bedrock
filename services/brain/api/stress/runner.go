@@ -1,23 +1,23 @@
 // Package stress runs load tests against a single target URL with a fixed
-// concurrency and request budget. Per the plan, the worker pool comes from
-// packages/concurrency (Go) and the HTTP client from packages/httpx/client.
-// Phase 11 implements the metric aggregation locally — the bedrock packages
-// stay the only HTTP/concurrency surface this code uses.
+// concurrency and request budget. HTTP is delegated to
+// packages/httpx/client; only the worker fan-out and the metric aggregation
+// (p50/p95/p99) are owned here.
 //
-// Until packages/concurrency and packages/httpx/client are wired into
-// brain's go.mod (a later commit), we use the stdlib `net/http` and a
-// channel-based worker pool. This file is the *single* place in services/
-// brain/api/ allowed to do so — the package-level grep audit in the plan
-// targets this file and cmd/brain only.
+// The plan reserves packages/concurrency for a future swap of the worker
+// pool. We keep stdlib sync here for now because concurrency.Manager.Run
+// runs a fixed []Task once, while a stress test wants many short tasks
+// pulled by a fixed worker count — not a clean fit. When concurrency grows
+// a pool primitive, this file is the place to swap.
 package stress
 
 import (
 	"context"
-	"net/http"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/bedrock/packages/httpx/client"
 )
 
 // Config is one stress-test invocation.
@@ -60,7 +60,7 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 		cfg.Timeout = 10 * time.Second
 	}
 
-	client := &http.Client{Timeout: cfg.Timeout}
+	factory := client.NewFactory()
 	jobs := make(chan struct{}, cfg.Requests)
 	for i := 0; i < cfg.Requests; i++ {
 		jobs <- struct{}{}
@@ -86,12 +86,7 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 					return
 				}
 				t0 := time.Now()
-				req, err := http.NewRequestWithContext(ctx, cfg.Method, cfg.URL, nil)
-				if err != nil {
-					atomic.AddUint64(&failed, 1)
-					continue
-				}
-				resp, err := client.Do(req)
+				resp, err := factory.PendingRequest().Timeout(cfg.Timeout).Get(cfg.URL)
 				dur := time.Since(t0)
 				samplesMu.Lock()
 				samples = append(samples, dur)
@@ -100,11 +95,11 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 					atomic.AddUint64(&failed, 1)
 					continue
 				}
-				_ = resp.Body.Close()
+				status := resp.Status()
 				statusMu.Lock()
-				statuses[resp.StatusCode]++
+				statuses[status]++
 				statusMu.Unlock()
-				if resp.StatusCode < 400 {
+				if status < 400 {
 					atomic.AddUint64(&succeeded, 1)
 				} else {
 					atomic.AddUint64(&failed, 1)

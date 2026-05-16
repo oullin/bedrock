@@ -2,8 +2,9 @@ package ai
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
+
+	"github.com/bedrock/packages/filesystem"
 )
 
 // RuleTarget describes one editor-rules file written by GenerateRules.
@@ -32,24 +33,26 @@ var ErrConflict = errors.New("rule target file already exists; pass force=true t
 // GenerateRules writes every Target under `root`. If a file exists and
 // force is false, no files are written and ErrConflict is returned.
 // On success, the returned slice lists the paths written.
+//
+// Uses packages/filesystem so directory creation and atomic-style writes
+// stay consistent with the rest of bedrock.
 func GenerateRules(root, body string, force bool) ([]string, error) {
-	written := make([]string, 0, len(Targets))
+	fs := filesystem.New()
 	if !force {
 		for _, t := range Targets {
-			if _, err := os.Stat(filepath.Join(root, t.Path)); err == nil {
+			if fs.Exists(filepath.Join(root, t.Path)) {
 				return nil, ErrConflict
 			}
 		}
 	}
+	written := make([]string, 0, len(Targets))
 	for _, t := range Targets {
 		full := filepath.Join(root, t.Path)
-		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
-			return written, err
-		}
-		if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
+		if err := fs.Put(full, []byte(body)); err != nil {
 			return written, err
 		}
 		written = append(written, t.Path)
 	}
 	return written, nil
 }
+
