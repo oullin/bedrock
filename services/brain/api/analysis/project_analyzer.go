@@ -21,6 +21,9 @@ func NewDefaultProjectAnalyzer() *ProjectAnalyzer {
 	return &ProjectAnalyzer{
 		Analyzers: []Analyzer{
 			RouteAnalyzer{},
+			ControllerAnalyzer{},
+			MiddlewareAnalyzer{},
+			ModelAnalyzer{},
 		},
 	}
 }
