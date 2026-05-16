@@ -82,6 +82,71 @@ func (d *DeferredDriver) DelayedSize(_ context.Context, _ string) (int64, error)
 func (d *DeferredDriver) ReservedSize(_ context.Context, _ string) (int64, error) { return 0, nil }
 func (d *DeferredDriver) ConnectionName() string                                  { return d.connection }
 
+// QueueNames returns the unique queue names currently buffered for
+// deferred dispatch.
+func (d *DeferredDriver) QueueNames(_ context.Context) ([]string, error) {
+	d.mu.Lock()
+
+	defer d.mu.Unlock()
+
+	seen := make(map[string]struct{}, len(d.deferred))
+
+	var out []string
+
+	for _, e := range d.deferred {
+		if _, ok := seen[e.Queue]; ok {
+			continue
+		}
+
+		seen[e.Queue] = struct{}{}
+
+		out = append(out, e.Queue)
+	}
+
+	return out, nil
+}
+
+// PendingJobs returns snapshots of the entries due immediately (After
+// is in the past).
+func (d *DeferredDriver) PendingJobs(_ context.Context, queueName string) ([]queue.InspectedJob, error) {
+	return d.snapshots(queueName, func(e DeferredEntry) bool { return !e.After.After(time.Now()) }), nil
+}
+
+// DelayedJobs returns snapshots of entries whose After is still in
+// the future.
+func (d *DeferredDriver) DelayedJobs(_ context.Context, queueName string) ([]queue.InspectedJob, error) {
+	return d.snapshots(queueName, func(e DeferredEntry) bool { return e.After.After(time.Now()) }), nil
+}
+
+// ReservedJobs returns an empty slice. The deferred driver never
+// reserves jobs — every entry is dispatched in Flush.
+func (d *DeferredDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
+
+func (d *DeferredDriver) snapshots(queueName string, include func(DeferredEntry) bool) []queue.InspectedJob {
+	d.mu.Lock()
+
+	defer d.mu.Unlock()
+
+	var out []queue.InspectedJob
+
+	for _, e := range d.deferred {
+		if e.Queue != queueName || !include(e) {
+			continue
+		}
+
+		out = append(out, queue.InspectedJob{
+			Queue:       e.Queue,
+			Connection:  d.connection,
+			Payload:     e.Payload,
+			AvailableAt: e.After,
+		})
+	}
+
+	return out
+}
+
 // Flush dispatches all buffered deferred jobs via the dispatcher.
 func (d *DeferredDriver) Flush(ctx context.Context) error {
 	d.mu.Lock()

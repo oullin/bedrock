@@ -32,6 +32,30 @@ type RedisDeleter interface {
 	Del(ctx context.Context, keys ...string) (int64, error)
 }
 
+// RedisScanner is the optional Redis capability needed by QueueNames.
+// A driver supports queue enumeration only when its underlying client
+// can iterate keys matching a pattern — go-redis exposes this via
+// the SCAN command, and most cluster-aware clients fan out a SCAN
+// across nodes for the caller.
+type RedisScanner interface {
+	ScanMatch(ctx context.Context, match string) ([]string, error)
+}
+
+// RedisListRanger is the optional capability needed by PendingJobs to
+// return the raw payloads currently waiting on the queue list. Without
+// it the driver can still report a size (LLen) but cannot snapshot
+// payloads.
+type RedisListRanger interface {
+	LRange(ctx context.Context, key string, start, stop int64) ([]string, error)
+}
+
+// RedisSortedSetRanger is the optional capability needed by DelayedJobs.
+// It returns the members of a sorted set ordered by score, which
+// matches Laravel's ZRANGE semantics for the delayed-job set.
+type RedisSortedSetRanger interface {
+	ZRange(ctx context.Context, key string, start, stop int64) ([]string, error)
+}
+
 // RedisClusterAware is implemented by RedisClient fakes/drivers that know
 // whether their underlying connection is a Redis Cluster. The Redis driver
 // uses this to decide whether to wrap queue names in cluster hash tags so
@@ -245,6 +269,143 @@ func (d *RedisDriver) ReservedSize(_ context.Context, _ string) (int64, error) {
 }
 
 func (d *RedisDriver) ConnectionName() string { return d.connection }
+
+// QueueNames enumerates the queues currently known to the underlying
+// Redis instance by scanning for keys matching `queues:*`. Names
+// derived from cluster-style `queues:{name}` keys are unwrapped so the
+// caller receives plain logical queue names. The driver returns
+// ErrNotSupported when its client cannot SCAN — that capability is
+// optional via the RedisScanner interface.
+func (d *RedisDriver) QueueNames(ctx context.Context) ([]string, error) {
+	scanner, ok := d.client.(RedisScanner)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	keys, err := scanner.ScanMatch(ctx, "queues:*")
+
+	if err != nil {
+		return nil, err
+	}
+
+	seen := make(map[string]struct{})
+
+	var out []string
+
+	for _, k := range keys {
+		name := strings.TrimPrefix(k, "queues:")
+
+		// Strip the per-queue ":delayed" or ":failed" suffix so we
+		// only report each logical queue name once.
+		if i := strings.IndexByte(name, ':'); i >= 0 {
+			name = name[:i]
+		}
+
+		name = strings.TrimPrefix(strings.TrimSuffix(name, "}"), "{")
+
+		if name == "" {
+			continue
+		}
+
+		if _, already := seen[name]; already {
+			continue
+		}
+
+		seen[name] = struct{}{}
+
+		out = append(out, name)
+	}
+
+	return out, nil
+}
+
+// PendingJobs returns the raw payloads currently waiting on the queue
+// list. The driver requires its client to satisfy the optional
+// RedisListRanger interface; otherwise it returns ErrNotSupported.
+func (d *RedisDriver) PendingJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	ranger, ok := d.client.(RedisListRanger)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	raws, err := ranger.LRange(ctx, d.queueKey(queueName), 0, -1)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return d.snapshotsFromPayloads(queueName, raws, nil), nil
+}
+
+// DelayedJobs returns the raw payloads parked in the delayed sorted
+// set for queueName. The driver requires its client to satisfy the
+// optional RedisSortedSetRanger interface.
+func (d *RedisDriver) DelayedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	ranger, ok := d.client.(RedisSortedSetRanger)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	raws, err := ranger.ZRange(ctx, d.delayedKey(queueName), 0, -1)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return d.snapshotsFromPayloads(queueName, raws, nil), nil
+}
+
+// ReservedJobs returns ErrNotSupported on the default Redis layout —
+// the current driver does not maintain a reserved-set, so there are no
+// in-flight jobs the snapshot could enumerate. Distinct from a clean
+// empty slice so callers can decide between "no reserved jobs" and
+// "this driver cannot report reserved jobs".
+func (d *RedisDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, queue.ErrNotSupported
+}
+
+// snapshotsFromPayloads converts raw Redis payload strings into
+// InspectedJob entries, decoding the JSON envelope for displayName,
+// uuid, and createdAt the same way the database driver does.
+func (d *RedisDriver) snapshotsFromPayloads(queueName string, raws []string, reservedAt *time.Time) []queue.InspectedJob {
+	if len(raws) == 0 {
+		return nil
+	}
+
+	out := make([]queue.InspectedJob, 0, len(raws))
+
+	for _, raw := range raws {
+		job := queue.InspectedJob{
+			Queue:      queueName,
+			Connection: d.connection,
+			Payload:    []byte(raw),
+			ReservedAt: reservedAt,
+		}
+
+		var decoded map[string]any
+
+		if err := json.Unmarshal([]byte(raw), &decoded); err == nil {
+			if v, ok := decoded["displayName"].(string); ok {
+				job.Name = v
+			}
+
+			if v, ok := decoded["uuid"].(string); ok {
+				job.UUID = v
+			}
+
+			if v, ok := decoded["createdAt"].(float64); ok {
+				job.CreatedAt = time.Unix(int64(v), 0)
+			}
+		}
+
+		out = append(out, job)
+	}
+
+	return out
+}
 
 func (d *RedisDriver) migrateDue(ctx context.Context, queueName string) {
 	now := float64(time.Now().Unix())

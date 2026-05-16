@@ -82,6 +82,44 @@ func (d *BackgroundDriver) ReservedSize(ctx context.Context, queueName string) (
 
 func (d *BackgroundDriver) ConnectionName() string { return d.connection }
 
+// QueueNames delegates to the wrapped storage queue when it implements
+// QueueNamer; otherwise it surfaces ErrNotSupported so the caller can
+// distinguish "no queues" from "this backend can't enumerate".
+func (d *BackgroundDriver) QueueNames(ctx context.Context) ([]string, error) {
+	if namer, ok := d.inner.(queue.QueueNamer); ok {
+		return namer.QueueNames(ctx)
+	}
+
+	return nil, queue.ErrNotSupported
+}
+
+// PendingJobs delegates to the wrapped storage queue.
+func (d *BackgroundDriver) PendingJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	if insp, ok := d.inner.(queue.JobInspector); ok {
+		return insp.PendingJobs(ctx, queueName)
+	}
+
+	return nil, queue.ErrNotSupported
+}
+
+// DelayedJobs delegates to the wrapped storage queue.
+func (d *BackgroundDriver) DelayedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	if insp, ok := d.inner.(queue.JobInspector); ok {
+		return insp.DelayedJobs(ctx, queueName)
+	}
+
+	return nil, queue.ErrNotSupported
+}
+
+// ReservedJobs delegates to the wrapped storage queue.
+func (d *BackgroundDriver) ReservedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	if insp, ok := d.inner.(queue.JobInspector); ok {
+		return insp.ReservedJobs(ctx, queueName)
+	}
+
+	return nil, queue.ErrNotSupported
+}
+
 func (d *BackgroundDriver) spawn() {
 	cmd := exec.Command(d.command, d.args...) //nolint:gosec
 	_ = cmd.Start()

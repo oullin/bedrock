@@ -147,3 +147,23 @@ func (d *SyncDriver) PendingSize(_ context.Context, _ string) (int64, error)  { 
 func (d *SyncDriver) DelayedSize(_ context.Context, _ string) (int64, error)  { return 0, nil }
 func (d *SyncDriver) ReservedSize(_ context.Context, _ string) (int64, error) { return 0, nil }
 func (d *SyncDriver) ConnectionName() string                                  { return d.connection }
+
+// QueueNames returns an empty slice — sync jobs are executed inline
+// and never persisted, so there is nothing to enumerate.
+func (d *SyncDriver) QueueNames(_ context.Context) ([]string, error) { return nil, nil }
+
+// PendingJobs returns an empty slice. The sync driver never has
+// pending work — jobs are processed inside the Push call itself.
+func (d *SyncDriver) PendingJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
+
+// DelayedJobs returns an empty slice.
+func (d *SyncDriver) DelayedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
+
+// ReservedJobs returns an empty slice.
+func (d *SyncDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
