@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
 )
 
@@ -81,8 +82,15 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 		return fmt.Errorf("create output dir: %w", err)
 	}
 
-	g := graph.NewGraph(filepath.Base(absTarget))
-	g.Stamp()
+	var g *graph.Graph
+	analyzer := analysis.NewDefaultProjectAnalyzer()
+	if scanned, err := analyzer.AnalyzeTarget(absTarget); err == nil {
+		g = scanned
+	} else {
+		fmt.Fprintf(stderr, "brain: scan warning: %v\n", err)
+		g = graph.NewGraph(filepath.Base(absTarget))
+		g.Stamp()
+	}
 
 	if err := writeJSON(filepath.Join(outDir, allGraphFile), g); err != nil {
 		return err
@@ -91,7 +99,7 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 	m := graph.Manifest{
 		Project:     g.Meta.Project,
 		AnalyzedAt:  g.Meta.AnalyzedAt,
-		TotalRoutes: 0,
+		TotalRoutes: countRoutes(g),
 		TotalNodes:  g.Meta.NodeCount,
 		TotalEdges:  g.Meta.EdgeCount,
 		Tabs:        []graph.TabEntry{},
@@ -105,6 +113,16 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 			outDir, g.Meta.NodeCount, g.Meta.EdgeCount)
 	}
 	return nil
+}
+
+func countRoutes(g *graph.Graph) int {
+	c := 0
+	for _, n := range g.Nodes {
+		if n.Type == graph.NodeTypeRoute {
+			c++
+		}
+	}
+	return c
 }
 
 func writeJSON(path string, v any) error {
