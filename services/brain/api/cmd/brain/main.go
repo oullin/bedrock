@@ -6,17 +6,23 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
+	brainhttp "github.com/bedrock/services/brain/api/http"
 )
+
+//go:embed resources/views/app.html
+var spaHTML []byte
 
 const (
 	manifestFile = ".graph-manifest.json"
@@ -47,7 +53,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 	case "scan":
 		return runScan(rest, stdout, stderr)
 	case "serve":
-		return fmt.Errorf("serve is implemented in a later phase")
+		return runServe(rest, stdout, stderr)
 	case "-h", "--help", "help":
 		printUsage(stdout)
 		return nil
@@ -115,6 +121,36 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 	return nil
 }
 
+func runServe(args []string, stdout, stderr io.Writer) error {
+	fs := flag.NewFlagSet("serve", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	target := fs.String("target", ".", "path to the Go service to view")
+	addr := fs.String("addr", ":8080", "address to listen on")
+	assets := fs.String("assets", "", "directory containing the built SPA assets (default: <target>/storage/dist/brain)")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	absTarget, err := filepath.Abs(*target)
+	if err != nil {
+		return err
+	}
+	assetDir := *assets
+	if assetDir == "" {
+		assetDir = filepath.Join(absTarget, "storage", "dist", "brain")
+	}
+
+	srv := brainhttp.NewServer(absTarget, spaHTML, assetDir)
+	if err := srv.EnsureScanned(); err != nil {
+		fmt.Fprintf(stderr, "brain: initial scan warning: %v\n", err)
+	}
+	displayAddr := *addr
+	if strings.HasPrefix(displayAddr, ":") {
+		displayAddr = "localhost" + displayAddr
+	}
+	fmt.Fprintf(stdout, "brain: serving %s on http://%s/_brain/\n", absTarget, displayAddr)
+	return http.ListenAndServe(*addr, srv.Routes())
+}
+
 func countRoutes(g *graph.Graph) int {
 	c := 0
 	for _, n := range g.Nodes {
@@ -148,7 +184,7 @@ Usage:
 
 Commands:
   scan     Scan a Go service and write graph JSON to <target>/storage/brain
-  serve    (later phase) Run the viewer UI
+  serve    Run the viewer UI (defaults to :8080)
   version  Print the brain version
   help     Show this message
 
