@@ -24,6 +24,12 @@ func NewDefaultProjectAnalyzer() *ProjectAnalyzer {
 			ControllerAnalyzer{},
 			MiddlewareAnalyzer{},
 			ModelAnalyzer{},
+			EventAnalyzer{},
+			JobAnalyzer{},
+			ConsoleAnalyzer{},
+			ChannelAnalyzer{},
+			FacadeAnalyzer{},
+			ContainerBindingAnalyzer{},
 		},
 	}
 }
