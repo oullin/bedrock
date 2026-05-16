@@ -11,8 +11,8 @@ import (
 
 // InertiaAnalyzer detects packages/inertia render calls. Two shapes:
 //
-//   inertia.Render(w, r, "Page/Path", props)
-//   <handlerRecv>.Render(w, r, "Page/Path", props)
+//	inertia.Render(w, r, "Page/Path", props)
+//	<handlerRecv>.Render(w, r, "Page/Path", props)
 //
 // The "Page/Path" string literal becomes an inertia_page node. Each top
 // level key in the optional `protocol.Props{...}` composite literal becomes
@@ -25,30 +25,40 @@ func (InertiaAnalyzer) Analyze(ctx *Context) error {
 	return ctx.Project.EachFile(func(_ *packages.Package, file *ast.File, _ string) error {
 		ast.Inspect(file, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
+
 			if !ok {
 				return true
 			}
+
 			sel, ok := call.Fun.(*ast.SelectorExpr)
+
 			if !ok || sel.Sel.Name != "Render" || len(call.Args) < 3 {
 				return true
 			}
+
 			pageArg := -1
+
 			var page string
+
 			for i, a := range call.Args {
 				if s, ok := stringLit(a); ok && looksLikeInertiaPage(s) {
 					page = s
 					pageArg = i
+
 					break
 				}
 			}
+
 			if page == "" {
 				return true
 			}
+
 			pageID := "inertia_page:" + page
 			ctx.Graph.AddNode(
 				graph.NewNode(pageID, graph.NodeTypeInertiaPage, page).
 					Set("file", ctx.Project.Position(call)),
 			)
+
 			if layout := layoutFor(page); layout != "" {
 				layoutID := "inertia_layout:" + layout
 				ctx.Graph.AddNode(graph.NewNode(layoutID, graph.NodeTypeInertiaLayout, layout))
@@ -57,6 +67,7 @@ func (InertiaAnalyzer) Analyze(ctx *Context) error {
 					Type: graph.EdgeTypeRenders, Label: "layout",
 				})
 			}
+
 			if pageArg+1 < len(call.Args) {
 				if cl, ok := call.Args[pageArg+1].(*ast.CompositeLit); ok {
 					for _, k := range mapKeysOf(cl) {
@@ -72,8 +83,10 @@ func (InertiaAnalyzer) Analyze(ctx *Context) error {
 					}
 				}
 			}
+
 			return true
 		})
+
 		return nil
 	})
 }
@@ -85,9 +98,11 @@ func looksLikeInertiaPage(s string) bool {
 	if s == "" || strings.ContainsAny(s, " \t\n") {
 		return false
 	}
+
 	if !isPascalSegment(strings.SplitN(s, "/", 2)[0]) {
 		return false
 	}
+
 	return true
 }
 
@@ -95,9 +110,11 @@ func isPascalSegment(s string) bool {
 	if s == "" {
 		return false
 	}
+
 	if s[0] < 'A' || s[0] > 'Z' {
 		return false
 	}
+
 	return true
 }
 
@@ -107,5 +124,6 @@ func layoutFor(p string) string {
 	if !strings.Contains(p, "/") {
 		return ""
 	}
+
 	return path.Dir(p)
 }

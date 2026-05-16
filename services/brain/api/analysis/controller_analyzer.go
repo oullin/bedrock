@@ -28,20 +28,28 @@ func (ControllerAnalyzer) Analyze(ctx *Context) error {
 	return ctx.Project.EachFile(func(pkg *packages.Package, file *ast.File, _ string) error {
 		ast.Inspect(file, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
+
 			if !ok {
 				return true
 			}
+
 			routeNode := routeNodeForCall(call, ctx)
+
 			if routeNode == nil {
 				return true
 			}
+
 			handlerArg := handlerArgFor(call)
+
 			if handlerArg == nil {
 				return true
 			}
+
 			linkHandler(ctx, pkg, routeNode, handlerArg, call)
+
 			return true
 		})
+
 		return nil
 	})
 }
@@ -53,12 +61,15 @@ func routeNodeForCall(call *ast.CallExpr, ctx *Context) *graph.Node {
 	if n := matchVerbCall(call); n != nil {
 		return ctx.Graph.Node(n.ID)
 	}
+
 	if n := matchRouteGenAdd(call); n != nil {
 		return ctx.Graph.Node(n.ID)
 	}
+
 	if n := matchRouteGenHandle(call); n != nil {
 		return ctx.Graph.Node(n.ID)
 	}
+
 	return nil
 }
 
@@ -66,24 +77,30 @@ func handlerArgFor(call *ast.CallExpr) ast.Expr {
 	if len(call.Args) < 2 {
 		return nil
 	}
+
 	switch call.Args[1].(type) {
 	case *ast.Ident, *ast.SelectorExpr:
 		return call.Args[1]
 	}
+
 	return nil
 }
 
 func linkHandler(ctx *Context, pkg *packages.Package, route *graph.Node, handler ast.Expr, call ast.Node) {
 	controllerLabel, actionLabel := describeHandler(pkg, handler)
+
 	if actionLabel == "" {
 		return
 	}
+
 	actionID := "action:" + strings.ToLower(actionLabel)
 	action := graph.NewNode(actionID, graph.NodeTypeAction, actionLabel).
 		Set("file", ctx.Project.Position(call))
+
 	if controllerLabel != "" {
 		action.Set("controller", controllerLabel)
 	}
+
 	ctx.Graph.AddNode(action)
 	ctx.Graph.AddEdge(&graph.Edge{
 		Source: route.ID, Target: actionID,
@@ -94,6 +111,7 @@ func linkHandler(ctx *Context, pkg *packages.Package, route *graph.Node, handler
 	if controllerLabel == "" {
 		return
 	}
+
 	controllerID := "controller:" + strings.ToLower(controllerLabel)
 	ctrl := graph.NewNode(controllerID, graph.NodeTypeController, controllerLabel)
 	ctx.Graph.AddNode(ctrl)
@@ -114,6 +132,7 @@ func describeHandler(pkg *packages.Package, h ast.Expr) (string, string) {
 				return "", fn.Name.Name
 			}
 		}
+
 		return "", e.Name
 	case *ast.SelectorExpr:
 		// pkg.Func OR receiver.Method
@@ -122,14 +141,17 @@ func describeHandler(pkg *packages.Package, h ast.Expr) (string, string) {
 				switch sel.Kind() {
 				case types.MethodVal, types.MethodExpr:
 					recv := unwrapType(sel.Recv())
+
 					return recv, e.Sel.Name
 				}
 			}
 		}
+
 		if id, ok := e.X.(*ast.Ident); ok {
 			return id.Name, e.Sel.Name
 		}
 	}
+
 	return "", ""
 }
 
@@ -137,11 +159,14 @@ func unwrapType(t types.Type) string {
 	if t == nil {
 		return ""
 	}
+
 	if p, ok := t.(*types.Pointer); ok {
 		return unwrapType(p.Elem())
 	}
+
 	if n, ok := t.(*types.Named); ok {
 		return n.Obj().Name()
 	}
+
 	return t.String()
 }

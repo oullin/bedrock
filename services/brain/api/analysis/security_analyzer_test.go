@@ -36,24 +36,32 @@ func secrets() {
 }
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	g := graph.NewGraph("fixture")
 	sa := &SecurityAnalyzer{}
+
 	if err := sa.Analyze(&Context{Project: proj, Graph: g}); err != nil {
 		t.Fatal(err)
 	}
+
 	counts := map[string]int{}
+
 	for _, i := range sa.Issues {
 		counts[i.Rule]++
 	}
+
 	if counts["sql_injection"] != 2 {
 		t.Errorf("sql_injection count = %d, want 2 (%v)", counts["sql_injection"], sa.Issues)
 	}
+
 	if counts["command_injection"] != 1 {
 		t.Errorf("command_injection count = %d, want 1", counts["command_injection"])
 	}
+
 	if counts["hardcoded_secret"] != 2 {
 		t.Errorf("hardcoded_secret count = %d, want 2", counts["hardcoded_secret"])
 	}

@@ -59,7 +59,8 @@ onMounted(fetchAll);
     <header class="brain-topbar">
       <h1>brain</h1>
       <span v-if="manifest" class="meta">
-        {{ manifest.project }} · {{ filteredGraph?.meta.nodeCount ?? 0 }}/{{ manifest.totalNodes }} nodes · {{ filteredGraph?.meta.edgeCount ?? 0 }}/{{ manifest.totalEdges }} edges
+        {{ manifest.project }} · {{ filteredGraph?.meta.nodeCount ?? 0 }}/{{ manifest.totalNodes }}
+        nodes · {{ filteredGraph?.meta.edgeCount ?? 0 }}/{{ manifest.totalEdges }} edges
       </span>
       <span v-else class="meta">loading…</span>
       <button @click="rescan" style="margin-left: auto">Rescan</button>

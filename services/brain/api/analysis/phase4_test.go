@@ -57,11 +57,14 @@ func wire(d *dispatcher, c *container, cli console, b broadcaster) {
 import _ "example.com/fixture/fac"
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	g := graph.NewGraph("fixture")
 	ctx := &Context{Project: proj, Graph: g}
+
 	for _, a := range []Analyzer{
 		EventAnalyzer{}, JobAnalyzer{}, ConsoleAnalyzer{},
 		ChannelAnalyzer{}, ContainerBindingAnalyzer{},
@@ -70,6 +73,7 @@ import _ "example.com/fixture/fac"
 			t.Fatalf("%s: %v", a.Name(), err)
 		}
 	}
+
 	wantIDs := []string{
 		"event:Mailer",
 		"event:OrderShipped",
@@ -79,6 +83,7 @@ import _ "example.com/fixture/fac"
 		"service_provider:mailer",
 		"service_provider:repo",
 	}
+
 	for _, id := range wantIDs {
 		if g.Node(id) == nil {
 			t.Errorf("missing node %s; have: %v", id, nodeIDs(g))
@@ -93,8 +98,10 @@ func TestFacadeNameExtraction(t *testing.T) {
 		"github.com/bedrock/packages/facades/log/extra": "log",
 		"github.com/other/something":                    "",
 	}
+
 	for in, want := range cases {
 		got, _ := facadeName(in)
+
 		if got != want {
 			t.Errorf("facadeName(%q) = %q, want %q", in, got, want)
 		}
