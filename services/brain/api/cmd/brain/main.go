@@ -19,6 +19,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/bedrock/packages/filesystem"
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
 	brainhttp "github.com/bedrock/services/brain/api/http"
@@ -88,9 +89,6 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 	outDir := opts.output
 	if outDir == "" {
 		outDir = filepath.Join(absTarget, "storage", "brain")
-	}
-	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return fmt.Errorf("create output dir: %w", err)
 	}
 
 	var g *graph.Graph
@@ -186,16 +184,15 @@ func countRoutes(g *graph.Graph) int {
 	return c
 }
 
+// writeJSON marshals v with 2-space indent and writes via
+// packages/filesystem so missing parent dirs are created automatically.
 func writeJSON(path string, v any) error {
-	f, err := os.Create(path)
+	body, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
-		return fmt.Errorf("create %s: %w", path, err)
-	}
-	defer f.Close()
-	enc := json.NewEncoder(f)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(v); err != nil {
 		return fmt.Errorf("encode %s: %w", path, err)
+	}
+	if err := filesystem.New().Put(path, append(body, '\n')); err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
 	}
 	return nil
 }

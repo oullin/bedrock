@@ -1,83 +1,55 @@
-// Package console exposes brain's CLI surface for embedding into a host
-// service's packages/console Application. The contract is intentionally
-// dependency-free: callers pass a `Registrar` that adapts to whatever
-// console package they use, and brain hands back three `CommandSpec`s.
-//
-// A host service wires brain like so:
+// Package console builds brain's three commands as native
+// packages/console.Command values so a host service can register them
+// directly on its own packages/console.Application:
 //
 //	import (
 //		"github.com/bedrock/packages/console"
 //		brainconsole "github.com/bedrock/services/brain/api/console"
 //	)
 //
-//	app := console.NewApplication("my-service")
-//	for _, spec := range brainconsole.Commands() {
-//		cmd, _ := console.NewCommand(spec.Signature, spec.RunWith(app))
+//	app := console.NewApplication()
+//	for _, cmd := range brainconsole.Commands() {
 //		app.Add(cmd)
 //	}
 //
-// This keeps the bedrock/console <-> brain seam thin and lets brain ship
-// as an importable library without owning the host's CLI shape.
+// No ad-hoc Command/Spec abstraction — the brain commands live alongside
+// any other cli-style command in the host's CLI.
 package console
 
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"path/filepath"
 
+	bcons "github.com/bedrock/packages/console"
 	"github.com/bedrock/services/brain/api/ai"
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
 )
 
-// CommandSpec is a wire-format description of one brain CLI subcommand.
-// A host service's console package maps it onto its own Command type.
-type CommandSpec struct {
-	Name      string
-	Signature string
-	Summary   string
-	Run       func(ctx context.Context, args Args, out io.Writer) error
-}
-
-// Args is the subset of console arguments brain needs. Hosts can build it
-// from their own argument abstraction (cobra Flag set, packages/console
-// InputInterface, etc).
-type Args struct {
-	Target  string
-	Output  string
-	Force   bool
-	Format  string
-}
-
-// Commands returns the three brain subcommands. Each function takes a
-// resolved Args and writes progress to `out`.
-func Commands() []CommandSpec {
-	return []CommandSpec{
-		{
-			Name:      "brain:scan",
-			Signature: "brain:scan {--target=} {--output=}",
-			Summary:   "Scan a Go service and write graph JSON to <target>/storage/brain.",
-			Run:       runScan,
-		},
-		{
-			Name:      "brain:export-context",
-			Signature: "brain:export-context {--target=} {--format=markdown}",
-			Summary:   "Render the deterministic AI context export for a service.",
-			Run:       runExportContext,
-		},
-		{
-			Name:      "brain:generate-rules",
-			Signature: "brain:generate-rules {--target=} {--force}",
-			Summary:   "Write editor rules files (CLAUDE.md, .cursorrules, ...).",
-			Run:       runGenerateRules,
-		},
+// Commands returns the three brain commands ready to be registered.
+// Errors from NewCommand are unwrapped via must — the signatures are
+// constants, so a parse error here is a programmer bug rather than a
+// runtime concern.
+func Commands() []*bcons.Command {
+	return []*bcons.Command{
+		must(bcons.NewCommand(
+			"brain:scan {--target=.} {--output=}",
+			scanRun,
+		)),
+		must(bcons.NewCommand(
+			"brain:export-context {--target=.}",
+			exportContextRun,
+		)),
+		must(bcons.NewCommand(
+			"brain:generate-rules {--target=.} {--force}",
+			generateRulesRun,
+		)),
 	}
 }
 
-func runScan(ctx context.Context, a Args, out io.Writer) error {
-	target, output := resolvePaths(a)
+func scanRun(ctx context.Context, in *bcons.Input, out *bcons.Output) error {
+	target, output := resolvePaths(in)
 	g, err := scan(target)
 	if err != nil {
 		return err
@@ -85,35 +57,36 @@ func runScan(ctx context.Context, a Args, out io.Writer) error {
 	if err := writeGraph(output, g); err != nil {
 		return err
 	}
-	fmt.Fprintf(out, "brain: wrote %s (%d nodes, %d edges)\n", output, g.Meta.NodeCount, g.Meta.EdgeCount)
+	out.Writeln(fmt.Sprintf("brain: wrote %s (%d nodes, %d edges)",
+		output, g.Meta.NodeCount, g.Meta.EdgeCount))
 	_ = ctx
 	return nil
 }
 
-func runExportContext(_ context.Context, a Args, out io.Writer) error {
-	target, _ := resolvePaths(a)
+func exportContextRun(_ context.Context, in *bcons.Input, out *bcons.Output) error {
+	target, _ := resolvePaths(in)
 	g, err := scan(target)
 	if err != nil {
 		return err
 	}
-	body := ai.RenderMarkdown(g, ai.ContextOptions{})
-	_, err = out.Write([]byte(body))
-	return err
+	out.Write(ai.RenderMarkdown(g, ai.ContextOptions{}))
+	return nil
 }
 
-func runGenerateRules(_ context.Context, a Args, out io.Writer) error {
-	target, _ := resolvePaths(a)
+func generateRulesRun(_ context.Context, in *bcons.Input, out *bcons.Output) error {
+	target, _ := resolvePaths(in)
+	force := in.Option("force") == "true"
 	g, err := scan(target)
 	if err != nil {
 		return err
 	}
 	body := ai.RenderMarkdown(g, ai.ContextOptions{})
-	written, err := ai.GenerateRules(target, body, a.Force)
+	written, err := ai.GenerateRules(target, body, force)
 	if err != nil {
 		return err
 	}
 	for _, p := range written {
-		fmt.Fprintf(out, "brain: wrote %s\n", p)
+		out.Writeln("brain: wrote " + p)
 	}
 	return nil
 }
@@ -122,16 +95,15 @@ func scan(target string) (*graph.Graph, error) {
 	return analysis.NewDefaultProjectAnalyzer().AnalyzeTarget(target)
 }
 
-func resolvePaths(a Args) (target string, output string) {
-	target = a.Target
+func resolvePaths(in *bcons.Input) (target, output string) {
+	target = in.Option("target")
 	if target == "" {
 		target = "."
 	}
-	abs, err := filepath.Abs(target)
-	if err == nil {
+	if abs, err := filepath.Abs(target); err == nil {
 		target = abs
 	}
-	output = a.Output
+	output = in.Option("output")
 	if output == "" {
 		output = filepath.Join(target, "storage", "brain")
 	}
@@ -139,11 +111,6 @@ func resolvePaths(a Args) (target string, output string) {
 }
 
 func writeGraph(dir string, g *graph.Graph) error {
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	// Re-use graph package's JSON shape by encoding directly here to keep
-	// this package dependency-free of cmd/brain.
 	if err := writeJSON(filepath.Join(dir, ".graph-all.json"), g); err != nil {
 		return err
 	}
@@ -157,16 +124,6 @@ func writeGraph(dir string, g *graph.Graph) error {
 	})
 }
 
-func writeJSON(path string, v any) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	enc := newIndentEncoder(f)
-	return enc.Encode(v)
-}
-
 func countRoutes(g *graph.Graph) int {
 	c := 0
 	for _, n := range g.Nodes {
@@ -175,4 +132,11 @@ func countRoutes(g *graph.Graph) int {
 		}
 	}
 	return c
+}
+
+func must(cmd *bcons.Command, err error) *bcons.Command {
+	if err != nil {
+		panic("brain console signature: " + err.Error())
+	}
+	return cmd
 }
