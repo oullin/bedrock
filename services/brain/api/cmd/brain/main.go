@@ -1,0 +1,139 @@
+// Brain is the static-analysis + viewer tool for bedrock services.
+//
+// Phase 1 only wires the skeleton: an empty graph + manifest are written so
+// downstream phases can plug analyzers and the SPA can be developed against a
+// real (if empty) output shape.
+package main
+
+import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/bedrock/services/brain/api/graph"
+)
+
+const (
+	manifestFile = ".graph-manifest.json"
+	allGraphFile = ".graph-all.json"
+)
+
+type runOpts struct {
+	target string
+	output string
+	quiet  bool
+}
+
+func main() {
+	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {
+		fmt.Fprintln(os.Stderr, "brain:", err)
+		os.Exit(1)
+	}
+}
+
+func run(args []string, stdout, stderr io.Writer) error {
+	if len(args) == 0 {
+		printUsage(stdout)
+		return nil
+	}
+
+	sub, rest := args[0], args[1:]
+	switch sub {
+	case "scan":
+		return runScan(rest, stdout, stderr)
+	case "serve":
+		return fmt.Errorf("serve is implemented in a later phase")
+	case "-h", "--help", "help":
+		printUsage(stdout)
+		return nil
+	case "-v", "--version", "version":
+		fmt.Fprintln(stdout, "brain 0.0.0 (skeleton)")
+		return nil
+	default:
+		return fmt.Errorf("unknown subcommand %q (try 'brain help')", sub)
+	}
+}
+
+func runScan(args []string, stdout, stderr io.Writer) error {
+	fs := flag.NewFlagSet("scan", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	target := fs.String("target", ".", "path to the Go service to scan")
+	output := fs.String("output", "", "directory for graph JSON (default: <target>/storage/brain)")
+	quiet := fs.Bool("quiet", false, "suppress progress output")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	opts := runOpts{target: *target, output: *output, quiet: *quiet}
+
+	absTarget, err := filepath.Abs(opts.target)
+	if err != nil {
+		return fmt.Errorf("resolve target: %w", err)
+	}
+	outDir := opts.output
+	if outDir == "" {
+		outDir = filepath.Join(absTarget, "storage", "brain")
+	}
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return fmt.Errorf("create output dir: %w", err)
+	}
+
+	g := graph.NewGraph(filepath.Base(absTarget))
+	g.Stamp()
+
+	if err := writeJSON(filepath.Join(outDir, allGraphFile), g); err != nil {
+		return err
+	}
+
+	m := graph.Manifest{
+		Project:     g.Meta.Project,
+		AnalyzedAt:  g.Meta.AnalyzedAt,
+		TotalRoutes: 0,
+		TotalNodes:  g.Meta.NodeCount,
+		TotalEdges:  g.Meta.EdgeCount,
+		Tabs:        []graph.TabEntry{},
+	}
+	if err := writeJSON(filepath.Join(outDir, manifestFile), m); err != nil {
+		return err
+	}
+
+	if !opts.quiet {
+		fmt.Fprintf(stdout, "brain: wrote %s (%d nodes, %d edges)\n",
+			outDir, g.Meta.NodeCount, g.Meta.EdgeCount)
+	}
+	return nil
+}
+
+func writeJSON(path string, v any) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("create %s: %w", path, err)
+	}
+	defer f.Close()
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(v); err != nil {
+		return fmt.Errorf("encode %s: %w", path, err)
+	}
+	return nil
+}
+
+func printUsage(w io.Writer) {
+	fmt.Fprintln(w, strings.TrimSpace(`
+brain - bedrock service analyzer
+
+Usage:
+  brain <command> [flags]
+
+Commands:
+  scan     Scan a Go service and write graph JSON to <target>/storage/brain
+  serve    (later phase) Run the viewer UI
+  version  Print the brain version
+  help     Show this message
+
+Run 'brain <command> -h' for command-specific flags.
+`))
+}
