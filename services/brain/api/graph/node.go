@@ -7,6 +7,15 @@ package graph
 // Inertia-specific values are added in their place.
 type NodeType string
 
+// Node is a single graph vertex. Field order and tags match upstream-brain's
+// Node.php JSON serialisation exactly so the Vue SPA reads either output.
+type Node struct {
+	ID    string         `json:"id"`
+	Type  NodeType       `json:"type"`
+	Label string         `json:"label"`
+	Data  map[string]any `json:"data"`
+}
+
 const (
 	NodeTypeRoute             NodeType = "route"
 	NodeTypeMiddleware        NodeType = "middleware"
@@ -36,15 +45,6 @@ const (
 	NodeTypeInertiaProp   NodeType = "inertia_prop"
 )
 
-// Node is a single graph vertex. Field order and tags match upstream-brain's
-// Node.php JSON serialisation exactly so the Vue SPA reads either output.
-type Node struct {
-	ID    string         `json:"id"`
-	Type  NodeType       `json:"type"`
-	Label string         `json:"label"`
-	Data  map[string]any `json:"data"`
-}
-
 // NewNode constructs a node with an empty data bag pre-allocated.
 func NewNode(id string, t NodeType, label string) *Node {
 	return &Node{ID: id, Type: t, Label: label, Data: map[string]any{}}
@@ -55,6 +55,8 @@ func (n *Node) Set(key string, value any) *Node {
 	if n.Data == nil {
 		n.Data = map[string]any{}
 	}
+
 	n.Data[key] = value
+
 	return n
 }

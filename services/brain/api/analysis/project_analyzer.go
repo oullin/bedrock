@@ -43,9 +43,11 @@ func NewDefaultProjectAnalyzer() *ProjectAnalyzer {
 // AnalyzeTarget runs every analyzer against `target` and returns the graph.
 func (p *ProjectAnalyzer) AnalyzeTarget(target string) (*graph.Graph, error) {
 	proj, err := parser.Load(target)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return p.Analyze(proj)
 }
 
@@ -57,17 +59,22 @@ func (p *ProjectAnalyzer) AnalyzeTarget(target string) (*graph.Graph, error) {
 func (p *ProjectAnalyzer) Analyze(proj *parser.Project) (*graph.Graph, error) {
 	g := graph.NewGraph(projectLabel(proj))
 	pipes := make([]any, 0, len(p.Analyzers))
+
 	for _, a := range p.Analyzers {
 		pipes = append(pipes, analyzerAsPipe(a))
 	}
+
 	_, err := pipeline.New().
 		Send(&Context{Project: proj, Graph: g}).
 		Through(pipes...).
 		Then(context.Background(), func(v any) (any, error) { return v, nil })
+
 	if err != nil {
 		return nil, err
 	}
+
 	g.Stamp()
+
 	return g, nil
 }
 
@@ -77,12 +84,15 @@ func (p *ProjectAnalyzer) Analyze(proj *parser.Project) (*graph.Graph, error) {
 func analyzerAsPipe(a Analyzer) pipeline.Pipe {
 	return func(_ context.Context, passable any, next func(any) (any, error)) (any, error) {
 		c, ok := passable.(*Context)
+
 		if !ok {
 			return nil, fmt.Errorf("analyzer %s: pipeline passable is %T, want *analysis.Context", a.Name(), passable)
 		}
+
 		if err := a.Analyze(c); err != nil {
 			return nil, fmt.Errorf("analyzer %s: %w", a.Name(), err)
 		}
+
 		return next(c)
 	}
 }
@@ -97,5 +107,6 @@ func projectLabel(p *parser.Project) string {
 			return p.Root[i+1:]
 		}
 	}
+
 	return p.Root
 }

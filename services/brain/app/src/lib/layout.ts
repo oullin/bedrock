@@ -43,7 +43,9 @@ export function layoutGraph(data: GraphData): LayoutResult {
     return { ...n, x: meta.x, y: meta.y, width: NODE_W, height: NODE_H };
   });
   const edges: LaidOutEdge[] = data.edges.map((e) => {
-    const meta = g.edge({ v: e.source, w: e.target }) as { points?: { x: number; y: number }[] } | undefined;
+    const meta = g.edge({ v: e.source, w: e.target }) as
+      | { points?: { x: number; y: number }[] }
+      | undefined;
     return { ...e, points: meta?.points ?? [] };
   });
   const { width = 0, height = 0 } = g.graph();

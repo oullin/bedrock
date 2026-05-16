@@ -50,21 +50,26 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 	if cfg.Method == "" {
 		cfg.Method = "GET"
 	}
+
 	if cfg.Concurrency < 1 {
 		cfg.Concurrency = 1
 	}
+
 	if cfg.Requests < 1 {
 		cfg.Requests = 1
 	}
+
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 10 * time.Second
 	}
 
 	factory := client.NewFactory()
 	jobs := make(chan struct{}, cfg.Requests)
+
 	for i := 0; i < cfg.Requests; i++ {
 		jobs <- struct{}{}
 	}
+
 	close(jobs)
 
 	var (
@@ -77,28 +82,35 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 		wg        sync.WaitGroup
 		start     = time.Now()
 	)
+
 	for w := 0; w < cfg.Concurrency; w++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+
 			for range jobs {
 				if ctx.Err() != nil {
 					return
 				}
+
 				t0 := time.Now()
 				resp, err := factory.PendingRequest().Timeout(cfg.Timeout).Get(cfg.URL)
 				dur := time.Since(t0)
 				samplesMu.Lock()
 				samples = append(samples, dur)
 				samplesMu.Unlock()
+
 				if err != nil {
 					atomic.AddUint64(&failed, 1)
+
 					continue
 				}
+
 				status := resp.Status()
 				statusMu.Lock()
 				statuses[status]++
 				statusMu.Unlock()
+
 				if status < 400 {
 					atomic.AddUint64(&succeeded, 1)
 				} else {
@@ -107,17 +119,22 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 			}
 		}()
 	}
+
 	wg.Wait()
 	total := time.Since(start)
 
 	sort.Slice(samples, func(i, j int) bool { return samples[i] < samples[j] })
+
 	p := func(pct float64) time.Duration {
 		if len(samples) == 0 {
 			return 0
 		}
+
 		idx := int(float64(len(samples)-1) * pct)
+
 		return samples[idx]
 	}
+
 	return Result{
 		URL:         cfg.URL,
 		Method:      cfg.Method,

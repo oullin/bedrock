@@ -3,6 +3,15 @@ package graph
 // EdgeType is the relationship kind a directed edge represents.
 type EdgeType string
 
+// Edge is a directed relationship between two nodes.
+type Edge struct {
+	ID     string   `json:"id"`
+	Source string   `json:"source"`
+	Target string   `json:"target"`
+	Label  string   `json:"label"`
+	Type   EdgeType `json:"type"`
+}
+
 const (
 	EdgeTypeUses        EdgeType = "uses"
 	EdgeTypeHandlesBy   EdgeType = "handles_by"
@@ -21,12 +30,3 @@ const (
 	EdgeTypeImplements  EdgeType = "implements"
 	EdgeTypeBindsToImpl EdgeType = "binds_to_impl"
 )
-
-// Edge is a directed relationship between two nodes.
-type Edge struct {
-	ID     string   `json:"id"`
-	Source string   `json:"source"`
-	Target string   `json:"target"`
-	Label  string   `json:"label"`
-	Type   EdgeType `json:"type"`
-}

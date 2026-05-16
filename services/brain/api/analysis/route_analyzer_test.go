@@ -26,23 +26,31 @@ func wire(r *router) {
 }
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatalf("load fixture: %v", err)
 	}
+
 	g := graph.NewGraph("fixture")
+
 	if err := (RouteAnalyzer{}).Analyze(&Context{Project: proj, Graph: g}); err != nil {
 		t.Fatalf("analyze: %v", err)
 	}
+
 	gotByID := map[string]*graph.Node{}
+
 	for _, n := range g.Nodes {
 		gotByID[n.ID] = n
 	}
+
 	wantIDs := []string{"route:get:/", "route:get:/health", "route:post:/login"}
+
 	for _, id := range wantIDs {
 		if _, ok := gotByID[id]; !ok {
 			t.Errorf("missing node %s; got: %v", id, gotByID)
 		}
 	}
+
 	if len(g.Nodes) != len(wantIDs) {
 		t.Errorf("node count = %d, want %d", len(g.Nodes), len(wantIDs))
 	}
@@ -62,13 +70,17 @@ func use(c *cache) {
 }
 `)
 	proj, err := parser.Load(dir)
+
 	if err != nil {
 		t.Fatalf("load fixture: %v", err)
 	}
+
 	g := graph.NewGraph("fixture")
+
 	if err := (RouteAnalyzer{}).Analyze(&Context{Project: proj, Graph: g}); err != nil {
 		t.Fatalf("analyze: %v", err)
 	}
+
 	if len(g.Nodes) != 0 {
 		t.Errorf("expected 0 nodes, got %d: %v", len(g.Nodes), g.Nodes)
 	}
@@ -77,9 +89,11 @@ func use(c *cache) {
 func mustWrite(t *testing.T, dir, name, body string) {
 	t.Helper()
 	full := filepath.Join(dir, name)
+
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		t.Fatalf("mkdir for %s: %v", name, err)
 	}
+
 	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", name, err)
 	}

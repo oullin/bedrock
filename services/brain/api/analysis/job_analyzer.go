@@ -23,16 +23,21 @@ func (JobAnalyzer) Analyze(ctx *Context) error {
 	_ = ctx.Project.EachFile(func(pkg *packages.Package, file *ast.File, _ string) error {
 		for _, decl := range file.Decls {
 			fn, ok := decl.(*ast.FuncDecl)
+
 			if !ok || fn.Recv == nil || len(fn.Recv.List) == 0 {
 				continue
 			}
+
 			if fn.Name == nil || fn.Name.Name != "QueueDisplayName" {
 				continue
 			}
+
 			recv := recvTypeName(fn.Recv.List[0].Type)
+
 			if recv == "" {
 				continue
 			}
+
 			id := "job:" + pkg.PkgPath + "." + recv
 			ctx.Graph.AddNode(
 				graph.NewNode(id, graph.NodeTypeJob, recv).
@@ -41,6 +46,7 @@ func (JobAnalyzer) Analyze(ctx *Context) error {
 					Set("source", "namer"),
 			)
 		}
+
 		return nil
 	})
 
@@ -48,25 +54,33 @@ func (JobAnalyzer) Analyze(ctx *Context) error {
 	return ctx.Project.EachFile(func(pkg *packages.Package, file *ast.File, _ string) error {
 		ast.Inspect(file, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
+
 			if !ok {
 				return true
 			}
+
 			sel, ok := call.Fun.(*ast.SelectorExpr)
+
 			if !ok || sel.Sel.Name != "CreatePayloadFor" || len(call.Args) < 3 {
 				return true
 			}
+
 			label := exprLabel(pkg, call.Args[2])
+
 			if label == "" {
 				return true
 			}
+
 			id := "job:" + label
 			ctx.Graph.AddNode(
 				graph.NewNode(id, graph.NodeTypeJob, label).
 					Set("file", ctx.Project.Position(call)).
 					Set("source", "dispatch"),
 			)
+
 			return true
 		})
+
 		return nil
 	})
 }
