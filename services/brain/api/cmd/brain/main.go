@@ -6,6 +6,7 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"flag"
@@ -13,12 +14,15 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
 	brainhttp "github.com/bedrock/services/brain/api/http"
+	"github.com/bedrock/services/brain/api/watch"
 )
 
 //go:embed resources/views/app.html
@@ -71,6 +75,7 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 	target := fs.String("target", ".", "path to the Go service to scan")
 	output := fs.String("output", "", "directory for graph JSON (default: <target>/storage/brain)")
 	quiet := fs.Bool("quiet", false, "suppress progress output")
+	watchMode := fs.Bool("watch", false, "rescan whenever a .go file changes")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -118,7 +123,27 @@ func runScan(args []string, stdout, stderr io.Writer) error {
 		fmt.Fprintf(stdout, "brain: wrote %s (%d nodes, %d edges)\n",
 			outDir, g.Meta.NodeCount, g.Meta.EdgeCount)
 	}
-	return nil
+	if !*watchMode {
+		return nil
+	}
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	fmt.Fprintln(stdout, "brain: watching for changes (Ctrl-C to stop)…")
+	return watch.Run(ctx, watch.Options{Roots: []string{absTarget}}, func() {
+		if scanned, err := analyzer.AnalyzeTarget(absTarget); err == nil {
+			_ = writeJSON(filepath.Join(outDir, allGraphFile), scanned)
+			_ = writeJSON(filepath.Join(outDir, manifestFile), graph.Manifest{
+				Project: scanned.Meta.Project, AnalyzedAt: scanned.Meta.AnalyzedAt,
+				TotalRoutes: countRoutes(scanned),
+				TotalNodes:  scanned.Meta.NodeCount, TotalEdges: scanned.Meta.EdgeCount,
+				Tabs: []graph.TabEntry{},
+			})
+			if !opts.quiet {
+				fmt.Fprintf(stdout, "brain: rescan → %d nodes, %d edges\n",
+					scanned.Meta.NodeCount, scanned.Meta.EdgeCount)
+			}
+		}
+	})
 }
 
 func runServe(args []string, stdout, stderr io.Writer) error {

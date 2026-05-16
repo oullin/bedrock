@@ -25,9 +25,12 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/bedrock/services/brain/api/ai"
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
+	"github.com/bedrock/services/brain/api/stress"
 )
 
 // Server holds the most recently scanned graph plus the analyzer to run on
@@ -165,30 +168,112 @@ func (s *Server) handleScan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleContext(w http.ResponseWriter, r *http.Request) {
-	// Phase 12 will replace this with packages/ai/sdk + packages/ai/boost.
-	writeJSON(w, http.StatusNotImplemented, map[string]string{
-		"error": "AI context export wired in phase 12",
-	})
+	if err := s.EnsureScanned(); err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	s.mu.RLock()
+	g := s.graph
+	s.mu.RUnlock()
+
+	includeData := r.URL.Query().Get("data") == "1"
+	body := ai.RenderMarkdown(g, ai.ContextOptions{IncludeData: includeData})
+	switch r.URL.Query().Get("format") {
+	case "json":
+		writeJSON(w, http.StatusOK, map[string]any{
+			"markdown":     body,
+			"tokenEstimate": ai.EstimateTokens(body),
+		})
+	default:
+		w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
+		_, _ = w.Write([]byte(body))
+	}
+}
+
+type generateRulesRequest struct {
+	Force bool `json:"force"`
 }
 
 func (s *Server) handleGenerateRules(w http.ResponseWriter, r *http.Request) {
-	// Phase 12 wires this to packages/ai/boost.
-	writeJSON(w, http.StatusNotImplemented, map[string]string{
-		"error": "rules generator wired in phase 12",
-	})
+	if err := s.EnsureScanned(); err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	var req generateRulesRequest
+	if r.ContentLength > 0 {
+		_ = json.NewDecoder(r.Body).Decode(&req)
+	}
+	s.mu.RLock()
+	g := s.graph
+	s.mu.RUnlock()
+	body := ai.RenderMarkdown(g, ai.ContextOptions{IncludeData: false})
+	written, err := ai.GenerateRules(s.Target, body, req.Force)
+	if err != nil {
+		if err == ai.ErrConflict {
+			writeErr(w, http.StatusConflict, err)
+			return
+		}
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"written": written})
+}
+
+type stressRequest struct {
+	URL         string `json:"url"`
+	Method      string `json:"method"`
+	Concurrency int    `json:"concurrency"`
+	Requests    int    `json:"requests"`
+	TimeoutMs   int    `json:"timeoutMs"`
 }
 
 func (s *Server) handleStressTestEnqueue(w http.ResponseWriter, r *http.Request) {
-	// Phase 11 wires this to the stress runner.
-	writeJSON(w, http.StatusNotImplemented, map[string]string{
-		"error": "stress runner wired in phase 11",
-	})
+	var req stressRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeErr(w, http.StatusBadRequest, err)
+		return
+	}
+	if req.URL == "" {
+		writeErr(w, http.StatusBadRequest, errors.New("url is required"))
+		return
+	}
+	// Refuse non-localhost targets — protects against accidental load
+	// generation against shared infra.
+	if !isLocalURL(req.URL) {
+		writeErr(w, http.StatusForbidden,
+			errors.New("brain only stresses localhost URLs; pass an explicit allowlist via config in a later release"))
+		return
+	}
+	cfg := stress.Config{
+		URL: req.URL, Method: req.Method,
+		Concurrency: req.Concurrency, Requests: req.Requests,
+	}
+	if req.TimeoutMs > 0 {
+		cfg.Timeout = time.Duration(req.TimeoutMs) * time.Millisecond
+	}
+	result, err := stress.Run(r.Context(), cfg)
+	if err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) handleStressTestPoll(w http.ResponseWriter, r *http.Request) {
+	// The runner is synchronous in phase 11; polling is not yet useful.
+	// Reserved for an async/queued mode in a future release.
 	writeJSON(w, http.StatusNotImplemented, map[string]string{
-		"error": "stress runner wired in phase 11",
+		"error": "stress runs are synchronous in this release; poll endpoint reserved",
 	})
+}
+
+func isLocalURL(raw string) bool {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return false
+	}
+	host := u.Hostname()
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
 }
 
 func (s *Server) handleSPA(w http.ResponseWriter, r *http.Request) {
