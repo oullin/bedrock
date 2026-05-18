@@ -290,6 +290,7 @@ func TestDatabaseDriverQueueNames(t *testing.T) {
 	db.addQueryRow("emails")
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}
@@ -303,6 +304,7 @@ func TestDatabaseDriverQueueNames(t *testing.T) {
 	}
 
 	q := db.queryCalls[0].Query
+
 	if !strings.Contains(q, "DISTINCT queue") {
 		t.Errorf("query missing DISTINCT queue: %s", q)
 	}
@@ -319,6 +321,7 @@ func TestDatabaseDriverQueueNamesEmpty(t *testing.T) {
 	drv := drivers.NewDatabaseDriver(db, "jobs", "database")
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}

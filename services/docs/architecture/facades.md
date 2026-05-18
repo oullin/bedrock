@@ -114,7 +114,7 @@ Two things to remember:
    application per test (or per test suite), call `container.SetApp(app)`,
    and run.
 2. **Reset facade caches between applications.** A facade caches the
-   manager it resolved from the *previous* application. If you swap
+   manager it resolved from the _previous_ application. If you swap
    applications without resetting, the second test will use the first
    test's services. The pattern is:
 
@@ -152,13 +152,13 @@ instance: route handlers, console commands, view helpers.
 
 The current facade set:
 
-| Facade                                                                                                | Resolves                | Common helpers                                |
-| ----------------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------- |
-| [`facades/cache`](https://github.com/gocanto/bedrock/tree/main/packages/facades/cache)   | `*cache.Manager`        | `Driver()`, `Store(name)`, `Repository(name)` |
-| [`facades/queue`](https://github.com/gocanto/bedrock/tree/main/packages/facades/queue)   | `*queue.Manager`        | `Connection(name)`                            |
-| [`facades/log`](https://github.com/gocanto/bedrock/tree/main/packages/facades/log)       | `*log.LogManager`       | `Channel(name)`, `Stack(...)`                 |
-| [`facades/auth`](https://github.com/gocanto/bedrock/tree/main/packages/facades/auth)     | `*auth.Manager`         | `Guard(name)`, `User()`                       |
-| [`facades/events`](https://github.com/gocanto/bedrock/tree/main/packages/facades/events) | `events.Dispatcher`     | `Listen(...)`, `Dispatch(...)`                |
+| Facade                                                                                   | Resolves            | Common helpers                                |
+| ---------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------- |
+| [`facades/cache`](https://github.com/gocanto/bedrock/tree/main/packages/facades/cache)   | `*cache.Manager`    | `Driver()`, `Store(name)`, `Repository(name)` |
+| [`facades/queue`](https://github.com/gocanto/bedrock/tree/main/packages/facades/queue)   | `*queue.Manager`    | `Connection(name)`                            |
+| [`facades/log`](https://github.com/gocanto/bedrock/tree/main/packages/facades/log)       | `*log.LogManager`   | `Channel(name)`, `Stack(...)`                 |
+| [`facades/auth`](https://github.com/gocanto/bedrock/tree/main/packages/facades/auth)     | `*auth.Manager`     | `Guard(name)`, `User()`                       |
+| [`facades/events`](https://github.com/gocanto/bedrock/tree/main/packages/facades/events) | `events.Dispatcher` | `Listen(...)`, `Dispatch(...)`                |
 
 If a service you use often isn't in this list, you can write a facade for
 it in 30 lines. Copy `packages/facades/cache/cache.go` as a template,

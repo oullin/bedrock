@@ -10,8 +10,8 @@ service — cache, queue, log, mailx, session, database, routing, auth — ships
 with a provider. The application calls `Register()` to bind, then `Boot()`
 to do anything that depends on other services being already bound.
 
-This page is the reference for *consuming* the built-in providers and for
-*writing your own*.
+This page is the reference for _consuming_ the built-in providers and for
+_writing your own_.
 
 ## The Contract
 
@@ -48,7 +48,7 @@ type DependsOn interface {
   introspection, deferred resolution, and dependency ordering.
 - `Deferred() bool` — opt into deferred registration (see below).
 - `DependsOn() []string` — declare keys this provider needs registered
-  *before* its `Register()` runs. The application topologically sorts on
+  _before_ its `Register()` runs. The application topologically sorts on
   this when you call `RegisterMany`.
 
 ## Using a Built-in Provider
@@ -113,7 +113,7 @@ Notice the discipline:
   needed at registration time.
 - `Register()` only calls `Singleton`. It does not resolve anything else
   from the container. It does not open a Redis connection. It registers a
-  *factory*; the factory does the real work the first time someone calls
+  _factory_; the factory does the real work the first time someone calls
   `application.Make("cache")`.
 - `Provides()` is a one-line declaration, useful for tooling and for
   deferred resolution.
@@ -223,7 +223,7 @@ func (p *ReportingServiceProvider) Provides() []string {
 }
 ```
 
-Deferred providers must implement *both* `Deferred()` and `Provides()` —
+Deferred providers must implement _both_ `Deferred()` and `Provides()` —
 otherwise the application has no way to know which keys to watch for
 ([`application.go:243`](https://github.com/gocanto/bedrock/blob/main/packages/container/application.go#L243)).
 The first time anyone calls `application.Make("reporting.exporter")`, the
