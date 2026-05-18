@@ -252,3 +252,77 @@ func TestDeferredDriverReservedSizeAlwaysZero(t *testing.T) {
 		t.Errorf("expected 0, got %d", n)
 	}
 }
+
+func TestDeferredDriverQueueNamesUniqueOrdered(t *testing.T) {
+	t.Parallel()
+
+	drv := drivers.NewDeferredDriver("deferred", nil)
+	ctx := context.Background()
+
+	_, _ = drv.Push(ctx, "emails", []byte("a"))
+	_, _ = drv.Push(ctx, "default", []byte("b"))
+	_, _ = drv.Push(ctx, "emails", []byte("c"))
+
+	names, err := drv.QueueNames(ctx)
+	if err != nil {
+		t.Fatalf("QueueNames: %v", err)
+	}
+
+	if len(names) != 2 {
+		t.Fatalf("got %d names, want 2: %v", len(names), names)
+	}
+
+	// First-seen order preserved.
+	if names[0] != "emails" || names[1] != "default" {
+		t.Errorf("ordering: got %v, want [emails default]", names)
+	}
+}
+
+func TestDeferredDriverInspectionPartitionsByDueDate(t *testing.T) {
+	t.Parallel()
+
+	drv := drivers.NewDeferredDriver("deferred", nil)
+	ctx := context.Background()
+
+	_, _ = drv.Push(ctx, "default", []byte("now"))                        // pending
+	_, _ = drv.PushDelayed(ctx, "default", []byte("later"), 24*time.Hour) // delayed
+	_, _ = drv.Push(ctx, "other", []byte("other-q"))                      // wrong queue
+
+	pending, err := drv.PendingJobs(ctx, "default")
+	if err != nil {
+		t.Fatalf("PendingJobs: %v", err)
+	}
+
+	if len(pending) != 1 || string(pending[0].Payload) != "now" {
+		t.Errorf("pending: got %+v, want [{now}]", pending)
+	}
+
+	delayed, err := drv.DelayedJobs(ctx, "default")
+	if err != nil {
+		t.Fatalf("DelayedJobs: %v", err)
+	}
+
+	if len(delayed) != 1 || string(delayed[0].Payload) != "later" {
+		t.Errorf("delayed: got %+v, want [{later}]", delayed)
+	}
+
+	if pending[0].Connection != "deferred" {
+		t.Errorf("connection: got %q, want deferred", pending[0].Connection)
+	}
+
+	reserved, err := drv.ReservedJobs(ctx, "default")
+	if err != nil || reserved != nil {
+		t.Errorf("ReservedJobs: got (%v, %v), want (nil, nil)", reserved, err)
+	}
+}
+
+func TestDeferredDriverQueueNamesEmpty(t *testing.T) {
+	t.Parallel()
+
+	drv := drivers.NewDeferredDriver("deferred", nil)
+
+	names, err := drv.QueueNames(context.Background())
+	if err != nil || names != nil {
+		t.Errorf("got (%v, %v), want (nil, nil)", names, err)
+	}
+}

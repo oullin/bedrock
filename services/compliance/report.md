@@ -1,6 +1,6 @@
 # Upstream Compliance Report
 
-Generated: 2026-04-25T04:20:16Z
+Generated: 2026-05-18T06:24:12Z
 
 Source of truth: services/compliance
 
@@ -19,11 +19,11 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
-| Tests                 | 10317 / 12814 |    2497 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
+| Tests                 | 10212 / 12814 |    2602 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
 | Documentation         |     726 / 875 |     149 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Upstream skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 11154 / 13800 |    2646 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 11049 / 13800 |    2751 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Pinned Source Baseline
 
@@ -58,7 +58,7 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 | ---: | ----------------------------------------- | ------: | ---------: | ------------- | ----------------------------------------------------------------------------------------- |
 |    1 | `Framework\Support` -> `support`         |     822 | 732 / 1554 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    2 | `Framework\Collections` -> `collection`  |     629 |    0 / 629 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    3 | `upstream/ai` -> `ai/sdk`                  |     295 |  479 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
+|    3 | `upstream/ai` -> `ai/sdk`                  |     400 |  374 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    4 | `Framework\Queue` -> `queue`             |     195 |    9 / 204 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    5 | Upstream documentation                     |     149 |  726 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 |    6 | `upstream/mcp` -> `ai/mcp`                 |     136 |  488 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
@@ -111,7 +111,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 | inventories/framework-translation.txt     | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Translation`                  |      0 / 52 |            52 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.                                  |
 | inventories/framework-validation.txt      | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Validation`                   |   597 / 597 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.                                          |
 | inventories/framework-collections.txt     | Tracking file for upstream tests, not a compliant path | `upstream/framework@13.x:tests/Support`                      |     0 / 629 |           629 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.                                  |
-| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `upstream/ai@0.x:tests`                                      |   479 / 774 |           295 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.                                  |
+| inventories/package-ai.txt                | Tracking file for upstream tests, not a compliant path | `upstream/ai@0.x:tests`                                      |   374 / 774 |           400 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.                                  |
 | inventories/package-boost.txt             | Tracking file for upstream tests, not a compliant path | `upstream/boost@main:tests`                                  |   654 / 671 |            17 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.                                  |
 | inventories/package-broadcastclient.txt              | Tracking file for upstream tests, not a compliant path | `upstream/broadcastclient@2.x:packages`                                 |   154 / 154 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.                                          |
 | inventories/package-authflows.txt           | Tracking file for upstream tests, not a compliant path | `upstream/authflows@1.x:tests`                                 |     91 / 91 |             0 | Complete          | No action; every upstream entry is classified as ported or adapted.                                          |
@@ -179,7 +179,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Upstream Package               | Bedrock Surface | Port Status          | Tests                                                                                   | Docs                       |
 | ----------------------------- | --------------- | -------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
-| `upstream/ai`                  | `ai/sdk`        | `mapped`             | Ported tests: 133 / 774 (17.2%); Missing tests: 295 (38.1%); Adapted tests: 346 (44.7%) | `packages/ai/sdk.md`       |
+| `upstream/ai`                  | `ai/sdk`        | `mapped`             | Ported tests: 28 / 774 (3.6%); Missing tests: 400 (51.7%); Adapted tests: 346 (44.7%)   | `packages/ai/sdk.md`       |
 | `upstream/boost`               | `ai/boost`      | `mapped`             | Ported tests: 142 / 671 (21.2%); Missing tests: 17 (2.5%); Adapted tests: 512 (76.3%)   | `packages/ai/boost.md`     |
 | `upstream/broadcastclient`                | `broadcastclient`          | `mapped`             | Ported tests: 17 / 154 (11.0%); Missing tests: 0 (0.0%); Adapted tests: 137 (89.0%)     | `packages/broadcastclient.md`         |
 | `upstream/authflows`             | `inception`     | `mapped`             | Ported tests: 63 / 91 (69.2%); Missing tests: 0 (0.0%); Adapted tests: 28 (30.8%)       | `packages/inception.md`    |
@@ -215,9 +215,9 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope                 | Inventories | Upstream Tests | Ported Tests | Pending / Missing Tests | Adapted Tests |
 | --------------------- | ----------: | -------------: | -----------: | ----------------------: | ------------: |
-| All inventories       |          52 |          12814 | 4071 (31.8%) |            2497 (19.5%) |  6246 (48.7%) |
+| All inventories       |          52 |          12814 | 3966 (31.0%) |            2602 (20.3%) |  6246 (48.7%) |
 | Framework inventories |          33 |           8628 | 2471 (28.6%) |            1956 (22.7%) |  4201 (48.7%) |
-| Package inventories   |          19 |           4186 | 1600 (38.2%) |             541 (12.9%) |  2045 (48.9%) |
+| Package inventories   |          19 |           4186 | 1495 (35.7%) |             646 (15.4%) |  2045 (48.9%) |
 
 ## Documentation Porting Summary
 
