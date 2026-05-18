@@ -142,7 +142,7 @@ func TestNewServerInitializesFields(t *testing.T) {
 func TestHandleSPAUsesFallbackWhenBodyEmpty(t *testing.T) {
 	s := NewServer("/x", nil, "")
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d", rr.Code)
@@ -157,7 +157,7 @@ func TestHandleSPAServesEmbeddedBody(t *testing.T) {
 	body := "<html><body>brain ui</body></html>"
 	s := NewServer("/x", []byte(body), "")
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/anything", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/anything", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d", rr.Code)
@@ -175,7 +175,7 @@ func TestHandleSPAServesEmbeddedBody(t *testing.T) {
 func TestHandleManifestReturnsScannedMeta(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/manifest", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/manifest", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, body=%s", rr.Code, rr.Body)
@@ -199,7 +199,7 @@ func TestHandleManifestReturnsScannedMeta(t *testing.T) {
 func TestHandleGraphReturnsFullGraph(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/graph", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/graph", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d", rr.Code)
@@ -219,7 +219,7 @@ func TestHandleGraphReturnsFullGraph(t *testing.T) {
 func TestHandleSourceRequiresPathParam(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/source", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/source", nil))
 
 	if rr.Code != http.StatusBadRequest {
 		t.Errorf("status = %d, want 400", rr.Code)
@@ -229,7 +229,7 @@ func TestHandleSourceRequiresPathParam(t *testing.T) {
 func TestHandleSourceRejectsPathTraversal(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/_brain/api/source?path=../../etc/passwd", nil)
+	req := httptest.NewRequest("GET", "/_request_cycle/api/source?path=../../etc/passwd", nil)
 	s.Routes().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
@@ -244,7 +244,7 @@ func TestHandleSourceRejectsPathTraversal(t *testing.T) {
 func TestHandleSourceReturnsFile(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/source?path=routes.go", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/source?path=routes.go", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, body=%s", rr.Code, rr.Body)
@@ -264,7 +264,7 @@ func TestHandleSourceReturnsFile(t *testing.T) {
 func TestHandleScanReturnsManifest(t *testing.T) {
 	s := serverFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_brain/api/scan", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_request_cycle/api/scan", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, body=%s", rr.Code, rr.Body)
@@ -284,7 +284,7 @@ func TestHandleScanReturnsManifest(t *testing.T) {
 func TestHandleContextMarkdown(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/context", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/context", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d", rr.Code)
@@ -302,7 +302,7 @@ func TestHandleContextMarkdown(t *testing.T) {
 func TestHandleContextJSON(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/context?format=json", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/context?format=json", nil))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d", rr.Code)
@@ -326,7 +326,7 @@ func TestHandleContextJSON(t *testing.T) {
 func TestHandleGenerateRulesWritesAllTargets(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/_brain/api/generate-rules", bytes.NewReader([]byte(`{"force":false}`)))
+	req := httptest.NewRequest("POST", "/_request_cycle/api/generate-rules", bytes.NewReader([]byte(`{"force":false}`)))
 	req.Header.Set("Content-Length", "16")
 	s.Routes().ServeHTTP(rr, req)
 
@@ -357,7 +357,7 @@ func TestHandleGenerateRulesReturns409OnConflict(t *testing.T) {
 	mustWriteFile(t, s.Target, "CLAUDE.md", "existing")
 
 	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/_brain/api/generate-rules", bytes.NewReader([]byte(`{"force":false}`)))
+	req := httptest.NewRequest("POST", "/_request_cycle/api/generate-rules", bytes.NewReader([]byte(`{"force":false}`)))
 	req.Header.Set("Content-Length", "16")
 	s.Routes().ServeHTTP(rr, req)
 
@@ -370,7 +370,7 @@ func TestHandleStressTestEnqueueRejectsRemote(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
 	body := bytes.NewReader([]byte(`{"url":"https://example.com/"}`))
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_brain/api/stress-test", body))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_request_cycle/api/stress-test", body))
 
 	if rr.Code != http.StatusForbidden {
 		t.Errorf("status = %d, want 403", rr.Code)
@@ -382,13 +382,13 @@ func TestHandleStressTestEnqueueRequiresURL(t *testing.T) {
 	rr := httptest.NewRecorder()
 	rr2 := httptest.NewRecorder()
 
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_brain/api/stress-test", bytes.NewReader([]byte(``))))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_request_cycle/api/stress-test", bytes.NewReader([]byte(``))))
 
 	if rr.Code != http.StatusBadRequest {
 		t.Errorf("empty body status = %d, want 400", rr.Code)
 	}
 
-	s.Routes().ServeHTTP(rr2, httptest.NewRequest("POST", "/_brain/api/stress-test", bytes.NewReader([]byte(`{}`))))
+	s.Routes().ServeHTTP(rr2, httptest.NewRequest("POST", "/_request_cycle/api/stress-test", bytes.NewReader([]byte(`{}`))))
 
 	if rr2.Code != http.StatusBadRequest {
 		t.Errorf("no-url status = %d, want 400", rr2.Code)
@@ -405,7 +405,7 @@ func TestHandleStressTestEnqueueLocalhostRuns(t *testing.T) {
 	s := scannedFixture(t)
 	body := bytes.NewReader([]byte(`{"url":"` + upstream.URL + `","concurrency":2,"requests":3,"timeoutMs":1000}`))
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_brain/api/stress-test", body))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_request_cycle/api/stress-test", body))
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, body=%s", rr.Code, rr.Body)
@@ -425,7 +425,7 @@ func TestHandleStressTestEnqueueLocalhostRuns(t *testing.T) {
 func TestHandleStressTestPollReservedForFuture(t *testing.T) {
 	s := scannedFixture(t)
 	rr := httptest.NewRecorder()
-	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/stress-test/abc123", nil))
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/stress-test/abc123", nil))
 
 	if rr.Code != http.StatusNotImplemented {
 		t.Errorf("status = %d, want 501", rr.Code)
@@ -456,3 +456,99 @@ func TestWriteErrShape(t *testing.T) {
 }
 
 func (errSentinel) Error() string { return "sentinel" }
+
+// TestRoutesReject404OnOldBrainPrefix guards the rename: the legacy `_brain`
+// prefix must no longer match an API route. The fallback still serves the
+// SPA shell, so the request resolves with the embedded HTML body and a
+// text/html Content-Type rather than the JSON the API would have returned.
+func TestRoutesReject404OnOldBrainPrefix(t *testing.T) {
+	body := "<html><body>brain ui</body></html>"
+	s := NewServer("/x", []byte(body), "")
+	rr := httptest.NewRecorder()
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_brain/api/manifest", nil))
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (SPA fallback)", rr.Code)
+	}
+
+	if ct := rr.Header().Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
+		t.Errorf("Content-Type = %q, want text/html — old prefix must not hit JSON API", ct)
+	}
+
+	if rr.Body.String() != body {
+		t.Errorf("body = %q, want SPA shell", rr.Body.String())
+	}
+}
+
+// TestHandleSPAUnderRequestCyclePrefix exercises both the bare-prefix slash
+// and a deep subpath, confirming the routingx Fallback serves the SPA for
+// any unmatched GET under (or outside) the prefix.
+func TestHandleSPAUnderRequestCyclePrefix(t *testing.T) {
+	body := "<html><body>brain ui</body></html>"
+	s := NewServer("/x", []byte(body), "")
+
+	cases := []string{"/_request_cycle/", "/_request_cycle/some/deep/path", "/"}
+
+	for _, path := range cases {
+		rr := httptest.NewRecorder()
+		s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", path, nil))
+
+		if rr.Code != http.StatusOK {
+			t.Errorf("%s: status = %d, want 200", path, rr.Code)
+		}
+
+		if rr.Body.String() != body {
+			t.Errorf("%s: body = %q, want %q", path, rr.Body.String(), body)
+		}
+	}
+}
+
+// TestAssetsStripPrefix covers the static-asset short-circuit: when AssetDir
+// is set, /_request_cycle/assets/<file> is served from disk before the
+// routingx dispatcher runs.
+func TestAssetsStripPrefix(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := os.WriteFile(filepath.Join(dir, "index.css"), []byte("body{color:red}"), 0o600); err != nil {
+		t.Fatalf("write asset: %v", err)
+	}
+
+	s := NewServer("/x", []byte("<html></html>"), dir)
+	rr := httptest.NewRecorder()
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/assets/index.css", nil))
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body=%s", rr.Code, rr.Body)
+	}
+
+	if got := rr.Body.String(); got != "body{color:red}" {
+		t.Errorf("body = %q, want %q", got, "body{color:red}")
+	}
+}
+
+// TestJsonErrorBodyShapeViaRoute verifies the JSON error contract end-to-end
+// through routingx + httpx.NewJsonResponse (rather than calling writeErr
+// directly): a missing query param should yield 400 with {"error": "..."}.
+func TestJsonErrorBodyShapeViaRoute(t *testing.T) {
+	s := scannedFixture(t)
+	rr := httptest.NewRecorder()
+	s.Routes().ServeHTTP(rr, httptest.NewRequest("GET", "/_request_cycle/api/source", nil))
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", rr.Code)
+	}
+
+	if ct := rr.Header().Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
+		t.Errorf("Content-Type = %q, want application/json", ct)
+	}
+
+	var got map[string]string
+
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+
+	if got["error"] == "" {
+		t.Errorf("body = %v, want non-empty error field", got)
+	}
+}
