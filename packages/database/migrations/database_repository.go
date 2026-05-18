@@ -11,6 +11,14 @@ import (
 type DatabaseRepository struct {
 	conn  dbcontract.Connection
 	table string
+	// createDDL overrides the migrations-table CREATE statement when set.
+	// It must contain a single %s placeholder for the table name. Drivers
+	// whose default DDL is incompatible (e.g. ClickHouse, which requires a
+	// table engine) supply their own via SetCreateDDL.
+	createDDL string
+	// existsSQL overrides the table-existence query when set. The query is
+	// executed with the table name as its single positional binding.
+	existsSQL string
 }
 
 var _ Repository = (*DatabaseRepository)(nil)
@@ -22,6 +30,18 @@ func NewDatabaseRepository(conn dbcontract.Connection, table string) *DatabaseRe
 	}
 
 	return &DatabaseRepository{conn: conn, table: table}
+}
+
+// SetCreateDDL overrides the migrations-table CREATE statement. The format
+// string must contain exactly one %s placeholder for the table name.
+func (r *DatabaseRepository) SetCreateDDL(format string) {
+	r.createDDL = format
+}
+
+// SetExistsSQL overrides the table-existence lookup query. The query receives
+// the table name as a single positional binding (`?`).
+func (r *DatabaseRepository) SetExistsSQL(query string) {
+	r.existsSQL = query
 }
 
 func (r *DatabaseRepository) GetRan(ctx context.Context) ([]string, error) {
@@ -132,21 +152,31 @@ func (r *DatabaseRepository) Delete(ctx context.Context, name string) error {
 }
 
 func (r *DatabaseRepository) CreateRepository(ctx context.Context) error {
-	_, err := r.conn.Statement(ctx, fmt.Sprintf(`
+	format := r.createDDL
+
+	if format == "" {
+		format = `
 		CREATE TABLE IF NOT EXISTS %s (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			migration VARCHAR(255) NOT NULL,
 			batch INTEGER NOT NULL
 		)
-	`, r.table))
+	`
+	}
+
+	_, err := r.conn.Statement(ctx, fmt.Sprintf(format, r.table))
 
 	return err
 }
 
 func (r *DatabaseRepository) RepositoryExists(ctx context.Context) (bool, error) {
-	rows, err := r.conn.Select(ctx,
-		"SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-		r.table)
+	query := r.existsSQL
+
+	if query == "" {
+		query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
+	}
+
+	rows, err := r.conn.Select(ctx, query, r.table)
 
 	if err != nil {
 		return false, err
