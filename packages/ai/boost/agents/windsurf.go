@@ -7,7 +7,8 @@ import (
 )
 
 // Windsurf implements boost.CodingAgent for the Windsurf editor (Codeium).
-// Rules-only agent: MCP installation is not yet supported.
+// Net-new agent with no laravel/boost parity. Rules-only today —
+// MCP installation will be wired in when Windsurf gains MCP support upstream.
 type Windsurf struct {
 	BaseAgent
 }

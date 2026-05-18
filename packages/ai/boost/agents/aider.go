@@ -7,7 +7,8 @@ import (
 )
 
 // Aider implements boost.CodingAgent for the Aider CLI assistant.
-// Rules-only agent: MCP installation is not yet supported.
+// Net-new agent with no laravel/boost parity. Rules-only today —
+// MCP installation will be wired in when Aider gains MCP support upstream.
 type Aider struct {
 	BaseAgent
 }
