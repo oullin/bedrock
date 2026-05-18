@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -10,6 +11,17 @@ type Meta struct {
 	AnalyzedAt time.Time `json:"analyzedAt"`
 	NodeCount  int       `json:"nodeCount"`
 	EdgeCount  int       `json:"edgeCount"`
+}
+
+// edgeKey identifies a directed edge for dedupe purposes. Using a struct
+// (rather than a concatenated string) keeps the four fields separate so
+// values that happen to contain the old separators ("->" or "|") cannot
+// silently collide with a different tuple.
+type edgeKey struct {
+	Source string
+	Target string
+	Type   EdgeType
+	Label  string
 }
 
 // Graph is the full output of an analyzer pipeline: a meta block plus nodes
@@ -23,7 +35,7 @@ type Graph struct {
 	Edges []*Edge `json:"edges"`
 
 	nodeIndex        map[string]*Node
-	directedEdgeKeys map[string]struct{}
+	directedEdgeKeys map[edgeKey]struct{}
 }
 
 // NewGraph returns an empty graph stamped with the given project label.
@@ -33,7 +45,7 @@ func NewGraph(project string) *Graph {
 		Nodes:            []*Node{},
 		Edges:            []*Edge{},
 		nodeIndex:        map[string]*Node{},
-		directedEdgeKeys: map[string]struct{}{},
+		directedEdgeKeys: map[edgeKey]struct{}{},
 	}
 }
 
@@ -59,17 +71,17 @@ func (g *Graph) Node(id string) *Node {
 // AddEdge appends a directed edge. Duplicate (source,target,type,label) tuples
 // are coalesced — upstream-brain does the same to keep the graph readable.
 func (g *Graph) AddEdge(e *Edge) *Edge {
-	key := e.Source + "->" + e.Target + "|" + string(e.Type) + "|" + e.Label
+	k := edgeKey{Source: e.Source, Target: e.Target, Type: e.Type, Label: e.Label}
 
-	if _, dup := g.directedEdgeKeys[key]; dup {
+	if _, dup := g.directedEdgeKeys[k]; dup {
 		return e
 	}
 
 	if e.ID == "" {
-		e.ID = "e" + key
+		e.ID = fmt.Sprintf("e%d", len(g.Edges)+1)
 	}
 
-	g.directedEdgeKeys[key] = struct{}{}
+	g.directedEdgeKeys[k] = struct{}{}
 	g.Edges = append(g.Edges, e)
 	g.Meta.EdgeCount = len(g.Edges)
 
