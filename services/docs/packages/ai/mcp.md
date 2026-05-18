@@ -1,10 +1,7 @@
 # mcp
 
-<!-- upstream-docs: mcp.md#introduction -->
-<!-- upstream-docs: mcp.md#web-server -->
-<!-- upstream-docs: mcp.md#creating-resources -->
-<!-- upstream-docs: mcp.md#prompts -->
-<!-- upstream-docs: mcp.md#testing-servers -->
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioral port of the Upstream MCP package, adapted idiomatically to Go.
 

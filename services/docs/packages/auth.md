@@ -1,9 +1,14 @@
 # auth
 
 <!-- upstream-docs: authentication.md#authentication -->
+<!-- upstream-docs: authentication.md#manually-authenticating-users -->
+<!-- upstream-docs: authentication.md#http-basic-authentication -->
 <!-- upstream-docs: authorization.md#authorization -->
 <!-- upstream-docs: passwords.md#resetting-passwords -->
 <!-- upstream-docs: verification.md#email-verification -->
+
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package auth provides Upstream-inspired HTTP authentication and authorization. It defines a Manager that creates named guards (session, token, request) and user providers (ORM, database). Access control is handled by the Gate in the access sub-package. Password resets are handled by the passwords sub-package.
 

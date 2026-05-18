@@ -5,6 +5,9 @@
 <!-- upstream-docs: authflows.md#registration -->
 <!-- upstream-docs: authflows.md#password-reset -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The authflows package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">

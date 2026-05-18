@@ -48,13 +48,26 @@ export default defineUserConfig({
           children: [
             { text: 'Home', link: '/' },
             { text: 'Getting Started', link: '/getting-started' },
+            { text: 'Directory Structure', link: '/getting-started/directory-structure' },
+          ],
+        },
+        {
+          text: 'Architecture Concepts',
+          collapsible: true,
+          children: [
+            { text: 'Request Lifecycle', link: '/architecture/lifecycle' },
+            { text: 'Application Bootstrap', link: '/architecture/application' },
+            { text: 'Service Container', link: '/architecture/service-container' },
+            { text: 'Service Providers', link: '/architecture/service-providers' },
+            { text: 'Facades', link: '/architecture/facades' },
+            { text: 'Configuration', link: '/architecture/configuration' },
+            { text: 'Drivers', link: '/architecture/drivers' },
           ],
         },
         {
           text: 'Concepts',
           collapsible: true,
           children: [
-            { text: 'Request Lifecycle', link: '/concepts/request-lifecycle' },
             { text: 'Testing', link: '/concepts/testing' },
           ],
         },
@@ -153,9 +166,9 @@ export default defineUserConfig({
           text: 'AI & Integrations',
           collapsible: true,
           children: [
-            { text: 'ai/sdk', link: '/packages/ai/sdk' },
-            { text: 'ai/mcp', link: '/packages/ai/mcp' },
-            { text: 'ai/boost', link: '/packages/ai/boost' },
+            { text: 'AI SDK', link: '/ai/sdk' },
+            { text: 'MCP', link: '/ai/mcp' },
+            { text: 'Boost', link: '/ai/boost' },
           ],
         },
         {

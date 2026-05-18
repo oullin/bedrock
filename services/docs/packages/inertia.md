@@ -4,6 +4,9 @@
 <!-- upstream-docs: responses.md#redirects -->
 <!-- upstream-docs: csrf.md#csrf-protection -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package inertia is the server-side Go adapter for the Inertia.js protocol. It renders Inertia pages (JSON on XHR visits, HTML on the first request), merges shared and per-request props, manages the head (title, meta, links), and integrates with CSRF, i18n, httppreview, and flash middleware.
 
 <div class="docs-callout docs-callout-upstream">

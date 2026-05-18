@@ -4,6 +4,9 @@
 <!-- upstream-docs: websockets.md#running-websockets-in-production -->
 <!-- upstream-docs: broadcasting.md#client-side-installation -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package websockets implements a Go port of the Upstream WebSockets WebSocket server.
 
 <div class="docs-callout docs-callout-upstream">

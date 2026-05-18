@@ -2,6 +2,9 @@
 
 <!-- upstream-docs: socialauth.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package socialauth provides OAuth1 and OAuth2 social authentication, mirroring Upstream\SocialAuth in idiomatic Go.
 
 <div class="docs-callout docs-callout-upstream">

@@ -2,6 +2,9 @@
 
 <!-- upstream-docs: logging.md#writing-log-messages -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package logtail provides log tailing and filtering primitives inspired by Upstream LogTail.
 
 <div class="docs-callout docs-callout-upstream">

@@ -3,6 +3,9 @@
 <!-- upstream-docs: redis.md#introduction -->
 <!-- upstream-docs: redis.md#interacting-with-redis -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package redis is a Go port of Upstream's Framework/Redis package.
 
 <div class="docs-callout docs-callout-upstream">

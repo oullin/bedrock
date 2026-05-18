@@ -2,6 +2,9 @@
 
 <!-- upstream-docs: helpers.md#other-utilities -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package lottery provides probabilistic execution helpers modeled after Upstream's Lottery API.
 
 <div class="docs-callout docs-callout-upstream">

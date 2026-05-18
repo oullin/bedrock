@@ -1,9 +1,16 @@
 # routing
 
+<!-- upstream-docs: routing.md#routing -->
 <!-- upstream-docs: routing.md#basic-routing -->
 <!-- upstream-docs: routing.md#route-parameters -->
 <!-- upstream-docs: routing.md#named-routes -->
 <!-- upstream-docs: routing.md#route-groups -->
+<!-- upstream-docs: routing.md#route-model-binding -->
+<!-- upstream-docs: routing.md#fallback-routes -->
+<!-- upstream-docs: routing.md#rate-limiting -->
+
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package routing is a 1:1 Go port of upstream/framework 13.x src/Framework/Routing.
 

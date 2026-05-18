@@ -3,6 +3,9 @@
 <!-- upstream-docs: facades.md#introduction -->
 <!-- upstream-docs: facades.md#facade-class-reference -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The facades package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">

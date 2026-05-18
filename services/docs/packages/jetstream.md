@@ -4,6 +4,9 @@
 <!-- upstream-docs: tokens.md#spa-authentication -->
 <!-- upstream-docs: tokens.md#api-token-authentication -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package authkit holds Upstream AuthKit parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior.
 
 <div class="docs-callout docs-callout-upstream">
