@@ -148,7 +148,7 @@ func (m *Manager) GetConnections() map[string]*Connection {
 
 // SupportedDrivers returns the list of supported driver names.
 func (m *Manager) SupportedDrivers() []string {
-	return []string{"mysql", "mariadb", "pgsql", "sqlite"}
+	return []string{"mysql", "mariadb", "pgsql", "sqlite", "clickhouse"}
 }
 
 func (m *Manager) makeConnection(name string) (*Connection, error) {
