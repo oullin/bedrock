@@ -34,8 +34,8 @@ func TestManagerDefaultAgents(t *testing.T) {
 	got := m.GetAgents()
 
 	wantKeys := []string{
-		"amp", "junie", "cursor", "claude_code",
-		"codex", "copilot", "kiro", "opencode", "gemini",
+		"aider", "amp", "junie", "cursor", "claude_code",
+		"codex", "copilot", "kiro", "opencode", "gemini", "windsurf",
 	}
 
 	if len(got) != len(wantKeys) {
