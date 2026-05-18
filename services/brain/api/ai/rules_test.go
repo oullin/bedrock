@@ -67,8 +67,13 @@ func TestGenerateRulesReturnsErrConflictWhenAnyExists(t *testing.T) {
 	if written != nil {
 		t.Errorf("written = %v, want nil on conflict", written)
 	}
-	// Atomic: no other targets should have been created.
-	for _, target := range Targets[1:] {
+	// Atomic: no target other than the pre-existing CLAUDE.md should have
+	// been created.
+	for _, target := range Targets {
+		if target.Path == "CLAUDE.md" {
+			continue
+		}
+
 		if _, err := os.Stat(filepath.Join(dir, target.Path)); err == nil {
 			t.Errorf("non-atomic: %s was created despite conflict", target.Path)
 		}

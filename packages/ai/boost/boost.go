@@ -7,8 +7,10 @@ import (
 	"github.com/bedrock/packages/ai/boost/agents"
 )
 
-// defaultAgentFactories maps the canonical keys for the nine built-in agents to
-// their factory functions. This mirrors the $agents array in BoostManager.php.
+// defaultAgentFactories maps the canonical keys for the built-in coding agents
+// to their factory functions. This mirrors the $agents array in BoostManager.php
+// and is extended with rules-only agents (Aider, Windsurf) for which only
+// guidelines emission is supported today.
 
 // Manager is the central boost registry that tracks registered coding agents.
 // It is registered in the container under the key "boost".
@@ -19,6 +21,7 @@ type Manager struct {
 }
 
 var defaultAgentFactories = map[string]func() CodingAgent{
+	"aider":       func() CodingAgent { return agents.NewAider() },
 	"amp":         func() CodingAgent { return agents.NewAmp() },
 	"junie":       func() CodingAgent { return agents.NewJunie() },
 	"cursor":      func() CodingAgent { return agents.NewCursor() },
@@ -28,9 +31,11 @@ var defaultAgentFactories = map[string]func() CodingAgent{
 	"kiro":        func() CodingAgent { return agents.NewKiro() },
 	"opencode":    func() CodingAgent { return agents.NewOpenCode() },
 	"gemini":      func() CodingAgent { return agents.NewGemini() },
+	"windsurf":    func() CodingAgent { return agents.NewWindsurf() },
 }
 
-// New returns a Manager pre-loaded with all nine default agents.
+// New returns a Manager pre-loaded with every default agent in
+// defaultAgentFactories.
 func New() *Manager {
 	m := &Manager{
 		agents: make(map[string]CodingAgent, len(defaultAgentFactories)),

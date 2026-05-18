@@ -60,8 +60,8 @@ func TestInventoryBoostProviderManagerAndDetection(t *testing.T) {
 		t.Fatal("boost provider must bind the manager as a singleton")
 	}
 
-	if len(manager.GetAgents()) != 9 {
-		t.Fatalf("default agent count = %d, want 9", len(manager.GetAgents()))
+	if len(manager.GetAgents()) != 11 {
+		t.Fatalf("default agent count = %d, want 11", len(manager.GetAgents()))
 	}
 
 	if err := manager.RegisterAgent("inventory_one", &stubAgent{name: "inventory_one"}); err != nil {
@@ -76,7 +76,7 @@ func TestInventoryBoostProviderManagerAndDetection(t *testing.T) {
 		t.Fatal("expected duplicate agent registration to fail")
 	}
 
-	if len(boost.NewDetector(manager).GetAgents()) != 11 {
+	if len(boost.NewDetector(manager).GetAgents()) != 13 {
 		t.Fatal("detector should return all registered default and custom agents")
 	}
 }
