@@ -27,7 +27,11 @@ func (b *Builder) InsertOrIgnore(ctx context.Context, values ...map[string]any) 
 		return 0, nil
 	}
 
-	compiled := b.grammar.CompileInsertOrIgnore(b, values)
+	compiled, err := b.grammar.CompileInsertOrIgnore(b, values)
+
+	if err != nil {
+		return 0, err
+	}
 
 	var bindings []any
 

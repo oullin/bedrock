@@ -11,21 +11,25 @@ func TestWorkerLifecycleEventFields(t *testing.T) {
 	t.Parallel()
 
 	starting := events.WorkerStarting{ConnectionName: "redis", Queue: "default", WorkerName: "w1"}
+
 	if starting.ConnectionName != "redis" || starting.Queue != "default" || starting.WorkerName != "w1" {
 		t.Errorf("WorkerStarting fields not preserved: %+v", starting)
 	}
 
 	stopping := events.WorkerStopping{Status: 1, WorkerName: "w1"}
+
 	if stopping.Status != 1 || stopping.WorkerName != "w1" {
 		t.Errorf("WorkerStopping fields not preserved: %+v", stopping)
 	}
 
 	pausing := events.WorkerPausing{ConnectionName: "redis", Queue: "default", WorkerName: "w1"}
+
 	if pausing.ConnectionName != "redis" || pausing.Queue != "default" || pausing.WorkerName != "w1" {
 		t.Errorf("WorkerPausing fields not preserved: %+v", pausing)
 	}
 
 	resuming := events.WorkerResuming{ConnectionName: "redis", Queue: "default", WorkerName: "w1"}
+
 	if resuming.ConnectionName != "redis" || resuming.Queue != "default" || resuming.WorkerName != "w1" {
 		t.Errorf("WorkerResuming fields not preserved: %+v", resuming)
 	}

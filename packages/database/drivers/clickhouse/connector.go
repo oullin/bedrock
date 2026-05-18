@@ -10,10 +10,11 @@ import (
 )
 
 // defaultPort is the ClickHouse native TCP port used when none is configured.
-const defaultPort = 9000
 
 // Connector creates ClickHouse database connections.
 type Connector struct{}
+
+const defaultPort = 9000
 
 // Connect opens a ClickHouse connection using the given configuration.
 // The clickhouse-go/v2 driver must be blank-imported by the application:

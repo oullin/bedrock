@@ -217,6 +217,7 @@ func TestFailoverDriverQueueNamesUnionAndDedupe(t *testing.T) {
 	drv := drivers.NewFailoverDriver("failover", d1, d2)
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}
@@ -239,6 +240,7 @@ func TestFailoverDriverQueueNamesSkipsDriversWithoutContract(t *testing.T) {
 	drv := drivers.NewFailoverDriver("failover", bare, d2)
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}
@@ -262,16 +264,19 @@ func TestFailoverDriverInspectionFallsThroughOnError(t *testing.T) {
 	ctx := context.Background()
 
 	pending, err := drv.PendingJobs(ctx, "default")
+
 	if err != nil || len(pending) != 1 || pending[0].ID != 99 {
 		t.Errorf("PendingJobs fallback: got (%v, %v)", pending, err)
 	}
 
 	delayed, err := drv.DelayedJobs(ctx, "default")
+
 	if err != nil || len(delayed) != 1 || delayed[0].ID != 100 {
 		t.Errorf("DelayedJobs fallback: got (%v, %v)", delayed, err)
 	}
 
 	reserved, err := drv.ReservedJobs(ctx, "default")
+
 	if err != nil || len(reserved) != 1 || reserved[0].ID != 101 {
 		t.Errorf("ReservedJobs fallback: got (%v, %v)", reserved, err)
 	}

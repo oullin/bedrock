@@ -10,13 +10,35 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
+// Use a non-existent command so spawn is a harmless no-op.
+
+// Let goroutine start.
+
+// NullDriver implements both contracts (returning nil/nil), so the
+// wrapper passes through the nil result rather than ErrNotSupported.
+
+// stubInspector is a queue.Queue that satisfies QueueNamer and
+// JobInspector with canned return values. It lets us exercise the
+// happy-path delegation in wrappers (Background, Deferred, Failover).
+type stubInspector struct {
+	connection string
+	names      []string
+	pending    []queue.InspectedJob
+	delayed    []queue.InspectedJob
+	reserved   []queue.InspectedJob
+	err        error
+}
+
+// noInspectorInner satisfies only the base Queue contract so the
+// wrappers fall to the ErrNotSupported branch.
+type noInspectorInner struct{ connection string }
+
 func TestBackgroundDriverPushDelegatesToInner(t *testing.T) {
 	t.Parallel()
 
 	client := newMockRedisClient()
 	inner := drivers.NewRedisDriver(client, "redis")
 
-	// Use a non-existent command so spawn is a harmless no-op.
 	drv := drivers.NewBackgroundDriver("true", nil, inner, "bg")
 
 	_, err := drv.Push(context.Background(), "default", []byte("payload"))
@@ -25,7 +47,7 @@ func TestBackgroundDriverPushDelegatesToInner(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(10 * time.Millisecond) // Let goroutine start.
+	time.Sleep(10 * time.Millisecond)
 
 	n, _ := inner.Size(context.Background(), "default")
 
@@ -181,39 +203,29 @@ func TestBackgroundDriverInspectionDelegatesErrNotSupported(t *testing.T) {
 	drv := drivers.NewBackgroundDriver("true", nil, inner, "bg")
 	ctx := context.Background()
 
-	// NullDriver implements both contracts (returning nil/nil), so the
-	// wrapper passes through the nil result rather than ErrNotSupported.
 	names, err := drv.QueueNames(ctx)
+
 	if err != nil || names != nil {
 		t.Errorf("QueueNames passthrough: got (%v, %v)", names, err)
 	}
 
 	pending, err := drv.PendingJobs(ctx, "default")
+
 	if err != nil || pending != nil {
 		t.Errorf("PendingJobs passthrough: got (%v, %v)", pending, err)
 	}
 
 	delayed, err := drv.DelayedJobs(ctx, "default")
+
 	if err != nil || delayed != nil {
 		t.Errorf("DelayedJobs passthrough: got (%v, %v)", delayed, err)
 	}
 
 	reserved, err := drv.ReservedJobs(ctx, "default")
+
 	if err != nil || reserved != nil {
 		t.Errorf("ReservedJobs passthrough: got (%v, %v)", reserved, err)
 	}
-}
-
-// stubInspector is a queue.Queue that satisfies QueueNamer and
-// JobInspector with canned return values. It lets us exercise the
-// happy-path delegation in wrappers (Background, Deferred, Failover).
-type stubInspector struct {
-	connection string
-	names      []string
-	pending    []queue.InspectedJob
-	delayed    []queue.InspectedJob
-	reserved   []queue.InspectedJob
-	err        error
 }
 
 func (s *stubInspector) Push(_ context.Context, _ string, _ []byte) (string, error) {
@@ -269,29 +281,29 @@ func TestBackgroundDriverInspectionPropagatesResults(t *testing.T) {
 	ctx := context.Background()
 
 	names, err := drv.QueueNames(ctx)
+
 	if err != nil || len(names) != 2 || names[0] != "default" {
 		t.Errorf("QueueNames: got (%v, %v)", names, err)
 	}
 
 	pending, err := drv.PendingJobs(ctx, "default")
+
 	if err != nil || len(pending) != 1 || pending[0].ID != 1 {
 		t.Errorf("PendingJobs: got (%v, %v)", pending, err)
 	}
 
 	delayed, err := drv.DelayedJobs(ctx, "default")
+
 	if err != nil || len(delayed) != 1 || delayed[0].ID != 2 {
 		t.Errorf("DelayedJobs: got (%v, %v)", delayed, err)
 	}
 
 	reserved, err := drv.ReservedJobs(ctx, "default")
+
 	if err != nil || len(reserved) != 1 || reserved[0].ID != 3 {
 		t.Errorf("ReservedJobs: got (%v, %v)", reserved, err)
 	}
 }
-
-// noInspectorInner satisfies only the base Queue contract so the
-// wrappers fall to the ErrNotSupported branch.
-type noInspectorInner struct{ connection string }
 
 func (n *noInspectorInner) Push(_ context.Context, _ string, _ []byte) (string, error) {
 	return "", nil

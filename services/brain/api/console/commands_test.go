@@ -11,6 +11,8 @@ import (
 	"github.com/bedrock/services/brain/api/graph"
 )
 
+type errSentinel struct{}
+
 func TestCommandsReturnsExpectedThree(t *testing.T) {
 	cmds := Commands()
 
@@ -157,7 +159,5 @@ func TestMustPanicsOnError(t *testing.T) {
 
 	must(nil, errSentinel{})
 }
-
-type errSentinel struct{}
 
 func (errSentinel) Error() string { return "boom" }

@@ -229,7 +229,7 @@ bedrock/
 ```
 
 The split is: `packages/` is the framework, `services/` is everything that
-ships *with* the framework but isn't a library — apps, dashboards, docs.
+ships _with_ the framework but isn't a library — apps, dashboards, docs.
 
 ## See Also
 
