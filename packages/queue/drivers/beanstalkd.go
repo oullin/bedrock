@@ -23,6 +23,24 @@ type BeanstalkdClient interface {
 	StatsTube(ctx context.Context, tube string) (map[string]string, error)
 }
 
+// BeanstalkdTubeLister is the optional capability that lets the
+// driver report which tubes exist on the server (the "list-tubes"
+// protocol command). Without it QueueNames returns ErrNotSupported.
+type BeanstalkdTubeLister interface {
+	ListTubes(ctx context.Context) ([]string, error)
+}
+
+// BeanstalkdPeeker is the optional capability that lets the driver
+// snapshot jobs without reserving them. PeekReady mirrors
+// "peek-ready"; PeekDelayed mirrors "peek-delayed". Beanstalkd does
+// not expose a way to enumerate every reserved job, so ReservedJobs
+// surfaces ErrNotSupported regardless of whether this interface is
+// satisfied.
+type BeanstalkdPeeker interface {
+	PeekReady(ctx context.Context, tube string) (uint64, []byte, error)
+	PeekDelayed(ctx context.Context, tube string) (uint64, []byte, error)
+}
+
 // BeanstalkdDriver enqueues jobs via a Beanstalkd client. It is the
 // Go port of Laravel's Illuminate\Queue\BeanstalkdQueue.
 //
@@ -175,3 +193,72 @@ func (d *BeanstalkdDriver) ReservedSize(ctx context.Context, queueName string) (
 }
 
 func (d *BeanstalkdDriver) ConnectionName() string { return d.connection }
+
+// QueueNames reports the tubes currently known to the Beanstalkd
+// server when the client implements BeanstalkdTubeLister; otherwise
+// it returns ErrNotSupported.
+func (d *BeanstalkdDriver) QueueNames(ctx context.Context) ([]string, error) {
+	lister, ok := d.client.(BeanstalkdTubeLister)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	return lister.ListTubes(ctx)
+}
+
+// PendingJobs returns the next ready job in the tube (peek-ready)
+// when the client implements BeanstalkdPeeker. Beanstalkd only
+// exposes the head of the ready queue, so the slice carries at most
+// one entry — operators that want a fuller view should reach for a
+// dedicated admin tool.
+func (d *BeanstalkdDriver) PendingJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	peeker, ok := d.client.(BeanstalkdPeeker)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	id, body, err := peeker.PeekReady(ctx, d.resolveTube(queueName))
+
+	if err != nil || id == 0 {
+		return nil, err
+	}
+
+	return []queue.InspectedJob{{
+		ID:         int64(id),
+		Queue:      d.resolveTube(queueName),
+		Connection: d.connection,
+		Payload:    body,
+	}}, nil
+}
+
+// DelayedJobs returns the next delayed job in the tube (peek-delayed).
+func (d *BeanstalkdDriver) DelayedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	peeker, ok := d.client.(BeanstalkdPeeker)
+
+	if !ok {
+		return nil, queue.ErrNotSupported
+	}
+
+	id, body, err := peeker.PeekDelayed(ctx, d.resolveTube(queueName))
+
+	if err != nil || id == 0 {
+		return nil, err
+	}
+
+	return []queue.InspectedJob{{
+		ID:         int64(id),
+		Queue:      d.resolveTube(queueName),
+		Connection: d.connection,
+		Payload:    body,
+	}}, nil
+}
+
+// ReservedJobs returns ErrNotSupported. Beanstalkd does not expose a
+// "peek-reserved" command; only the worker holding a reservation can
+// see the job. Operators that need this view should rely on
+// Beanstalkd's stats-tube (current-jobs-reserved) for counts instead.
+func (d *BeanstalkdDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, queue.ErrNotSupported
+}

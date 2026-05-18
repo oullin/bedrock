@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -451,6 +453,95 @@ func (m *Manager) Resume(connection, queue string) error {
 // IsPaused reports whether (connection, queue) is currently paused.
 func (m *Manager) IsPaused(connection, queue string) bool {
 	return m.pauseResumer.IsPaused(connection, queue)
+}
+
+// --- cross-queue inspection (Laravel 13.8.0) -------------------------
+
+// AllPendingJobs returns a snapshot of every pending job sitting on any
+// queue belonging to connection. It resolves the connection, asks the
+// driver for the set of queue names it currently knows about (via the
+// optional QueueNamer contract), and concatenates the per-queue
+// PendingJobs results in declared order. Mirrors Laravel 13.8.0's
+// Queue::allPendingJobs.
+func (m *Manager) AllPendingJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
+	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
+		return i.PendingJobs(ctx, name)
+	})
+}
+
+// AllDelayedJobs returns every delayed (unreserved, not-yet-due) job
+// across all queues on connection. Mirrors Laravel's
+// Queue::allDelayedJobs.
+func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
+	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
+		return i.DelayedJobs(ctx, name)
+	})
+}
+
+// AllReservedJobs returns every reserved (in-flight) job across all
+// queues on connection. Mirrors Laravel's Queue::allReservedJobs.
+func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
+	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
+		return i.ReservedJobs(ctx, name)
+	})
+}
+
+// allJobs implements the shared fan-out used by the three All*Jobs
+// helpers. Drivers that do not implement QueueNamer or JobInspector
+// surface as ErrNotSupported; per-queue calls that themselves return
+// ErrNotSupported are skipped silently — the caller then receives only
+// the snapshots from queues the driver can introspect, mirroring
+// Laravel's "best-effort across queues" semantics.
+func (m *Manager) allJobs(ctx context.Context, connection string, fetch func(JobInspector, string) ([]InspectedJob, error)) ([]InspectedJob, error) {
+	q, err := m.resolveConnection(connection)
+
+	if err != nil {
+		return nil, err
+	}
+
+	namer, ok := q.(QueueNamer)
+
+	if !ok {
+		return nil, fmt.Errorf("%w: connection %q has no QueueNamer", ErrNotSupported, connection)
+	}
+
+	inspector, ok := q.(JobInspector)
+
+	if !ok {
+		return nil, fmt.Errorf("%w: connection %q has no JobInspector", ErrNotSupported, connection)
+	}
+
+	names, err := namer.QueueNames(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out []InspectedJob
+
+	var errs []error
+
+	for _, name := range names {
+		jobs, err := fetch(inspector, name)
+
+		if err != nil {
+			if errors.Is(err, ErrNotSupported) {
+				continue
+			}
+
+			errs = append(errs, err)
+
+			continue
+		}
+
+		out = append(out, jobs...)
+	}
+
+	if len(errs) > 0 {
+		return out, errors.Join(errs...)
+	}
+
+	return out, nil
 }
 
 // --- helpers ----------------------------------------------------------
