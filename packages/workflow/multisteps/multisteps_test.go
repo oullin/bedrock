@@ -261,17 +261,32 @@ func TestCompile_RejectsDanglingResponseRef(t *testing.T) {
 func TestRun_AsyncFailFastCancelsSiblings(t *testing.T) {
 	var siblingCancelled atomic.Bool
 
+	// Coordinate the two async jobs so the test exercises the fail-fast
+	// path deterministically: "slow" signals once it is inside its
+	// select (subscribed to ctx.Done), then "fast" returns its error.
+	// Without this, "fast" can finish so quickly that the engine cancels
+	// the group context before "slow" is ever invoked, and the test
+	// fails for a timing reason unrelated to the fail-fast semantics.
+	slowEntered := make(chan struct{})
+
 	wf := multisteps.Workflow("failfast",
 		multisteps.Async("fast", func(in multisteps.JobInput) (any, error) {
+			select {
+			case <-slowEntered:
+			case <-time.After(2 * time.Second):
+				// Defensive: don't deadlock the test if "slow" never started.
+			}
+
 			return nil, errors.New("boom")
 		}),
 		multisteps.Async("slow", func(in multisteps.JobInput) (any, error) {
+			close(slowEntered)
 			select {
 			case <-in.Ctx.Done():
 				siblingCancelled.Store(true)
 
 				return nil, in.Ctx.Err()
-			case <-time.After(500 * time.Millisecond):
+			case <-time.After(2 * time.Second):
 				return "completed", nil
 			}
 		}),
