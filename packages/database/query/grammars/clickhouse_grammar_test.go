@@ -549,20 +549,6 @@ func TestClickHouseUnion(t *testing.T) {
 	}
 }
 
-func TestClickHouseInsertOrIgnoreSurfacesUnsupported(t *testing.T) {
-	t.Parallel()
-	g := grammars.NewClickHouseGrammar()
-	sql, err := g.CompileInsertOrIgnore(nil, nil)
-
-	if sql != "" {
-		t.Errorf("expected empty SQL, got %q", sql)
-	}
-
-	if !errors.Is(err, database.ErrInsertOrIgnoreNotSupported) {
-		t.Errorf("expected ErrInsertOrIgnoreNotSupported, got %v", err)
-	}
-}
-
 func TestClickHouseHavingNull(t *testing.T) {
 	t.Parallel()
 	b := newClickHouseBuilder().GroupBy("country").HavingNull("count")

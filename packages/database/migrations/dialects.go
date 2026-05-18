@@ -14,6 +14,17 @@ type dialect struct {
 	existsSQL string
 }
 
+// mysqlFamily is shared by mysql and mariadb: identical column types,
+// storage engine, and information_schema lookup.
+var mysqlFamily = dialect{
+	createDDL: `CREATE TABLE IF NOT EXISTS %s (
+		id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		migration VARCHAR(255) NOT NULL,
+		batch INT NOT NULL
+	) ENGINE=InnoDB`,
+	existsSQL: "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
+}
+
 var dialects = map[string]dialect{
 	"pgsql": {
 		createDDL: `CREATE TABLE IF NOT EXISTS %s (
@@ -23,22 +34,8 @@ var dialects = map[string]dialect{
 		)`,
 		existsSQL: "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = current_schema() AND tablename = $1",
 	},
-	"mysql": {
-		createDDL: `CREATE TABLE IF NOT EXISTS %s (
-			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-			migration VARCHAR(255) NOT NULL,
-			batch INT NOT NULL
-		) ENGINE=InnoDB`,
-		existsSQL: "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
-	},
-	"mariadb": {
-		createDDL: `CREATE TABLE IF NOT EXISTS %s (
-			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-			migration VARCHAR(255) NOT NULL,
-			batch INT NOT NULL
-		) ENGINE=InnoDB`,
-		existsSQL: "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
-	},
+	"mysql":   mysqlFamily,
+	"mariadb": mysqlFamily,
 	"sqlite": {
 		createDDL: `CREATE TABLE IF NOT EXISTS %s (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

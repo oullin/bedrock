@@ -51,15 +51,15 @@ func (c *fakeConn) PrepareBindings(b []any) []any                    { return b 
 func (c *fakeConn) Transaction(context.Context, func(dbcontract.Connection) error, ...int) error {
 	return nil
 }
-func (c *fakeConn) BeginTransaction(context.Context) error    { return nil }
-func (c *fakeConn) Commit(context.Context) error              { return nil }
-func (c *fakeConn) Rollback(context.Context, ...int) error    { return nil }
-func (c *fakeConn) TransactionLevel() int                     { return 0 }
-func (c *fakeConn) AfterCommit(func())                        {}
-func (c *fakeConn) GetTablePrefix() string                    { return "" }
-func (c *fakeConn) GetDatabaseName() string                   { return "" }
-func (c *fakeConn) GetName() string                           { return "" }
-func (c *fakeConn) GetConfig(string) any                      { return nil }
+func (c *fakeConn) BeginTransaction(context.Context) error { return nil }
+func (c *fakeConn) Commit(context.Context) error           { return nil }
+func (c *fakeConn) Rollback(context.Context, ...int) error { return nil }
+func (c *fakeConn) TransactionLevel() int                  { return 0 }
+func (c *fakeConn) AfterCommit(func())                     {}
+func (c *fakeConn) GetTablePrefix() string                 { return "" }
+func (c *fakeConn) GetDatabaseName() string                { return "" }
+func (c *fakeConn) GetName() string                        { return "" }
+func (c *fakeConn) GetConfig(string) any                   { return nil }
 
 func TestCreateRepository_UsesDialectForRegisteredDrivers(t *testing.T) {
 	t.Parallel()
