@@ -1,0 +1,28 @@
+{
+  "name": "brain-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "fmt": "oxfmt --write .",
+    "fmt:check": "oxfmt --check ."
+  },
+  "dependencies": {
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
+    "dagre": "^0.8.5",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/d3-selection": "^3.0.10",
+    "@types/d3-zoom": "^3.0.8",
+    "@types/dagre": "^0.7.52",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.9.3",
+    "vite": "^6.0.5",
+    "vue-tsc": "^2.2.0"
+  }
+}
