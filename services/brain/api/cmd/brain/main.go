@@ -196,7 +196,7 @@ func runServe(args []string, stdout, stderr io.Writer) error {
 		displayAddr = "localhost" + displayAddr
 	}
 
-	fmt.Fprintf(stdout, "brain: serving %s on http://%s/_brain/\n", absTarget, displayAddr)
+	fmt.Fprintf(stdout, "brain: serving %s on http://%s/_request_cycle/\n", absTarget, displayAddr)
 
 	return http.ListenAndServe(*addr, srv.Routes())
 }

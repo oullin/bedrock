@@ -17,8 +17,8 @@ async function fetchAll() {
   error.value = null;
   try {
     const [m, g] = await Promise.all([
-      fetch("/_brain/api/manifest").then((r) => r.json()),
-      fetch("/_brain/api/graph").then((r) => r.json()),
+      fetch("/_request_cycle/api/manifest").then((r) => r.json()),
+      fetch("/_request_cycle/api/graph").then((r) => r.json()),
     ]);
     manifest.value = m;
     graph.value = g;
@@ -31,7 +31,7 @@ async function fetchAll() {
 }
 
 async function rescan() {
-  await fetch("/_brain/api/scan", { method: "POST" });
+  await fetch("/_request_cycle/api/scan", { method: "POST" });
   await fetchAll();
 }
 

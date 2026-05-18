@@ -1,16 +1,18 @@
 // Package http hosts brain's HTTP layer. Routes mirror laravel-brain's
-// routes/brain.php under the `_brain` prefix:
+// routes/brain.php under the `_request_cycle` prefix:
 //
-//	GET  /_brain/api/manifest                     manifest JSON
-//	GET  /_brain/api/graph                        full graph JSON
-//	GET  /_brain/api/source?path=...              read a source file
-//	POST /_brain/api/scan                         re-run the analyzer pipeline
-//	GET  /_brain/api/context                      AI context export
-//	POST /_brain/api/generate-rules               write editor rules files
-//	POST /_brain/api/stress-test                  enqueue a load test
-//	GET  /_brain/api/stress-test/{jobID}          poll a load test
-//	GET  /_brain/{any}                            SPA shell
+//	GET  /_request_cycle/api/manifest                     manifest JSON
+//	GET  /_request_cycle/api/graph                        full graph JSON
+//	GET  /_request_cycle/api/source?path=...              read a source file
+//	POST /_request_cycle/api/scan                         re-run the analyzer pipeline
+//	GET  /_request_cycle/api/context                      AI context export
+//	POST /_request_cycle/api/generate-rules               write editor rules files
+//	POST /_request_cycle/api/stress-test                  enqueue a load test
+//	GET  /_request_cycle/api/stress-test/{jobID}          poll a load test
+//	GET  /_request_cycle/{any}                            SPA shell
 //
+// Dispatch runs through packages/httpx/routingx so handler results and errors
+// flow through the same primitives as services/demo and packages/spark.
 // Asset serving lives in cmd/brain so the embed.FS scope stays at the
 // binary's root.
 package http
@@ -27,10 +29,18 @@ import (
 	"time"
 
 	"github.com/bedrock/packages/filesystem"
+	"github.com/bedrock/packages/httpx"
+	"github.com/bedrock/packages/httpx/routingx"
+	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/services/brain/api/ai"
 	"github.com/bedrock/services/brain/api/analysis"
 	"github.com/bedrock/services/brain/api/graph"
 	"github.com/bedrock/services/brain/api/stress"
+)
+
+const (
+	routePrefix = "/_request_cycle"
+	assetPrefix = routePrefix + "/assets/"
 )
 
 // Server holds the most recently scanned graph plus the analyzer to run on
@@ -45,15 +55,6 @@ type Server struct {
 	graph    *graph.Graph
 	manifest graph.Manifest
 }
-
-// NewServer wires a server with the canonical analyzer pipeline.
-
-// Routes returns a configured handler. We deliberately use net/http directly
-// only in this file (and cmd/brain) — analyzers must stay off the HTTP path.
-
-// EnsureScanned makes sure a graph is loaded before any read endpoint runs.
-
-// disallow escapes out of target
 
 type generateRulesRequest struct {
 	Force bool `json:"force"`
@@ -77,25 +78,40 @@ func NewServer(target string, html []byte, assetDir string) *Server {
 }
 
 func (s *Server) Routes() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /_brain/api/manifest", s.handleManifest)
-	mux.HandleFunc("GET /_brain/api/graph", s.handleGraph)
-	mux.HandleFunc("GET /_brain/api/source", s.handleSource)
-	mux.HandleFunc("POST /_brain/api/scan", s.handleScan)
-	mux.HandleFunc("GET /_brain/api/context", s.handleContext)
-	mux.HandleFunc("POST /_brain/api/generate-rules", s.handleGenerateRules)
-	mux.HandleFunc("POST /_brain/api/stress-test", s.handleStressTestEnqueue)
-	mux.HandleFunc("GET /_brain/api/stress-test/{jobID}", s.handleStressTestPoll)
+	router := routing.NewRouter(nil, nil)
 
-	if s.AssetDir != "" {
-		mux.Handle("GET /_brain/assets/", http.StripPrefix("/_brain/assets/",
-			http.FileServer(http.Dir(s.AssetDir))))
+	router.Group(map[string]any{"prefix": routePrefix}, func(r *routing.Router) {
+		r.Get("/api/manifest", s.handleManifest)
+		r.Get("/api/graph", s.handleGraph)
+		r.Get("/api/source", s.handleSource)
+		r.Post("/api/scan", s.handleScan)
+		r.Get("/api/context", s.handleContext)
+		r.Post("/api/generate-rules", s.handleGenerateRules)
+		r.Post("/api/stress-test", s.handleStressTestEnqueue)
+		r.Get("/api/stress-test/{jobID}", s.handleStressTestPoll)
+	})
+
+	router.Fallback(s.handleSPA)
+
+	return s.withAssetServer(routingx.NewHandler(router))
+}
+
+func (s *Server) withAssetServer(next http.Handler) http.Handler {
+	if s.AssetDir == "" {
+		return next
 	}
 
-	mux.HandleFunc("GET /_brain/", s.handleSPA)
-	mux.HandleFunc("GET /", s.handleSPA)
+	fileServer := http.StripPrefix(assetPrefix, http.FileServer(http.Dir(s.AssetDir)))
 
-	return mux
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, assetPrefix) {
+			fileServer.ServeHTTP(w, r)
+
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) EnsureScanned() error {
@@ -344,12 +360,10 @@ func (s *Server) handleSPA(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(s.HTMLBody)
 }
 
+// writeJSON renders v as JSON through httpx so brain shares the same response
+// primitives as services/demo and packages/spark.
 func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "  ")
-	_ = enc.Encode(v)
+	_ = httpx.NewJsonResponse(w, v, status, httpx.JsonOptions{Indent: true}).Send()
 }
 
 func writeErr(w http.ResponseWriter, status int, err error) {
