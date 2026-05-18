@@ -3,6 +3,8 @@ module github.com/bedrock/services/brain/api
 go 1.26.0
 
 require (
+	github.com/bedrock/packages/ai/boost v0.0.0
+	github.com/bedrock/packages/ai/sdk v0.0.0
 	github.com/bedrock/packages/console v0.0.0
 	github.com/bedrock/packages/filesystem v0.0.0
 	github.com/bedrock/packages/httpx v0.0.0
@@ -14,12 +16,16 @@ require (
 require (
 	github.com/bedrock/packages/container v0.0.0 // indirect
 	github.com/bedrock/packages/contracts v0.0.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	golang.org/x/mod v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.44.0 // indirect
 )
 
 replace (
+	github.com/bedrock/packages/ai/boost => ../../../packages/ai/boost
+	github.com/bedrock/packages/ai/sdk => ../../../packages/ai/sdk
 	github.com/bedrock/packages/collection => ../../../packages/collection
 	github.com/bedrock/packages/conditionable => ../../../packages/conditionable
 	github.com/bedrock/packages/console => ../../../packages/console

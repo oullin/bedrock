@@ -8,7 +8,7 @@ import (
 	"github.com/bedrock/packages/ai/boost"
 )
 
-// TestDetectorGetAgents verifies that GetAgents returns all 9 defaults.
+// TestDetectorGetAgents verifies that GetAgents returns all 11 defaults.
 func TestDetectorGetAgents(t *testing.T) {
 	t.Parallel()
 
@@ -16,8 +16,8 @@ func TestDetectorGetAgents(t *testing.T) {
 	d := boost.NewDetector(m)
 	got := d.GetAgents()
 
-	if len(got) != 9 {
-		t.Errorf("GetAgents: want 9, got %d", len(got))
+	if len(got) != 11 {
+		t.Errorf("GetAgents: want 11, got %d", len(got))
 	}
 }
 
