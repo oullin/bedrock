@@ -170,3 +170,183 @@ func TestClickHouseTableExistsUsesSystemTables(t *testing.T) {
 		t.Fatalf("expected lookup against system.columns, got %q", g.CompileColumnListing("events"))
 	}
 }
+
+func TestClickHouseDropStatements(t *testing.T) {
+	t.Parallel()
+	g := grammars.NewClickHouseGrammar()
+
+	if got := g.CompileDrop("events"); got != "drop table `events`" {
+		t.Errorf("CompileDrop = %q", got)
+	}
+
+	if got := g.CompileDropIfExists("events"); got != "drop table if exists `events`" {
+		t.Errorf("CompileDropIfExists = %q", got)
+	}
+
+	if got := g.CompileRename("events", "events_v2"); got != "rename table `events` to `events_v2`" {
+		t.Errorf("CompileRename = %q", got)
+	}
+}
+
+func TestClickHouseDisableForeignKeyConstraintsIsNoOp(t *testing.T) {
+	t.Parallel()
+	g := grammars.NewClickHouseGrammar()
+
+	if got := g.CompileDisableForeignKeyConstraints(); got != "" {
+		t.Errorf("expected empty SQL; got %q", got)
+	}
+}
+
+func TestClickHouseCompileChangeUsesModifyColumn(t *testing.T) {
+	t.Parallel()
+
+	bp := schema.NewBlueprint("events")
+	bp.String("note", 64).Change()
+
+	g := grammars.NewClickHouseGrammar()
+	stmts := g.CompileChange(bp)
+
+	if len(stmts) == 0 || !strings.Contains(stmts[0], "modify column `note`") {
+		t.Fatalf("expected modify column; got %v", stmts)
+	}
+}
+
+func TestClickHouseCompileCreateIndex(t *testing.T) {
+	t.Parallel()
+	g := grammars.NewClickHouseGrammar()
+	bp := schema.NewBlueprint("events")
+
+	cases := []struct {
+		name, cmdName, indexName string
+		wantContains             []string
+	}{
+		{"unique", "unique", "events_user_id_unique", []string{"add index", "minmax granularity 1"}},
+		{"index", "index", "events_user_id_index", []string{"add index", "minmax granularity 1"}},
+		{"fulltext", "fulltext", "events_body_fulltext", []string{"add index", "tokenbf_v1"}},
+	}
+
+	for _, c := range cases {
+		got := g.CompileCreateIndex(bp, schema.BlueprintCommand{
+			Name: c.cmdName, Index: c.indexName, Columns: []string{"user_id"},
+		})
+
+		for _, frag := range c.wantContains {
+			if !strings.Contains(got, frag) {
+				t.Errorf("%s: missing %q in %q", c.name, frag, got)
+			}
+		}
+	}
+}
+
+func TestClickHouseCompileCreateIndexSkipsPrimary(t *testing.T) {
+	t.Parallel()
+	g := grammars.NewClickHouseGrammar()
+	bp := schema.NewBlueprint("events")
+
+	got := g.CompileCreateIndex(bp, schema.BlueprintCommand{
+		Name: "primary", Index: "pk", Columns: []string{"id"},
+	})
+
+	if got != "" {
+		t.Errorf("expected empty SQL for primary command; got %q", got)
+	}
+}
+
+func TestClickHouseCompileDropIndex(t *testing.T) {
+	t.Parallel()
+	g := grammars.NewClickHouseGrammar()
+	bp := schema.NewBlueprint("events")
+
+	if got := g.CompileDropIndex(bp, "events_user_id_index"); got != "alter table `events` drop index `events_user_id_index`" {
+		t.Errorf("CompileDropIndex = %q", got)
+	}
+}
+
+func TestClickHouseColumnDefaultValues(t *testing.T) {
+	t.Parallel()
+	bp := schema.NewBlueprint("events")
+	bp.String("status", 8).Default("active")
+	bp.Boolean("active").Default(true)
+	bp.Boolean("disabled").Default(false)
+	bp.Integer("count").Default(42)
+
+	g := grammars.NewClickHouseGrammar()
+	sql := g.CompileCreate(bp)[0]
+
+	if !strings.Contains(sql, "`status` FixedString(8) default 'active'") {
+		t.Errorf("expected string default; got %q", sql)
+	}
+
+	if !strings.Contains(sql, "`active` UInt8 default 1") {
+		t.Errorf("expected boolean=true default 1; got %q", sql)
+	}
+
+	if !strings.Contains(sql, "`disabled` UInt8 default 0") {
+		t.Errorf("expected boolean=false default 0; got %q", sql)
+	}
+
+	if !strings.Contains(sql, "`count` Int32 default '42'") {
+		t.Errorf("expected int default fallback; got %q", sql)
+	}
+}
+
+func TestClickHouseColumnComment(t *testing.T) {
+	t.Parallel()
+	bp := schema.NewBlueprint("events")
+	bp.String("note", 16).Comment("a note")
+
+	g := grammars.NewClickHouseGrammar()
+	sql := g.CompileCreate(bp)[0]
+
+	if !strings.Contains(sql, "comment 'a note'") {
+		t.Errorf("expected comment clause; got %q", sql)
+	}
+}
+
+func TestClickHouseTinyAndMediumIntegers(t *testing.T) {
+	t.Parallel()
+	bp := schema.NewBlueprint("ints")
+	bp.TinyInteger("i8")
+	bp.UnsignedTinyInteger("u8")
+	bp.MediumInteger("i24")
+	bp.UnsignedMediumInteger("u24")
+
+	g := grammars.NewClickHouseGrammar()
+	sql := g.CompileCreate(bp)[0]
+
+	for _, frag := range []string{"`i8` Int8", "`u8` UInt8", "`i24` Int32", "`u24` UInt32"} {
+		if !strings.Contains(sql, frag) {
+			t.Errorf("missing %q in %q", frag, sql)
+		}
+	}
+}
+
+func TestClickHouseDefaultOrderColumnPicksAutoIncrement(t *testing.T) {
+	t.Parallel()
+	bp := schema.NewBlueprint("events")
+	bp.String("name", 16)
+	bp.BigIncrements("id") // auto-increment via helper
+
+	g := grammars.NewClickHouseGrammar()
+	sql := g.CompileCreate(bp)[0]
+
+	if !strings.Contains(sql, "order by (`id`)") {
+		t.Errorf("expected auto-increment column as ORDER BY; got %q", sql)
+	}
+}
+
+func TestClickHouseEmptyBlueprintFallsBackToTuple(t *testing.T) {
+	t.Parallel()
+	bp := schema.NewBlueprint("empty")
+
+	g := grammars.NewClickHouseGrammar()
+	stmts := g.CompileCreate(bp)
+
+	if len(stmts) == 0 || !strings.Contains(stmts[0], "order by (`tuple()`)") {
+		// tuple() may be unwrapped or wrapped; accept either form provided
+		// "tuple" appears in the order-by.
+		if len(stmts) == 0 || !strings.Contains(stmts[0], "tuple") {
+			t.Errorf("expected tuple() fallback ORDER BY; got %v", stmts)
+		}
+	}
+}
