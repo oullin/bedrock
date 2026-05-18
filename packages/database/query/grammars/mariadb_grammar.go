@@ -396,8 +396,8 @@ func (g *MariaDBGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[st
 
 // CompileInsertGetId uses MariaDB's RETURNING clause (10.5+) instead of
 // LAST_INSERT_ID() for more reliable ID retrieval.
-func (g *MariaDBGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) string {
-	return g.CompileInsert(b, []map[string]any{values}) + " returning " + g.Wrap(sequence)
+func (g *MariaDBGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) (string, error) {
+	return g.CompileInsert(b, []map[string]any{values}) + " returning " + g.Wrap(sequence), nil
 }
 
 func (g *MariaDBGrammar) CompileInsertUsing(b *query.Builder, columns []string, sql string) string {
@@ -432,7 +432,7 @@ func (g *MariaDBGrammar) CompileUpdate(b *query.Builder, values map[string]any) 
 	return sql
 }
 
-func (g *MariaDBGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) string {
+func (g *MariaDBGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) (string, error) {
 	sql := g.CompileInsert(b, values)
 
 	var sets []string
@@ -441,7 +441,7 @@ func (g *MariaDBGrammar) CompileUpsert(b *query.Builder, values []map[string]any
 		sets = append(sets, g.Wrap(col)+" = values("+g.Wrap(col)+")")
 	}
 
-	return sql + " on duplicate key update " + strings.Join(sets, ", ")
+	return sql + " on duplicate key update " + strings.Join(sets, ", "), nil
 }
 
 func (g *MariaDBGrammar) CompileDelete(b *query.Builder) string {

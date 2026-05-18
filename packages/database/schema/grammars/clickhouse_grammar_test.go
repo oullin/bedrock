@@ -1,9 +1,11 @@
 package grammars_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/database"
 	"github.com/bedrock/packages/database/schema"
 	"github.com/bedrock/packages/database/schema/grammars"
 )
@@ -138,14 +140,20 @@ func TestClickHouseAlterStatements(t *testing.T) {
 	}
 }
 
-func TestClickHouseForeignKeysAreNoOp(t *testing.T) {
+func TestClickHouseForeignKeysReturnSentinel(t *testing.T) {
 	t.Parallel()
 
 	g := grammars.NewClickHouseGrammar()
 	bp := schema.NewBlueprint("events")
 
-	if got := g.CompileCreateForeignKey(bp, &schema.ForeignKeyDefinition{}); got != "" {
-		t.Fatalf("expected empty SQL for foreign key create, got %q", got)
+	sql, err := g.CompileCreateForeignKey(bp, &schema.ForeignKeyDefinition{})
+
+	if sql != "" {
+		t.Fatalf("expected empty SQL for foreign key create, got %q", sql)
+	}
+
+	if !errors.Is(err, database.ErrForeignKeysNotSupported) {
+		t.Fatalf("expected ErrForeignKeysNotSupported, got %v", err)
 	}
 
 	if got := g.CompileDropForeignKey(bp, "fk"); got != "" {

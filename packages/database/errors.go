@@ -25,4 +25,14 @@ var (
 	// ErrUniqueConstraint is returned when an INSERT or UPDATE violates a
 	// unique constraint.
 	ErrUniqueConstraint = errors.New("database: unique constraint violation")
+	// ErrForeignKeysNotSupported is returned by schema grammars whose driver
+	// does not enforce referential integrity (e.g. ClickHouse).
+	ErrForeignKeysNotSupported = errors.New("database: foreign keys are not supported by this driver")
+	// ErrInsertGetIdNotSupported is returned by query grammars whose driver
+	// has no auto-increment / last-insert-id semantics (e.g. ClickHouse).
+	ErrInsertGetIdNotSupported = errors.New("database: InsertGetId is not supported by this driver")
+	// ErrUpsertNotSupported is returned by query grammars whose driver does
+	// not implement INSERT ... ON CONFLICT-style upserts (e.g. ClickHouse;
+	// use ReplacingMergeTree at the table level instead).
+	ErrUpsertNotSupported = errors.New("database: upsert is not supported by this driver")
 )
