@@ -1,6 +1,10 @@
 package agents
 
-import "github.com/bedrock/packages/ai/boost/internal/platform"
+import (
+	"path/filepath"
+
+	"github.com/bedrock/packages/ai/boost/internal/platform"
+)
 
 // Windsurf implements boost.CodingAgent for the Windsurf editor (Codeium).
 // Rules-only agent: MCP installation is not yet supported.
@@ -48,5 +52,6 @@ func (a *Windsurf) DetectOnSystem(p platform.Platform) bool {
 
 // DetectInProject checks for a .windsurfrules file or a .windsurf directory.
 func (a *Windsurf) DetectInProject(basePath string) bool {
-	return existsOnDisk(basePath+"/.windsurfrules") || existsOnDisk(basePath+"/.windsurf")
+	return existsOnDisk(filepath.Join(basePath, ".windsurfrules")) ||
+		existsOnDisk(filepath.Join(basePath, ".windsurf"))
 }

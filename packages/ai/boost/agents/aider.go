@@ -1,6 +1,10 @@
 package agents
 
-import "github.com/bedrock/packages/ai/boost/internal/platform"
+import (
+	"path/filepath"
+
+	"github.com/bedrock/packages/ai/boost/internal/platform"
+)
 
 // Aider implements boost.CodingAgent for the Aider CLI assistant.
 // Rules-only agent: MCP installation is not yet supported.
@@ -48,5 +52,5 @@ func (a *Aider) DetectOnSystem(p platform.Platform) bool {
 
 // DetectInProject checks for an .aider.conf.yml file.
 func (a *Aider) DetectInProject(basePath string) bool {
-	return existsOnDisk(basePath + "/.aider.conf.yml")
+	return existsOnDisk(filepath.Join(basePath, ".aider.conf.yml"))
 }
