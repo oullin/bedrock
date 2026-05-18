@@ -3,6 +3,9 @@
 <!-- upstream-docs: search.md#introduction -->
 <!-- upstream-docs: search.md#search -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package search provides full-text search with pluggable engine backends. It is the Go port of Upstream's Search package, adapted to Go idioms while maintaining 100% function parity.
 
 <div class="docs-callout docs-callout-upstream">

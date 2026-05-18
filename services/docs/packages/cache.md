@@ -5,6 +5,158 @@
 <!-- upstream-docs: cache.md#cache-tags -->
 <!-- upstream-docs: cache.md#atomic-locks -->
 <!-- upstream-docs: cache.md#cache-failover -->
+<!-- upstream-docs: cache.md#events -->
+
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The cache package gives every Bedrock app a single, driver-pluggable
+caching surface. You configure a default driver (in-memory in tests,
+Redis in production), pull a `Store` whenever you need to read or write,
+and let the manager handle named instances and lifecycle.
+
+For the cross-cutting picture of how driver-based managers work in
+Bedrock, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The cache manager is bound under `"cache"` by `CacheServiceProvider`. The
+default driver name is the one constructor argument:
+
+```go
+// services/demo/api/bootstrap.go:144
+cache.NewCacheServiceProvider(application.Container, o.CacheDefaultDriver),
+```
+
+`o.CacheDefaultDriver` is a string like `"array"`, `"file"`, or
+`"redis"`. The provider records it on the manager
+([`packages/cache/cache_service_provider.go:19`](https://github.com/gocanto/bedrock/blob/main/packages/cache/cache_service_provider.go#L19))
+so that `manager.Driver()` returns the corresponding `Store`.
+
+To switch between dev and prod, change the value in your `Options`. No
+handler code changes.
+
+## Basic Usage
+
+Pull a store from the manager and use it. The simplest path goes through
+the facade:
+
+```go
+import facadecache "github.com/bedrock/packages/facades/cache"
+
+store, err := facadecache.Driver()
+if err != nil {
+    return err
+}
+
+if err := store.Put(ctx, "user:42:profile", profileJSON, 5*time.Minute); err != nil {
+    return err
+}
+
+raw, hit, err := store.Get(ctx, "user:42:profile")
+```
+
+For higher-level helpers (`Remember`, tags, locks), wrap the store in a
+`Repository`:
+
+```go
+repo, _ := facadecache.Repository("default")
+
+cached, err := repo.Remember(ctx, "stats:home", 1*time.Minute, func() (any, error) {
+    return computeHomeStats(ctx)
+})
+```
+
+If you want the manager directly:
+
+```go
+mgr := container.Resolve[*cache.Manager]("cache")
+redis, _ := mgr.Store("redis")
+```
+
+## Drivers
+
+Built-in drivers (each lives in its own file under `packages/cache/`):
+
+| Name       | Source                                                                                               | When to use                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `array`    | [`array_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/array_store.go)       | Tests, single-process scratch cache                      |
+| `file`     | [`file_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/file_store.go)         | Single-server deployments without an external cache      |
+| `redis`    | [`redis_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/redis_store.go)       | Production, shared cache, distributed locks              |
+| `database` | [`database_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/database_store.go) | When you already have SQL and don't want another service |
+| `dynamodb` | [`dynamodb_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/dynamodb_store.go) | Serverless deployments on AWS                            |
+| `null`     | [`null_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/null_store.go)         | Disable caching at runtime                               |
+| `failover` | [`failover_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/failover_store.go) | Wrap two stores; second takes over when the first fails  |
+| `memoized` | [`memoized_store.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/memoized_store.go) | Per-request memoisation in front of a slower store       |
+
+Switch between them by setting the default driver in your `Options`, or
+ask for a non-default by name:
+
+```go
+mgr.SetDefaultDriver("redis")          // application-wide default
+file, _ := mgr.Store("file")            // pull a specific store
+```
+
+## Writing Custom Drivers
+
+Implement the `Store` contract and register a `DriverFactory`:
+
+```go
+// 1. Implement cache.Store on your type.
+type memcachedStore struct { /* ... */ }
+
+func (s *memcachedStore) Get(ctx context.Context, key string) (any, bool, error) { /* ... */ }
+func (s *memcachedStore) Put(ctx context.Context, key string, value any, ttl time.Duration) error { /* ... */ }
+// ... rest of the cache.Store interface
+
+// 2. Register the driver factory at app startup (provider Boot or
+//    configureSkeleton).
+mgr := container.Resolve[*cache.Manager]("cache")
+mgr.Extend("memcached", func(cfg map[string]any) (cache.Store, error) {
+    return newMemcachedStore(cfg), nil
+})
+
+// 3. Build a named store from the factory.
+store, err := mgr.Build("memcached", map[string]any{
+    "servers": []string{"127.0.0.1:11211"},
+})
+mgr.Register("memcached", store)
+```
+
+`Manager.Extend` registers the factory
+([`manager.go:36`](https://github.com/gocanto/bedrock/blob/main/packages/cache/manager.go#L36)).
+`Manager.Build` runs it
+([`manager.go:84`](https://github.com/gocanto/bedrock/blob/main/packages/cache/manager.go#L84)).
+`Manager.Register` stores the resulting `Store` under a name so future
+`Store(name)` calls hit the cache.
+
+## Events
+
+The repository emits events on every operation when an `EventDispatcher`
+is wired in: `CacheHit`, `CacheMissed`, `KeyWritten`, `KeyForgotten`,
+and the `*Failed` variants. See
+[`packages/cache/event.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/event.go)
+for the full set. Subscribe to them through the events package:
+
+```go
+events := container.Resolve[events.Dispatcher]("events")
+events.Listen(cache.CacheMissed{}, func(ctx context.Context, e any) error {
+    miss := e.(cache.CacheMissed)
+    metrics.IncrementCounter("cache.miss", "key", miss.Key)
+    return nil
+})
+```
+
+## See Also
+
+- [Drivers](/architecture/drivers) — the meta-pattern this package follows.
+- [Service Providers](/architecture/service-providers) — what the
+  `CacheServiceProvider` does and how to add custom drivers from a
+  provider's `Boot()`.
+- [`packages/facades/cache`](/architecture/facades) — the ergonomic
+shortcut.
+<!-- /BEDROCK:HAND -->
 
 Package cache provides Upstream-inspired caching primitives. It defines a two-level abstraction: Store (low-level backend operations) and Repository (high-level helpers including remember, tags, and distributed locks). Multiple concrete store implementations are provided under stores/.
 

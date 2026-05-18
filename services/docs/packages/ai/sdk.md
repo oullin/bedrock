@@ -1,10 +1,7 @@
 # sdk
 
-<!-- upstream-docs: ai-sdk.md#introduction -->
-<!-- upstream-docs: ai-sdk.md#files -->
-<!-- upstream-docs: ai-sdk.md#images -->
-<!-- upstream-docs: ai-sdk.md#audio -->
-<!-- upstream-docs: ai-sdk.md#vector-stores -->
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the upstream/ai (0.x) package, offering 100% functional parity adapted idiomatically to Go.
 

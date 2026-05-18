@@ -3,6 +3,9 @@
 <!-- upstream-docs: strings.md#introduction -->
 <!-- upstream-docs: helpers.md#available-methods -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package str provides the string-oriented portion of Bedrock's Upstream support port. It includes the Str\* helpers, StringBuilder, pluralization, UUID and ULID helpers, transliteration, and Markdown rendering utilities.
 
 <div class="docs-callout docs-callout-upstream">

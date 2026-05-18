@@ -4,6 +4,9 @@
 <!-- upstream-docs: tokens.md#introduction -->
 <!-- upstream-docs: oauthserver.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports Upstream AuthFlows and AuthKit to Go as a fully standalone module that depends only on shared contracts.
 
 <div class="docs-callout docs-callout-upstream">

@@ -4,6 +4,9 @@
 <!-- upstream-docs: collections.md#method-listing -->
 <!-- upstream-docs: collections.md#higher-order-messages -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The collection package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">

@@ -3,6 +3,9 @@
 <!-- upstream-docs: collections.md#higher-order-messages -->
 <!-- upstream-docs: helpers.md#other-utilities -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package conditionable provides Upstream-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Upstream's HigherOrderWhenProxy, adapted for Go's static type system.
 
 <div class="docs-callout docs-callout-upstream">

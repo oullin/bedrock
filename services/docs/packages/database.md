@@ -6,6 +6,9 @@
 <!-- upstream-docs: orm.md#introduction -->
 <!-- upstream-docs: seeding.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package database provides a database abstraction layer with query builder, schema management, Orm-style ORM, and migration support. It is the Go port of Upstream's Framework/Database package, adapted to Go idioms while maintaining 100% function parity.
 
 <div class="docs-callout docs-callout-upstream">

@@ -5,6 +5,9 @@
 <!-- upstream-docs: events.md#defining-listeners -->
 <!-- upstream-docs: events.md#queued-event-listeners -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package events provides Upstream-inspired event dispatching with support for named and typed events, wildcard pattern matching, event subscribers, synchronous and queued listeners, transaction-aware deferred dispatch, and a NullDispatcher for testing.
 
 <div class="docs-callout docs-callout-upstream">

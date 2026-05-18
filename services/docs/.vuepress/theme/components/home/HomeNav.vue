@@ -28,7 +28,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <RouteLink class="nav__link nav__link--active" to="/">Home</RouteLink>
       <RouteLink class="nav__link" to="/getting-started">Get started</RouteLink>
       <a class="nav__link" href="#packages">Packages</a>
-      <RouteLink class="nav__link" to="/concepts/request-lifecycle">Guides</RouteLink>
+      <RouteLink class="nav__link" to="/architecture/lifecycle">Guides</RouteLink>
       <RouteLink class="nav__link" to="/packages/container">Reference</RouteLink>
     </nav>
 

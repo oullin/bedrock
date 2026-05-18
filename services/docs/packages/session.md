@@ -1,7 +1,106 @@
 # session
 
 <!-- upstream-docs: session.md#introduction -->
-<!-- upstream-docs: session.md#session-blocking -->
+
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The session package gives every Bedrock app a single, driver-pluggable
+session surface. You configure named handlers (cookie for stateless
+deployments, file for single-server, cache or database for distributed),
+and the manager hands out a `*Store` per request.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The session manager is bound under `"session"` by
+`SessionServiceProvider`. The constructor takes the cookie name:
+
+```go
+// services/demo/api/bootstrap.go:145
+session.NewSessionServiceProvider(application.Container, o.SessionName),
+```
+
+Per-driver options are registered via `SetDriverConfig`:
+
+```go
+mgr := container.Resolve[*session.Manager]("session")
+mgr.SetDriverConfig("file", map[string]any{
+    "path":     "/var/lib/app/sessions",
+    "lifetime": 60 * 60 * 24,
+})
+```
+
+See [`packages/session/session_service_provider.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/session_service_provider.go)
+and [`packages/session/manager.go:32`](https://github.com/gocanto/bedrock/blob/main/packages/session/manager.go#L32).
+
+## Basic Usage
+
+Pull a store for the current request:
+
+```go
+mgr := container.Resolve[*session.Manager]("session")
+store, err := mgr.Driver(ctx, "file")
+if err != nil { return err }
+
+store.Put("user_id", userID)
+store.Flash("status", "Saved!")
+
+token := store.Token() // CSRF
+```
+
+In handlers, the session is usually injected via the session middleware
+in front of the router and exposed on `httpx.Request`. See
+[`packages/httpx/request.go`](https://github.com/gocanto/bedrock/blob/main/packages/httpx/request.go).
+
+## Drivers
+
+Built-in handlers (each is a `Handler` under `packages/session/handlers/`):
+
+| Name       | Source                                                                                                       | When to use                            |
+| ---------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| `array`    | [`handlers/array.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/array.go)       | Tests; per-process state               |
+| `cookie`   | [`handlers/cookie.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/cookie.go)     | Stateless deployments                  |
+| `file`     | [`handlers/file.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/file.go)         | Single-server deployments              |
+| `cache`    | [`handlers/cache.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/cache.go)       | Multi-server with shared cache (Redis) |
+| `database` | [`handlers/database.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/database.go) | Multi-server with shared SQL           |
+| `null`     | [`handlers/null.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/null.go)         | Disable session writes                 |
+
+Note: the `cache` handler accepts any value satisfying the small
+`CacheStore` interface
+([`handlers/cache.go:8`](https://github.com/gocanto/bedrock/blob/main/packages/session/handlers/cache.go#L8)).
+Wire your `*cache.Manager`'s default store into it during bootstrap.
+
+## Writing Custom Drivers
+
+Implement the `Handler` interface
+([`packages/session/handlers.go`](https://github.com/gocanto/bedrock/blob/main/packages/session))
+and register a creator on the manager:
+
+```go
+type redisHandler struct { /* ... */ }
+
+func (h *redisHandler) Read(ctx context.Context, id string) (string, error)               { /* ... */ }
+func (h *redisHandler) Write(ctx context.Context, id, payload string, ttlSecs int) error  { /* ... */ }
+func (h *redisHandler) Destroy(ctx context.Context, id string) error                      { /* ... */ }
+
+mgr := container.Resolve[*session.Manager]("session")
+mgr.Extend("redis-direct", func(cfg map[string]any) (session.Handler, error) {
+    return newRedisHandler(cfg), nil
+})
+```
+
+`Manager.Extend` is the registration hook
+([`packages/session/manager.go:32`](https://github.com/gocanto/bedrock/blob/main/packages/session/manager.go#L32)).
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Cookie](/packages/cookie) and [CSRF Protection](/basics/csrf).
+<!-- /BEDROCK:HAND -->
 
 Package session provides Upstream-inspired HTTP session management. It defines a Store with flash data, CSRF tokens, and lifecycle management, backed by swappable Handler implementations (array, file, database, cache, cookie, null, and encrypting).
 

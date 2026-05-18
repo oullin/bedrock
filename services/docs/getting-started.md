@@ -107,6 +107,14 @@ pnpm run build --filter=@bedrock/docs
 | [mailx](/packages/mailx)                 | Driver-based email sending          |
 | [notifications](/packages/notifications) | Multi-channel notification delivery |
 
+### AI & Integrations
+
+| Package                        | Purpose                                            |
+| ------------------------------ | -------------------------------------------------- |
+| [ai/sdk](/packages/ai/sdk)     | Unified AI provider API, agents, and RAG tools     |
+| [ai/mcp](/packages/ai/mcp)     | Model Context Protocol (MCP) server implementation |
+| [ai/boost](/packages/ai/boost) | IDE coding-assistant and agent integration layer   |
+
 ### Support & Utilities
 
 | Package                                  | Purpose                                          |
@@ -136,15 +144,39 @@ pnpm run build --filter=@bedrock/docs
 | [authkit](/packages/authkit) | Team and organization management                     |
 | [billing](/packages/billing)         | Subscription billing, checkout, and entitlements     |
 
+## AI Assisted Development
+
+Bedrock is built from the ground up to be AI-friendly. By providing clear
+interfaces, predictable patterns, and explicit dependencies, Bedrock makes it
+easy for AI agents to understand and contribute to your codebase.
+
+Check out the [ai/boost](/packages/ai/boost) package to see how to integrate
+Bedrock with your IDE coding assistants and agents.
+
 ## Concept Guides
 
 Cross-cutting topics that span multiple packages:
 
-| Guide                                            | What it covers                                          |
-| ------------------------------------------------ | ------------------------------------------------------- |
-| [Request Lifecycle](/concepts/request-lifecycle) | How an HTTP request flows through a Bedrock application |
-| [Testing](/concepts/testing)                     | Built-in test doubles and testing patterns              |
-| [Middleware](/basics/middleware)                 | Global, per-route, and controller-scoped middleware     |
-| [Controllers](/basics/controllers)               | Grouping handlers into types with shared middleware     |
-| [URL Generation](/basics/url-generation)         | Named-route URLs, signed URLs, redirects                |
-| [CSRF Protection](/basics/csrf)                  | Tokens, headers, excluding routes                       |
+| Guide                                        | What it covers                                          |
+| -------------------------------------------- | ------------------------------------------------------- |
+| [Request Lifecycle](/architecture/lifecycle) | How an HTTP request flows through a Bedrock application |
+| [Testing](/concepts/testing)                 | Built-in test doubles and testing patterns              |
+| [Middleware](/basics/middleware)             | Global, per-route, and controller-scoped middleware     |
+| [Controllers](/basics/controllers)           | Grouping handlers into types with shared middleware     |
+| [URL Generation](/basics/url-generation)     | Named-route URLs, signed URLs, redirects                |
+| [CSRF Protection](/basics/csrf)              | Tokens, headers, excluding routes                       |
+
+## Next Steps
+
+Once your app starts up, you'll want to know how it's actually wired
+together. The Architecture Concepts guides walk through that:
+
+| Guide                                                       | What it answers                                              |
+| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| [Directory Structure](/getting-started/directory-structure) | Where to put your code (entry point, routes, models, config) |
+| [Application Bootstrap](/architecture/application)          | How `NewApplication` + `StandardProviders` brings up the app |
+| [Service Container](/architecture/service-container)        | How to bind services and resolve them in handlers            |
+| [Service Providers](/architecture/service-providers)        | How to write your own provider                               |
+| [Drivers](/architecture/drivers)                            | How to swap cache/queue/log backends and add custom ones     |
+| [Facades](/architecture/facades)                            | The shortcut layer over the container                        |
+| [Configuration](/architecture/configuration)                | How options flow into the provider stack                     |

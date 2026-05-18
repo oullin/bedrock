@@ -5,6 +5,9 @@
 <!-- upstream-docs: oauthserver.md#personal-access-tokens -->
 <!-- upstream-docs: oauthserver.md#protecting-routes -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The oauthserver package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">

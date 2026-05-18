@@ -4,6 +4,9 @@
 <!-- upstream-docs: cli.md#defining-input-expectations -->
 <!-- upstream-docs: scheduling.md#task-scheduling -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package console provides Upstream-inspired command, output, prompt, signal, mutex, and scheduler primitives for Bedrock applications.
 
 <div class="docs-callout docs-callout-upstream">

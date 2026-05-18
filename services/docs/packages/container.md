@@ -5,6 +5,9 @@
 <!-- upstream-docs: container.md#resolving -->
 <!-- upstream-docs: container.md#method-invocation-and-injection -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package container is bedrock's IoC container and application kernel.
 
 <div class="docs-callout docs-callout-upstream">

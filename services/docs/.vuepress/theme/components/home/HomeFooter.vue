@@ -30,7 +30,7 @@ import { IconArrow, IconGh, IconDiscord } from './icons'
         <h4>Docs</h4>
         <ul>
           <li><RouteLink to="/getting-started">Get started</RouteLink></li>
-          <li><RouteLink to="/concepts/request-lifecycle">Guides</RouteLink></li>
+          <li><RouteLink to="/architecture/lifecycle">Guides</RouteLink></li>
           <li><RouteLink to="/packages/container">Reference</RouteLink></li>
           <li><RouteLink to="/getting-started">Upgrading</RouteLink></li>
         </ul>

@@ -3,6 +3,9 @@
 <!-- upstream-docs: validation.md#available-validation-rules -->
 <!-- upstream-docs: localization.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The money package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">
