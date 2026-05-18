@@ -16,6 +16,23 @@ import (
 
 // fixtureRoutes is a minimal Go service the analyzer can scan into a
 // non-empty graph: one router type with two routes.
+
+// newFixtureTarget writes a tiny Go module under a temp dir so
+// analysis.AnalyzeTarget can produce a real graph for handler tests.
+
+// serverFixture returns a Server pointed at a freshly-built fixture target.
+// It does NOT call EnsureScanned — callers decide whether to scan up-front.
+
+// scannedFixture returns a server with a scan already completed.
+
+// Pre-create CLAUDE.md to trigger conflict.
+
+// Empty body → JSON decode error → 400.
+
+// Valid JSON but URL omitted → 400.
+
+type errSentinel struct{}
+
 const fixtureRoutes = `package fixture
 
 type router struct{}
@@ -29,8 +46,6 @@ func wire(r *router) {
 }
 `
 
-// newFixtureTarget writes a tiny Go module under a temp dir so
-// analysis.AnalyzeTarget can produce a real graph for handler tests.
 func newFixtureTarget(t *testing.T) string {
 	t.Helper()
 
@@ -54,15 +69,12 @@ func mustWriteFile(t *testing.T, dir, name, body string) {
 	}
 }
 
-// serverFixture returns a Server pointed at a freshly-built fixture target.
-// It does NOT call EnsureScanned — callers decide whether to scan up-front.
 func serverFixture(t *testing.T) *Server {
 	t.Helper()
 
 	return NewServer(newFixtureTarget(t), []byte("<!doctype html><body>brain</body>"), "")
 }
 
-// scannedFixture returns a server with a scan already completed.
 func scannedFixture(t *testing.T) *Server {
 	t.Helper()
 	s := serverFixture(t)
@@ -340,7 +352,7 @@ func TestHandleGenerateRulesWritesAllTargets(t *testing.T) {
 
 func TestHandleGenerateRulesReturns409OnConflict(t *testing.T) {
 	s := scannedFixture(t)
-	// Pre-create CLAUDE.md to trigger conflict.
+
 	mustWriteFile(t, s.Target, "CLAUDE.md", "existing")
 
 	rr := httptest.NewRecorder()
@@ -369,14 +381,12 @@ func TestHandleStressTestEnqueueRequiresURL(t *testing.T) {
 	rr := httptest.NewRecorder()
 	rr2 := httptest.NewRecorder()
 
-	// Empty body → JSON decode error → 400.
 	s.Routes().ServeHTTP(rr, httptest.NewRequest("POST", "/_brain/api/stress-test", bytes.NewReader([]byte(``))))
 
 	if rr.Code != http.StatusBadRequest {
 		t.Errorf("empty body status = %d, want 400", rr.Code)
 	}
 
-	// Valid JSON but URL omitted → 400.
 	s.Routes().ServeHTTP(rr2, httptest.NewRequest("POST", "/_brain/api/stress-test", bytes.NewReader([]byte(`{}`))))
 
 	if rr2.Code != http.StatusBadRequest {
@@ -443,7 +453,5 @@ func TestWriteErrShape(t *testing.T) {
 		t.Errorf("body = %v", got)
 	}
 }
-
-type errSentinel struct{}
 
 func (errSentinel) Error() string { return "sentinel" }

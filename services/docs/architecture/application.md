@@ -135,7 +135,7 @@ func (a *Application) Boot() {
 
 ## Application-Specific Setup After Boot
 
-Anything that's specific to *this* deployment, not to the framework, goes
+Anything that's specific to _this_ deployment, not to the framework, goes
 after `Boot()`. The demo uses this slot to open the SQLite file, run
 migrations, register the `sqlite` database driver factory, and stash the
 config:

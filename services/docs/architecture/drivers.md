@@ -207,18 +207,18 @@ Every driver-based manager keeps the same shape. When you need to know
 what drivers a package ships and where to extend, the per-package "Drivers"
 section on each page is the source of truth. Quick index:
 
-| Manager                                       | Manager source                                                                                                         | Built-ins (read alongside the source)              |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [`cache`](/packages/cache)                   | [`packages/cache/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/manager.go)                  | array, file, redis, dynamodb, database, null, memoized, failover |
-| [`queue`](/packages/queue)                   | [`packages/queue/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/queue/manager.go)                  | sync, redis, sqs, null                             |
-| [`log`](/packages/log)                       | [`packages/log/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/manager.go)                      | single, stack, stderr, syslog, rotating, null      |
-| [`mailx`](/packages/mailx)                   | [`packages/mailx/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/manager.go)                  | smtp, log, array, composite                        |
-| [`session`](/packages/session)               | [`packages/session/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/manager.go)              | cookie, file, cache, database, array               |
-| [`concurrency`](/packages/concurrency)       | [`packages/concurrency/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/manager.go)      | sync, goroutine                                    |
-| [`hashing`](/packages/hashing)               | [`packages/hashing/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/manager.go)              | bcrypt, argon, argon2id                            |
-| [`filesystem`](/packages/filesystem)         | [`packages/filesystem/filesystem.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem.go)  | local                                              |
-| [`notifications`](/packages/notifications)   | [`packages/notifications/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/manager.go)  | mail, database, broadcast, slack                   |
-| [`broadcasting`](/packages/broadcasting)     | [`packages/broadcasting/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/manager.go)    | log, redis, pusher, ably                           |
+| Manager                                    | Manager source                                                                                                        | Built-ins (read alongside the source)                            |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [`cache`](/packages/cache)                 | [`packages/cache/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/cache/manager.go)                 | array, file, redis, dynamodb, database, null, memoized, failover |
+| [`queue`](/packages/queue)                 | [`packages/queue/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/queue/manager.go)                 | sync, redis, sqs, null                                           |
+| [`log`](/packages/log)                     | [`packages/log/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/manager.go)                     | single, stack, stderr, syslog, rotating, null                    |
+| [`mailx`](/packages/mailx)                 | [`packages/mailx/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/manager.go)                 | smtp, log, array, composite                                      |
+| [`session`](/packages/session)             | [`packages/session/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/session/manager.go)             | cookie, file, cache, database, array                             |
+| [`concurrency`](/packages/concurrency)     | [`packages/concurrency/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/manager.go)     | sync, goroutine                                                  |
+| [`hashing`](/packages/hashing)             | [`packages/hashing/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/manager.go)             | bcrypt, argon, argon2id                                          |
+| [`filesystem`](/packages/filesystem)       | [`packages/filesystem/filesystem.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem.go) | local                                                            |
+| [`notifications`](/packages/notifications) | [`packages/notifications/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/manager.go) | mail, database, broadcast, slack                                 |
+| [`broadcasting`](/packages/broadcasting)   | [`packages/broadcasting/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/manager.go)   | log, redis, pusher, ably                                         |
 
 ## See Also
 

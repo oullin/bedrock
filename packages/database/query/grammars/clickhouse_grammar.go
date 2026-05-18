@@ -567,4 +567,3 @@ func (g *ClickHouseGrammar) nParams(n int) string {
 
 	return strings.Join(params, ", ")
 }
-
