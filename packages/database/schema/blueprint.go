@@ -20,6 +20,12 @@ type Blueprint struct {
 	Charset     string
 	Collation   string
 	Engine      string
+	// OrderBy is the table-level sort key. Required by ClickHouse MergeTree
+	// engines; ignored by row-store grammars.
+	OrderBy []string
+	// PartitionBy is the table-level partition key expression. Optional for
+	// ClickHouse; ignored by other grammars.
+	PartitionBy string
 }
 
 // NewBlueprint creates a new Blueprint for the given table.
@@ -683,6 +689,18 @@ func (bp *Blueprint) SetCharset(charset string) {
 // SetCollation sets the table default collation.
 func (bp *Blueprint) SetCollation(collation string) {
 	bp.Collation = collation
+}
+
+// SetOrderBy sets the table-level sort key columns. Used by ClickHouse
+// MergeTree engines to populate the required ORDER BY clause.
+func (bp *Blueprint) SetOrderBy(columns ...string) {
+	bp.OrderBy = columns
+}
+
+// SetPartitionBy sets the table-level partition expression. ClickHouse-only;
+// ignored by grammars that do not support partitioning.
+func (bp *Blueprint) SetPartitionBy(expression string) {
+	bp.PartitionBy = expression
 }
 
 // addColumn is the internal helper to add a column definition.

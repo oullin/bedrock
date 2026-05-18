@@ -30,3 +30,23 @@ func (d *NullDriver) PendingSize(_ context.Context, _ string) (int64, error)  { 
 func (d *NullDriver) DelayedSize(_ context.Context, _ string) (int64, error)  { return 0, nil }
 func (d *NullDriver) ReservedSize(_ context.Context, _ string) (int64, error) { return 0, nil }
 func (d *NullDriver) ConnectionName() string                                  { return d.connection }
+
+// QueueNames returns an empty slice — the null driver never holds jobs
+// and therefore has no queues to enumerate. Mirrors the Laravel
+// NullQueue's no-op semantics.
+func (d *NullDriver) QueueNames(_ context.Context) ([]string, error) { return nil, nil }
+
+// PendingJobs returns an empty slice.
+func (d *NullDriver) PendingJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
+
+// DelayedJobs returns an empty slice.
+func (d *NullDriver) DelayedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}
+
+// ReservedJobs returns an empty slice.
+func (d *NullDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, nil
+}

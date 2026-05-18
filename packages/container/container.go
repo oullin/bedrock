@@ -249,9 +249,13 @@ func (c *Container) resolve(abstract string, parameters map[string]any) (any, er
 
 	// Circular dependency detection.
 	if slices.Contains(c.buildStack, abstract) {
+		// Snapshot the stack while still holding the lock; otherwise
+		// the deferred fmt.Errorf read would race with concurrent
+		// resolve() calls mutating c.buildStack at lines 265/283.
+		stackSnapshot := slices.Clone(c.buildStack)
 		c.mu.Unlock()
 
-		return nil, fmt.Errorf("%w: %q (build stack: %v)", ErrCircularDependency, abstract, c.buildStack)
+		return nil, fmt.Errorf("%w: %q (build stack: %v)", ErrCircularDependency, abstract, stackSnapshot)
 	}
 
 	// Capture binding metadata before unlocking.

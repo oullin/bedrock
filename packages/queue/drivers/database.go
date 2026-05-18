@@ -57,18 +57,11 @@ type DBRows interface {
 	Err() error
 }
 
-// InspectedJob is the decoded, queue-centric view of a row in the jobs
-// table. It is the Go port of Laravel's Illuminate\Queue\Jobs\InspectedJob
-// and is returned by PendingJobs, DelayedJobs, and ReservedJobs.
-type InspectedJob struct {
-	ID         int64
-	Queue      string
-	Name       string
-	UUID       string
-	Attempts   int
-	CreatedAt  time.Time
-	ReservedAt *time.Time
-}
+// InspectedJob aliases the canonical queue.InspectedJob type. It is
+// kept here so existing tests and call sites that reference
+// drivers.InspectedJob continue to compile; the source of truth lives
+// in the queue package.
+type InspectedJob = queue.InspectedJob
 
 // DatabasePopLockProvider resolves the mutex/lock object used to guard
 // database popping. The concrete lock type is owned by the caller.
@@ -309,6 +302,39 @@ func (d *DatabaseDriver) Bulk(ctx context.Context, queueName string, payloads []
 	return d.db.Exec(ctx, sb.String(), args...)
 }
 
+// QueueNames returns the distinct queue names that currently have at
+// least one row in the jobs table. It is the database analogue of
+// Laravel's "every named queue the connection knows about" and powers
+// the manager-level AllPendingJobs/AllDelayedJobs/AllReservedJobs
+// fan-out.
+func (d *DatabaseDriver) QueueNames(ctx context.Context) ([]string, error) {
+	rows, err := d.db.Query(ctx, fmt.Sprintf("SELECT DISTINCT queue FROM %s", d.table))
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var out []string
+
+	for rows.Next() {
+		var name string
+
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+
+		out = append(out, name)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 // PendingJobs returns the pending (unreserved, ready-to-run) rows for
 // queueName. Go port of Laravel's DatabaseQueue::pendingJobs — selects
 // rows where reserved_at IS NULL AND available_at <= now.
@@ -366,9 +392,11 @@ func (d *DatabaseDriver) fetchInspected(ctx context.Context, query string, args 
 		}
 
 		job := InspectedJob{
-			ID:       id,
-			Queue:    queueName,
-			Attempts: attempts,
+			ID:         id,
+			Queue:      queueName,
+			Connection: d.connection,
+			Payload:    []byte(payload),
+			Attempts:   attempts,
 		}
 
 		if reservedAt != nil {
