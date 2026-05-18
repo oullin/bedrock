@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"os"
 	"path/filepath"
 
 	"golang.org/x/tools/go/packages"
@@ -45,7 +46,14 @@ func Load(root string) (*Project, error) {
 			packages.NeedSyntax |
 			packages.NeedTypesInfo |
 			packages.NeedModule,
-		Dir:   abs,
+		Dir: abs,
+		// Force module-isolated loading: the target is a self-contained
+		// Go module (its own go.mod, with `replace` directives for any
+		// monorepo siblings it depends on). If the caller's environment
+		// has GOWORK pointing at an outer workspace that doesn't list
+		// the target, packages.Load otherwise returns empty Syntax with
+		// no top-level error — silently producing empty graphs.
+		Env:   append(os.Environ(), "GOWORK=off"),
 		Fset:  fset,
 		Tests: false,
 	}
@@ -53,6 +61,10 @@ func Load(root string) (*Project, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("packages.Load: %w", err)
+	}
+
+	if len(pkgs) == 0 {
+		return nil, fmt.Errorf("packages.Load: no packages found under %s", abs)
 	}
 
 	return &Project{Root: abs, FileSet: fset, Packages: pkgs}, nil
