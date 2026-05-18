@@ -174,3 +174,92 @@ func (d *FailoverDriver) ReservedSize(ctx context.Context, queueName string) (in
 }
 
 func (d *FailoverDriver) ConnectionName() string { return d.connection }
+
+// QueueNames returns the union of queue names reported by every
+// wrapped driver that implements QueueNamer. Drivers without the
+// optional contract are skipped. Duplicates are de-duplicated while
+// preserving first-seen order.
+func (d *FailoverDriver) QueueNames(ctx context.Context) ([]string, error) {
+	seen := make(map[string]struct{})
+
+	var out []string
+
+	for _, drv := range d.drivers {
+		namer, ok := drv.(queue.QueueNamer)
+
+		if !ok {
+			continue
+		}
+
+		names, err := namer.QueueNames(ctx)
+
+		if err != nil {
+			continue
+		}
+
+		for _, n := range names {
+			if _, already := seen[n]; already {
+				continue
+			}
+
+			seen[n] = struct{}{}
+
+			out = append(out, n)
+		}
+	}
+
+	return out, nil
+}
+
+// PendingJobs returns the first non-error result from the wrapped
+// drivers that implement JobInspector.
+func (d *FailoverDriver) PendingJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	return d.firstInspectorResult(ctx, queueName, func(i queue.JobInspector) ([]queue.InspectedJob, error) {
+		return i.PendingJobs(ctx, queueName)
+	})
+}
+
+// DelayedJobs returns the first non-error result from the wrapped
+// drivers that implement JobInspector.
+func (d *FailoverDriver) DelayedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	return d.firstInspectorResult(ctx, queueName, func(i queue.JobInspector) ([]queue.InspectedJob, error) {
+		return i.DelayedJobs(ctx, queueName)
+	})
+}
+
+// ReservedJobs returns the first non-error result from the wrapped
+// drivers that implement JobInspector.
+func (d *FailoverDriver) ReservedJobs(ctx context.Context, queueName string) ([]queue.InspectedJob, error) {
+	return d.firstInspectorResult(ctx, queueName, func(i queue.JobInspector) ([]queue.InspectedJob, error) {
+		return i.ReservedJobs(ctx, queueName)
+	})
+}
+
+func (d *FailoverDriver) firstInspectorResult(_ context.Context, _ string, call func(queue.JobInspector) ([]queue.InspectedJob, error)) ([]queue.InspectedJob, error) {
+	var lastErr error
+
+	any := false
+
+	for _, drv := range d.drivers {
+		insp, ok := drv.(queue.JobInspector)
+
+		if !ok {
+			continue
+		}
+
+		any = true
+		jobs, err := call(insp)
+
+		if err == nil {
+			return jobs, nil
+		}
+
+		lastErr = err
+	}
+
+	if !any {
+		return nil, queue.ErrNotSupported
+	}
+
+	return nil, lastErr
+}

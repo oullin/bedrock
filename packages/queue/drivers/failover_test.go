@@ -208,3 +208,93 @@ func TestFailoverDriverReservedSizeFallback(t *testing.T) {
 		t.Errorf("expected 0, got %d", n)
 	}
 }
+
+func TestFailoverDriverQueueNamesUnionAndDedupe(t *testing.T) {
+	t.Parallel()
+
+	d1 := &stubInspector{connection: "d1", names: []string{"a", "b"}}
+	d2 := &stubInspector{connection: "d2", names: []string{"b", "c"}}
+	drv := drivers.NewFailoverDriver("failover", d1, d2)
+
+	names, err := drv.QueueNames(context.Background())
+	if err != nil {
+		t.Fatalf("QueueNames: %v", err)
+	}
+
+	if len(names) != 3 {
+		t.Fatalf("got %d names, want 3: %v", len(names), names)
+	}
+
+	// First-seen order preserved across drivers.
+	if names[0] != "a" || names[1] != "b" || names[2] != "c" {
+		t.Errorf("ordering: got %v, want [a b c]", names)
+	}
+}
+
+func TestFailoverDriverQueueNamesSkipsDriversWithoutContract(t *testing.T) {
+	t.Parallel()
+
+	bare := &noInspectorInner{connection: "bare"}
+	d2 := &stubInspector{connection: "d2", names: []string{"x"}}
+	drv := drivers.NewFailoverDriver("failover", bare, d2)
+
+	names, err := drv.QueueNames(context.Background())
+	if err != nil {
+		t.Fatalf("QueueNames: %v", err)
+	}
+
+	if len(names) != 1 || names[0] != "x" {
+		t.Errorf("got %v, want [x]", names)
+	}
+}
+
+func TestFailoverDriverInspectionFallsThroughOnError(t *testing.T) {
+	t.Parallel()
+
+	d1 := &stubInspector{connection: "d1", err: errors.New("d1 broken")}
+	d2 := &stubInspector{
+		connection: "d2",
+		pending:    []queue.InspectedJob{{ID: 99, Queue: "default"}},
+		delayed:    []queue.InspectedJob{{ID: 100, Queue: "default"}},
+		reserved:   []queue.InspectedJob{{ID: 101, Queue: "default"}},
+	}
+	drv := drivers.NewFailoverDriver("failover", d1, d2)
+	ctx := context.Background()
+
+	pending, err := drv.PendingJobs(ctx, "default")
+	if err != nil || len(pending) != 1 || pending[0].ID != 99 {
+		t.Errorf("PendingJobs fallback: got (%v, %v)", pending, err)
+	}
+
+	delayed, err := drv.DelayedJobs(ctx, "default")
+	if err != nil || len(delayed) != 1 || delayed[0].ID != 100 {
+		t.Errorf("DelayedJobs fallback: got (%v, %v)", delayed, err)
+	}
+
+	reserved, err := drv.ReservedJobs(ctx, "default")
+	if err != nil || len(reserved) != 1 || reserved[0].ID != 101 {
+		t.Errorf("ReservedJobs fallback: got (%v, %v)", reserved, err)
+	}
+}
+
+func TestFailoverDriverInspectionAllBareReturnsErrNotSupported(t *testing.T) {
+	t.Parallel()
+
+	drv := drivers.NewFailoverDriver("failover",
+		&noInspectorInner{connection: "a"},
+		&noInspectorInner{connection: "b"},
+	)
+	ctx := context.Background()
+
+	if _, err := drv.PendingJobs(ctx, "default"); !errors.Is(err, queue.ErrNotSupported) {
+		t.Errorf("PendingJobs: want ErrNotSupported, got %v", err)
+	}
+
+	if _, err := drv.DelayedJobs(ctx, "default"); !errors.Is(err, queue.ErrNotSupported) {
+		t.Errorf("DelayedJobs: want ErrNotSupported, got %v", err)
+	}
+
+	if _, err := drv.ReservedJobs(ctx, "default"); !errors.Is(err, queue.ErrNotSupported) {
+		t.Errorf("ReservedJobs: want ErrNotSupported, got %v", err)
+	}
+}

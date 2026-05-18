@@ -2,11 +2,9 @@ package queue
 
 import (
 	"context"
-	"os"
-	"os/signal"
 	"runtime"
 	"strings"
-	"syscall"
+	"sync/atomic"
 	"time"
 )
 
@@ -112,6 +110,12 @@ type Worker struct {
 	// LostConnectionDetector, when non-nil, decides whether a pop error
 	// should stop the daemon with WorkerStopReasonLostConnection.
 	LostConnectionDetector func(error) bool
+	// paused is the atomic flag flipped by SIGUSR2 (pause) and SIGCONT
+	// (resume) so the run loop can stall between iterations without
+	// the platform-specific signal goroutine reaching back into the
+	// loop's local state. Treated as a strict 0/1; access only via the
+	// IsPaused/SetPaused helpers.
+	paused atomic.Bool
 }
 
 // NewWorker creates a Worker.
@@ -423,18 +427,9 @@ func (w *Worker) Run(ctx context.Context, queueName string) error {
 
 	defer cancel()
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+	stopSignals := w.installSignalHandlers(ctx, cancel, queueName)
 
-	defer signal.Stop(sigs)
-
-	go func() {
-		select {
-		case <-sigs:
-			cancel()
-		case <-ctx.Done():
-		}
-	}()
+	defer stopSignals()
 
 	w.emit(WorkerStarting{
 		ConnectionName: w.queue.ConnectionName(),
@@ -456,6 +451,16 @@ func (w *Worker) Run(ctx context.Context, queueName string) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
+		}
+
+		if w.paused.Load() {
+			w.sleep(ctx, w.opts.Sleep)
+
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+
+			continue
 		}
 
 		if w.opts.MaxJobs > 0 && processed >= w.opts.MaxJobs {
