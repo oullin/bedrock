@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from "node:url";
 // built bundle from <target>/storage/dist/brain at runtime.
 export default defineConfig({
   plugins: [vue()],
-  base: "/_brain/assets/",
+  base: "/_request_cycle/assets/",
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
