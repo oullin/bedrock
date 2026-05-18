@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bedrock/services/brain/api/ai"
 	"github.com/bedrock/services/brain/api/graph"
 )
 
@@ -341,8 +342,8 @@ func TestHandleGenerateRulesWritesAllTargets(t *testing.T) {
 
 	written, ok := got["written"].([]any)
 
-	if !ok || len(written) != 7 {
-		t.Errorf("written = %v, want 7-entry slice", got["written"])
+	if !ok || len(written) != len(ai.Targets) {
+		t.Errorf("written = %v, want %d-entry slice", got["written"], len(ai.Targets))
 	}
 
 	if _, err := os.Stat(filepath.Join(s.Target, "CLAUDE.md")); err != nil {

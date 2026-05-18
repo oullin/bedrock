@@ -3,28 +3,60 @@ package ai
 import (
 	"errors"
 	"path/filepath"
+	"sort"
 
+	"github.com/bedrock/packages/ai/boost"
 	"github.com/bedrock/packages/filesystem"
 )
 
 // RuleTarget describes one editor-rules file written by GenerateRules.
-// The list mirrors upstream-brain's RulesExporter::TARGETS so any service
-// scanned by brain ends up with the same AI assistant onboarding regardless
-// of language. packages/ai/boost will own this table in a future commit.
 type RuleTarget struct {
 	Path  string
 	Label string
 }
 
-// Targets is the canonical list of editor-rules files brain writes.
-var Targets = []RuleTarget{
-	{Path: "CLAUDE.md", Label: "Claude Code / Claude.ai"},
-	{Path: "AGENTS.md", Label: "OpenAI Codex / generic AGENTS.md"},
-	{Path: ".cursorrules", Label: "Cursor"},
-	{Path: ".windsurfrules", Label: "Windsurf"},
-	{Path: ".github/copilot-instructions.md", Label: "GitHub Copilot"},
-	{Path: ".junie/guidelines.md", Label: "JetBrains Junie"},
-	{Path: ".aider.conf.yml", Label: "Aider"},
+// Targets is the canonical list of editor-rules files brain writes. It is
+// derived from the SupportsGuidelines agents registered in packages/ai/boost,
+// deduplicated by path and sorted lexicographically so the slice is
+// deterministic across runs.
+var Targets = computeTargets()
+
+func computeTargets() []RuleTarget {
+	manager := boost.New()
+	registered := manager.GetAgents()
+
+	keys := make([]string, 0, len(registered))
+
+	for k := range registered {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	seen := make(map[string]bool, len(keys))
+	out := make([]RuleTarget, 0, len(keys))
+
+	for _, k := range keys {
+		agent, ok := registered[k].(boost.SupportsGuidelines)
+
+		if !ok {
+			continue
+		}
+
+		path := agent.GuidelinesPath()
+
+		if path == "" || seen[path] {
+			continue
+		}
+
+		seen[path] = true
+
+		out = append(out, RuleTarget{Path: path, Label: agent.DisplayName()})
+	}
+
+	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
+
+	return out
 }
 
 // ErrConflict is returned when a target file already exists and force=false.
