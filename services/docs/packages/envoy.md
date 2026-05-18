@@ -4,6 +4,9 @@
 <!-- upstream-docs: remotetasks.md#writing-tasks -->
 <!-- upstream-docs: remotetasks.md#notifications -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package remotetasks provides task planning and execution primitives inspired by Upstream RemoteTasks.
 
 <div class="docs-callout docs-callout-upstream">

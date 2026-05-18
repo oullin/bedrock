@@ -4,6 +4,9 @@
 <!-- upstream-docs: httppreview.md#handling-file-uploads -->
 <!-- upstream-docs: httppreview.md#managing-side-effects -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package httppreview is a 1:1 Go port of upstream/framework 13.x src/Framework/Foundation/Http/Middleware/HandlePrecognitiveRequests and src/Framework/Foundation/HTTPPreview.
 
 <div class="docs-callout docs-callout-upstream">

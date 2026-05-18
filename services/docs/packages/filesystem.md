@@ -1,7 +1,103 @@
 # filesystem
 
 <!-- upstream-docs: filesystem.md#introduction -->
+<!-- upstream-docs: filesystem.md#configuration -->
 <!-- upstream-docs: filesystem.md#obtaining-disk-instances -->
+<!-- upstream-docs: filesystem.md#retrieving-files -->
+<!-- upstream-docs: filesystem.md#storing-files -->
+<!-- upstream-docs: filesystem.md#deleting-files -->
+<!-- upstream-docs: filesystem.md#directories -->
+
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The filesystem package gives every Bedrock app a single, type-safe API
+for files and directories. Today it ships a local-disk driver; the same
+interface accepts cloud-storage adapters when you bring them.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The filesystem service is bound by `FilesystemServiceProvider`. The
+constructor takes no config — the local driver derives its root from the
+caller, and you mount additional disks at runtime:
+
+```go
+// services/demo/api/bootstrap.go:140
+filesystem.NewFilesystemServiceProvider(application.Container),
+```
+
+See [`packages/filesystem/filesystem_service_provider.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem_service_provider.go).
+
+## Basic Usage
+
+```go
+fs := container.Resolve[*filesystem.Filesystem]("filesystem")
+
+// Write
+err := fs.Put("uploads/avatar-42.png", data)
+
+// Read
+raw, err := fs.Get("uploads/avatar-42.png")
+
+// Stream
+reader, err := fs.ReadStream("uploads/avatar-42.png")
+defer reader.Close()
+
+// Move/Copy/Delete
+err = fs.Move("uploads/avatar-42.png", "archive/avatar-42.png")
+err = fs.Delete("archive/avatar-42.png")
+```
+
+For directory operations, use `MakeDirectory`, `Files`, `Directories`,
+and `DeleteDirectory`. See
+[`packages/filesystem/filesystem_dir.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem_dir.go).
+
+## Drivers
+
+Today only the **`local`** driver ships; it covers POSIX-style file
+operations with optional advisory locking
+([`filesystem.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem.go)).
+
+Cloud drivers (S3, GCS, Azure Blob) are not in the box; see _Writing
+Custom Drivers_ below.
+
+## Writing Custom Drivers
+
+Implement the `Filesystem` interface (see
+[`packages/filesystem/filesystem.go`](https://github.com/gocanto/bedrock/blob/main/packages/filesystem/filesystem.go))
+and register your driver as a separate "disk" in your application's
+bootstrap:
+
+```go
+type s3Disk struct { /* ... */ }
+
+func (d *s3Disk) Get(path string) ([]byte, error)              { /* ... */ }
+func (d *s3Disk) Put(path string, contents []byte) error       { /* ... */ }
+// ... rest of the Filesystem interface
+
+application.Container.Instance("filesystem.s3", newS3Disk(cfg))
+```
+
+Then resolve it under that name when handlers need cloud storage:
+
+```go
+disk := container.Resolve[filesystem.Filesystem]("filesystem.s3")
+disk.Put("backups/2026-01-01.tar.gz", data)
+```
+
+## Events
+
+This package does not currently dispatch events. Wrap operations in
+your own event-emitting decorator if you need observability.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+<!-- /BEDROCK:HAND -->
 
 Package filesystem provides local filesystem operations including reading, writing, copying, moving, and deleting files and directories. It also supports file locking, MIME type detection, hashing, and permission management.
 

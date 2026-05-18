@@ -4,6 +4,9 @@
 <!-- upstream-docs: routing.md#named-routes -->
 <!-- upstream-docs: frontend.md#using-react-svelte-or-vue -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package routegen generates fully-typed, importable TypeScript functions for your Go routes.
 
 <div class="docs-callout docs-callout-upstream">

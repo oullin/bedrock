@@ -2,6 +2,9 @@
 
 <!-- upstream-docs: validation.md#working-with-validated-input -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Upstream's Framework\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition.
 
 <div class="docs-callout docs-callout-upstream">

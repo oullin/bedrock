@@ -1,5 +1,8 @@
 # billing
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The billing package provides Bedrock's Go implementation for this Upstream-aligned surface.
 
 <div class="docs-callout docs-callout-upstream">

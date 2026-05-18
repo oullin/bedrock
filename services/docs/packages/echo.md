@@ -3,6 +3,9 @@
 <!-- upstream-docs: broadcasting.md#client-side-installation -->
 <!-- upstream-docs: websockets.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package broadcastclient is a Go port of the Upstream BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
 
 <div class="docs-callout docs-callout-upstream">

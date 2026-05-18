@@ -4,6 +4,9 @@
 <!-- upstream-docs: pagination.md#cursor-pagination -->
 <!-- upstream-docs: pagination.md#customizing-the-pagination-view -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package pagination provides offset-based and cursor-based paginators mirroring Upstream's Framework\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
 
 <div class="docs-callout docs-callout-upstream">

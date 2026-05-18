@@ -5,6 +5,9 @@
 <!-- upstream-docs: processes.md#concurrent-processes -->
 <!-- upstream-docs: processes.md#testing -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package process provides a small process runner with fakes, assertions, pools, and pipes inspired by Upstream's Process component.
 
 <div class="docs-callout docs-callout-upstream">

@@ -3,6 +3,99 @@
 <!-- upstream-docs: hashing.md#introduction -->
 <!-- upstream-docs: hashing.md#basic-usage -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The hashing package gives every Bedrock app a single, driver-pluggable
+password hashing surface. Pick a default algorithm at startup; rotate
+to a stronger one later by changing one line and rehashing on next
+login.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The hash manager is bound under `"hash"` by `HashingServiceProvider`. The
+canonical constructor takes the default driver name:
+
+```go
+// services/demo/api/bootstrap.go:139
+hashing.NewHashingServiceProviderWithDefaults(application.Container, o.HashDefaultDriver),
+```
+
+`o.HashDefaultDriver` is one of the `Driver` constants in
+[`packages/hashing/driver.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/driver.go):
+`DriverBcrypt`, `DriverArgon2i`, or `DriverArgon2id`.
+
+## Basic Usage
+
+```go
+hasher := container.Resolve[*hashing.HashManager]("hash")
+
+// Hash on signup
+hash, err := hasher.Make(plaintextPassword)
+
+// Verify on login
+ok, err := hasher.Check(plaintextPassword, storedHash)
+
+// Detect when a stored hash should be re-hashed (rotated default
+// algorithm or weakened cost)
+needs, _ := hasher.NeedsRehash(storedHash)
+```
+
+The manager itself implements the `contracts.Hasher` interface
+([`packages/hashing/manager.go:15`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/manager.go#L15)),
+so handler code that just wants "the default hasher" can accept the
+contract type and get any driver.
+
+## Drivers
+
+Built-in drivers:
+
+| Name       | Source                                                                                     | Notes                                       |
+| ---------- | ------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| `bcrypt`   | [`bcrypt.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/bcrypt.go)     | Sane production default; tunable cost       |
+| `argon2i`  | [`argon.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/argon.go)       | Memory-hard, side-channel resistant         |
+| `argon2id` | [`argon2id.go`](https://github.com/gocanto/bedrock/blob/main/packages/hashing/argon2id.go) | Argon2 hybrid; current OWASP recommendation |
+
+Pick a non-default driver at runtime when you need to verify a hash
+produced by a different algorithm:
+
+```go
+argon, _ := hasher.Driver(hashing.DriverArgon2id)
+ok, _ := argon.Check(plaintext, storedArgonHash)
+```
+
+## Writing Custom Drivers
+
+Implement the `contracts.Hasher` interface
+([`packages/contracts/hashing/hasher.go`](https://github.com/gocanto/bedrock/blob/main/packages/contracts/hashing))
+and pass it into the manager via the constructor's `drivers` map:
+
+```go
+custom := myhasher.New(opts)
+
+mgr := hashing.NewManager(hashing.Driver("custom"), map[hashing.Driver]contract.Hasher{
+    hashing.DriverBcrypt: hashing.NewBcryptHasher(12),
+    hashing.Driver("custom"): custom,
+})
+
+application.Container.Instance("hash", mgr)
+```
+
+Unlike most other Bedrock managers, hashing does not expose `Extend(...)`.
+The driver map is set at construction time. To add a driver, build your
+own manager.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Auth](/packages/auth) — depends on this package for password
+verification.
+<!-- /BEDROCK:HAND -->
+
 Package hashing provides driver-based password hashing with support for bcrypt, argon2i, and argon2id algorithms. It mirrors Upstream's Hashing component, offering a unified API through the HashManager and individual hashers for each algorithm.
 
 <div class="docs-callout docs-callout-upstream">

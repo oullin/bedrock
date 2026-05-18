@@ -3,6 +3,9 @@
 <!-- upstream-docs: jobqueue.md#introduction -->
 <!-- upstream-docs: jobqueue.md#balancing-strategies -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package jobqueue provides queue monitoring primitives inspired by Upstream JobQueue.
 
 <div class="docs-callout docs-callout-upstream">

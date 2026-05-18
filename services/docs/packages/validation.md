@@ -1,9 +1,12 @@
 # validation
 
+<!-- upstream-docs: validation.md#validation -->
 <!-- upstream-docs: validation.md#introduction -->
+<!-- upstream-docs: validation.md#manually-creating-validators -->
 <!-- upstream-docs: validation.md#available-validation-rules -->
-<!-- upstream-docs: validation.md#working-with-validated-input -->
-<!-- upstream-docs: validation.md#validating-files -->
+
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package validation is a 1:1 Go port of upstream/framework 13.x src/Framework/Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required|email|max:255"), and collects failures into a MessageBag.
 
