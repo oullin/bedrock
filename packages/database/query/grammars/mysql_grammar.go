@@ -411,10 +411,10 @@ func (g *MySQLGrammar) CompileInsert(b *query.Builder, values []map[string]any) 
 	return "insert into " + table + " (" + cols + ") values " + strings.Join(paramRows, ", ")
 }
 
-func (g *MySQLGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) string {
+func (g *MySQLGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) (string, error) {
 	sql := g.CompileInsert(b, values)
 
-	return strings.Replace(sql, "insert", "insert ignore", 1)
+	return strings.Replace(sql, "insert", "insert ignore", 1), nil
 }
 
 func (g *MySQLGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) (string, error) {

@@ -348,13 +348,17 @@ func TestClickHouseInsertUsing(t *testing.T) {
 	}
 }
 
-func TestClickHouseInsertOrIgnoreEmitsThrowIf(t *testing.T) {
+func TestClickHouseInsertOrIgnoreReturnsSentinel(t *testing.T) {
 	t.Parallel()
 	g := grammars.NewClickHouseGrammar()
-	got := g.CompileInsertOrIgnore(nil, nil)
+	sql, err := g.CompileInsertOrIgnore(nil, nil)
 
-	if !strings.Contains(got, "throwIf") || !strings.Contains(got, "ReplacingMergeTree") {
-		t.Fatalf("expected throwIf about ReplacingMergeTree; got %q", got)
+	if sql != "" {
+		t.Fatalf("expected empty SQL, got %q", sql)
+	}
+
+	if !errors.Is(err, database.ErrInsertOrIgnoreNotSupported) {
+		t.Fatalf("expected ErrInsertOrIgnoreNotSupported, got %v", err)
 	}
 }
 
@@ -548,10 +552,14 @@ func TestClickHouseUnion(t *testing.T) {
 func TestClickHouseInsertOrIgnoreSurfacesUnsupported(t *testing.T) {
 	t.Parallel()
 	g := grammars.NewClickHouseGrammar()
-	got := g.CompileInsertOrIgnore(nil, nil)
+	sql, err := g.CompileInsertOrIgnore(nil, nil)
 
-	if !strings.Contains(got, "throwIf") {
-		t.Errorf("expected throwIf in %q", got)
+	if sql != "" {
+		t.Errorf("expected empty SQL, got %q", sql)
+	}
+
+	if !errors.Is(err, database.ErrInsertOrIgnoreNotSupported) {
+		t.Errorf("expected ErrInsertOrIgnoreNotSupported, got %v", err)
 	}
 }
 
