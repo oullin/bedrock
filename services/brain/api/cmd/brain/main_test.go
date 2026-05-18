@@ -206,6 +206,7 @@ func TestWriteJSONCreatesNestedDirs(t *testing.T) {
 
 func TestPrintUsageMentionsSubcommands(t *testing.T) {
 	var buf bytes.Buffer
+
 	printUsage(&buf)
 	s := buf.String()
 

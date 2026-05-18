@@ -11,6 +11,18 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
+// inspectorQueue is a queue.Queue that satisfies the optional
+// QueueNamer and JobInspector contracts, used here to exercise the
+// manager-level All{Pending,Delayed,Reserved}Jobs fan-out.
+type inspectorQueue struct {
+	connection string
+	names      []string
+	perQueue   map[string][]queue.InspectedJob
+	skipQueue  string // queue.ReservedJobs returns ErrNotSupported for this queue name
+	namesErr   error
+	queueErr   error
+}
+
 func TestManagerRegisterAndDriver(t *testing.T) {
 	t.Parallel()
 
@@ -236,18 +248,6 @@ func TestManagerCreatorError(t *testing.T) {
 	}
 }
 
-// inspectorQueue is a queue.Queue that satisfies the optional
-// QueueNamer and JobInspector contracts, used here to exercise the
-// manager-level All{Pending,Delayed,Reserved}Jobs fan-out.
-type inspectorQueue struct {
-	connection string
-	names      []string
-	perQueue   map[string][]queue.InspectedJob
-	skipQueue  string // queue.ReservedJobs returns ErrNotSupported for this queue name
-	namesErr   error
-	queueErr   error
-}
-
 func (q *inspectorQueue) Push(_ context.Context, _ string, _ []byte) (string, error) {
 	return "", nil
 }
@@ -321,6 +321,7 @@ func TestManagerAllPendingJobsFansOutAcrossQueues(t *testing.T) {
 	m := newManagerWithInspector(t, "default", q)
 
 	jobs, err := m.AllPendingJobs(context.Background(), "default")
+
 	if err != nil {
 		t.Fatalf("AllPendingJobs: %v", err)
 	}
@@ -351,11 +352,13 @@ func TestManagerAllDelayedJobsAndReservedJobsAggregate(t *testing.T) {
 	ctx := context.Background()
 
 	delayed, err := m.AllDelayedJobs(ctx, "default")
+
 	if err != nil || len(delayed) != 2 {
 		t.Errorf("AllDelayedJobs: got (%v, %v)", delayed, err)
 	}
 
 	reserved, err := m.AllReservedJobs(ctx, "default")
+
 	if err != nil || len(reserved) != 2 {
 		t.Errorf("AllReservedJobs: got (%v, %v)", reserved, err)
 	}
@@ -376,6 +379,7 @@ func TestManagerAllReservedJobsSkipsErrNotSupportedQueues(t *testing.T) {
 	m := newManagerWithInspector(t, "default", q)
 
 	jobs, err := m.AllReservedJobs(context.Background(), "default")
+
 	if err != nil {
 		t.Fatalf("AllReservedJobs: %v", err)
 	}
@@ -398,6 +402,7 @@ func TestManagerAllPendingJobsConnectionWithoutContractErrors(t *testing.T) {
 	m.SetConfig("default", map[string]any{"driver": "null"})
 
 	jobs, err := m.AllPendingJobs(context.Background(), "default")
+
 	if err != nil {
 		t.Fatalf("AllPendingJobs: %v", err)
 	}
@@ -413,6 +418,7 @@ func TestManagerAllPendingJobsMissingConnection(t *testing.T) {
 	m := queue.NewManager()
 
 	_, err := m.AllPendingJobs(context.Background(), "unknown")
+
 	if err == nil {
 		t.Fatal("expected error for unknown connection")
 	}
@@ -430,6 +436,7 @@ func TestManagerAllPendingJobsQueueErrorBubbles(t *testing.T) {
 	m := newManagerWithInspector(t, "default", q)
 
 	_, err := m.AllPendingJobs(context.Background(), "default")
+
 	if err == nil || !errors.Is(err, wantErr) {
 		t.Errorf("want %v, got %v", wantErr, err)
 	}

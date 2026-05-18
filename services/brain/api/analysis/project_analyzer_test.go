@@ -7,6 +7,9 @@ import (
 	"github.com/bedrock/services/brain/api/parser"
 )
 
+// failingAnalyzer always errors — used to assert pipeline error propagation.
+type failingAnalyzer struct{ called bool }
+
 func TestNewDefaultProjectAnalyzerWiresAllAnalyzers(t *testing.T) {
 	p := NewDefaultProjectAnalyzer()
 
@@ -15,20 +18,20 @@ func TestNewDefaultProjectAnalyzerWiresAllAnalyzers(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"route":              false,
-		"controller":         false,
-		"middleware":         false,
-		"model":              false,
-		"event":              false,
-		"job":                false,
-		"console":            false,
-		"channel":            false,
-		"facade":             false,
-		"container_binding":  false,
-		"validation":         false,
-		"inertia":            false,
-		"flow":               false,
-		"security":           false,
+		"route":             false,
+		"controller":        false,
+		"middleware":        false,
+		"model":             false,
+		"event":             false,
+		"job":               false,
+		"console":           false,
+		"channel":           false,
+		"facade":            false,
+		"container_binding": false,
+		"validation":        false,
+		"inertia":           false,
+		"flow":              false,
+		"security":          false,
 	}
 
 	for _, a := range p.Analyzers {
@@ -80,9 +83,6 @@ func TestProjectAnalyzer_AnalyzeTargetSurfacesLoadError(t *testing.T) {
 		t.Fatal("expected error for nonexistent target")
 	}
 }
-
-// failingAnalyzer always errors — used to assert pipeline error propagation.
-type failingAnalyzer struct{ called bool }
 
 func (failingAnalyzer) Name() string { return "failing" }
 

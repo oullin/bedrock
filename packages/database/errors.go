@@ -35,4 +35,8 @@ var (
 	// not implement INSERT ... ON CONFLICT-style upserts (e.g. ClickHouse;
 	// use ReplacingMergeTree at the table level instead).
 	ErrUpsertNotSupported = errors.New("database: upsert is not supported by this driver")
+	// ErrInsertOrIgnoreNotSupported is returned by query grammars whose
+	// driver has no INSERT IGNORE / ON CONFLICT DO NOTHING equivalent
+	// (e.g. ClickHouse).
+	ErrInsertOrIgnoreNotSupported = errors.New("database: InsertOrIgnore is not supported by this driver")
 )

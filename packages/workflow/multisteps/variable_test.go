@@ -7,6 +7,11 @@ import (
 	"github.com/bedrock/packages/workflow/multisteps"
 )
 
+type fixture struct {
+	ID   int
+	Name string
+}
+
 func TestArgKindNames(t *testing.T) {
 	cases := []struct {
 		arg  multisteps.Arg
@@ -87,11 +92,6 @@ func TestAsReturnsErrorOnMissingField(t *testing.T) {
 	if !errors.As(err, &ure) {
 		t.Errorf("err = %v, want *UnresolvedResponseError", err)
 	}
-}
-
-type fixture struct {
-	ID   int
-	Name string
 }
 
 func TestAsResolvesStructFieldsViaReflection(t *testing.T) {
