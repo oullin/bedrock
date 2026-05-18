@@ -9,6 +9,7 @@ require (
 	github.com/bedrock/packages/filesystem v0.0.0
 	github.com/bedrock/packages/httpx v0.0.0
 	github.com/bedrock/packages/pipeline v0.0.0
+	github.com/bedrock/packages/routing v0.0.0
 	github.com/fsnotify/fsnotify v1.10.1
 	golang.org/x/tools v0.45.0
 )
@@ -39,6 +40,7 @@ replace (
 	github.com/bedrock/packages/pipeline => ../../../packages/pipeline
 	github.com/bedrock/packages/process => ../../../packages/process
 	github.com/bedrock/packages/redis => ../../../packages/redis
+	github.com/bedrock/packages/routing => ../../../packages/routing
 	github.com/bedrock/packages/session => ../../../packages/session
 	github.com/bedrock/packages/str => ../../../packages/str
 	github.com/bedrock/packages/support => ../../../packages/support
