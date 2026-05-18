@@ -2,4 +2,5 @@ packages:
   - services/storage
   - services/docs
   - services/demo/inertia/app
+  - services/brain/app
   - services/billing
