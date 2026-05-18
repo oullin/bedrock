@@ -390,8 +390,8 @@ func (g *MariaDBGrammar) CompileInsert(b *query.Builder, values []map[string]any
 	return "insert into " + table + " (" + cols + ") values " + strings.Join(paramRows, ", ")
 }
 
-func (g *MariaDBGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) string {
-	return strings.Replace(g.CompileInsert(b, values), "insert", "insert ignore", 1)
+func (g *MariaDBGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) (string, error) {
+	return strings.Replace(g.CompileInsert(b, values), "insert", "insert ignore", 1), nil
 }
 
 // CompileInsertGetId uses MariaDB's RETURNING clause (10.5+) instead of

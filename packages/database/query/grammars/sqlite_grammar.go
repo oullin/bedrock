@@ -370,8 +370,8 @@ func (g *SQLiteGrammar) CompileInsert(b *query.Builder, values []map[string]any)
 	return "insert into " + table + " (" + cols + ") values " + strings.Join(paramRows, ", ")
 }
 
-func (g *SQLiteGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) string {
-	return strings.Replace(g.CompileInsert(b, values), "insert", "insert or ignore", 1)
+func (g *SQLiteGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) (string, error) {
+	return strings.Replace(g.CompileInsert(b, values), "insert", "insert or ignore", 1), nil
 }
 
 func (g *SQLiteGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, _ string) (string, error) {
