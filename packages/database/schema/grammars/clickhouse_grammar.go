@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bedrock/packages/database"
 	"github.com/bedrock/packages/database/schema"
 )
 
@@ -148,11 +149,11 @@ func (g *ClickHouseGrammar) CompileDropIndex(bp *schema.Blueprint, name string) 
 	return "alter table " + g.wrapTable(bp.Table) + " drop index " + g.wrap(name)
 }
 
-// CompileCreateForeignKey returns an empty string: ClickHouse does not enforce
-// foreign keys. The driver's ErrForeignKeysNotSupported sentinel documents the
-// limitation; callers should check it before relying on referential integrity.
-func (g *ClickHouseGrammar) CompileCreateForeignKey(_ *schema.Blueprint, _ *schema.ForeignKeyDefinition) string {
-	return ""
+// CompileCreateForeignKey returns database.ErrForeignKeysNotSupported because
+// ClickHouse does not enforce referential integrity. Callers that try to add
+// a foreign key get a typed error instead of a silently-skipped statement.
+func (g *ClickHouseGrammar) CompileCreateForeignKey(_ *schema.Blueprint, _ *schema.ForeignKeyDefinition) (string, error) {
+	return "", database.ErrForeignKeysNotSupported
 }
 
 func (g *ClickHouseGrammar) CompileDropForeignKey(_ *schema.Blueprint, _ string) string {

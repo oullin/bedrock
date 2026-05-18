@@ -110,10 +110,12 @@ func (g *SQLiteGrammar) CompileDropIndex(_ *schema.Blueprint, name string) strin
 	return "drop index if exists " + g.wrap(name)
 }
 
-func (g *SQLiteGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
+func (g *SQLiteGrammar) CompileCreateForeignKey(_ *schema.Blueprint, _ *schema.ForeignKeyDefinition) (string, error) {
 	// SQLite foreign keys must be defined in CREATE TABLE, not ALTER TABLE.
-	// This is a limitation. For migrations, they are added during table creation.
-	return ""
+	// They are emitted inline during table creation, so a post-create ALTER
+	// has nothing to add. The empty string signals "no statement"; no error
+	// because the constraint did get applied via the inline path.
+	return "", nil
 }
 
 func (g *SQLiteGrammar) CompileDropForeignKey(_ *schema.Blueprint, name string) string {

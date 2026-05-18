@@ -121,7 +121,7 @@ func (g *MySQLGrammar) CompileDropIndex(bp *schema.Blueprint, name string) strin
 	return "alter table " + g.wrapTable(bp.Table) + " drop index " + g.wrap(name)
 }
 
-func (g *MySQLGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
+func (g *MySQLGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) (string, error) {
 	cols := make([]string, len(fk.Columns))
 
 	for i, c := range fk.Columns {
@@ -146,7 +146,7 @@ func (g *MySQLGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.
 		sql += " on update " + fk.OnUpdateAction
 	}
 
-	return sql
+	return sql, nil
 }
 
 func (g *MySQLGrammar) CompileDropForeignKey(bp *schema.Blueprint, name string) string {
