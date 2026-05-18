@@ -162,3 +162,31 @@ func TestSyncDriverPushJobHasCorrectQueue(t *testing.T) {
 		t.Errorf("expected queue 'emails', got %q", queueName)
 	}
 }
+
+func TestSyncDriverInspectionAlwaysEmpty(t *testing.T) {
+	t.Parallel()
+
+	handler := queue.HandlerFunc(func(_ context.Context, _ queue.Job) error { return nil })
+	drv := drivers.NewSyncDriver("sync", handler)
+	ctx := context.Background()
+
+	names, err := drv.QueueNames(ctx)
+	if err != nil || names != nil {
+		t.Errorf("QueueNames: got (%v, %v), want (nil, nil)", names, err)
+	}
+
+	pending, err := drv.PendingJobs(ctx, "default")
+	if err != nil || pending != nil {
+		t.Errorf("PendingJobs: got (%v, %v), want (nil, nil)", pending, err)
+	}
+
+	delayed, err := drv.DelayedJobs(ctx, "default")
+	if err != nil || delayed != nil {
+		t.Errorf("DelayedJobs: got (%v, %v), want (nil, nil)", delayed, err)
+	}
+
+	reserved, err := drv.ReservedJobs(ctx, "default")
+	if err != nil || reserved != nil {
+		t.Errorf("ReservedJobs: got (%v, %v), want (nil, nil)", reserved, err)
+	}
+}

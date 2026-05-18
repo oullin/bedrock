@@ -62,3 +62,7 @@ type QueueFailedOver = events.QueueFailedOver
 type WorkerStarting = events.WorkerStarting
 
 type WorkerStopping = events.WorkerStopping
+
+type WorkerPausing = events.WorkerPausing
+
+type WorkerResuming = events.WorkerResuming

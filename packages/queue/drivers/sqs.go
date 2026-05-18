@@ -33,6 +33,15 @@ type SQSFIFOSender interface {
 	SendMessageFIFO(ctx context.Context, queueURL, body, messageGroupID, messageDeduplicationID string, delay time.Duration) (string, error)
 }
 
+// SQSQueueLister is an optional interface implemented by SQSClient
+// implementations that can list the SQS queues visible to the
+// configured credentials. The driver uses it to populate QueueNames
+// so the manager-level cross-queue inspection helpers can fan out
+// without the caller pre-declaring every queue name.
+type SQSQueueLister interface {
+	ListQueueURLs(ctx context.Context, prefix string) ([]string, error)
+}
+
 // SQSMessage is a received SQS message.
 type SQSMessage struct {
 	MessageID     string
@@ -240,6 +249,80 @@ func (d *SQSDriver) ReservedSize(ctx context.Context, queueName string) (int64, 
 }
 
 func (d *SQSDriver) ConnectionName() string { return d.connection }
+
+// QueueNames lists the SQS queues visible to the driver. When the
+// configured client implements SQSQueueLister, the result is the
+// (prefix-filtered) set of queue URLs reported by the AWS API
+// transformed into their tail-segment names. When it does not, the
+// driver falls back to the statically-configured queueURLs map. Both
+// paths return an ErrNotSupported only if there is no inventory to
+// report at all.
+func (d *SQSDriver) QueueNames(ctx context.Context) ([]string, error) {
+	if lister, ok := d.client.(SQSQueueLister); ok {
+		urls, err := lister.ListQueueURLs(ctx, d.prefix)
+
+		if err != nil {
+			return nil, err
+		}
+
+		out := make([]string, 0, len(urls))
+
+		for _, u := range urls {
+			if name := tailSegment(u); name != "" {
+				out = append(out, name)
+			}
+		}
+
+		return out, nil
+	}
+
+	if len(d.queueURLs) == 0 {
+		return nil, queue.ErrNotSupported
+	}
+
+	out := make([]string, 0, len(d.queueURLs))
+
+	for name := range d.queueURLs {
+		out = append(out, name)
+	}
+
+	return out, nil
+}
+
+// PendingJobs returns ErrNotSupported. SQS does not expose a way to
+// peek at messages currently sitting in a queue without consuming
+// them — even short-poll ReceiveMessage hides messages from other
+// consumers under the visibility timeout, which is destructive. Use
+// the queue's Size method for a count instead.
+func (d *SQSDriver) PendingJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, queue.ErrNotSupported
+}
+
+// DelayedJobs returns ErrNotSupported. SQS only reports the count of
+// delayed messages via the ApproximateNumberOfMessagesDelayed
+// attribute; the messages themselves are inaccessible until they
+// become visible.
+func (d *SQSDriver) DelayedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, queue.ErrNotSupported
+}
+
+// ReservedJobs returns ErrNotSupported. SQS reports
+// ApproximateNumberOfMessagesNotVisible as the count of reserved
+// jobs but the messages themselves belong to the consumer that holds
+// the lease and cannot be enumerated from outside.
+func (d *SQSDriver) ReservedJobs(_ context.Context, _ string) ([]queue.InspectedJob, error) {
+	return nil, queue.ErrNotSupported
+}
+
+// tailSegment returns the segment after the last '/' in s. Used to
+// distil a fully-qualified SQS URL down to its queue name.
+func tailSegment(s string) string {
+	if i := strings.LastIndexByte(s, '/'); i >= 0 {
+		return s[i+1:]
+	}
+
+	return s
+}
 
 func (d *SQSDriver) url(queueName string) string {
 	if d.prefix != "" || d.defaultQueue != "" || d.suffix != "" {

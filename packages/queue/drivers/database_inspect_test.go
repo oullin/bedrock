@@ -279,3 +279,51 @@ func TestReservedJobs(t *testing.T) {
 		}
 	}
 }
+
+func TestDatabaseDriverQueueNames(t *testing.T) {
+	t.Parallel()
+
+	db := newMockDBExecer()
+	drv := drivers.NewDatabaseDriver(db, "jobs", "database")
+
+	db.addQueryRow("default")
+	db.addQueryRow("emails")
+
+	names, err := drv.QueueNames(context.Background())
+	if err != nil {
+		t.Fatalf("QueueNames: %v", err)
+	}
+
+	if len(names) != 2 || names[0] != "default" || names[1] != "emails" {
+		t.Errorf("got %v, want [default emails]", names)
+	}
+
+	if len(db.queryCalls) != 1 {
+		t.Fatalf("query calls: got %d, want 1", len(db.queryCalls))
+	}
+
+	q := db.queryCalls[0].Query
+	if !strings.Contains(q, "DISTINCT queue") {
+		t.Errorf("query missing DISTINCT queue: %s", q)
+	}
+
+	if !strings.Contains(q, "jobs") {
+		t.Errorf("query missing jobs table: %s", q)
+	}
+}
+
+func TestDatabaseDriverQueueNamesEmpty(t *testing.T) {
+	t.Parallel()
+
+	db := newMockDBExecer()
+	drv := drivers.NewDatabaseDriver(db, "jobs", "database")
+
+	names, err := drv.QueueNames(context.Background())
+	if err != nil {
+		t.Fatalf("QueueNames: %v", err)
+	}
+
+	if names != nil {
+		t.Errorf("got %v, want nil", names)
+	}
+}
