@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: socialite.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package socialite provides OAuth1 and OAuth2 social authentication, mirroring Laravel\Socialite in idiomatic Go.
 
 <div class="docs-callout docs-callout-laravel">

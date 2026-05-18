@@ -4,6 +4,9 @@
 <!-- laravel-docs: routing.md#named-routes -->
 <!-- laravel-docs: frontend.md#using-react-svelte-or-vue -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package wayfinder generates fully-typed, importable TypeScript functions for your Go routes.
 
 <div class="docs-callout docs-callout-laravel">

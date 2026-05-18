@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: helpers.md#other-utilities -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package lottery provides probabilistic execution helpers modeled after Laravel's Lottery API.
 
 <div class="docs-callout docs-callout-laravel">

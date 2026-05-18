@@ -4,6 +4,9 @@
 <!-- laravel-docs: collections.md#introduction -->
 <!-- laravel-docs: contracts.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package support provides Go ports of Laravel's Illuminate/Support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox).
 
 <div class="docs-callout docs-callout-laravel">

@@ -4,6 +4,123 @@
 <!-- laravel-docs: logging.md#building-log-stacks -->
 <!-- laravel-docs: logging.md#writing-log-messages -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The log package gives every Bedrock app a single, driver-pluggable
+logging surface. You configure named channels (a stderr channel for
+local, a rotating file for production, a stack that fans out to both),
+pick a default, and write messages without caring which handler is
+underneath.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The log manager is bound under `"log"` by `LogServiceProvider`. The
+constructor takes a typed `LogProviderConfig`:
+
+```go
+// services/demo/api/bootstrap.go:147
+log.NewLogServiceProvider(application.Container, o.LogConfig),
+```
+
+`LogProviderConfig` declares the default channel and the per-channel
+options ([`packages/log/log_service_provider.go:12`](https://github.com/gocanto/bedrock/blob/main/packages/log/log_service_provider.go#L12)):
+
+```go
+log.LogProviderConfig{
+    Default: "stack",
+    Channels: map[string]map[string]any{
+        "stack":  {"driver": "stack", "channels": []string{"stderr", "file"}},
+        "stderr": {"driver": "stderr", "level": "info"},
+        "file":   {"driver": "rotating", "path": "/var/log/app.log", "days": 14},
+    },
+}
+```
+
+Internally the provider builds a `*config.Repository` keyed under
+`"logging"` and hands it to `NewManager`.
+
+## Basic Usage
+
+Pull the default channel and log:
+
+```go
+import facadelog "github.com/bedrock/packages/facades/log"
+
+logger, _ := facadelog.Channel()         // default channel
+logger.Info("user.signed-in", "user_id", userID)
+logger.Error("checkout.failed", "err", err, "order_id", orderID)
+```
+
+Pull a specific channel:
+
+```go
+audit, _ := facadelog.Channel("audit")
+audit.Info("admin.role-changed", "actor", actor, "target", target)
+```
+
+Stack channels at runtime to fan out a single write:
+
+```go
+mgr := container.Resolve[*log.LogManager]("log")
+combined, _ := mgr.Stack([]string{"stderr", "file"}, "stack-runtime")
+combined.Warn("disk-pressure", "available_pct", 8)
+```
+
+## Drivers
+
+Built-in drivers (each has a handler under `packages/log/`):
+
+| Name       | Source                                                                                                 | When to use                       |
+| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `single`   | [`stream_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/stream_handler.go)     | One file/stream                   |
+| `stack`    | [`stack_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/stack_handler.go)       | Fan out to several channels       |
+| `stderr`   | [`stderr_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/stderr_handler.go)     | Local development, container logs |
+| `syslog`   | [`syslog_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/syslog_handler.go)     | Unix syslog                       |
+| `rotating` | [`rotating_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/rotating_handler.go) | Daily-rotated file                |
+| `null`     | [`null_handler.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/null_handler.go)         | Discard everything (tests)        |
+
+## Writing Custom Drivers
+
+Implement `log.Handler` and register a `DriverFactory`:
+
+```go
+// 1. Implement log.Handler.
+type sentryHandler struct { /* ... */ }
+
+func (h *sentryHandler) Handle(record log.Record) error { /* ... */ }
+// ... rest of the log.Handler interface
+
+// 2. Register the driver factory.
+mgr := container.Resolve[*log.LogManager]("log")
+mgr.Extend("sentry", func(cc log.ChannelConfig) (log.Handler, error) {
+    return newSentryHandler(cc), nil
+})
+
+// 3. Reference it from any channel config.
+//    {"driver": "sentry", "dsn": "..."}
+```
+
+`LogManager.Extend` is the registration hook
+([`packages/log/manager.go:13`](https://github.com/gocanto/bedrock/blob/main/packages/log/manager.go#L13)).
+
+## Events
+
+The manager dispatches a `MessageLogged` event on every write when an
+event dispatcher is wired in (`WithEventDispatcher`). See
+[`packages/log/events.go`](https://github.com/gocanto/bedrock/blob/main/packages/log/events.go).
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Configuration](/architecture/configuration) — how
+`LogProviderConfig` is the typed bridge to the underlying repository.
+<!-- /BEDROCK:HAND -->
+
 Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors Laravel's Log component, offering a unified API through the LogManager and individual handlers for each channel type.
 
 <div class="docs-callout docs-callout-laravel">

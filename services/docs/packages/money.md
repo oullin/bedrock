@@ -3,6 +3,9 @@
 <!-- laravel-docs: validation.md#available-validation-rules -->
 <!-- laravel-docs: localization.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The money package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">

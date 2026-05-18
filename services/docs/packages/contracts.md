@@ -3,6 +3,9 @@
 <!-- laravel-docs: contracts.md#introduction -->
 <!-- laravel-docs: providers.md#service-providers -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The contracts package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">

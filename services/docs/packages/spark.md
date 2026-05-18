@@ -1,5 +1,8 @@
 # spark
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The spark package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">

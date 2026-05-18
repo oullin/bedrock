@@ -3,6 +3,9 @@
 <!-- laravel-docs: redis.md#introduction -->
 <!-- laravel-docs: redis.md#interacting-with-redis -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package redis is a Go port of Laravel's Illuminate/Redis package.
 
 <div class="docs-callout docs-callout-laravel">

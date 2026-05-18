@@ -4,6 +4,112 @@
 <!-- laravel-docs: mail.md#generating-mailables -->
 <!-- laravel-docs: mail.md#events -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The mailx package gives every Bedrock app a single, driver-pluggable
+mail surface. Configure mailers (an SMTP transport for production, log
+for local, array for tests), pick a default, and send `Mailable`
+messages.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The mail manager is bound under `"mailer"` by `MailServiceProvider`. The
+constructor takes a typed `MailProviderConfig`:
+
+```go
+mailx.NewMailServiceProvider(application.Container, mailx.MailProviderConfig{
+    Default: "smtp",
+    From:    mailx.MailFromConfig{Address: "noreply@example.com", Name: "ACME"},
+    Mailers: map[string]map[string]any{
+        "smtp":  {"transport": "smtp", "host": "mail.example.com", "port": 587},
+        "log":   {"transport": "log"},
+        "array": {"transport": "array"},
+    },
+})
+```
+
+See [`packages/mailx/mail_service_provider.go:18`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/mail_service_provider.go#L18).
+
+## Basic Usage
+
+```go
+mgr := container.Resolve[*mailx.MailManager]("mailer")
+
+msg := mailx.NewMessage().
+    To("alice@example.com").
+    Subject("Welcome").
+    HTML("<p>Hi, %s!</p>", name).
+    Text("Hi, %s!", name)
+
+if err := mgr.Mailer().Send(ctx, msg); err != nil {
+    return err
+}
+```
+
+Pick a non-default mailer:
+
+```go
+audit, _ := mgr.Mailer("smtp-audit")
+_ = audit.Send(ctx, msg)
+```
+
+In tests, swap to the array transport and assert what was sent:
+
+```go
+arr := mailx.NewArrayTransport()
+mailer := mailx.NewMailer("test", arr)
+_ = mailer.Send(ctx, msg)
+
+require.Len(t, arr.Messages(), 1)
+```
+
+## Drivers
+
+Built-in transports (each lives in `packages/mailx/`):
+
+| Name        | Source                                                                                                         | When to use               |
+| ----------- | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `smtp`      | [`smtp_transport.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/smtp_transport.go)           | Production                |
+| `log`       | [`log_transport.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/log_transport.go)             | Local development         |
+| `array`     | [`array_transport.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/array_transport.go)         | Tests                     |
+| `composite` | [`composite_transport.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/composite_transport.go) | Fan out across transports |
+
+## Writing Custom Drivers
+
+Implement `mailx.Transport` and register a factory:
+
+```go
+type sesTransport struct { /* ... */ }
+
+func (t *sesTransport) Send(ctx context.Context, msg *mailx.Message) error { /* ... */ }
+
+mgr := container.Resolve[*mailx.MailManager]("mailer")
+mgr.Extend("ses", func(cfg map[string]any) (mailx.Transport, error) {
+    return newSESTransport(cfg), nil
+})
+```
+
+`MailManager.Extend` is the registration hook
+([`packages/mailx/manager.go:110`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/manager.go#L110)).
+
+## Events
+
+`MessageSending` fires before send, `MessageSent` fires after. See
+[`packages/mailx/events.go`](https://github.com/gocanto/bedrock/blob/main/packages/mailx/events.go).
+Subscribe through the events package for tracing or interception.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Notifications](/packages/notifications) — built on top of mailx for
+the mail channel.
+<!-- /BEDROCK:HAND -->
+
 Package mailx provides driver-based email sending with support for SMTP, log, and array (testing) transports. It mirrors Laravel's Mail component, offering a unified API through the MailManager and individual mailers for each transport type. The package supports rich message construction including HTML and plain-text bodies, file attachments, inline embeds, custom headers, metadata, and tags. Events are dispatched before and after sending for observability and interception.
 
 <div class="docs-callout docs-callout-laravel">

@@ -1,10 +1,7 @@
 # mcp
 
-<!-- laravel-docs: mcp.md#introduction -->
-<!-- laravel-docs: mcp.md#web-server -->
-<!-- laravel-docs: mcp.md#creating-resources -->
-<!-- laravel-docs: mcp.md#prompts -->
-<!-- laravel-docs: mcp.md#testing-servers -->
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package mcp provides a complete Go implementation of the Model Context Protocol (MCP) server specification. It is a behavioral port of the Laravel MCP package, adapted idiomatically to Go.
 

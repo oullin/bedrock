@@ -5,6 +5,129 @@
 <!-- laravel-docs: queues.md#job-batching -->
 <!-- laravel-docs: queues.md#running-the-queue-worker -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The queue package gives every Bedrock app a single, driver-pluggable
+job queue. Configure a default connection (sync in tests, redis in
+production), push jobs, and run a worker to drain them. The manager
+handles named connections, lifecycle, and worker hooks.
+
+For the cross-cutting picture of how driver-based managers work in
+Bedrock, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The queue manager is bound under `"queue"` by `QueueServiceProvider`. The
+default connection name is the one constructor argument:
+
+```go
+// services/demo/api/bootstrap.go:146
+queue.NewQueueServiceProvider(application.Container, o.QueueDefaultConnection),
+```
+
+Per-connection config is registered via `manager.SetConfig`:
+
+```go
+mgr := container.Resolve[*queue.Manager]("queue")
+mgr.SetConfig("redis", map[string]any{
+    "driver": "redis",
+    "queue":  "default",
+})
+```
+
+The connection's `"driver"` key picks which factory the manager runs
+when the connection is first resolved
+([`packages/queue/manager.go:241`](https://github.com/gocanto/bedrock/blob/main/packages/queue/manager.go#L241)).
+
+## Basic Usage
+
+Push a job onto the default connection:
+
+```go
+import facadequeue "github.com/bedrock/packages/facades/queue"
+
+q, err := facadequeue.Connection(nil) // default
+if err != nil { return err }
+
+if err := q.Push(ctx, "send-welcome-email", payload); err != nil {
+    return err
+}
+```
+
+Run a worker against a connection:
+
+```go
+mgr := container.Resolve[*queue.Manager]("queue")
+worker := queue.NewWorker(mgr, queue.WorkerOptions{
+    Connection: "redis",
+    Queue:      "default",
+})
+if err := worker.Daemon(ctx); err != nil {
+    log.Fatal(err)
+}
+```
+
+## Drivers
+
+Two registration paths:
+
+- **`Register(driver, creator)`** — simple one-shot factory. Use when
+  connection setup is trivial.
+- **`AddConnector(driver, factory)`** — Laravel-style two-step. The
+  factory returns a `Connector`, the manager calls `Connector.Connect(config)`.
+  Use when construction needs its own state.
+
+Built-in drivers: `sync`, `redis`, `sqs`, `null`, `database`, `failover`.
+Their sources live alongside the manager in `packages/queue/`.
+
+## Writing Custom Drivers
+
+Implement the `Queue` interface and register the driver:
+
+```go
+// 1. Implement queue.Queue.
+type natsQueue struct { /* ... */ }
+
+func (q *natsQueue) Push(ctx context.Context, job string, payload []byte, opts ...queue.PushOption) error { /* ... */ }
+func (q *natsQueue) Pop(ctx context.Context, queueName string) (queue.Job, error) { /* ... */ }
+
+// 2. Register the driver.
+mgr := container.Resolve[*queue.Manager]("queue")
+mgr.Register("nats", func(cfg map[string]any) (queue.Queue, error) {
+    return newNatsQueue(cfg), nil
+})
+
+// 3. Register a connection that uses it.
+mgr.SetConfig("nats-default", map[string]any{
+    "driver": "nats",
+    "url":    "nats://localhost:4222",
+})
+```
+
+`Manager.Register` and `Manager.AddConnector` both live in
+[`packages/queue/manager.go:96`](https://github.com/gocanto/bedrock/blob/main/packages/queue/manager.go#L96).
+
+## Events
+
+Worker-side hooks fire on every job: `Before`, `After`, `Failing`,
+`Starting`, `Stopping`. Wire them on the manager:
+
+```go
+mgr.Before(func(e any) { /* ... */ })
+mgr.Failing(func(e any) { metrics.IncrementCounter("queue.failed") })
+```
+
+See [`packages/queue/manager.go:333`](https://github.com/gocanto/bedrock/blob/main/packages/queue/manager.go#L333).
+
+## See Also
+
+- [Drivers](/architecture/drivers) — the meta-pattern this package follows.
+- [Service Providers](/architecture/service-providers).
+- [Bus](/packages/bus) — for command dispatch on top of this queue.
+<!-- /BEDROCK:HAND -->
+
 Package queue provides Laravel-inspired job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs.
 
 <div class="docs-callout docs-callout-laravel">

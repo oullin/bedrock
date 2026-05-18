@@ -3,6 +3,9 @@
 <!-- laravel-docs: scout.md#introduction -->
 <!-- laravel-docs: search.md#search -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package scout provides full-text search with pluggable engine backends. It is the Go port of Laravel's Scout package, adapted to Go idioms while maintaining 100% function parity.
 
 <div class="docs-callout docs-callout-laravel">

@@ -4,6 +4,9 @@
 <!-- laravel-docs: sanctum.md#introduction -->
 <!-- laravel-docs: passport.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports Laravel Fortify and Jetstream to Go as a fully standalone module that depends only on shared contracts.
 
 <div class="docs-callout docs-callout-laravel">

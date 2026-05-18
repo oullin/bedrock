@@ -1,9 +1,16 @@
 # routing
 
+<!-- laravel-docs: routing.md#routing -->
 <!-- laravel-docs: routing.md#basic-routing -->
 <!-- laravel-docs: routing.md#route-parameters -->
 <!-- laravel-docs: routing.md#named-routes -->
 <!-- laravel-docs: routing.md#route-groups -->
+<!-- laravel-docs: routing.md#route-model-binding -->
+<!-- laravel-docs: routing.md#fallback-routes -->
+<!-- laravel-docs: routing.md#rate-limiting -->
+
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
 Package routing is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Routing.
 

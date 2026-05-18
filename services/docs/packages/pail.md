@@ -2,6 +2,9 @@
 
 <!-- laravel-docs: logging.md#writing-log-messages -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package pail provides log tailing and filtering primitives inspired by Laravel Pail.
 
 <div class="docs-callout docs-callout-laravel">

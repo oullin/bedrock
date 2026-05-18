@@ -4,6 +4,9 @@
 <!-- laravel-docs: precognition.md#handling-file-uploads -->
 <!-- laravel-docs: precognition.md#managing-side-effects -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package precognition is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Foundation/Http/Middleware/HandlePrecognitiveRequests and src/Illuminate/Foundation/Precognition.
 
 <div class="docs-callout docs-callout-laravel">

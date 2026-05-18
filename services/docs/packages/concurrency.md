@@ -3,6 +3,89 @@
 <!-- laravel-docs: concurrency.md#introduction -->
 <!-- laravel-docs: concurrency.md#running-concurrent-tasks -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The concurrency package gives every Bedrock app a single, driver-pluggable
+way to run independent units of work in parallel — typically slow I/O
+operations you'd otherwise issue serially. Production runs them on
+goroutines; tests swap to a synchronous driver so behaviour stays
+deterministic.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The concurrency manager is bound under `"concurrency"` by
+`ConcurrencyServiceProvider`. The default driver name is the one
+constructor argument:
+
+```go
+// services/demo/api/bootstrap.go:143
+concurrency.NewConcurrencyServiceProvider(application.Container, o.ConcurrencyDefaultDriver),
+```
+
+`o.ConcurrencyDefaultDriver` defaults to `"goroutine"` for production and
+`"sync"` for tests. See
+[`packages/concurrency/concurrency_service_provider.go`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/concurrency_service_provider.go).
+
+## Basic Usage
+
+Run a batch of tasks in parallel and collect the results:
+
+```go
+mgr := container.Resolve[*concurrency.Manager]("concurrency")
+driver, _ := mgr.Driver()
+
+results, err := driver.Run(ctx, []concurrency.Task{
+    func(ctx context.Context) (any, error) { return fetchUser(ctx, 1) },
+    func(ctx context.Context) (any, error) { return fetchOrders(ctx, 1) },
+    func(ctx context.Context) (any, error) { return fetchInvoices(ctx, 1) },
+})
+```
+
+In tests, switch to the sync driver for predictable ordering:
+
+```go
+mgr.SetDefaultDriver("sync")
+results, _ := mgr.Driver().Run(ctx, tasks)
+```
+
+## Drivers
+
+Built-in drivers:
+
+| Name        | Source                                                                                                         | When to use                   |
+| ----------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `goroutine` | [`goroutine_driver.go`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/goroutine_driver.go) | Production parallelism        |
+| `sync`      | [`sync_driver.go`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/sync_driver.go)           | Tests; deterministic ordering |
+
+## Writing Custom Drivers
+
+Implement `concurrency.Driver` and register a creator:
+
+```go
+type pooledDriver struct { /* ... */ }
+
+func (d *pooledDriver) Run(ctx context.Context, tasks []concurrency.Task) ([]concurrency.Result, error) { /* ... */ }
+// ... rest of the concurrency.Driver interface
+
+mgr := container.Resolve[*concurrency.Manager]("concurrency")
+mgr.Extend("pool", func(cfg map[string]any) (concurrency.Driver, error) {
+    return newPooledDriver(cfg), nil
+})
+```
+
+`Manager.Extend` is the registration hook
+([`packages/concurrency/manager.go:41`](https://github.com/gocanto/bedrock/blob/main/packages/concurrency/manager.go#L41)).
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+<!-- /BEDROCK:HAND -->
+
 Package concurrency provides Laravel-inspired concurrent task execution. It defines a Driver interface with multiple implementations: GoroutineDriver for true parallel execution via goroutines, and SyncDriver for sequential execution useful in testing. A Manager handles named driver instances with lazy initialization and thread-safe access.
 
 <div class="docs-callout docs-callout-laravel">

@@ -5,6 +5,9 @@
 <!-- laravel-docs: passport.md#personal-access-tokens -->
 <!-- laravel-docs: passport.md#protecting-routes -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The passport package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">

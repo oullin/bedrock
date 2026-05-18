@@ -3,6 +3,9 @@
 <!-- laravel-docs: horizon.md#introduction -->
 <!-- laravel-docs: horizon.md#balancing-strategies -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package horizon provides queue monitoring primitives inspired by Laravel Horizon.
 
 <div class="docs-callout docs-callout-laravel">

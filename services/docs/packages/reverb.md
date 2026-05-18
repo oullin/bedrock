@@ -4,6 +4,9 @@
 <!-- laravel-docs: reverb.md#running-reverb-in-production -->
 <!-- laravel-docs: broadcasting.md#client-side-installation -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package reverb implements a Go port of the Laravel Reverb WebSocket server.
 
 <div class="docs-callout docs-callout-laravel">

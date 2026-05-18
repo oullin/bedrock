@@ -1,11 +1,9 @@
 # boost
 
-<!-- laravel-docs: boost.md#introduction -->
-<!-- laravel-docs: boost.md#features -->
-<!-- laravel-docs: boost.md#documentation-api -->
-<!-- laravel-docs: boost.md#ai-guidelines -->
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
 
-Package boost provides a Go port of laravel/boost — an IDE coding-assistant integration layer. It includes agent detection and MCP configuration writing for nine AI coding agents (Cursor, Claude Code, Copilot, Codex, Gemini, Amp, Junie, Kiro, OpenCode), guidelines and skills file management, nine MCP server tools (application info, database introspection, log reading, docs search), and install utilities for writing config/guideline/skill files to disk.
+Package boost provides a Go port of laravel/boost — an IDE coding-assistant integration layer.
 
 <div class="docs-callout docs-callout-laravel">
   <strong>Laravel baseline.</strong>
@@ -33,18 +31,18 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
 
 ## Source Coverage
 
-| Package               | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `boost`               | Package boost provides a Go port of laravel/boost — an IDE coding-assistant integration layer. It includes agent detection and MCP configuration writing for nine AI coding agents (Cursor, Claude Code, Copilot, Codex, Gemini, Amp, Junie, Kiro, OpenCode), guidelines and skills file management, nine MCP server tools (application info, database introspection, log reading, docs search), and install utilities for writing config/guideline/skill files to disk. |
-| `agents`              | Public agents API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `guidelines`          | Public guidelines API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `install`             | Public install API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `internal/boosterr`   | Public internal/boosterr API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `internal/jsonconfig` | Public internal/jsonconfig API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `internal/platform`   | Public internal/platform API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `mcp`                 | Public mcp API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `mcp/tools`           | Public mcp/tools API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `skills`              | Public skills API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Package               | Purpose                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| `boost`               | Package boost provides a Go port of laravel/boost — an IDE coding-assistant integration layer. |
+| `agents`              | Public agents API surface for this module.                                                     |
+| `guidelines`          | Public guidelines API surface for this module.                                                 |
+| `install`             | Public install API surface for this module.                                                    |
+| `internal/boosterr`   | Public internal/boosterr API surface for this module.                                          |
+| `internal/jsonconfig` | Public internal/jsonconfig API surface for this module.                                        |
+| `internal/platform`   | Public internal/platform API surface for this module.                                          |
+| `mcp`                 | Public mcp API surface for this module.                                                        |
+| `mcp/tools`           | Public mcp/tools API surface for this module.                                                  |
+| `skills`              | Public skills API surface for this module.                                                     |
 
 ## Core Concepts
 

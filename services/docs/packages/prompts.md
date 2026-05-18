@@ -5,6 +5,9 @@
 <!-- laravel-docs: prompts.md#tables -->
 <!-- laravel-docs: prompts.md#progress-bars -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package prompts provides beautiful, user-friendly terminal UI forms for Go applications, with 100 % function parity with Laravel Prompts. It offers text inputs, password fields, selects, multi-selects, search prompts, spinners, progress bars, tables, and a multi-step form builder — all rendered with ANSI escape codes and no external TUI dependencies.
 
 <div class="docs-callout docs-callout-laravel">

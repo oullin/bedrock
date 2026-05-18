@@ -4,6 +4,91 @@
 <!-- laravel-docs: broadcasting.md#quickstart -->
 <!-- laravel-docs: broadcasting.md#client-side-installation -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The broadcasting package gives every Bedrock app a single, driver-pluggable
+way to push events to connected clients over websockets or comparable
+transports. Production deployments use Pusher, Ably, or a Redis-backed
+fanout; development can use the log broadcaster to inspect what would be
+sent.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+Broadcasting does not ship a service provider that registers a default
+manager — applications register the broadcasters they need at bootstrap
+time:
+
+```go
+mgr := broadcasting.NewManager()
+mgr.Extend("pusher", broadcasting.NewPusherBroadcaster(pusherClient))
+mgr.Extend("redis",  broadcasting.NewRedisBroadcaster(redisClient))
+
+application.Container.Instance("broadcasting", mgr)
+```
+
+This pattern keeps the package free of cloud-credential dependencies at
+import time. See
+[`packages/broadcasting/manager.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/manager.go).
+
+## Basic Usage
+
+```go
+mgr := container.Resolve[*broadcasting.Manager]("broadcasting")
+
+bc, err := mgr.Connection("pusher")
+if err != nil { return err }
+
+err = bc.Broadcast(ctx, []string{"orders.42"}, "OrderUpdated", map[string]any{
+    "id":     42,
+    "status": "shipped",
+})
+```
+
+For type-safe events, define a struct that satisfies the broadcastable
+contract and dispatch through the events package — the broadcasting
+listener turns it into the call above.
+
+## Drivers
+
+Built-in broadcasters:
+
+| Name     | Source                                                                                      | When to use                             |
+| -------- | ------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `pusher` | [`pusher.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/pusher.go) | Pusher Channels                         |
+| `ably`   | [`ably.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/ably.go)     | Ably Realtime                           |
+| `redis`  | [`redis.go`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/redis.go)   | Self-hosted Redis pub/sub fanout        |
+| `log`    | base `LogBroadcaster` (`base.go`)                                                           | Local development; prints what would go |
+
+## Writing Custom Drivers
+
+Implement `Broadcaster` and register it under a name:
+
+```go
+type sseBroadcaster struct { /* ... */ }
+
+func (b *sseBroadcaster) Broadcast(ctx context.Context, channels []string, event string, payload any) error { /* ... */ }
+
+mgr.Extend("sse", &sseBroadcaster{ /* ... */ })
+```
+
+`Manager.Extend` is the registration hook
+([`packages/broadcasting/manager.go:16`](https://github.com/gocanto/bedrock/blob/main/packages/broadcasting/manager.go#L16)).
+Note: unlike most Bedrock managers this one stores broadcaster _instances_
+directly rather than factories — pass the ready broadcaster, not a
+constructor.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Echo](/packages/echo) and [Reverb](/packages/reverb) — client-side
+and self-hosted-server companion packages.
+<!-- /BEDROCK:HAND -->
+
 Package broadcasting provides Laravel-style server-side broadcasting for channel authorization, broadcast events, and broadcaster backends.
 
 <div class="docs-callout docs-callout-laravel">

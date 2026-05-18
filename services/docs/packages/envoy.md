@@ -4,6 +4,9 @@
 <!-- laravel-docs: envoy.md#writing-tasks -->
 <!-- laravel-docs: envoy.md#notifications -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package envoy provides task planning and execution primitives inspired by Laravel Envoy.
 
 <div class="docs-callout docs-callout-laravel">

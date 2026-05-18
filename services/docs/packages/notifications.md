@@ -5,6 +5,112 @@
 <!-- laravel-docs: notifications.md#mail-notifications -->
 <!-- laravel-docs: notifications.md#notification-events -->
 
+<!-- BEDROCK:HAND -->
+
+## Introduction
+
+The notifications package gives every Bedrock app a single, channel-pluggable
+way to fan a single notification out to multiple delivery surfaces — email,
+database row for in-app display, websocket broadcast, Slack, custom — all
+from one notification type.
+
+For the cross-cutting picture, see [Drivers](/architecture/drivers).
+
+## Configuration
+
+The notifications manager is bound under `"notifications"` by
+`NotificationsServiceProvider`. The constructor doesn't take a default
+because notifications declare which channels they use:
+
+```go
+// services/demo/api/bootstrap.go:150
+notifications.NewNotificationsServiceProvider(application.Container),
+```
+
+The provider's `Boot()` resolves the bus and event dispatchers and
+registers the built-in mail/database/broadcast channels. See
+[`packages/notifications/notifications_service_provider.go:41`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/notifications_service_provider.go#L41).
+
+## Basic Usage
+
+A notification is a struct that declares its channels and renders a
+payload per channel:
+
+```go
+type WelcomeNotification struct {
+    UserName string
+}
+
+func (n WelcomeNotification) Channels() []string { return []string{"mail", "database"} }
+
+func (n WelcomeNotification) ToMail() *mailx.Message {
+    return mailx.NewMessage().Subject("Welcome").Text("Hi, %s!", n.UserName)
+}
+
+func (n WelcomeNotification) ToDatabase() map[string]any {
+    return map[string]any{"title": "Welcome, " + n.UserName}
+}
+
+// Send it
+mgr := container.Resolve[*notifications.Manager]("notifications")
+err := mgr.Send(ctx, user, WelcomeNotification{UserName: user.Name})
+```
+
+For ad-hoc destinations (an email address that's not a user record), use
+the anonymous notifiable
+([`anonymous_notifiable.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/anonymous_notifiable.go)):
+
+```go
+ad := notifications.NewAnonymousNotifiable().
+    Route("mail", "ops@example.com")
+
+_ = mgr.Send(ctx, ad, alert)
+```
+
+## Channels (Drivers)
+
+Built-in channels:
+
+| Name        | Source                                                                                                             | Maps to                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| `mail`      | [`mail_channel.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/mail_channel.go)           | the [mailx](/packages/mailx) manager   |
+| `database`  | [`database_channel.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/database_channel.go)   | the database manager                   |
+| `broadcast` | [`broadcast_channel.go`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/broadcast_channel.go) | [broadcasting](/packages/broadcasting) |
+
+## Writing Custom Channels
+
+Implement `cn.Channel` (defined in
+[`packages/contracts/notifications`](https://github.com/gocanto/bedrock/tree/main/packages/contracts/notifications))
+and register it on the manager:
+
+```go
+type slackChannel struct { /* ... */ }
+
+func (c *slackChannel) Send(ctx context.Context, notifiable any, n cn.Notification) error { /* ... */ }
+
+mgr := container.Resolve[*notifications.Manager]("notifications")
+mgr.Register("slack", newSlackChannel(cfg))
+```
+
+`Manager.Register` is the registration hook
+([`packages/notifications/manager.go:86`](https://github.com/gocanto/bedrock/blob/main/packages/notifications/manager.go#L86)).
+A notification can then opt into the new channel by listing `"slack"` in
+its `Channels()`.
+
+## Events
+
+`NotificationSending`, `NotificationSent`, and `NotificationFailed` fire
+on every send when the events dispatcher is wired in. Subscribe through
+the events package for tracing or interception.
+
+## See Also
+
+- [Drivers](/architecture/drivers).
+- [Service Providers](/architecture/service-providers).
+- [Mailx](/packages/mailx) and [Broadcasting](/packages/broadcasting) —
+built-in delivery channels.
+<!-- /BEDROCK:HAND -->
+
 Package notifications provides a Laravel-inspired notification system for sending messages across multiple channels (mail, database, broadcast, and custom drivers). Notifications are dispatched through a channel manager that lazily resolves drivers, supports queued delivery via the bus package, and fires lifecycle events (sending, sent, failed) through the event dispatcher.
 
 <div class="docs-callout docs-callout-laravel">

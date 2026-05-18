@@ -4,6 +4,9 @@
 <!-- laravel-docs: collections.md#method-listing -->
 <!-- laravel-docs: collections.md#higher-order-messages -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 The collection package provides Bedrock's Go implementation for this Laravel-aligned surface.
 
 <div class="docs-callout docs-callout-laravel">

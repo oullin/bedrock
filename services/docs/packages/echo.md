@@ -3,6 +3,9 @@
 <!-- laravel-docs: broadcasting.md#client-side-installation -->
 <!-- laravel-docs: reverb.md#introduction -->
 
+<!-- BEDROCK:HAND -->
+<!-- /BEDROCK:HAND -->
+
 Package echo is a Go port of the Laravel Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
 
 <div class="docs-callout docs-callout-laravel">

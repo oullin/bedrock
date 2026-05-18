@@ -9,13 +9,10 @@ const docsInventoryPath = path.join(root, 'services/compliance/docs-inventories/
 const validLaravelSources = new Set(read(docsInventoryPath).split('\n').filter((line) => line && !line.startsWith('#')))
 
 const laravelSources = {
-  'ai/boost': ['boost.md#introduction', 'boost.md#features', 'boost.md#documentation-api', 'boost.md#ai-guidelines'],
-  'ai/mcp': ['mcp.md#introduction', 'mcp.md#web-server', 'mcp.md#creating-resources', 'mcp.md#prompts', 'mcp.md#testing-servers'],
-  'ai/sdk': ['ai-sdk.md#introduction', 'ai-sdk.md#files', 'ai-sdk.md#images', 'ai-sdk.md#audio', 'ai-sdk.md#vector-stores'],
-  auth: ['authentication.md#authentication', 'authorization.md#authorization', 'passwords.md#resetting-passwords', 'verification.md#email-verification'],
+  auth: ['authentication.md#authentication', 'authentication.md#manually-authenticating-users', 'authentication.md#http-basic-authentication', 'authorization.md#authorization', 'passwords.md#resetting-passwords', 'verification.md#email-verification'],
   broadcasting: ['broadcasting.md#introduction', 'broadcasting.md#quickstart', 'broadcasting.md#client-side-installation'],
   bus: ['queues.md#creating-jobs', 'queues.md#job-batching', 'queues.md#chains-and-batches'],
-  cache: ['cache.md#cache', 'cache.md#cache-usage', 'cache.md#cache-tags', 'cache.md#atomic-locks', 'cache.md#cache-failover'],
+  cache: ['cache.md#cache', 'cache.md#cache-usage', 'cache.md#cache-tags', 'cache.md#atomic-locks', 'cache.md#cache-failover', 'cache.md#events'],
   collection: ['collections.md#introduction', 'collections.md#method-listing', 'collections.md#higher-order-messages'],
   concurrency: ['concurrency.md#introduction', 'concurrency.md#running-concurrent-tasks'],
   conditionable: ['collections.md#higher-order-messages', 'helpers.md#other-utilities'],
@@ -24,13 +21,13 @@ const laravelSources = {
   container: ['container.md#introduction', 'container.md#binding', 'container.md#resolving', 'container.md#method-invocation-and-injection'],
   contracts: ['contracts.md#introduction', 'providers.md#service-providers'],
   cookie: ['requests.md#cookies', 'responses.md#attaching-cookies-to-responses', 'encryption.md#introduction'],
-  database: ['database.md#introduction', 'queries.md#running-database-queries', 'migrations.md#introduction', 'eloquent.md#introduction', 'seeding.md#introduction'],
+  database: ['database.md#database', 'database.md#introduction', 'queries.md#queries', 'queries.md#running-database-queries', 'migrations.md#migrations', 'migrations.md#introduction', 'eloquent.md#eloquent', 'eloquent.md#introduction', 'seeding.md#seeding', 'seeding.md#introduction'],
   echo: ['broadcasting.md#client-side-installation', 'reverb.md#introduction'],
   encryption: ['encryption.md#introduction', 'encryption.md#using-the-encrypter'],
   envoy: ['envoy.md#introduction', 'envoy.md#writing-tasks', 'envoy.md#notifications'],
   events: ['events.md#introduction', 'events.md#defining-events', 'events.md#defining-listeners', 'events.md#queued-event-listeners'],
   facades: ['facades.md#introduction', 'facades.md#facade-class-reference'],
-  filesystem: ['filesystem.md#introduction', 'filesystem.md#obtaining-disk-instances', 'filesystem.md#file-uploads'],
+  filesystem: ['filesystem.md#filesystem', 'filesystem.md#introduction', 'filesystem.md#configuration', 'filesystem.md#obtaining-disk-instances', 'filesystem.md#retrieving-files', 'filesystem.md#storing-files', 'filesystem.md#deleting-files', 'filesystem.md#directories'],
   fortify: ['fortify.md#introduction', 'fortify.md#authentication', 'fortify.md#registration', 'fortify.md#password-reset'],
   hashing: ['hashing.md#introduction', 'hashing.md#basic-usage', 'hashing.md#determining-if-a-password-needs-to-be-rehashed'],
   horizon: ['horizon.md#introduction', 'horizon.md#configuration', 'horizon.md#monitoring', 'horizon.md#balancing-strategies'],
@@ -55,17 +52,17 @@ const laravelSources = {
   queue: ['queues.md#introduction', 'queues.md#creating-jobs', 'queues.md#job-batching', 'queues.md#running-the-queue-worker', 'queues.md#failed-jobs'],
   redis: ['redis.md#introduction', 'redis.md#interacting-with-redis', 'redis.md#pipelining-commands', 'redis.md#pubsub'],
   reverb: ['reverb.md#introduction', 'reverb.md#application-credentials', 'reverb.md#running-reverb-in-production', 'broadcasting.md#client-side-installation'],
-  routing: ['routing.md#basic-routing', 'routing.md#route-parameters', 'routing.md#named-routes', 'routing.md#middleware', 'routing.md#route-groups'],
+  routing: ['routing.md#routing', 'routing.md#basic-routing', 'routing.md#route-parameters', 'routing.md#named-routes', 'routing.md#middleware', 'routing.md#route-groups', 'routing.md#route-model-binding', 'routing.md#fallback-routes', 'routing.md#rate-limiting'],
   scout: ['scout.md#introduction', 'scout.md#searchable-models', 'scout.md#querying', 'search.md#search'],
   seo: ['responses.md#creating-responses', 'frontend.md#frontend'],
-  session: ['session.md#introduction', 'session.md#configuration', 'session.md#retrieving-data', 'session.md#flash-data', 'session.md#session-blocking'],
+  session: ['session.md#session', 'session.md#introduction', 'session.md#using-the-session', 'session.md#flash-data'],
   socialite: ['socialite.md#introduction', 'socialite.md#routing', 'socialite.md#authentication-and-storage'],
   spark: ['spark.md#introduction', 'cashier.md#subscriptions'],
   str: ['strings.md#introduction', 'helpers.md#available-methods'],
   support: ['helpers.md#introduction', 'collections.md#introduction', 'contracts.md#introduction'],
   telescope: ['telescope.md#introduction', 'telescope.md#watchers', 'telescope.md#dashboard-authorization'],
   translation: ['localization.md#introduction', 'localization.md#retrieving-translation-strings', 'localization.md#pluralization'],
-  validation: ['validation.md#introduction', 'validation.md#available-validation-rules', 'validation.md#working-with-validated-input', 'validation.md#validating-files'],
+  validation: ['validation.md#validation', 'validation.md#introduction', 'validation.md#quickstart', 'validation.md#manually-creating-validators', 'validation.md#available-validation-rules'],
   wayfinder: ['urls.md#urls-for-controller-actions', 'routing.md#named-routes', 'frontend.md#using-react-svelte-or-vue'],
 }
 
@@ -198,6 +195,35 @@ function detectCapabilities(sourceRoot, symbols) {
   return capabilities
 }
 
+// HAND-AUTHORED BLOCK MARKERS
+//
+// Anything wrapped between these two markers in an existing package doc
+// is preserved verbatim across regenerations. Use this to add narrative
+// content (introduction, configuration, basic usage, drivers, custom
+// drivers, events) on top of the auto-generated public-surface tables.
+//
+// Layout in the rendered file:
+//
+//   # <title>
+//   <!-- laravel-docs: ... -->
+//
+//   <!-- BEDROCK:HAND -->
+//   ...your hand-authored markdown...
+//   <!-- /BEDROCK:HAND -->
+//
+//   <auto-generated callouts, source coverage, public surface, API reference, ...>
+const handStartMarker = '<!-- BEDROCK:HAND -->'
+const handEndMarker = '<!-- /BEDROCK:HAND -->'
+
+function existingHandBlock(existing) {
+  if (!existing) return ''
+  const start = existing.indexOf(handStartMarker)
+  if (start === -1) return ''
+  const end = existing.indexOf(handEndMarker, start + handStartMarker.length)
+  if (end === -1) return ''
+  return existing.slice(start, end + handEndMarker.length)
+}
+
 function existingLaravelComments(existing, slug) {
   const existingSources = (existing.match(/^<!-- laravel-docs:[\s\S]*?-->$/gm) ?? [])
     .map((comment) => comment.replace(/^<!--\s*laravel-docs:\s*/, '').replace(/\s*-->$/, ''))
@@ -250,6 +276,7 @@ function guideFor(slug) {
   const sourceRoot = packageSourcePath(slug)
   const existing = read(docsPath(slug))
   const comments = existingLaravelComments(existing, slug)
+  const handBlock = existingHandBlock(existing)
   const goFiles = walk(sourceRoot, (file) => {
     const relParts = path.relative(sourceRoot, file).split(path.sep)
     return file.endsWith('.go') && !file.endsWith('_test.go') && !relParts.includes('tests')
@@ -265,10 +292,14 @@ function guideFor(slug) {
   const title = titleFor(slug)
   const coreConcepts = coreConceptsFor(title, packageName)
 
+  const handSection = handBlock
+    ? `\n${handBlock}\n`
+    : `\n${handStartMarker}\n${handEndMarker}\n`
+
   return `# ${title}
 
 ${comments}
-
+${handSection}
 ${summary}
 
 <div class="docs-callout docs-callout-laravel">
