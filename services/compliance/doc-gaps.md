@@ -152,12 +152,13 @@ with:
 ```bash
 python3 - <<'PY'
 import yaml
-status = yaml.safe_load(open('services/compliance/docs-status.yml'))
+with open('services/compliance/docs-status.yml') as f:
+    status = yaml.safe_load(f) or {}
 classified = (set(status.get('ported') or [])
               | set(status.get('adapted') or [])
               | set(status.get('excluded') or []))
-inv = [l.strip() for l in open('services/compliance/docs-inventories/laravel-docs.txt')
-       if l.strip() and not l.startswith('#')]
+with open('services/compliance/docs-inventories/laravel-docs.txt') as f:
+    inv = [l.strip() for l in f if l.strip() and not l.strip().startswith('#')]
 pending = sorted(set(inv) - classified)
 print(f'pending={len(pending)} of {len(inv)}')
 for s in pending:
