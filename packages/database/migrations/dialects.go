@@ -1,19 +1,52 @@
 package migrations
 
 // dialect holds per-driver overrides for the migrations-table CREATE and
-// existence-check statements. Drivers whose default DDL is incompatible
-// register an entry here so DatabaseRepository can pick it up automatically
-// from the connection's driver name.
+// existence-check statements. Each registered driver supplies the column
+// types and metadata query that match its system catalogs, so apps get
+// correct DDL out of the box without manual SetCreateDDL/SetExistsSQL calls.
 type dialect struct {
 	// createDDL is a fmt.Sprintf format with a single %s placeholder for
 	// the table name.
 	createDDL string
-	// existsSQL is a parameterized query receiving the table name as its
-	// single positional binding.
+	// existsSQL is a parameterized query that receives the table name as
+	// its single positional binding. Drivers using $N placeholders (postgres)
+	// must spell them explicitly here.
 	existsSQL string
 }
 
 var dialects = map[string]dialect{
+	"pgsql": {
+		createDDL: `CREATE TABLE IF NOT EXISTS %s (
+			id BIGSERIAL PRIMARY KEY,
+			migration VARCHAR(255) NOT NULL,
+			batch INTEGER NOT NULL
+		)`,
+		existsSQL: "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = current_schema() AND tablename = $1",
+	},
+	"mysql": {
+		createDDL: `CREATE TABLE IF NOT EXISTS %s (
+			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			migration VARCHAR(255) NOT NULL,
+			batch INT NOT NULL
+		) ENGINE=InnoDB`,
+		existsSQL: "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
+	},
+	"mariadb": {
+		createDDL: `CREATE TABLE IF NOT EXISTS %s (
+			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			migration VARCHAR(255) NOT NULL,
+			batch INT NOT NULL
+		) ENGINE=InnoDB`,
+		existsSQL: "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",
+	},
+	"sqlite": {
+		createDDL: `CREATE TABLE IF NOT EXISTS %s (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			migration VARCHAR(255) NOT NULL,
+			batch INTEGER NOT NULL
+		)`,
+		existsSQL: "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+	},
 	"clickhouse": {
 		createDDL: `CREATE TABLE IF NOT EXISTS %s (
 			id Int64,

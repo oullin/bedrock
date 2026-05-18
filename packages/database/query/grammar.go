@@ -9,7 +9,7 @@ type Grammar interface {
 	// CompileInsert compiles an INSERT statement.
 	CompileInsert(b *Builder, values []map[string]any) string
 	// CompileInsertOrIgnore compiles an INSERT IGNORE statement.
-	CompileInsertOrIgnore(b *Builder, values []map[string]any) string
+	CompileInsertOrIgnore(b *Builder, values []map[string]any) (string, error)
 	// CompileInsertGetId compiles an INSERT returning the new ID.
 	CompileInsertGetId(b *Builder, values map[string]any, sequence string) (string, error)
 	// CompileInsertUsing compiles an INSERT ... SELECT statement.
