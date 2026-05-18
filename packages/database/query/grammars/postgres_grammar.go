@@ -402,8 +402,8 @@ func (g *PostgresGrammar) CompileInsert(b *query.Builder, values []map[string]an
 	return "insert into " + table + " (" + cols + ") values " + strings.Join(paramRows, ", ")
 }
 
-func (g *PostgresGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) string {
-	return g.CompileInsert(b, values) + " on conflict do nothing"
+func (g *PostgresGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[string]any) (string, error) {
+	return g.CompileInsert(b, values) + " on conflict do nothing", nil
 }
 
 func (g *PostgresGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) (string, error) {

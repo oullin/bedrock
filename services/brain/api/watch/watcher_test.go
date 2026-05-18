@@ -91,6 +91,7 @@ func TestRunDebouncesAndFires(t *testing.T) {
 	root := t.TempDir()
 
 	var calls int32
+
 	var once sync.Once
 	fired := make(chan struct{}, 1)
 

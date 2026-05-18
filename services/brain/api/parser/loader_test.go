@@ -11,6 +11,18 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+// Force an unusable GOWORK in the process env. The previous behaviour was
+// to honor this and return empty Syntax with no top-level error — which
+// silently broke every analyzer test in CI. Load now sets GOWORK=off
+// inside packages.Config.Env so it remains usable regardless.
+
+// Convert to a relative path to ensure Load resolves it.
+
+// Format is "<rel-path>:<line>". For the fixture the file is at
+// the project root so the rel path is just the base name.
+
+type errSentinel struct{}
+
 const fixtureGoMod = "module example.com/fixture\n\ngo 1.26\n"
 
 const fixtureFooBody = `package fixture
@@ -47,10 +59,7 @@ func mustWrite(t *testing.T, dir, name, body string) {
 }
 
 func TestLoadIsolatesFromOuterGOWORK(t *testing.T) {
-	// Force an unusable GOWORK in the process env. The previous behaviour was
-	// to honor this and return empty Syntax with no top-level error — which
-	// silently broke every analyzer test in CI. Load now sets GOWORK=off
-	// inside packages.Config.Env so it remains usable regardless.
+
 	t.Setenv("GOWORK", "/this/workspace/does/not/exist")
 
 	proj, err := parser.Load(newFixture(t))
@@ -76,7 +85,7 @@ func TestLoadIsolatesFromOuterGOWORK(t *testing.T) {
 
 func TestLoadReturnsAbsolutePath(t *testing.T) {
 	dir := newFixture(t)
-	// Convert to a relative path to ensure Load resolves it.
+
 	rel, err := filepath.Rel(t.TempDir(), dir)
 
 	if err != nil || rel == "" {
@@ -142,10 +151,10 @@ func TestPositionFormatsRelativeToRoot(t *testing.T) {
 	}
 
 	var found bool
+
 	_ = proj.EachFile(func(_ *packages.Package, file *ast.File, _ string) error {
 		pos := proj.Position(file)
-		// Format is "<rel-path>:<line>". For the fixture the file is at
-		// the project root so the rel path is just the base name.
+
 		if !strings.HasSuffix(pos, ".go:1") {
 			t.Errorf("Position = %q, want suffix '.go:1'", pos)
 		}
@@ -167,7 +176,5 @@ func TestPositionEmptyForNil(t *testing.T) {
 		t.Errorf("Position(nil) = %q, want empty", got)
 	}
 }
-
-type errSentinel struct{}
 
 func (errSentinel) Error() string { return "sentinel" }

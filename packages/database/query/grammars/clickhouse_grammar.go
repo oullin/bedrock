@@ -368,8 +368,11 @@ func (g *ClickHouseGrammar) CompileInsert(b *query.Builder, values []map[string]
 	return "insert into " + table + " (" + cols + ") values " + strings.Join(paramRows, ", ")
 }
 
-func (g *ClickHouseGrammar) CompileInsertOrIgnore(_ *query.Builder, _ []map[string]any) string {
-	return throwSQL("InsertOrIgnore is not supported; use ReplacingMergeTree at the table level")
+// CompileInsertOrIgnore returns database.ErrInsertOrIgnoreNotSupported.
+// ClickHouse has no INSERT IGNORE / ON CONFLICT DO NOTHING equivalent —
+// use ReplacingMergeTree at the table level for deduplication semantics.
+func (g *ClickHouseGrammar) CompileInsertOrIgnore(_ *query.Builder, _ []map[string]any) (string, error) {
+	return "", database.ErrInsertOrIgnoreNotSupported
 }
 
 // CompileInsertGetId returns database.ErrInsertGetIdNotSupported. ClickHouse
@@ -563,13 +566,4 @@ func (g *ClickHouseGrammar) nParams(n int) string {
 	}
 
 	return strings.Join(params, ", ")
-}
-
-// throwSQL emits a statement that raises a server-side error with the given
-// message. Used for operations ClickHouse cannot support, so callers fail
-// loudly rather than silently no-op.
-func throwSQL(reason string) string {
-	escaped := strings.ReplaceAll(reason, "'", "\\'")
-
-	return fmt.Sprintf("select throwIf(1, 'clickhouse: %s')", escaped)
 }
