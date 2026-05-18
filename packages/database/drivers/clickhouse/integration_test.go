@@ -128,7 +128,6 @@ func TestClickHouse_MigrationsRepository(t *testing.T) {
 	}()
 
 	repo := migrations.NewDatabaseRepository(conn, table)
-	clickhouse.ConfigureMigrationsRepository(repo)
 
 	if err := repo.CreateRepository(ctx); err != nil {
 		t.Fatalf("create migrations table: %v", err)

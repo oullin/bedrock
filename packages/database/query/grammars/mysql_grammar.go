@@ -417,8 +417,8 @@ func (g *MySQLGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[stri
 	return strings.Replace(sql, "insert", "insert ignore", 1)
 }
 
-func (g *MySQLGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) string {
-	return g.CompileInsert(b, []map[string]any{values})
+func (g *MySQLGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) (string, error) {
+	return g.CompileInsert(b, []map[string]any{values}), nil
 }
 
 func (g *MySQLGrammar) CompileInsertUsing(b *query.Builder, columns []string, sql string) string {
@@ -454,7 +454,7 @@ func (g *MySQLGrammar) CompileUpdate(b *query.Builder, values map[string]any) st
 	return sql
 }
 
-func (g *MySQLGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) string {
+func (g *MySQLGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) (string, error) {
 	sql := g.CompileInsert(b, values)
 
 	var sets []string
@@ -463,7 +463,7 @@ func (g *MySQLGrammar) CompileUpsert(b *query.Builder, values []map[string]any, 
 		sets = append(sets, g.Wrap(col)+" = values("+g.Wrap(col)+")")
 	}
 
-	return sql + " on duplicate key update " + strings.Join(sets, ", ")
+	return sql + " on duplicate key update " + strings.Join(sets, ", "), nil
 }
 
 func (g *MySQLGrammar) CompileDelete(b *query.Builder) string {

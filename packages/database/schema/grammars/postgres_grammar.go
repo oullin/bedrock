@@ -112,7 +112,7 @@ func (g *PostgresGrammar) CompileDropIndex(_ *schema.Blueprint, name string) str
 	return "drop index if exists " + g.wrap(name)
 }
 
-func (g *PostgresGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) string {
+func (g *PostgresGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *schema.ForeignKeyDefinition) (string, error) {
 	cols := make([]string, len(fk.Columns))
 
 	for i, c := range fk.Columns {
@@ -137,7 +137,7 @@ func (g *PostgresGrammar) CompileCreateForeignKey(bp *schema.Blueprint, fk *sche
 		sql += " on update " + fk.OnUpdateAction
 	}
 
-	return sql
+	return sql, nil
 }
 
 func (g *PostgresGrammar) CompileDropForeignKey(bp *schema.Blueprint, name string) string {

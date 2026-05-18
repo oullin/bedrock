@@ -374,8 +374,8 @@ func (g *SQLiteGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[str
 	return strings.Replace(g.CompileInsert(b, values), "insert", "insert or ignore", 1)
 }
 
-func (g *SQLiteGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, _ string) string {
-	return g.CompileInsert(b, []map[string]any{values})
+func (g *SQLiteGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, _ string) (string, error) {
+	return g.CompileInsert(b, []map[string]any{values}), nil
 }
 
 func (g *SQLiteGrammar) CompileInsertUsing(b *query.Builder, columns []string, sql string) string {
@@ -410,7 +410,7 @@ func (g *SQLiteGrammar) CompileUpdate(b *query.Builder, values map[string]any) s
 	return sql
 }
 
-func (g *SQLiteGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) string {
+func (g *SQLiteGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) (string, error) {
 	sql := g.CompileInsert(b, values)
 	sql += " on conflict (" + g.Columnize(uniqueBy) + ") do update set "
 
@@ -420,7 +420,7 @@ func (g *SQLiteGrammar) CompileUpsert(b *query.Builder, values []map[string]any,
 		sets = append(sets, g.Wrap(col)+" = "+g.Wrap("excluded."+col))
 	}
 
-	return sql + strings.Join(sets, ", ")
+	return sql + strings.Join(sets, ", "), nil
 }
 
 func (g *SQLiteGrammar) CompileDelete(b *query.Builder) string {

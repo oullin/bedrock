@@ -1,9 +1,11 @@
 package grammars_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
+	"github.com/bedrock/packages/database"
 	"github.com/bedrock/packages/database/query"
 	"github.com/bedrock/packages/database/query/grammars"
 )
@@ -101,15 +103,20 @@ func TestClickHouseDeleteWithoutWhereGetsTautology(t *testing.T) {
 	}
 }
 
-// Upsert must surface a server-side throwIf so the caller fails loudly.
-func TestClickHouseUpsertEmitsThrow(t *testing.T) {
+// Upsert must surface the typed sentinel so callers fail loudly before any
+// SQL is sent.
+func TestClickHouseUpsertReturnsSentinel(t *testing.T) {
 	t.Parallel()
 	g := grammars.NewClickHouseGrammar()
 	b := query.NewBuilder(nil, g, nil).From("events")
-	sql := g.CompileUpsert(b, []map[string]any{{"id": 1}}, []string{"id"}, []string{"id"})
+	sql, err := g.CompileUpsert(b, []map[string]any{{"id": 1}}, []string{"id"}, []string{"id"})
 
-	if !strings.Contains(sql, "throwIf") || !strings.Contains(sql, "upsert is not supported") {
-		t.Fatalf("expected throwIf with upsert message, got %q", sql)
+	if sql != "" {
+		t.Fatalf("expected empty SQL, got %q", sql)
+	}
+
+	if !errors.Is(err, database.ErrUpsertNotSupported) {
+		t.Fatalf("expected ErrUpsertNotSupported, got %v", err)
 	}
 }
 
@@ -315,14 +322,18 @@ func TestClickHouseRandomReturnsRand(t *testing.T) {
 	}
 }
 
-func TestClickHouseInsertGetIdMatchesInsert(t *testing.T) {
+func TestClickHouseInsertGetIdReturnsSentinel(t *testing.T) {
 	t.Parallel()
 	g := grammars.NewClickHouseGrammar()
 	b := query.NewBuilder(nil, g, nil).From("events")
-	sql := g.CompileInsertGetId(b, map[string]any{"name": "click"}, "id")
+	sql, err := g.CompileInsertGetId(b, map[string]any{"name": "click"}, "id")
 
-	if !strings.Contains(sql, "insert into") || !strings.Contains(sql, "`events`") {
-		t.Fatalf("expected insert sql; got %q", sql)
+	if sql != "" {
+		t.Fatalf("expected empty SQL, got %q", sql)
+	}
+
+	if !errors.Is(err, database.ErrInsertGetIdNotSupported) {
+		t.Fatalf("expected ErrInsertGetIdNotSupported, got %v", err)
 	}
 }
 

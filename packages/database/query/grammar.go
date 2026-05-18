@@ -11,13 +11,13 @@ type Grammar interface {
 	// CompileInsertOrIgnore compiles an INSERT IGNORE statement.
 	CompileInsertOrIgnore(b *Builder, values []map[string]any) string
 	// CompileInsertGetId compiles an INSERT returning the new ID.
-	CompileInsertGetId(b *Builder, values map[string]any, sequence string) string
+	CompileInsertGetId(b *Builder, values map[string]any, sequence string) (string, error)
 	// CompileInsertUsing compiles an INSERT ... SELECT statement.
 	CompileInsertUsing(b *Builder, columns []string, sql string) string
 	// CompileUpdate compiles an UPDATE statement.
 	CompileUpdate(b *Builder, values map[string]any) string
 	// CompileUpsert compiles an UPSERT (INSERT ON CONFLICT UPDATE) statement.
-	CompileUpsert(b *Builder, values []map[string]any, uniqueBy []string, update []string) string
+	CompileUpsert(b *Builder, values []map[string]any, uniqueBy []string, update []string) (string, error)
 	// CompileDelete compiles a DELETE statement.
 	CompileDelete(b *Builder) string
 	// CompileTruncate compiles a TRUNCATE statement.
