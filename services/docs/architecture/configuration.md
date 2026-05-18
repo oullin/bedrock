@@ -203,13 +203,13 @@ without a global. See
 
 ## Choosing Between Layers
 
-| You want to                                                    | Use                                                                |
-| -------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Decide which providers exist                                   | Conditional `append` to your `StandardProviders` list              |
-| Pick the default driver for a manager                          | A field on your `Options` struct                                   |
-| Configure a manager that reads dot-notation keys (logging)     | Build a `*config.Repository` and pass it via `LogProviderConfig`   |
-| Share an app-specific value across handlers                    | `Container.Instance("app.something", value)`                       |
-| Look up environment-derived values at request time             | Read from `Container.Instance` or a service that wraps env access  |
+| You want to                                                | Use                                                               |
+| ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| Decide which providers exist                               | Conditional `append` to your `StandardProviders` list             |
+| Pick the default driver for a manager                      | A field on your `Options` struct                                  |
+| Configure a manager that reads dot-notation keys (logging) | Build a `*config.Repository` and pass it via `LogProviderConfig`  |
+| Share an app-specific value across handlers                | `Container.Instance("app.something", value)`                      |
+| Look up environment-derived values at request time         | Read from `Container.Instance` or a service that wraps env access |
 
 ## See Also
 

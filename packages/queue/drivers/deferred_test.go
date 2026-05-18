@@ -264,6 +264,7 @@ func TestDeferredDriverQueueNamesUniqueOrdered(t *testing.T) {
 	_, _ = drv.Push(ctx, "emails", []byte("c"))
 
 	names, err := drv.QueueNames(ctx)
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}
@@ -289,6 +290,7 @@ func TestDeferredDriverInspectionPartitionsByDueDate(t *testing.T) {
 	_, _ = drv.Push(ctx, "other", []byte("other-q"))                      // wrong queue
 
 	pending, err := drv.PendingJobs(ctx, "default")
+
 	if err != nil {
 		t.Fatalf("PendingJobs: %v", err)
 	}
@@ -298,6 +300,7 @@ func TestDeferredDriverInspectionPartitionsByDueDate(t *testing.T) {
 	}
 
 	delayed, err := drv.DelayedJobs(ctx, "default")
+
 	if err != nil {
 		t.Fatalf("DelayedJobs: %v", err)
 	}
@@ -311,6 +314,7 @@ func TestDeferredDriverInspectionPartitionsByDueDate(t *testing.T) {
 	}
 
 	reserved, err := drv.ReservedJobs(ctx, "default")
+
 	if err != nil || reserved != nil {
 		t.Errorf("ReservedJobs: got (%v, %v), want (nil, nil)", reserved, err)
 	}
@@ -322,6 +326,7 @@ func TestDeferredDriverQueueNamesEmpty(t *testing.T) {
 	drv := drivers.NewDeferredDriver("deferred", nil)
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil || names != nil {
 		t.Errorf("got (%v, %v), want (nil, nil)", names, err)
 	}

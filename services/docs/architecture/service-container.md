@@ -10,12 +10,12 @@ that make services available across the application: cache managers, queues,
 loggers, mailers, your own repositories. Anything you need to compose with
 something else lives here.
 
-This page covers how to *consume* services from the container in handlers
-and services, and how to *register* services into it from your own code.
+This page covers how to _consume_ services from the container in handlers
+and services, and how to _register_ services into it from your own code.
 
 ## What's Bound, and Where
 
-Bindings live under string keys called *abstracts*. Bedrock's standard
+Bindings live under string keys called _abstracts_. Bedrock's standard
 providers bind a stable set of names — `"cache"`, `"queue"`, `"log"`,
 `"router"`, `"db"`, `"session"`, `"hash"`, `"events"`, `"bus"`, etc. Each
 provider declares the keys it owns via the `Provides()` method
@@ -186,7 +186,7 @@ type Deferred interface {
 ```
 
 When a deferred provider is registered, the application records its
-declared keys but does *not* call `Register()` until the first time
+declared keys but does _not_ call `Register()` until the first time
 `application.Make("...")` is called for one of those keys
 ([application.go:96](https://github.com/gocanto/bedrock/blob/main/packages/container/application.go#L96)).
 

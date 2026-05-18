@@ -281,6 +281,7 @@ func TestRun_AsyncFailFastCancelsSiblings(t *testing.T) {
 		}),
 		multisteps.Async("slow", func(in multisteps.JobInput) (any, error) {
 			close(slowEntered)
+
 			select {
 			case <-in.Ctx.Done():
 				siblingCancelled.Store(true)

@@ -10,6 +10,32 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
+// Add a delayed job with a past score (already due).
+
+// Delayed set should be empty after migration.
+
+// Should be back on the main queue.
+
+// Should be in the delayed set.
+
+// Should have an entry in the failed key.
+
+// The default mockRedisClient does not satisfy RedisScanner,
+// RedisListRanger, or RedisSortedSetRanger.
+
+// ReservedJobs always returns ErrNotSupported for the Redis driver.
+
+// rangerRedisClient extends mockRedisClient with the optional Scanner /
+// ListRanger / SortedSetRanger contracts used by the Redis driver's
+// inspection methods.
+type rangerRedisClient struct {
+	*mockRedisClient
+	keys      []string
+	scanErr   error
+	lrangeErr error
+	zrangeErr error
+}
+
 func TestRedisDriverPush(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +132,6 @@ func TestRedisDriverPopMigratesDueDelayedJobs(t *testing.T) {
 	client := newMockRedisClient()
 	drv := drivers.NewRedisDriver(client, "redis")
 
-	// Add a delayed job with a past score (already due).
 	_ = client.ZAdd(context.Background(), "queues:default:delayed", float64(time.Now().Add(-time.Minute).Unix()), "due-payload")
 
 	job, err := drv.Pop(context.Background(), "default")
@@ -119,7 +144,6 @@ func TestRedisDriverPopMigratesDueDelayedJobs(t *testing.T) {
 		t.Errorf("expected 'due-payload', got %q", job.Payload())
 	}
 
-	// Delayed set should be empty after migration.
 	n, _ := client.ZCard(context.Background(), "queues:default:delayed")
 
 	if n != 0 {
@@ -156,7 +180,6 @@ func TestRedisDriverJobRelease(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Should be back on the main queue.
 	n, _ := client.LLen(context.Background(), "queues:default")
 
 	if n != 1 {
@@ -180,7 +203,6 @@ func TestRedisDriverJobReleaseWithDelay(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Should be in the delayed set.
 	n, _ := client.ZCard(context.Background(), "queues:default:delayed")
 
 	if n != 1 {
@@ -221,7 +243,6 @@ func TestRedisDriverJobFail(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Should have an entry in the failed key.
 	n, _ := client.LLen(context.Background(), "queues:default:failed")
 
 	if n != 1 {
@@ -318,8 +339,6 @@ func TestRedisDriverConnectionName(t *testing.T) {
 func TestRedisDriverInspectionWithoutCapabilityReturnsErrNotSupported(t *testing.T) {
 	t.Parallel()
 
-	// The default mockRedisClient does not satisfy RedisScanner,
-	// RedisListRanger, or RedisSortedSetRanger.
 	client := newMockRedisClient()
 	drv := drivers.NewRedisDriver(client, "redis")
 	ctx := context.Background()
@@ -336,21 +355,9 @@ func TestRedisDriverInspectionWithoutCapabilityReturnsErrNotSupported(t *testing
 		t.Errorf("DelayedJobs: want ErrNotSupported, got %v", err)
 	}
 
-	// ReservedJobs always returns ErrNotSupported for the Redis driver.
 	if _, err := drv.ReservedJobs(ctx, "default"); !errors.Is(err, queue.ErrNotSupported) {
 		t.Errorf("ReservedJobs: want ErrNotSupported, got %v", err)
 	}
-}
-
-// rangerRedisClient extends mockRedisClient with the optional Scanner /
-// ListRanger / SortedSetRanger contracts used by the Redis driver's
-// inspection methods.
-type rangerRedisClient struct {
-	*mockRedisClient
-	keys      []string
-	scanErr   error
-	lrangeErr error
-	zrangeErr error
 }
 
 func (c *rangerRedisClient) ScanMatch(_ context.Context, _ string) ([]string, error) {
@@ -400,11 +407,13 @@ func TestRedisDriverQueueNamesDedupesAndUnwraps(t *testing.T) {
 	drv := drivers.NewRedisDriver(client, "redis")
 
 	names, err := drv.QueueNames(context.Background())
+
 	if err != nil {
 		t.Fatalf("QueueNames: %v", err)
 	}
 
 	want := map[string]struct{}{"default": {}, "emails": {}, "cluster": {}}
+
 	if len(names) != len(want) {
 		t.Fatalf("got %v, want %d unique names", names, len(want))
 	}
@@ -427,6 +436,7 @@ func TestRedisDriverQueueNamesScannerErrorPropagates(t *testing.T) {
 	drv := drivers.NewRedisDriver(client, "redis")
 
 	_, err := drv.QueueNames(context.Background())
+
 	if !errors.Is(err, wantErr) {
 		t.Errorf("want %v, got %v", wantErr, err)
 	}
@@ -444,6 +454,7 @@ func TestRedisDriverPendingJobsReturnsSnapshots(t *testing.T) {
 	_, _ = drv.Push(ctx, "default", []byte(`not-json`))
 
 	jobs, err := drv.PendingJobs(ctx, "default")
+
 	if err != nil {
 		t.Fatalf("PendingJobs: %v", err)
 	}
@@ -454,9 +465,11 @@ func TestRedisDriverPendingJobsReturnsSnapshots(t *testing.T) {
 
 	// Find the JSON one and assert decoded fields.
 	var decoded *queue.InspectedJob
+
 	for i := range jobs {
 		if jobs[i].UUID == "u1" {
 			decoded = &jobs[i]
+
 			break
 		}
 	}
@@ -480,6 +493,7 @@ func TestRedisDriverDelayedJobsReturnsSnapshots(t *testing.T) {
 	_, _ = drv.PushDelayed(ctx, "default", []byte(`{"uuid":"d1"}`), 24*time.Hour)
 
 	jobs, err := drv.DelayedJobs(ctx, "default")
+
 	if err != nil {
 		t.Fatalf("DelayedJobs: %v", err)
 	}
