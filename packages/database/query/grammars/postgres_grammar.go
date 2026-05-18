@@ -406,8 +406,8 @@ func (g *PostgresGrammar) CompileInsertOrIgnore(b *query.Builder, values []map[s
 	return g.CompileInsert(b, values) + " on conflict do nothing"
 }
 
-func (g *PostgresGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) string {
-	return g.CompileInsert(b, []map[string]any{values}) + " returning " + g.Wrap(sequence)
+func (g *PostgresGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, sequence string) (string, error) {
+	return g.CompileInsert(b, []map[string]any{values}) + " returning " + g.Wrap(sequence), nil
 }
 
 func (g *PostgresGrammar) CompileInsertUsing(b *query.Builder, columns []string, sql string) string {
@@ -443,7 +443,7 @@ func (g *PostgresGrammar) CompileUpdate(b *query.Builder, values map[string]any)
 	return sql
 }
 
-func (g *PostgresGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) string {
+func (g *PostgresGrammar) CompileUpsert(b *query.Builder, values []map[string]any, uniqueBy []string, update []string) (string, error) {
 	sql := g.CompileInsert(b, values)
 	sql += " on conflict (" + g.Columnize(uniqueBy) + ") do update set "
 
@@ -453,7 +453,7 @@ func (g *PostgresGrammar) CompileUpsert(b *query.Builder, values []map[string]an
 		sets = append(sets, g.Wrap(col)+" = "+g.Wrap("excluded."+col))
 	}
 
-	return sql + strings.Join(sets, ", ")
+	return sql + strings.Join(sets, ", "), nil
 }
 
 func (g *PostgresGrammar) CompileDelete(b *query.Builder) string {

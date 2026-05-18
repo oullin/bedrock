@@ -18,7 +18,7 @@ type Grammar interface {
 	CompileRenameColumn(bp *Blueprint, from, to string) string
 	CompileCreateIndex(bp *Blueprint, cmd BlueprintCommand) string
 	CompileDropIndex(bp *Blueprint, name string) string
-	CompileCreateForeignKey(bp *Blueprint, fk *ForeignKeyDefinition) string
+	CompileCreateForeignKey(bp *Blueprint, fk *ForeignKeyDefinition) (string, error)
 	CompileDropForeignKey(bp *Blueprint, name string) string
 	CompileTableExists() string
 	CompileColumnListing(table string) string
@@ -68,12 +68,14 @@ func (b *Builder) Create(ctx context.Context, table string, callback func(*Bluep
 
 	// Create foreign keys.
 	for _, fk := range bp.ForeignKeys {
-		sql := b.grammar.CompileCreateForeignKey(bp, fk)
+		sql, err := b.grammar.CompileCreateForeignKey(bp, fk)
+
+		if err != nil {
+			return err
+		}
 
 		if sql != "" {
-			_, err := b.connection.Statement(ctx, sql)
-
-			if err != nil {
+			if _, err := b.connection.Statement(ctx, sql); err != nil {
 				return err
 			}
 		}
@@ -124,12 +126,14 @@ func (b *Builder) Table(ctx context.Context, table string, callback func(*Bluepr
 
 	// Create foreign keys.
 	for _, fk := range bp.ForeignKeys {
-		sql := b.grammar.CompileCreateForeignKey(bp, fk)
+		sql, err := b.grammar.CompileCreateForeignKey(bp, fk)
+
+		if err != nil {
+			return err
+		}
 
 		if sql != "" {
-			_, err := b.connection.Statement(ctx, sql)
-
-			if err != nil {
+			if _, err := b.connection.Statement(ctx, sql); err != nil {
 				return err
 			}
 		}

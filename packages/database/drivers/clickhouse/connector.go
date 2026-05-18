@@ -9,6 +9,9 @@ import (
 	"github.com/bedrock/packages/database"
 )
 
+// defaultPort is the ClickHouse native TCP port used when none is configured.
+const defaultPort = 9000
+
 // Connector creates ClickHouse database connections.
 type Connector struct{}
 
