@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	dbcontract "github.com/bedrock/packages/contracts/database"
+	"github.com/bedrock/packages/database"
 	"github.com/bedrock/packages/database/query"
 )
 
@@ -371,8 +372,11 @@ func (g *ClickHouseGrammar) CompileInsertOrIgnore(_ *query.Builder, _ []map[stri
 	return throwSQL("InsertOrIgnore is not supported; use ReplacingMergeTree at the table level")
 }
 
-func (g *ClickHouseGrammar) CompileInsertGetId(b *query.Builder, values map[string]any, _ string) string {
-	return g.CompileInsert(b, []map[string]any{values})
+// CompileInsertGetId returns database.ErrInsertGetIdNotSupported. ClickHouse
+// has no auto-increment / last-insert-id semantics — callers must assign IDs
+// explicitly and use Insert instead.
+func (g *ClickHouseGrammar) CompileInsertGetId(_ *query.Builder, _ map[string]any, _ string) (string, error) {
+	return "", database.ErrInsertGetIdNotSupported
 }
 
 func (g *ClickHouseGrammar) CompileInsertUsing(b *query.Builder, columns []string, sql string) string {
@@ -409,8 +413,11 @@ func (g *ClickHouseGrammar) CompileUpdate(b *query.Builder, values map[string]an
 	return sql
 }
 
-func (g *ClickHouseGrammar) CompileUpsert(_ *query.Builder, _ []map[string]any, _ []string, _ []string) string {
-	return throwSQL("upsert is not supported; use ReplacingMergeTree at the table level")
+// CompileUpsert returns database.ErrUpsertNotSupported. ClickHouse exposes
+// deduplication through ReplacingMergeTree at the table level rather than an
+// INSERT ... ON CONFLICT path.
+func (g *ClickHouseGrammar) CompileUpsert(_ *query.Builder, _ []map[string]any, _ []string, _ []string) (string, error) {
+	return "", database.ErrUpsertNotSupported
 }
 
 func (g *ClickHouseGrammar) CompileDelete(b *query.Builder) string {

@@ -48,7 +48,11 @@ func (b *Builder) InsertGetId(ctx context.Context, values map[string]any, sequen
 		seq = sequence[0]
 	}
 
-	compiled := b.grammar.CompileInsertGetId(b, values, seq)
+	compiled, err := b.grammar.CompileInsertGetId(b, values, seq)
+
+	if err != nil {
+		return 0, err
+	}
 
 	var bindings []any
 
@@ -84,7 +88,11 @@ func (b *Builder) Upsert(ctx context.Context, values []map[string]any, uniqueBy 
 		return 0, nil
 	}
 
-	compiled := b.grammar.CompileUpsert(b, values, uniqueBy, update)
+	compiled, err := b.grammar.CompileUpsert(b, values, uniqueBy, update)
+
+	if err != nil {
+		return 0, err
+	}
 
 	var bindings []any
 

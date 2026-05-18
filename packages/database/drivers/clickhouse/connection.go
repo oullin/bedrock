@@ -15,6 +15,3 @@ package clickhouse
 
 // DriverName is the ClickHouse driver identifier used by Manager and grammars.
 const DriverName = "clickhouse"
-
-// Default network port for the ClickHouse native TCP protocol.
-const defaultPort = 9000

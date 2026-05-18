@@ -155,6 +155,10 @@ func (r *DatabaseRepository) CreateRepository(ctx context.Context) error {
 	format := r.createDDL
 
 	if format == "" {
+		format = dialectFor(r.conn.GetDriverName()).createDDL
+	}
+
+	if format == "" {
 		format = `
 		CREATE TABLE IF NOT EXISTS %s (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -171,6 +175,10 @@ func (r *DatabaseRepository) CreateRepository(ctx context.Context) error {
 
 func (r *DatabaseRepository) RepositoryExists(ctx context.Context) (bool, error) {
 	query := r.existsSQL
+
+	if query == "" {
+		query = dialectFor(r.conn.GetDriverName()).existsSQL
+	}
 
 	if query == "" {
 		query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
