@@ -1,9 +1,7 @@
 // Package ai produces the deterministic AI context export and editor-rules
-// files brain ships. Per the plan, the heavy lifting belongs in
-// packages/ai/sdk (token budgeting) and packages/ai/boost (TARGETS table
-// for rules). Until those dependencies land in services/brain/api/go.mod
-// the package owns its own minimal implementations of both — the public
-// surface here is the seam where the swap happens.
+// files brain ships. Token budgeting is delegated to packages/ai/sdk and the
+// editor-rules TARGETS table is derived from packages/ai/boost; this package
+// is the thin seam between brain and those shared implementations.
 package ai
 
 import (
@@ -11,8 +9,14 @@ import (
 	"sort"
 	"strings"
 
+	aisdk "github.com/bedrock/packages/ai/sdk"
 	"github.com/bedrock/services/brain/api/graph"
 )
+
+// EstimateTokens returns a coarse OpenAI-style token estimate. The seam is
+// kept as a package-level variable so brain can swap in a different tokenizer
+// from packages/ai/sdk without touching call sites.
+var EstimateTokens = aisdk.EstimateTokens
 
 // ContextOptions tunes the export shape.
 type ContextOptions struct {
@@ -90,12 +94,3 @@ func RenderMarkdown(g *graph.Graph, opts ContextOptions) string {
 	return b.String()
 }
 
-// EstimateTokens returns a coarse OpenAI-style token estimate (4 chars/tok).
-// packages/ai/sdk will replace this with a proper tokenizer.
-func EstimateTokens(s string) int {
-	if s == "" {
-		return 0
-	}
-
-	return (len(s) + 3) / 4
-}
