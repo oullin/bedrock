@@ -53,7 +53,7 @@ format: format-start
 	@broadcastclient "go-fmt format in $(ROOT_PATH)"; \
 	$(GO_FMT_EXEC) format --cwd $(ROOT_PATH) --host-path $(ROOT_PATH)
 	@if [ -n "$(MARKDOWN_FILES)" ]; then \
-		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
+		pnpm exec oxfmt --write --ignore-path .gitignore $(MARKDOWN_FILES); \
 	fi
 
 format-start:
