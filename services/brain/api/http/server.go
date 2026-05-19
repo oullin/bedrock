@@ -38,11 +38,6 @@ import (
 	"github.com/bedrock/services/brain/api/stress"
 )
 
-const (
-	routePrefix = "/_request_cycle"
-	assetPrefix = routePrefix + "/assets/"
-)
-
 // Server holds the most recently scanned graph plus the analyzer to run on
 // demand from POST /api/scan.
 type Server struct {
@@ -67,6 +62,11 @@ type stressRequest struct {
 	Requests    int    `json:"requests"`
 	TimeoutMs   int    `json:"timeoutMs"`
 }
+
+const (
+	routePrefix = "/_request_cycle"
+	assetPrefix = routePrefix + "/assets/"
+)
 
 func NewServer(target string, html []byte, assetDir string) *Server {
 	return &Server{
