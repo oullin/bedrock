@@ -25,7 +25,7 @@ func AssertNothingEmbeddingsGenerated(t fake.TestingT) {
 
 // FakeEmbedding generates a normalized random vector of the given dimensionality.
 // The magnitude is 1.0 (unit vector) suitable for cosine-similarity tests.
-// Mirrors Laravel\Ai\Testing\FakeEmbedding.
+// Mirrors upstream Ai\Testing\FakeEmbedding.
 func FakeEmbedding(dims int) []float64 {
 	vec := make([]float64, dims)
 

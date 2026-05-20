@@ -7,7 +7,7 @@ import (
 )
 
 // MakeSearchable is a queueable job that indexes models in the search engine.
-// It mirrors Laravel Scout's Jobs\MakeSearchable.
+// It mirrors Scout Jobs\MakeSearchable.
 type MakeSearchable struct {
 	Models []contract.Searchable
 	engine contract.Engine

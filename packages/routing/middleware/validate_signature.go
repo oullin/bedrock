@@ -63,7 +63,7 @@ func (v *ValidateSignature) Handle(request SignatureValidator, next func(any) an
 // Relative returns the middleware-spec string used to register a relative
 // validator with optional ignored parameters.
 //
-// In Laravel this is consumed by the middleware-name resolver to produce the
+// In the upstream framework this is consumed by the middleware-name resolver to produce the
 // "ValidateSignature:relative,foo,bar" syntax. The Go form is a thin helper
 // for code-generated registrations.
 func Relative(ignore ...string) string {

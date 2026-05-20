@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\ProgressTest
+// Port of \Prompts\Tests\Feature\ProgressTest
 
-// Port of Laravel\Prompts\Tests\Feature\ProgressTest::test_progress_maps
+// Port of \Prompts\Tests\Feature\ProgressTest::test_progress_maps
 func TestProgressMaps(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -27,7 +27,7 @@ func TestProgressMaps(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ProgressTest::test_progress_with_hint
+// Port of \Prompts\Tests\Feature\ProgressTest::test_progress_with_hint
 func TestProgressWithHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -48,7 +48,7 @@ func TestProgressWithHint(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ProgressTest::test_progress_percentage
+// Port of \Prompts\Tests\Feature\ProgressTest::test_progress_percentage
 func TestProgressBarPercentage(t *testing.T) {
 	t.Parallel()
 	pb := &ProgressBar{total: 10, current: 5}
@@ -59,7 +59,7 @@ func TestProgressBarPercentage(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ProgressTest::test_progress_with_label_update
+// Port of \Prompts\Tests\Feature\ProgressTest::test_progress_with_label_update
 func TestProgressWithLabelUpdate(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/horizon"
 )
 
-// dashboardStats ports DashboardStatsController::index. Laravel Horizon
+// dashboardStats ports DashboardStatsController::index. Horizon
 // returns the current snapshot counters, the number of master supervisors,
 // and whether every one of them is paused.
 func dashboardStats(opts Options) http.HandlerFunc {

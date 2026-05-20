@@ -33,7 +33,7 @@ type MiddlewareFunc = func(ctx context.Context, passable any, next func(any) (an
 type JsonSchema map[string]any
 
 // Agent is the core contract every AI agent must satisfy.
-// It mirrors Laravel\Ai\Contracts\Agent.
+// It mirrors upstream Ai\Contracts\Agent.
 type Agent interface {
 	Instructions() string
 }
@@ -66,37 +66,37 @@ type QueuedResponder interface {
 }
 
 // Conversational agents provide prior message context.
-// Mirrors Laravel\Ai\Contracts\Conversational.
+// Mirrors upstream Ai\Contracts\Conversational.
 type Conversational interface {
 	Messages() iter.Seq[any]
 }
 
 // HasTools agents expose callable tools to the LLM.
-// Mirrors Laravel\Ai\Contracts\HasTools.
+// Mirrors upstream Ai\Contracts\HasTools.
 type HasTools interface {
 	Tools() iter.Seq[Tool]
 }
 
 // HasStructuredOutput agents return responses conforming to a schema.
-// Mirrors Laravel\Ai\Contracts\HasStructuredOutput.
+// Mirrors upstream Ai\Contracts\HasStructuredOutput.
 type HasStructuredOutput interface {
 	Schema(schema JsonSchema) map[string]any
 }
 
 // HasMiddleware agents run prompts through a middleware pipeline.
-// Mirrors Laravel\Ai\Contracts\HasMiddleware.
+// Mirrors upstream Ai\Contracts\HasMiddleware.
 type HasMiddleware interface {
 	Middleware() []MiddlewareFunc
 }
 
 // HasProviderOptions agents supply additional provider-level options.
-// Mirrors Laravel\Ai\Contracts\HasProviderOptions.
+// Mirrors upstream Ai\Contracts\HasProviderOptions.
 type HasProviderOptions interface {
 	ProviderOptions() map[string]any
 }
 
 // CanActAsTool lets an Agent expose itself as a callable tool to a parent agent.
-// Mirrors Laravel\Ai\Contracts\CanActAsTool.
+// Mirrors upstream Ai\Contracts\CanActAsTool.
 type CanActAsTool interface {
 	Name() string
 	Description() string

@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\StreamTest
+// Port of \Prompts\Tests\Feature\StreamTest
 
-// Port of Laravel\Prompts\Tests\Feature\StreamTest::test_stream_appends
+// Port of \Prompts\Tests\Feature\StreamTest::test_stream_appends
 func TestStreamAppends(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -20,7 +20,7 @@ func TestStreamAppends(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\StreamTest::test_stream_lines
+// Port of \Prompts\Tests\Feature\StreamTest::test_stream_lines
 func TestStreamLines(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +42,7 @@ func TestStreamLines(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\StreamTest::test_stream_chaining
+// Port of \Prompts\Tests\Feature\StreamTest::test_stream_chaining
 func TestStreamChaining(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

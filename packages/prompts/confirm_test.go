@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_confirms_yes
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_confirms_yes
 func TestConfirmYes(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +23,7 @@ func TestConfirmYes(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_confirms_no
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_confirms_no
 func TestConfirmNo(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +42,7 @@ func TestConfirmNo(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_default_false
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_default_false
 func TestConfirmDefaultFalse(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -61,7 +61,7 @@ func TestConfirmDefaultFalse(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_can_be_cancelled
 func TestConfirmCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -76,7 +76,7 @@ func TestConfirmCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_custom_labels
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_custom_labels
 func TestConfirmCustomLabels(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -96,7 +96,7 @@ func TestConfirmCustomLabels(t *testing.T) {
 	tp.AssertStrippedOutputContains("Yep")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_toggle_with_tab
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_toggle_with_tab
 func TestConfirmToggleWithTab(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -116,7 +116,7 @@ func TestConfirmToggleWithTab(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_renders_hint
 func TestConfirmRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -133,7 +133,7 @@ func TestConfirmRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("This is important")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_arrow_keys
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_arrow_keys
 func TestConfirmArrowKeys(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -153,7 +153,7 @@ func TestConfirmArrowKeys(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_y_selects_yes
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_y_selects_yes
 func TestConfirmYKeySelectsYes(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -172,7 +172,7 @@ func TestConfirmYKeySelectsYes(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_transforms_values
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_transforms_values
 func TestConfirmTransformsValues(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -197,7 +197,7 @@ func TestConfirmTransformsValues(t *testing.T) {
 	_ = result // Transform applies to string, Confirm returns bool.
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConfirmPromptTest::test_non_interactive_returns_default
+// Port of \Prompts\Tests\Feature\ConfirmPromptTest::test_non_interactive_returns_default
 func TestConfirmNonInteractiveReturnsDefault(t *testing.T) {
 	cleanup := FakeNonInteractive()
 

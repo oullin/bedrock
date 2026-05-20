@@ -49,7 +49,7 @@ type ProviderHooks interface {
 // and set the impl field to themselves so that abstract-method calls are
 // dispatched correctly.
 //
-// It mirrors Laravel\Socialite\Two\AbstractProvider.
+// It mirrors upstream Socialite\Two\AbstractProvider.
 type AbstractProvider struct {
 	impl ProviderHooks
 

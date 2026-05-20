@@ -16,7 +16,7 @@ type SupportsGuidelines interface {
 
 // GuidelineWriter writes composed guidelines markdown to an agent's designated
 // guidelines file.
-// Mirrors Laravel\Boost\Install\GuidelineWriter.
+// Mirrors upstream Boost\Install\GuidelineWriter.
 type GuidelineWriter struct{}
 
 // NewGuidelineWriter constructs a GuidelineWriter.

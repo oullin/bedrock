@@ -5,10 +5,10 @@ import (
 )
 
 // ModelAction constants mirror the Eloquent lifecycle events recorded by
-// Laravel's ModelWatcher.
+// the upstream ModelWatcher.
 
 // ModelWatcher monitors model lifecycle events and records them as Telescope
-// entries. It mirrors Laravel's ModelWatcher class.
+// entries. It mirrors the upstream ModelWatcher class.
 //
 // Options:
 //   - "events" ([]string): specific model actions to record (default: all).

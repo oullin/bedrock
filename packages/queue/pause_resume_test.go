@@ -11,7 +11,7 @@ import (
 
 // Ports of Illuminate\Tests\Queue\QueuePauseResumeTest.
 //
-// Laravel's test constructs a QueueManager against a Carbon test clock
+// the upstream test constructs a QueueManager against a Carbon test clock
 // and an ArrayStore-backed cache. The Go equivalent exercises the
 // underlying PauseResumer + InMemoryPauseStore directly — when Step 6
 // wires up the full Manager, the same contract must still hold and
@@ -24,7 +24,7 @@ import (
 // --- helpers ----------------------------------------------------------
 
 // mockClock is a deterministic time source we can freeze and advance,
-// mirroring Laravel's Carbon::setTestNow().
+// mirroring the upstream Carbon::setTestNow().
 type mockClock struct {
 	mu  sync.Mutex
 	now time.Time

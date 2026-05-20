@@ -10,7 +10,7 @@ type Attachment struct {
 }
 
 // UserMessage is a message from the human participant.
-// Mirrors Laravel\Ai\Messages\UserMessage.
+// Mirrors upstream Ai\Messages\UserMessage.
 type UserMessage struct {
 	Message
 	Attachments []Attachment

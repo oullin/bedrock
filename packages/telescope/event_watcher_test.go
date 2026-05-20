@@ -72,7 +72,7 @@ func TestEventWatcherIgnoresFrameworkEvents(t *testing.T) {
 
 	// These should all be filtered.
 	w.Record("Illuminate\\Auth\\Events\\Login", nil, nil)
-	w.Record("Laravel\\Octane\\Events\\RequestReceived", nil, nil)
+	w.Record("Octane\\Events\\RequestReceived", nil, nil)
 	w.Record("github.com/bedrock/packages/telescope.InternalEvent", nil, nil)
 
 	storeAndAssertCount(t, scope, repo, telescope.EntryTypeEvent, 0)

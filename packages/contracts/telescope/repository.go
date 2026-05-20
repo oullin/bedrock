@@ -51,7 +51,7 @@ type EntryQueryOptions = struct {
 }
 
 // EntriesRepository defines the storage contract for Telescope entries.
-// It mirrors Laravel's EntriesRepository interface.
+// It mirrors the upstream EntriesRepository interface.
 type EntriesRepository interface {
 	// Find retrieves a single entry by its UUID.
 	Find(id string) (*EntryResult, error)

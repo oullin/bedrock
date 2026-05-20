@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest
+// Port of \Prompts\Tests\Feature\SuggestPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest::test_accepts_input
+// Port of \Prompts\Tests\Feature\SuggestPromptTest::test_accepts_input
 func TestSuggestAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +23,7 @@ func TestSuggestAcceptsInput(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest::test_can_enter_custom_value
+// Port of \Prompts\Tests\Feature\SuggestPromptTest::test_can_enter_custom_value
 func TestSuggestCanEnterCustomValue(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +42,7 @@ func TestSuggestCanEnterCustomValue(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\SuggestPromptTest::test_can_be_cancelled
 func TestSuggestCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -57,7 +57,7 @@ func TestSuggestCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\SuggestPromptTest::test_renders_hint
 func TestSuggestRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -77,7 +77,7 @@ func TestSuggestRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Start typing")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SuggestPromptTest::test_with_dynamic_options
+// Port of \Prompts\Tests\Feature\SuggestPromptTest::test_with_dynamic_options
 func TestSuggestWithDynamicOptions(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

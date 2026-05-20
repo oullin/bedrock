@@ -14,7 +14,7 @@ type Guideline struct {
 
 // GuidelineComposer assembles guidelines from all configured sources into a
 // single markdown document.
-// Mirrors Laravel\Boost\Install\GuidelineComposer.
+// Mirrors upstream Boost\Install\GuidelineComposer.
 type GuidelineComposer struct {
 	config *GuidelineConfig
 	used   []string

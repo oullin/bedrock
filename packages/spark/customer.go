@@ -3,7 +3,7 @@ package spark
 import "time"
 
 // Customer represents a payment-provider customer record linked to a
-// billable entity. Mirrors Laravel\Paddle\Customer.
+// billable entity. Mirrors upstream Paddle\Customer.
 type Customer struct {
 	ID                int64
 	BillableType      string

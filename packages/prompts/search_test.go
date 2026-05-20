@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest
+// Port of \Prompts\Tests\Feature\SearchPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_selects_from_search
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_selects_from_search
 func TestSearchSelectsFromSearch(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -29,7 +29,7 @@ func TestSearchSelectsFromSearch(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_can_be_cancelled
 func TestSearchCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -46,7 +46,7 @@ func TestSearchCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_renders_hint
 func TestSearchRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -68,7 +68,7 @@ func TestSearchRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Type to search")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_navigates_results
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_navigates_results
 func TestSearchNavigatesResults(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -89,7 +89,7 @@ func TestSearchNavigatesResults(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_transforms_values
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_transforms_values
 func TestSearchTransformsValues(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -113,7 +113,7 @@ func TestSearchTransformsValues(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_backspace_clears_search
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_backspace_clears_search
 func TestSearchBackspaceClears(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -134,7 +134,7 @@ func TestSearchBackspaceClears(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SearchPromptTest::test_emacs_key_bindings
+// Port of \Prompts\Tests\Feature\SearchPromptTest::test_emacs_key_bindings
 func TestSearchEmacsKeyBindings(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

@@ -2,7 +2,7 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\AnsiWordwrapTest
+// Port of \Prompts\Tests\Feature\AnsiWordwrapTest
 
 func TestWordWrapShortText(t *testing.T) {
 	t.Parallel()
@@ -53,7 +53,7 @@ func TestWordWrapZeroWidth(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiByteWordWrapTest
+// Port of \Prompts\Tests\Feature\MultiByteWordWrapTest
 
 func TestWordWrapMultiByte(t *testing.T) {
 	t.Parallel()

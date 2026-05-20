@@ -29,7 +29,7 @@ func TestItCanCreateTimeoutExceptionForJob(t *testing.T) {
 		t.Errorf("Job: got %v, want %v", e.Job, job)
 	}
 
-	// Laravel's TimeoutExceededException extends MaxAttemptsExceededException;
+	// the upstream TimeoutExceededException extends MaxAttemptsExceededException;
 	// the Go port preserves this by embedding the parent. errors.As must
 	// therefore resolve to the parent type as well.
 	var parent *queue.MaxAttemptsExceededError

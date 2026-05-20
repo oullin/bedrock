@@ -3,7 +3,7 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Codex implements boost.CodingAgent for OpenAI Codex CLI.
-// Mirrors Laravel\Boost\Install\Agents\Codex.
+// Mirrors upstream Boost\Install\Agents\Codex.
 type Codex struct {
 	BaseAgent
 }

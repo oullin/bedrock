@@ -32,7 +32,7 @@ func NewFluent(attrs ...any) *Fluent {
 
 // Get returns the value for the given key, or the default if not found.
 // Supports simple key access (no dot notation, for compatibility with
-// Laravel's Fluent which uses data_get internally).
+// the upstream Fluent which uses data_get internally).
 // Mirrors Fluent::get().
 func (f *Fluent) Get(key string, def ...any) any {
 	val, ok := f.attributes[key]

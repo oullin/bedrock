@@ -23,7 +23,7 @@ type CommandFailed struct {
 }
 
 // TimeMs returns the command duration in milliseconds (float64), matching
-// Laravel's $time property.
+// the upstream $time property.
 
 // EventDispatcher fans out CommandExecuted events to registered listeners.
 // A zero value is ready to use.

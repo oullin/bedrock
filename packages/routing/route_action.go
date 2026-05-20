@@ -8,7 +8,7 @@ import (
 
 // Action is the parsed form of a route action.
 //
-// In Laravel this is a free-form associative array; in Go it is a struct so
+// In the upstream framework this is a free-form associative array; in Go it is a struct so
 // callers get type safety without losing parity. The most-used keys map to
 // fields directly:
 //
@@ -38,9 +38,9 @@ type Action struct {
 
 // ParseAction normalizes a user-supplied action into an [*Action].
 //
-// The accepted shapes mirror Laravel's RouteAction::parse:
+// The accepted shapes mirror the upstream RouteAction::parse:
 //   - nil: produces a placeholder action whose Uses returns an error when
-//     invoked, equivalent to Laravel's missingAction closure.
+//     invoked, equivalent to the upstream missingAction closure.
 //   - a Go func: stored in Uses as-is.
 //   - a string of the form "Controller@method": stored in Uses and Controller.
 //   - a struct/pointer with an Invoke method: stored in Uses; Controller is
@@ -144,7 +144,7 @@ func parseMapAction(uri string, m map[string]any) (*Action, error) {
 	}
 
 	if a.Uses == nil {
-		// Laravel's findCallable: scan numeric-keyed entries for a callable.
+		// the upstream findCallable: scan numeric-keyed entries for a callable.
 		// In Go we only have string-keyed maps here, so fall back to a missing
 		// action so the error surfaces lazily at dispatch time.
 		a.Uses = missingAction("").Uses

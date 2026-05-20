@@ -13,7 +13,7 @@ type BindingContainer interface {
 }
 
 // BindingResolver is a callback that converts a raw URL value (and the
-// matched route) into a domain object, mirroring Laravel's binding closures.
+// matched route) into a domain object, mirroring the upstream binding closures.
 type BindingResolver func(value string, route any) (any, error)
 
 // ModelInstance is the surface a user-defined model type must expose so

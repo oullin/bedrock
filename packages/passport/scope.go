@@ -7,7 +7,7 @@ import (
 )
 
 // Scope represents a named OAuth2 permission with a human-readable description.
-// It maps directly to Laravel Passport's Scope class.
+// It maps directly to Passport Scope class.
 type Scope struct {
 	ID          string
 	Description string
@@ -25,7 +25,7 @@ func NewScopeRepository(p *Passport, clients ClientStore) *ScopeRepository {
 	return &ScopeRepository{passport: p, clients: clients}
 }
 
-// ToArray returns the scope as a plain map, matching Laravel's toArray().
+// ToArray returns the scope as a plain map, matching the upstream toArray().
 func (s Scope) ToArray() map[string]string {
 	return map[string]string{
 		"id":          s.ID,
@@ -94,7 +94,7 @@ func (r *ScopeRepository) scopeForGrant(id, grantType string) *Scope {
 //
 //	["admin", "admin:webhooks", "admin:webhooks:read"]
 //
-// This mirrors the ResolvesInheritedScopes trait in Laravel Passport.
+// This mirrors the ResolvesInheritedScopes trait in Passport.
 func resolveInheritedScopes(scope string) []string {
 	parts := strings.Split(scope, ":")
 	scopes := make([]string, 0, len(parts))

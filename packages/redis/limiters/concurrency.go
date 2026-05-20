@@ -1,5 +1,4 @@
-// Package limiters implements Go ports of Laravel's
-// ConcurrencyLimiter and DurationLimiter, backed by a redis.Connection.
+// Package limiters implements Go ports of the upstream // ConcurrencyLimiter and DurationLimiter, backed by a redis.Connection.
 package limiters
 
 import (

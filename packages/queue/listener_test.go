@@ -11,7 +11,7 @@ import (
 
 // Full port of Illuminate\Tests\Queue\QueueListenerTest (5 / 5).
 //
-// Laravel's test uses Mockery to partial-mock Symfony's Process and
+// the upstream test uses Mockery to partial-mock Symfony's Process and
 // the Listener itself, then asserts that makeProcess() returns a
 // process with the right command-line string, working directory, and
 // timeout. The Go equivalent:
@@ -131,7 +131,7 @@ func TestMakeProcessCorrectlyFormatsCommandLine(t *testing.T) {
 		t.Errorf("Timeout: got %s, want 3s", process.Timeout())
 	}
 
-	// Laravel asserts a shell-escaped single-line string. The Go port
+	// Upstream asserts a shell-escaped single-line string. The Go port
 	// asserts the argv slice directly — same observable command shape
 	// without shell-escaping quirks.
 	want := []string{
@@ -218,7 +218,7 @@ func TestMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified(t
 	}
 
 	// When connection is empty the argv slot is omitted — matching
-	// Laravel's array_filter pass over the command list.
+	// the upstream array_filter pass over the command list.
 	want := []string{
 		"php",
 		"artisan",

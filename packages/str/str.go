@@ -300,7 +300,7 @@ import (
 // StrAscii transliterates the string to its closest ASCII representation.
 // Mirrors Str::ascii().
 
-// Unknown non-ASCII chars are dropped (like Laravel's behavior)
+// Unknown non-ASCII chars are dropped (like the upstream behavior)
 
 // StrTransliterate converts the string to its closest ASCII form.
 // Mirrors Str::transliterate().

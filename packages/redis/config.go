@@ -3,7 +3,7 @@ package redis
 import "time"
 
 // ConnectionConfig is the configuration for a single-node connection.
-// Field names mirror Laravel's connector config keys.
+// Field names mirror the upstream connector config keys.
 type ConnectionConfig struct {
 	Name     string
 	Host     string
@@ -30,7 +30,7 @@ type ConnectionConfig struct {
 	Sentinel *SentinelConfig
 }
 
-// ClusterConfig is the Laravel "cluster" options block.
+// ClusterConfig is the upstream "cluster" options block.
 type ClusterConfig struct {
 	Addrs    []string
 	Password string
@@ -42,7 +42,7 @@ type ClusterConfig struct {
 	RouteRandomly  bool
 }
 
-// SentinelConfig is the Laravel "sentinel" options block.
+// SentinelConfig is the upstream "sentinel" options block.
 type SentinelConfig struct {
 	MasterName       string
 	SentinelAddrs    []string

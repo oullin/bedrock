@@ -9,7 +9,7 @@ func init_accepted() {
 	Register("DeclinedIf", validateDeclinedIf)
 }
 
-// validateAccepted mirrors Laravel's validateAccepted.
+// validateAccepted mirrors the upstream validateAccepted.
 // Passes if the value is "yes", "on", "1", "true", 1, or true.
 func validateAccepted(_ string, value any, _ []string, _ RuleContext) bool {
 	return isAcceptable(value)

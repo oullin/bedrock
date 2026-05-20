@@ -3,7 +3,7 @@ package responses
 import "github.com/bedrock/packages/ai/sdk/data"
 
 // RerankingResponse holds the result of a document reranking request.
-// Mirrors Laravel\Ai\Responses\RerankingResponse.
+// Mirrors upstream Ai\Responses\RerankingResponse.
 type RerankingResponse struct {
 	Results []data.RankedDocument
 	Usage   data.Usage

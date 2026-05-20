@@ -6,7 +6,7 @@ import (
 )
 
 // DatabaseQuery executes a read-only SQL query and returns the results.
-// Mirrors Laravel\Boost\Mcp\Tools\DatabaseQuery.
+// Mirrors upstream Boost\Mcp\Tools\DatabaseQuery.
 // Tagged IsReadOnly.
 type DatabaseQuery struct {
 	// DB is the database connection to execute queries against.

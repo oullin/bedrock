@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\ClearPromptTest
+// Port of \Prompts\Tests\Feature\ClearPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\ClearPromptTest::test_clears_screen
+// Port of \Prompts\Tests\Feature\ClearPromptTest::test_clears_screen
 func TestClearClearsScreen(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

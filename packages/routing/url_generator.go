@@ -275,7 +275,7 @@ func (u *UrlGenerator) SignedRoute(name string, parameters map[string]any, expir
 	return u.Route(name, parameters, absolute)
 }
 
-// TemporarySignedRoute is the parity-named alias matching Laravel's two-arg
+// TemporarySignedRoute is the parity-named alias matching the upstream two-arg
 // shortcut.
 func (u *UrlGenerator) TemporarySignedRoute(name string, expiration int64, parameters map[string]any, absolute bool) (string, error) {
 	return u.SignedRoute(name, parameters, expiration, absolute)

@@ -6,5 +6,5 @@
 // This package is ported from github.com/oullin/inertia-go (MIT) and adapted
 // for the Bedrock monorepo. The upstream httpx sub-package is renamed here to
 // protocol to avoid colliding with github.com/bedrock/packages/httpx, which is
-// a Laravel-style HTTP Request/Response wrapper for a different purpose.
+// a HTTP Request/Response wrapper for a different purpose.
 package inertia

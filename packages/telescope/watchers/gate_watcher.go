@@ -7,10 +7,10 @@ import (
 )
 
 // GateResult constants mirror the two authorization outcomes recorded by
-// Laravel's GateWatcher.
+// the upstream GateWatcher.
 
 // GateWatcher monitors authorization gate checks and records them as Telescope
-// entries. It mirrors Laravel's GateWatcher class.
+// entries. It mirrors the upstream GateWatcher class.
 //
 // Options:
 //   - "ignore_abilities" ([]string): gate ability names to skip.

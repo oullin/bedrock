@@ -37,7 +37,7 @@ type ValidatorInterface interface {
 	Matches(route MatchableRoute, request MatchableRequest) bool
 }
 
-// All returns the four standard validators in the order Laravel's Router
+// All returns the four standard validators in the order the upstream Router
 // applies them: URI, Method, Scheme, Host. The order matters: cheaper checks
 // run first so the common case (a path mismatch) short-circuits quickly.
 func All() []ValidatorInterface {

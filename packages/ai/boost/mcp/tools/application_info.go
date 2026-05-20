@@ -9,7 +9,7 @@ import (
 
 // ApplicationInfo returns comprehensive application information: Go version,
 // module name, OS, architecture, and Go dependencies from go.mod.
-// Mirrors Laravel\Boost\Mcp\Tools\ApplicationInfo.
+// Mirrors upstream Boost\Mcp\Tools\ApplicationInfo.
 // Tagged IsReadOnly.
 type ApplicationInfo struct {
 	// ModFilePath is the path to the go.mod file to inspect.

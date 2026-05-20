@@ -8,7 +8,7 @@ import (
 )
 
 // FileLoader loads translation messages from JSON files on disk, mirroring
-// Laravel's Illuminate\Translation\FileLoader.
+// the upstream Illuminate\Translation\FileLoader.
 //
 // File layout:
 //   - Grouped translations: {path}/{locale}/{group}.json

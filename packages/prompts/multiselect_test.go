@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_selects_options
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_selects_options
 func TestMultiSelectSelectsOptions(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -27,7 +27,7 @@ func TestMultiSelectSelectsOptions(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_selects_none
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_selects_none
 func TestMultiSelectSelectsNone(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -46,7 +46,7 @@ func TestMultiSelectSelectsNone(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_required
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_required
 func TestMultiSelectRequired(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -68,7 +68,7 @@ func TestMultiSelectRequired(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_can_be_cancelled
 func TestMultiSelectCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -83,7 +83,7 @@ func TestMultiSelectCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_toggle_all
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_toggle_all
 func TestMultiSelectToggleAll(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -102,7 +102,7 @@ func TestMultiSelectToggleAll(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_defaults
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_defaults
 func TestMultiSelectDefaults(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -124,7 +124,7 @@ func TestMultiSelectDefaults(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_renders_hint
 func TestMultiSelectRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -144,7 +144,7 @@ func TestMultiSelectRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Space to toggle")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_with_option_items
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_with_option_items
 func TestMultiSelectWithOptionItems(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -166,7 +166,7 @@ func TestMultiSelectWithOptionItems(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_home_end_keys
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_home_end_keys
 func TestMultiSelectHomeEndKeys(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -185,7 +185,7 @@ func TestMultiSelectHomeEndKeys(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_returns_empty_when_non_interactive
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_returns_empty_when_non_interactive
 func TestMultiSelectReturnsEmptyWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -202,7 +202,7 @@ func TestMultiSelectReturnsEmptyWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\MultiSelectPromptTest::test_custom_validation
+// Port of \Prompts\Tests\Feature\MultiSelectPromptTest::test_custom_validation
 func TestMultiSelectCustomValidation(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

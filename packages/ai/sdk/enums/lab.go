@@ -3,7 +3,7 @@
 package enums
 
 // Lab identifies an AI provider.
-// Mirrors Laravel\Ai\Enums\Lab.
+// Mirrors upstream Ai\Enums\Lab.
 type Lab string
 
 const (

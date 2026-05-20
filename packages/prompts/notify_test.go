@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\NotifyPromptTest
+// Port of \Prompts\Tests\Feature\NotifyPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\NotifyPromptTest::test_escape_applescript
+// Port of \Prompts\Tests\Feature\NotifyPromptTest::test_escape_applescript
 func TestEscapeAppleScript(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -25,7 +25,7 @@ func TestEscapeAppleScript(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NotifyPromptTest::test_notify_options
+// Port of \Prompts\Tests\Feature\NotifyPromptTest::test_notify_options
 func TestNotifyOptionsSetter(t *testing.T) {
 	t.Parallel()
 	cfg := &notifyConfig{}

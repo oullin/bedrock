@@ -57,7 +57,7 @@ func assertNotContains(t *testing.T, content, unwanted string) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Workbench route fixtures (mirror Laravel Wayfinder workbench)
+// Workbench route fixtures (mirror Wayfinder workbench)
 // ─────────────────────────────────────────────────────────────────────────────
 
 func postControllerRoutes() []*wayfinder.RouteInfo {

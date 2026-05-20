@@ -1,4 +1,4 @@
-// Ported verbatim from laravel-brain/frontend/src/types/graph.ts so the
+// Ported verbatim from upstream-brain/frontend/src/types/graph.ts so the
 // Go-side graph JSON renders unchanged. Filament types are dropped;
 // Inertia types are appended.
 

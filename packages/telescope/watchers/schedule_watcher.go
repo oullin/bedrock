@@ -5,7 +5,7 @@ import (
 )
 
 // ScheduleWatcher monitors scheduled task execution and records entries as
-// Telescope entries. It mirrors Laravel's ScheduleWatcher class.
+// Telescope entries. It mirrors the upstream ScheduleWatcher class.
 type ScheduleWatcher struct {
 	telescope.BaseWatcher
 }

@@ -18,7 +18,7 @@ type ProviderConfig struct {
 }
 
 // Provider is the minimal interface that every Socialite driver satisfies.
-// It mirrors Laravel\Socialite\Contracts\Provider.
+// It mirrors upstream Socialite\Contracts\Provider.
 type Provider interface {
 	Redirect(ctx context.Context) (string, error)
 	User(ctx context.Context) (*User, error)
@@ -29,7 +29,7 @@ type Provider interface {
 type DriverFactory func(req *http.Request, session Session, cfg ProviderConfig) (Provider, error)
 
 // Manager resolves OAuth provider instances by driver name. It is the Go
-// equivalent of Laravel\Socialite\SocialiteManager.
+// equivalent of upstream Socialite\SocialiteManager.
 type Manager struct {
 	factories map[string]DriverFactory
 	resolved  map[string]Provider

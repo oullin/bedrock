@@ -2,7 +2,7 @@
 //
 // It provides two main types:
 //
-//   - Container: a Laravel-inspired service container with bindings,
+//   - Container: a service container with bindings,
 //     singletons, scoped lifetimes, contextual bindings, tagging, extension,
 //     resolving callbacks, and method invocation. Container is safe for
 //     concurrent use.

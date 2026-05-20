@@ -1,7 +1,7 @@
 package data
 
 // RankedDocument holds a single reranked document with its relevance score.
-// Mirrors Laravel\Ai\Responses\Data\RankedDocument.
+// Mirrors upstream Ai\Responses\Data\RankedDocument.
 type RankedDocument struct {
 	Index    int     `json:"index"`
 	Document string  `json:"document"`

@@ -1,7 +1,7 @@
 package spark
 
 // PricePreview represents a previewed price calculation including
-// subtotals and tax. Mirrors Laravel\Paddle\PricePreview.
+// subtotals and tax. Mirrors upstream Paddle\PricePreview.
 type PricePreview struct {
 	PriceInfo Price
 	Total     int64

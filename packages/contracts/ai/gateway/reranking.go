@@ -25,7 +25,7 @@ type RerankResult struct {
 }
 
 // RerankingGateway drives document reranking for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\RerankingGateway.
+// Mirrors upstream Ai\Contracts\Gateway\RerankingGateway.
 type RerankingGateway interface {
 	Rerank(ctx context.Context, req RerankRequest) (*RerankResult, error)
 }

@@ -3,7 +3,7 @@ package spark
 import "time"
 
 // SubscriptionItem represents a single line item within a subscription.
-// Mirrors Laravel\Paddle\SubscriptionItem.
+// Mirrors upstream Paddle\SubscriptionItem.
 type SubscriptionItem struct {
 	ID             int64
 	SubscriptionID int64

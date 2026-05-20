@@ -1,4 +1,4 @@
-// Port of Laravel\Ai\Tests\Feature\AgentMiddlewareTest
+// Port of \Ai\Tests\Feature\AgentMiddlewareTest
 package ai_test
 
 import (

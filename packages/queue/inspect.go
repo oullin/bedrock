@@ -11,7 +11,7 @@ import (
 // track reserved jobs in its default layout — those calls surface this
 // sentinel so callers can branch on it with errors.Is.
 //
-// Mirrors the runtime behaviour of Laravel queue drivers that throw
+// Mirrors the runtime behaviour of upstream queue drivers that throw
 // LogicException("Not supported") for the same scenarios.
 
 // QueueNamer is the optional contract a Queue implementation satisfies
@@ -24,9 +24,9 @@ import (
 // implement this interface — the manager treats a missing implementation
 // as "no queues to inspect" and returns an empty result, not an error.
 //
-// Mirrors Laravel's notion of "connection-level queue introspection"
+// Mirrors the upstream notion of "connection-level queue introspection"
 // added alongside allReservedJobs/allDelayedJobs/allPendingJobs in
-// Laravel 13.8.0.
+// Upstream 13.8.0.
 type QueueNamer interface {
 	QueueNames(ctx context.Context) ([]string, error)
 }
@@ -34,7 +34,7 @@ type QueueNamer interface {
 // JobInspector is the optional contract a Queue implementation
 // satisfies when it can return read-only snapshots of jobs currently
 // sitting on a named queue without consuming them. The three methods
-// mirror the per-state inspection methods Laravel exposes on the queue
+// mirror the per-state inspection methods upstream exposes on the queue
 // contract: pending (unreserved, ready), delayed (unreserved, not yet
 // due), and reserved (in-flight).
 //
@@ -44,7 +44,7 @@ type QueueNamer interface {
 // manager-level fan-out predictable and lets callers distinguish "I
 // asked, the driver can't" from "no rows".
 //
-// Mirrors Laravel's pendingJobs/delayedJobs/reservedJobs queue methods.
+// Mirrors the upstream pendingJobs/delayedJobs/reservedJobs queue methods.
 type JobInspector interface {
 	PendingJobs(ctx context.Context, queue string) ([]InspectedJob, error)
 	DelayedJobs(ctx context.Context, queue string) ([]InspectedJob, error)

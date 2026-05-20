@@ -1,6 +1,6 @@
 // Package database provides a database abstraction layer with query builder,
 // schema management, Eloquent-style ORM, and migration support. It is the Go
-// port of Laravel's Illuminate/Database package, adapted to Go idioms while
+// port of the upstream Illuminate/Database package, adapted to Go idioms while
 // maintaining 100% function parity.
 //
 // The package supports MySQL, PostgreSQL, and SQLite through driver-specific

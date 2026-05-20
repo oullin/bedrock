@@ -1,6 +1,6 @@
 import type { NodeType } from "@/types/graph";
 
-// Colours match laravel-brain's frontend palette so users moving between
+// Colours match upstream-brain's frontend palette so users moving between
 // the two tools see consistent visual cues.
 export const NODE_COLORS: Record<NodeType, string> = {
   route: "#2dd4bf",

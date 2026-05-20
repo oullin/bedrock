@@ -7,7 +7,7 @@ import (
 )
 
 // ScoutServiceProvider registers the Scout engine manager into the container.
-// It mirrors Laravel\Scout\ScoutServiceProvider.
+// It mirrors upstream Scout\ScoutServiceProvider.
 type ScoutServiceProvider struct {
 	app    *container.Container
 	config Config

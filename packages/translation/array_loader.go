@@ -1,8 +1,7 @@
 package translation
 
 // ArrayLoader is an in-memory Loader implementation.  Messages are stored as
-// messages[namespace][locale][group] → map[string]any, mirroring Laravel's
-// Illuminate\Translation\ArrayLoader.
+// messages[namespace][locale][group] → map[string]any, mirroring the upstream // Illuminate\Translation\ArrayLoader.
 type ArrayLoader struct {
 	messages   map[string]map[string]map[string]map[string]any
 	namespaces map[string]string

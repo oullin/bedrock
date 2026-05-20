@@ -4,7 +4,7 @@ package platform
 import "runtime"
 
 // Platform identifies the host operating system.
-// Mirrors Laravel\Boost\Install\Enums\Platform.
+// Mirrors upstream Boost\Install\Enums\Platform.
 type Platform int
 
 // Darwin represents macOS.
@@ -18,7 +18,7 @@ type Platform int
 // String returns the canonical lowercase name.
 
 // McpInstallationStrategy determines how an agent writes its MCP server config.
-// Mirrors Laravel\Boost\Install\Enums\McpInstallationStrategy.
+// Mirrors upstream Boost\Install\Enums\McpInstallationStrategy.
 type McpInstallationStrategy int
 
 const (

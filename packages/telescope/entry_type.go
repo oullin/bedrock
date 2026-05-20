@@ -1,6 +1,6 @@
 package telescope
 
-// Entry type constants mirror Laravel's EntryType class. They identify the
+// Entry type constants mirror the upstream EntryType class. They identify the
 // category of a recorded Telescope entry.
 const (
 	EntryTypeBatch         = "batch"

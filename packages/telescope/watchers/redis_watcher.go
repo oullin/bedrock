@@ -8,10 +8,10 @@ import (
 )
 
 // ignoredRedisCommands lists commands that should not be recorded (pipeline /
-// transaction control), mirroring Laravel's RedisWatcher.
+// transaction control), mirroring the upstream RedisWatcher.
 
 // RedisWatcher monitors Redis command execution and records entries as
-// Telescope entries. It mirrors Laravel's RedisWatcher class.
+// Telescope entries. It mirrors the upstream RedisWatcher class.
 type RedisWatcher struct {
 	telescope.BaseWatcher
 }

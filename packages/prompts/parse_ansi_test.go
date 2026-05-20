@@ -2,7 +2,7 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\ParseAnsiTextTest
+// Port of \Prompts\Tests\Feature\ParseAnsiTextTest
 
 func TestParseAnsiTextPlain(t *testing.T) {
 	t.Parallel()

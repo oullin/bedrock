@@ -12,7 +12,7 @@ import (
 // isPaused at the application level, and that the test port consumes
 // directly.
 //
-// Mirrors the pause/resume methods on Laravel's QueueManager.
+// Mirrors the pause/resume methods on the upstream QueueManager.
 type PauseResumer struct {
 	store   PauseStore
 	emitter EventEmitter

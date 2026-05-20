@@ -32,7 +32,7 @@ func NewRouteUri(uri string, bindingFields map[string]string) *RouteUri {
 // Mirrors the PHP `/\{([\w\:]+?)\??\}/` pattern from RouteUri::parse.
 var routeUriPlaceholderRe = regexp.MustCompile(`\{([\w:]+?)\??\}`)
 
-// ParseRouteUri parses a Laravel-flavored URI pattern, extracting any
+// ParseRouteUri parses a upstream-style URI pattern, extracting any
 // custom binding fields ("{user:slug}") into BindingFields and rewriting the
 // URI so downstream consumers see the canonical "{user}" form.
 //

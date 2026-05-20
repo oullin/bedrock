@@ -7,7 +7,7 @@ import (
 )
 
 // StoreProvider is the provider-level contract for vector store management.
-// Mirrors Laravel\Ai\Contracts\Providers\StoreProvider.
+// Mirrors upstream Ai\Contracts\Providers\StoreProvider.
 type StoreProvider interface {
 	GetStore(ctx context.Context, id string) (*gateway.StoreData, error)
 	CreateStore(ctx context.Context, req gateway.StoreCreateRequest) (*gateway.StoreData, error)

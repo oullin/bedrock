@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest
+// Port of \Prompts\Tests\Feature\SelectPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_selects_option
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_selects_option
 func TestSelectSelectsOption(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +23,7 @@ func TestSelectSelectsOption(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_navigates_down
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_navigates_down
 func TestSelectNavigatesDown(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +42,7 @@ func TestSelectNavigatesDown(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_wraps_around
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_wraps_around
 func TestSelectWrapsAround(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -61,7 +61,7 @@ func TestSelectWrapsAround(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_can_be_cancelled
 func TestSelectCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -76,7 +76,7 @@ func TestSelectCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_with_default
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_with_default
 func TestSelectWithDefault(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -98,7 +98,7 @@ func TestSelectWithDefault(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_with_map_options
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_with_map_options
 func TestSelectWithMapOptions(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -121,7 +121,7 @@ func TestSelectWithMapOptions(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_home_end_keys
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_home_end_keys
 func TestSelectHomeEndKeys(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -140,7 +140,7 @@ func TestSelectHomeEndKeys(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_renders_hint
 func TestSelectRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -157,7 +157,7 @@ func TestSelectRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Pick one")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_transforms_values
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_transforms_values
 func TestSelectTransformsValues(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -180,7 +180,7 @@ func TestSelectTransformsValues(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_validates
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_validates
 func TestSelectValidates(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -208,7 +208,7 @@ func TestSelectValidates(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_page_up_page_down
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_page_up_page_down
 func TestSelectPageUpDown(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -228,7 +228,7 @@ func TestSelectPageUpDown(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_non_interactive_returns_first_option
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_non_interactive_returns_first_option
 func TestSelectNonInteractiveReturnsFirstOption(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -246,7 +246,7 @@ func TestSelectNonInteractiveReturnsFirstOption(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_non_interactive_returns_default
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_non_interactive_returns_default
 func TestSelectNonInteractiveReturnsDefault(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -265,7 +265,7 @@ func TestSelectNonInteractiveReturnsDefault(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\SelectPromptTest::test_emacs_key_bindings
+// Port of \Prompts\Tests\Feature\SelectPromptTest::test_emacs_key_bindings
 func TestSelectEmacsKeyBindings(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

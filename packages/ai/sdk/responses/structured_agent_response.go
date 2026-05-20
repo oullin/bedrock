@@ -7,7 +7,7 @@ import (
 )
 
 // StructuredAgentResponse extends AgentResponse with parsed structured output.
-// Mirrors Laravel\Ai\Responses\StructuredAgentResponse.
+// Mirrors upstream Ai\Responses\StructuredAgentResponse.
 type StructuredAgentResponse struct {
 	AgentResponse
 	Data map[string]any

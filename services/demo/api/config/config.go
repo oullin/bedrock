@@ -8,7 +8,7 @@ type App struct {
 	URL  string
 }
 
-// DefaultApp returns Laravel-skeleton-like defaults for local development.
+// DefaultApp returns upstream-skeleton-like defaults for local development.
 func DefaultApp(env, key string) App {
 	if env == "" {
 		env = "local"

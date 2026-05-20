@@ -15,7 +15,7 @@ type EmbeddingRequest struct {
 }
 
 // EmbeddingProvider is the provider-level contract for embedding generation.
-// Mirrors Laravel\Ai\Contracts\Providers\EmbeddingProvider.
+// Mirrors upstream Ai\Contracts\Providers\EmbeddingProvider.
 type EmbeddingProvider interface {
 	Embeddings(ctx context.Context, req EmbeddingRequest) (*gateway.EmbeddingGenerateResult, error)
 	EmbeddingGateway() gateway.EmbeddingGateway

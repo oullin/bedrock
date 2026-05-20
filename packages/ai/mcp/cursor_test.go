@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\CursorPaginatorTest
+// Port of \Mcp\Tests\CursorPaginatorTest
 
 func TestCursorPaginatorEmptyListReturnsNoNextCursor(t *testing.T) {
 	t.Parallel()

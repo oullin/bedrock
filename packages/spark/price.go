@@ -1,7 +1,7 @@
 package spark
 
 // Price represents a provider price with billing interval information.
-// Mirrors Laravel\Paddle\Price.
+// Mirrors upstream Paddle\Price.
 type Price struct {
 	ID        string
 	Amount    int64

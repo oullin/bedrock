@@ -1,7 +1,7 @@
 // Package controllers mirrors
 // laravel/framework/src/Illuminate/Routing/Controllers.
 //
-// In Laravel 11+ this package supplies the [HasMiddleware] interface that
+// In the upstream framework 11+ this package supplies the [HasMiddleware] interface that
 // controllers implement to declare their middleware (the modern replacement
 // for PHP 8 attribute-based declarations). Both forms remain in 13.x, and
 // this Go port treats the interface form as the canonical entry point.

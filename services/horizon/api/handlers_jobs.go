@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/horizon"
 )
 
-// jobsPending ports PendingJobsController::index. Laravel Horizon paginates
+// jobsPending ports PendingJobsController::index. Horizon paginates
 // pending jobs for a queue via starting_at/limit query params.
 func jobsPending(opts Options) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +64,7 @@ func jobsFailedShow(opts Options) http.HandlerFunc {
 }
 
 // jobsSilenced ports SilencedJobsController::index by returning the
-// snapshot slice configured on the dashboard options. Laravel Horizon stores
+// snapshot slice configured on the dashboard options. Horizon stores
 // these in a dedicated Redis set; Bedrock delegates persistence to the
 // host app and renders whatever list it provides.
 func jobsSilenced(opts Options) http.HandlerFunc {

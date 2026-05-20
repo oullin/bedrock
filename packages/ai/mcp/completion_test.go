@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\CompletionTest
+// Port of \Mcp\Tests\CompletionTest
 
 // completablePrompt is a Prompt that also implements Completable.
 type completablePrompt struct {

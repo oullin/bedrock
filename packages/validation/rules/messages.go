@@ -4,7 +4,7 @@ package rules
 // template.  Type-suffixed keys (e.g. "max.string") take precedence over the
 // bare key ("max") when the value is of the corresponding type.
 //
-// Placeholders mirror Laravel's: :attribute, :value, :min, :max, :size,
+// Placeholders mirror upstream's: :attribute, :value, :min, :max, :size,
 // :other, :values, :date, :format, etc.
 var DefaultMessages = map[string]string{
 	// acceptance

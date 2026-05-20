@@ -10,7 +10,7 @@ import (
 // are populated for OAuth2 providers; OAuth1 providers set Token and
 // TokenSecret instead.
 //
-// It mirrors Laravel\Socialite\Two\User and Laravel\Socialite\AbstractUser.
+// It mirrors upstream Socialite\Two\User and upstream Socialite\AbstractUser.
 type User struct {
 	// Core identity fields (all providers).
 	ID       string

@@ -9,7 +9,7 @@ import (
 )
 
 // ToolExecutor dispatches MCP tool requests to the appropriate handler.
-// Mirrors Laravel\Boost\Mcp\ToolExecutor.
+// Mirrors upstream Boost\Mcp\ToolExecutor.
 type ToolExecutor struct {
 	registry *ToolRegistry
 	timeout  time.Duration

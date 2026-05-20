@@ -15,7 +15,7 @@ import (
 // interface methods. User models embed this struct alongside eloquent.Model
 // to gain Scout search capabilities.
 //
-// In Laravel this is the Searchable trait. In Go, we use composition:
+// In the upstream framework this is the Searchable trait. In Go, we use composition:
 //
 //	type Post struct {
 //	    eloquent.Model

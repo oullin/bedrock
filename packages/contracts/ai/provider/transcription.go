@@ -16,7 +16,7 @@ type TranscriptionRequest struct {
 }
 
 // TranscriptionProvider is the provider-level contract for speech-to-text.
-// Mirrors Laravel\Ai\Contracts\Providers\TranscriptionProvider.
+// Mirrors upstream Ai\Contracts\Providers\TranscriptionProvider.
 type TranscriptionProvider interface {
 	Transcribe(ctx context.Context, req TranscriptionRequest) (*gateway.TranscriptionResult, error)
 	TranscriptionGateway() gateway.TranscriptionGateway

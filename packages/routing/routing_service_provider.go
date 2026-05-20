@@ -44,7 +44,7 @@ func (p *RoutingServiceProvider) Boot() {
 
 // Register installs all routing bindings.
 //
-// In Laravel the container is asked to instantiate dependencies on demand;
+// In the upstream framework the container is asked to instantiate dependencies on demand;
 // the Go form supplies factories that produce zero-argument values which
 // callers can then configure. The intent of this layer is "wire the standard
 // objects into the container" — bedrock-specific wiring (binding

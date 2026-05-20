@@ -25,7 +25,7 @@ func NewFailoverDriver(connection string, drivers ...queue.Queue) *FailoverDrive
 
 // SetEmitter installs an EventEmitter the driver will use to dispatch
 // QueueFailedOver events. Passing nil disables emission. Mirrors the
-// constructor-injected Events\Dispatcher that Laravel's FailoverQueue
+// constructor-injected Events\Dispatcher that the upstream FailoverQueue
 // receives.
 func (d *FailoverDriver) SetEmitter(e queue.EventEmitter) *FailoverDriver {
 	d.emitter = e

@@ -12,7 +12,7 @@ import (
 	democonfig "github.com/bedrock/services/demo/api/config"
 )
 
-// RegisterWeb mounts the Laravel skeleton web and health routes.
+// RegisterWeb mounts the upstream skeleton web and health routes.
 func RegisterWeb(router *routing.Router, application *container.Application) {
 	router.Get("/", func() any {
 		app := democonfig.DefaultApp("", "")
@@ -24,7 +24,7 @@ func RegisterWeb(router *routing.Router, application *container.Application) {
 		}
 
 		return &routing.HTTPResponse{
-			Body:    fmt.Sprintf("<!doctype html><html><head><title>%s</title></head><body><main><h1>%s</h1><p>Laravel skeleton port running on Bedrock.</p></main></body></html>\n", app.Name, app.Name),
+			Body:    fmt.Sprintf("<!doctype html><html><head><title>%s</title></head><body><main><h1>%s</h1><p>Skeleton app running on Bedrock.</p></main></body></html>\n", app.Name, app.Name),
 			Status:  http.StatusOK,
 			Headers: map[string][]string{"Content-Type": {"text/html; charset=utf-8"}},
 		}

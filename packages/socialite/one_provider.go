@@ -21,7 +21,7 @@ type TokenCredentials struct {
 
 // OAuth1Server is the interface that concrete OAuth1 providers implement.
 // It mirrors the League\OAuth1\Client\Server\Server contract used by
-// Laravel\Socialite\One\AbstractProvider.
+// upstream Socialite\One\AbstractProvider.
 type OAuth1Server interface {
 	// GetTemporaryCredentials fetches a request token from the provider.
 	GetTemporaryCredentials(ctx context.Context) (*TemporaryCredentials, error)
@@ -41,7 +41,7 @@ type OAuth1Server interface {
 }
 
 // OneAbstractProvider is the base OAuth1 provider.
-// It mirrors Laravel\Socialite\One\AbstractProvider.
+// It mirrors upstream Socialite\One\AbstractProvider.
 type OneAbstractProvider struct {
 	server  OAuth1Server
 	request *http.Request

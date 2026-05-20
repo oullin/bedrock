@@ -7,7 +7,7 @@ import (
 )
 
 // GitlabProvider handles OAuth2 authentication via GitLab (cloud or self-hosted).
-// It mirrors Laravel\Socialite\Two\GitlabProvider.
+// It mirrors upstream Socialite\Two\GitlabProvider.
 type GitlabProvider struct {
 	AbstractProvider
 	host string

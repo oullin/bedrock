@@ -1,5 +1,5 @@
 // Package messages contains the conversation message types for the AI package.
-// Mirrors the Laravel\Ai\Messages namespace.
+// Mirrors the upstream Ai\Messages namespace.
 package messages
 
 import (
@@ -9,7 +9,7 @@ import (
 )
 
 // Message is the base conversation message type.
-// Mirrors Laravel\Ai\Messages\Message.
+// Mirrors upstream Ai\Messages\Message.
 type Message struct {
 	Role    enums.MessageRole
 	Content *string

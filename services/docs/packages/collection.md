@@ -1,23 +1,19 @@
 # collection
 
-<!-- laravel-docs: collections.md#introduction -->
-<!-- laravel-docs: collections.md#method-listing -->
-<!-- laravel-docs: collections.md#higher-order-messages -->
+<!-- upstream-docs: collections.md#introduction -->
+<!-- upstream-docs: collections.md#method-listing -->
+<!-- upstream-docs: collections.md#higher-order-messages -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-The collection package provides Bedrock's Go implementation for this Laravel-aligned surface.
+The collection package provides Bedrock's Go implementation for this surface.
 
-<div class="docs-callout docs-callout-laravel">
-  <strong>Laravel baseline.</strong>
-  This page follows the Laravel 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Laravel facades, service container magic, PHP traits, and Artisan commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -46,7 +42,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/collection/...
 
 ## Core Concepts
 
-The collection reference is organized around the exported Go surface for package `collection`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Laravel parity expectations.
+The collection reference is organized around the exported Go surface for package `collection`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -80,13 +76,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/collection` cover the supported creation paths, default values, and Laravel parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/collection` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Laravel documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Laravel shape     | Bedrock shape                                            |
+| Upstream shape     | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -97,7 +93,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Laravel parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -109,7 +105,7 @@ The package reference should be read through these Laravel parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Laravel depends on PHP traits, request globals, Blade, Artisan, or Eloquent magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Blade, Artisan, or Eloquent magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -123,7 +119,7 @@ Run the package tests before changing examples:
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/collection/...
 ```
 
-Laravel parity is tracked by these tests:
+Parity is tracked by these tests:
 
 - `packages/collection/collection/inventory_parity_additional_test.go`
 
@@ -277,7 +273,3 @@ Laravel parity is tracked by these tests:
 | Name                    | Notes                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------- |
 | `ErrReduceSpreadLength` | Source-backed public surface. See the Go package for exact signature and behavior. |
-
-## Laravel Parity Notes
-
-This page should stay aligned with the official Laravel 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Laravel feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Laravel feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

@@ -1,4 +1,4 @@
-// Package http hosts brain's HTTP layer. Routes mirror laravel-brain's
+// Package http hosts brain's HTTP layer. Routes mirror upstream-brain's
 // routes/brain.php under the `_request_cycle` prefix:
 //
 //	GET  /_request_cycle/api/manifest                     manifest JSON

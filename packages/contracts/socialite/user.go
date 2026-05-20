@@ -1,7 +1,7 @@
 package socialite
 
 // User represents an authenticated OAuth user.
-// It mirrors Laravel\Socialite\Contracts\User.
+// It mirrors upstream Socialite\Contracts\User.
 type User interface {
 	GetID() string
 	GetNickname() string

@@ -6,7 +6,7 @@ import (
 )
 
 // StreamableAgentResponse wraps a lazy stream of events.
-// Mirrors Laravel\Ai\Responses\StreamableAgentResponse.
+// Mirrors upstream Ai\Responses\StreamableAgentResponse.
 type StreamableAgentResponse struct {
 	InvocationID     string
 	events           func(yield func(stream.Event) bool)
@@ -36,7 +36,7 @@ type StreamableAgentResponse struct {
 // Consume drains the stream, collects text, and calls Then callbacks.
 
 // StreamedAgentResponse is the fully-consumed result of a streamed generation.
-// Mirrors Laravel\Ai\Responses\StreamedAgentResponse.
+// Mirrors upstream Ai\Responses\StreamedAgentResponse.
 type StreamedAgentResponse struct {
 	AgentResponse
 }

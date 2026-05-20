@@ -21,7 +21,7 @@ type QueueBusy struct {
 // QueuePaused is dispatched when an operator pauses a queue via the
 // queue:pause command. Mirrors Illuminate\Queue\Events\QueuePaused.
 //
-// Laravel's event carries an integer `ttl` (seconds, null for indefinite).
+// the upstream event carries an integer `ttl` (seconds, null for indefinite).
 // The Go port uses a *time.Duration so callers can inspect both the
 // nullability and the magnitude without unit conversion. A nil TTL means
 // the pause is indefinite.

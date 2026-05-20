@@ -7,7 +7,7 @@ type CheckoutItem struct {
 }
 
 // Checkout represents a checkout session configuration.
-// Mirrors Laravel\Paddle\Checkout.
+// Mirrors upstream Paddle\Checkout.
 type Checkout struct {
 	Customer    *Customer
 	Items       []CheckoutItem

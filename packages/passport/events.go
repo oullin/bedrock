@@ -13,7 +13,7 @@ type EventDispatcher interface {
 }
 
 // AccessTokenCreated is dispatched when a new access token is created.
-// Mirrors Laravel Passport's AccessTokenCreated event.
+// Mirrors Passport AccessTokenCreated event.
 type AccessTokenCreated struct {
 	TokenID  string
 	UserID   string
@@ -21,13 +21,13 @@ type AccessTokenCreated struct {
 }
 
 // AccessTokenRevoked is dispatched when an access token is revoked.
-// Mirrors Laravel Passport's AccessTokenRevoked event.
+// Mirrors Passport AccessTokenRevoked event.
 type AccessTokenRevoked struct {
 	TokenID string
 }
 
 // RefreshTokenCreated is dispatched when a new refresh token is created.
-// Mirrors Laravel Passport's RefreshTokenCreated event.
+// Mirrors Passport RefreshTokenCreated event.
 type RefreshTokenCreated struct {
 	ID            string
 	AccessTokenID string

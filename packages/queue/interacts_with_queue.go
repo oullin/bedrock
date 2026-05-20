@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-// InteractsWithQueue is the Go port of Laravel's
-// Illuminate\Queue\InteractsWithQueue trait. Handler authors embed it
+// InteractsWithQueue is the Go port of // Illuminate\Queue\InteractsWithQueue trait. Handler authors embed it
 // in their job-handler structs to get ergonomic access to the
 // currently-processing Job (delete, release, fail) without having to
 // re-implement the lifecycle plumbing.
@@ -35,7 +34,7 @@ type InteractsWithQueue struct {
 
 // Release re-queues the associated job after the given delay. Pass
 // zero or omit the argument for an immediate release, matching
-// Laravel's $this->job->release($delay = 0) default.
+// the upstream $this->job->release($delay = 0) default.
 //
 // Returns nil when no job is attached.
 func (i *InteractsWithQueue) Release(delay ...time.Duration) error {
@@ -63,7 +62,7 @@ func (i *InteractsWithQueue) Delete() error {
 }
 
 // Fail marks the associated job as failed. reason is the same duck-
-// typed argument Laravel accepts:
+// typed argument the upstream accepts:
 //
 //   - nil          → ManuallyFailedError
 //   - error        → passed through verbatim

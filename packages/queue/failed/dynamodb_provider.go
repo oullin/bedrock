@@ -12,9 +12,9 @@ import (
 // provider needs. Tests inject fakes; production wires the real AWS
 // client through a thin adapter.
 //
-// The shape mirrors Laravel's use of Aws\DynamoDb\DynamoDbClient:
+// The shape mirrors the upstream use of Aws\DynamoDb\DynamoDbClient:
 // PutItem for Log, Query for All, GetItem for Find, DeleteItem for
-// Forget. Each method receives the request parameters Laravel emits
+// Forget. Each method receives the request parameters upstream emits
 // verbatim so tests can assert the on-wire request shape.
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params map[string]any) (map[string]any, error)
@@ -116,7 +116,7 @@ func (p *DynamoDbFailedJobProvider) All() ([]FailedJob, error) {
 	if !ok {
 		return nil, nil
 	}
-	// Sort by failed_at descending, matching Laravel's sortByDesc.
+	// Sort by failed_at descending, matching the upstream sortByDesc.
 	sort.SliceStable(items, func(i, j int) bool {
 		return dynNumber(items[i], "failed_at") > dynNumber(items[j], "failed_at")
 	})
@@ -179,13 +179,13 @@ func (p *DynamoDbFailedJobProvider) Forget(id string) (bool, error) {
 }
 
 // Flush implements FailedJobProvider. DynamoDB storage relies on the
-// table's TTL feature; Laravel throws an exception here and this port
+// table's TTL feature; upstream throws an exception here and this port
 // returns a matching sentinel error.
 func (p *DynamoDbFailedJobProvider) Flush(_ int) error {
 	return ErrDynamoDbFlushUnsupported
 }
 
-// ErrDynamoDbFlushUnsupported mirrors the PHP exception Laravel raises
+// ErrDynamoDbFlushUnsupported mirrors the PHP exception upstream raises
 // from DynamoDbFailedJobProvider::flush.
 var ErrDynamoDbFlushUnsupported = errors.New("dynamodb failed job storage may not be flushed. use the table's TTL feature on expires_at")
 

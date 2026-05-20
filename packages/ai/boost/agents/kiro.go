@@ -3,7 +3,7 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Kiro implements boost.CodingAgent for AWS Kiro IDE.
-// Mirrors Laravel\Boost\Install\Agents\Kiro.
+// Mirrors upstream Boost\Install\Agents\Kiro.
 type Kiro struct {
 	BaseAgent
 }

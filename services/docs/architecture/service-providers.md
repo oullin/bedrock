@@ -1,8 +1,8 @@
 # Service Providers
 
-<!-- laravel-docs: providers.md#service-providers -->
-<!-- laravel-docs: providers.md#writing-service-providers -->
-<!-- laravel-docs: providers.md#deferred-providers -->
+<!-- upstream-docs: providers.md#service-providers -->
+<!-- upstream-docs: providers.md#writing-service-providers -->
+<!-- upstream-docs: providers.md#deferred-providers -->
 
 A service provider is a small object whose only job is to bind services
 into the container. Every Bedrock package that exposes a stateful

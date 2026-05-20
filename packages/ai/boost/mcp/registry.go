@@ -8,7 +8,7 @@ import (
 )
 
 // ToolRegistry holds the set of available MCP tools and manages per-tool
-// allow-list enforcement. Mirrors Laravel\Boost\Mcp\ToolRegistry.
+// allow-list enforcement. Mirrors upstream Boost\Mcp\ToolRegistry.
 type ToolRegistry struct {
 	mu         sync.RWMutex
 	registered []tools.McpTool

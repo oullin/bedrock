@@ -34,7 +34,7 @@ type ToolCall struct {
 }
 
 // TextGateway is a fake implementation of gateway.TextGateway for testing.
-// It implements the full fake+assert lifecycle matching Laravel's testing API.
+// It implements the full fake+assert lifecycle matching the upstream testing API.
 type TextGateway struct {
 	mu          sync.Mutex
 	responses   []TextResponse

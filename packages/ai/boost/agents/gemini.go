@@ -3,7 +3,7 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Gemini implements boost.CodingAgent for Google Gemini CLI.
-// Mirrors Laravel\Boost\Install\Agents\Gemini.
+// Mirrors upstream Boost\Install\Agents\Gemini.
 type Gemini struct {
 	BaseAgent
 }

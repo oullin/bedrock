@@ -76,7 +76,7 @@ type Config struct {
 }
 
 // DefaultConfig returns a Config populated with sensible defaults that mirror
-// the Laravel Reverb defaults.
+// the upstream Reverb defaults.
 func DefaultConfig() Config {
 	return Config{
 		Host:           "0.0.0.0",

@@ -30,7 +30,7 @@ type SourceRoute interface {
 //
 // The leading "!" denotes a Symfony "important variable" that must never be
 // optional. The Go RE2 character class \w is equivalent to PCRE \w for ASCII
-// names; Laravel does not currently emit non-ASCII parameter names.
+// names; upstream does not currently emit non-ASCII parameter names.
 
 // Compile produces a [CompiledRoute] from a [SourceRoute].
 //
@@ -130,7 +130,7 @@ func compilePattern(route SourceRoute, pattern string, isHost bool) (*compileRes
 		var precedingChar string
 
 		if precedingText != "" {
-			// last byte; Laravel route names are ASCII so byte slicing is safe.
+			// last byte; upstream route names are ASCII so byte slicing is safe.
 			precedingChar = precedingText[len(precedingText)-1:]
 		}
 

@@ -1,7 +1,7 @@
 // Package failed contains the Go port of Illuminate\Queue\Failed\* from
-// laravel/framework 13.x. It defines the FailedJobProvider contract plus
+// upstream framework 13.x. It defines the FailedJobProvider contract plus
 // the optional Countable and Prunable extensions, and ships five
-// implementations that mirror the Laravel providers:
+// implementations that mirror the upstream providers:
 //
 //   - DatabaseFailedJobProvider     — integer-keyed SQL table
 //   - DatabaseUuidFailedJobProvider — UUID-keyed SQL table

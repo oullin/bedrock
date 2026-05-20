@@ -5,7 +5,7 @@ import (
 )
 
 // MailMessage carries the data captured by MailWatcher for a single outbound
-// email, mirroring the fields stored by Laravel's MailWatcher.
+// email, mirroring the fields stored by the upstream MailWatcher.
 type MailMessage struct {
 	// Mailable is the fully-qualified struct/type name of the mailable.
 	Mailable string
@@ -26,7 +26,7 @@ type MailMessage struct {
 }
 
 // MailWatcher monitors outbound email dispatch and records entries as
-// Telescope entries. It mirrors Laravel's MailWatcher class.
+// Telescope entries. It mirrors the upstream MailWatcher class.
 type MailWatcher struct {
 	telescope.BaseWatcher
 }

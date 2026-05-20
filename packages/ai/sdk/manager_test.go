@@ -1,4 +1,4 @@
-// Port of Laravel\Ai\Tests\Feature\AiManagerTest
+// Port of \Ai\Tests\Feature\AiManagerTest
 package ai_test
 
 import (

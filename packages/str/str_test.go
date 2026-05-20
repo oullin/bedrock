@@ -1103,7 +1103,7 @@ func TestStrSubstrReplace(t *testing.T) {
 // SupportStrTest::testPluralPascal
 // SupportStrTest::testRepeatWhenTimesIsNegative
 // SupportStrTest::testWrapEdgeCases
-func TestStrAdditionalLaravelInventoryEquivalents(t *testing.T) {
+func TestStrAdditionalInventoryEquivalents(t *testing.T) {
 	t.Parallel()
 
 	if got := StrAfterLast("App\\Http\\Controller", "\\"); got != "Controller" {

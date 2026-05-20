@@ -9,7 +9,7 @@ import (
 )
 
 // EntryUser holds the authenticated user snapshot attached to an entry,
-// mirroring the user() method on Laravel's IncomingEntry.
+// mirroring the user() method on the upstream IncomingEntry.
 type EntryUser struct {
 	ID    any    `json:"id"`
 	Name  string `json:"name"`
@@ -17,7 +17,7 @@ type EntryUser struct {
 }
 
 // IncomingEntry represents a single telemetry entry being recorded before it
-// is persisted. It mirrors Laravel's IncomingEntry class and provides a fluent
+// is persisted. It mirrors the upstream IncomingEntry class and provides a fluent
 // builder interface.
 type IncomingEntry struct {
 	UUID       string

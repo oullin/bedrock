@@ -82,21 +82,21 @@ type CodingAgent interface {
 }
 
 // SupportsGuidelines is satisfied by agents that accept an AI guidelines file.
-// Mirrors Laravel\Boost\Contracts\SupportsGuidelines.
+// Mirrors upstream Boost\Contracts\SupportsGuidelines.
 type SupportsGuidelines interface {
 	CodingAgent
 	GuidelinesPath() string
 }
 
 // SupportsMcp is satisfied by agents that can install an MCP server.
-// Mirrors Laravel\Boost\Contracts\SupportsMcp.
+// Mirrors upstream Boost\Contracts\SupportsMcp.
 type SupportsMcp interface {
 	CodingAgent
 	UseAbsolutePathForMcp() bool
 }
 
 // SupportsSkills is satisfied by agents that accept SKILL.md files.
-// Mirrors Laravel\Boost\Contracts\SupportsSkills.
+// Mirrors upstream Boost\Contracts\SupportsSkills.
 type SupportsSkills interface {
 	CodingAgent
 	SkillsPath() string

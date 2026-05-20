@@ -7,7 +7,7 @@ import (
 )
 
 // DumpWatcher monitors debug dump() calls and records them as Telescope
-// entries. It mirrors Laravel's DumpWatcher class.
+// entries. It mirrors the upstream DumpWatcher class.
 type DumpWatcher struct {
 	telescope.BaseWatcher
 }

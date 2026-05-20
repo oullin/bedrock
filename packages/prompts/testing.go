@@ -18,7 +18,7 @@ type TestPrompts struct {
 // Returns a *TestPrompts with assertion helpers and queued key injection.
 // Call Cleanup() when done (typically via defer).
 //
-// Mirrors Laravel's Prompt::fake().
+// Mirrors the upstream Prompt::fake().
 func Fake(t testing.TB, cols, lines int) *TestPrompts {
 	t.Helper()
 

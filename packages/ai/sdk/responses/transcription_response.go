@@ -3,7 +3,7 @@ package responses
 import "github.com/bedrock/packages/ai/sdk/data"
 
 // TranscriptionResponse holds the result of a speech-to-text request.
-// Mirrors Laravel\Ai\Responses\TranscriptionResponse.
+// Mirrors upstream Ai\Responses\TranscriptionResponse.
 type TranscriptionResponse struct {
 	Text     string
 	Segments []data.TranscriptionSegment

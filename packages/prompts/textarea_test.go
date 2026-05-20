@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest
+// Port of \Prompts\Tests\Feature\TextareaPromptTest
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest::test_accepts_input
+// Port of \Prompts\Tests\Feature\TextareaPromptTest::test_accepts_input
 func TestTextareaAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +23,7 @@ func TestTextareaAcceptsInput(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest::test_enter_inserts_newline
+// Port of \Prompts\Tests\Feature\TextareaPromptTest::test_enter_inserts_newline
 func TestTextareaEnterInsertsNewline(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +42,7 @@ func TestTextareaEnterInsertsNewline(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest::test_can_be_cancelled
+// Port of \Prompts\Tests\Feature\TextareaPromptTest::test_can_be_cancelled
 func TestTextareaCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -57,7 +57,7 @@ func TestTextareaCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest::test_accepts_default
+// Port of \Prompts\Tests\Feature\TextareaPromptTest::test_accepts_default
 func TestTextareaAcceptsDefault(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -76,7 +76,7 @@ func TestTextareaAcceptsDefault(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TextareaPromptTest::test_renders_hint
+// Port of \Prompts\Tests\Feature\TextareaPromptTest::test_renders_hint
 func TestTextareaRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

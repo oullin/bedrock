@@ -1,7 +1,7 @@
 package passport
 
 // Client represents an OAuth2 client application, corresponding to the
-// oauth_clients table in Laravel Passport.
+// oauth_clients table in Passport.
 type Client struct {
 	ID                   string
 	UserID               string
@@ -18,7 +18,7 @@ type Client struct {
 
 // FirstParty reports whether this is a first-party client.
 // A client is first-party if it is a personal access client or a password client.
-// This mirrors Client::firstParty() in Laravel Passport.
+// This mirrors Client::firstParty() in Passport.
 func (c *Client) FirstParty() bool {
 	return c.PersonalAccessClient || c.PasswordClient
 }

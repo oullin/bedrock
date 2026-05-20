@@ -1,8 +1,8 @@
 # Request Lifecycle
 
-<!-- laravel-docs: lifecycle.md#request-lifecycle -->
-<!-- laravel-docs: lifecycle.md#lifecycle-overview -->
-<!-- laravel-docs: lifecycle.md#focus-on-service-providers -->
+<!-- upstream-docs: lifecycle.md#request-lifecycle -->
+<!-- upstream-docs: lifecycle.md#lifecycle-overview -->
+<!-- upstream-docs: lifecycle.md#focus-on-service-providers -->
 
 When you understand how Bedrock starts up and how a request flows through it,
 nothing about the rest of the framework feels magic. This guide walks through

@@ -14,7 +14,7 @@ type SupportsSkills interface {
 }
 
 // SkillWriter writes SKILL.md files to an agent's skills directory.
-// Mirrors Laravel\Boost\Install\SkillWriter.
+// Mirrors upstream Boost\Install\SkillWriter.
 type SkillWriter struct{}
 
 // NewSkillWriter constructs a SkillWriter.

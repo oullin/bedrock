@@ -242,9 +242,9 @@ func (d *DatabaseDriver) ReservedSize(ctx context.Context, queueName string) (in
 func (d *DatabaseDriver) ConnectionName() string { return d.connection }
 
 // ClearQueue deletes every row for queueName from the jobs table. Go
-// port of Laravel's DatabaseQueue::clear — a bulk DELETE WHERE queue=?
+// port of the upstream DatabaseQueue::clear — a bulk DELETE WHERE queue=?
 // matching the observable side effect of calling $queue->clear($name).
-// Laravel returns the deleted row count; the Go driver surfaces only
+// Upstream returns the deleted row count; the Go driver surfaces only
 // the error (row count would require a wider DBExecer interface).
 func (d *DatabaseDriver) ClearQueue(ctx context.Context, queueName string) error {
 	return d.db.Exec(ctx,
@@ -266,7 +266,7 @@ func (d *DatabaseDriver) count(ctx context.Context, query string, args ...any) (
 }
 
 // Bulk inserts every payload in a single multi-row INSERT statement.
-// It is the Go port of Laravel's DatabaseQueue::bulk and matches the
+// It is the Go port of DatabaseQueue::bulk and matches the
 // observable side effects of a $db->insert([$record1, $record2, ...])
 // call: one Exec, one INSERT, one round-trip. Returns the number of
 // rows attempted.
@@ -304,7 +304,7 @@ func (d *DatabaseDriver) Bulk(ctx context.Context, queueName string, payloads []
 
 // QueueNames returns the distinct queue names that currently have at
 // least one row in the jobs table. It is the database analogue of
-// Laravel's "every named queue the connection knows about" and powers
+// the upstream "every named queue the connection knows about" and powers
 // the manager-level AllPendingJobs/AllDelayedJobs/AllReservedJobs
 // fan-out.
 func (d *DatabaseDriver) QueueNames(ctx context.Context) ([]string, error) {
@@ -336,7 +336,7 @@ func (d *DatabaseDriver) QueueNames(ctx context.Context) ([]string, error) {
 }
 
 // PendingJobs returns the pending (unreserved, ready-to-run) rows for
-// queueName. Go port of Laravel's DatabaseQueue::pendingJobs — selects
+// queueName. Go port of DatabaseQueue::pendingJobs — selects
 // rows where reserved_at IS NULL AND available_at <= now.
 func (d *DatabaseDriver) PendingJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
 	return d.fetchInspected(ctx,

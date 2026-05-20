@@ -47,15 +47,14 @@ type SimpleProcess struct {
 // Timeout returns the configured run-time ceiling.
 
 // ListenerOptions configures the Listener's outer loop and the
-// worker subprocesses it spawns. Mirrors Laravel's
-// Illuminate\Queue\ListenerOptions, with a few field-name tweaks for
+// worker subprocesses it spawns. Mirrors the upstream // Illuminate\Queue\ListenerOptions, with a few field-name tweaks for
 // Go idiom (MaxTries instead of maxTries, Rest instead of $rest).
 type ListenerOptions struct {
 	// Name is the worker process name passed via --name. Defaults to
 	// "default" when constructed via NewListenerOptions.
 	Name string
 	// Environment, if non-empty, is appended to the command as
-	// --env={environment}. Mirrors Laravel's $environment field.
+	// --env={environment}. Mirrors the upstream $environment field.
 	Environment string
 	// Backoff seconds between retries, forwarded to the worker.
 	Backoff int
@@ -68,17 +67,17 @@ type ListenerOptions struct {
 	// MaxTries is the worker's attempt cap. Default 1.
 	MaxTries int
 	// Rest is the sleep (in seconds) between successive runProcess
-	// calls in the outer loop. Mirrors Laravel's --rest.
+	// calls in the outer loop. Mirrors the upstream --rest.
 	Rest int
 	// Force adds --force to the worker command when true.
 	Force bool
 }
 
 // NewListenerOptions returns a ListenerOptions initialised with the
-// Laravel defaults: Name="default", Sleep=3, MaxTries=1.
+// Upstream defaults: Name="default", Sleep=3, MaxTries=1.
 
 // NewListenerOptionsWithEnv is the two-argument constructor that
-// matches Laravel's `new ListenerOptions($name, $environment)` form.
+// matches the upstream `new ListenerOptions($name, $environment)` form.
 
 // Listener spawns and supervises worker subprocesses. It is the Go
 // port of Illuminate\Queue\Listener.
@@ -92,7 +91,7 @@ type ListenerOptions struct {
 type Listener struct {
 	commandPath string
 	// WorkerBinary is the binary path invoked as the first argv slot.
-	// For a PHP/Laravel port it is "php"; for a Go-native port it
+	// For a PHP/upstream port it is "php"; for a Go-native port it
 	// might be "go" + "run ./cmd/queue-worker" or a compiled binary.
 	WorkerBinary string
 	// EntryArg is the second argv slot, typically the artisan script
@@ -111,7 +110,7 @@ type Listener struct {
 	// test binary.
 	StopFunc func()
 	// OutputHandler is called for every stdout/stderr line produced
-	// by a running worker subprocess. Mirrors Laravel's setOutputHandler.
+	// by a running worker subprocess. Mirrors the upstream setOutputHandler.
 	OutputHandler func(stream, line string)
 }
 
@@ -167,7 +166,7 @@ func NewListenerOptionsWithEnv(name, environment string) ListenerOptions {
 
 // NewListener constructs a Listener rooted at commandPath. The worker
 // binary defaults to "php" and the entry arg to "artisan" so the
-// command shape matches Laravel 1:1. Go-native consumers should
+// command shape matches upstream 1:1. Go-native consumers should
 // reassign WorkerBinary + EntryArg after construction.
 func NewListener(commandPath string) *Listener {
 	l := &Listener{
@@ -188,7 +187,7 @@ func NewListener(commandPath string) *Listener {
 func (l *Listener) CommandPath() string { return l.commandPath }
 
 // MakeProcess builds the command for a worker subprocess and wraps it
-// in a ProcessRunner. Mirrors Laravel's Listener::makeProcess.
+// in a ProcessRunner. Mirrors the upstream Listener::makeProcess.
 func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) ProcessRunner {
 	cmd := l.createCommand(connection, queue, opts)
 
@@ -200,7 +199,7 @@ func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) P
 }
 
 // createCommand builds the argv slice that MakeProcess hands to the
-// ProcessFactory. Mirrors Laravel's Listener::createCommand, including
+// ProcessFactory. Mirrors the upstream Listener::createCommand, including
 // the "drop null entries" step (Go: drop empty strings).
 func (l *Listener) createCommand(connection, queue string, opts ListenerOptions) []string {
 	name := opts.Name
@@ -240,7 +239,7 @@ func (l *Listener) createCommand(connection, queue string, opts ListenerOptions)
 
 // RunProcess runs a worker subprocess and, on return, checks the
 // memory cap. If memory is exceeded, Stop is invoked — matching
-// Laravel's "kill the listener so the process manager restarts it"
+// the upstream "kill the listener so the process manager restarts it"
 // semantics. Mirrors Listener::runProcess.
 func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 	if err := process.Run(); err != nil {
@@ -257,7 +256,7 @@ func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 // Listen is the outer supervisor loop: call MakeProcess once, then
 // RunProcess/Rest-sleep forever. Callers that need graceful shutdown
 // should arrange for StopFunc to return so the loop exits. Mirrors
-// Laravel's Listener::listen.
+// the upstream Listener::listen.
 func (l *Listener) Listen(connection, queue string, opts ListenerOptions) error {
 	process := l.MakeProcess(connection, queue, opts)
 

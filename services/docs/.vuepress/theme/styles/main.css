@@ -249,7 +249,7 @@ body,
   font-weight: 600;
 }
 
-[vp-content] .docs-callout-laravel {
+[vp-content] .docs-callout-upstream {
   border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
   background: color-mix(in srgb, var(--accent) 8%, transparent);
 }

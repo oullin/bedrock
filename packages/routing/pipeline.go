@@ -3,7 +3,7 @@ package routing
 // Pipeline is a thin local pipeline used by [Router] to chain middleware
 // around a route handler.
 //
-// In Laravel this class is a subclass of Illuminate\Pipeline\Pipeline that
+// In the upstream framework this class is a subclass of Illuminate\Pipeline\Pipeline that
 // adds exception handling. The full pipeline lives in bedrock/packages/pipeline,
 // and M11 will rewire this Pipeline to delegate to it. For now (so the
 // routing module stays buildable in isolation) it implements the minimal

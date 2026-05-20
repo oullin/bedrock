@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/routing/matching"
 )
 
-// HTTPVerbs is the canonical list of verbs Laravel's Router considers when
+// HTTPVerbs is the canonical list of verbs the upstream Router considers when
 // scanning for "method not allowed" alternates.
 
 // ErrRouteNotFound is returned by [RouteCollection.Match] when no route

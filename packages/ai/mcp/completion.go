@@ -3,10 +3,10 @@ package mcp
 import "strings"
 
 // maxCompletionValues is the maximum number of values returned in a single
-// completion response. Laravel caps this at 100.
+// completion response. Upstream caps this at 100.
 
 // CompletionResult holds the completion suggestions for a prompt or resource
-// argument. It mirrors Laravel's CompletionResponse.
+// argument. It mirrors the upstream CompletionResponse.
 type CompletionResult struct {
 	Values  []string
 	HasMore bool

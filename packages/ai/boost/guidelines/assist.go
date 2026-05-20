@@ -9,7 +9,7 @@ import (
 
 // GuidelineAssist provides project-introspection helpers that guideline composers
 // use to produce context-aware output.
-// Mirrors Laravel\Boost\Install\GuidelineAssist (21 public methods).
+// Mirrors upstream Boost\Install\GuidelineAssist (21 public methods).
 type GuidelineAssist struct {
 	config *GuidelineConfig
 }

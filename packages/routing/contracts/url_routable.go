@@ -12,7 +12,7 @@ package contracts
 //   - ResolveChildRouteBinding: scoped lookup off a parent instance
 //
 // Returning (nil, nil) from the resolve methods signals "not found" without
-// an error, matching Laravel's nullable model lookup semantics.
+// an error, matching the upstream nullable model lookup semantics.
 type UrlRoutable interface {
 	GetRouteKey() any
 	GetRouteKeyName() string

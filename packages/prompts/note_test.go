@@ -2,9 +2,9 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest
+// Port of \Prompts\Tests\Feature\NoteTest
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_note
+// Port of \Prompts\Tests\Feature\NoteTest::test_note
 func TestNoteDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -14,7 +14,7 @@ func TestNoteDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Hello World")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_error
+// Port of \Prompts\Tests\Feature\NoteTest::test_error
 func TestErrorDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -25,7 +25,7 @@ func TestErrorDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Something went wrong")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_warning
+// Port of \Prompts\Tests\Feature\NoteTest::test_warning
 func TestWarningDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -36,7 +36,7 @@ func TestWarningDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Be careful")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_info
+// Port of \Prompts\Tests\Feature\NoteTest::test_info
 func TestInfoDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -47,7 +47,7 @@ func TestInfoDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("FYI")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_alert
+// Port of \Prompts\Tests\Feature\NoteTest::test_alert
 func TestAlertDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -58,7 +58,7 @@ func TestAlertDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Watch out!")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_intro
+// Port of \Prompts\Tests\Feature\NoteTest::test_intro
 func TestIntroDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -68,7 +68,7 @@ func TestIntroDisplaysMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Welcome!")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NoteTest::test_outro
+// Port of \Prompts\Tests\Feature\NoteTest::test_outro
 func TestOutroDisplaysMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

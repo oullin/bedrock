@@ -1,7 +1,7 @@
 package data
 
 // TranscriptionSegment represents a timed segment of transcribed audio.
-// Mirrors Laravel\Ai\Responses\Data\TranscriptionSegment.
+// Mirrors upstream Ai\Responses\Data\TranscriptionSegment.
 type TranscriptionSegment struct {
 	Start float64 `json:"start"`
 	End   float64 `json:"end"`

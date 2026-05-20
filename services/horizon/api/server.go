@@ -1,5 +1,5 @@
 // Package api exposes the HTTP surface of the Bedrock Horizon dashboard. It
-// ports Laravel Horizon's Vue-facing JSON controllers (BatchesController,
+// ports Horizon Vue-facing JSON controllers (BatchesController,
 // DashboardStatsController, MasterSupervisorController, MonitoringController,
 // metrics and job retrieval endpoints) on top of the Go primitives shipped in
 // packages/horizon.
@@ -14,7 +14,7 @@ import (
 )
 
 // MasterSupervisor describes one supervisor master process reported by the
-// dashboard. Laravel Horizon exposes the same shape via MasterSupervisor::all().
+// dashboard. Horizon exposes the same shape via MasterSupervisor::all().
 type MasterSupervisor struct {
 	Name        string   `json:"name"`
 	PID         int      `json:"pid"`
@@ -173,7 +173,7 @@ func (b *InMemoryBatches) Store(batch Batch) {
 	b.items = append(b.items, batch)
 }
 
-// Search ports Laravel Horizon's BatchRepository::getRecentUnfinished +
+// Search ports Horizon BatchRepository::getRecentUnfinished +
 // searchBy helpers: matches are case-insensitive substring matches on the
 // batch name or ID, cursor pagination is ID-based, and wildcard characters in
 // the query are treated as literals (LIKE wildcard escaping).

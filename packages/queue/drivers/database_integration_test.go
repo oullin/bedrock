@@ -14,7 +14,7 @@
 //
 // Implementation notes
 // --------------------
-// Laravel's integration suite boots an in-memory SQLite database via
+// the upstream integration suite boots an in-memory SQLite database via
 // orchestra/testbench. The queue/ module's go.mod has no pure-Go
 // SQLite driver, so these tests are intentionally stubbed against
 // the in-package mockDBExecer (see drivers_test.go). The mock stages
@@ -131,7 +131,7 @@ func TestThatQueueCanBeCleared(t *testing.T) {
 	}
 
 	// After clear, the pending size query returns 0 — stage a zero
-	// count row to mirror Laravel's assertEquals(0, $this->queue->size()).
+	// count row to mirror the upstream assertEquals(0, $this->queue->size()).
 	db.addRow(int64(0))
 
 	n, err := drv.Size(context.Background(), "mock_queue_name")
@@ -172,7 +172,7 @@ func TestUnavailableJobsAreNotPopped(t *testing.T) {
 
 // Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedAndExpiredJobsArePopped
 //
-// DEFERRED. Laravel's Pop reclaims reserved_at rows whose reservation
+// DEFERRED. the upstream Pop reclaims reserved_at rows whose reservation
 // has expired (reserved_at < now - retry_after). The Go DatabaseDriver
 // Pop today only selects rows where reserved_at IS NULL, so there is
 // no reclaim path to exercise. Once reclaim lands, this test should
@@ -204,7 +204,7 @@ func TestThatReservedJobsAreNotPopped(t *testing.T) {
 
 // Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testJobPayloadIsAvailableOnEvents
 //
-// Adaptation: Laravel dispatches JobQueueing / JobQueued events from
+// Adaptation: upstream dispatches JobQueueing / JobQueued events from
 // DatabaseQueue::push and the PHP test asserts the event payload()
 // contains the job UUID. In the Go port, the driver does not emit
 // events — the Worker does, and only on pop/process. The observable

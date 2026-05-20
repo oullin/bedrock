@@ -9,7 +9,7 @@ import (
 )
 
 // Rule provides static factory methods for building rule objects, mirroring
-// Laravel's Illuminate\Validation\Rule facade.
+// the upstream Illuminate\Validation\Rule facade.
 
 type ruleBuilder struct{}
 

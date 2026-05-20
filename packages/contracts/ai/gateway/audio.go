@@ -19,7 +19,7 @@ type AudioGenerateResult struct {
 }
 
 // AudioGateway drives audio (text-to-speech) generation for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\AudioGateway.
+// Mirrors upstream Ai\Contracts\Gateway\AudioGateway.
 type AudioGateway interface {
 	GenerateAudio(ctx context.Context, req AudioGenerateRequest) (*AudioGenerateResult, error)
 }

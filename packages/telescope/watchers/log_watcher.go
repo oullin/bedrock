@@ -10,10 +10,10 @@ import (
 )
 
 // LogLevel maps PSR-3 log level names to their numeric priority, mirroring
-// the Monolog level constants used by Laravel's LogWatcher.
+// the Monolog level constants used by the upstream LogWatcher.
 
 // LogWatcher monitors application log messages and records them as Telescope
-// entries. It mirrors Laravel's LogWatcher class.
+// entries. It mirrors the upstream LogWatcher class.
 //
 // Options:
 //   - "level" (string): minimum log level to record (default "debug").

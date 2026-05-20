@@ -7,7 +7,7 @@ import (
 )
 
 // MessageSelector selects the appropriate plural form from a translation
-// string, mirroring Laravel's Illuminate\Translation\MessageSelector.
+// string, mirroring the upstream Illuminate\Translation\MessageSelector.
 //
 // Translation strings use pipe-delimited segments with optional bracket
 // conditions:
@@ -195,7 +195,7 @@ func stripConditions(segments []string) []string {
 // getPluralIndex returns the CLDR plural-form index for locale and n.
 // n is the absolute value of the original number as a float so that 1.2
 // does not satisfy n==1 (mirroring PHP's loose comparison behaviour).
-// Rules ported from Zend Framework / Laravel's MessageSelector::getPluralIndex.
+// Rules ported from Zend Framework / the upstream MessageSelector::getPluralIndex.
 //
 //nolint:cyclop,gocyclo
 func getPluralIndex(locale string, n float64) int {

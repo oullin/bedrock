@@ -4,7 +4,7 @@ import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // ClaudeCode implements boost.CodingAgent for the Claude Code IDE.
 // It also satisfies SupportsGuidelines, SupportsMcp, and SupportsSkills.
-// Mirrors Laravel\Boost\Install\Agents\ClaudeCode.
+// Mirrors upstream Boost\Install\Agents\ClaudeCode.
 type ClaudeCode struct {
 	BaseAgent
 }

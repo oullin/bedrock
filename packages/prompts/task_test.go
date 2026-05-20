@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-// Port of Laravel\Prompts\Tests\Feature\TaskTest
+// Port of \Prompts\Tests\Feature\TaskTest
 
-// Port of Laravel\Prompts\Tests\Feature\TaskTest::test_task_returns_result
+// Port of \Prompts\Tests\Feature\TaskTest::test_task_returns_result
 func TestTaskReturnsResult(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -28,7 +28,7 @@ func TestTaskReturnsResult(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TaskTest::test_task_with_logging
+// Port of \Prompts\Tests\Feature\TaskTest::test_task_with_logging
 func TestTaskWithLogging(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -51,7 +51,7 @@ func TestTaskWithLogging(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\TaskTest::test_task_shows_error
+// Port of \Prompts\Tests\Feature\TaskTest::test_task_shows_error
 func TestTaskShowsError(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

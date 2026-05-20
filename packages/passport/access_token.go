@@ -9,7 +9,7 @@ import (
 // It is the value associated with a user via WithAccessToken and is consulted
 // when checking scopes via TokenCan/TokenCant.
 //
-// This mirrors Laravel Passport's AccessToken class.
+// This mirrors Passport AccessToken class.
 type AccessToken struct {
 	token    *Token
 	passport *Passport
@@ -44,7 +44,7 @@ func (a *AccessToken) Token() *Token {
 }
 
 // ToArray returns a map representation of the access token for serialization.
-// Keys match the Laravel Passport token attribute names.
+// Keys match the upstream Passport token attribute names.
 func (a *AccessToken) ToArray() map[string]any {
 	if a.token == nil {
 		return map[string]any{}

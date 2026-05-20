@@ -11,7 +11,7 @@ import (
 )
 
 // TelescopeTestCase is an embeddable struct that provides test helpers
-// mirroring the FeatureTestCase from Laravel's Telescope test suite.
+// mirroring the FeatureTestCase from the upstream Telescope test suite.
 type TelescopeTestCase struct {
 	T          *testing.T
 	Telescope  *telescope.Telescope

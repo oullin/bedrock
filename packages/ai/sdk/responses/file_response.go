@@ -3,7 +3,7 @@ package responses
 import "github.com/bedrock/packages/ai/sdk/data"
 
 // FileResponse holds metadata for a retrieved file.
-// Mirrors Laravel\Ai\Responses\FileResponse.
+// Mirrors upstream Ai\Responses\FileResponse.
 type FileResponse struct {
 	ID       string
 	Filename string
@@ -13,7 +13,7 @@ type FileResponse struct {
 }
 
 // StoredFileResponse holds metadata for an uploaded file.
-// Mirrors Laravel\Ai\Responses\StoredFileResponse.
+// Mirrors upstream Ai\Responses\StoredFileResponse.
 type StoredFileResponse struct {
 	ID       string
 	Filename string
@@ -22,7 +22,7 @@ type StoredFileResponse struct {
 }
 
 // AddedDocumentResponse holds the result of adding a document to a vector store.
-// Mirrors Laravel\Ai\Responses\AddedDocumentResponse.
+// Mirrors upstream Ai\Responses\AddedDocumentResponse.
 type AddedDocumentResponse struct {
 	ID       string
 	Filename string

@@ -29,7 +29,7 @@ type Binding struct {
 	scoped  bool
 }
 
-// Container is a Laravel-inspired inversion-of-control container. It manages
+// Container is a inversion-of-control container. It manages
 // service bindings, resolution, contextual bindings, tagging, extension,
 // lifecycle callbacks, and method invocation. All methods are safe for
 // concurrent use.

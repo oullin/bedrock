@@ -7,7 +7,7 @@ type TagsChange struct {
 }
 
 // EntryUpdate describes a mutation to apply to a persisted Telescope entry.
-// It mirrors Laravel's EntryUpdate class with its fluent builder interface.
+// It mirrors the upstream EntryUpdate class with its fluent builder interface.
 type EntryUpdate struct {
 	UUID    string
 	Type    string

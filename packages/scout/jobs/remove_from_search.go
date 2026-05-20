@@ -7,7 +7,7 @@ import (
 )
 
 // RemoveFromSearch is a queueable job that removes models from the search engine.
-// It mirrors Laravel Scout's Jobs\RemoveFromSearch.
+// It mirrors Scout Jobs\RemoveFromSearch.
 type RemoveFromSearch struct {
 	Models []contract.Searchable
 	engine contract.Engine

@@ -6,7 +6,7 @@ import (
 )
 
 // GetAbsoluteUrl resolves a relative path or named route to an absolute URL.
-// Mirrors Laravel\Boost\Mcp\Tools\GetAbsoluteUrl.
+// Mirrors upstream Boost\Mcp\Tools\GetAbsoluteUrl.
 // Tagged IsReadOnly.
 type GetAbsoluteUrl struct {
 	// BaseURL is the application base URL (e.g. "http://localhost:8080").

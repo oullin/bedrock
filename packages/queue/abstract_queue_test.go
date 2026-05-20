@@ -12,7 +12,7 @@ import (
 // These tests are not 1:1 ports from tests/Queue — they cover Go-specific
 // helpers (DisplayName, NewUUIDv4, CreatePayloadFor, ShouldDispatchAfterCommit)
 // that the abstract_queue.go file introduces. The payload-hook behaviour
-// they assert matches Laravel Queue::createPayloadUsing's contract.
+// they assert matches upstream Queue::createPayloadUsing's contract.
 
 type sampleJob struct {
 	_       struct{} `queue:"tries=4,timeout=45s,backoff=1s|2s,queue=mail"`
@@ -108,7 +108,7 @@ func TestNewUUIDv4IsUnique(t *testing.T) {
 	}
 }
 
-func TestCreatePayloadForWritesLaravelShape(t *testing.T) {
+func TestCreatePayloadForWritesFrameworkShape(t *testing.T) {
 	// Not t.Parallel: mutates the global payload-hook list.
 	queue.ClearPayloadHooks()
 

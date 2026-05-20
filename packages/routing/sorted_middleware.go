@@ -4,7 +4,7 @@ import "strings"
 
 // SortedMiddleware is the deduplicated, priority-ordered middleware list.
 //
-// In Laravel this is a Collection subclass; in Go it is a plain slice with
+// In the upstream framework this is a Collection subclass; in Go it is a plain slice with
 // a constructor that performs the sort. Slice elements are typed as any
 // because middleware may be either a string class name (with optional ":args"
 // suffix) or a closure.

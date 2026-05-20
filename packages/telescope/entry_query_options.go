@@ -1,7 +1,7 @@
 package telescope
 
 // EntryQueryOptions carries filter parameters for repository queries. It
-// mirrors Laravel's EntryQueryOptions class with its fluent builder interface.
+// mirrors the upstream EntryQueryOptions class with its fluent builder interface.
 type EntryQueryOptions struct {
 	BatchID        string
 	Tag            string
@@ -14,7 +14,7 @@ type EntryQueryOptions struct {
 const defaultQueryLimit = 50
 
 // DefaultQueryOptions returns an EntryQueryOptions with the default query
-// limit (50), matching the Laravel default.
+// limit (50), matching the upstream default.
 func DefaultQueryOptions() EntryQueryOptions {
 	return EntryQueryOptions{Limit: defaultQueryLimit}
 }

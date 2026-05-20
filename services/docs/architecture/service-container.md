@@ -1,9 +1,9 @@
 # Service Container
 
-<!-- laravel-docs: container.md#introduction -->
-<!-- laravel-docs: container.md#binding -->
-<!-- laravel-docs: container.md#resolving -->
-<!-- laravel-docs: container.md#method-invocation-and-injection -->
+<!-- upstream-docs: container.md#introduction -->
+<!-- upstream-docs: container.md#binding -->
+<!-- upstream-docs: container.md#resolving -->
+<!-- upstream-docs: container.md#method-invocation-and-injection -->
 
 The `container.Container` is Bedrock's IoC container. It holds the bindings
 that make services available across the application: cache managers, queues,

@@ -5,10 +5,10 @@ import (
 )
 
 // ignoredCommands lists CLI commands that should not be recorded by default,
-// mirroring Laravel's CommandWatcher ignore list.
+// mirroring the upstream CommandWatcher ignore list.
 
 // CommandWatcher monitors CLI command execution and records entries as
-// Telescope entries. It mirrors Laravel's CommandWatcher class.
+// Telescope entries. It mirrors the upstream CommandWatcher class.
 //
 // Options:
 //   - "ignore" ([]string): additional command names to skip.

@@ -51,7 +51,7 @@ type RedisListRanger interface {
 
 // RedisSortedSetRanger is the optional capability needed by DelayedJobs.
 // It returns the members of a sorted set ordered by score, which
-// matches Laravel's ZRANGE semantics for the delayed-job set.
+// matches the upstream ZRANGE semantics for the delayed-job set.
 type RedisSortedSetRanger interface {
 	ZRange(ctx context.Context, key string, start, stop int64) ([]string, error)
 }
@@ -62,7 +62,7 @@ type RedisSortedSetRanger interface {
 // that every operation for a queue lands on the same slot.
 //
 // The result is cached after the first call on a given RedisDriver instance,
-// mirroring Laravel's `RedisQueue::isClusterConnection()` behaviour.
+// mirroring the upstream `RedisQueue::isClusterConnection()` behaviour.
 type RedisClusterAware interface {
 	IsCluster() bool
 }
@@ -74,7 +74,7 @@ type RedisDriver struct {
 
 	// isCluster caches the cluster-connection check result. It is nil
 	// until the first call to isClusterConnection, which mirrors
-	// Laravel's null-coalescing assignment ($this->isCluster ??= ...).
+	// the upstream null-coalescing assignment ($this->isCluster ??= ...).
 	isCluster *bool
 }
 
@@ -98,7 +98,7 @@ type RedisDriver struct {
 
 // hasHashTag reports whether key contains a valid Redis cluster hash tag
 // (an opening `{` followed by a `}` with at least one character in between).
-// Mirrors Laravel's `Illuminate\Redis\Connections\Connection::hasHashTag()`.
+// Mirrors the upstream `Illuminate\Redis\Connections\Connection::hasHashTag()`.
 
 // NewRedisDriver creates a RedisDriver.
 

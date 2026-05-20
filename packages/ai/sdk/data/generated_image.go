@@ -6,7 +6,7 @@ import (
 )
 
 // GeneratedImage holds a single generated image.
-// Mirrors Laravel\Ai\Responses\Data\GeneratedImage.
+// Mirrors upstream Ai\Responses\Data\GeneratedImage.
 type GeneratedImage struct {
 	Image    string `json:"image"`     // base64-encoded or URL
 	MimeType string `json:"mime_type"` // default: image/png

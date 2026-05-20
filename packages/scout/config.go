@@ -1,7 +1,7 @@
 package scout
 
 // Config holds the Scout configuration. It mirrors the scout.php config
-// file from Laravel Scout.
+// file from Scout.
 type Config struct {
 	// Driver is the default search engine driver name.
 	Driver string `json:"driver"`
@@ -29,7 +29,7 @@ type ChunkConfig struct {
 	Unsearchable int `json:"unsearchable"`
 }
 
-// DefaultConfig returns a Config with sensible defaults matching Laravel Scout.
+// DefaultConfig returns a Config with sensible defaults matching Scout.
 func DefaultConfig() Config {
 	return Config{
 		Driver:      "database",

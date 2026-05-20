@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// This file is the Go port of Laravel's Illuminate\Queue\Queue abstract
+// This file is the Go port of Illuminate\Queue\Queue abstract
 // class — the shared base every concrete driver extends in PHP. In Go we
 // expose it as a set of stateless helpers that drivers call directly,
 // rather than as embedded state, so existing drivers can opt in without
@@ -17,14 +17,13 @@ import (
 // The helpers cover:
 //
 //   - DisplayName   → Queue::getDisplayName
-//   - NewUUIDv4     → Str::uuid (Laravel leans on ramsey/uuid)
+//   - NewUUIDv4     → Str::uuid (upstream leans on ramsey/uuid)
 //   - CreatePayloadFor → Queue::createPayload (+ createPayloadUsing hooks)
 //   - ShouldDispatchAfterCommit → Queue::shouldDispatchAfterCommit (lightweight
 //     version; the full transaction-aware wiring lands in Step 14).
 
 // Namer is implemented by job values that want to override the default
-// reflect-based display name. Mirrors the effect of Laravel's
-// getDisplayName() shortcut for jobs that expose a displayName method.
+// reflect-based display name. Mirrors the effect of the upstream // getDisplayName() shortcut for jobs that expose a displayName method.
 type Namer interface {
 	QueueDisplayName() string
 }
@@ -35,21 +34,20 @@ type Namer interface {
 // exists so drivers can detect the intent without a compile-time dep
 // on a higher-level transaction package.
 //
-// Mirrors Laravel's Illuminate\Contracts\Queue\ShouldQueueAfterCommit.
+// Mirrors the upstream Illuminate\Contracts\Queue\ShouldQueueAfterCommit.
 type AfterCommitMarker interface {
 	QueueAfterCommit() bool
 }
 
 // BeforeCommitMarker is the inverse of AfterCommitMarker: a job that
-// explicitly opts out of the after-commit default, matching Laravel's
-// Illuminate\Contracts\Queue\ShouldBeEncrypted / afterCommit(false)
+// explicitly opts out of the after-commit default, matching the upstream // Illuminate\Contracts\Queue\ShouldBeEncrypted / afterCommit(false)
 // override. Step 14 wires the full decision tree; today the type exists
 // so drivers and tests can reference it.
 type BeforeCommitMarker interface {
 	QueueBeforeCommit() bool
 }
 
-// DisplayName returns the Laravel-style display name for a job value.
+// DisplayName returns the display name for a job value.
 //
 //   - A nil job yields "".
 //   - A string is returned verbatim.
@@ -100,12 +98,11 @@ func NewUUIDv4() string {
 }
 
 // CreatePayloadFor builds, hook-applies, and serialises a payload ready
-// to be handed to a queue driver. It is the Go port of Laravel's
-// Queue::createPayload() and its internal createPayloadArray() helper.
+// to be handed to a queue driver. It is the Go port of // Queue::createPayload() and its internal createPayloadArray() helper.
 //
 // Drivers should call this instead of constructing Payload structs by
 // hand so that CreatePayloadUsing hooks fire uniformly, the UUID format
-// matches Laravel's, and timestamp/field shapes stay consistent.
+// matches upstream's, and timestamp/field shapes stay consistent.
 //
 // The returned *Payload is the hook-applied in-memory form; the []byte
 // is the marshalled JSON. Both are returned because some drivers want
@@ -153,7 +150,7 @@ func CreatePayloadFor(connection, queueName string, job any, data map[string]any
 
 // ShouldDispatchAfterCommit reports whether a dispatch of job on
 // connection connName should wait for the enclosing transaction to
-// commit. Precedence (matching Laravel):
+// commit. Precedence (matching upstream):
 //
 //  1. A BeforeCommitMarker that returns true forces before-commit.
 //  2. An AfterCommitMarker that returns true forces after-commit.
@@ -183,7 +180,7 @@ func ShouldDispatchAfterCommit(job any, config map[string]any) bool {
 }
 
 // backoffSeconds converts a slice of durations into the per-second
-// integer slice that Laravel payloads carry.
+// integer slice that upstream payloads carry.
 func backoffSeconds(d []time.Duration) []int {
 	if len(d) == 0 {
 		return nil

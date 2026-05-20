@@ -4,7 +4,7 @@ How to bring up a Bedrock application end to end. The goal of this page is
 that, after reading it, you can confidently write the entry point of a new
 Bedrock service from scratch.
 
-If you already know Laravel: a Bedrock `Application` is the Go analogue of
+a Bedrock `Application` is the Go analogue of
 `Illuminate\Foundation\Application`. It wraps an IoC container, registers
 service providers, calls `Boot()` on the bootable ones, and resolves named
 services back out.

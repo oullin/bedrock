@@ -1,7 +1,7 @@
 package tools
 
 // DatabaseConnections returns the configured database connections.
-// Mirrors Laravel\Boost\Mcp\Tools\DatabaseConnections.
+// Mirrors upstream Boost\Mcp\Tools\DatabaseConnections.
 // Tagged IsReadOnly.
 type DatabaseConnections struct {
 	// Connections is a map of connection-name → DSN/config. Injected by the caller.

@@ -328,7 +328,7 @@ func (g *SessionGuard) Login(ctx context.Context, user cauth.Authenticatable, re
 }
 
 // HashPasswordForCookie returns the first 10 characters of the SHA1 hash of the
-// password, used to validate remember-me cookies (matches Laravel's format).
+// password, used to validate remember-me cookies (matches the upstream format).
 func HashPasswordForCookie(passwordHash string) string {
 	h := sha1.Sum([]byte(passwordHash))
 	full := hex.EncodeToString(h[:])

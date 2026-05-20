@@ -10,7 +10,7 @@ import (
 )
 
 // SearchDocs performs semantic search over the Boost documentation API.
-// Mirrors Laravel\Boost\Mcp\Tools\SearchDocs.
+// Mirrors upstream Boost\Mcp\Tools\SearchDocs.
 type SearchDocs struct {
 	// APIUrl overrides the default Boost docs search endpoint.
 	APIUrl string

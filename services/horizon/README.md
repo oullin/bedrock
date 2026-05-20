@@ -1,6 +1,6 @@
 # Bedrock Horizon
 
-Ports Laravel Horizon's dashboard — JSON API plus Vue SPA — on top of the Go
+Ports Horizon dashboard — JSON API plus Vue SPA — on top of the Go
 primitives shipped in [`packages/horizon`](../../packages/horizon).
 
 ## Layout
@@ -54,4 +54,4 @@ go test ./services/horizon/...
 ```
 
 Every handler test carries a `// Port of <Class>::<test>` marker so it is
-classified as ported by `services/scripts/laravel-compliance.sh`.
+classified as ported by `upstream-compliance`.

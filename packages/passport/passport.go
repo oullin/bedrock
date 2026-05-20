@@ -8,7 +8,7 @@ import (
 )
 
 // Passport is the central configuration and registrar for the passport package.
-// It mirrors the static API of Laravel Passport's Passport facade.
+// It mirrors the static API of Passport Passport facade.
 //
 // Create one via NewPassport and pass it throughout your application to configure
 // scopes, expiry times, and grant type availability.
@@ -111,7 +111,7 @@ func (p *Passport) ScopeIDs() []string {
 }
 
 // FindScope returns the Scope for the given ID, or nil if not registered.
-// Mirrors Passport::scopes() in Laravel (which returns a Collection keyed by ID).
+// Mirrors Passport::scopes() in the upstream framework (which returns a Collection keyed by ID).
 func (p *Passport) FindScope(id string) *Scope {
 	p.mu.RLock()
 

@@ -135,7 +135,7 @@ func TestRouteCollection_Add(t *testing.T) {
 		c.Add(second)
 
 		if c.GetByName("routeA") != first || c.GetByAction("View@view") != first {
-			t.Fatal("stale lookups should exist before refresh, matching Laravel's lookup-cache behavior")
+			t.Fatal("stale lookups should exist before refresh, matching the upstream lookup-cache behavior")
 		}
 
 		c.RefreshNameLookups()

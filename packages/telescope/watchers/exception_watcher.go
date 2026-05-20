@@ -11,7 +11,7 @@ import (
 )
 
 // ExceptionWatcher monitors application exceptions and records them as
-// Telescope entries. It mirrors Laravel's ExceptionWatcher class.
+// Telescope entries. It mirrors the upstream ExceptionWatcher class.
 //
 // Options:
 //   - "ignore" ([]string): error type names to skip.

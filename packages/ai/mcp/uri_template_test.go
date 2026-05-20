@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\UriTemplateTest
+// Port of \Mcp\Tests\UriTemplateTest
 
 func TestUriTemplateStaticURIMatchesExactly(t *testing.T) {
 	t.Parallel()

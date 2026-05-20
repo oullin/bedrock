@@ -2,7 +2,7 @@ package routing
 
 import "testing"
 
-// Translation of the action-lookup portion of Laravel's routing inventory.
+// Translation of the action-lookup portion of the upstream routing inventory.
 // CompiledRouteCollectionTest::testCompiledRouteCollectionCanRetrieveByActionWithLeadingBackslash
 
 func TestCompiledRouteCollection_ActionLookups(t *testing.T) {

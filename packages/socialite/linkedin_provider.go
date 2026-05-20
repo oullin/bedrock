@@ -7,7 +7,7 @@ import (
 )
 
 // LinkedInProvider handles OAuth2 authentication via LinkedIn.
-// It mirrors Laravel\Socialite\Two\LinkedInProvider.
+// It mirrors upstream Socialite\Two\LinkedInProvider.
 type LinkedInProvider struct {
 	AbstractProvider
 }

@@ -3,7 +3,7 @@ package passport
 import "time"
 
 // AuthCode is the persisted authorization code record, corresponding to the
-// oauth_auth_codes table in Laravel Passport.
+// oauth_auth_codes table in Passport.
 //
 // Authorization codes are short-lived tokens exchanged for access tokens in
 // the Authorization Code Grant flow.

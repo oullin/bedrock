@@ -11,7 +11,7 @@ import (
 )
 
 // FacebookProvider handles OAuth2 authentication via Facebook Graph API.
-// It mirrors Laravel\Socialite\Two\FacebookProvider.
+// It mirrors upstream Socialite\Two\FacebookProvider.
 type FacebookProvider struct {
 	AbstractProvider
 	graphVersion string

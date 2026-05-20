@@ -46,7 +46,7 @@ func (p *DatabaseUuidFailedJobProvider) Log(connection, queue, payload string, e
 
 // IDs implements FailedJobProvider.
 func (p *DatabaseUuidFailedJobProvider) IDs(queueFilter string) ([]string, error) {
-	// Laravel's uuid-provider orders ids asc by insertion even though
+	// the upstream uuid-provider orders ids asc by insertion even though
 	// all() orders desc — the PHP test uses ['uuid-1',...,'uuid-4']
 	// which is the ascending order. Reproduce that here by reversing
 	// the default (desc) output.

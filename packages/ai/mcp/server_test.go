@@ -8,7 +8,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\ServerTest
+// Port of \Mcp\Tests\ServerTest
 
 func TestServerInitializeNegotiatesPreferredVersion(t *testing.T) {
 	t.Parallel()

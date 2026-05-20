@@ -7,7 +7,7 @@ import (
 )
 
 // DatabaseSchema inspects the database schema and returns table/column information.
-// Mirrors Laravel\Boost\Mcp\Tools\DatabaseSchema.
+// Mirrors upstream Boost\Mcp\Tools\DatabaseSchema.
 // Tagged IsReadOnly.
 type DatabaseSchema struct {
 	// DB is the database connection to inspect.

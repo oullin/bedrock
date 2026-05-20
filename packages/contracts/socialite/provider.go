@@ -3,7 +3,7 @@ package socialite
 import "context"
 
 // Provider handles a single OAuth redirect/callback cycle.
-// It mirrors Laravel\Socialite\Contracts\Provider.
+// It mirrors upstream Socialite\Contracts\Provider.
 type Provider interface {
 	// Redirect returns the URL the user should be sent to in order to
 	// begin the OAuth flow.

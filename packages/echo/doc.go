@@ -1,4 +1,4 @@
-// Package echo is a Go port of the Laravel Echo JavaScript library.
+// Package echo is a Go library for Echo JavaScript library.
 // It provides real-time event broadcasting abstractions over multiple
 // transport backends (Pusher, Socket.IO, Null/stub) with a uniform
 // Channel and Connector interface.

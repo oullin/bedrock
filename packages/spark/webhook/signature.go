@@ -18,7 +18,7 @@ const (
 )
 
 // VerifySignature returns middleware that validates Paddle webhook
-// signatures using HMAC-SHA256. Mirrors Laravel\Paddle\Http\Middleware\
+// signatures using HMAC-SHA256. Mirrors upstream Paddle\Http\Middleware\
 // VerifyWebhookSignature.
 func VerifySignature(secret string, maxDrift time.Duration) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

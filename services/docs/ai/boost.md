@@ -1,8 +1,8 @@
 # Boost
 
-<!-- laravel-docs: boost.md#introduction -->
-<!-- laravel-docs: boost.md#installation -->
-<!-- laravel-docs: boost.md#mcp-server -->
+<!-- upstream-docs: boost.md#introduction -->
+<!-- upstream-docs: boost.md#installation -->
+<!-- upstream-docs: boost.md#mcp-server -->
 
 Boost is an IDE coding-assistant integration layer for Bedrock.
 

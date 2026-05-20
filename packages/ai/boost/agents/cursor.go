@@ -8,7 +8,7 @@ import (
 )
 
 // Cursor implements boost.CodingAgent for the Cursor IDE.
-// Mirrors Laravel\Boost\Install\Agents\Cursor.
+// Mirrors upstream Boost\Install\Agents\Cursor.
 type Cursor struct {
 	BaseAgent
 }

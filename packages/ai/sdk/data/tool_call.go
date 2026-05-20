@@ -1,7 +1,7 @@
 package data
 
 // ToolCall represents a tool invocation requested by the LLM.
-// Mirrors Laravel\Ai\Responses\Data\ToolCall.
+// Mirrors upstream Ai\Responses\Data\ToolCall.
 type ToolCall struct {
 	ID               string           `json:"id"`
 	Name             string           `json:"name"`

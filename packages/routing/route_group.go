@@ -9,7 +9,7 @@ type RouteGroup struct{}
 
 // MergeRouteGroup merges a new group attribute set into an old one.
 //
-// The shape of the maps mirrors Laravel's $action/$attributes arrays: keys
+// The shape of the maps mirrors the upstream $action/$attributes arrays: keys
 // like "namespace", "prefix", "where", "as", "domain", "controller",
 // "middleware". Unknown keys are passed through unchanged.
 //

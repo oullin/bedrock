@@ -28,7 +28,7 @@ func NewRepositoryWithEvents(store Store, storeName string, dispatcher EventDisp
 func (r *Repository) Store() Store { return r.store }
 
 // GetStore returns the underlying Store. Alias for Store(), matching
-// Laravel's getStore() naming.
+// the upstream getStore() naming.
 func (r *Repository) GetStore() Store { return r.store }
 
 // SetStore replaces the underlying Store.
@@ -301,7 +301,7 @@ func (r *Repository) RememberForever(ctx context.Context, key string, fn func() 
 	return result, r.Forever(ctx, key, result)
 }
 
-// Sear is an alias for RememberForever (Laravel naming).
+// Sear is an alias for RememberForever .
 func (r *Repository) Sear(ctx context.Context, key string, fn func() (any, error)) (any, error) {
 	return r.RememberForever(ctx, key, fn)
 }

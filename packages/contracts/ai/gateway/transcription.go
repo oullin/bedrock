@@ -34,7 +34,7 @@ type TranscriptionResult struct {
 }
 
 // TranscriptionGateway drives speech-to-text for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\TranscriptionGateway.
+// Mirrors upstream Ai\Contracts\Gateway\TranscriptionGateway.
 type TranscriptionGateway interface {
 	GenerateTranscription(ctx context.Context, req TranscriptionRequest) (*TranscriptionResult, error)
 }

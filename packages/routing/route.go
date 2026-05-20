@@ -86,7 +86,7 @@ func NewRoute(methods any, uri string, action any) *Route {
 	parsed, err := ParseAction(uri, action)
 
 	if err != nil {
-		// Mirror Laravel's behavior: store a missing-action sentinel rather
+		// Mirror the upstream behavior: store a missing-action sentinel rather
 		// than panicking at construction.
 		parsed = missingAction(uri)
 	}

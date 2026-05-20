@@ -7,7 +7,7 @@ import (
 )
 
 // SocialiteServiceProvider registers the Socialite manager into the service
-// container. It mirrors Laravel\Socialite\SocialiteServiceProvider.
+// container. It mirrors upstream Socialite\SocialiteServiceProvider.
 type SocialiteServiceProvider struct {
 	app     *container.Container
 	configs map[string]ProviderConfig

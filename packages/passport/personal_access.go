@@ -10,7 +10,7 @@ import (
 )
 
 // PersonalAccessTokenResult holds the result of creating a personal access token.
-// It mirrors Laravel Passport's PersonalAccessTokenResult class.
+// It mirrors Passport PersonalAccessTokenResult class.
 type PersonalAccessTokenResult struct {
 	AccessToken string
 	TokenType   string
@@ -23,7 +23,7 @@ type PersonalAccessTokenResult struct {
 // MarshalJSON implements json.Marshaler using ToArray.
 
 // PersonalAccessTokenFactory creates personal access tokens on behalf of users.
-// It mirrors Laravel Passport's PersonalAccessTokenFactory class.
+// It mirrors Passport PersonalAccessTokenFactory class.
 //
 // When an AuthorizationServer is available it delegates to server.IssueToken.
 // Otherwise it creates the token directly against the TokenStore (useful for

@@ -3,7 +3,7 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // OpenCode implements boost.CodingAgent for the OpenCode CLI agent.
-// Mirrors Laravel\Boost\Install\Agents\OpenCode.
+// Mirrors upstream Boost\Install\Agents\OpenCode.
 type OpenCode struct {
 	BaseAgent
 }

@@ -17,7 +17,7 @@ import (
 type DriverFactory func(config map[string]any) any
 
 // Manager resolves AI providers by capability and lab name.
-// It mirrors Laravel\Ai\AiManager.
+// It mirrors upstream Ai\AiManager.
 type Manager struct {
 	mu         sync.RWMutex
 	configs    map[string]map[string]any // lab → config

@@ -3,8 +3,7 @@ package queue
 import "fmt"
 
 // ResolveNamer is the minimal job contract required by
-// MaxAttemptsExceededError and TimeoutExceededError. It mirrors Laravel's
-// Illuminate\Contracts\Queue\Job::resolveName() method.
+// MaxAttemptsExceededError and TimeoutExceededError. It mirrors the upstream // Illuminate\Contracts\Queue\Job::resolveName() method.
 //
 // A package-local interface is used (rather than adding ResolveName to the
 // Job interface) because the Job interface is frozen until Step 9 of the
@@ -24,7 +23,7 @@ type MaxAttemptsExceededError struct {
 	// typed as any so that callers that only need the error message do
 	// not force a dependency on a specific job type.
 	Job any
-	// message is the rendered error message following Laravel's format.
+	// message is the rendered error message following the upstream format.
 	message string
 }
 
@@ -32,7 +31,7 @@ type MaxAttemptsExceededError struct {
 func (e *MaxAttemptsExceededError) Error() string { return e.message }
 
 // NewMaxAttemptsExceededErrorForJob builds an error for the given job.
-// Mirrors Laravel's MaxAttemptsExceededException::forJob static factory.
+// Mirrors the upstream MaxAttemptsExceededException::forJob static factory.
 func NewMaxAttemptsExceededErrorForJob(job ResolveNamer) *MaxAttemptsExceededError {
 	return &MaxAttemptsExceededError{
 		Job:     job,

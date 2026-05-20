@@ -14,7 +14,7 @@ import (
 // Authorization header, looking it up in the TokenStore, and retrieving the
 // associated user via the UserProvider.
 //
-// It implements contracts/auth.Guard and mirrors Laravel Passport's TokenGuard.
+// It implements contracts/auth.Guard and mirrors Passport TokenGuard.
 type TokenGuard struct {
 	mu       sync.RWMutex
 	passport *Passport

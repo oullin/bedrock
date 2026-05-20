@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Common date layouts that Laravel recognises (subset).
+// Common date layouts that upstream recognises (subset).
 var commonDateLayouts = []string{
 	"2006-01-02",
 	"2006-01-02 15:04:05",

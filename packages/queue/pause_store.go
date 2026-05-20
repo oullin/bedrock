@@ -53,7 +53,7 @@ func NewInMemoryPauseStore() *InMemoryPauseStore {
 
 // SetClock swaps the time source used for PauseFor and IsPaused. It is
 // safe to call at any point; subsequent operations observe the new
-// clock. Tests use this to simulate Laravel's Carbon::setTestNow().
+// clock. Tests use this to simulate the upstream Carbon::setTestNow().
 func (s *InMemoryPauseStore) SetClock(now func() time.Time) {
 	if now == nil {
 		now = time.Now

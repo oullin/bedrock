@@ -10,7 +10,7 @@ import (
 )
 
 // Engine is a Scout search engine backed by Algolia.
-// It mirrors Laravel Scout's AlgoliaEngine.
+// It mirrors Scout AlgoliaEngine.
 type Engine struct {
 	client     *search.APIClient
 	softDelete bool

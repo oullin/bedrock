@@ -529,7 +529,7 @@ func (s *Store) Regenerate(ctx context.Context, destroy bool) error {
 	return nil
 }
 
-// Migrate generates a new session ID (Laravel alias for Regenerate).
+// Migrate generates a new session ID (upstream alias for Regenerate).
 func (s *Store) Migrate(ctx context.Context, destroy bool) error {
 	return s.Regenerate(ctx, destroy)
 }

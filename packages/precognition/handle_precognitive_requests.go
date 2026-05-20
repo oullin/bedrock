@@ -121,8 +121,7 @@ func (m *HandlePrecognitiveRequests) prepareForPrecognition(r *http.Request) fun
 }
 
 // appendVaryHeader adds "Precognition" to the Vary header. This is called for
-// both precognitive and non-precognitive responses, matching Laravel's
-// behaviour where the Vary header is always set.
+// both precognitive and non-precognitive responses, matching the upstream // behaviour where the Vary header is always set.
 func appendVaryHeader(w http.ResponseWriter) {
 	AddVaryHeader(w)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // Builder provides a fluent API for constructing search queries.
-// It mirrors Laravel's Scout\Builder class.
+// It mirrors the upstream Scout\Builder class.
 type Builder struct {
 	model       contract.Searchable
 	query       string

@@ -7,7 +7,7 @@ import (
 )
 
 // EntryResult represents a persisted Telescope entry as returned by repository
-// queries. It mirrors Laravel's EntryResult class and is suitable for JSON
+// queries. It mirrors the upstream EntryResult class and is suitable for JSON
 // serialisation to the dashboard API.
 type EntryResult struct {
 	ID         string         `json:"id"`

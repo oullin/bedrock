@@ -5,7 +5,7 @@ import (
 )
 
 // PassportConfig holds the Passport configuration loaded from a config.Repository.
-// Keys follow "passport.*" dot-notation, matching Laravel's config/passport.php.
+// Keys follow "passport.*" dot-notation, matching the upstream config/passport.php.
 type PassportConfig struct {
 	// PrivateKey is the RSA private key PEM string used to sign tokens.
 	// Corresponds to PASSPORT_PRIVATE_KEY env / passport.private_key config key.
@@ -38,7 +38,7 @@ type PassportConfig struct {
 
 // LoadConfig reads Passport configuration from a config.Repository.
 // It uses dot-notation keys under the "passport" namespace, matching
-// Laravel's config/passport.php structure.
+// the upstream config/passport.php structure.
 func LoadConfig(repo *config.Repository) *PassportConfig {
 	guard, _ := repo.String("passport.guard", "web")
 	privateKey, _ := repo.String("passport.private_key")

@@ -65,7 +65,7 @@ func Make(name, value string, opts Options) *http.Cookie {
 	return c
 }
 
-// Forever creates a cookie that expires in 400 days (~Laravel's "forever").
+// Forever creates a cookie that expires in 400 days (~the upstream "forever").
 func Forever(name, value string, opts Options) *http.Cookie {
 	opts.MaxAge = int((400 * 24 * time.Hour).Seconds())
 

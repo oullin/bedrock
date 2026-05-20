@@ -33,7 +33,7 @@ type TextPromptResult struct {
 }
 
 // TextProvider is the provider-level contract for text generation.
-// Mirrors Laravel\Ai\Contracts\Providers\TextProvider.
+// Mirrors upstream Ai\Contracts\Providers\TextProvider.
 type TextProvider interface {
 	// Prompt performs a synchronous text generation.
 	Prompt(ctx context.Context, req TextPromptRequest) (*TextPromptResult, error)

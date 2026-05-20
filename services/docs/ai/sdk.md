@@ -1,18 +1,18 @@
 # AI SDK
 
-<!-- laravel-docs: ai-sdk.md#introduction -->
-<!-- laravel-docs: ai-sdk.md#installation -->
-<!-- laravel-docs: ai-sdk.md#agents -->
-<!-- laravel-docs: ai-sdk.md#images -->
-<!-- laravel-docs: ai-sdk.md#audio -->
-<!-- laravel-docs: ai-sdk.md#embeddings -->
-<!-- laravel-docs: ai-sdk.md#reranking -->
-<!-- laravel-docs: ai-sdk.md#files -->
-<!-- laravel-docs: ai-sdk.md#vector-stores -->
-<!-- laravel-docs: ai-sdk.md#failover -->
-<!-- laravel-docs: ai-sdk.md#testing -->
+<!-- upstream-docs: ai-sdk.md#introduction -->
+<!-- upstream-docs: ai-sdk.md#installation -->
+<!-- upstream-docs: ai-sdk.md#agents -->
+<!-- upstream-docs: ai-sdk.md#images -->
+<!-- upstream-docs: ai-sdk.md#audio -->
+<!-- upstream-docs: ai-sdk.md#embeddings -->
+<!-- upstream-docs: ai-sdk.md#reranking -->
+<!-- upstream-docs: ai-sdk.md#files -->
+<!-- upstream-docs: ai-sdk.md#vector-stores -->
+<!-- upstream-docs: ai-sdk.md#failover -->
+<!-- upstream-docs: ai-sdk.md#testing -->
 
-Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the `laravel/ai` package with idiomatic Go patterns.
+Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the upstream `ai` package with idiomatic Go patterns.
 
 ## Agents
 

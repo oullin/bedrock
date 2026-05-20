@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\ResourceTest
+// Port of \Mcp\Tests\ResourceTest
 
 func TestResourcesListReturnsStaticResourcesOnly(t *testing.T) {
 	t.Parallel()

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Repository is a Laravel-inspired configuration store backed by Viper. It
+// Repository is a configuration store backed by Viper. It
 // provides dot-notation key access, type-safe getters, and array manipulation
 // helpers. The underlying Viper instance can be configured directly for YAML
 // file loading and environment variable binding.
@@ -132,7 +132,7 @@ func (r *Repository) SetMany(values map[string]any) {
 }
 
 // Unset marks a key as explicitly present with a nil value. This mirrors
-// Laravel's repository offset unset behavior while preserving Go's explicit
+// the upstream repository offset unset behavior while preserving Go's explicit
 // method surface.
 func (r *Repository) Unset(key string) {
 	r.Set(key, nil)

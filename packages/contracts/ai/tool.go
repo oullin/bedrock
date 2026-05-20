@@ -10,7 +10,7 @@ type ToolRequest struct {
 }
 
 // Tool is the contract every callable AI tool must satisfy.
-// Mirrors Laravel\Ai\Contracts\Tool.
+// Mirrors upstream Ai\Contracts\Tool.
 type Tool interface {
 	// Name returns the tool's identifier, surfaced to the LLM.
 	Name() string

@@ -3,7 +3,7 @@ package graph
 import "time"
 
 // TabEntry describes one subgraph chunk emitted by the splitter.
-// Field names match laravel-brain's manifest format.
+// Field names match upstream-brain's manifest format.
 type TabEntry struct {
 	ID         string `json:"id"`
 	Label      string `json:"label"`

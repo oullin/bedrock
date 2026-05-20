@@ -67,7 +67,7 @@ func (m *memoryQueue) ConnectionName() string                              { ret
 
 // Port of Illuminate\Tests\Queue\QueueSizeTest::test_queue_size
 //
-// Laravel dispatches jobs via dispatch()/onQueue() and inspects
+// Upstream dispatches jobs via dispatch()/onQueue() and inspects
 // Queue::size(). Go has no facade/dispatch helper, so the port pushes
 // directly onto a memoryQueue and asserts the same per-queue counts.
 // Behaviour under assertion (zero-before-push, split between default
@@ -86,7 +86,7 @@ func TestQueueSize(t *testing.T) {
 		t.Errorf("initial Q2 size: got %d, want 0", n)
 	}
 
-	// Laravel: dispatch($job); dispatch(new TestJob2); dispatch($job)->onQueue('Q2');
+	// Upstream: dispatch($job); dispatch(new TestJob2); dispatch($job)->onQueue('Q2');
 	// Two jobs on the default queue, one on Q2.
 	_, _ = q.Push(ctx, "", []byte("job1"))
 	_, _ = q.Push(ctx, "", []byte("job2"))

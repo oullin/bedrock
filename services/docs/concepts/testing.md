@@ -1,8 +1,8 @@
 # Testing
 
-<!-- laravel-docs: testing.md#testing-getting-started -->
-<!-- laravel-docs: testing.md#creating-tests -->
-<!-- laravel-docs: testing.md#running-tests -->
+<!-- upstream-docs: testing.md#testing-getting-started -->
+<!-- upstream-docs: testing.md#creating-tests -->
+<!-- upstream-docs: testing.md#running-tests -->
 
 A tour of Bedrock's test doubles and testing patterns.
 
@@ -130,20 +130,13 @@ func TestShowUser(t *testing.T) {
 }
 ```
 
-## Laravel Cross-reference Tests
+## Upstream Parity Tests
 
-Many Bedrock packages (`routing`, `validation`, `translation`, `redis`,
-`support`) include `*_laravel_test.go` files that are direct translations of
-the upstream PHP test suites. Each PHP test method maps to a `t.Run` subtest
-with the same snake_case name, making parity easy to audit.
-
-Every compliance pass must also run an upstream feature audit for the mapped
-package: `make sure we also have all the upstream features for <package>`. That
-audit compares upstream contracts, public APIs, middleware, events, and runtime
-behavior against the Bedrock surface. Bedrock-equivalent features need executable
-Go tests; PHP-only or intentionally different behavior belongs in
-`services/compliance/divergences.yml`. Keep `services/compliance/features.yml`
-updated so every mapped Bedrock package has feature audit coverage.
+Upstream-parity tests previously lived alongside each package as
+`*_laravel_test.go` and `*_inventory_test.go` files. They have been moved to
+the `bedrock-compliance` repository, which tracks parity against pinned
+upstream sources on its own schedule. See that repo for parity status,
+divergence rationales, and feature audit coverage.
 
 ## Running Tests
 

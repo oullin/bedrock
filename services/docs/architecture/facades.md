@@ -1,7 +1,7 @@
 # Facades
 
-<!-- laravel-docs: facades.md#introduction -->
-<!-- laravel-docs: facades.md#facade-class-reference -->
+<!-- upstream-docs: facades.md#introduction -->
+<!-- upstream-docs: facades.md#facade-class-reference -->
 
 A facade is a thin, package-typed wrapper around a service that lives in
 the container. It gives you a one-line, statically-typed call site instead

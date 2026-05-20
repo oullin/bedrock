@@ -1,7 +1,7 @@
 package responses
 
 // QueuedAgentResponse represents an agent prompt that has been dispatched to a queue.
-// Mirrors Laravel\Ai\Responses\QueuedAgentResponse.
+// Mirrors upstream Ai\Responses\QueuedAgentResponse.
 type QueuedAgentResponse struct {
 	InvocationID string
 	thenFns      []func()

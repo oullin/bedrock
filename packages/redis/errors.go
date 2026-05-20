@@ -4,7 +4,7 @@ import "errors"
 
 // Sentinel errors.
 var (
-	// ErrNil is returned when a command finds no value (Laravel: null reply).
+	// ErrNil is returned when a command finds no value (null reply).
 	ErrNil = errors.New("redis: nil")
 
 	// ErrConnectionNotFound is returned when a connection name is not registered.

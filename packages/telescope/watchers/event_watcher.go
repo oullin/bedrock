@@ -8,10 +8,10 @@ import (
 )
 
 // ignoredEventPrefixes contains event name prefixes from the framework that
-// should not be recorded, mirroring Laravel's EventWatcher ignore list.
+// should not be recorded, mirroring the upstream EventWatcher ignore list.
 
 // EventWatcher monitors application events and records them as Telescope
-// entries. It mirrors Laravel's EventWatcher class.
+// entries. It mirrors the upstream EventWatcher class.
 //
 // Options:
 //   - "ignore" ([]string): additional event names or prefixes to ignore.
@@ -22,7 +22,7 @@ type EventWatcher struct {
 var ignoredEventPrefixes = []string{
 	"github.com/bedrock/packages/telescope",
 	"Illuminate\\",
-	"Laravel\\Octane\\",
+	"Octane\\",
 }
 
 // NewEventWatcher creates an EventWatcher with the given options.

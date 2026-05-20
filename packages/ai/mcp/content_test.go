@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\ContentTest
+// Port of \Mcp\Tests\ContentTest
 
 func TestTextContentToToolFormat(t *testing.T) {
 	t.Parallel()

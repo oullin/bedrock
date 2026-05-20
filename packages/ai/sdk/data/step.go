@@ -3,7 +3,7 @@ package data
 import "github.com/bedrock/packages/ai/sdk/enums"
 
 // Step represents one reasoning step in a multi-step agent response.
-// Mirrors Laravel\Ai\Responses\Data\Step.
+// Mirrors upstream Ai\Responses\Data\Step.
 type Step struct {
 	Text         string
 	ToolCalls    []ToolCall

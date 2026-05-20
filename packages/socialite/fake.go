@@ -10,7 +10,7 @@ import (
 // Its fluent methods forward to the real provider for configuration
 // side-effects but always return the FakeProvider so callers can chain.
 //
-// It mirrors Laravel\Socialite\Testing\FakeProvider.
+// It mirrors upstream Socialite\Testing\FakeProvider.
 type FakeProvider struct {
 	driver string
 	real   Provider
