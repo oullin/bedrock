@@ -1,5 +1,7 @@
 # boost
 
+<!-- upstream-docs: boost.md#upstream-boost -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 

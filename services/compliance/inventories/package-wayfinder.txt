@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/routegen/tree/main/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -13,6 +13,7 @@ CamelCaseRouteParameter.test.ts::test_can_resolve_model_binding_keys_for_camelca
 DefaultParameters.test.ts::test_it_can_generate_urls_without_default_parameters_set
 DefaultParameters.test.ts::test_it_can_generate_urls_with_default_url_parameters_set_on_backend_and_frontend
 DefaultParameters.test.ts::test_it_can_generate_urls_with_dynamic_function_based_default_url_parameters
+DefaultParameters.test.ts::test_it_preserves_dynamic_url_defaults_when_adding_runtime_defaults
 DisallowedMethodNames.test.ts::test_will_append_method_to_invalid_methods
 DisallowedMethodNames.test.ts::test_will_append_method_to_invalid_methods
 DisallowedMethodNames.test.ts::test_will_properly_handle_leading_numbers
@@ -21,6 +22,12 @@ DomainController.test.ts::test_can_generate_fixed_domain_urls
 DomainController.test.ts::test_can_generate_dynamic_domain_urls
 EmptyRoute.test.ts::it_doesn_t_add_a_to_an_empty_route
 Export.test.ts::test_export_param
+Feature/PruneStaleFilesTest.php::test_generated_files_exist_after_generate
+Feature/PruneStaleFilesTest.php::test_stale_files_are_removed_while_current_files_are_kept
+Feature/PruneStaleFilesTest.php::test_empty_directories_are_pruned
+Feature/PruneStaleFilesTest.php::test_runtime_index_is_written_before_actions_and_routes
+Feature/PruneStaleFilesTest.php::test_runtime_index_is_skipped_when_contents_match
+Feature/PruneStaleFilesTest.php::test_unchanged_generated_files_are_not_rewritten
 InvokableController.test.ts::it_exports_default_for_invokable_controllers
 InvokablePlusController.test.ts::it_exports_default_and_methods_for_invokable_controllers
 KeyController.test.ts::it_can_pass_primitive_values_to_routes_with_custom_keys
@@ -99,9 +106,18 @@ QueryParams.test.ts::it_can_integrate_array_params_with_existing_window_params
 QueryParams.test.ts::it_can_integrate_object_params_with_existing_window_params
 QueryParams.test.ts::it_can_delete_existing_params_via_null
 QueryParams.test.ts::it_can_delete_existing_params_via_undefined
+QueryParams.test.ts::it_replaces_an_existing_scalar_param_when_merging_an_array_param
+QueryParams.test.ts::it_replaces_an_existing_scalar_param_when_merging_an_object_param
+QueryParams.test.ts::it_replaces_an_existing_array_param_when_merging_a_scalar_param
+QueryParams.test.ts::it_can_delete_existing_array_params_via_null
+QueryParams.test.ts::it_can_delete_existing_nested_params_via_null
+QueryParams.test.ts::it_replaces_an_existing_array_param_when_merging_an_object_param
+QueryParams.test.ts::it_replaces_an_existing_object_param_when_merging_an_array_param
+QueryParams.test.ts::it_does_not_clobber_params_that_share_a_prefix_with_the_merged_key
+QueryParams.test.ts::it_clears_deeply_nested_params_when_merging_a_scalar
 QueryParams.test.ts::it_can_merge_with_the_form_method
 QueryParams.test.ts::it_can_pass_nested_query_parameters
-QueryParams.test.ts::it_ignores_nested_object_values_with_unallowed_types
+QueryParams.test.ts::it_replaces_existing_scalar_params_when_merging_nested_object_values
 RepeatedNamespaceController.test.ts::it_avoids_conflicting_barrel_identifiers_when_namespace_segment_repeats
 StorageRoute.test.ts::it_can_import_storage_routes
 TwoRoutesSameAction.test.ts::it_creates_a_keyed_dictionary_of_routes_for_multiple_routes_pointing_to_the_same_action

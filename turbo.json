@@ -42,9 +42,37 @@
       ]
     },
     "fmt": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "**/*.go",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.json",
+        "**/*.md",
+        "!**/node_modules/**",
+        "!**/storage/.cache/**",
+        "!**/storage/.turbo/**",
+        "!**/dist/**"
+      ],
       "outputs": []
     },
     "fmt:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "**/*.go",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.json",
+        "**/*.md",
+        "!**/node_modules/**",
+        "!**/storage/.cache/**",
+        "!**/storage/.turbo/**",
+        "!**/dist/**"
+      ],
       "outputs": []
     }
   }

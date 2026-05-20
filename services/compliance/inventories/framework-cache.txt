@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Cache
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -121,6 +121,7 @@ CacheManagerTest.php::testCustomDriverStaticClosure
 CacheManagerTest.php::testInvokableObjectDriverClosure
 CacheManagerTest.php::test_custom_driver_overrides_internal_drivers
 CacheManagerTest.php::testItCanBuildRepositories
+CacheManagerTest.php::testItCanCreateStorageDriver
 CacheManagerTest.php::testItMakesRepositoryWhenContainerHasNoDispatcher
 CacheManagerTest.php::testItRefreshesDispatcherOnAllStores
 CacheManagerTest.php::testItSetsDefaultDriverChangesGlobalConfig
@@ -151,10 +152,15 @@ CacheMemcachedStoreTest.php::testForgetMethodProperlyCallsMemcache
 CacheMemcachedStoreTest.php::testFlushesCached
 CacheMemcachedStoreTest.php::testGetAndSetPrefix
 CacheMemoizedStoreTest.php::testTouchExtendsTtl
+CacheMemoizedStoreTest.php::testLocksCanBeFlushedWhenUnderlyingStoreSupportsIt
+CacheMemoizedStoreTest.php::testFlushLocksThrowsWhenUnderlyingStoreDoesNotSupportIt
+CacheMemoizedStoreTest.php::testHasSeparateLockStoreDelegatestoUnderlyingStore
 CacheNullStoreTest.php::testItemsCanNotBeCached
 CacheNullStoreTest.php::testGetMultipleReturnsMultipleNulls
 CacheNullStoreTest.php::testIncrementAndDecrementReturnFalse
 CacheNullStoreTest.php::testTouchReturnsFalse
+CacheNullStoreTest.php::testLocksCanBeFlushed
+CacheNullStoreTest.php::testHasSeparateLockStore
 CacheRateLimiterTest.php::testTooManyAttemptsReturnTrueIfAlreadyLockedOut
 CacheRateLimiterTest.php::testHitProperlyIncrementsAttemptCount
 CacheRateLimiterTest.php::testIncrementProperlyIncrementsAttemptCount
@@ -231,6 +237,7 @@ CacheRepositoryTest.php::testItThrowsExceptionWhenStoreDoesNotSupportFlushingLoc
 CacheRepositoryTest.php::testTouchWithSecondsTtlCorrectlyProxiesToStore
 CacheRepositoryTest.php::testTouchWithDatetimeTtlCorrectlyProxiesToStore
 CacheRepositoryTest.php::testTouchWithDateIntervalTtlCorrectlyProxiesToStore
+CacheRepositoryTest.php::testTouchWorksWithEnumKey
 CacheRepositoryTest.php::testAtomicExecutesCallbackAndReturnsResult
 CacheRepositoryTest.php::testAtomicPassesLockAndWaitSecondsToLock
 CacheRepositoryTest.php::testAtomicPassesOwnerToLock
@@ -279,6 +286,13 @@ CacheSpyMemoTest.php::test_cache_spy_works_with_memoized_cache
 CacheSpyMemoTest.php::test_cache_spy_tracks_remember_on_memoized_cache_as_described_in_issue
 CacheSpyMemoTest.php::test_cache_spy_tracks_remember_calls_on_memoized_cache
 CacheSpyMemoTest.php::test_cache_spy_memo_returns_spied_repository
+CacheStorageStoreTest.php::testValuesCanBeStoredAndRetrieved
+CacheStorageStoreTest.php::testExpiredItemsReturnNullAndGetDeleted
+CacheStorageStoreTest.php::testAddDoesNotOverwriteExistingValues
+CacheStorageStoreTest.php::testIncrementAndDecrementRetainExpiration
+CacheStorageStoreTest.php::testTouchUpdatesExpiration
+CacheStorageStoreTest.php::testForgetRemovesFlexibleCreatedKeyOnlyWhenParentIsForgotten
+CacheStorageStoreTest.php::testFlushRemovesScopedDirectory
 CacheTaggedCacheTest.php::testCacheCanBeSavedWithMultipleTags
 CacheTaggedCacheTest.php::testCacheCanBeSetWithDatetimeArgument
 CacheTaggedCacheTest.php::testCacheSavedWithMultipleTagsCanBeFlushed

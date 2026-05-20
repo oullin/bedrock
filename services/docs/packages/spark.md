@@ -1,5 +1,7 @@
 # billing
 
+<!-- upstream-docs: cashier-paddle.md#upstream-cashier-paddle -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 

@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Queue
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -56,8 +56,16 @@ FileFailedJobProviderTest.php::testJobsCanBeCountedByConnection
 FileFailedJobProviderTest.php::testJobsCanBeCountedByQueue
 FileFailedJobProviderTest.php::testJobsCanBeCountedByQueueAndConnection
 InteractsWithQueueTest.php::testCreatesAnExceptionFromString
+ListFailedCommandTest.php::testItDisplaysEmptyFailedJobsAsJson
+ListFailedCommandTest.php::testItDisplaysFailedJobsAsJson
 PruneBatchesCommandTest.php::testAllowPruningAllUnfinishedBatches
 PruneBatchesCommandTest.php::testAllowPruningAllCancelledBatches
+QueueAttributesTest.php::test_queue_attribute_normalizes_backed_enum_to_string
+QueueAttributesTest.php::test_queue_attribute_normalizes_unit_enum_to_string
+QueueAttributesTest.php::test_queue_attribute_keeps_string_as_string
+QueueAttributesTest.php::test_connection_attribute_normalizes_backed_enum_to_string
+QueueAttributesTest.php::test_connection_attribute_normalizes_unit_enum_to_string
+QueueAttributesTest.php::test_connection_attribute_keeps_string_as_string
 QueueBeanstalkdJobTest.php::testFireProperlyCallsTheJobHandler
 QueueBeanstalkdJobTest.php::testFailProperlyCallsTheJobHandler
 QueueBeanstalkdJobTest.php::testDeleteRemovesTheJobFromBeanstalkd
@@ -85,6 +93,9 @@ QueueDatabaseQueueUnitTest.php::testBuildDatabaseRecordWithPayloadAtTheEnd
 QueueDatabaseQueueUnitTest.php::testPendingJobs
 QueueDatabaseQueueUnitTest.php::testDelayedJobs
 QueueDatabaseQueueUnitTest.php::testReservedJobs
+QueueDatabaseQueueUnitTest.php::testAllPendingJobs
+QueueDatabaseQueueUnitTest.php::testAllDelayedJobs
+QueueDatabaseQueueUnitTest.php::testAllReservedJobs
 QueueDatabaseQueueUnitTest.php::testGetLockForPoppingIsCached
 QueueDelayTest.php::test_queue_delay
 QueueDelayTest.php::test_queue_without_delay
@@ -101,6 +112,7 @@ QueueManagerTest.php::testOtherConnectionCanBeResolved
 QueueManagerTest.php::testNullConnectionCanBeResolved
 QueueManagerTest.php::testEnumConnectionCanBeResolved
 QueueManagerTest.php::testEnumConnectionCanBeChecked
+QueueManagerTest.php::testSetDefaultDriverAcceptsBackedEnum
 QueuePauseResumeTest.php::testPauseQueueWithConnection
 QueuePauseResumeTest.php::testPauseQueueWithTTL
 QueuePauseResumeTest.php::testPauseQueueIndefinitely
@@ -111,6 +123,7 @@ QueuePauseResumeTest.php::testResumingOnlyAffectsSpecificQueue
 QueuePauseResumeTest.php::testPauseDispatchesQueuePausedEvent
 QueuePauseResumeTest.php::testPauseForDispatchesQueuePausedEventWithTTL
 QueuePauseResumeTest.php::testResumeDispatchesQueueResumedEvent
+QueuePauseResumeTest.php::testGetPausedQueues
 QueuePauseResumeTest.php::testParsingQueueString
 QueueRedisJobTest.php::testFireProperlyCallsTheJobHandler
 QueueRedisJobTest.php::testDeleteRemovesTheJobFromRedis
@@ -146,6 +159,13 @@ QueueSizeTest.php::test_queue_size
 QueueSqsJobTest.php::testFireProperlyCallsTheJobHandler
 QueueSqsJobTest.php::testDeleteRemovesTheJobFromSqs
 QueueSqsJobTest.php::testReleaseProperlyReleasesTheJobOntoSqs
+QueueSqsJobTest.php::testGetRawBodyResolvesPointerFromCache
+QueueSqsJobTest.php::testGetRawBodyReturnsNormalBodyWithoutPointer
+QueueSqsJobTest.php::testGetRawBodyReturnsPointerBodyWhenExtendedStoreIsDisabled
+QueueSqsJobTest.php::testGetRawBodyCachesResult
+QueueSqsJobTest.php::testDeleteCleansUpCacheKeyWhenCleanupEnabled
+QueueSqsJobTest.php::testDeleteDoesNotCleanUpWhenCleanupDisabled
+QueueSqsJobTest.php::testDeleteDoesNotCleanUpWhenNoPointer
 QueueSqsQueueTest.php::testPopProperlyPopsJobOffOfSqs
 QueueSqsQueueTest.php::testPopProperlyHandlesEmptyMessage
 QueueSqsQueueTest.php::testDelayedPushWithDateTimeProperlyPushesJobOntoSqs
@@ -177,6 +197,15 @@ QueueSqsQueueTest.php::testJobObjectCanBeSerializedOntoSqsFifoQueueWithDeduplica
 QueueSqsQueueTest.php::testDelayedPushProperlyPushesJobStringOntoSqsFifoQueueWithoutDelay
 QueueSqsQueueTest.php::testDelayedPushProperlyPushesJobObjectOntoSqsFifoQueueWithoutDelay
 QueueSqsQueueTest.php::testDelayedPendingDispatchProperlyPushesJobObjectOntoSqsFifoQueueWithoutDelay
+QueueSqsQueueTest.php::testPushRawStoresPayloadToCacheWhenExceedingThreshold
+QueueSqsQueueTest.php::testPushRawDoesNotStoreToCacheWhenBelowThreshold
+QueueSqsQueueTest.php::testPushRawAlwaysStoresToCacheWhenAlwaysIsTrue
+QueueSqsQueueTest.php::testPushRawDoesNotStoreToCacheWhenNotEnabled
+QueueSqsQueueTest.php::testClearFlushesOverflowStoreWhenFlushOnClearEnabled
+QueueSqsQueueTest.php::testClearDoesNotFlushOverflowStoreWhenFlushOnClearDisabled
+QueueSqsQueueTest.php::testClearDoesNotFlushOverflowStoreWhenOverflowDisabled
+QueueSqsQueueTest.php::testClearForwardsConfiguredStoreNameToFactory
+QueueSqsQueueTest.php::testPopPassesOverflowStorageOptionsToJob
 QueueSyncQueueTest.php::testPushShouldFireJobInstantly
 QueueSyncQueueTest.php::testFailedJobGetsHandledWhenAnExceptionIsThrown
 QueueSyncQueueTest.php::testFailedJobHasAccessToJobInstance
@@ -188,6 +217,8 @@ QueueSyncQueueTest.php::testItAddsATransactionCallbackForInterfaceBasedAfterComm
 QueueWorkerTest.php::testJobCanBeFired
 QueueWorkerTest.php::testJobPoppingEvent
 QueueWorkerTest.php::testWorkerCanWorkUntilQueueIsEmpty
+QueueWorkerTest.php::testWorkerStopsWhenQueueIsEmptyForConfiguredSeconds
+QueueWorkerTest.php::testWorkerResetsQueueEmptyTimerAfterProcessingJob
 QueueWorkerTest.php::testWorkerStopsWhenMemoryExceeded
 QueueWorkerTest.php::testWorkerMemoryExceededWhenMemoryIsZero
 QueueWorkerTest.php::testWorkerMemoryExceededWhenMemoryGreaterThanZero
@@ -207,6 +238,8 @@ QueueWorkerTest.php::testJobRunsIfAppIsNotInMaintenanceMode
 QueueWorkerTest.php::testJobDoesNotFireIfDeleted
 QueueWorkerTest.php::testWorkerPicksJobUsingCustomCallbacks
 QueueWorkerTest.php::testWorkerStartingIsDispatched
+QueueWorkerTest.php::testWorkerIdleIsDispatched
 QueueWorkerTest.php::testWorkerStoppingIsDispatched
 QueueWorkerTest.php::testWorkerStopsWithLostConnectionReason
 QueueWorkerTest.php::testJobReleasedEvent
+QueueWorkerTest.php::testInterruptibleJobIsNotifiedOnSignal

@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Notifications
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -14,6 +14,8 @@ NotificationBroadcastChannelTest.php::testNotificationIsBroadcastedWithCustomDat
 NotificationBroadcastChannelTest.php::testNotificationIsBroadcastedNow
 NotificationBroadcastChannelTest.php::testNotificationIsBroadcastedWithCustomAdditionalPayload
 NotificationChannelManagerTest.php::testNotificationCanBeDispatchedToDriver
+NotificationChannelManagerTest.php::testChannelCanBeResolvedUsingBackedEnum
+NotificationChannelManagerTest.php::testDriverCanBeResolvedUsingBackedEnum
 NotificationChannelManagerTest.php::testNotificationNotSentOnHalt
 NotificationChannelManagerTest.php::testNotificationNotSentWhenCancelled
 NotificationChannelManagerTest.php::testNotificationSentWhenNotCancelled
