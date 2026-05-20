@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/framework/tree/13.x/tests/JsonSchema
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -36,6 +36,7 @@ ObjectTypeTest.php::test_it_may_not_have_properties
 ObjectTypeTest.php::test_it_may_be_initialized_with_a_closure_but_without_properties
 ObjectTypeTest.php::test_it_may_have_properties
 ObjectTypeTest.php::test_it_may_be_initialized_with_a_closure_but_may_have_properties
+ObjectTypeTest.php::test_numeric_string_property_names_remain_strings_in_required_array
 ObjectTypeTest.php::test_it_may_disable_additional_properties
 ObjectTypeTest.php::test_it_may_set_enum
 SerializerTest.php::test_it_does_not_know_how_to_serialize_unknown_types

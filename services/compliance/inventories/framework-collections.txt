@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/framework/tree/13.x/tests/Support
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -340,6 +340,7 @@ SupportCollectionTest.php::testGroupByClosureWhereItemsHaveMultipleGroups
 SupportCollectionTest.php::testGroupByClosureWhereItemsHaveMultipleGroupsPreservingKeys
 SupportCollectionTest.php::testGroupByMultiLevelAndClosurePreservingKeys
 SupportCollectionTest.php::testKeyByAttribute
+SupportCollectionTest.php::testKeyByBackedEnum
 SupportCollectionTest.php::testKeyByClosure
 SupportCollectionTest.php::testKeyByObject
 SupportCollectionTest.php::testContains
@@ -635,3 +636,4 @@ SupportLazyCollectionTest.php::testDoesntContain
 SupportLazyCollectionTest.php::testDot
 SupportLazyCollectionTest.php::testWithHeartbeat
 SupportLazyCollectionTest.php::testRandomPreservesKeys
+SupportLazyCollectionTest.php::testHasDoesNotCountDuplicateKeys

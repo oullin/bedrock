@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/framework/tree/13.x/tests/Routing
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -37,6 +37,7 @@ RouteCollectionTest.php::testHasNameRouteMethod
 RouteCollectionTest.php::testToSymfonyRouteCollection
 RouteCollectionTest.php::testOverlappingRoutesMatchesFirstRoute
 RouteCollectionTest.php::testPrependsRoutesWithDomain
+RouteCollectionTest.php::testDomainRoutesAreMatchedBeforeNonDomainRoutes
 RouteRegistrarTest.php::testMiddlewareFluentRegistration
 RouteRegistrarTest.php::testNullNamespaceIsRespected
 RouteRegistrarTest.php::testMiddlewareAsStringableObject
@@ -152,6 +153,7 @@ RouteSignatureParametersTest.php::test_it_can_extract_the_route_action_signature
 RouteUriTest.php::testRouteUrisAreProperlyParsed
 RoutingControllerAttributeTest.php::testControllerMiddlewareAttributesAreInherited
 RoutingControllerAttributeTest.php::testControllerMiddlewareAttributesAreInheritedInDeclarationOrder
+RoutingControllerAttributeTest.php::testControllerMiddlewareMergesWithAttributeMiddleware
 RoutingRedirectorTest.php::testBasicRedirectTo
 RoutingRedirectorTest.php::testComplexRedirectTo
 RoutingRedirectorTest.php::testGuestPutCurrentUrlInSession
@@ -315,6 +317,8 @@ RoutingUrlGeneratorTest.php::testSignedUrlParameterCannotBeNamedExpires
 RoutingUrlGeneratorTest.php::testRouteGenerationWithBackedEnums
 RoutingUrlGeneratorTest.php::testRouteGenerationWithNestedBackedEnums
 RoutingUrlGeneratorTest.php::testSignedUrlWithKeyResolver
+RoutingUrlGeneratorTest.php::testSignedUrlWithArraySignatureReturnsFalseWithoutWarning
+RoutingUrlGeneratorTest.php::testSignedUrlWithArrayExpiresReturnsFalse
 RoutingUrlGeneratorTest.php::testMissingNamedRouteResolution
 RoutingUrlGeneratorTest.php::testPassedParametersHavePrecedenceOverDefaults
 RoutingUrlGeneratorTest.php::testComplexRouteGenerationWithDefaultsAndBindingFields
