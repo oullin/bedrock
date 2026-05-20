@@ -12,6 +12,8 @@ type ToolRequest struct {
 // Tool is the contract every callable AI tool must satisfy.
 // Mirrors Laravel\Ai\Contracts\Tool.
 type Tool interface {
+	// Name returns the tool's identifier, surfaced to the LLM.
+	Name() string
 	// Description returns a human-readable description for the LLM.
 	Description() string
 	// Handle executes the tool and returns its result.

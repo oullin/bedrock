@@ -16,7 +16,6 @@ import (
 // EstimateTokens returns a coarse OpenAI-style token estimate. The seam is
 // kept as a package-level variable so brain can swap in a different tokenizer
 // from packages/ai/sdk without touching call sites.
-var EstimateTokens = aisdk.EstimateTokens
 
 // ContextOptions tunes the export shape.
 type ContextOptions struct {
@@ -25,6 +24,8 @@ type ContextOptions struct {
 	// IncludeData controls whether each node's `data` bag is rendered.
 	IncludeData bool
 }
+
+var EstimateTokens = aisdk.EstimateTokens
 
 // RenderMarkdown returns a deterministic Markdown summary of the graph.
 // Sections sorted alphabetically by node type so the same scan produces
@@ -93,4 +94,3 @@ func RenderMarkdown(g *graph.Graph, opts ContextOptions) string {
 
 	return b.String()
 }
-

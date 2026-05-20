@@ -2,6 +2,7 @@ package ai
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/google/uuid"
@@ -145,6 +146,8 @@ func (a *AnonymousAgent) Prompt(ctx context.Context, text string, opts ...contra
 		return nil, err
 	}
 
+	a.registerToolHandler(ctx, provider)
+
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
 
@@ -189,6 +192,8 @@ func (a *AnonymousAgent) Stream(ctx context.Context, text string, opts ...contra
 	if err != nil {
 		return nil, err
 	}
+
+	a.registerToolHandler(ctx, provider)
 
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
@@ -290,6 +295,37 @@ func (a *AnonymousAgent) resolveTextProvider(cfg contractsai.PromptConfig) (cont
 	}
 
 	return a.manager.TextProviderFor(a)
+}
+
+// registerToolHandler wires the agent's tools onto the provider's gateway so
+// the gateway can invoke them when the LLM emits a tool call. Tools are looked
+// up by name; sub-agents satisfy contractsai.Tool through SubAgent.
+func (a *AnonymousAgent) registerToolHandler(ctx context.Context, provider contractsprovider.TextProvider) {
+	if len(a.tools) == 0 {
+		return
+	}
+
+	gw := provider.TextGateway()
+
+	if gw == nil {
+		return
+	}
+
+	byName := make(map[string]contractsai.Tool, len(a.tools))
+
+	for _, t := range a.tools {
+		byName[t.Name()] = t
+	}
+
+	gw.OnToolInvocation(func(_ context.Context, id, name string, args map[string]any) (any, error) {
+		tool, ok := byName[name]
+
+		if !ok {
+			return nil, fmt.Errorf("ai: no tool registered for name %q", name)
+		}
+
+		return tool.Handle(ctx, &contractsai.ToolRequest{ID: id, Name: name, Arguments: args})
+	})
 }
 
 func (a *AnonymousAgent) runPipeline(
