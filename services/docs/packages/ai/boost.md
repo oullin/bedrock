@@ -1,5 +1,7 @@
 # boost
 
+<!-- laravel-docs: boost.md#laravel-boost -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 

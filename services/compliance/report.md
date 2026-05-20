@@ -1,6 +1,6 @@
 # Laravel Compliance Report
 
-Generated: 2026-05-18T07:13:38Z
+Generated: 2026-05-20T04:06:56Z
 
 Source of truth: services/compliance
 
@@ -20,10 +20,10 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 | Area                  |    Classified | Missing | Compliance Status | Fastest Next Move                                                                         |
 | --------------------- | ------------: | ------: | ----------------- | ----------------------------------------------------------------------------------------- |
 | Tests                 | 10212 / 12814 |    2602 | Not compliant     | Port executable equivalents or add divergence overrides for Go adaptations.               |
-| Documentation         |     740 / 875 |     135 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+| Documentation         |     743 / 875 |     132 | Not compliant     | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 | Laravel skeleton demo |       49 / 49 |       0 | Complete          | Keep complete while upstream skeleton changes.                                            |
 | Feature audits        |       62 / 62 |       0 | Complete          | Add audits for missing surfaces, then move partial surfaces to ported as parity closes.   |
-| Overall               | 11063 / 13800 |    2737 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
+| Overall               | 11066 / 13800 |    2734 | Not compliant     | Start with the Critical Path below; close the largest missing surfaces first.             |
 
 ## Pinned Source Baseline
 
@@ -61,7 +61,7 @@ Compliance target: classified parity. An upstream item is compliant when it is p
 |    3 | `laravel/ai` -> `ai/sdk`                  |     400 |  374 / 774 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    4 | `Illuminate\Queue` -> `queue`             |     195 |    9 / 204 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    5 | `laravel/mcp` -> `ai/mcp`                 |     136 |  488 / 624 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
-|    6 | Laravel documentation                     |     135 |  740 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
+|    6 | Laravel documentation                     |     132 |  743 / 875 | Not compliant | Port relevant sections, adapt Go-specific sections, or exclude product-boundary sections. |
 |    7 | `Illuminate\Support\Str` -> `str`         |     115 |    0 / 115 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    8 | `Illuminate\Auth` -> `auth`               |      54 |  203 / 257 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
 |    9 | `Illuminate\Bus` -> `bus`                 |      54 |    12 / 66 | Not compliant | Port executable equivalents or add divergence overrides for Go adaptations.               |
@@ -223,7 +223,7 @@ These inventory paths are tracking files, not compliant code paths. A row is com
 
 | Scope        | Doc Inventories | Upstream Sections | Ported Sections | Pending / Missing Sections | Adapted Sections | Excluded Sections |
 | ------------ | --------------: | ----------------: | --------------: | -------------------------: | ---------------: | ----------------: |
-| Laravel docs |               1 |               875 |     181 (20.7%) |                135 (15.4%) |      224 (25.6%) |       335 (38.3%) |
+| Laravel docs |               1 |               875 |     185 (21.1%) |                132 (15.1%) |      224 (25.6%) |       334 (38.2%) |
 
 ## Laravel Skeleton Demo Summary
 

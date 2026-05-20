@@ -1,0 +1,60 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    name: Refresh upstream inventories
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install compliance tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep perl jq
+
+      - name: Refresh upstream inventories
+        run: services/scripts/laravel-compliance.sh refresh
+
+      - name: Generate drift summary
+        id: drift
+        run: |
+          set -euo pipefail
+          services/scripts/laravel-compliance.sh drift > /tmp/drift.md
+          {
+            echo 'body<<DRIFT_EOF'
+            cat /tmp/drift.md
+            echo 'DRIFT_EOF'
+          } >> "$GITHUB_OUTPUT"
+          cat /tmp/drift.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update sync PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/upstream-sync
+          title: "chore(compliance): weekly upstream refresh"
+          commit-message: "chore(compliance): refresh upstream inventories"
+          body: ${{ steps.drift.outputs.body }}
+          labels: |
+            compliance
+            upstream-sync
+          delete-branch: true

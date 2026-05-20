@@ -1,5 +1,7 @@
 # spark
 
+<!-- laravel-docs: cashier-paddle.md#laravel-cashier-paddle -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
