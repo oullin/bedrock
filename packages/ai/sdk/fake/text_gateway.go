@@ -19,7 +19,19 @@ import (
 //   - string: returned verbatim as response text
 //   - *responses.AgentResponse: returned directly
 //   - func(*prompts.AgentPrompt) (*responses.AgentResponse, error): called per invocation
+//   - ToolCall: simulates an LLM tool invocation; the gateway invokes the
+//     registered OnToolInvocation handler, then dequeues the next response as
+//     the final assistant text. Useful for driving sub-agent flows in tests.
 type TextResponse = any
+
+// ToolCall is a queued fake response that triggers the gateway's registered
+// tool-invocation handler before dequeuing the next response as the final text.
+// Mirrors the LLM emitting a tool_use turn in a real provider.
+type ToolCall struct {
+	ID   string
+	Name string
+	Args map[string]any
+}
 
 // TextGateway is a fake implementation of gateway.TextGateway for testing.
 // It implements the full fake+assert lifecycle matching Upstream's testing API.
@@ -57,34 +69,76 @@ func (g *TextGateway) PreventStray() {
 }
 
 // GenerateText satisfies gateway.TextGateway. It dequeues the next fake response.
+// Queued ToolCall entries are routed to the registered OnToolInvocation handler
+// (if any) and the next response is dequeued as the final assistant turn.
 func (g *TextGateway) GenerateText(ctx context.Context, req contractsgw.TextGenerateRequest) (*contractsgw.TextGenerateResult, error) {
 	prompt := promptFromRequest(req)
 	g.recorder.recordAgent(prompt, false)
 
-	resp, err := g.nextResponse(prompt)
+	for {
+		raw, err := g.dequeueRaw(prompt)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+
+		if call, ok := raw.(ToolCall); ok {
+			if err := g.invokeToolCall(ctx, call); err != nil {
+				return nil, err
+			}
+
+			continue
+		}
+
+		resp, err := resolveTextResponse(raw, prompt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &contractsgw.TextGenerateResult{
+			Text:     resp.Text,
+			Usage:    toGWUsage(resp.Usage),
+			Meta:     toGWMeta(resp.Meta),
+			Messages: resp.Messages,
+			Steps:    stepsToAny(resp.Steps),
+		}, nil
 	}
-
-	return &contractsgw.TextGenerateResult{
-		Text:     resp.Text,
-		Usage:    toGWUsage(resp.Usage),
-		Meta:     toGWMeta(resp.Meta),
-		Messages: resp.Messages,
-		Steps:    stepsToAny(resp.Steps),
-	}, nil
 }
 
 // StreamText satisfies gateway.TextGateway. Returns word-chunked stream events.
+// Queued ToolCall entries are processed via the registered tool handler before
+// the final assistant turn is streamed.
 func (g *TextGateway) StreamText(ctx context.Context, invocationID string, req contractsgw.TextGenerateRequest) (iter.Seq[contractsgw.StreamEvent], error) {
 	prompt := promptFromRequest(req)
 	g.recorder.recordAgent(prompt, false)
 
-	resp, err := g.nextResponse(prompt)
+	var resp *responses.AgentResponse
 
-	if err != nil {
-		return nil, err
+	for {
+		raw, err := g.dequeueRaw(prompt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if call, ok := raw.(ToolCall); ok {
+			if err := g.invokeToolCall(ctx, call); err != nil {
+				return nil, err
+			}
+
+			continue
+		}
+
+		r, err := resolveTextResponse(raw, prompt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		resp = r
+
+		break
 	}
 
 	text := resp.Text
@@ -129,8 +183,10 @@ func (g *TextGateway) OnToolInvocation(fn func(ctx context.Context, id, name str
 	g.toolHandler = fn
 }
 
-// nextResponse dequeues a response or returns the stray error.
-func (g *TextGateway) nextResponse(prompt *prompts.AgentPrompt) (*responses.AgentResponse, error) {
+// dequeueRaw dequeues the next queued response without resolving it. If the
+// queue is empty it returns a default empty AgentResponse (or ErrStrayCall when
+// preventStrayPrompts is active).
+func (g *TextGateway) dequeueRaw(prompt *prompts.AgentPrompt) (any, error) {
 	g.mu.Lock()
 
 	defer g.mu.Unlock()
@@ -150,7 +206,25 @@ func (g *TextGateway) nextResponse(prompt *prompts.AgentPrompt) (*responses.Agen
 		g.responses = g.responses[1:]
 	}
 
-	return resolveTextResponse(raw, prompt)
+	return raw, nil
+}
+
+// invokeToolCall dispatches a queued ToolCall to the registered handler. Returns
+// an error if no handler has been registered or the handler itself fails.
+func (g *TextGateway) invokeToolCall(ctx context.Context, call ToolCall) error {
+	g.mu.Lock()
+
+	handler := g.toolHandler
+
+	g.mu.Unlock()
+
+	if handler == nil {
+		return fmt.Errorf("ai/fake: ToolCall %q queued but no OnToolInvocation handler is registered", call.Name)
+	}
+
+	_, err := handler(ctx, call.ID, call.Name, call.Args)
+
+	return err
 }
 
 func resolveTextResponse(raw any, prompt *prompts.AgentPrompt) (*responses.AgentResponse, error) {
