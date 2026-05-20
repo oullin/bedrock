@@ -24,6 +24,7 @@ Commands:
   refresh          Clone configured upstream sources and regenerate inventory files.
   check            Validate compliance source-of-truth rules.
   check-freshness  Validate sources.lock.json against configured upstream heads.
+  drift            Emit a per-source markdown drift report (pinned commit -> upstream HEAD).
   report           Generate services/compliance/report.md from current inventories.
 USAGE
 }
@@ -1994,6 +1995,50 @@ check_sources_freshness() {
   return "$failed"
 }
 
+check_feature_marker_coverage() {
+  local failed=0 docs_file
+  while IFS="$RECORD_SEPARATOR" read -r id source_id name laravel bedrock status docs notes; do
+    [ "$status" = "ported" ] || [ "$status" = "partial" ] || continue
+    [ -n "$docs" ] && [ "$docs" != "null" ] || continue
+
+    docs_file="$(docs_file_for "$bedrock" "$docs")"
+    [ -n "$docs_file" ] && [ -f "$docs_file" ] || continue
+
+    if ! rg -q '<!--[[:space:]]*laravel-docs:' "$docs_file"; then
+      echo "Feature $id ($name) is marked $status but ${docs_file#$ROOT_PATH/} has no <!-- laravel-docs: --> marker." >&2
+      failed=1
+    fi
+  done < <(list_feature_records)
+  return "$failed"
+}
+
+check_feature_symbol_present() {
+  local failed=0 pkg sym
+  while IFS="$RECORD_SEPARATOR" read -r id source_id name laravel bedrock status docs notes; do
+    [ "$status" = "ported" ] || [ "$status" = "partial" ] || continue
+    [ -n "$bedrock" ] && [ "$bedrock" != "null" ] || continue
+
+    pkg="${bedrock%%.*}"
+    if [ ! -d "$ROOT_PATH/packages/$pkg" ] && [ ! -d "$ROOT_PATH/services/$pkg" ]; then
+      echo "Feature $id references unknown package directory: $bedrock" >&2
+      failed=1
+      continue
+    fi
+
+    if [ "$pkg" != "$bedrock" ]; then
+      sym="${bedrock#*.}"
+      local search_paths=()
+      [ -d "$ROOT_PATH/packages/$pkg" ] && search_paths+=("$ROOT_PATH/packages/$pkg")
+      [ -d "$ROOT_PATH/services/$pkg" ] && search_paths+=("$ROOT_PATH/services/$pkg")
+      if ! rg -q --type go -w -F -- "$sym" "${search_paths[@]}" 2>/dev/null; then
+        echo "Feature $id symbol not found in Go code: $bedrock" >&2
+        failed=1
+      fi
+    fi
+  done < <(list_feature_records)
+  return "$failed"
+}
+
 check() {
   need rg
 
@@ -2013,11 +2058,82 @@ check() {
   check_inventory_format
   check_docs_and_skeleton_tracking
   check_features
+  check_feature_marker_coverage
+  check_feature_symbol_present
   check_spark_source_inventory_hard_cut
   if [ "${BEDROCK_COMPLIANCE_SKIP_FRESHNESS:-0}" != "1" ]; then
     check_sources_freshness
   fi
   check_report_current
+}
+
+drift() {
+  need git
+  need jq
+
+  local tmp
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/bedrock-drift.XXXXXX")"
+  trap 'rm -rf "$tmp"' RETURN
+
+  echo "# Upstream Drift Report"
+  printf '\n_Generated: %s_\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  local row repo branch commit
+  while IFS= read -r row; do
+    repo="$(jq -r '.repo' <<<"$row")"
+    branch="$(jq -r '.branch' <<<"$row")"
+    commit="$(jq -r '.commit' <<<"$row")"
+
+    case "$repo" in
+      local:*|/*) continue ;;
+    esac
+    [ -n "$branch" ] && [ "$branch" != "local" ] || continue
+
+    drift_for_repo "$repo" "$branch" "$commit" "$tmp"
+  done < <(jq -c '.sources[]' "$SOURCES_LOCK_FILE")
+}
+
+drift_for_repo() {
+  local repo="$1" branch="$2" old_sha="$3" tmp="$4"
+  local cache new_sha count
+  cache="$tmp/$(printf '%s-%s' "$repo" "$branch" | tr '/:' '--')"
+
+  if ! git clone --quiet --filter=blob:none --no-checkout \
+      "https://github.com/$repo.git" "$cache" 2>/dev/null; then
+    printf '## %s@%s — failed to fetch upstream\n\n' "$repo" "$branch"
+    return 0
+  fi
+  git -C "$cache" fetch --quiet origin "$branch"
+  new_sha="$(git -C "$cache" rev-parse "origin/$branch")"
+
+  if [ "$old_sha" = "$new_sha" ]; then
+    printf '## %s@%s — up to date (`%s`)\n\n' "$repo" "$branch" "${old_sha:0:7}"
+    return 0
+  fi
+
+  if ! git -C "$cache" cat-file -e "$old_sha^{commit}" 2>/dev/null; then
+    git -C "$cache" fetch --quiet --depth=2147483647 origin "$branch" || true
+  fi
+
+  if ! git -C "$cache" cat-file -e "$old_sha^{commit}" 2>/dev/null; then
+    printf '## %s@%s (`%s` → `%s`) — pinned commit not reachable from upstream\n\n' \
+      "$repo" "$branch" "${old_sha:0:7}" "${new_sha:0:7}"
+    return 0
+  fi
+
+  count="$(git -C "$cache" rev-list --count "$old_sha..$new_sha")"
+  printf '## %s@%s (`%s` → `%s`, %s commits)\n\n' \
+    "$repo" "$branch" "${old_sha:0:7}" "${new_sha:0:7}" "$count"
+
+  printf '| Status | Path |\n|--------|------|\n'
+  git -C "$cache" diff --name-status "$old_sha..$new_sha" \
+    | head -n 50 \
+    | awk '{ path = $0; sub(/^[A-Z][0-9]*\t/, "", path); printf "| %s | `%s` |\n", $1, path }'
+
+  printf '\n### Commits\n\n'
+  git -C "$cache" log --no-merges --pretty='format:- %h %s' "$old_sha..$new_sha" \
+    | head -n 25
+  printf '\n\n'
 }
 
 case "${1:-}" in
@@ -2030,6 +2146,9 @@ case "${1:-}" in
     ;;
   check-freshness)
     check_sources_freshness
+    ;;
+  drift)
+    drift
     ;;
   report)
     report

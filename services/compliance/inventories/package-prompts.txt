@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/prompts/tree/main/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -109,6 +109,7 @@ Feature/GridTest.php::it_sets_the_prompt_state_to_submit_after_rendering
 Feature/GridTest.php::it_displays_grid_items_when_the_display_method_is_called
 Feature/GridTest.php::it_does_not_output_grid_items_until_display_method_is_called
 Feature/GridTest.php::it_renders_a_complete_grid_with_multiple_rows_and_balanced_columns
+Feature/LoggerTest.php::it_does_not_throw_when_constructed_without_a_socket
 Feature/MultiByteWordWrapTest.php::test_will_match_wordwrap
 Feature/MultiByteWordWrapTest.php::test_will_match_wordwrap_on_shorter_strings
 Feature/MultiByteWordWrapTest.php::test_will_match_wordwrap_on_blank_lines_strings

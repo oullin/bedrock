@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/framework/tree/13.x/tests/Mail
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -11,6 +11,19 @@ AttachableTest.php::testItCanUtiliseExistingApisOnNonMailBasedResourcesWithPath
 AttachableTest.php::testItCanUtiliseExistingApisOnNonMailBasedResourcesWithArgs
 AttachableTest.php::testFromUrlMethod
 AttachableTest.php::testFromUploadedFileMethod
+AttachmentTest.php::testFromUrlWithHttpScheme
+AttachmentTest.php::testFromUrlWithHttpsScheme
+AttachmentTest.php::testFromUrlThrowsForFtpScheme
+AttachmentTest.php::testFromUrlThrowsForFileScheme
+AttachmentTest.php::testFromUrlThrowsForMailtoScheme
+AttachmentTest.php::testFromUrlThrowsForInvalidUrl
+AttachmentTest.php::testFromUrlThrowsForEmptyString
+AttachmentTest.php::testAsSetFilename
+AttachmentTest.php::testWithMimeSetsMimeType
+AttachmentTest.php::testFluentChaining
+AttachmentTest.php::testIsEquivalentWithSamePath
+AttachmentTest.php::testIsEquivalentWithDifferentPaths
+AttachmentTest.php::testFromDataCreatesAttachment
 MailCloudflareTransportTest.php::testGetTransport
 MailCloudflareTransportTest.php::testSend
 MailCloudflareTransportTest.php::testSendWithNamedAddresses
@@ -88,6 +101,8 @@ MailMailerTest.php::testMailerSendSendsMessageWithProperViewContentUsingHtmlMeth
 MailMailerTest.php::testMailerSendSendsMessageWithProperPlainViewContent
 MailMailerTest.php::testMailerSendSendsMessageWithProperPlainViewContentWhenExplicit
 MailMailerTest.php::testToAllowsEmailAndName
+MailMailerTest.php::testMailerRejectsAddressesContainingLineBreaks
+MailMailerTest.php::testMailerRejectsSymfonyAddressesContainingLineBreaks
 MailMailerTest.php::testGlobalFromIsRespectedOnAllMessages
 MailMailerTest.php::testGlobalReplyToIsRespectedOnAllMessages
 MailMailerTest.php::testGlobalToIsRespectedOnAllMessages
@@ -101,6 +116,7 @@ MailManagerTest.php::testMailUrlConfigWithAutoTlsDisabled
 MailManagerTest.php::testBuild
 MailManagerTest.php::testMailManagerCanResolveBackedEnumMailer
 MailManagerTest.php::testMailManagerCanResolveBackedEnumDriver
+MailManagerTest.php::testSetDefaultDriverAcceptsBackedEnum
 MailManagerTest.php::testPurgeAcceptsBackedEnum
 MailMessageTest.php::testFromMethod
 MailMessageTest.php::testSenderMethod

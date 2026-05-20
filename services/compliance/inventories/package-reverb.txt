@@ -1,7 +1,7 @@
 # Laravel compliance test inventory.
 # Source: https://github.com/laravel/reverb/tree/main/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -201,6 +201,8 @@ Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_determine_whether_
 Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_get_all_connections_subscribed_to_a_channel
 Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_unsubscribe_a_connection_from_all_channels
 Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_get_the_data_for_a_connection_subscribed_to_a_channel
+Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_find_a_connection_by_socket_id_without_flattening_every_channel
+Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_returns_null_from_findconnection_when_the_socket_id_is_unknown
 Unit/Protocols/Pusher/Managers/ChannelManagerTest.php::it_can_get_all_connections_for_all_channels
 Unit/Protocols/Pusher/ServerTest.php::it_can_handle_a_connection
 Unit/Protocols/Pusher/ServerTest.php::it_can_handle_a_disconnection

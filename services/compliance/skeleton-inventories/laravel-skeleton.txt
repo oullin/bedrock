@@ -1,7 +1,7 @@
 # Laravel skeleton inventory.
 # Source: https://github.com/laravel/laravel/tree/13.x
 # Format: <repository path>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 
 .editorconfig
 .env.example

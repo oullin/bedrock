@@ -1,5 +1,7 @@
 # mcp
 
+<!-- laravel-docs: mcp.md#laravel-mcp -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 

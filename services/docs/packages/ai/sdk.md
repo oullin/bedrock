@@ -1,5 +1,7 @@
 # sdk
 
+<!-- laravel-docs: ai-sdk.md#laravel-ai-sdk -->
+
 <!-- BEDROCK:HAND -->
 
 ## Sub-agents

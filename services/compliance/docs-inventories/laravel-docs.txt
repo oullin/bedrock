@@ -1,7 +1,7 @@
 # Laravel documentation inventory.
 # Source: https://github.com/laravel/docs/tree/13.x
 # Format: <markdown file>#<heading slug>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Bedrock docs mark ported sections with:
 # <!-- laravel-docs: <markdown file>#<heading slug> -->
@@ -355,6 +355,7 @@ fortify.md#email-verification
 fortify.md#installation
 fortify.md#introduction
 fortify.md#laravel-fortify
+fortify.md#passkeys
 fortify.md#password-confirmation
 fortify.md#password-reset
 fortify.md#registration
@@ -454,6 +455,7 @@ mail.md#rendering-mailables
 mail.md#sending-mail
 mail.md#testing
 mail.md#writing-mailables
+mcp.md#apps
 mcp.md#authentication
 mcp.md#authorization
 mcp.md#creating-resources
