@@ -1,6 +1,93 @@
 # sdk
 
 <!-- BEDROCK:HAND -->
+
+## Sub-agents
+
+Sub-agents let a parent agent delegate specialized work to other agents by
+returning them from the parent's `Tools()`. The parent's LLM sees each sub-agent
+as a callable tool; when it invokes one, the sub-agent runs with its own
+instructions, tools, provider, and model, and returns its final text as the
+tool result. This mirrors the sub-agents feature added to `laravel/ai` 0.x.
+
+### Defining a sub-agent
+
+A sub-agent is just any `Promptable`. Wrap it with `ai.AsTool` and add it to
+another agent's tool list:
+
+```go
+package main
+
+import (
+    "context"
+
+    ai "github.com/bedrock/packages/ai/sdk"
+    contractsai "github.com/bedrock/packages/contracts/ai"
+)
+
+func main() {
+    m := ai.NewManager()
+
+    // Sub-agent: handles refunds, runs on its own provider/model.
+    refunds := ai.NewAnonymousAgent(m, "You handle refunds.").
+        WithProvider("anthropic").
+        WithModel("claude-sonnet-4-5")
+
+    // Parent: routes work, delegates to the refunds sub-agent.
+    router := ai.NewAnonymousAgent(m, "Route customer issues to the right team.").
+        WithTools([]contractsai.Tool{ai.AsTool(refunds)})
+
+    _, _ = router.Prompt(context.Background(), "I want a refund on order 42")
+}
+```
+
+### Custom name and description
+
+By default the tool name is the wrapped agent's Go type in `snake_case` (so
+`AnonymousAgent` → `anonymous_agent`). To customise, either implement
+`contractsai.CanActAsTool` on the agent struct, or chain `WithName` /
+`WithDescription` on the returned `*SubAgent`:
+
+```go
+type RefundsAgent struct{ *ai.AnonymousAgent }
+
+func (RefundsAgent) Name() string        { return "refunds_agent" }
+func (RefundsAgent) Description() string { return "Handles refund requests." }
+```
+
+### Isolation
+
+> Each sub-agent invocation runs in isolation — it does **not** receive the
+> parent's conversation history.
+
+Pass complete, self-contained task descriptions through the `task` argument.
+The sub-agent's `Prompt` receives only that string; any context the parent
+established in its own messages is not forwarded.
+
+### Provider and model
+
+A sub-agent uses whatever provider and model the wrapped agent was configured
+with (via `WithProvider` / `WithModel` on `AnonymousAgent`, or via its
+`ProviderOptions`). This mirrors Laravel's per-agent `#[Provider(Lab::Anthropic)]`
+attribute model — the sub-agent's own configuration wins, not the parent's.
+
+### Testing
+
+The fake text gateway accepts a `fake.ToolCall` queued response that simulates
+the LLM emitting a tool invocation; the gateway dispatches it via the
+registered tool handler, then dequeues the next response as the final
+assistant turn. End-to-end sub-agent flows can be driven without touching a
+real provider:
+
+```go
+parentRec := parentMgr.Fake(
+    fake.ToolCall{ID: "call_1", Name: "refunds_agent", Args: map[string]any{"task": "refund order 42"}},
+    "Refund processed.",
+)
+```
+
+See `packages/ai/sdk/sub_agent_test.go` for executable parity examples.
+
 <!-- /BEDROCK:HAND -->
 
 Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the laravel/ai (0.x) package, offering 100% functional parity adapted idiomatically to Go.

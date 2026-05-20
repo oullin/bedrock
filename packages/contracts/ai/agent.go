@@ -95,6 +95,13 @@ type HasProviderOptions interface {
 	ProviderOptions() map[string]any
 }
 
+// CanActAsTool lets an Agent expose itself as a callable tool to a parent agent.
+// Mirrors Laravel\Ai\Contracts\CanActAsTool.
+type CanActAsTool interface {
+	Name() string
+	Description() string
+}
+
 func WithProvider(p string) PromptOption {
 	return func(c *PromptConfig) { c.Provider = &p }
 }

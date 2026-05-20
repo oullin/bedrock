@@ -2,6 +2,7 @@ package ai
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/google/uuid"
@@ -145,6 +146,10 @@ func (a *AnonymousAgent) Prompt(ctx context.Context, text string, opts ...contra
 		return nil, err
 	}
 
+	if err := a.registerToolHandler(provider); err != nil {
+		return nil, err
+	}
+
 	destination := func(passable any) (any, error) {
 		p, ok := passable.(*prompts.AgentPrompt)
 
@@ -187,6 +192,10 @@ func (a *AnonymousAgent) Stream(ctx context.Context, text string, opts ...contra
 	provider, err := a.resolveTextProvider(cfg)
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err := a.registerToolHandler(provider); err != nil {
 		return nil, err
 	}
 
@@ -290,6 +299,53 @@ func (a *AnonymousAgent) resolveTextProvider(cfg contractsai.PromptConfig) (cont
 	}
 
 	return a.manager.TextProviderFor(a)
+}
+
+// registerToolHandler wires the agent's tools onto the provider's gateway so
+// the gateway can invoke them when the LLM emits a tool call. Tools are looked
+// up by name; sub-agents satisfy contractsai.Tool through SubAgent.
+//
+// Returns an error if two tools share the same Name(). The callback uses the
+// ctx passed by the gateway at invocation time, not the outer request ctx.
+//
+// Note: the gateway holds a single OnToolInvocation slot. Concurrent prompts
+// on agents sharing the same provider/gateway instance will overwrite each
+// other's handlers; callers that need parallel agent invocations should give
+// each agent its own provider (e.g. a per-call manager or distinct lab key).
+func (a *AnonymousAgent) registerToolHandler(provider contractsprovider.TextProvider) error {
+	if len(a.tools) == 0 {
+		return nil
+	}
+
+	gw := provider.TextGateway()
+
+	if gw == nil {
+		return nil
+	}
+
+	byName := make(map[string]contractsai.Tool, len(a.tools))
+
+	for _, t := range a.tools {
+		name := t.Name()
+
+		if _, dup := byName[name]; dup {
+			return fmt.Errorf("ai: duplicate tool name %q in agent toolset", name)
+		}
+
+		byName[name] = t
+	}
+
+	gw.OnToolInvocation(func(ctx context.Context, id, name string, args map[string]any) (any, error) {
+		tool, ok := byName[name]
+
+		if !ok {
+			return nil, fmt.Errorf("ai: no tool registered for name %q", name)
+		}
+
+		return tool.Handle(ctx, &contractsai.ToolRequest{ID: id, Name: name, Arguments: args})
+	})
+
+	return nil
 }
 
 func (a *AnonymousAgent) runPipeline(
