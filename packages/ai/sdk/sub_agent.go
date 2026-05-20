@@ -35,7 +35,14 @@ var (
 // If the wrapped agent implements contractsai.CanActAsTool, its Name() and
 // Description() are used. Otherwise a snake_cased Go type name and a generic
 // description are derived via reflection.
+//
+// Panics if agent is nil — a nil sub-agent would only fail at Handle() time
+// with a nil-pointer dereference, which is harder to diagnose.
 func AsTool(agent contractsai.Promptable) *SubAgent {
+	if agent == nil {
+		panic("ai: AsTool received a nil Promptable")
+	}
+
 	name, description := resolveSubAgentIdentity(agent)
 
 	return &SubAgent{

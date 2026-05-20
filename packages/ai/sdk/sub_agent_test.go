@@ -215,6 +215,41 @@ func TestSubAgentUsesItsOwnProviderHint(t *testing.T) {
 	}
 }
 
+func TestAsToolPanicsOnNilAgent(t *testing.T) {
+	t.Parallel()
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal("expected panic from AsTool(nil), got none")
+		}
+	}()
+
+	_ = ai.AsTool(nil)
+}
+
+func TestDuplicateToolNamesSurfaceError(t *testing.T) {
+	t.Parallel()
+
+	m := ai.NewManager()
+	m.Fake("ok")
+
+	dup1 := ai.AsTool(ai.NewAnonymousAgent(ai.NewManager(), "")).WithName("twin")
+	dup2 := ai.AsTool(ai.NewAnonymousAgent(ai.NewManager(), "")).WithName("twin")
+
+	parent := ai.NewAnonymousAgent(m, "router").
+		WithTools([]contractsai.Tool{dup1, dup2})
+
+	_, err := parent.Prompt(context.Background(), "go")
+
+	if err == nil {
+		t.Fatal("expected error for duplicate tool names, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "duplicate tool name") {
+		t.Errorf("error = %v, want substring %q", err, "duplicate tool name")
+	}
+}
+
 func TestUnknownToolNameSurfacesError(t *testing.T) {
 	t.Parallel()
 
