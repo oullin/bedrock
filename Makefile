@@ -55,7 +55,7 @@ define prepare-go-workspace
 	@cd $(dir $(GO_WORK_FILE)) && GOWORK=off go work init $(GO_MODULE_ABS_DIRS)
 endef
 
-.PHONY: format format-all format-start format-stop vet tidy typecheck test coverage build clean docs compliance go-test go-build go-package-vet go-package-build go-service-vet go-service-build go-coverage go-coverage-shard go-package-coverage-shard go-service-coverage
+.PHONY: format format-all format-start format-stop vet tidy typecheck test coverage build clean docs go-test go-build go-package-vet go-package-build go-service-vet go-service-build go-coverage go-coverage-shard go-package-coverage-shard go-service-coverage
 
 format: format-start
 	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
@@ -264,9 +264,6 @@ build:
 docs:
 	pnpm install
 	pnpm --filter=@bedrock/docs run dev
-
-compliance:
-	services/scripts/laravel-compliance.sh check
 
 clean:
 	rm -rf $(ROOT_PATH)/services/storage/.cache

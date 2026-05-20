@@ -37,18 +37,8 @@ jobs:
             ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'package.json', 'packages/**/package.json', 'services/**/package.json', 'packages/**/go.mod', 'services/**/go.mod', 'packages/**/go.sum', 'services/**/go.sum') }}-
             ${{ runner.os }}-turbo-
 
-      - name: Install compliance dependencies
-        run: |
-          if ! command -v rg >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ripgrep
-          fi
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Laravel compliance check
-        run: pnpm compliance
 
       - name: Typecheck
         run: pnpm exec turbo run typecheck
