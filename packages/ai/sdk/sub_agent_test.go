@@ -3,12 +3,14 @@ package ai_test
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 
 	ai "github.com/bedrock/packages/ai/sdk"
 	"github.com/bedrock/packages/ai/sdk/fake"
 	"github.com/bedrock/packages/ai/sdk/prompts"
+	"github.com/bedrock/packages/ai/sdk/responses"
 	contractsai "github.com/bedrock/packages/contracts/ai"
 )
 
@@ -212,6 +214,50 @@ func TestSubAgentUsesItsOwnProviderHint(t *testing.T) {
 
 	if tool.Agent() != inner {
 		t.Error("Agent() should return the wrapped Promptable")
+	}
+}
+
+func TestSubAgentWithDescriptionOverridesAutoDerived(t *testing.T) {
+	t.Parallel()
+
+	m := ai.NewManager()
+	m.Fake()
+
+	tool := ai.AsTool(ai.NewAnonymousAgent(m, "")).
+		WithName("custom").
+		WithDescription("Custom override.")
+
+	if tool.Name() != "custom" {
+		t.Errorf("Name() = %q, want %q", tool.Name(), "custom")
+	}
+
+	if tool.Description() != "Custom override." {
+		t.Errorf("Description() = %q, want %q", tool.Description(), "Custom override.")
+	}
+}
+
+func TestSubAgentHandlePropagatesWrappedAgentError(t *testing.T) {
+	t.Parallel()
+
+	wantErr := errors.New("inner failure")
+
+	m := ai.NewManager()
+	m.Fake(func(*prompts.AgentPrompt) (*responses.AgentResponse, error) {
+		return nil, wantErr
+	})
+
+	tool := ai.AsTool(ai.NewAnonymousAgent(m, ""))
+
+	_, err := tool.Handle(context.Background(), &contractsai.ToolRequest{
+		ID:   "x",
+		Name: tool.Name(),
+		Arguments: map[string]any{
+			"task": "do thing",
+		},
+	})
+
+	if !errors.Is(err, wantErr) {
+		t.Errorf("err = %v, want %v", err, wantErr)
 	}
 }
 
