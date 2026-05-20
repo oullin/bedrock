@@ -1,5 +1,7 @@
 # mcp
 
+<!-- upstream-docs: mcp.md#upstream-mcp -->
+
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 

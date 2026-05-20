@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Validation
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -240,6 +240,7 @@ ValidationPasswordRuleTest.php::testSometimes
 ValidationPasswordRuleTest.php::testRequiredWithMissingValue
 ValidationPasswordRuleTest.php::testNullableWithEmptyString
 ValidationPasswordRuleTest.php::testItCanReturnsAsUnpackedArray
+ValidationPasswordRuleTest.php::testToPasswordRulesString
 ValidationProhibitedIfTest.php::testItReturnsStringVersionOfRuleWhenCast
 ValidationProhibitedIfTest.php::testItValidatesCallableAndBooleanAreAcceptableArguments
 ValidationProhibitedIfTest.php::testItThrowsExceptionIfRuleIsNotSerializable
@@ -320,6 +321,7 @@ ValidationUniqueRuleTest.php::testItHandlesWhereWithSpecialValues
 ValidationUniqueRuleTest.php::testItValidatesUniqueRuleWithWhereInAndWhereNotIn
 ValidationValidatorTest.php::testNestedErrorMessagesAreRetrievedFromLocalArray
 ValidationValidatorTest.php::testNestedArrayErrorMessagesAreRetrievedFromLocalArray
+ValidationValidatorTest.php::testWildcardArrayCustomMessagesHandleMissingRulesGracefullyWhenAnotherRuleFails
 ValidationValidatorTest.php::testSometimesWorksOnNestedArrays
 ValidationValidatorTest.php::testAfterCallbacksAreCalledWithValidatorInstance
 ValidationValidatorTest.php::testSometimesWorksOnArrays
@@ -422,6 +424,8 @@ ValidationValidatorTest.php::testValidateDoesntEndWith
 ValidationValidatorTest.php::testValidateStartsWith
 ValidationValidatorTest.php::testValidateStartsWithDoesNotThrowOnNonStringValue
 ValidationValidatorTest.php::testValidateEndsWithDoesNotThrowOnNonStringValue
+ValidationValidatorTest.php::testValidateDoesntStartWithDoesNotThrowOnNonStringValue
+ValidationValidatorTest.php::testValidateDoesntEndWithDoesNotThrowOnNonStringValue
 ValidationValidatorTest.php::testValidateLowercaseDoesNotThrowOnNonStringValue
 ValidationValidatorTest.php::testValidateUppercaseDoesNotThrowOnNonStringValue
 ValidationValidatorTest.php::testValidateAsciiDoesNotThrowOnNonStringValue

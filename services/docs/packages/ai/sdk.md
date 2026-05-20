@@ -1,5 +1,7 @@
 # sdk
 
+<!-- upstream-docs: ai-sdk.md#upstream-ai-sdk -->
+
 <!-- BEDROCK:HAND -->
 
 ## Sub-agents

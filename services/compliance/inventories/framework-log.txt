@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Log
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -60,11 +60,11 @@ JsonFormatterTest.php::testPreviousExceptionContextIsAlsoEnriched
 JsonFormatterTest.php::testReportEnrichesPreviousExceptionContext
 JsonFormatterTest.php::testExceptionWithoutContextMethodIsNotEnriched
 JsonFormatterTest.php::testContextCallbacksAreIncludedInFormatterEnrichment
-JsonFormatterTest.php::testGracefulFallbackWhenContainerCannotResolveHandler
 JsonFormatterTest.php::testNonScalarContextValuesAreNormalized
 JsonFormatterTest.php::testBothOuterAndPreviousContextEnrichedOnDirectLogging
 JsonFormatterTest.php::testBothOuterAndPreviousContextOnReport
 JsonFormatterTest.php::testFormatterHandlesNormalizationDepthLimit
+JsonFormatterTest.php::testNoHandlerSet_mergesExceptionContext
 LogLoggerTest.php::testMethodsPassErrorAdditionsToMonolog
 LogLoggerTest.php::testContextIsAddedToAllSubsequentLogs
 LogLoggerTest.php::testContextIsFlushed
@@ -104,3 +104,4 @@ LogManagerTest.php::testDriverUsersPsrLoggerManagerReturnsLogger
 LogManagerTest.php::testCustomDriverClosureBoundObjectIsLogManager
 LogManagerTest.php::testLogManagerCanResolveBackedEnumChannel
 LogManagerTest.php::testLogManagerCanResolveBackedEnumDriver
+LogManagerTest.php::testSetDefaultDriverAcceptsBackedEnum

@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Support
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -476,6 +476,7 @@ SupportCollectionTest.php::testGroupByClosureWhereItemsHaveMultipleGroups
 SupportCollectionTest.php::testGroupByClosureWhereItemsHaveMultipleGroupsPreservingKeys
 SupportCollectionTest.php::testGroupByMultiLevelAndClosurePreservingKeys
 SupportCollectionTest.php::testKeyByAttribute
+SupportCollectionTest.php::testKeyByBackedEnum
 SupportCollectionTest.php::testKeyByClosure
 SupportCollectionTest.php::testKeyByObject
 SupportCollectionTest.php::testContains
@@ -977,6 +978,7 @@ SupportLazyCollectionTest.php::testDoesntContain
 SupportLazyCollectionTest.php::testDot
 SupportLazyCollectionTest.php::testWithHeartbeat
 SupportLazyCollectionTest.php::testRandomPreservesKeys
+SupportLazyCollectionTest.php::testHasDoesNotCountDuplicateKeys
 SupportMacroableTest.php::testRegisterMacro
 SupportMacroableTest.php::testHasMacro
 SupportMacroableTest.php::testRegisterMacroAndCallWithoutStatic
@@ -1469,6 +1471,7 @@ SupportTestingQueueFakeTest.php::testItCanAssertAgainstDataWithPush
 SupportTestingQueueFakeTest.php::testAssertPushedWithIgnore
 SupportTestingQueueFakeTest.php::testAssertPushedWithClosure
 SupportTestingQueueFakeTest.php::testQueueSize
+SupportTestingQueueFakeTest.php::testQueueSizeAcceptsUnitEnums
 SupportTestingQueueFakeTest.php::testAssertNotPushed
 SupportTestingQueueFakeTest.php::testAssertNotPushedWithClosure
 SupportTestingQueueFakeTest.php::testAssertPushedOn
@@ -1477,6 +1480,7 @@ SupportTestingQueueFakeTest.php::testAssertPushedTimes
 SupportTestingQueueFakeTest.php::testAssertCount
 SupportTestingQueueFakeTest.php::testAssertNothingPushed
 SupportTestingQueueFakeTest.php::testAssertPushedUsingBulk
+SupportTestingQueueFakeTest.php::testPushOnAndLaterOnAcceptUnitEnums
 SupportTestingQueueFakeTest.php::testAssertPushedWithChainUsingClassesOrObjectsArray
 SupportTestingQueueFakeTest.php::testAssertPushedWithoutChain
 SupportTestingQueueFakeTest.php::testAssertPushedWithChainSameJobDifferentChains
@@ -1493,7 +1497,10 @@ SupportTestingQueueFakeTest.php::testAssertChainUsingClassesOrObjectsArray
 SupportTestingQueueFakeTest.php::testAssertNoChain
 SupportTestingQueueFakeTest.php::testAssertChainErrorHandling
 SupportTestingQueueFakeTest.php::testPendingJobs
+SupportTestingQueueFakeTest.php::testPendingJobsAcceptsUnitEnums
+SupportTestingQueueFakeTest.php::testAllPendingJobs
 SupportTestingQueueFakeTest.php::testGetRawPushes
+SupportTestingQueueFakeTest.php::testRawPushesAcceptUnitEnums
 SupportTestingQueueFakeTest.php::testPushedRaw
 SupportTimeboxTest.php::testMakeExecutesCallback
 SupportTimeboxTest.php::testMakeWaitsForMicroseconds

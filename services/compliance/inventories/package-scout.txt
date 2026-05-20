@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/search/tree/11.x/tests
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -146,6 +146,7 @@ Feature/ModelObserverTest.php::test_saved_handler_makes_model_unsearchable_when_
 Feature/ModelObserverTest.php::test_deleted_handler_doesnt_make_model_unsearchable_when_already_unsearchable
 Feature/ModelObserverTest.php::test_deleted_handler_makes_model_unsearchable
 Feature/ModelObserverTest.php::test_deleted_handler_on_soft_delete_model_makes_model_unsearchable
+Feature/ModelObserverTest.php::test_force_delete_on_soft_delete_model_dispatches_unsearchable_once
 Feature/ModelObserverTest.php::test_update_on_sensitive_attributes_triggers_search
 Feature/ModelObserverTest.php::test_update_on_non_sensitive_attributes_doesnt_trigger_search
 Feature/ModelObserverTest.php::test_unsearchable_should_be_called_when_deleting

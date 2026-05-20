@@ -1,7 +1,7 @@
 # Upstream compliance test inventory.
 # Source: https://github.com/upstream/framework/tree/13.x/tests/Session
 # Format: <file>::<test method name>
-# Generated: 2026-04-21
+# Generated: 2026-05-20
 #
 # Every entry below must have a Go counterpart, an adaptation entry, or an
 # explicit missing status in services/compliance/report.md.
@@ -43,6 +43,7 @@ Middleware/AuthenticateSessionTest.php::test_handle_with_valid_incookie_invalid_
 Middleware/AuthenticateSessionTest.php::test_handle_with_valid_password_in_session_cookie_is_empty_guard_has_user
 Middleware/AuthenticateSessionTest.php::test_handle_with_old_format_cookie_for_backward_compatibility
 Middleware/AuthenticateSessionTest.php::test_handle_with_old_format_cookie_and_legacy_guard
+SessionManagerTest.php::testSetDefaultDriverAcceptsBackedEnum
 SessionStoreTest.php::testSessionIsLoadedFromHandler
 SessionStoreTest.php::testSessionMigration
 SessionStoreTest.php::testSessionRegeneration

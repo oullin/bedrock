@@ -8,7 +8,7 @@
     "test": "go test -race ./...",
     "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/mailx && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/mailx/coverage.out'",
     "typecheck": "go test ./... -run '^$'",
-    "fmt": "gofmt -w .",
+    "fmt": "broadcastclient gofmt handled by root go-fmt sweep",
     "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
   }
 }
