@@ -2027,8 +2027,10 @@ check_feature_symbol_present() {
 
     if [ "$pkg" != "$bedrock" ]; then
       sym="${bedrock#*.}"
-      if ! rg -q --type go -F -- "$sym" \
-          "$ROOT_PATH/packages/$pkg" "$ROOT_PATH/services/$pkg" 2>/dev/null; then
+      local search_paths=()
+      [ -d "$ROOT_PATH/packages/$pkg" ] && search_paths+=("$ROOT_PATH/packages/$pkg")
+      [ -d "$ROOT_PATH/services/$pkg" ] && search_paths+=("$ROOT_PATH/services/$pkg")
+      if ! rg -q --type go -w -F -- "$sym" "${search_paths[@]}" 2>/dev/null; then
         echo "Feature $id symbol not found in Go code: $bedrock" >&2
         failed=1
       fi
