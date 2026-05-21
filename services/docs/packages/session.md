@@ -126,10 +126,10 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/session/...
 
 ## Source Coverage
 
-| Package    | Purpose                                                                                                                                                                                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package    | Purpose                                                                                                                                                                                                                                |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `session`  | Package session provides HTTP session management. It defines a Store with flash data, CSRF tokens, and lifecycle management, backed by swappable Handler implementations (array, file, database, cache, cookie, null, and encrypting). |
-| `handlers` | Public handlers API surface for this module.                                                                                                                                                                                                            |
+| `handlers` | Public handlers API surface for this module.                                                                                                                                                                                           |
 
 ## Core Concepts
 
@@ -177,7 +177,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

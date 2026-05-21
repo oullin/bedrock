@@ -30,8 +30,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/echo/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                                                                 |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package | Purpose                                                                                                                                                                                                                         |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `echo`  | Package echo is a Go library for Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
 
 ## Core Concepts
@@ -76,7 +76,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/process/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                           |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `process` | Package process provides a small process runner with fakes, assertions, pools, and pipes inspired by the upstream Process component. |
 
 ## Core Concepts
@@ -79,7 +79,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

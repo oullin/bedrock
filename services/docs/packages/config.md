@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/config/...
 
 ## Source Coverage
 
-| Package  | Purpose                                                                                                                                                                                                                                                                                                                                       |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package  | Purpose                                                                                                                                                                                                                                                                                                                      |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `config` | Package config provides a configuration repository backed by Viper. It stores key-value pairs in a nested map with dot-notation access, type-safe getters, and array manipulation helpers (prepend and push). Consumers get YAML file and environment variable support out of the box through the underlying Viper instance. |
 
 ## Core Concepts
@@ -78,7 +78,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

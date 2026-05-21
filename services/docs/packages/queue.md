@@ -152,12 +152,12 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/queue/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `queue`   | Package queue provides job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs. |
-| `drivers` | Public drivers API surface for this module.                                                                                                                                                                                                                         |
-| `events`  | Package events contains the Go port of every Illuminate\Queue\Events\* class from upstream framework 13.x. Each upstream event is a plain Go struct; the worker, manager, and drivers emit them via the queue package's EventEmitter interface.                       |
-| `failed`  | Package failed contains the Go port of Illuminate\Queue\Failed\* from upstream framework 13.x. It defines the FailedJobProvider contract plus the optional Countable and Prunable extensions, and ships five implementations that mirror the upstream providers:      |
+| Package   | Purpose                                                                                                                                                                                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `queue`   | Package queue provides job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs.               |
+| `drivers` | Public drivers API surface for this module.                                                                                                                                                                                                                      |
+| `events`  | Package events contains the Go port of every Illuminate\Queue\Events\* class from upstream framework 13.x. Each upstream event is a plain Go struct; the worker, manager, and drivers emit them via the queue package's EventEmitter interface.                  |
+| `failed`  | Package failed contains the Go port of Illuminate\Queue\Failed\* from upstream framework 13.x. It defines the FailedJobProvider contract plus the optional Countable and Prunable extensions, and ships five implementations that mirror the upstream providers: |
 
 ## Core Concepts
 
@@ -208,7 +208,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

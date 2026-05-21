@@ -29,18 +29,18 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/boost/...
 
 ## Source Coverage
 
-| Package               | Purpose                                                                                        |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
+| Package               | Purpose                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
 | `boost`               | Package boost provides a Go port of upstream boost — an IDE coding-assistant integration layer. |
-| `agents`              | Public agents API surface for this module.                                                     |
-| `guidelines`          | Public guidelines API surface for this module.                                                 |
-| `install`             | Public install API surface for this module.                                                    |
-| `internal/boosterr`   | Public internal/boosterr API surface for this module.                                          |
-| `internal/jsonconfig` | Public internal/jsonconfig API surface for this module.                                        |
-| `internal/platform`   | Public internal/platform API surface for this module.                                          |
-| `mcp`                 | Public mcp API surface for this module.                                                        |
-| `mcp/tools`           | Public mcp/tools API surface for this module.                                                  |
-| `skills`              | Public skills API surface for this module.                                                     |
+| `agents`              | Public agents API surface for this module.                                                      |
+| `guidelines`          | Public guidelines API surface for this module.                                                  |
+| `install`             | Public install API surface for this module.                                                     |
+| `internal/boosterr`   | Public internal/boosterr API surface for this module.                                           |
+| `internal/jsonconfig` | Public internal/jsonconfig API surface for this module.                                         |
+| `internal/platform`   | Public internal/platform API surface for this module.                                           |
+| `mcp`                 | Public mcp API surface for this module.                                                         |
+| `mcp/tools`           | Public mcp/tools API surface for this module.                                                   |
+| `skills`              | Public skills API surface for this module.                                                      |
 
 ## Core Concepts
 
@@ -86,7 +86,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

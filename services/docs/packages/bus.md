@@ -30,10 +30,10 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/bus/...
 
 ## Source Coverage
 
-| Package    | Purpose                                                                                                                                                                                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package    | Purpose                                                                                                                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `bus`      | Package bus provides command/job dispatching with support for synchronous dispatch, async queue dispatch, after-response deferred dispatch, job chaining, batch processing, pipeline middleware, and distributed unique-job locking. |
-| `pipeline` | Public pipeline API surface for this module.                                                                                                                                                                                                          |
+| `pipeline` | Public pipeline API surface for this module.                                                                                                                                                                                         |
 
 ## Core Concepts
 
@@ -80,7 +80,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

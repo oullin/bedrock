@@ -34,15 +34,15 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/auth/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                                                                                                                                                                                                                                               |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package     | Purpose                                                                                                                                                                                                                                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auth`      | Package auth provides HTTP authentication and authorization. It defines a Manager that creates named guards (session, token, request) and user providers (ORM, database). Access control is handled by the Gate in the access sub-package. Password resets are handled by the passwords sub-package. |
-| `access`    | Public access API surface for this module.                                                                                                                                                                                                                                                                            |
-| `consumer`  | Public consumer API surface for this module.                                                                                                                                                                                                                                                                          |
-| `events`    | Public events API surface for this module.                                                                                                                                                                                                                                                                            |
-| `listeners` | Public listeners API surface for this module.                                                                                                                                                                                                                                                                         |
-| `passwords` | Public passwords API surface for this module.                                                                                                                                                                                                                                                                         |
-| `providers` | Public providers API surface for this module.                                                                                                                                                                                                                                                                         |
+| `access`    | Public access API surface for this module.                                                                                                                                                                                                                                                           |
+| `consumer`  | Public consumer API surface for this module.                                                                                                                                                                                                                                                         |
+| `events`    | Public events API surface for this module.                                                                                                                                                                                                                                                           |
+| `listeners` | Public listeners API surface for this module.                                                                                                                                                                                                                                                        |
+| `passwords` | Public passwords API surface for this module.                                                                                                                                                                                                                                                        |
+| `providers` | Public providers API surface for this module.                                                                                                                                                                                                                                                        |
 
 ## Core Concepts
 
@@ -88,7 +88,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

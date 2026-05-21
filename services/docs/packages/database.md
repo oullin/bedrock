@@ -35,7 +35,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/database/...
 
 | Package              | Purpose                                                                                                                                                                                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `database`           | Package database provides a database abstraction layer with query builder, schema management, Eloquent-style ORM, and migration support. It is the Go port of Illuminate/Database package, adapted to Go idioms while maintaining 100% function parity.                     |
+| `database`           | Package database provides a database abstraction layer with query builder, schema management, Eloquent-style ORM, and migration support. It is the Go port of Illuminate/Database package, adapted to Go idioms while maintaining 100% function parity.                               |
 | `drivers/mariadb`    | Public drivers/mariadb API surface for this module.                                                                                                                                                                                                                                   |
 | `drivers/mysql`      | Public drivers/mysql API surface for this module.                                                                                                                                                                                                                                     |
 | `drivers/postgres`   | Public drivers/postgres API surface for this module.                                                                                                                                                                                                                                  |
@@ -96,7 +96,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

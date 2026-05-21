@@ -135,8 +135,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/notifications/...
 
 ## Source Coverage
 
-| Package         | Purpose                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package         | Purpose                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `notifications` | Package notifications provides a notification system for sending messages across multiple channels (mail, database, broadcast, and custom drivers). Notifications are dispatched through a channel manager that lazily resolves drivers, supports queued delivery via the bus package, and fires lifecycle events (sending, sent, failed) through the event dispatcher. |
 
 ## Core Concepts
@@ -181,7 +181,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

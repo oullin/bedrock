@@ -145,10 +145,10 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/log/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                       |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                                                                                                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `log`     | Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors the upstream Log component, offering a unified API through the LogManager and individual handlers for each channel type. |
-| `context` | Public context API surface for this module.                                                                                                                                                                                                                                                   |
+| `context` | Public context API surface for this module.                                                                                                                                                                                                                                                      |
 
 ## Core Concepts
 
@@ -193,7 +193,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

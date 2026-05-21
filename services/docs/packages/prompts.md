@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/prompts/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                           |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompts` | Package prompts provides beautiful, user-friendly terminal UI forms for Go applications, with 100 % function parity with upstream Prompts. It offers text inputs, password fields, selects, multi-selects, search prompts, spinners, progress bars, tables, and a multi-step form builder — all rendered with ANSI escape codes and no external TUI dependencies. |
 
 ## Core Concepts
@@ -79,7 +79,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

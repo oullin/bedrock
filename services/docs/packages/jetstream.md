@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jetstream/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                                                                       |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package     | Purpose                                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `jetstream` | Package jetstream holds Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior. |
 
 ## Core Concepts
@@ -77,7 +77,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

@@ -30,16 +30,16 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/scout/...
 
 ## Source Coverage
 
-| Package               | Purpose                                                                                                                                                                            |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package               | Purpose                                                                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `scout`               | Package scout provides full-text search with pluggable engine backends. It is the Go port of Scout package, adapted to Go idioms while maintaining 100% function parity. |
-| `engines`             | Public engines API surface for this module.                                                                                                                                        |
-| `engines/algolia`     | Public engines/algolia API surface for this module.                                                                                                                                |
-| `engines/meilisearch` | Public engines/meilisearch API surface for this module.                                                                                                                            |
-| `engines/typesense`   | Public engines/typesense API surface for this module.                                                                                                                              |
-| `events`              | Package events defines domain events dispatched by Scout during search index operations.                                                                                           |
-| `internal/scouterr`   | Public internal/scouterr API surface for this module.                                                                                                                              |
-| `jobs`                | Package jobs provides queueable jobs for asynchronous search index operations. MakeSearchable indexes models in the background, and RemoveFromSearch removes them.                 |
+| `engines`             | Public engines API surface for this module.                                                                                                                              |
+| `engines/algolia`     | Public engines/algolia API surface for this module.                                                                                                                      |
+| `engines/meilisearch` | Public engines/meilisearch API surface for this module.                                                                                                                  |
+| `engines/typesense`   | Public engines/typesense API surface for this module.                                                                                                                    |
+| `events`              | Package events defines domain events dispatched by Scout during search index operations.                                                                                 |
+| `internal/scouterr`   | Public internal/scouterr API surface for this module.                                                                                                                    |
+| `jobs`                | Package jobs provides queueable jobs for asynchronous search index operations. MakeSearchable indexes models in the background, and RemoveFromSearch removes them.       |
 
 ## Core Concepts
 
@@ -84,7 +84,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

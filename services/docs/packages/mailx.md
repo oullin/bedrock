@@ -134,8 +134,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/mailx/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mailx` | Package mailx provides driver-based email sending with support for SMTP, log, and array (testing) transports. It mirrors the upstream Mail component, offering a unified API through the MailManager and individual mailers for each transport type. The package supports rich message construction including HTML and plain-text bodies, file attachments, inline embeds, custom headers, metadata, and tags. Events are dispatched before and after sending for observability and interception. |
 
 ## Core Concepts
@@ -181,7 +181,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

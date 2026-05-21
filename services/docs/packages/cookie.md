@@ -29,8 +29,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cookie/...
 
 ## Source Coverage
 
-| Package  | Purpose                                                                                                                                                                                                                                                |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package  | Purpose                                                                                                                                                                                                                               |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cookie` | Package cookie provides cookie management primitives. It includes a queuing cookie jar, factory interfaces, and HTTP middleware for transparent cookie encryption/decryption and automatic attachment of queued cookies to responses. |
 
 ## Core Concepts
@@ -76,7 +76,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

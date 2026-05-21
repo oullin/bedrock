@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
 
 ## Source Coverage
 
-| Package        | Purpose                                                                                                                                                                          |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package        | Purpose                                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `precognition` | Package precognition is a 1:1 Go port of upstream src/Illuminate/Foundation/Http/Middleware/HandlePrecognitiveRequests and src/Illuminate/Foundation/Precognition. |
 
 ## Core Concepts
@@ -77,7 +77,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

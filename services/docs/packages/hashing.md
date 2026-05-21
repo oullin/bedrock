@@ -120,8 +120,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/hashing/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                             |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                                                                                                                                                |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `hashing` | Package hashing provides driver-based password hashing with support for bcrypt, argon2i, and argon2id algorithms. It mirrors the upstream Hashing component, offering a unified API through the HashManager and individual hashers for each algorithm. |
 
 ## Core Concepts
@@ -166,7 +166,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

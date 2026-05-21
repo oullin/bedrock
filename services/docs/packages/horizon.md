@@ -30,8 +30,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/horizon/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                           |
-| --------- | --------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                            |
+| --------- | ---------------------------------------------------------------------------------- |
 | `horizon` | Package horizon provides queue monitoring primitives inspired by upstream Horizon. |
 
 ## Core Concepts
@@ -78,7 +78,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

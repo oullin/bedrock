@@ -15,6 +15,17 @@ GIT_CHANGED_FN = $(shell { \
 CHANGED_MD := $(call GIT_CHANGED_FN,'*.md')
 CHANGED_GO := $(call GIT_CHANGED_FN,'*.go')
 CHANGED_GO_DIRS := $(sort $(patsubst %/,%,$(dir $(CHANGED_GO))))
+CHANGED_GO_MODULES := $(shell \
+		{ git diff --name-only --diff-filter=ACMRT $(FORMAT_BASE)...HEAD -- '*.go' 2>/dev/null; \
+		  git diff --name-only --diff-filter=ACMRT -- '*.go' 2>/dev/null; \
+		  git ls-files --others --exclude-standard -- '*.go' 2>/dev/null; } \
+		| sort -u \
+		| while read f; do \
+		    d=$$(dirname $$f); \
+		    while [ "$$d" != "." ] && [ ! -f "$$d/go.mod" ]; do d=$$(dirname $$d); done; \
+		    [ "$$d" != "." ] && echo $$d; \
+		  done \
+		| sort -u)
 GO_MODULE_EXCLUDED_DIRS := packages/testing
 GO_PACKAGE_MODULE_DIRS := $(filter-out $(GO_MODULE_EXCLUDED_DIRS),$(shell git ls-files 'packages/**/go.mod' | sed 's|/go.mod$$||'))
 GO_SERVICE_MODULE_DIRS := $(shell git ls-files 'services/**/go.mod' | sed 's|/go.mod$$||')
@@ -60,13 +71,13 @@ endef
 format: format-start
 	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
 	go_fmt_status=0; \
-	if [ -n "$(strip $(CHANGED_GO_DIRS))" ]; then \
-		for dir in $(CHANGED_GO_DIRS); do \
-			echo "go-fmt format in $$dir"; \
-			$(GO_FMT_EXEC) format --host-path $(ROOT_PATH)/$$dir || { go_fmt_status=$$?; break; }; \
-		done; \
+	if [ -n "$(strip $(CHANGED_GO_MODULES))" ]; then \
+		paths=""; \
+		for dir in $(CHANGED_GO_MODULES); do paths="$$paths /work/$$dir"; done; \
+		echo "go-fmt format ($(words $(CHANGED_GO_MODULES)) module(s))"; \
+		$(GO_FMT_EXEC) format --cwd /work $$paths || go_fmt_status=$$?; \
 	else \
-		echo "go-fmt: no changed Go files"; \
+		echo "go-fmt: no changed Go modules"; \
 	fi; \
 	wait $$pnpm_pid; pnpm_status=$$?; \
 	if [ $$go_fmt_status -ne 0 ]; then exit $$go_fmt_status; fi; \
@@ -79,10 +90,15 @@ format: format-start
 	fi
 
 format-all: format-start
-	$(PACKAGE_FMT)
-	@echo "go-fmt format in $(ROOT_PATH)"; \
-	$(GO_FMT_EXEC) format --cwd $(ROOT_PATH) --host-path $(ROOT_PATH)
+	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
+	go_fmt_status=0; \
+	echo "go-fmt format in $(ROOT_PATH)"; \
+	$(GO_FMT_EXEC) format --cwd /work --host-path $(ROOT_PATH) || go_fmt_status=$$?; \
+	wait $$pnpm_pid; pnpm_status=$$?; \
+	if [ $$go_fmt_status -ne 0 ]; then exit $$go_fmt_status; fi; \
+	if [ $$pnpm_status -ne 0 ]; then exit $$pnpm_status; fi
 	@if [ -n "$(MARKDOWN_FILES)" ]; then \
+		echo "oxfmt ($(words $(MARKDOWN_FILES)) markdown files)"; \
 		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
 	fi
 

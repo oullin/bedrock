@@ -182,8 +182,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/cache/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                                                                                                                       |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package | Purpose                                                                                                                                                                                                                                                                      |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cache` | Package cache provides caching primitives. It defines a two-level abstraction: Store (low-level backend operations) and Repository (high-level helpers including remember, tags, and distributed locks). Multiple concrete store implementations are provided under stores/. |
 
 ## Core Concepts
@@ -230,7 +230,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

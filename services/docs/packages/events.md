@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/events/...
 
 ## Source Coverage
 
-| Package  | Purpose                                                                                                                                                                                                                                                    |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package  | Purpose                                                                                                                                                                                                                                   |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `events` | Package events provides event dispatching with support for named and typed events, wildcard pattern matching, event subscribers, synchronous and queued listeners, transaction-aware deferred dispatch, and a NullDispatcher for testing. |
 
 ## Core Concepts
@@ -78,7 +78,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

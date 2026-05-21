@@ -30,8 +30,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/translation/...
 
 ## Source Coverage
 
-| Package       | Purpose                                                                                                                                                                                                             |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package       | Purpose                                                                                                                                                                                            |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `translation` | Package translation provides i18n support: key-based message lookup with namespace/fallback resolution, CLDR pluralization, file-based and in-memory loaders, and atomic placeholder substitution. |
 
 ## Core Concepts
@@ -76,7 +76,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

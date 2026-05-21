@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pennant/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                                            |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                           |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pennant` | Package pennant provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API. |
 
 ## Core Concepts
@@ -80,7 +80,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |

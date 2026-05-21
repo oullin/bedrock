@@ -31,12 +31,12 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/inception/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                                                                                                                                                              |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package     | Purpose                                                                                                                                                                                                                      |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `inception` | Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports Fortify and Jetstream to Go as a fully standalone module that depends only on shared contracts. |
-| `pipeline`  | Package pipeline provides a stage-based processing chain. It allows sending a value through a series of stages, where each stage can transform the value or short-circuit the chain.                                                 |
-| `ratelimit` | Package ratelimit provides in-memory rate limiting for authentication flows.                                                                                                                                                         |
-| `twofactor` | Package twofactor implements TOTP (RFC 6238) two-factor authentication and recovery code management.                                                                                                                                 |
+| `pipeline`  | Package pipeline provides a stage-based processing chain. It allows sending a value through a series of stages, where each stage can transform the value or short-circuit the chain.                                         |
+| `ratelimit` | Package ratelimit provides in-memory rate limiting for authentication flows.                                                                                                                                                 |
+| `twofactor` | Package twofactor implements TOTP (RFC 6238) two-factor authentication and recovery code management.                                                                                                                         |
 
 ## Core Concepts
 
@@ -84,7 +84,7 @@ Use package tests as executable examples when the exact constructor requires col
 
 Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
