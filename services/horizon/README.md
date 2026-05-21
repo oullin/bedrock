@@ -53,5 +53,5 @@ Writes to `services/horizon/app/dist`.
 go test ./services/horizon/...
 ```
 
-Every handler test carries a `// Port of <Class>::<test>` marker so it is
-classified as ported by `upstream-compliance`.
+Tests are organized by handler under `services/horizon/`; run them with
+`go test ./services/horizon/...`.

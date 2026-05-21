@@ -11,13 +11,13 @@ import "testing"
 func TestHtmlString(t *testing.T) {
 	t.Parallel()
 
-	html := NewHtmlString("<strong>Laravel</strong>")
+	html := NewHtmlString("<strong>Bedrock</strong>")
 
-	if got := html.ToHTML(); got != "<strong>Laravel</strong>" {
+	if got := html.ToHTML(); got != "<strong>Bedrock</strong>" {
 		t.Fatalf("ToHTML = %q", got)
 	}
 
-	if got := html.String(); got != "<strong>Laravel</strong>" {
+	if got := html.String(); got != "<strong>Bedrock</strong>" {
 		t.Fatalf("String = %q", got)
 	}
 

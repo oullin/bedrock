@@ -215,12 +215,11 @@ type Worker struct {
 
 // effectiveMaxTries returns the max-tries budget to use for job:
 // the job's own MaxTries wins over the WorkerOptions fallback.
-// Mirrors the upstream "$maxTries = ! is_null($job->maxTries()) ? ... : ..."
 
 // effectiveBackoff returns the release delay for the next retry of
 // job. The job's own Backoff slice wins over WorkerOptions.Backoff.
 // When the slice is shorter than attempts, the last element is used
-// (matching the upstream "take the last element" convention).
+// When the slice is shorter than attempts, the last element is reused.
 
 // jobNameShim adapts a queue.Job to the ResolveNamer interface used
 // by MaxAttemptsExceededError. The Job interface itself stays frozen

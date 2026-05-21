@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package precognition surfaces `@bedrock\Foundation\Http\Middleware\HandlePrecognitiveRequests` and `@bedrock\Foundation\Precognition` for handling precognitive requests in bedrock.
+Package precognition provides middleware and utilities for handling precognitive HTTP requests in bedrock.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -33,7 +33,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
 
 | Package        | Purpose                                                                                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `precognition` | Package precognition surfaces `@bedrock\Foundation\Http\Middleware\HandlePrecognitiveRequests` and `@bedrock\Foundation\Precognition` for handling precognitive requests in bedrock. |
+| `precognition` | Package precognition provides middleware and utilities for handling precognitive HTTP requests in bedrock. |
 
 ## Core Concepts
 

@@ -264,14 +264,14 @@ func TestFluentString(t *testing.T) {
 
 	f := NewFluent(map[string]any{
 		"name":  "Taylor",
-		"bytes": []byte("Laravel"),
+		"bytes": []byte("Bedrock"),
 	})
 
 	if got := f.String("name"); got != "Taylor" {
 		t.Errorf("String(name) = %q", got)
 	}
 
-	if got := f.String("bytes"); got != "Laravel" {
+	if got := f.String("bytes"); got != "Bedrock" {
 		t.Errorf("String(bytes) = %q", got)
 	}
 

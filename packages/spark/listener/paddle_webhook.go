@@ -8,7 +8,6 @@ import (
 )
 
 // PaddleWebhookListener handles Paddle webhook events.
-// Mirrors app/Listeners/PaddleWebhookListener.php.
 type PaddleWebhookListener struct {
 	orders spark.OrderStore
 }

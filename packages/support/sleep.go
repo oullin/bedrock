@@ -10,7 +10,6 @@ import (
 
 // Sleep pauses the current goroutine for the given duration.
 // In tests, the sleep can be intercepted via FakeSleepWith.
-// Mirrors Sleep::for()->seconds() etc. (simplified to a single function).
 
 // SleepUntil pauses until the given time.
 

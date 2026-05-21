@@ -6,7 +6,7 @@ import (
 
 // SignatureValidator is the surface ValidateSignature needs from a request.
 //
-// Mirrors httpx.Request's HasValidSignatureWhileIgnoring narrowly. The real
+// It narrowly matches httpx.Request's HasValidSignatureWhileIgnoring; the real
 // httpx request will satisfy this in M11.
 type SignatureValidator interface {
 	HasValidSignatureWhileIgnoring(ignore []string, absolute bool) bool

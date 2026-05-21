@@ -335,7 +335,7 @@ func (f *FrontendState) appName() string {
 		return f.config.AppName()
 	}
 
-	return "Laravel"
+	return "Bedrock"
 }
 
 func (f *FrontendState) dashboardURL() string {

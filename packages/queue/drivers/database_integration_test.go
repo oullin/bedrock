@@ -1,6 +1,6 @@
 //go:build integration
 
-// Port of tests/Queue/QueueDatabaseQueueIntegrationTest.php ( 13.x).
+// Ref: @bedrock/code-0365
 //
 // Parity status:
 //   testAvailableAndUnReservedJobsArePopped   ✅
@@ -218,7 +218,7 @@ func TestJobPayloadIsAvailableOnEvents(t *testing.T) {
 
 	_, payload, err := queue.CreatePayloadFor(
 		"database", "default", "MyJob",
-		map[string]any{"laravel": "Framework"},
+		map[string]any{"key": "value"},
 		queue.JobOptions{},
 	)
 

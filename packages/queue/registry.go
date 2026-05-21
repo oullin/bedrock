@@ -29,7 +29,7 @@ type HandlerRegistry struct {
 // HandlerRegistryEntry is the value stored under each registered name.
 type HandlerRegistryEntry struct {
 	// Name is the display name under which the handler is registered.
-	// Mirrors Payload.DisplayName / Payload.Job on the wire.
+	// It populates Payload.DisplayName / Payload.Job on the wire.
 	Name string
 	// Handler is the function that runs when a job with this name is
 	// popped off a queue.

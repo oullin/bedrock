@@ -12,7 +12,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package routing is surfaced under @bedrock\Routing.
+Package routing provides HTTP routing primitives.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -38,7 +38,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routing/...
 
 | Package       | Purpose                                             |
 | ------------- | --------------------------------------------------- |
-| `routing`     | Package routing is surfaced under @bedrock\Routing. |
+| `routing`     | Package routing provides HTTP routing primitives. |
 | `attributes`  | Public attributes API surface for this module.      |
 | `compiler`    | Public compiler API surface for this module.        |
 | `console`     | Public console API surface for this module.         |

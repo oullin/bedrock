@@ -56,14 +56,12 @@ type generator struct {
 
 // writeMultiRouteExport handles the case where multiple routes share the same
 // controller action. It generates a keyed dictionary.
-// Mirrors GenerateCommand::writeMultiRouteControllerMethodExport() + multi-method.blade.ts.
 
 // Generate a temporary (unexported) helper for each route keyed by URI hash.
 
 // Temporarily override the method name with the temp name.
 
 // renderMethod builds the complete TypeScript block for a single route action.
-// It is the Go equivalent of the method.blade.ts Blade template.
 
 // ── docblock ────────────────────────────────────────────────────────────
 
@@ -102,7 +100,6 @@ type generator struct {
 // Non-safe verb: inject _method spoofing.
 
 // functionArgs renders the TypeScript parameter list for a generated function.
-// Mirrors function-arguments.blade.ts from the PHP implementation.
 
 // Object form: { param: type, ... }
 

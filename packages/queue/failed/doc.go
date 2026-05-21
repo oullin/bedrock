@@ -9,8 +9,5 @@
 //   - DynamoDbFailedJobProvider     — DynamoDB-backed, mockable client
 //   - NullFailedJobProvider         — no-op for testing / disabled state
 //
-// (DatabaseFailedJobProviderTest, DatabaseUuidFailedJobProviderTest,
-// FileFailedJobProviderTest, DynamoDbFailedJobProviderTest). Every ported
-// test carries a `// Port of …` header so scripts/queue-parity.sh can
-// match it back to its upstream counterpart.
+// Each provider has its own test file under packages/queue/failed/.
 package failed

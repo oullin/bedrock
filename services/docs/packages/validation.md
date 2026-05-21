@@ -8,7 +8,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package validation is surfaced under @bedrock\Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required|email|max:255"), and collects failures into a MessageBag.
+Package validation provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required|email|max:255"), and collects failures into a MessageBag.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -34,7 +34,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/validation/...
 
 | Package      | Purpose                                                                                                                                                                                                                                                                      |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `validation` | Package validation is surfaced under @bedrock\Validation. It provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required\|email\|max:255"), and collects failures into a MessageBag. |
+| `validation` | Package validation provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required\|email\|max:255"), and collects failures into a MessageBag. |
 | `rules`      | Public rules API surface for this module.                                                                                                                                                                                                                                    |
 
 ## Core Concepts
