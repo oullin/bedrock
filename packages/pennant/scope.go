@@ -7,7 +7,6 @@ import (
 )
 
 // Scopeable is implemented by types that control their own scope identifier.
-// This is the Go equivalent of the upstream Pennant FeatureScopeable interface.
 type Scopeable interface {
 	FeatureScopeIdentifier() string
 }

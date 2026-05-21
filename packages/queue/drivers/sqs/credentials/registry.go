@@ -34,7 +34,6 @@ type Factory func(ctx context.Context) (Provider, error)
 //   - Register every named provider at bootstrap
 //   - look up by name when a connection is resolved
 //
-// Mirrors the runtime behaviour of the upstream named SQS credential
 // providers introduced in 13.8.0.
 type Registry struct {
 	mu        sync.RWMutex

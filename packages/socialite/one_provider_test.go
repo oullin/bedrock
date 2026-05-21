@@ -68,7 +68,6 @@ func stringify(v any) string {
 // ── Tests (OAuthOneTest.php equivalents) ─────────────────────────────────────
 
 // OAuthOneTest::testRedirectGeneratesTheProper@bedrockRedirectResponse
-// TestOAuth1RedirectGeneratesURL mirrors
 // testRedirectGeneratesTheProper@bedrockRedirectResponse.
 func TestOAuth1RedirectGeneratesURL(t *testing.T) {
 	server := &mockOAuth1Server{
@@ -101,7 +100,6 @@ func TestOAuth1RedirectGeneratesURL(t *testing.T) {
 }
 
 // OAuthOneTest::testUserReturnsAUserInstanceForTheAuthenticatedRequest
-// TestOAuth1UserReturnsAuthenticatedUser mirrors
 // testUserReturnsAUserInstanceForTheAuthenticatedRequest.
 func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
 	rawURL := "http://example.com/callback?oauth_token=oauth_token&oauth_verifier=oauth_verifier"
@@ -145,7 +143,6 @@ func TestOAuth1UserReturnsAuthenticatedUser(t *testing.T) {
 }
 
 // OAuthOneTest::testExceptionIsThrownWhenVerifierIsMissing
-// TestOAuth1ErrorsOnMissingVerifier mirrors
 // testExceptionIsThrownWhenVerifierIsMissing.
 func TestOAuth1ErrorsOnMissingVerifier(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/callback", nil)
@@ -161,7 +158,6 @@ func TestOAuth1ErrorsOnMissingVerifier(t *testing.T) {
 }
 
 // OAuthOneTest::testExceptionIsThrownWhenTemporaryCredentialsAreMissing
-// TestOAuth1ErrorsOnMissingTemporaryCredentials mirrors
 // testExceptionIsThrownWhenTemporaryCredentialsAreMissing.
 func TestOAuth1ErrorsOnMissingTemporaryCredentials(t *testing.T) {
 	rawURL := "http://example.com/callback?oauth_token=oauth_token&oauth_verifier=oauth_verifier"

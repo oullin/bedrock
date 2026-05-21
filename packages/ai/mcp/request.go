@@ -1,7 +1,7 @@
 package mcp
 
 // Request carries the arguments, session identifier, and contextual metadata
-// for a single MCP handler invocation. It mirrors the upstream Request class.
+// for a single MCP handler invocation. It mirrors the the underlying behavior class.
 type Request struct {
 	// Arguments holds the caller-supplied parameters (tools/call arguments,
 	// prompts/get arguments, etc.).

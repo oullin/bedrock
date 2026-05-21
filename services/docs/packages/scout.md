@@ -1,7 +1,7 @@
 # scout
 
-<!-- upstream-docs: scout.md#introduction -->
-<!-- upstream-docs: search.md#search -->
+<!-- ref: @bedrock/code-0165 -->
+<!-- ref: @bedrock/code-0166 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

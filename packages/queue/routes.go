@@ -5,8 +5,7 @@ import (
 	"sync"
 )
 
-// Routes is the Go port of @bedrock\Queue\QueueRoutes.
-//
+// Ref: @bedrock/code-0270
 // It binds a class-like lookup key to either a plain queue name (string
 // form) or a (connection, queue) pair (array form). The worker-facing
 // resolvers (GetQueue, GetConnection) preserve the upstream slightly
@@ -69,7 +68,7 @@ func (r *Routes) Set(class, queue, connection string) {
 // (array form). Any other value type returns an error and leaves the
 // routing table unchanged.
 //
-// Mirrors the upstream QueueRoutes::set($array).
+// Ref: @bedrock/code-0270
 func (r *Routes) SetMany(m map[string]any) error {
 	normalised := make(map[string]routeValue, len(m))
 
@@ -105,7 +104,7 @@ func (r *Routes) SetMany(m map[string]any) error {
 // lineage (if it implements RouteLineage) or its DisplayName otherwise.
 // The second return is false when no route is registered.
 //
-// Mirrors the upstream QueueRoutes::getRoute.
+// Ref: @bedrock/code-0270
 func (r *Routes) GetRoute(queueable any) (routeValue, bool) {
 	r.mu.RLock()
 
@@ -161,7 +160,7 @@ func (r *Routes) GetConnection(queueable any) string {
 
 // All returns a snapshot of every registered route as a map from class
 // name to either a string (plain form) or a [2]string{connection, queue}
-// (array form). Mirrors the upstream QueueRoutes::all().
+// Ref: @bedrock/code-0270
 func (r *Routes) All() map[string]any {
 	r.mu.RLock()
 

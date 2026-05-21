@@ -10,127 +10,89 @@ import (
 )
 
 // ArrAccessible reports whether value is a map, slice, array, or string.
-// Mirrors Arr::accessible().
 
 // ArrMap maps each item in a slice.
-// Mirrors Arr::map().
 
 // ArrMapWithKeys maps each item into key/value pairs.
-// Mirrors Arr::mapWithKeys().
 
 // ArrString returns a string value for the key.
-// Mirrors Arr::string().
 
 // ArrInteger returns an integer value for the key.
-// Mirrors Arr::integer().
 
 // ArrFloat returns a float64 value for the key.
-// Mirrors Arr::float().
 
 // ArrBoolean returns a boolean value for the key.
-// Mirrors Arr::boolean().
 
 // ArrArray returns a []any value for the key.
-// Mirrors Arr::array().
 
 // ArrReject filters a map by rejecting values accepted by predicate.
-// Mirrors Arr::reject().
 
 // ArrWhereKey filters a map by key predicate.
-// Mirrors Arr::whereKey().
 
 // ArrFrom converts supported values into a []any.
-// Mirrors Arr::from().
 
 // ArrKeyBy returns a map keyed by each item's selected value.
-// Mirrors Arr::keyBy().
 
 // ArrPrependKeysWith prefixes every key in the map.
-// Mirrors Arr::prependKeysWith().
 
 // ArrSelect returns a slice of maps containing only the selected keys.
-// Mirrors Arr::select().
 
 // ArrIsAssoc reports whether a map has non-list integer keys or string keys.
-// Mirrors Arr::isAssoc().
 
 // ArrIsList reports whether value is a zero-based list.
-// Mirrors Arr::isList().
 
 // ArrAdd adds a key/value pair to the map if the key does not already exist.
 // Supports dot-notation keys for nested access.
-// Mirrors Arr::add().
 
 // ArrGet retrieves a value from a nested map using dot-notation.
 // Returns the default value if the key is not found.
-// Mirrors Arr::get().
 
 // ArrSet sets a value in a nested map using dot-notation, creating intermediate
 // maps as needed. Mutates m and returns it for chaining.
-// Mirrors Arr::set().
 
 // ArrHas checks whether the given key(s) exist in the map using dot-notation.
 // Returns true only if ALL keys exist.
-// Mirrors Arr::has().
 
 // ArrHasAny checks whether any of the given keys exist in the map.
-// Mirrors Arr::hasAny().
 
 // ArrForget removes one or more keys from the map using dot-notation.
-// Mirrors Arr::forget().
 
 // ArrExists checks whether the given key exists in the map.
 // Supports dot-notation keys for nested access.
-// Mirrors Arr::exists().
 
 // ArrWhereNotNull returns a copy of the map without nil values.
-// Mirrors Arr::whereNotNull().
 
 // ArrExceptValues returns all key/value pairs whose values are not in the excluded list.
-// Mirrors Arr::except() for value-based filtering.
 
 // ArrUndot expands dot-notation keys into nested maps.
-// Mirrors Arr::undot().
 
 // ArrJoin joins the slice into a string, using the final glue for the last separator when provided.
-// Mirrors Arr::join().
 
 // ArrTake returns the first n items, or the last -n items when count is negative.
-// Mirrors Arr::take().
 
 // ArrPush appends values to the end of the slice.
-// Mirrors Arr::push().
 
 // ArrQuery encodes a map into a query string.
-// Mirrors Arr::query().
 
 // ArrPull gets a value from the map and removes it.
 // Returns the default if the key is not found.
-// Mirrors Arr::pull().
 
 // ArrDot flattens a nested map into a single-level map with dot-notation keys.
-// Mirrors Arr::dot().
 
 // ArrExcept returns all key/value pairs except those with the specified keys.
-// Mirrors Arr::except().
 
 // ArrOnly returns a map containing only the specified keys.
-// Mirrors Arr::only().
 
 // ArrOnlyValues returns values for the selected keys, preserving key order.
-// Mirrors Arr::only() value-focused assertions.
 
 // ArrDivide splits a map into two slices: one of keys and one of values.
 // Keys are returned in sorted order for deterministic output.
-// Mirrors Arr::divide().
 
 // ArrPluck extracts a list of values for a given key from a slice of maps.
 // If indexKey is provided, the result is a map[string]any keyed by that field.
 // Otherwise, the result is []any.
-// Mirrors Arr::pluck().
 
 // ArrSortDesc returns a reverse-sorted copy of items.
-// Mirrors Arr::sortDesc().
 
 // SortDirection controls an ArrSortByMany sort clause.
 type SortDirection string
@@ -676,7 +638,6 @@ const (
 )
 
 // ArrSortByMany sorts maps by multiple dot-notation keys.
-// Mirrors Arr::sort by multiple comparison callbacks.
 func ArrSortByMany(items []map[string]any, clauses ...SortClause) []map[string]any {
 	result := append([]map[string]any(nil), items...)
 
@@ -713,7 +674,6 @@ func containsValue(values []any, target any) bool {
 }
 
 // ArrSortRecursive recursively sorts a map by keys and any nested slices/maps.
-// Mirrors Arr::sortRecursive().
 func ArrSortRecursive(m map[string]any, descending ...bool) map[string]any {
 	desc := len(descending) > 0 && descending[0]
 

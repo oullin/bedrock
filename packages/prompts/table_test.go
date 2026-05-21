@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of \Prompts\Tests\Feature\TableTest
-
-// Port of \Prompts\Tests\Feature\TableTest::test_displays_table
 func TestTableDisplays(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -24,7 +21,6 @@ func TestTableDisplays(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\TableTest::test_empty_table
 func TestTableEmpty(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -37,7 +33,6 @@ func TestTableEmpty(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\TableTest::test_without_headers
 func TestTableWithoutHeaders(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

@@ -26,8 +26,6 @@ import "context"
 
 // GrantDriver handles a specific OAuth2 grant flow.
 // The AuthorizationServer delegates token issuance to registered GrantDrivers.
-//
-// This mirrors the League\OAuth2\Server\Grant\AbstractGrant contract.
 type GrantDriver interface {
 	// GrantType returns the identifier for this grant (one of the Grant* constants).
 	GrantType() string

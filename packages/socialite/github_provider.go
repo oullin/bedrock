@@ -7,7 +7,6 @@ import (
 )
 
 // GithubProvider handles OAuth2 authentication via GitHub.
-// It mirrors upstream Socialite\Two\GithubProvider.
 type GithubProvider struct {
 	AbstractProvider
 }

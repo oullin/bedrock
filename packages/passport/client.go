@@ -18,7 +18,6 @@ type Client struct {
 
 // FirstParty reports whether this is a first-party client.
 // A client is first-party if it is a personal access client or a password client.
-// This mirrors Client::firstParty() in Passport.
 func (c *Client) FirstParty() bool {
 	return c.PersonalAccessClient || c.PasswordClient
 }

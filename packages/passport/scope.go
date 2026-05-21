@@ -93,8 +93,6 @@ func (r *ScopeRepository) scopeForGrant(id, grantType string) *Scope {
 // For example, "admin:webhooks:read" resolves to:
 //
 //	["admin", "admin:webhooks", "admin:webhooks:read"]
-//
-// This mirrors the ResolvesInheritedScopes trait in Passport.
 func resolveInheritedScopes(scope string) []string {
 	parts := strings.Split(scope, ":")
 	scopes := make([]string, 0, len(parts))

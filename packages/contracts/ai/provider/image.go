@@ -17,7 +17,6 @@ type ImageGenerateRequest struct {
 }
 
 // ImageProvider is the provider-level contract for image generation.
-// Mirrors upstream Ai\Contracts\Providers\ImageProvider.
 type ImageProvider interface {
 	Image(ctx context.Context, req ImageGenerateRequest) (*gateway.ImageGenerateResult, error)
 	ImageGateway() gateway.ImageGateway

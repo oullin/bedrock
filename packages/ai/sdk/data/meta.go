@@ -1,7 +1,6 @@
 package data
 
 // Meta holds provider and model metadata attached to a response.
-// Mirrors upstream Ai\Responses\Data\Meta.
 type Meta struct {
 	Provider  *string `json:"provider"`
 	Model     *string `json:"model"`

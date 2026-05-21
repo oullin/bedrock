@@ -1,8 +1,8 @@
 # MCP (Model Context Protocol)
 
-<!-- upstream-docs: mcp.md#introduction -->
-<!-- upstream-docs: mcp.md#installation -->
-<!-- upstream-docs: mcp.md#creating-servers -->
+<!-- ref: @bedrock/code-0103 -->
+<!-- ref: @bedrock/code-0102 -->
+<!-- ref: @bedrock/code-0101 -->
 
 Bedrock provides a complete Go implementation of the MCP server specification.
 

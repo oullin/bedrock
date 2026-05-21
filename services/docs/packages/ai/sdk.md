@@ -1,6 +1,6 @@
 # sdk
 
-<!-- upstream-docs: ai-sdk.md#laravel-ai-sdk -->
+<!-- ref: @bedrock/code-0009 -->
 
 <!-- BEDROCK:HAND -->
 

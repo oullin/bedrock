@@ -1,8 +1,8 @@
 # support
 
-<!-- upstream-docs: helpers.md#introduction -->
-<!-- upstream-docs: collections.md#introduction -->
-<!-- upstream-docs: contracts.md#introduction -->
+<!-- ref: @bedrock/code-0084 -->
+<!-- ref: @bedrock/code-0034 -->
+<!-- ref: @bedrock/code-0045 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

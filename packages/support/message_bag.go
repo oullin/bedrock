@@ -9,7 +9,7 @@ import (
 
 // MessageBag collects and retrieves error messages organized by key.
 // It supports wildcard key matching and custom message formatting.
-// Mirrors @bedrock\Support\MessageBag.
+// Ref: @bedrock/code-0352
 type MessageBag struct {
 	messages map[string][]string
 	format   string
@@ -17,7 +17,6 @@ type MessageBag struct {
 
 // NewMessageBag creates a new MessageBag.
 // An optional initial map of messages can be provided.
-// Mirrors new MessageBag($messages).
 func NewMessageBag(messages ...map[string][]string) *MessageBag {
 	b := &MessageBag{
 		messages: make(map[string][]string),
@@ -47,7 +46,7 @@ func (b *MessageBag) addUnique(key, message string) {
 
 // Add adds a message for the given key.
 // Duplicate messages for the same key are ignored.
-// Mirrors MessageBag::add().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Add(key, message string) *MessageBag {
 	b.addUnique(key, message)
 
@@ -55,7 +54,7 @@ func (b *MessageBag) Add(key, message string) *MessageBag {
 }
 
 // AddIf conditionally adds a message for the given key.
-// Mirrors MessageBag::addIf().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) AddIf(condition bool, key, message string) *MessageBag {
 	if condition {
 		return b.Add(key, message)
@@ -65,7 +64,7 @@ func (b *MessageBag) AddIf(condition bool, key, message string) *MessageBag {
 }
 
 // Merge merges another MessageBag or map[string][]string into this bag.
-// Mirrors MessageBag::merge().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Merge(source any) *MessageBag {
 	var msgs map[string][]string
 
@@ -95,7 +94,7 @@ func (b *MessageBag) Merge(source any) *MessageBag {
 
 // Has determines if any messages exist for the given key(s).
 // Supports wildcard patterns (e.g. "email.*").
-// Mirrors MessageBag::has().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Has(keys ...string) bool {
 	if len(keys) == 0 {
 		return b.IsNotEmpty()
@@ -126,7 +125,7 @@ func (b *MessageBag) hasForKey(key string) bool {
 }
 
 // HasAny determines if messages exist for any of the given keys.
-// Mirrors MessageBag::hasAny().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) HasAny(keys ...string) bool {
 	if len(keys) == 0 {
 		return b.IsNotEmpty()
@@ -142,7 +141,7 @@ func (b *MessageBag) HasAny(keys ...string) bool {
 }
 
 // Missing determines if no messages exist for the given key.
-// Mirrors MessageBag::missing().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Missing(key string) bool {
 	return !b.hasForKey(key)
 }
@@ -150,7 +149,7 @@ func (b *MessageBag) Missing(key string) bool {
 // First returns the first message for the given key.
 // If no key is given, returns the first message overall.
 // Returns an empty string if no messages are found.
-// Mirrors MessageBag::first().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) First(key ...string) string {
 	if len(key) == 0 || key[0] == "" {
 		for _, msgs := range b.messages {
@@ -174,7 +173,7 @@ func (b *MessageBag) First(key ...string) string {
 
 // Get returns all messages for the given key.
 // Supports wildcard patterns.
-// Mirrors MessageBag::get().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Get(key string) []string {
 	var result []string
 
@@ -202,7 +201,7 @@ func (b *MessageBag) Get(key string) []string {
 }
 
 // All returns all messages as a flat slice.
-// Mirrors MessageBag::all().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) All() []string {
 	var result []string
 
@@ -216,7 +215,7 @@ func (b *MessageBag) All() []string {
 }
 
 // Unique returns a new MessageBag with duplicate messages removed.
-// Mirrors MessageBag::unique().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Unique() *MessageBag {
 	// Already unique (addUnique enforces this), but return a copy.
 	newBag := NewMessageBag()
@@ -237,7 +236,7 @@ func (b *MessageBag) Unique() *MessageBag {
 }
 
 // Forget removes messages for the given key(s).
-// Mirrors MessageBag::forget().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Forget(keys ...string) *MessageBag {
 	for _, key := range keys {
 		delete(b.messages, key)
@@ -247,13 +246,13 @@ func (b *MessageBag) Forget(keys ...string) *MessageBag {
 }
 
 // Keys returns all keys that have messages.
-// Mirrors MessageBag::keys().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Keys() []string {
 	return b.sortedKeys()
 }
 
 // Count returns the total number of messages across all keys.
-// Mirrors MessageBag::count() (Countable interface).
+// Ref: @bedrock/code-0352
 func (b *MessageBag) Count() int {
 	total := 0
 
@@ -265,20 +264,20 @@ func (b *MessageBag) Count() int {
 }
 
 // IsEmpty reports whether the bag has no messages.
-// Mirrors MessageBag::isEmpty().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) IsEmpty() bool {
 	return len(b.messages) == 0
 }
 
 // IsNotEmpty reports whether the bag has at least one message.
-// Mirrors MessageBag::isNotEmpty().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) IsNotEmpty() bool {
 	return !b.IsEmpty()
 }
 
 // SetFormat sets the message format string.
 // Use :message as a placeholder for the actual message text.
-// Mirrors MessageBag::setFormat().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) SetFormat(format string) *MessageBag {
 	b.format = format
 
@@ -286,13 +285,13 @@ func (b *MessageBag) SetFormat(format string) *MessageBag {
 }
 
 // GetFormat returns the current message format string.
-// Mirrors MessageBag::getFormat().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) GetFormat() string {
 	return b.format
 }
 
 // GetMessages returns the raw messages map.
-// Mirrors MessageBag::getMessages().
+// Ref: @bedrock/code-0352
 func (b *MessageBag) GetMessages() map[string][]string {
 	result := make(map[string][]string, len(b.messages))
 

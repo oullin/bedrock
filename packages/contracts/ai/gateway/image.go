@@ -26,7 +26,6 @@ type ImageGenerateResult struct {
 }
 
 // ImageGateway drives image generation for a single provider.
-// Mirrors upstream Ai\Contracts\Gateway\ImageGateway.
 type ImageGateway interface {
 	GenerateImage(ctx context.Context, req ImageGenerateRequest) (*ImageGenerateResult, error)
 }

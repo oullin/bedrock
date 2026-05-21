@@ -1,7 +1,7 @@
 # pipeline
 
-<!-- upstream-docs: helpers.md#other-utilities -->
-<!-- upstream-docs: middleware.md#middleware -->
+<!-- ref: @bedrock/code-0085 -->
+<!-- ref: @bedrock/code-0106 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

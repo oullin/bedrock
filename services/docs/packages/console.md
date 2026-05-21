@@ -1,8 +1,8 @@
 # console
 
-<!-- upstream-docs: artisan.md#introduction -->
-<!-- upstream-docs: artisan.md#defining-input-expectations -->
-<!-- upstream-docs: scheduling.md#task-scheduling -->
+<!-- ref: @bedrock/code-0014 -->
+<!-- ref: @bedrock/code-0013 -->
+<!-- ref: @bedrock/code-0164 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

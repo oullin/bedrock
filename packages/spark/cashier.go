@@ -6,7 +6,7 @@ import (
 )
 
 // FormatAmount formats a minor-unit amount as a human-readable currency
-// string. Mirrors upstream Paddle\Cashier::formatAmount.
+// string. Mirrors the underlying behavior.
 func FormatAmount(amount int64, currency string) string {
 	major := amount / 100
 	minor := amount % 100

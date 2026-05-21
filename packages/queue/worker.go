@@ -35,13 +35,12 @@ type WorkerOptions struct {
 
 // ExceptionReporter is the optional contract the Worker uses to report
 // exceptions that escape a job handler. It is the Go analogue of
-// the upstream @bedrock\Contracts\Debug\ExceptionHandler::report path.
+// Ref: @bedrock/code-0193
 type ExceptionReporter interface {
 	ReportException(err error)
 }
 
 // WorkerPopCallback overrides how a worker pops from one queue name.
-// It is the typed Go equivalent of the upstream Worker::popUsing callback map.
 type WorkerPopCallback func(ctx context.Context, q Queue, queueName string) (Job, error)
 
 // WorkerStopReason is the machine-readable status code returned from
@@ -93,12 +92,12 @@ type Worker struct {
 	ExceptionReporter ExceptionReporter
 	// ReportJobExceptions gates the reporter. Default is true; set
 	// false to suppress reporter calls without suppressing the
-	// JobExceptionOccurred event emission. Mirrors the upstream static
+	// JobExceptionOccurred event emission. Mirrors the the underlying behavior
 	// Worker::$reportJobExceptions flag.
 	ReportJobExceptions bool
 	// MaintenanceMode, if non-nil, is called by the Run loop before
 	// each iteration. When it returns true, the worker sleeps for
-	// opts.Sleep and skips the pop. Mirrors the upstream daemon() call
+	// opts.Sleep and skips the pop. Mirrors the the underlying behavior() call
 	// into $this->manager->isDownForMaintenance().
 	MaintenanceMode func() bool
 	// lastStopReason captures the reason the most recent Run call
@@ -123,15 +122,14 @@ type Worker struct {
 // SleptFor returns the duration of the most recent sleep the worker
 // performed. Tests use this to assert sleep behaviour without taking
 // a timing dependency; production callers will usually ignore it.
-// Mirrors the upstream Worker::$sleptFor property.
 
 // LastStopReason returns the reason the most recent Run call exited,
 // or WorkerStopReasonNone if Run has not yet been called or exited
-// via a context cancellation. Mirrors the upstream daemon() return value.
+// via a context cancellation. Mirrors the the underlying behavior() return value.
 
 // parseQueueNames splits a comma-separated queue string into its
 // individual names. Empty segments are dropped. A single-queue string
-// returns a single-element slice. Mirrors the upstream getQueue() split.
+// returns a single-element slice. Mirrors the the underlying behavior() split.
 
 // splitComma is a tiny helper that avoids pulling strings.Split into
 // this file solely for a one-shot split. Keeps the worker self-contained.
@@ -170,8 +168,6 @@ type Worker struct {
 // non-ErrNoJob pop error, the error is dispatched through
 // ExceptionReporter (if configured) and the worker sleeps; it never
 // propagates back to the caller.
-//
-// Mirrors the upstream Worker::runNextJob.
 
 // Run starts the daemon loop, processing jobs until a stop condition is met.
 // It handles SIGTERM and SIGQUIT for graceful shutdown.
@@ -188,7 +184,7 @@ type Worker struct {
 // processJob runs the full lifecycle of a popped job:
 //
 //   - If the job was already deleted before the worker saw it, emit
-//     JobProcessed and return (skip Fire). Mirrors the upstream //     "don't fire a deleted job" branch.
+// JobProcessed and return (skip Fire). Mirrors the upstream // "don't fire a deleted job" branch.
 //   - Pre-fire exhaustion check: if attempts already exceeds the
 //     effective max-tries OR retry-until has expired, fail with a
 //     MaxAttemptsExceededError without calling the handler.
@@ -211,15 +207,11 @@ type Worker struct {
 // pre-fire state indicates it has no retry budget left (strict >
 // because attempts have not yet been incremented for the current
 // run), and nil otherwise.
-//
-// Mirrors the upstream Worker::markJobAsFailedIfAlreadyExceedsMaxAttempts.
 
 // shouldFail reports whether the job has exhausted its retry options
 // and should therefore go through the fail path rather than release.
 // Uses inclusive >= for the post-fire decision (attempts has just
 // been incremented by the handler's run).
-//
-// Mirrors the upstream Worker::markJobAsFailedIfWillExceedMaxAttempts.
 
 // effectiveMaxTries returns the max-tries budget to use for job:
 // the job's own MaxTries wins over the WorkerOptions fallback.

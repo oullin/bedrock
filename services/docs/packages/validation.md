@@ -1,9 +1,9 @@
 # validation
 
-<!-- upstream-docs: validation.md#validation -->
-<!-- upstream-docs: validation.md#introduction -->
-<!-- upstream-docs: validation.md#manually-creating-validators -->
-<!-- upstream-docs: validation.md#available-validation-rules -->
+<!-- ref: @bedrock/code-0183 -->
+<!-- ref: @bedrock/code-0181 -->
+<!-- ref: @bedrock/code-0182 -->
+<!-- ref: @bedrock/code-0180 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

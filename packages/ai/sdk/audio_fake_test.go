@@ -13,7 +13,6 @@ import (
 	contractsprovider "github.com/bedrock/packages/contracts/ai/provider"
 )
 
-// TestAudioCanBeFaked mirrors test_audio_can_be_faked.
 func TestAudioCanBeFaked(t *testing.T) {
 	t.Parallel()
 
@@ -44,7 +43,6 @@ func TestAudioCanBeFaked(t *testing.T) {
 	})
 }
 
-// TestAudioAssertNothingGenerated mirrors the "nothing generated" assertion.
 func TestAudioAssertNothingGenerated(t *testing.T) {
 	t.Parallel()
 

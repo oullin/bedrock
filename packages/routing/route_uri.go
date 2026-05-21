@@ -10,7 +10,7 @@ import (
 // BindingFields maps a parameter name to its custom binding field (the part
 // after the colon).
 //
-// Mirrors @bedrock\Routing\RouteUri.
+// Ref: @bedrock/code-0341
 type RouteUri struct {
 	Uri           string
 	BindingFields map[string]string
@@ -29,14 +29,14 @@ func NewRouteUri(uri string, bindingFields map[string]string) *RouteUri {
 // routeUriPlaceholderRe matches a single "{name}" or "{name:field}" segment,
 // optionally followed by "?" to mark the parameter as optional.
 //
-// Mirrors the PHP `/\{([\w\:]+?)\??\}/` pattern from RouteUri::parse.
+// Ref: @bedrock/code-0341
 var routeUriPlaceholderRe = regexp.MustCompile(`\{([\w:]+?)\??\}`)
 
 // ParseRouteUri parses a upstream-style URI pattern, extracting any
 // custom binding fields ("{user:slug}") into BindingFields and rewriting the
 // URI so downstream consumers see the canonical "{user}" form.
 //
-// Mirrors @bedrock\Routing\RouteUri::parse.
+// Ref: @bedrock/code-0341
 func ParseRouteUri(uri string) *RouteUri {
 	bindingFields := map[string]string{}
 

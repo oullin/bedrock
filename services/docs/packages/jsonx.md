@@ -1,6 +1,6 @@
 # JSON Schema
 
-<!-- upstream-docs: validation.md#working-with-validated-input -->
+<!-- ref: @bedrock/code-0184 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

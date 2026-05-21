@@ -7,7 +7,6 @@ import (
 )
 
 // SubscriptionUpdater handles plan changes on existing subscriptions.
-// Mirrors Spark\Actions\UpdateSubscription.
 type SubscriptionUpdater struct {
 	subscriptions spark.SubscriptionStore
 	manager       *spark.Manager

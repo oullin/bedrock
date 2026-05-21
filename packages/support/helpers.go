@@ -11,7 +11,6 @@ import (
 // Blank determines whether the given value is "blank".
 // A value is blank if it is nil, an empty string, an empty slice,
 // an empty map, or whitespace-only string.
-// Mirrors the upstream blank() helper.
 func Blank(value any) bool {
 	if value == nil {
 		return true
@@ -34,13 +33,11 @@ func Blank(value any) bool {
 }
 
 // Filled determines whether the given value is not "blank".
-// Mirrors the upstream filled() helper.
 func Filled(value any) bool {
 	return !Blank(value)
 }
 
 // Tap calls the given closure with the value, then returns the value.
-// Mirrors the upstream tap() helper.
 func Tap[T any](value T, callbacks ...func(T)) T {
 	for _, cb := range callbacks {
 		cb(value)
@@ -51,7 +48,6 @@ func Tap[T any](value T, callbacks ...func(T)) T {
 
 // Value returns the value of the given value. If the value is a
 // function it will be called and its return value used.
-// Mirrors the upstream value() helper.
 func Value[T any](value any, args ...any) T {
 	switch fn := value.(type) {
 	case func() T:
@@ -79,7 +75,6 @@ func Value[T any](value any, args ...any) T {
 }
 
 // With returns the value, or calls the callback with the value if provided.
-// Mirrors the upstream with() helper.
 func With[T any](value T, fn ...func(T) T) T {
 	if len(fn) > 0 && fn[0] != nil {
 		return fn[0](value)
@@ -90,7 +85,6 @@ func With[T any](value T, fn ...func(T) T) T {
 
 // Transform transforms the given value if it is not blank.
 // If the value is blank and a default is provided, the default is returned.
-// Mirrors the upstream transform() helper.
 func Transform[T, U any](value T, fn func(T) U, def ...U) (U, bool) {
 	if Blank(value) {
 		if len(def) > 0 {
@@ -106,7 +100,6 @@ func Transform[T, U any](value T, fn func(T) U, def ...U) (U, bool) {
 }
 
 // E HTML-encodes the given string, converting special characters to HTML entities.
-// Mirrors the upstream e() helper.
 func E(value any) string {
 	if value == nil {
 		return ""
@@ -130,7 +123,6 @@ func E(value any) string {
 // If the variable is not set or is empty, the optional default value is returned.
 // The strings "true", "false", "null", and "empty" are converted to their
 // Go equivalents: "true"→"true", "false"→"false", "null"→"", "empty"→"".
-// Mirrors the upstream env() helper.
 func Env(key string, def ...string) string {
 	val, ok := os.LookupEnv(key)
 

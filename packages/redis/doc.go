@@ -1,5 +1,4 @@
-// Package redis is a Go port of @bedrock/Redis package.
-//
+// Ref: @bedrock/code-0275
 // It provides a Manager that multiplexes named Connection objects, a
 // Connection type exposing the full Redis command surface (typed helpers
 // plus a generic Command() escape hatch), Pipeline and Transaction
@@ -8,8 +7,7 @@
 // DurationLimiter.
 //
 // The package targets 100% functional parity with upstream 13.x
-// @bedrock\Redis and 1:1 test-case parity with its upstream suite.
-//
+// Ref: @bedrock/code-0275
 // The backend is github.com/redis/go-redis/v9. Connection depends on a
 // small Client interface so tests can inject in-memory fakes without a
 // real Redis server. An optional integration suite (build tag

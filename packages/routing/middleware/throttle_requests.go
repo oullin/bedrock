@@ -10,7 +10,7 @@ import (
 
 // RateLimiter is the surface ThrottleRequests needs from a rate limiter.
 //
-// Mirrors @bedrock\Cache\RateLimiter narrowly. The bedrock cache package
+// Ref: @bedrock/code-0191
 // supplies a real implementation; an in-memory default is provided below.
 type RateLimiter interface {
 	// TooManyAttempts reports whether key has already exceeded maxAttempts.
@@ -26,9 +26,7 @@ type RateLimiter interface {
 	Clear(key string)
 }
 
-// ThrottleRequests is the in-memory throttle middleware mirroring
-// @bedrock\Routing\Middleware\ThrottleRequests.
-//
+// Ref: @bedrock/code-0322
 // Configure it via [NewThrottleRequests], then call Handle with the request,
 // max attempts (per decay window), decay window in minutes, and an optional
 // per-route prefix used to namespace the bucket.

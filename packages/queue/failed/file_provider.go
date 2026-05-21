@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// FileFailedJobProvider is the Go port of
-// @bedrock\Queue\Failed\FileFailedJobProvider. It stores every failed
+// Ref: @bedrock/code-0259
 // job as a record inside a single JSON file on disk (newest first),
 // capped at `limit` entries.
 //
@@ -184,7 +183,6 @@ func (p *FileFailedJobProvider) Forget(id string) (bool, error) {
 }
 
 // Flush implements FailedJobProvider. It delegates to Prune using a
-// cutoff of `now - hours`, mirroring the upstream implementation.
 func (p *FileFailedJobProvider) Flush(hours int) error {
 	cutoff := p.now().Add(-time.Duration(hours) * time.Hour)
 	_, err := p.Prune(cutoff)
@@ -193,7 +191,7 @@ func (p *FileFailedJobProvider) Flush(hours int) error {
 }
 
 // Prune implements Prunable. It removes every entry whose
-// failed_at_timestamp is <= before.Unix(), mirroring the upstream // `reject(fn ($j) => $j->failed_at_timestamp <= $before->getTimestamp())`.
+// failed_at_timestamp is <= before.Unix().
 func (p *FileFailedJobProvider) Prune(before time.Time) (int64, error) {
 	p.mu.Lock()
 

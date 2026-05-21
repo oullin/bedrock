@@ -7,7 +7,7 @@ import (
 )
 
 // NotificationWatcher monitors notification dispatch and records entries as
-// Telescope entries. It mirrors the upstream NotificationWatcher class.
+// Telescope entries. It mirrors the the underlying behavior class.
 type NotificationWatcher struct {
 	telescope.BaseWatcher
 }

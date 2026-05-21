@@ -9,7 +9,7 @@ import (
 )
 
 // Model is the base Eloquent model. User models embed this struct to gain
-// ORM capabilities. It mirrors @bedrock\Database\Eloquent\Model.
+// Ref: @bedrock/code-0209
 type Model struct {
 	HasAttributes
 	HasTimestamps

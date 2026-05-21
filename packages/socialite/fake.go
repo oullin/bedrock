@@ -9,8 +9,6 @@ import (
 // making it easy to test OAuth flows without real HTTP round-trips.
 // Its fluent methods forward to the real provider for configuration
 // side-effects but always return the FakeProvider so callers can chain.
-//
-// It mirrors upstream Socialite\Testing\FakeProvider.
 type FakeProvider struct {
 	driver string
 	real   Provider
@@ -38,7 +36,6 @@ func (f *FakeProvider) User(_ context.Context) (*User, error) {
 }
 
 // Stateless forwards the call to the real provider and returns the FakeProvider
-// for chaining, mirroring the decorator pattern in SocialiteFakeTest.
 func (f *FakeProvider) Stateless() *FakeProvider {
 	if ap, ok := f.real.(interface{ Stateless() *AbstractProvider }); ok {
 		ap.Stateless()

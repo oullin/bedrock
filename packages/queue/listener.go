@@ -47,7 +47,7 @@ type SimpleProcess struct {
 // Timeout returns the configured run-time ceiling.
 
 // ListenerOptions configures the Listener's outer loop and the
-// worker subprocesses it spawns. Mirrors the upstream // @bedrock\Queue\ListenerOptions, with a few field-name tweaks for
+// Ref: @bedrock/code-0265
 // Go idiom (MaxTries instead of maxTries, Rest instead of $rest).
 type ListenerOptions struct {
 	// Name is the worker process name passed via --name. Defaults to
@@ -80,8 +80,7 @@ type ListenerOptions struct {
 // matches the upstream `new ListenerOptions($name, $environment)` form.
 
 // Listener spawns and supervises worker subprocesses. It is the Go
-// port of @bedrock\Queue\Listener.
-//
+// Ref: @bedrock/code-0264
 // The Listener is deliberately transport-agnostic: it builds a command
 // slice from the caller-supplied connection/queue/options tuple and
 // hands it to a ProcessRunner. The default ProcessRunner (SimpleProcess)
@@ -110,7 +109,7 @@ type Listener struct {
 	// test binary.
 	StopFunc func()
 	// OutputHandler is called for every stdout/stderr line produced
-	// by a running worker subprocess. Mirrors the upstream setOutputHandler.
+	// by a running worker subprocess. Mirrors the the underlying behavior.
 	OutputHandler func(stream, line string)
 }
 
@@ -187,7 +186,7 @@ func NewListener(commandPath string) *Listener {
 func (l *Listener) CommandPath() string { return l.commandPath }
 
 // MakeProcess builds the command for a worker subprocess and wraps it
-// in a ProcessRunner. Mirrors the upstream Listener::makeProcess.
+// Ref: @bedrock/code-0264
 func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) ProcessRunner {
 	cmd := l.createCommand(connection, queue, opts)
 
@@ -199,7 +198,7 @@ func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) P
 }
 
 // createCommand builds the argv slice that MakeProcess hands to the
-// ProcessFactory. Mirrors the upstream Listener::createCommand, including
+// Ref: @bedrock/code-0264
 // the "drop null entries" step (Go: drop empty strings).
 func (l *Listener) createCommand(connection, queue string, opts ListenerOptions) []string {
 	name := opts.Name
@@ -240,7 +239,7 @@ func (l *Listener) createCommand(connection, queue string, opts ListenerOptions)
 // RunProcess runs a worker subprocess and, on return, checks the
 // memory cap. If memory is exceeded, Stop is invoked — matching
 // the upstream "kill the listener so the process manager restarts it"
-// semantics. Mirrors Listener::runProcess.
+// Ref: @bedrock/code-0264
 func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 	if err := process.Run(); err != nil {
 		return err

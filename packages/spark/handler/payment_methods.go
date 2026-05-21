@@ -7,7 +7,6 @@ import (
 )
 
 // PaymentMethodsHandler handles payment method operations.
-// Mirrors Spark\Http\Controllers\PaymentMethodsController.
 type PaymentMethodsHandler struct {
 	resolver      spark.ResolverFunc
 	subscriptions spark.SubscriptionStore

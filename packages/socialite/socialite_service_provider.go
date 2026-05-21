@@ -7,7 +7,7 @@ import (
 )
 
 // SocialiteServiceProvider registers the Socialite manager into the service
-// container. It mirrors upstream Socialite\SocialiteServiceProvider.
+// container. It mirrors the underlying behavior.
 type SocialiteServiceProvider struct {
 	app     *container.Container
 	configs map[string]ProviderConfig

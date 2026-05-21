@@ -27,8 +27,6 @@ func UserFromContext(ctx context.Context) interface{} {
 //   - Returns 401 JSON when no valid token is present.
 //   - Returns 403 JSON when one or more scopes are missing.
 //   - Stores the authenticated user in context via WithUser.
-//
-// Mirrors Passport CheckToken middleware.
 func CheckToken(guard *TokenGuard, scopes ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,8 +70,6 @@ func CheckToken(guard *TokenGuard, scopes ...string) func(http.Handler) http.Han
 
 // CheckTokenForAnyScope builds middleware that requires at least ONE of the
 // listed scopes to be present on the authenticated token.
-//
-// Mirrors Passport CheckTokenForAnyScope middleware.
 func CheckTokenForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -116,8 +112,6 @@ func CheckTokenForAnyScope(guard *TokenGuard, scopes ...string) func(http.Handle
 
 // CheckClientCredentials builds middleware that validates client credentials
 // tokens and optionally checks that the required scopes are present.
-//
-// Mirrors Passport EnsureClientIsResourceOwner middleware.
 func CheckClientCredentials(guard *TokenGuard, scopes ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +189,6 @@ func clientCredentialHasScope(ctx context.Context, guard *TokenGuard, client *Cl
 // CreateFreshApiToken builds middleware that issues a fresh encrypted cookie
 // token for SPA (single-page application) requests.
 //
-// Mirrors Passport CreateFreshApiToken middleware.
 // This implementation is a no-op stub; SPA cookie signing requires an
 // encryption layer that callers inject via the Passport config.
 func CreateFreshApiToken(_ *TokenGuard, _ *Passport) func(http.Handler) http.Handler {

@@ -1,6 +1,6 @@
 # boost
 
-<!-- upstream-docs: boost.md#laravel-boost -->
+<!-- ref: @bedrock/code-0021 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

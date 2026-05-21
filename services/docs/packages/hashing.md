@@ -1,7 +1,7 @@
 # hashing
 
-<!-- upstream-docs: hashing.md#introduction -->
-<!-- upstream-docs: hashing.md#basic-usage -->
+<!-- ref: @bedrock/code-0082 -->
+<!-- ref: @bedrock/code-0081 -->
 
 <!-- BEDROCK:HAND -->
 

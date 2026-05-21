@@ -15,7 +15,7 @@ import (
 )
 
 // ClientRequestWatcher monitors outbound HTTP client requests and records them
-// as Telescope entries. It mirrors the upstream ClientRequestWatcher class.
+// as Telescope entries. It mirrors the the underlying behavior class.
 //
 // Options:
 //   - "size_limit" (int): max response body bytes to store (default 64 KB).

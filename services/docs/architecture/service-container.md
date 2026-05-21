@@ -1,9 +1,9 @@
 # Service Container
 
-<!-- upstream-docs: container.md#introduction -->
-<!-- upstream-docs: container.md#binding -->
-<!-- upstream-docs: container.md#resolving -->
-<!-- upstream-docs: container.md#method-invocation-and-injection -->
+<!-- ref: @bedrock/code-0042 -->
+<!-- ref: @bedrock/code-0041 -->
+<!-- ref: @bedrock/code-0044 -->
+<!-- ref: @bedrock/code-0043 -->
 
 The `container.Container` is Bedrock's IoC container. It holds the bindings
 that make services available across the application: cache managers, queues,

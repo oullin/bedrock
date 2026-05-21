@@ -12,7 +12,7 @@ import (
 
 // SubAgent adapts any Promptable into a contractsai.Tool so it can be returned
 // from a parent agent's Tools() and invoked by the LLM as a delegated task.
-// Mirrors the upstream sub-agent feature (laravel/ai 0.x).
+// Mirrors the the underlying behavior-agent feature ( 0.x).
 //
 // Each SubAgent.Handle call invokes the wrapped agent in isolation: the parent
 // agent's conversation history is not passed in. Callers must include all

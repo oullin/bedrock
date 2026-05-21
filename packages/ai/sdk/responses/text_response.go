@@ -8,7 +8,6 @@ import (
 )
 
 // TextResponse is the base response for any text generation call.
-// Mirrors upstream Ai\Responses\TextResponse.
 type TextResponse struct {
 	Text        string
 	Usage       data.Usage

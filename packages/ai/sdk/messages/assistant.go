@@ -6,7 +6,6 @@ import (
 )
 
 // AssistantMessage is a message from the AI assistant.
-// Mirrors upstream Ai\Messages\AssistantMessage.
 type AssistantMessage struct {
 	Message
 	ToolCalls []data.ToolCall

@@ -1,8 +1,8 @@
 # config
 
-<!-- upstream-docs: configuration.md#introduction -->
-<!-- upstream-docs: configuration.md#environment-configuration -->
-<!-- upstream-docs: configuration.md#accessing-configuration-values -->
+<!-- ref: @bedrock/code-0040 -->
+<!-- ref: @bedrock/code-0039 -->
+<!-- ref: @bedrock/code-0038 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

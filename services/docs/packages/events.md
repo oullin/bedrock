@@ -1,9 +1,9 @@
 # events
 
-<!-- upstream-docs: events.md#introduction -->
-<!-- upstream-docs: events.md#defining-events -->
-<!-- upstream-docs: events.md#defining-listeners -->
-<!-- upstream-docs: events.md#queued-event-listeners -->
+<!-- ref: @bedrock/code-0064 -->
+<!-- ref: @bedrock/code-0062 -->
+<!-- ref: @bedrock/code-0063 -->
+<!-- ref: @bedrock/code-0065 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

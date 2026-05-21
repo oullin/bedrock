@@ -16,7 +16,6 @@ import (
 // MethodNotAllowedError reports that a route exists at the requested URI but
 // not for the requested HTTP method.
 //
-// Mirrors Symfony's MethodNotAllowedHttpException — the Allowed slice contains
 // the verbs that *do* respond to the URI.
 type MethodNotAllowedError struct {
 	Allowed []string
@@ -27,7 +26,7 @@ type MethodNotAllowedError struct {
 // and [CompiledRouteCollection]. It holds no state; it provides the protected
 // helpers that the PHP abstract class supplies via inheritance.
 //
-// Mirrors @bedrock\Routing\AbstractRouteCollection.
+// Ref: @bedrock/code-0285
 type AbstractRouteCollection struct{}
 
 // HandleMatchedRoute binds a found route to the request, or — if none was

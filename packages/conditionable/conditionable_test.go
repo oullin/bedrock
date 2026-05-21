@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/conditionable"
 )
 
-// logger mirrors the upstream ConditionableLogger test helper.
 type logger struct {
 	Values []any
 	Toggle bool

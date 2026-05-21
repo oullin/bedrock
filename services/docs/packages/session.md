@@ -1,6 +1,6 @@
 # session
 
-<!-- upstream-docs: session.md#introduction -->
+<!-- ref: @bedrock/code-0168 -->
 
 <!-- BEDROCK:HAND -->
 

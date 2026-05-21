@@ -1,6 +1,6 @@
 # socialite
 
-<!-- upstream-docs: socialite.md#introduction -->
+<!-- ref: @bedrock/code-0169 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

@@ -1,8 +1,8 @@
 # jetstream
 
-<!-- upstream-docs: fortify.md#introduction -->
-<!-- upstream-docs: sanctum.md#spa-authentication -->
-<!-- upstream-docs: sanctum.md#api-token-authentication -->
+<!-- ref: @bedrock/code-0076 -->
+<!-- ref: @bedrock/code-0163 -->
+<!-- ref: @bedrock/code-0161 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

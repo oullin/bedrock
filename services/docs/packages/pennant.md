@@ -1,9 +1,9 @@
 # pennant
 
-<!-- upstream-docs: pennant.md#introduction -->
-<!-- upstream-docs: pennant.md#defining-features -->
-<!-- upstream-docs: pennant.md#scope -->
-<!-- upstream-docs: pennant.md#adding-custom-pennant-drivers -->
+<!-- ref: @bedrock/code-0125 -->
+<!-- ref: @bedrock/code-0124 -->
+<!-- ref: @bedrock/code-0126 -->
+<!-- ref: @bedrock/code-0123 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

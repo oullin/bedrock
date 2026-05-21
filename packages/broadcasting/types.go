@@ -28,7 +28,6 @@ type UserResolverFunc func(guard string) contractsauth.Authenticatable
 // ChannelHandler authorizes a channel subscription.
 type ChannelHandler func(user contractsauth.Authenticatable, params ...any) (any, error)
 
-// ChannelJoiner is the Go equivalent of upstream class-based channel joiners.
 type ChannelJoiner interface {
 	Join(user contractsauth.Authenticatable, params ...any) (any, error)
 }

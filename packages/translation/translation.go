@@ -19,7 +19,6 @@ type Loader interface {
 }
 
 // Countable allows custom types to report a collection size for Choice
-// pluralisation, mirroring PHP's Countable interface.
 type Countable interface {
 	Len() int
 }

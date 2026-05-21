@@ -10,7 +10,6 @@ import (
 )
 
 // PortalHandler renders the billing portal frontend state.
-// Mirrors Spark\Http\Controllers\BillingPortalController.
 type PortalHandler struct {
 	manager  *spark.Manager
 	frontend *state.FrontendState

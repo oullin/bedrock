@@ -2,7 +2,7 @@ package support
 
 import "testing"
 
-// Port of @bedrock\Tests\Support\SupportOptionalTest::testGetExistItemOnObject
+// Ref: @bedrock/code-0379
 func TestOptionalGetExistingValue(t *testing.T) {
 	t.Parallel()
 
@@ -14,7 +14,7 @@ func TestOptionalGetExistingValue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportOptionalTest::testGetNotExistItemOnObject
+// Ref: @bedrock/code-0379
 func TestOptionalGetMissingValue(t *testing.T) {
 	t.Parallel()
 
@@ -26,7 +26,7 @@ func TestOptionalGetMissingValue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetExistItemOnObject
+// Ref: @bedrock/code-0379
 func TestOptionalIsPresentTrue(t *testing.T) {
 	t.Parallel()
 
@@ -41,7 +41,7 @@ func TestOptionalIsPresentTrue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetNotExistItemOnObject
+// Ref: @bedrock/code-0379
 func TestOptionalIsPresentFalse(t *testing.T) {
 	t.Parallel()
 
@@ -56,7 +56,7 @@ func TestOptionalIsPresentFalse(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetExistItemOnNull
+// Ref: @bedrock/code-0379
 func TestOptionalNilPointerIsSafe(t *testing.T) {
 	t.Parallel()
 

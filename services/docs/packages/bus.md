@@ -1,7 +1,7 @@
 # bus
 
-<!-- upstream-docs: queues.md#creating-jobs -->
-<!-- upstream-docs: queues.md#job-batching -->
+<!-- ref: @bedrock/code-0142 -->
+<!-- ref: @bedrock/code-0144 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

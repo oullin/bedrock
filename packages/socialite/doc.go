@@ -1,5 +1,4 @@
 // Package socialite provides OAuth1 and OAuth2 social authentication,
-// mirroring upstream Socialite in idiomatic Go.
 //
 // Quick start:
 //

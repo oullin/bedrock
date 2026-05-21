@@ -11,7 +11,6 @@ import (
 )
 
 // DownloadInvoiceHandler handles invoice PDF downloads.
-// Mirrors Spark\Http\Controllers\DownloadInvoiceController.
 type DownloadInvoiceHandler struct {
 	transactions spark.TransactionStore
 	resolver     spark.ResolverFunc

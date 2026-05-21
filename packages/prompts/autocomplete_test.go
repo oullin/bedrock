@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest
-
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_accepts_input
 func TestAutocompleteAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +20,6 @@ func TestAutocompleteAcceptsInput(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_tab_completes
 func TestAutocompleteTabCompletes(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +38,6 @@ func TestAutocompleteTabCompletes(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_can_enter_custom
 func TestAutocompleteCanEnterCustom(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -61,7 +56,6 @@ func TestAutocompleteCanEnterCustom(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_can_be_cancelled
 func TestAutocompleteCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -76,7 +70,6 @@ func TestAutocompleteCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_renders_hint
 func TestAutocompleteRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -96,7 +89,6 @@ func TestAutocompleteRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Tab to complete")
 }
 
-// Port of \Prompts\Tests\Feature\AutoCompletePromptTest::test_ghost_text
 func TestAutocompleteGhostText(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

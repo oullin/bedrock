@@ -14,8 +14,6 @@ import (
 // capabilities. It leverages the query builder's WhereFullText method
 // which compiles to MATCH/AGAINST (MySQL), to_tsvector (PostgreSQL),
 // or LIKE (SQLite) depending on the grammar.
-//
-// This mirrors the upstream Scout DatabaseEngine.
 type DatabaseEngine struct {
 	resolver   dbcontract.ConnectionResolver
 	softDelete bool

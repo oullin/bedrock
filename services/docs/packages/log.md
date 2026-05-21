@@ -1,8 +1,8 @@
 # log
 
-<!-- upstream-docs: logging.md#introduction -->
-<!-- upstream-docs: logging.md#building-log-stacks -->
-<!-- upstream-docs: logging.md#writing-log-messages -->
+<!-- ref: @bedrock/code-0096 -->
+<!-- ref: @bedrock/code-0095 -->
+<!-- ref: @bedrock/code-0097 -->
 
 <!-- BEDROCK:HAND -->
 

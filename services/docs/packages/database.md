@@ -1,10 +1,10 @@
 # database
 
-<!-- upstream-docs: database.md#introduction -->
-<!-- upstream-docs: queries.md#running-database-queries -->
-<!-- upstream-docs: migrations.md#introduction -->
-<!-- upstream-docs: eloquent.md#introduction -->
-<!-- upstream-docs: seeding.md#introduction -->
+<!-- ref: @bedrock/code-0055 -->
+<!-- ref: @bedrock/code-0141 -->
+<!-- ref: @bedrock/code-0110 -->
+<!-- ref: @bedrock/code-0056 -->
+<!-- ref: @bedrock/code-0167 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

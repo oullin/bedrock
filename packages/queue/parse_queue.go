@@ -6,7 +6,6 @@ import "strings"
 // "connection:queue" into its two halves, falling back to
 // defaultConnection and the literal "default" for missing parts.
 //
-// It is the Go port of ParsesQueue::parseQueue trait method
 // used by queue:work / queue:retry / queue:pause and friends.
 //
 //	ParseQueue("",                       "redis")    → ("redis",    "default")

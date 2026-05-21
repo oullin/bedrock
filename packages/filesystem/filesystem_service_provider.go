@@ -3,7 +3,7 @@ package filesystem
 import "github.com/bedrock/packages/container"
 
 // FilesystemServiceProvider registers the filesystem into the container.
-// It mirrors @bedrock\Filesystem\FilesystemServiceProvider.
+// Ref: @bedrock/code-0215
 type FilesystemServiceProvider struct {
 	app *container.Container
 }

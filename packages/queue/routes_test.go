@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// Ports of @bedrock\Tests\Queue\QueueRoutesTest. the upstream test walks
+// Ref: @bedrock/code-0371
 // PHP's class_parents / class_implements / class_uses chain; Go has no
 // runtime class hierarchy, so fake values here implement RouteLineage
 // to report the same logical lookup chain. Behaviour under assertion
@@ -55,7 +55,7 @@ func newPayment() lineageFixture {
 
 // --- ports ------------------------------------------------------------
 
-// Port of @bedrock\Tests\Queue\QueueRoutesTest::testSet
+// Ref: @bedrock/code-0371
 func TestSet(t *testing.T) {
 	t.Parallel()
 
@@ -94,7 +94,7 @@ func TestSet(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueRoutesTest::testGetQueue
+// Ref: @bedrock/code-0371
 func TestGetQueue(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +125,7 @@ func TestGetQueue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueRoutesTest::testGetConnection
+// Ref: @bedrock/code-0371
 func TestGetConnection(t *testing.T) {
 	t.Parallel()
 
@@ -155,7 +155,7 @@ func TestGetConnection(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueRoutesTest::testStringRouteDefaultsToQueueNotConnection
+// Ref: @bedrock/code-0371
 func TestStringRouteDefaultsToQueueNotConnection(t *testing.T) {
 	t.Parallel()
 

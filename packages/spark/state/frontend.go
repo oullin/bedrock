@@ -12,7 +12,6 @@ import (
 )
 
 // FrontendState builds the data shared with the billing portal frontend.
-// Mirrors Spark\FrontendState.
 type FrontendState struct {
 	manager       *spark.Manager
 	config        *spark.Config

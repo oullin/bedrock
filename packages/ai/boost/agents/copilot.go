@@ -3,7 +3,6 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Copilot implements boost.CodingAgent for GitHub Copilot (VS Code).
-// Mirrors upstream Boost\Install\Agents\Copilot.
 type Copilot struct {
 	BaseAgent
 }

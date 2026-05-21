@@ -1,9 +1,9 @@
 # container
 
-<!-- upstream-docs: container.md#introduction -->
-<!-- upstream-docs: container.md#binding -->
-<!-- upstream-docs: container.md#resolving -->
-<!-- upstream-docs: container.md#method-invocation-and-injection -->
+<!-- ref: @bedrock/code-0042 -->
+<!-- ref: @bedrock/code-0041 -->
+<!-- ref: @bedrock/code-0044 -->
+<!-- ref: @bedrock/code-0043 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

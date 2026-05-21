@@ -2,7 +2,6 @@
 package data
 
 // Usage tracks token consumption for an AI request.
-// Mirrors upstream Ai\Responses\Data\Usage.
 type Usage struct {
 	PromptTokens          int `json:"prompt_tokens"`
 	CompletionTokens      int `json:"completion_tokens"`

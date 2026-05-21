@@ -24,7 +24,7 @@ type clusterConnection interface {
 
 // ConcurrencyLimiter throttles a section of code to N concurrent executions.
 //
-// Parity with @bedrock\Redis\Limiters\ConcurrencyLimiter.
+// Ref: @bedrock/code-0280
 type ConcurrencyLimiter struct {
 	conn         ConnectionLike
 	name         string

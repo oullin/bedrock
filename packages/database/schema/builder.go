@@ -27,7 +27,7 @@ type Grammar interface {
 }
 
 // Builder provides methods for creating and modifying database tables.
-// It mirrors @bedrock\Database\Schema\Builder.
+// Ref: @bedrock/code-0212
 type Builder struct {
 	connection dbcontract.Connection
 	grammar    Grammar

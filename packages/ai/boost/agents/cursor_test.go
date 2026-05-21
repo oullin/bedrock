@@ -51,7 +51,6 @@ func TestCursorMcpStrategy(t *testing.T) {
 	}
 }
 
-// TestCursorHttpMcpServerConfig mirrors CursorTest::test_http_mcp_uses_npx_mcp_remote.
 func TestCursorHttpMcpServerConfig(t *testing.T) {
 	t.Parallel()
 

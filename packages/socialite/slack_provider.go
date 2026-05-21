@@ -6,7 +6,6 @@ import (
 )
 
 // SlackProvider handles OAuth2 authentication via Slack.
-// It mirrors upstream Socialite\Two\SlackProvider.
 type SlackProvider struct {
 	AbstractProvider
 	asBotUser bool

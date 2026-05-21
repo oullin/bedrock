@@ -1,21 +1,21 @@
 package events
 
 // JobPopping is dispatched before the worker asks the driver for the next
-// available job. Mirrors @bedrock\Queue\Events\JobPopping.
+// Ref: @bedrock/code-0237
 type JobPopping struct {
 	ConnectionName string
 }
 
 // JobPopped is dispatched after the worker has retrieved a job from the
 // driver but before it begins processing.
-// Mirrors @bedrock\Queue\Events\JobPopped.
+// Ref: @bedrock/code-0236
 type JobPopped struct {
 	ConnectionName string
 	Job            any
 }
 
 // JobProcessing is dispatched immediately before a job is fired.
-// Mirrors @bedrock\Queue\Events\JobProcessing.
+// Ref: @bedrock/code-0239
 type JobProcessing struct {
 	ConnectionName string
 	Job            any
@@ -23,14 +23,14 @@ type JobProcessing struct {
 
 // JobAttempted is dispatched after every attempt to run a job, regardless
 // of whether it succeeded or threw.
-// Mirrors @bedrock\Queue\Events\JobAttempted.
+// Ref: @bedrock/code-0233
 type JobAttempted struct {
 	ConnectionName string
 	Job            any
 }
 
 // JobProcessed is dispatched after a job has been processed successfully.
-// Mirrors @bedrock\Queue\Events\JobProcessed.
+// Ref: @bedrock/code-0238
 type JobProcessed struct {
 	ConnectionName string
 	Job            any
@@ -38,7 +38,7 @@ type JobProcessed struct {
 
 // JobFailed is dispatched when a job has exhausted its retry budget and
 // is being marked as permanently failed.
-// Mirrors @bedrock\Queue\Events\JobFailed.
+// Ref: @bedrock/code-0235
 type JobFailed struct {
 	ConnectionName string
 	Job            any
@@ -47,7 +47,7 @@ type JobFailed struct {
 
 // JobExceptionOccurred is dispatched every time a job attempt throws an
 // exception, regardless of whether the job will be retried or failed.
-// Mirrors @bedrock\Queue\Events\JobExceptionOccurred.
+// Ref: @bedrock/code-0234
 type JobExceptionOccurred struct {
 	ConnectionName string
 	Job            any
@@ -56,14 +56,14 @@ type JobExceptionOccurred struct {
 
 // JobReleasedAfterException is dispatched when the worker releases a job
 // back onto the queue following a caught exception.
-// Mirrors @bedrock\Queue\Events\JobReleasedAfterException.
+// Ref: @bedrock/code-0242
 type JobReleasedAfterException struct {
 	ConnectionName string
 	Job            any
 }
 
 // JobTimedOut is dispatched when a job exceeds its configured timeout.
-// Mirrors @bedrock\Queue\Events\JobTimedOut.
+// Ref: @bedrock/code-0244
 type JobTimedOut struct {
 	ConnectionName string
 	Job            any
@@ -71,7 +71,7 @@ type JobTimedOut struct {
 
 // JobRetryRequested is dispatched when an operator re-queues a failed job
 // via the queue:retry command.
-// Mirrors @bedrock\Queue\Events\JobRetryRequested.
+// Ref: @bedrock/code-0243
 type JobRetryRequested struct {
 	// Payload is the failed-job record being retried.
 	Payload any

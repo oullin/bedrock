@@ -1,9 +1,9 @@
 # fortify
 
-<!-- upstream-docs: fortify.md#introduction -->
-<!-- upstream-docs: fortify.md#authentication -->
-<!-- upstream-docs: fortify.md#registration -->
-<!-- upstream-docs: fortify.md#password-reset -->
+<!-- ref: @bedrock/code-0076 -->
+<!-- ref: @bedrock/code-0075 -->
+<!-- ref: @bedrock/code-0078 -->
+<!-- ref: @bedrock/code-0077 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

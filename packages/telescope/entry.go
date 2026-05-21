@@ -9,7 +9,6 @@ import (
 )
 
 // EntryUser holds the authenticated user snapshot attached to an entry,
-// mirroring the user() method on the upstream IncomingEntry.
 type EntryUser struct {
 	ID    any    `json:"id"`
 	Name  string `json:"name"`
@@ -17,7 +16,7 @@ type EntryUser struct {
 }
 
 // IncomingEntry represents a single telemetry entry being recorded before it
-// is persisted. It mirrors the upstream IncomingEntry class and provides a fluent
+// is persisted. It mirrors the the underlying behavior class and provides a fluent
 // builder interface.
 type IncomingEntry struct {
 	UUID       string
@@ -113,7 +112,6 @@ func (e *IncomingEntry) AddTags(tags ...string) *IncomingEntry {
 }
 
 // HasMonitoredTag reports whether any of the entry's tags appear in the
-// monitored set, mirroring IncomingEntry::hasMonitoredTag().
 func (e *IncomingEntry) HasMonitoredTag(monitored []string) bool {
 	set := make(map[string]struct{}, len(monitored))
 
@@ -196,7 +194,6 @@ func (e *IncomingEntry) IsMail() bool { return e.Type == EntryTypeMail }
 // IsNotification reports whether this is a notification entry.
 func (e *IncomingEntry) IsNotification() bool { return e.Type == EntryTypeNotification }
 
-// ToMap serialises the entry to a plain map for storage, mirroring
 // IncomingEntry::toArray().
 func (e *IncomingEntry) ToMap() map[string]any {
 	m := map[string]any{

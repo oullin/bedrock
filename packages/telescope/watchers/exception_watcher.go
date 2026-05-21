@@ -11,7 +11,7 @@ import (
 )
 
 // ExceptionWatcher monitors application exceptions and records them as
-// Telescope entries. It mirrors the upstream ExceptionWatcher class.
+// Telescope entries. It mirrors the the underlying behavior class.
 //
 // Options:
 //   - "ignore" ([]string): error type names to skip.
@@ -145,7 +145,6 @@ func captureStack(depth int) (file string, line int, trace []map[string]any) {
 }
 
 // filePreview reads ±contextLines lines around the target line from file,
-// mirroring ExceptionContext::get().
 func filePreview(file string, line int, contextLines int) map[int]string {
 	if file == "" || line <= 0 {
 		return nil

@@ -15,14 +15,13 @@ import (
 //   - Uses: the actual handler. May be a Go func value, a "Controller@method"
 //     string, an invokable controller type, or nil for fluent registration.
 //   - Controller: the canonical "Type@Method" form when known.
-//   - Middleware, Where, Defaults: per-route metadata mirroring the PHP keys
 //     of the same name.
 //   - Domain, Prefix, As, Namespace: group-style attributes that may be
 //     attached to the action.
 //   - Extras: a catch-all map for any non-standard keys passed through by
 //     callers that want to round-trip arbitrary action metadata.
 //
-// Mirrors @bedrock\Routing\RouteAction.
+// Ref: @bedrock/code-0333
 type Action struct {
 	Uses       any
 	Controller string
@@ -48,7 +47,7 @@ type Action struct {
 //   - a map[string]any: passed through, with the "uses" key resolved as above
 //     and other keys distributed to the matching fields or Extras.
 //
-// Mirrors @bedrock\Routing\RouteAction::parse.
+// Ref: @bedrock/code-0333
 func ParseAction(uri string, action any) (*Action, error) {
 	if action == nil {
 		return missingAction(uri), nil

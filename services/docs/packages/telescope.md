@@ -1,6 +1,6 @@
 # telescope
 
-<!-- upstream-docs: telescope.md#introduction -->
+<!-- ref: @bedrock/code-0172 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

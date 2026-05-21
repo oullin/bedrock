@@ -8,7 +8,6 @@ import (
 )
 
 // PendingCheckoutHandler records the provider checkout currently in flight.
-// Mirrors Spark\Http\Controllers\NewPendingCheckoutController.
 type PendingCheckoutHandler struct {
 	customers spark.CustomerStore
 	resolver  spark.ResolverFunc

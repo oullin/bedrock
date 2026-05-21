@@ -18,7 +18,6 @@ import "regexp"
 //   - Important: true when the variable was prefixed with "!" in the source
 //     pattern (Symfony "important variable" — never optional).
 //
-// This mirrors the shape of a Symfony route compiler token tuple
 // ([type, prefix, regexp, name, utf8, important]) so a port of any test that
 // inspects compiled tokens remains source-compatible.
 type Token struct {

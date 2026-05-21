@@ -1,7 +1,7 @@
 # facades
 
-<!-- upstream-docs: facades.md#introduction -->
-<!-- upstream-docs: facades.md#facade-class-reference -->
+<!-- ref: @bedrock/code-0067 -->
+<!-- ref: @bedrock/code-0066 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

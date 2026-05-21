@@ -15,7 +15,7 @@ type SignatureValidator interface {
 // ValidateSignature is the middleware form of [routing.UrlGenerator]'s signed
 // URL check. It rejects requests whose signature does not match.
 //
-// Mirrors @bedrock\Routing\Middleware\ValidateSignature.
+// Ref: @bedrock/code-0324
 type ValidateSignature struct {
 	// Ignore lists parameter names that should be skipped when computing the
 	// HMAC input. Useful for unrelated tracking parameters.
@@ -24,7 +24,6 @@ type ValidateSignature struct {
 	Relative bool
 }
 
-// NeverValidate is the global skip list, mirroring the static $neverValidate
 // property on the PHP class.
 var NeverValidate []string
 

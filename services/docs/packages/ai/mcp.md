@@ -1,6 +1,6 @@
 # mcp
 
-<!-- upstream-docs: mcp.md#laravel-mcp -->
+<!-- ref: @bedrock/code-0104 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

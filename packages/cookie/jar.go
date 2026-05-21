@@ -7,7 +7,6 @@ import (
 
 // Jar implements QueueingFactory. It maintains a queue of cookies to be
 // attached to outgoing responses and applies configurable defaults.
-// Cookies are keyed by name and path, mirroring the upstream CookieJar
 // behaviour. It is safe for concurrent use.
 type Jar struct {
 	mu       sync.Mutex

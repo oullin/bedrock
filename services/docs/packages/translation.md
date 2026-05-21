@@ -1,7 +1,7 @@
 # translation
 
-<!-- upstream-docs: localization.md#introduction -->
-<!-- upstream-docs: localization.md#retrieving-translation-strings -->
+<!-- ref: @bedrock/code-0093 -->
+<!-- ref: @bedrock/code-0094 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

@@ -1,11 +1,11 @@
 # auth
 
-<!-- upstream-docs: authentication.md#authentication -->
-<!-- upstream-docs: authentication.md#manually-authenticating-users -->
-<!-- upstream-docs: authentication.md#http-basic-authentication -->
-<!-- upstream-docs: authorization.md#authorization -->
-<!-- upstream-docs: passwords.md#resetting-passwords -->
-<!-- upstream-docs: verification.md#email-verification -->
+<!-- ref: @bedrock/code-0015 -->
+<!-- ref: @bedrock/code-0017 -->
+<!-- ref: @bedrock/code-0016 -->
+<!-- ref: @bedrock/code-0018 -->
+<!-- ref: @bedrock/code-0122 -->
+<!-- ref: @bedrock/code-0185 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

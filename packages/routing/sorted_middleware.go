@@ -9,7 +9,7 @@ import "strings"
 // because middleware may be either a string class name (with optional ":args"
 // suffix) or a closure.
 //
-// Mirrors @bedrock\Routing\SortedMiddleware.
+// Ref: @bedrock/code-0345
 type SortedMiddleware []any
 
 // NewSortedMiddleware returns the middleware list reordered so that any
@@ -92,7 +92,6 @@ func moveMiddleware(in []any, from, to int) []any {
 	return out
 }
 
-// uniqueMiddleware mirrors Router::uniqueMiddleware: it preserves first
 // occurrence and discards later duplicates. Only string entries are eligible
 // for dedup; closures are kept verbatim.
 func uniqueMiddleware(middleware []any) SortedMiddleware {

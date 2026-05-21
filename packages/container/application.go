@@ -7,7 +7,7 @@ import (
 )
 
 // Application wraps Container and manages service provider lifecycle,
-// mirroring @bedrock\Foundation\Application. Providers are registered
+// Ref: @bedrock/code-0216
 // in the order they are added; Boot is called after all registrations.
 //
 // Two optional capabilities extend the lifecycle:

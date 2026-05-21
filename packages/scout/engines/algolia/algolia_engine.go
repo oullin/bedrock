@@ -10,7 +10,6 @@ import (
 )
 
 // Engine is a Scout search engine backed by Algolia.
-// It mirrors Scout AlgoliaEngine.
 type Engine struct {
 	client     *search.APIClient
 	softDelete bool

@@ -984,7 +984,7 @@ func TestSessionGuardBasicReturnsFalseWithInvalidCredentials(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Auth\AuthGuardTest::testBasicWithExtraConditions
+// Ref: @bedrock/code-0356
 func TestSessionGuardBasicWithExtraConditions(t *testing.T) {
 	user := auth.NewGenericUser(map[string]any{"id": "1", "email": "a@b.com", "password": "pw", "active": "1"})
 	provider := &stubProvider{users: map[string]cauth.Authenticatable{"1": user}}

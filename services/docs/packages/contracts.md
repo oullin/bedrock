@@ -1,7 +1,7 @@
 # contracts
 
-<!-- upstream-docs: contracts.md#introduction -->
-<!-- upstream-docs: providers.md#service-providers -->
+<!-- ref: @bedrock/code-0045 -->
+<!-- ref: @bedrock/code-0139 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

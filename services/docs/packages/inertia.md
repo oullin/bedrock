@@ -1,8 +1,8 @@
 # inertia
 
-<!-- upstream-docs: frontend.md#using-react-svelte-or-vue -->
-<!-- upstream-docs: responses.md#redirects -->
-<!-- upstream-docs: csrf.md#csrf-protection -->
+<!-- ref: @bedrock/code-0080 -->
+<!-- ref: @bedrock/code-0150 -->
+<!-- ref: @bedrock/code-0051 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

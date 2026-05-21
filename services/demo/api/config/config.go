@@ -1,6 +1,5 @@
 package config
 
-// App mirrors the small amount of config the skeleton demo needs at runtime.
 type App struct {
 	Name string
 	Env  string

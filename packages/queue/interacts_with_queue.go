@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// InteractsWithQueue is the Go port of // @bedrock\Queue\InteractsWithQueue trait. Handler authors embed it
+// Ref: @bedrock/code-0261
 // in their job-handler structs to get ergonomic access to the
 // currently-processing Job (delete, release, fail) without having to
 // re-implement the lifecycle plumbing.
@@ -71,7 +71,7 @@ func (i *InteractsWithQueue) Delete() error {
 //
 // Returns nil when no job is attached.
 //
-// Mirrors the InteractsWithQueue::fail($exception = null) method —
+// Ref: @bedrock/code-0261
 // including the "string becomes Exception" conversion tested by
 // InteractsWithQueueTest::testCreatesAnExceptionFromString.
 func (i *InteractsWithQueue) Fail(reason any) error {

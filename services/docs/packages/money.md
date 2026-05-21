@@ -1,7 +1,7 @@
 # money
 
-<!-- upstream-docs: validation.md#available-validation-rules -->
-<!-- upstream-docs: localization.md#introduction -->
+<!-- ref: @bedrock/code-0180 -->
+<!-- ref: @bedrock/code-0093 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

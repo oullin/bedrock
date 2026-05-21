@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// CommandExecuted mirrors @bedrock\Redis\Events\CommandExecuted. It is
+// Ref: @bedrock/code-0277
 // dispatched once per Connection.Command call when events are enabled.
 type CommandExecuted struct {
 	Command        string
@@ -14,7 +14,7 @@ type CommandExecuted struct {
 	ConnectionName string
 }
 
-// CommandFailed mirrors @bedrock\Redis\Events\CommandFailed.
+// Ref: @bedrock/code-0278
 type CommandFailed struct {
 	Command        string
 	Parameters     []any

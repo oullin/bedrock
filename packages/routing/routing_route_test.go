@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// Translation of the Route-only subset of laravel/framework
 // tests/Routing/RoutingRouteTest.php — the dispatching half of that file
 // requires Router (M4) and lives in router_test.go.
 // RoutingRouteTest::testMatchesMethodAgainstRequests

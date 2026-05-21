@@ -2,8 +2,7 @@ package routing
 
 import "github.com/bedrock/packages/container"
 
-// RoutingServiceProvider mirrors
-// @bedrock\Routing\RoutingServiceProvider. It registers the router, the
+// Ref: @bedrock/code-0344
 // URL generator, the redirector, the response factory, and the dispatchers
 // into a service container so consumers can resolve them by name.
 type RoutingServiceProvider struct {

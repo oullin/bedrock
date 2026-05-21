@@ -8,7 +8,6 @@ import (
 )
 
 // Passport is the central configuration and registrar for the passport package.
-// It mirrors the static API of Passport Passport facade.
 //
 // Create one via NewPassport and pass it throughout your application to configure
 // scopes, expiry times, and grant type availability.
@@ -67,7 +66,6 @@ func NewPassport(cfg *PassportConfig) *Passport {
 
 // TokensCan registers the available OAuth2 scopes for the application.
 // The map key is the scope ID and the value is its human-readable description.
-// Mirrors Passport::tokensCan().
 func (p *Passport) TokensCan(scopes map[string]string) *Passport {
 	p.mu.Lock()
 
@@ -111,7 +109,6 @@ func (p *Passport) ScopeIDs() []string {
 }
 
 // FindScope returns the Scope for the given ID, or nil if not registered.
-// Mirrors Passport::scopes() in the upstream framework (which returns a Collection keyed by ID).
 func (p *Passport) FindScope(id string) *Scope {
 	p.mu.RLock()
 
@@ -410,7 +407,6 @@ func (p *Passport) Config() *PassportConfig {
 
 // ActingAs sets a test override so that the TokenGuard returns user with the
 // given access token and scopes without consulting the token store.
-// Mirrors Passport::actingAs().
 func (p *Passport) ActingAs(user cauth.Authenticatable, token *AccessToken, scopes []string) *Passport {
 	p.mu.Lock()
 
@@ -425,7 +421,6 @@ func (p *Passport) ActingAs(user cauth.Authenticatable, token *AccessToken, scop
 
 // ActingAsClient sets a test override so that the TokenGuard returns the given
 // client (machine-to-machine authentication) without consulting the token store.
-// Mirrors Passport::actingAsClient().
 func (p *Passport) ActingAsClient(client *Client, scopes []string) *Passport {
 	p.mu.Lock()
 

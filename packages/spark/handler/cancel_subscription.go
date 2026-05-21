@@ -8,7 +8,6 @@ import (
 )
 
 // CancelSubscriptionHandler handles subscription cancellation.
-// Mirrors Spark\Http\Controllers\CancelSubscriptionController.
 type CancelSubscriptionHandler struct {
 	billing  *service.BillingService
 	resolver spark.ResolverFunc

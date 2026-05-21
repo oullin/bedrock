@@ -5,7 +5,7 @@ import (
 )
 
 // ScheduleWatcher monitors scheduled task execution and records entries as
-// Telescope entries. It mirrors the upstream ScheduleWatcher class.
+// Telescope entries. It mirrors the the underlying behavior class.
 type ScheduleWatcher struct {
 	telescope.BaseWatcher
 }

@@ -21,7 +21,6 @@ type AdapterOptions struct {
 // FromRouteCollection converts a bedrock RouteCollectionInterface into a slice
 // of RouteInfo values suitable for passing to Generate.
 //
-// It mirrors the route mapping logic in GenerateCommand::handle() from the PHP
 // implementation, extracting controller metadata, parameters, defaults, and
 // domain information from each registered route.
 func FromRouteCollection(collection routing.RouteCollectionInterface, opts AdapterOptions) []*RouteInfo {

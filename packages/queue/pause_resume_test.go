@@ -9,8 +9,7 @@ import (
 	"github.com/bedrock/packages/queue/events"
 )
 
-// Ports of @bedrock\Tests\Queue\QueuePauseResumeTest.
-//
+// Ref: @bedrock/code-0370
 // the upstream test constructs a QueueManager against a Carbon test clock
 // and an ArrayStore-backed cache. The Go equivalent exercises the
 // underlying PauseResumer + InMemoryPauseStore directly — when Step 6
@@ -24,7 +23,6 @@ import (
 // --- helpers ----------------------------------------------------------
 
 // mockClock is a deterministic time source we can freeze and advance,
-// mirroring the upstream Carbon::setTestNow().
 type mockClock struct {
 	mu  sync.Mutex
 	now time.Time
@@ -89,7 +87,7 @@ func newPauseResumer() (*queue.PauseResumer, *pauseEventRecorder, *mockClock) {
 
 // --- ports ------------------------------------------------------------
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithConnection
+// Ref: @bedrock/code-0370
 func TestPauseQueueWithConnection(t *testing.T) {
 	t.Parallel()
 
@@ -104,7 +102,7 @@ func TestPauseQueueWithConnection(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithTTL
+// Ref: @bedrock/code-0370
 func TestPauseQueueWithTTL(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +123,7 @@ func TestPauseQueueWithTTL(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueIndefinitely
+// Ref: @bedrock/code-0370
 func TestPauseQueueIndefinitely(t *testing.T) {
 	t.Parallel()
 
@@ -146,7 +144,7 @@ func TestPauseQueueIndefinitely(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumeQueue
+// Ref: @bedrock/code-0370
 func TestResumeQueue(t *testing.T) {
 	t.Parallel()
 
@@ -167,7 +165,7 @@ func TestResumeQueue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPausingQueueOnOneConnectionDoesNotAffectAnother
+// Ref: @bedrock/code-0370
 func TestPausingQueueOnOneConnectionDoesNotAffectAnother(t *testing.T) {
 	t.Parallel()
 
@@ -184,7 +182,7 @@ func TestPausingQueueOnOneConnectionDoesNotAffectAnother(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPausingDifferentQueuesOnSameConnection
+// Ref: @bedrock/code-0370
 func TestPausingDifferentQueuesOnSameConnection(t *testing.T) {
 	t.Parallel()
 
@@ -206,7 +204,7 @@ func TestPausingDifferentQueuesOnSameConnection(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumingOnlyAffectsSpecificQueue
+// Ref: @bedrock/code-0370
 func TestResumingOnlyAffectsSpecificQueue(t *testing.T) {
 	t.Parallel()
 
@@ -226,7 +224,7 @@ func TestResumingOnlyAffectsSpecificQueue(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseDispatchesQueuePausedEvent
+// Ref: @bedrock/code-0370
 func TestPauseDispatchesQueuePausedEvent(t *testing.T) {
 	t.Parallel()
 
@@ -253,7 +251,7 @@ func TestPauseDispatchesQueuePausedEvent(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseForDispatchesQueuePausedEventWithTTL
+// Ref: @bedrock/code-0370
 func TestPauseForDispatchesQueuePausedEventWithTTL(t *testing.T) {
 	t.Parallel()
 
@@ -280,7 +278,7 @@ func TestPauseForDispatchesQueuePausedEventWithTTL(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumeDispatchesQueueResumedEvent
+// Ref: @bedrock/code-0370
 func TestResumeDispatchesQueueResumedEvent(t *testing.T) {
 	t.Parallel()
 
@@ -303,7 +301,7 @@ func TestResumeDispatchesQueueResumedEvent(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testParsingQueueString
+// Ref: @bedrock/code-0370
 func TestParsingQueueString(t *testing.T) {
 	t.Parallel()
 

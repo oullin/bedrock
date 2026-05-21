@@ -107,7 +107,6 @@ func fakeHTTPClient(body string, status int) *http.Client {
 // ── Tests (OAuthTwoTest.php equivalents) ─────────────────────────────────────
 
 // OAuthTwoTest::testRedirectGeneratesTheProper@bedrockRedirectResponseWithoutPKCE
-// TestRedirectBuildsURLWithoutPKCE mirrors
 // testRedirectGeneratesTheProper@bedrockRedirectResponseWithoutPKCE.
 func TestRedirectBuildsURLWithoutPKCE(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
@@ -140,7 +139,6 @@ func TestRedirectBuildsURLWithoutPKCE(t *testing.T) {
 }
 
 // OAuthTwoTest::testRedirectGeneratesTheProper@bedrockRedirectResponseWithPKCE
-// TestRedirectBuildsURLWithPKCE mirrors
 // testRedirectGeneratesTheProper@bedrockRedirectResponseWithPKCE.
 func TestRedirectBuildsURLWithPKCE(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
@@ -170,7 +168,6 @@ func TestRedirectBuildsURLWithPKCE(t *testing.T) {
 }
 
 // OAuthTwoTest::testTokenRequestIncludesPKCECodeVerifier
-// TestTokenRequestIncludesPKCECodeVerifier mirrors
 // testTokenRequestIncludesPKCECodeVerifier.
 func TestTokenRequestIncludesPKCECodeVerifier(t *testing.T) {
 	state := strings.Repeat("A", 40)
@@ -230,7 +227,6 @@ func TestTokenRequestIncludesPKCECodeVerifier(t *testing.T) {
 
 // OAuthTwoTest::testUserReturnsAUserInstanceForTheAuthenticatedRequest
 // OAuthTwoTest::testUserRefreshesToken
-// TestUserReturnsAuthenticatedUser mirrors
 // testUserReturnsAUserInstanceForTheAuthenticatedRequest.
 func TestUserReturnsAuthenticatedUser(t *testing.T) {
 	state := strings.Repeat("A", 40)
@@ -277,7 +273,6 @@ func TestUserReturnsAuthenticatedUser(t *testing.T) {
 }
 
 // OAuthTwoTest::testExceptionIsThrownIfStateIsInvalid
-// TestUserErrorsOnInvalidState mirrors testExceptionIsThrownIfStateIsInvalid.
 func TestUserErrorsOnInvalidState(t *testing.T) {
 	rawURL := "http://example.com/callback?state=" + strings.Repeat("B", 40) + "&code=code"
 	req, _ := http.NewRequest(http.MethodGet, rawURL, nil)
@@ -294,7 +289,6 @@ func TestUserErrorsOnInvalidState(t *testing.T) {
 }
 
 // OAuthTwoTest::testExceptionIsThrownIfStateIsNotSet
-// TestUserErrorsOnMissingState mirrors testExceptionIsThrownIfStateIsNotSet.
 func TestUserErrorsOnMissingState(t *testing.T) {
 	rawURL := "http://example.com/callback?state=somestate&code=code"
 	req, _ := http.NewRequest(http.MethodGet, rawURL, nil)
@@ -310,7 +304,6 @@ func TestUserErrorsOnMissingState(t *testing.T) {
 }
 
 // OAuthTwoTest::testCanGetAuthUrl
-// TestGetAuthURL mirrors testCanGetAuthUrl.
 func TestGetAuthURL(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
 	session := newTestSession()
@@ -325,7 +318,6 @@ func TestGetAuthURL(t *testing.T) {
 }
 
 // OAuthTwoTest::testCanGetStatelessAuthUrl
-// TestGetStatelessAuthURL mirrors testCanGetStatelessAuthUrl.
 func TestGetStatelessAuthURL(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
 	session := newTestSession()

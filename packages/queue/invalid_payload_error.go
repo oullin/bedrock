@@ -1,8 +1,6 @@
 package queue
 
-// InvalidPayloadError is the Go port of
-// @bedrock\Queue\InvalidPayloadException.
-//
+// Ref: @bedrock/code-0262
 // It is returned by Payload marshalling/unmarshalling helpers when a
 // payload cannot be encoded or decoded. The Value field carries the
 // original input that failed to decode (matching the upstream $value field)
@@ -22,7 +20,7 @@ func (e *InvalidPayloadError) Error() string {
 }
 
 // NewInvalidPayloadError constructs an error with an explicit message and
-// the offending value. Mirrors the upstream constructor signature
+// the offending value. Mirrors the the underlying behavior signature
 // (message, value).
 func NewInvalidPayloadError(message string, value any) *InvalidPayloadError {
 	return &InvalidPayloadError{Message: message, Value: value}

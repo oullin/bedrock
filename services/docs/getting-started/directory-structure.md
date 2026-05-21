@@ -1,6 +1,6 @@
 # Directory Structure
 
-<!-- upstream-docs: structure.md#introduction -->
+<!-- ref: @bedrock/code-0171 -->
 
 Bedrock doesn't enforce a project layout. The packages are agnostic to
 where your code lives. But every Bedrock app ends up with similar bones,

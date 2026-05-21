@@ -1,8 +1,8 @@
 # wayfinder
 
-<!-- upstream-docs: urls.md#urls-for-controller-actions -->
-<!-- upstream-docs: routing.md#named-routes -->
-<!-- upstream-docs: frontend.md#using-react-svelte-or-vue -->
+<!-- ref: @bedrock/code-0178 -->
+<!-- ref: @bedrock/code-0155 -->
+<!-- ref: @bedrock/code-0080 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

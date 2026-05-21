@@ -1,7 +1,6 @@
 package telescope
 
 // EntryQueryOptions carries filter parameters for repository queries. It
-// mirrors the upstream EntryQueryOptions class with its fluent builder interface.
 type EntryQueryOptions struct {
 	BatchID        string
 	Tag            string
@@ -20,7 +19,6 @@ func DefaultQueryOptions() EntryQueryOptions {
 }
 
 // ForBatchID returns a new EntryQueryOptions scoped to a specific batch,
-// mirroring EntryQueryOptions::forBatchId().
 func (o EntryQueryOptions) ForBatchID(id string) EntryQueryOptions {
 	o.BatchID = id
 

@@ -16,8 +16,7 @@ type FailedJob struct {
 	FailedAt   time.Time
 }
 
-// FailedJobProvider is the Go port of
-// @bedrock\Queue\Failed\FailedJobProviderInterface. It abstracts the
+// Ref: @bedrock/code-0258
 // persistence layer the worker uses to record permanently-failed jobs.
 //
 // Differences from PHP:

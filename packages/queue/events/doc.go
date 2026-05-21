@@ -1,4 +1,4 @@
-// Package events contains the Go port of every @bedrock\Queue\Events\*
+// Ref: @bedrock/code-0232
 // class from upstream framework 13.x. Each upstream event is a plain Go
 // struct; the worker, manager, and drivers emit them via the queue
 // package's EventEmitter interface.

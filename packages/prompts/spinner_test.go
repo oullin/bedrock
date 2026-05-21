@@ -5,9 +5,6 @@ import (
 	"time"
 )
 
-// Port of \Prompts\Tests\Feature\SpinnerTest
-
-// Port of \Prompts\Tests\Feature\SpinnerTest::test_spin_returns_result
 func TestSpinReturnsResult(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -28,7 +25,6 @@ func TestSpinReturnsResult(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\SpinnerTest::test_spin_returns_error
 func TestSpinReturnsError(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -43,7 +39,6 @@ func TestSpinReturnsError(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\SpinnerTest::test_spin_with_int
 func TestSpinWithInt(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

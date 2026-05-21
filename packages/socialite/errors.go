@@ -8,7 +8,6 @@ var ErrInvalidState = errors.New("socialite: invalid or missing OAuth state")
 
 // ErrMissingVerifier is returned by an OAuth1 provider when the callback
 // request does not contain an oauth_verifier parameter.
-// It mirrors One\MissingVerifierException.
 var ErrMissingVerifier = errors.New("socialite: missing OAuth verifier")
 
 // ErrMissingTemporaryCredentials is returned by an OAuth1 provider when the

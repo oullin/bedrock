@@ -7,7 +7,6 @@ import (
 )
 
 // FileProvider is the provider-level contract for file management.
-// Mirrors upstream Ai\Contracts\Providers\FileProvider.
 type FileProvider interface {
 	GetFile(ctx context.Context, id string) (*gateway.FileGetResult, error)
 	PutFile(ctx context.Context, file gateway.StorableFile) (*gateway.FilePutResult, error)

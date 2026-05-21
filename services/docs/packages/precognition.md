@@ -1,8 +1,8 @@
 # precognition
 
-<!-- upstream-docs: precognition.md#introduction -->
-<!-- upstream-docs: precognition.md#handling-file-uploads -->
-<!-- upstream-docs: precognition.md#managing-side-effects -->
+<!-- ref: @bedrock/code-0128 -->
+<!-- ref: @bedrock/code-0127 -->
+<!-- ref: @bedrock/code-0129 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

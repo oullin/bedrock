@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of \Prompts\Tests\Feature\FormTest
-
-// Port of \Prompts\Tests\Feature\FormTest::test_form_collects_responses
 func TestFormCollectsResponses(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -35,7 +32,6 @@ func TestFormCollectsResponses(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_form_cancelled
 func TestFormCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -52,7 +48,6 @@ func TestFormCancelled(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_form_conditional_step
 func TestFormConditionalStep(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -82,7 +77,6 @@ func TestFormConditionalStep(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_form_dynamic_condition
 func TestFormDynamicCondition(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -111,7 +105,6 @@ func TestFormDynamicCondition(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_form_custom_step
 func TestFormCustomStep(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -132,7 +125,6 @@ func TestFormCustomStep(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_form_note_step
 func TestFormNoteStep(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -156,7 +148,6 @@ func TestFormNoteStep(t *testing.T) {
 	tp.AssertStrippedOutputContains("Important info")
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_can_revert_steps
 func TestFormCanRevertSteps(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -191,7 +182,6 @@ func TestFormCanRevertSteps(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_cannot_revert_first_step
 func TestFormCannotRevertFirstStep(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -208,7 +198,6 @@ func TestFormCannotRevertFirstStep(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_skips_display_steps_when_reverting
 func TestFormSkipsDisplayStepsWhenReverting(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -241,7 +230,6 @@ func TestFormSkipsDisplayStepsWhenReverting(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_passes_responses_to_steps
 func TestFormPassesResponsesToSteps(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -275,7 +263,6 @@ func TestFormPassesResponsesToSteps(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\FormTest::test_conditional_with_function
 func TestFormConditionalSkipLeavesFieldEmpty(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

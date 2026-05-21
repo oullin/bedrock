@@ -8,7 +8,6 @@ import (
 )
 
 // LastError reads the application log and returns the most recent error entry.
-// Mirrors upstream Boost\Mcp\Tools\LastError.
 // Tagged IsReadOnly.
 type LastError struct {
 	// LogFilePath overrides the default "storage/logs/app.log".

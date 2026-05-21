@@ -7,7 +7,6 @@ import (
 )
 
 // Options controls what the generator produces.
-// It mirrors the command-line flags of the PHP wayfinder:generate command.
 type Options struct {
 	// Path is the root output directory. The generator creates actions/,
 	// routes/, and wayfinder/ subdirectories inside it.
@@ -26,8 +25,6 @@ type Options struct {
 }
 
 // Generate writes TypeScript route helpers for all provided routes.
-//
-// The output layout mirrors the PHP wayfinder:generate command:
 //
 //	{Path}/actions/   — per-controller action functions
 //	{Path}/routes/    — named-route helpers

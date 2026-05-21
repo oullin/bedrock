@@ -1,9 +1,9 @@
 # prompts
 
-<!-- upstream-docs: prompts.md#introduction -->
-<!-- upstream-docs: prompts.md#forms -->
-<!-- upstream-docs: prompts.md#tables -->
-<!-- upstream-docs: prompts.md#progress-bars -->
+<!-- ref: @bedrock/code-0135 -->
+<!-- ref: @bedrock/code-0134 -->
+<!-- ref: @bedrock/code-0137 -->
+<!-- ref: @bedrock/code-0136 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

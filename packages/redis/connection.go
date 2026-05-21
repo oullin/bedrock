@@ -8,8 +8,7 @@ import (
 	"time"
 )
 
-// Connection is the Go analogue of @bedrock\Redis\Connections\Connection.
-//
+// Ref: @bedrock/code-0276
 // It wraps a Client and dispatches CommandExecuted events for every call
 // that goes through Command. Typed helpers exist for the commands exercised
 // by the upstream test suite; for everything else, callers can invoke
@@ -44,9 +43,8 @@ type Connection struct {
 // Command is the generic dispatcher. It executes a raw Redis command and
 // fires a CommandExecuted event. All typed helpers on Connection call into
 // Command so events cover every command uniformly — this matches
-// @bedrock\Redis\Connections\Connection::command.
+// Ref: @bedrock/code-0276
 
-// ExecuteRaw mirrors the upstream executeRaw($parameters): the first element
 // of the slice is the command name.
 
 // --------------------------------------------------------------------

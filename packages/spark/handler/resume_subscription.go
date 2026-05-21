@@ -8,7 +8,6 @@ import (
 )
 
 // ResumeSubscriptionHandler handles subscription resumption.
-// Mirrors Spark\Http\Controllers\ResumeSubscriptionController.
 type ResumeSubscriptionHandler struct {
 	billing  *service.BillingService
 	resolver spark.ResolverFunc

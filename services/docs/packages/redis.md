@@ -1,7 +1,7 @@
 # redis
 
-<!-- upstream-docs: redis.md#introduction -->
-<!-- upstream-docs: redis.md#interacting-with-redis -->
+<!-- ref: @bedrock/code-0147 -->
+<!-- ref: @bedrock/code-0146 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

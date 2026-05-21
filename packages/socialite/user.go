@@ -9,8 +9,6 @@ import (
 // authentication cycle. OAuth2-specific fields (Token, RefreshToken, etc.)
 // are populated for OAuth2 providers; OAuth1 providers set Token and
 // TokenSecret instead.
-//
-// It mirrors upstream Socialite\Two\User and upstream Socialite\AbstractUser.
 type User struct {
 	// Core identity fields (all providers).
 	ID       string
@@ -38,7 +36,6 @@ type User struct {
 
 // Map applies a flat attribute map to the user's core fields, returning the
 // receiver for chaining. Unknown keys are stored in Attributes.
-// It mirrors AbstractUser::map().
 func (u *User) Map(attrs map[string]any) *User {
 	if v, ok := attrs["id"]; ok {
 		u.ID = stringify(v)

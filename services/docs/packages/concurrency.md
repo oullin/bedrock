@@ -1,7 +1,7 @@
 # concurrency
 
-<!-- upstream-docs: concurrency.md#introduction -->
-<!-- upstream-docs: concurrency.md#running-concurrent-tasks -->
+<!-- ref: @bedrock/code-0036 -->
+<!-- ref: @bedrock/code-0037 -->
 
 <!-- BEDROCK:HAND -->
 

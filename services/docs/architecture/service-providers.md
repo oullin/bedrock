@@ -1,8 +1,8 @@
 # Service Providers
 
-<!-- upstream-docs: providers.md#service-providers -->
-<!-- upstream-docs: providers.md#writing-service-providers -->
-<!-- upstream-docs: providers.md#deferred-providers -->
+<!-- ref: @bedrock/code-0139 -->
+<!-- ref: @bedrock/code-0140 -->
+<!-- ref: @bedrock/code-0138 -->
 
 A service provider is a small object whose only job is to bind services
 into the container. Every Bedrock package that exposes a stateful

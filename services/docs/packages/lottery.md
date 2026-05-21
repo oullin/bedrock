@@ -1,6 +1,6 @@
 # lottery
 
-<!-- upstream-docs: helpers.md#other-utilities -->
+<!-- ref: @bedrock/code-0085 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

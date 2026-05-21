@@ -9,7 +9,6 @@ type RouteGroup struct{}
 
 // MergeRouteGroup merges a new group attribute set into an old one.
 //
-// The shape of the maps mirrors the upstream $action/$attributes arrays: keys
 // like "namespace", "prefix", "where", "as", "domain", "controller",
 // "middleware". Unknown keys are passed through unchanged.
 //
@@ -17,8 +16,6 @@ type RouteGroup struct{}
 // new prefix (the default for nested groups) or after it (used by
 // [Router.mergeGroupAttributesIntoRoute] when merging the route's own
 // attributes back into the group stack).
-//
-// Mirrors RouteGroup::merge.
 func MergeRouteGroup(new, old map[string]any, prependExistingPrefix bool) map[string]any {
 	if old == nil {
 		old = map[string]any{}

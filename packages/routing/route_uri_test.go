@@ -2,7 +2,7 @@ package routing
 
 import "testing"
 
-// Translation of laravel/framework tests/Routing/RouteUriTest.php.
+// Ref: @bedrock/code-0396
 // Each subtest preserves the upstream PHP method name for grep-ability.
 // RouteUriTest::testRouteUrisAreProperlyParsed
 func TestRouteUri(t *testing.T) {

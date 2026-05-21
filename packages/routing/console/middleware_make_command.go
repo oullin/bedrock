@@ -11,7 +11,7 @@ var middlewareStub string
 
 // MiddlewareMakeCommand renders the middleware stub for a new file.
 //
-// Mirrors @bedrock\Routing\Console\MiddlewareMakeCommand.
+// Ref: @bedrock/code-0291
 type MiddlewareMakeCommand struct{}
 
 // Render returns the file contents for a middleware named name in the given

@@ -2,7 +2,6 @@ package support
 
 // Optional wraps a potentially-nil value and provides safe access,
 // preventing nil pointer dereferences when accessing methods or properties.
-// Mirrors the upstream Optional class and optional() helper.
 type Optional[T any] struct {
 	value *T
 }

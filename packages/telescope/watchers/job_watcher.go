@@ -7,7 +7,7 @@ import (
 // JobStatus constants mirror the three lifecycle states recorded by the upstream // JobWatcher.
 
 // JobWatcher monitors queued job lifecycle events (pending, processed, failed)
-// and records them as Telescope entries. It mirrors the upstream JobWatcher class.
+// and records them as Telescope entries. It mirrors the the underlying behavior class.
 //
 // Options:
 //   - "ignore" ([]string): fully-qualified job type names to skip.

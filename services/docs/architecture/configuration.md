@@ -1,8 +1,8 @@
 # Configuration
 
-<!-- upstream-docs: configuration.md#introduction -->
-<!-- upstream-docs: configuration.md#environment-configuration -->
-<!-- upstream-docs: configuration.md#accessing-configuration-values -->
+<!-- ref: @bedrock/code-0040 -->
+<!-- ref: @bedrock/code-0039 -->
+<!-- ref: @bedrock/code-0038 -->
 
 Bedrock has two layers of configuration. The first is the **bootstrap
 options** you pass when building the application — typed, package-shaped,

@@ -1,7 +1,7 @@
 # horizon
 
-<!-- upstream-docs: horizon.md#introduction -->
-<!-- upstream-docs: horizon.md#balancing-strategies -->
+<!-- ref: @bedrock/code-0087 -->
+<!-- ref: @bedrock/code-0086 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

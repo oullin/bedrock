@@ -20,7 +20,6 @@ type generator struct {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // generateActions builds the actions/ directory content.
-// Mirrors GenerateCommand::handle() (actions branch) from PHP.
 
 // Only routes backed by a named controller.
 
@@ -31,7 +30,6 @@ type generator struct {
 // Write barrel index.ts files bottom-up.
 
 // writeControllerFile generates the exports for a single controller file.
-// Mirrors GenerateCommand::writeControllerFile() from PHP.
 
 // Group routes by JS method name to detect multi-route-same-action cases.
 
@@ -51,7 +49,6 @@ type generator struct {
 
 // writeMethodExport generates a single route function export.
 // shouldExport=false means a var declaration without "export".
-// Mirrors GenerateCommand::writeControllerMethodExport() from PHP and the
 // method.blade.ts template.
 
 // writeNamedMethodExport generates a route function export under its named-route name.
@@ -139,7 +136,6 @@ type nsNode map[string]interface{} // either nsNode (subtree) or []*RouteInfo (l
 // ─────────────────────────────────────────────────────────────────────────────
 
 // generateRoutes builds the routes/ directory content.
-// Mirrors GenerateCommand::handle() (routes branch) from PHP.
 
 // Only named routes.
 
@@ -849,7 +845,6 @@ func (g *generator) writeNameBarrelNode(base, prefix string, node nameNode, byNa
 // ─────────────────────────────────────────────────────────────────────────────
 
 // appendCommonImports adds the wayfinder runtime imports to a file's import map.
-// Mirrors GenerateCommand::appendCommonImports() from PHP.
 func (g *generator) appendCommonImports(path, namespace string, routes []*RouteInfo) {
 	imports := []string{"queryParams", "type RouteQueryOptions", "type RouteDefinition"}
 

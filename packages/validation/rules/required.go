@@ -14,7 +14,6 @@ func init_required() {
 	RegisterImplicit("RequiredWithoutAll", validateRequiredWithoutAll)
 }
 
-// validateRequired mirrors the upstream validateRequired.
 func validateRequired(attribute string, value any, _ []string, ctx RuleContext) bool {
 	if !ctx.IsPresent(attribute) {
 		return false

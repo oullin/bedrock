@@ -1,4 +1,3 @@
-// Port of \Ai\Tests\Feature\AiManagerTest
 package ai_test
 
 import (

@@ -10,7 +10,7 @@ type ViewFactory interface {
 // renders the named view with the supplied data, merging in any extra route
 // parameters as additional data.
 //
-// Mirrors @bedrock\Routing\ViewController.
+// Ref: @bedrock/code-0347
 type ViewController struct {
 	Controller
 	view ViewFactory

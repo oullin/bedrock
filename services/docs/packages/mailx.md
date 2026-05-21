@@ -1,8 +1,8 @@
 # Mail
 
-<!-- upstream-docs: mail.md#introduction -->
-<!-- upstream-docs: mail.md#generating-mailables -->
-<!-- upstream-docs: mail.md#events -->
+<!-- ref: @bedrock/code-0100 -->
+<!-- ref: @bedrock/code-0099 -->
+<!-- ref: @bedrock/code-0098 -->
 
 <!-- BEDROCK:HAND -->
 

@@ -9,7 +9,6 @@ import (
 )
 
 // UpdateSubscriptionHandler handles subscription plan changes.
-// Mirrors Spark\Http\Controllers\UpdateSubscriptionController.
 type UpdateSubscriptionHandler struct {
 	updater       *action.SubscriptionUpdater
 	manager       *spark.Manager

@@ -1,9 +1,9 @@
 # notifications
 
-<!-- upstream-docs: notifications.md#introduction -->
-<!-- upstream-docs: notifications.md#sending-notifications -->
-<!-- upstream-docs: notifications.md#mail-notifications -->
-<!-- upstream-docs: notifications.md#notification-events -->
+<!-- ref: @bedrock/code-0111 -->
+<!-- ref: @bedrock/code-0114 -->
+<!-- ref: @bedrock/code-0112 -->
+<!-- ref: @bedrock/code-0113 -->
 
 <!-- BEDROCK:HAND -->
 

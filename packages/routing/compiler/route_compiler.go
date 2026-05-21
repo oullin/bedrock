@@ -34,7 +34,6 @@ type SourceRoute interface {
 
 // Compile produces a [CompiledRoute] from a [SourceRoute].
 //
-// This is the Go translation of Symfony\Component\Routing\RouteCompiler::compile.
 // It compiles the host pattern (when present), then the path pattern, and
 // merges the two variable lists.
 

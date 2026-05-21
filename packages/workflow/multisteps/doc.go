@@ -1,4 +1,3 @@
-// Package multisteps is a Go port of chevere-workflow: a declarative DAG of
 // sync/async jobs with dependency resolution, conditional execution, and retry
 // policies.
 //

@@ -266,7 +266,6 @@ func (d *DatabaseDriver) count(ctx context.Context, query string, args ...any) (
 }
 
 // Bulk inserts every payload in a single multi-row INSERT statement.
-// It is the Go port of DatabaseQueue::bulk and matches the
 // observable side effects of a $db->insert([$record1, $record2, ...])
 // call: one Exec, one INSERT, one round-trip. Returns the number of
 // rows attempted.

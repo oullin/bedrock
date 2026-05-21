@@ -3,7 +3,7 @@ package events
 import "time"
 
 // JobQueueing is dispatched immediately before a job is pushed onto the
-// queue backend. Mirrors @bedrock\Queue\Events\JobQueueing.
+// Ref: @bedrock/code-0241
 type JobQueueing struct {
 	ConnectionName string
 	Queue          string
@@ -15,7 +15,7 @@ type JobQueueing struct {
 }
 
 // JobQueued is dispatched immediately after a job has been successfully
-// pushed onto the queue backend. Mirrors @bedrock\Queue\Events\JobQueued.
+// Ref: @bedrock/code-0240
 type JobQueued struct {
 	ConnectionName string
 	Queue          string

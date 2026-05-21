@@ -3,7 +3,6 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Amp implements boost.CodingAgent for Amp (Anthropic's web-based assistant).
-// Mirrors upstream Boost\Install\Agents\Amp.
 type Amp struct {
 	BaseAgent
 }

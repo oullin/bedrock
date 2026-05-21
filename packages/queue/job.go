@@ -60,7 +60,6 @@ type HandlerFunc func(ctx context.Context, job Job) error
 // failed. The driver or worker invokes Failed after Job.Fail has been
 // called and before the JobFailed event is emitted.
 //
-// Mirrors the upstream handler->failed($data, $exception, $uuid, $job)
 // callback invoked by CallQueuedHandler::failed.
 type FailureHandler interface {
 	Failed(ctx context.Context, job Job, err error)
@@ -87,7 +86,6 @@ type JobOptions struct {
 func (f HandlerFunc) Handle(ctx context.Context, job Job) error { return f(ctx, job) }
 
 // WithoutDelay returns a copy of opts with its dispatch delay cleared.
-// It is the typed Go equivalent of the upstream withoutDelay helper.
 func (o JobOptions) WithoutDelay() JobOptions {
 	o.Delay = 0
 

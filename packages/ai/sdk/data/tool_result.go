@@ -1,7 +1,6 @@
 package data
 
 // ToolResult holds the result of a tool invocation returned to the LLM.
-// Mirrors upstream Ai\Responses\Data\ToolResult.
 type ToolResult struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`

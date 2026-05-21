@@ -1,8 +1,8 @@
 # broadcasting
 
-<!-- upstream-docs: broadcasting.md#introduction -->
-<!-- upstream-docs: broadcasting.md#quickstart -->
-<!-- upstream-docs: broadcasting.md#client-side-installation -->
+<!-- ref: @bedrock/code-0024 -->
+<!-- ref: @bedrock/code-0025 -->
+<!-- ref: @bedrock/code-0023 -->
 
 <!-- BEDROCK:HAND -->
 

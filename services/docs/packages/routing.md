@@ -1,13 +1,13 @@
 # routing
 
-<!-- upstream-docs: routing.md#routing -->
-<!-- upstream-docs: routing.md#basic-routing -->
-<!-- upstream-docs: routing.md#route-parameters -->
-<!-- upstream-docs: routing.md#named-routes -->
-<!-- upstream-docs: routing.md#route-groups -->
-<!-- upstream-docs: routing.md#route-model-binding -->
-<!-- upstream-docs: routing.md#fallback-routes -->
-<!-- upstream-docs: routing.md#rate-limiting -->
+<!-- ref: @bedrock/code-0160 -->
+<!-- ref: @bedrock/code-0153 -->
+<!-- ref: @bedrock/code-0159 -->
+<!-- ref: @bedrock/code-0155 -->
+<!-- ref: @bedrock/code-0157 -->
+<!-- ref: @bedrock/code-0158 -->
+<!-- ref: @bedrock/code-0154 -->
+<!-- ref: @bedrock/code-0156 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

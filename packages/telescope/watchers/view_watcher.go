@@ -5,7 +5,7 @@ import (
 )
 
 // ViewWatcher monitors template/view rendering and records entries as Telescope
-// entries. It mirrors the upstream ViewWatcher class.
+// entries. It mirrors the the underlying behavior class.
 type ViewWatcher struct {
 	telescope.BaseWatcher
 }

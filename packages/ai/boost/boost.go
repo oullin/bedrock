@@ -14,7 +14,6 @@ import (
 
 // Manager is the central boost registry that tracks registered coding agents.
 // It is registered in the container under the key "boost".
-// Mirrors BoostManager in laravel/boost.
 type Manager struct {
 	mu     sync.RWMutex
 	agents map[string]CodingAgent

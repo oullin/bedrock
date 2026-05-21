@@ -1,6 +1,6 @@
 # spark
 
-<!-- upstream-docs: cashier-paddle.md#laravel-cashier-paddle -->
+<!-- ref: @bedrock/code-0032 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

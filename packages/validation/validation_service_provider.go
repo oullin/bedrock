@@ -3,7 +3,7 @@ package validation
 import "github.com/bedrock/packages/container"
 
 // ValidationServiceProvider registers the validator factory into the container.
-// It mirrors @bedrock\Validation\ValidationServiceProvider.
+// Ref: @bedrock/code-0390
 type ValidationServiceProvider struct {
 	app *container.Container
 }

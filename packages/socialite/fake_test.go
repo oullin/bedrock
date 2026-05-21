@@ -26,7 +26,6 @@ func setupFakeManager(t *testing.T) *socialite.Manager {
 }
 
 // SocialiteFakeTest::test_it_can_fake_a_driver_with_a_user
-// TestFakeDriverWithUser mirrors test_it_can_fake_a_driver_with_a_user.
 func TestFakeDriverWithUser(t *testing.T) {
 	m := setupFakeManager(t)
 
@@ -68,7 +67,6 @@ func TestFakeDriverWithUser(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_can_fake_a_driver_with_a_closure
-// TestFakeDriverWithClosure mirrors test_it_can_fake_a_driver_with_a_closure.
 func TestFakeDriverWithClosure(t *testing.T) {
 	m := setupFakeManager(t)
 
@@ -93,7 +91,6 @@ func TestFakeDriverWithClosure(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_can_fake_multiple_drivers
-// TestFakeMultipleDrivers mirrors test_it_can_fake_multiple_drivers.
 func TestFakeMultipleDrivers(t *testing.T) {
 	m := setupFakeManager(t)
 
@@ -116,7 +113,6 @@ func TestFakeMultipleDrivers(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_returns_fake_redirect_response
-// TestFakeReturnsRedirectURL mirrors test_it_returns_fake_redirect_response.
 func TestFakeReturnsRedirectURL(t *testing.T) {
 	m := setupFakeManager(t)
 	m.Fake("github", (&socialite.User{}).Map(map[string]any{"id": "123"}))
@@ -134,7 +130,6 @@ func TestFakeReturnsRedirectURL(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_forwards_calls_to_the_real_provider_methods
-// TestFakeForwardsChainedCalls mirrors
 // test_it_forwards_calls_to_the_real_provider_methods.
 func TestFakeForwardsChainedCalls(t *testing.T) {
 	m := setupFakeManager(t)
@@ -162,7 +157,6 @@ func TestFakeForwardsChainedCalls(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_preserves_decorator_pattern_when_chaining_methods
-// TestFakePreservesDecoratorPattern mirrors
 // test_it_preserves_decorator_pattern_when_chaining_methods.
 func TestFakePreservesDecoratorPattern(t *testing.T) {
 	m := setupFakeManager(t)
@@ -192,7 +186,6 @@ func TestFakePreservesDecoratorPattern(t *testing.T) {
 }
 
 // SocialiteFakeTest::test_it_returns_real_driver_when_not_faked
-// TestFakeReturnsRealDriverWhenNotFaked mirrors
 // test_it_returns_real_driver_when_not_faked.
 func TestFakeReturnsRealDriverWhenNotFaked(t *testing.T) {
 	m := setupFakeManager(t)

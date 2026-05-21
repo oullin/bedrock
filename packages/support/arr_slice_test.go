@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testCollapse
+// Ref: @bedrock/code-0375
 func TestArrCollapse(t *testing.T) {
 	t.Parallel()
 
@@ -32,7 +32,7 @@ func TestArrCollapseEmpty(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testFirst
+// Ref: @bedrock/code-0375
 func TestArrFirst(t *testing.T) {
 	t.Parallel()
 
@@ -73,7 +73,7 @@ func TestArrFirstNoMatch(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testLast
+// Ref: @bedrock/code-0375
 func TestArrLast(t *testing.T) {
 	t.Parallel()
 
@@ -102,7 +102,7 @@ func TestArrLastEmpty(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testFlatten
+// Ref: @bedrock/code-0375
 func TestArrFlatten(t *testing.T) {
 	t.Parallel()
 
@@ -155,7 +155,7 @@ func TestArrFlattenZeroDepth(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testPrepend
+// Ref: @bedrock/code-0375
 func TestArrPrepend(t *testing.T) {
 	t.Parallel()
 
@@ -183,7 +183,7 @@ func TestArrPrependEmpty(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testRandom
+// Ref: @bedrock/code-0375
 func TestArrRandom(t *testing.T) {
 	t.Parallel()
 
@@ -239,7 +239,7 @@ func TestArrRandomEmpty(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testRandomThrowsAnErrorWhenRequestingMoreItemsThanAreAvailable
+// Ref: @bedrock/code-0375
 func TestArrRandomExceedsLength(t *testing.T) {
 	t.Parallel()
 
@@ -250,7 +250,7 @@ func TestArrRandomExceedsLength(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testSort
+// Ref: @bedrock/code-0375
 func TestArrSort(t *testing.T) {
 	t.Parallel()
 
@@ -288,7 +288,7 @@ func TestArrSortDoesNotMutate(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testSortWithCallback
+// Ref: @bedrock/code-0375
 func TestArrSortFunc(t *testing.T) {
 	t.Parallel()
 
@@ -310,7 +310,7 @@ func TestArrSortFunc(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testWhere
+// Ref: @bedrock/code-0375
 func TestArrWhere(t *testing.T) {
 	t.Parallel()
 
@@ -347,7 +347,7 @@ func TestArrWhereWithIndex(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\SupportArrTest::testWrap
+// Ref: @bedrock/code-0375
 func TestArrWrap(t *testing.T) {
 	t.Parallel()
 

@@ -1,4 +1,4 @@
 // Package eloquent provides an Active Record ORM with generic model types,
 // relationships, scopes, events, soft deletes, and attribute casting. It is
-// the Go port of @bedrock\Database\Eloquent.
+// Ref: @bedrock/code-0207
 package eloquent

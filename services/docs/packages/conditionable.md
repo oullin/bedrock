@@ -1,7 +1,7 @@
 # conditionable
 
-<!-- upstream-docs: collections.md#higher-order-messages -->
-<!-- upstream-docs: helpers.md#other-utilities -->
+<!-- ref: @bedrock/code-0033 -->
+<!-- ref: @bedrock/code-0085 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

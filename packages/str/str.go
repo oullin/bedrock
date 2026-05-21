@@ -19,28 +19,20 @@ import (
 
 // StrAfter returns the portion of the string after the first occurrence of search.
 // If search is not found, the full subject is returned.
-// Mirrors Str::after().
 
 // StrAfterLast returns the portion after the last occurrence of search.
-// Mirrors Str::afterLast().
 
 // StrBefore returns the portion before the first occurrence of search.
-// Mirrors Str::before().
 
 // StrBeforeLast returns the portion before the last occurrence of search.
-// Mirrors Str::beforeLast().
 
 // StrBetween returns the portion between from and to.
-// Mirrors Str::between().
 
 // StrBetweenFirst returns the smallest portion between from and to.
-// Mirrors Str::betweenFirst().
 
 // StrCamel converts a string to camelCase.
-// Mirrors Str::camel().
 
 // StrStudly converts a string to StudlyCase (PascalCase).
-// Mirrors Str::studly().
 
 // Replace common separators with spaces, then title-case
 
@@ -49,24 +41,19 @@ import (
 // Replace hyphens, underscores with spaces
 
 // StrPascal converts a string to PascalCase (alias for Studly).
-// Mirrors Str::pascal().
 
 // StrSnake converts a string to snake_case.
-// Mirrors Str::snake().
 
 // Insert separator before uppercase letters that follow lowercase or digits
 
 // StrKebab converts a string to kebab-case.
-// Mirrors Str::kebab().
 
 // StrTitle converts a string to Title Case.
-// Mirrors Str::title().
 
 //nolint:staticcheck
 
 // StrHeadline converts a string to Headline Case.
 // Each word is capitalized, separating camelCase and underscored strings.
-// Mirrors Str::headline().
 
 // Handle camelCase by inserting spaces
 
@@ -75,219 +62,155 @@ import (
 // Title case each word
 
 // StrApa converts a string to APA title case.
-// Mirrors Str::apa().
 
 // APA: lowercase articles, conjunctions, short prepositions
 
 // Capitalize
 
 // StrUcfirst uppercases the first character of the string.
-// Mirrors Str::ucfirst().
 
 // StrLcfirst lowercases the first character of the string.
-// Mirrors Str::lcfirst().
 
 // StrUcwords uppercases the first character of each word.
-// Mirrors Str::ucwords().
 
 //nolint:staticcheck
 
 // Word-boundary title case with custom separators
 
 // StrUcsplit splits a string by uppercase characters.
-// Mirrors Str::ucsplit().
 
 // StrContains determines if the haystack contains the given needle(s).
 // Case-sensitive by default.
-// Mirrors Str::contains().
 
 // StrContainsAll determines if the haystack contains all given needles.
-// Mirrors Str::containsAll().
 
 // StrDoesntContain determines if the haystack does not contain the given needle(s).
-// Mirrors Str::doesntContain().
 
 // StrStartsWith determines if the subject starts with the given prefix(es).
-// Mirrors Str::startsWith().
 
 // StrDoesntStartWith determines if the subject does not start with any of the given values.
-// Mirrors Str::doesntStartWith().
 
 // StrEndsWith determines if the subject ends with the given suffix(es).
-// Mirrors Str::endsWith().
 
 // StrDoesntEndWith determines if the subject does not end with any of the given values.
-// Mirrors Str::doesntEndWith().
 
 // StrIs determines if the value matches the given pattern.
 // An asterisk (*) may be used as a wildcard value.
-// Mirrors Str::is().
 
 // Convert glob pattern to regex
 
 // StrIsMatch determines if the value matches any of the given patterns (regex).
-// Mirrors Str::isMatch().
 
 // StrIsAscii determines if a string is 7-bit ASCII.
-// Mirrors Str::isAscii().
 
 // StrIsJson determines if the given string is valid JSON.
-// Mirrors Str::isJson().
 
 // StrIsUrl determines if the given string is a valid URL.
-// Mirrors Str::isUrl().
 
 // StrIsUuid determines if the given string is a valid UUID.
-// Mirrors Str::isUuid().
 
 // StrIsUlid determines if the given string is a valid ULID.
-// Mirrors Str::isUlid().
 
 // StrLength returns the length of the string in runes (characters).
-// Mirrors Str::length().
 
 // StrLimit truncates the string to the given number of characters.
-// Mirrors Str::limit().
 
 // StrWords limits the number of words in a string.
-// Mirrors Str::words().
 
 // Split preserving spaces around words
 
 // StrLower converts the string to lowercase.
-// Mirrors Str::lower().
 
 // StrUpper converts the string to uppercase.
-// Mirrors Str::upper().
 
 // StrReverse reverses the string (UTF-8 aware).
-// Mirrors Str::reverse().
 
 // StrReplace replaces occurrences of search in subject with replace.
-// Mirrors Str::replace().
 
 // StrReplaceArray replaces each search occurrence with the next value from replacements.
-// Mirrors Str::replaceArray().
 
 // StrReplaceFirst replaces the first occurrence of search in subject.
-// Mirrors Str::replaceFirst().
 
 // StrReplaceLast replaces the last occurrence of search in subject.
-// Mirrors Str::replaceLast().
 
 // StrReplaceStart replaces the search value if it appears at the start of subject.
-// Mirrors Str::replaceStart().
 
 // StrReplaceEnd replaces the search value if it appears at the end of subject.
-// Mirrors Str::replaceEnd().
 
 // StrReplaceMatches replaces all occurrences of a regex pattern in subject.
-// Mirrors Str::replaceMatches().
 
 // StrRemove removes all occurrences of search from subject.
-// Mirrors Str::remove().
 
 // StrRepeat repeats the string the given number of times.
-// Mirrors Str::repeat().
 
 // StrSquish removes all extra blank space (including between words).
-// Mirrors Str::squish().
 
 // StrDeduplicate replaces consecutive occurrences of characters with a single instance.
-// Mirrors Str::deduplicate().
 
 // StrTrim removes leading and trailing whitespace (or given chars).
-// Mirrors Str::trim().
 
 // StrLtrim removes leading whitespace (or given chars).
-// Mirrors Str::ltrim().
 
 // StrRtrim removes trailing whitespace (or given chars).
-// Mirrors Str::rtrim().
 
 // StrStart prepends a single instance of value to the subject
 // if it does not already start with it.
-// Mirrors Str::start().
 
 // StrFinish appends a single instance of cap to value
 // if it does not already end with it.
-// Mirrors Str::finish().
 
 // StrWrap wraps the string with the given strings.
-// Mirrors Str::wrap().
 
 // StrUnwrap removes the given prefix and suffix from the string.
-// Mirrors Str::unwrap().
 
 // StrChopStart removes a single leading occurrence of needle (or the first matching needle).
-// Mirrors Str::chopStart().
 
 // StrChopEnd removes a single trailing occurrence of needle (or the first matching needle).
-// Mirrors Str::chopEnd().
 
 // StrMask replaces a portion of the string with a repeated character.
-// Mirrors Str::mask().
 
 // StrExcerpt returns a string excerpt around the given phrase.
-// Mirrors Str::excerpt().
 
 // StrMatch returns the first regex match in subject.
-// Mirrors Str::match().
 
 // StrMatchAll returns all regex matches in subject.
-// Mirrors Str::matchAll().
 
 // StrNumbers extracts all numeric characters from the string.
-// Mirrors Str::numbers().
 
 // StrPadBoth pads the string on both sides to the given length.
-// Mirrors Str::padBoth().
 
 // StrPadLeft pads the left side of the string to the given length.
-// Mirrors Str::padLeft().
 
 // StrPadRight pads the right side of the string to the given length.
-// Mirrors Str::padRight().
 
 // StrPosition finds the position of needle in haystack.
 // Returns the byte position and whether it was found.
-// Mirrors Str::position().
 
 // StrSubstr returns a substring from start for the given length.
-// Mirrors Str::substr().
 
 // StrSubstrCount counts the occurrences of needle in haystack.
-// Mirrors Str::substrCount().
 
 // StrSubstrReplace replaces a portion of the string.
-// Mirrors Str::substrReplace().
 
 // StrSwap swaps multiple keyword pairs in the subject.
-// Mirrors Str::swap().
 
 // Build patterns ordered by length (longer first to avoid partial replacements)
 
 // StrTake returns the first n characters, or from the end if n is negative.
-// Mirrors Str::take().
 
 // negative: from end
 
 // StrWordCount counts the number of words in the string.
-// Mirrors Str::wordCount().
 
 // StrWordWrap wraps the string to the given number of characters.
-// Mirrors Str::wordWrap().
 
 // StrToBase64 encodes the string to base64.
-// Mirrors Str::toBase64().
 
 // StrFromBase64 decodes a base64-encoded string.
-// Mirrors Str::fromBase64().
 
 // Try URL-safe base64
 
 // StrSlug generates a URL-friendly slug from the given string.
-// Mirrors Str::slug().
 
 // Convert to ASCII
 
@@ -298,45 +221,33 @@ import (
 // Remove leading/trailing separators and deduplicate
 
 // StrAscii transliterates the string to its closest ASCII representation.
-// Mirrors Str::ascii().
 
 // Unknown non-ASCII chars are dropped (like the upstream behavior)
 
 // StrTransliterate converts the string to its closest ASCII form.
-// Mirrors Str::transliterate().
 
 // StrInitials returns the initials of the given name.
-// Mirrors Str::initials().
 
 // StrCharAt returns the character at the given index (UTF-8 aware).
-// Mirrors Str::charAt().
 
 // StrParseCallback parses a "Class@method" or "Class::method" callback string.
 // Returns [class, method].
-// Mirrors Str::parseCallback().
 
 // StrRandom generates a random alphanumeric string of the given length.
-// Mirrors Str::random().
 
 // fallback used when sequence exhausted
 
 // CreateRandomStringsUsing sets a custom random string factory.
-// Mirrors Str::createRandomStringsUsing().
 
 // CreateRandomStringsUsingSequence sets a sequence of strings to use for random generation.
-// Mirrors Str::createRandomStringsUsingSequence().
 
 // CreateRandomStringsNormally resets random string generation to default.
-// Mirrors Str::createRandomStringsNormally().
 
 // StrPassword generates a secure random password.
-// Mirrors Str::password().
 
 // FlushCache clears the casing caches.
-// Mirrors Str::flushCache().
 
 // StrConvertCase converts the string case using the given mode.
-// Mirrors Str::convertCase().
 
 // MB_CASE_UPPER
 
@@ -346,10 +257,9 @@ import (
 //nolint:staticcheck
 
 // Of creates a new StringBuilder for fluent string manipulation.
-// Mirrors Str::of().
 
 // StringBuilder provides a fluent interface for string manipulation.
-// Mirrors @bedrock\Support\Stringable.
+// Ref: @bedrock/code-0354
 type StringBuilder struct {
 	value string
 }

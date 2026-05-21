@@ -13,8 +13,6 @@ import (
 //   - int: milliseconds to sleep between attempts
 //   - []int: backoff schedule in milliseconds (cycles if exhausted)
 //   - func(int) time.Duration: callback receiving attempt number, returns sleep duration
-//
-// Mirrors the upstream retry() helper.
 func Retry(times int, fn func(attempt int) error, sleep ...any) error {
 	var lastErr error
 
@@ -43,7 +41,6 @@ func Retry(times int, fn func(attempt int) error, sleep ...any) error {
 }
 
 // RetryWhen retries the callback only when the given condition returns true.
-// Mirrors the upstream retry() with a when callback.
 func RetryWhen(times int, fn func(attempt int) error, when func(error) bool, sleep ...any) error {
 	var lastErr error
 
@@ -119,7 +116,6 @@ func resolveSleepDuration(sleep any, attempt int) time.Duration {
 }
 
 // ThrowIf throws the given exception if the condition is true.
-// Mirrors the upstream throw_if() helper.
 func ThrowIf(condition bool, err error) error {
 	return Throw(condition, err)
 }

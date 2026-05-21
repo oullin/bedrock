@@ -1,9 +1,9 @@
 # HTTP
 
-<!-- upstream-docs: requests.md#input -->
-<!-- upstream-docs: responses.md#creating-responses -->
-<!-- upstream-docs: http-client.md#introduction -->
-<!-- upstream-docs: http-tests.md#making-requests -->
+<!-- ref: @bedrock/code-0148 -->
+<!-- ref: @bedrock/code-0149 -->
+<!-- ref: @bedrock/code-0088 -->
+<!-- ref: @bedrock/code-0089 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

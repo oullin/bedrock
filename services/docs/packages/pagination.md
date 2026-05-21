@@ -1,8 +1,8 @@
 # pagination
 
-<!-- upstream-docs: pagination.md#introduction -->
-<!-- upstream-docs: pagination.md#cursor-pagination -->
-<!-- upstream-docs: pagination.md#customizing-the-pagination-view -->
+<!-- ref: @bedrock/code-0117 -->
+<!-- ref: @bedrock/code-0115 -->
+<!-- ref: @bedrock/code-0116 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

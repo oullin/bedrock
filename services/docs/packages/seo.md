@@ -1,7 +1,7 @@
 # seo
 
-<!-- upstream-docs: responses.md#creating-responses -->
-<!-- upstream-docs: frontend.md#frontend -->
+<!-- ref: @bedrock/code-0149 -->
+<!-- ref: @bedrock/code-0079 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

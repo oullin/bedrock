@@ -1,8 +1,8 @@
 # collection
 
-<!-- upstream-docs: collections.md#introduction -->
-<!-- upstream-docs: collections.md#method-listing -->
-<!-- upstream-docs: collections.md#higher-order-messages -->
+<!-- ref: @bedrock/code-0034 -->
+<!-- ref: @bedrock/code-0035 -->
+<!-- ref: @bedrock/code-0033 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

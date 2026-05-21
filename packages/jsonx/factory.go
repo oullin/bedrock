@@ -1,7 +1,6 @@
 package jsonx
 
 // Factory creates JSON Schema types.
-// It mirrors the upstream JsonSchemaTypeFactory, allowing closure-based
 // object construction via Object(func(Factory) map[string]SchemaType{}).
 type Factory struct{}
 

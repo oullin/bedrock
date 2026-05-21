@@ -1,9 +1,9 @@
 # queue
 
-<!-- upstream-docs: queues.md#introduction -->
-<!-- upstream-docs: queues.md#creating-jobs -->
-<!-- upstream-docs: queues.md#job-batching -->
-<!-- upstream-docs: queues.md#running-the-queue-worker -->
+<!-- ref: @bedrock/code-0143 -->
+<!-- ref: @bedrock/code-0142 -->
+<!-- ref: @bedrock/code-0144 -->
+<!-- ref: @bedrock/code-0145 -->
 
 <!-- BEDROCK:HAND -->
 

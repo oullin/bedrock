@@ -1,7 +1,7 @@
 # encryption
 
-<!-- upstream-docs: encryption.md#introduction -->
-<!-- upstream-docs: encryption.md#using-the-encrypter -->
+<!-- ref: @bedrock/code-0057 -->
+<!-- ref: @bedrock/code-0058 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

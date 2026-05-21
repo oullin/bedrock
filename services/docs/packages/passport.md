@@ -1,9 +1,9 @@
 # passport
 
-<!-- upstream-docs: passport.md#introduction -->
-<!-- upstream-docs: passport.md#password-grant -->
-<!-- upstream-docs: passport.md#personal-access-tokens -->
-<!-- upstream-docs: passport.md#protecting-routes -->
+<!-- ref: @bedrock/code-0118 -->
+<!-- ref: @bedrock/code-0119 -->
+<!-- ref: @bedrock/code-0120 -->
+<!-- ref: @bedrock/code-0121 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

@@ -14,7 +14,7 @@ import (
 // SupportTimeboxTest::testMakeWaitsForMicroseconds
 // SupportTimeboxTest::testMakeWaitsForMicrosecondsWhenExceptionIsThrown
 
-// Port of @bedrock\Tests\Support\TimeboxTest::it_returns_at_least_minimum_duration
+// Ref: @bedrock/code-0381
 func TestTimeboxMinimumDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -34,7 +34,7 @@ func TestTimeboxMinimumDuration(t *testing.T) {
 	fake.AssertSleptTimes(t, 1)
 }
 
-// Port of @bedrock\Tests\Support\TimeboxTest::it_does_not_sleep_when_fn_exceeds_minimum
+// Ref: @bedrock/code-0381
 func TestTimeboxNoSleepWhenExceedsMinimum(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -50,7 +50,7 @@ func TestTimeboxNoSleepWhenExceedsMinimum(t *testing.T) {
 	fake.AssertNeverSlept(t)
 }
 
-// Port of @bedrock\Tests\Support\TimeboxTest::it_executes_the_callback
+// Ref: @bedrock/code-0381
 func TestTimeboxExecutesCallback(t *testing.T) {
 	t.Parallel()
 
@@ -64,7 +64,7 @@ func TestTimeboxExecutesCallback(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\TimeboxTest::timebox_with_error_returns_error
+// Ref: @bedrock/code-0381
 func TestTimeboxWithError(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -82,7 +82,7 @@ func TestTimeboxWithError(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\TimeboxTest::timebox_with_error_returns_nil_on_success
+// Ref: @bedrock/code-0381
 func TestTimeboxWithErrorNil(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -99,7 +99,7 @@ func TestTimeboxWithErrorNil(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Support\TimeboxTest::timebox_returns_elapsed_duration
+// Ref: @bedrock/code-0381
 func TestTimeboxReturnsDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}

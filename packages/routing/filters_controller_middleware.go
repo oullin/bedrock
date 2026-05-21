@@ -1,6 +1,5 @@
 package routing
 
-// FiltersControllerMiddleware is the Go translation of the PHP trait of the
 // same name. It exposes the static helper used by [ControllerDispatcher] and
 // [ResourceRegistrar] to decide whether a middleware applies to a given
 // controller method based on its only/except options.

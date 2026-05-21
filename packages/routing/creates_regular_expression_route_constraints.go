@@ -1,6 +1,5 @@
 package routing
 
-// CreatesRegularExpressionRouteConstraints is the Go translation of the PHP
 // trait of the same name.
 //
 // In the upstream framework this is a trait used by [Route] and [RouteRegistrar] to expose

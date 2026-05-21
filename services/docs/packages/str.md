@@ -1,7 +1,7 @@
 # Strings
 
-<!-- upstream-docs: strings.md#introduction -->
-<!-- upstream-docs: helpers.md#available-methods -->
+<!-- ref: @bedrock/code-0170 -->
+<!-- ref: @bedrock/code-0083 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

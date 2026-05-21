@@ -12,7 +12,7 @@ import (
 // validation) and then short-circuits with a [SuccessResponse] panic instead
 // of executing the method.
 //
-// Mirrors @bedrock\Foundation\Routing\PrecognitionControllerDispatcher.
+// Ref: @bedrock/code-0220
 type ControllerDispatcher struct {
 	routing.ResolvesRouteDependencies
 	routing.FiltersControllerMiddleware
@@ -83,7 +83,7 @@ func (d *ControllerDispatcher) GetMiddleware(controller any, method string) []an
 }
 
 // ensureMethodExists panics if the controller does not have the named method.
-// This mirrors PrecognitionControllerDispatcher::ensureMethodExists which
+// Ref: @bedrock/code-0220
 // throws a RuntimeException.
 func (d *ControllerDispatcher) ensureMethodExists(controller any, method string) {
 	rv := reflect.ValueOf(controller)

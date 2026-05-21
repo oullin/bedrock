@@ -9,7 +9,6 @@ import (
 
 // reservedKeywords is the complete list of TypeScript/JavaScript reserved
 // words that cannot be used as identifiers without quoting.
-// Mirrors TypeScript::RESERVED_KEYWORDS in the PHP implementation.
 var reservedKeywords = map[string]struct{}{
 	"await": {}, "break": {}, "case": {}, "catch": {}, "class": {},
 	"const": {}, "continue": {}, "debugger": {}, "default": {}, "delete": {},
@@ -61,7 +60,6 @@ func SafeMethod(method, suffix string) string {
 
 // QuoteIfNeeded returns the key quoted when it starts with a digit but is not
 // a pure integer (e.g., "2fa" → `"2fa"`). Pure numbers are returned as-is.
-// Mirrors TypeScript::quoteIfNeeded().
 func QuoteIfNeeded(name string) string {
 	if isNumeric(name) {
 		return name

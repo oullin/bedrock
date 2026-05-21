@@ -6,7 +6,6 @@ import (
 )
 
 // ToolResultMessage carries the results of tool invocations back to the LLM.
-// Mirrors upstream Ai\Messages\ToolResultMessage.
 type ToolResultMessage struct {
 	Message
 	ToolResults []data.ToolResult

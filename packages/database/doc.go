@@ -1,6 +1,6 @@
 // Package database provides a database abstraction layer with query builder,
 // schema management, Eloquent-style ORM, and migration support. It is the Go
-// port of the upstream @bedrock/Database package, adapted to Go idioms while
+// Ref: @bedrock/code-0201
 // maintaining 100% function parity.
 //
 // The package supports MySQL, PostgreSQL, and SQLite through driver-specific

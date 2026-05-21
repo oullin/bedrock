@@ -13,7 +13,6 @@ import (
 	contractsprovider "github.com/bedrock/packages/contracts/ai/provider"
 )
 
-// TestRerankingCanBeFaked mirrors test_reranking_can_be_faked.
 func TestRerankingCanBeFaked(t *testing.T) {
 	t.Parallel()
 
@@ -44,7 +43,6 @@ func TestRerankingCanBeFaked(t *testing.T) {
 	})
 }
 
-// TestRerankingAssertNothingReranked mirrors the "nothing reranked" assertion.
 func TestRerankingAssertNothingReranked(t *testing.T) {
 	t.Parallel()
 

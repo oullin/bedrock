@@ -3,7 +3,7 @@ package cookie
 import "github.com/bedrock/packages/container"
 
 // CookieServiceProvider registers the cookie jar into the container.
-// It mirrors @bedrock\Cookie\CookieServiceProvider.
+// Ref: @bedrock/code-0200
 type CookieServiceProvider struct {
 	app      *container.Container
 	defaults Options

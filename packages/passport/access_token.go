@@ -8,8 +8,6 @@ import (
 // AccessToken wraps a Token and provides JSON serialization.
 // It is the value associated with a user via WithAccessToken and is consulted
 // when checking scopes via TokenCan/TokenCant.
-//
-// This mirrors Passport AccessToken class.
 type AccessToken struct {
 	token    *Token
 	passport *Passport

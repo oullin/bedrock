@@ -1,6 +1,6 @@
 # cookie
 
-<!-- upstream-docs: encryption.md#introduction -->
+<!-- ref: @bedrock/code-0057 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

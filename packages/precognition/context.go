@@ -10,7 +10,6 @@ import (
 type contextKey struct{}
 
 // precognitiveKey is the context key that marks a request as precognitive.
-// This is the Go equivalent of the upstream // $request->attributes->set('precognitive', true).
 var precognitiveKey = contextKey{}
 
 // MarkPrecognitive returns a shallow copy of r with the precognitive context

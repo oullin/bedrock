@@ -16,8 +16,8 @@ type DriverCreator func(config map[string]any) (Queue, error)
 
 // ConnectorFactory is the upstream-faithful two-step path: the factory
 // returns a Connector, and the Manager then calls Connector.Connect(config)
-// to obtain a Queue. Mirrors the upstream addConnector closure, which
-// returns `new @bedrock\Queue\Connectors\*Connector`.
+// to obtain a Queue. Mirrors the the underlying behavior closure, which
+// Ref: @bedrock/code-0231
 type ConnectorFactory func() Connector
 
 // ConnectionNameSetter is the optional contract a Queue implementation
@@ -32,7 +32,6 @@ type ConnectionNameSetter interface {
 // ContainerAware is the optional contract a Queue implementation can
 // satisfy if it wants the Manager to hand it the application container
 // (or any opaque value the caller chose as container) after creation.
-// Mirrors the upstream Queue::setContainer.
 type ContainerAware interface {
 	SetContainer(container any)
 }
@@ -44,7 +43,7 @@ type HookFunc func(event any)
 
 // Manager creates, caches, and coordinates named queue connections.
 //
-// The API surface is the Go port of @bedrock\Queue\QueueManager with
+// Ref: @bedrock/code-0269
 // two entry points for registering drivers (Register for the simple
 // creator path, AddConnector for the two-step Connector path), enum-like
 // connection references via Connection(any), optional queue hooks for
@@ -112,7 +111,7 @@ func (m *Manager) Extend(driver string, creator DriverCreator) *Manager {
 
 // AddConnector registers a ConnectorFactory for the given driver name.
 // The factory is invoked lazily the first time a connection using that
-// driver is resolved. Mirrors the upstream QueueManager::addConnector.
+// Ref: @bedrock/code-0269
 func (m *Manager) AddConnector(driver string, factory ConnectorFactory) *Manager {
 	m.mu.Lock()
 
@@ -187,7 +186,7 @@ func (m *Manager) Connection(name any) (Queue, error) {
 }
 
 // Connected reports whether the given connection has been resolved and
-// cached. It does not trigger creation. Mirrors the upstream connected().
+// cached. It does not trigger creation. Mirrors the the underlying behavior().
 func (m *Manager) Connected(name any) bool {
 	key := connectionKey(name)
 
@@ -333,13 +332,11 @@ func (m *Manager) instantiateLocked(driver string, cfg map[string]any) (Queue, e
 // --- hook registration ------------------------------------------------
 
 // Before registers a listener that runs before each job is processed.
-// Mirrors the upstream Queue::before($callback).
 func (m *Manager) Before(hook HookFunc) *Manager {
 	return m.appendHook(&m.beforeHooks, hook)
 }
 
 // After registers a listener that runs after a job has been processed.
-// Mirrors the upstream Queue::after.
 func (m *Manager) After(hook HookFunc) *Manager { return m.appendHook(&m.afterHooks, hook) }
 
 // Failing registers a listener that runs when a job fails. Mirrors
@@ -347,11 +344,9 @@ func (m *Manager) After(hook HookFunc) *Manager { return m.appendHook(&m.afterHo
 func (m *Manager) Failing(hook HookFunc) *Manager { return m.appendHook(&m.failingHooks, hook) }
 
 // Starting registers a listener that runs when a worker daemon boots.
-// Mirrors the upstream Worker::starting.
 func (m *Manager) Starting(hook HookFunc) *Manager { return m.appendHook(&m.startingHooks, hook) }
 
 // Stopping registers a listener that runs when a worker daemon exits.
-// Mirrors the upstream Worker::stopping.
 func (m *Manager) Stopping(hook HookFunc) *Manager { return m.appendHook(&m.stoppingHooks, hook) }
 
 // BeforeHooks / AfterHooks / FailingHooks / StartingHooks / StoppingHooks
@@ -476,7 +471,7 @@ func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]Insp
 }
 
 // AllReservedJobs returns every reserved (in-flight) job across all
-// queues on connection. Mirrors the upstream Queue::allReservedJobs.
+// queues on connection. Mirrors the the underlying behavior.
 func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
 		return i.ReservedJobs(ctx, name)
@@ -487,7 +482,6 @@ func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]Ins
 // helpers. Drivers that do not implement QueueNamer or JobInspector
 // surface as ErrNotSupported; per-queue calls that themselves return
 // ErrNotSupported are skipped silently — the caller then receives only
-// the snapshots from queues the driver can introspect, mirroring
 // the upstream "best-effort across queues" semantics.
 func (m *Manager) allJobs(ctx context.Context, connection string, fetch func(JobInspector, string) ([]InspectedJob, error)) ([]InspectedJob, error) {
 	q, err := m.resolveConnection(connection)

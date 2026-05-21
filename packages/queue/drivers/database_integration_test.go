@@ -1,6 +1,6 @@
 //go:build integration
 
-// Port of tests/Queue/QueueDatabaseQueueIntegrationTest.php (laravel/framework 13.x).
+// Port of tests/Queue/QueueDatabaseQueueIntegrationTest.php ( 13.x).
 //
 // Parity status:
 //   testAvailableAndUnReservedJobsArePopped   ✅
@@ -39,7 +39,7 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testAvailableAndUnReservedJobsArePopped
+// Ref: @bedrock/code-0365
 func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	t.Parallel()
 
@@ -66,7 +66,7 @@ func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testPoppedJobsIncrementAttempts
+// Ref: @bedrock/code-0365
 func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	t.Parallel()
 
@@ -105,7 +105,7 @@ func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatQueueCanBeCleared
+// Ref: @bedrock/code-0365
 func TestThatQueueCanBeCleared(t *testing.T) {
 	t.Parallel()
 
@@ -145,7 +145,7 @@ func TestThatQueueCanBeCleared(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testUnavailableJobsAreNotPopped
+// Ref: @bedrock/code-0365
 func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -170,8 +170,7 @@ func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedAndExpiredJobsArePopped
-//
+// Ref: @bedrock/code-0365
 // DEFERRED. the upstream Pop reclaims reserved_at rows whose reservation
 // has expired (reserved_at < now - retry_after). The Go DatabaseDriver
 // Pop today only selects rows where reserved_at IS NULL, so there is
@@ -182,7 +181,7 @@ func TestThatReservedAndExpiredJobsArePopped(t *testing.T) {
 	t.Skip("deferred: DatabaseDriver.Pop does not yet reclaim expired reservations")
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedJobsAreNotPopped
+// Ref: @bedrock/code-0365
 func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -202,8 +201,7 @@ func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testJobPayloadIsAvailableOnEvents
-//
+// Ref: @bedrock/code-0365
 // Adaptation: upstream dispatches JobQueueing / JobQueued events from
 // DatabaseQueue::push and the PHP test asserts the event payload()
 // contains the job UUID. In the Go port, the driver does not emit
@@ -268,7 +266,6 @@ func TestJobPayloadIsAvailableOnEvents(t *testing.T) {
 	}
 
 	// The payload must decode into a map that carries a uuid — this
-	// mirrors the PHP $jobQueuedEvent->payload()['uuid'] assertion.
 	if !strings.Contains(string(job.Payload()), `"uuid"`) {
 		t.Errorf("job payload missing uuid field: %s", string(job.Payload()))
 	}

@@ -12,7 +12,6 @@ import (
 // provider needs. Tests inject fakes; production wires the real AWS
 // client through a thin adapter.
 //
-// The shape mirrors the upstream use of Aws\DynamoDb\DynamoDbClient:
 // PutItem for Log, Query for All, GetItem for Find, DeleteItem for
 // Forget. Each method receives the request parameters upstream emits
 // verbatim so tests can assert the on-wire request shape.
@@ -23,8 +22,7 @@ type DynamoDBClient interface {
 	DeleteItem(ctx context.Context, params map[string]any) (map[string]any, error)
 }
 
-// DynamoDbFailedJobProvider is the Go port of
-// @bedrock\Queue\Failed\DynamoDbFailedJobProvider.
+// Ref: @bedrock/code-0257
 type DynamoDbFailedJobProvider struct {
 	client          DynamoDBClient
 	applicationName string
@@ -185,7 +183,6 @@ func (p *DynamoDbFailedJobProvider) Flush(_ int) error {
 	return ErrDynamoDbFlushUnsupported
 }
 
-// ErrDynamoDbFlushUnsupported mirrors the PHP exception upstream raises
 // from DynamoDbFailedJobProvider::flush.
 var ErrDynamoDbFlushUnsupported = errors.New("dynamodb failed job storage may not be flushed. use the table's TTL feature on expires_at")
 

@@ -9,7 +9,6 @@ import (
 
 // PayloadHook mutates a payload after it has been built but before it is
 // serialised and handed to the driver. Hooks run in registration order.
-// This is the Go port of Queue::createPayloadUsing($callback)
 // hook, which lets callers inject additional metadata (user id, tenant,
 // trace context, ...) into every job envelope.
 type PayloadHook func(connection, queue string, payload *Payload)

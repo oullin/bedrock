@@ -63,7 +63,6 @@ func TestSafeMethod(t *testing.T) {
 	}
 }
 
-// TestQuoteIfNeeded mirrors TypeScript::quoteIfNeeded() from PHP.
 func TestQuoteIfNeeded(t *testing.T) {
 	t.Parallel()
 

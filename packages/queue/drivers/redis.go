@@ -62,7 +62,6 @@ type RedisSortedSetRanger interface {
 // that every operation for a queue lands on the same slot.
 //
 // The result is cached after the first call on a given RedisDriver instance,
-// mirroring the upstream `RedisQueue::isClusterConnection()` behaviour.
 type RedisClusterAware interface {
 	IsCluster() bool
 }
@@ -73,7 +72,6 @@ type RedisDriver struct {
 	connection string
 
 	// isCluster caches the cluster-connection check result. It is nil
-	// until the first call to isClusterConnection, which mirrors
 	// the upstream null-coalescing assignment ($this->isCluster ??= ...).
 	isCluster *bool
 }
@@ -93,12 +91,10 @@ type RedisDriver struct {
 // queue hash to the same slot. If the queue name already contains a hash
 // tag (per Redis cluster semantics — `{` followed later by a `}` with at
 // least one character between), the name is left unchanged.
-//
-// Mirrors `RedisQueue::getQueueRedisKey()` and `Connection::hasHashTag()`.
 
 // hasHashTag reports whether key contains a valid Redis cluster hash tag
 // (an opening `{` followed by a `}` with at least one character in between).
-// Mirrors the upstream `@bedrock\Redis\Connections\Connection::hasHashTag()`.
+// Ref: @bedrock/code-0276
 
 // NewRedisDriver creates a RedisDriver.
 

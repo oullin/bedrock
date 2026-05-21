@@ -11,7 +11,6 @@ import (
 )
 
 // TelescopeTestCase is an embeddable struct that provides test helpers
-// mirroring the FeatureTestCase from the upstream Telescope test suite.
 type TelescopeTestCase struct {
 	T          *testing.T
 	Telescope  *telescope.Telescope
@@ -34,7 +33,6 @@ func NewTestCase(t *testing.T) *TelescopeTestCase {
 	}
 }
 
-// Store flushes queued entries to the repository, mirroring
 // FeatureTestCase::terminateTelescope().
 func (tc *TelescopeTestCase) Store() {
 	tc.T.Helper()
@@ -60,7 +58,6 @@ func (tc *TelescopeTestCase) StopRecording() {
 }
 
 // LoadEntries stores queued entries and returns all persisted results,
-// mirroring FeatureTestCase::loadTelescopeEntries().
 func (tc *TelescopeTestCase) LoadEntries() []*telescope.EntryResult {
 	tc.T.Helper()
 	tc.Store()

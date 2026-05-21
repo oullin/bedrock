@@ -7,8 +7,7 @@ import (
 )
 
 // MessageSelector selects the appropriate plural form from a translation
-// string, mirroring the upstream @bedrock\Translation\MessageSelector.
-//
+// Ref: @bedrock/code-0384
 // Translation strings use pipe-delimited segments with optional bracket
 // conditions:
 //
@@ -194,7 +193,6 @@ func stripConditions(segments []string) []string {
 
 // getPluralIndex returns the CLDR plural-form index for locale and n.
 // n is the absolute value of the original number as a float so that 1.2
-// does not satisfy n==1 (mirroring PHP's loose comparison behaviour).
 // Rules ported from Zend Framework / the upstream MessageSelector::getPluralIndex.
 //
 //nolint:cyclop,gocyclo

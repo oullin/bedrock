@@ -8,8 +8,7 @@ import (
 )
 
 // SyncDriver executes jobs immediately in the same goroutine. It is
-// the Go port of @bedrock\Queue\SyncQueue.
-//
+// Ref: @bedrock/code-0273
 // The Go API differs from the upstream in one ergonomic way: the handler
 // that runs every job is injected at construction time rather than
 // resolved from a container per-push. This keeps the existing bedrock
@@ -25,7 +24,6 @@ import (
 //
 // If the handler also implements queue.FailureHandler, its Failed
 // method is invoked between the Fail call and the JobFailed emission,
-// mirroring the upstream CallQueuedHandler::failed path.
 type SyncDriver struct {
 	connection string
 	handler    queue.Handler

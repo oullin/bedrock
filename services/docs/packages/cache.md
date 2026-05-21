@@ -1,11 +1,11 @@
 # cache
 
-<!-- upstream-docs: cache.md#cache -->
-<!-- upstream-docs: cache.md#cache-usage -->
-<!-- upstream-docs: cache.md#cache-tags -->
-<!-- upstream-docs: cache.md#atomic-locks -->
-<!-- upstream-docs: cache.md#cache-failover -->
-<!-- upstream-docs: cache.md#events -->
+<!-- ref: @bedrock/code-0027 -->
+<!-- ref: @bedrock/code-0030 -->
+<!-- ref: @bedrock/code-0029 -->
+<!-- ref: @bedrock/code-0026 -->
+<!-- ref: @bedrock/code-0028 -->
+<!-- ref: @bedrock/code-0031 -->
 
 <!-- BEDROCK:HAND -->
 

@@ -1,7 +1,7 @@
 # echo
 
-<!-- upstream-docs: broadcasting.md#client-side-installation -->
-<!-- upstream-docs: reverb.md#introduction -->
+<!-- ref: @bedrock/code-0023 -->
+<!-- ref: @bedrock/code-0151 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

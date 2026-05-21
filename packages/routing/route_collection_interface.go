@@ -2,9 +2,7 @@ package routing
 
 import "github.com/bedrock/packages/routing/matching"
 
-// RouteCollectionInterface mirrors
-// @bedrock\Routing\RouteCollectionInterface.
-//
+// Ref: @bedrock/code-0336
 // Both [RouteCollection] and [CompiledRouteCollection] satisfy this interface,
 // so consumers (notably [Router]) can hold a single field and switch
 // implementations in production via route caching.

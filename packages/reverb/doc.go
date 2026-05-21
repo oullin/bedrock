@@ -1,5 +1,3 @@
-// Package reverb implements a Go port of the upstream Reverb WebSocket server.
-//
 // Reverb speaks the Pusher protocol, making it a drop-in replacement for
 // Pusher in any upstream application. Clients connect over WebSocket using the
 // standard Pusher client libraries (or packages/echo), authenticate via

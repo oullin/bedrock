@@ -1,8 +1,8 @@
 # reverb
 
-<!-- upstream-docs: reverb.md#introduction -->
-<!-- upstream-docs: reverb.md#running-reverb-in-production -->
-<!-- upstream-docs: broadcasting.md#client-side-installation -->
+<!-- ref: @bedrock/code-0151 -->
+<!-- ref: @bedrock/code-0152 -->
+<!-- ref: @bedrock/code-0023 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

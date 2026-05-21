@@ -3,7 +3,7 @@ package events
 import "time"
 
 // Looping is dispatched once per iteration of the worker's main loop,
-// before it attempts to pop a job. Mirrors @bedrock\Queue\Events\Looping.
+// Ref: @bedrock/code-0245
 type Looping struct {
 	ConnectionName string
 	Queue          string
@@ -11,7 +11,7 @@ type Looping struct {
 
 // QueueBusy is dispatched by the queue:monitor command when a queue has
 // more pending work than its configured threshold.
-// Mirrors @bedrock\Queue\Events\QueueBusy.
+// Ref: @bedrock/code-0246
 type QueueBusy struct {
 	ConnectionName string
 	Queue          string
@@ -19,8 +19,7 @@ type QueueBusy struct {
 }
 
 // QueuePaused is dispatched when an operator pauses a queue via the
-// queue:pause command. Mirrors @bedrock\Queue\Events\QueuePaused.
-//
+// Ref: @bedrock/code-0248
 // the upstream event carries an integer `ttl` (seconds, null for indefinite).
 // The Go port uses a *time.Duration so callers can inspect both the
 // nullability and the magnitude without unit conversion. A nil TTL means
@@ -32,7 +31,7 @@ type QueuePaused struct {
 }
 
 // QueueResumed is dispatched when an operator resumes a paused queue via
-// the queue:resume command. Mirrors @bedrock\Queue\Events\QueueResumed.
+// Ref: @bedrock/code-0249
 type QueueResumed struct {
 	ConnectionName string
 	Queue          string
@@ -40,7 +39,7 @@ type QueueResumed struct {
 
 // QueueFailedOver is dispatched by the failover driver when it abandons
 // one backend and switches to the next. Mirrors
-// @bedrock\Queue\Events\QueueFailedOver.
+// Ref: @bedrock/code-0247
 type QueueFailedOver struct {
 	From string
 	To   string

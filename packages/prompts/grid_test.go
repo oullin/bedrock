@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// Port of \Prompts\Tests\Feature\GridTest
-
-// Port of \Prompts\Tests\Feature\GridTest::test_displays_grid
 func TestGridDisplays(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -21,7 +18,6 @@ func TestGridDisplays(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\GridTest::test_empty_grid
 func TestGridEmpty(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -34,7 +30,6 @@ func TestGridEmpty(t *testing.T) {
 	}
 }
 
-// Port of \Prompts\Tests\Feature\GridTest::test_custom_width
 func TestGridCustomWidth(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

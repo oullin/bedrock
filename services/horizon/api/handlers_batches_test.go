@@ -38,7 +38,6 @@ func decodeBatchResponse(t *testing.T, body []byte) (batches []api.Batch, nextCu
 	return payload.Batches, payload.NextCursor
 }
 
-// Port of BatchesControllerTest::test_batches_can_be_searched_by_name.
 func TestBatchesCanBeSearchedByName(t *testing.T) {
 	t.Parallel()
 
@@ -62,7 +61,6 @@ func TestBatchesCanBeSearchedByName(t *testing.T) {
 	}
 }
 
-// Port of BatchesControllerTest::test_batches_can_be_searched_by_id.
 func TestBatchesCanBeSearchedById(t *testing.T) {
 	t.Parallel()
 
@@ -80,7 +78,6 @@ func TestBatchesCanBeSearchedById(t *testing.T) {
 	}
 }
 
-// Port of BatchesControllerTest::test_search_escapes_like_wildcards.
 func TestBatchesSearchEscapesLikeWildcards(t *testing.T) {
 	t.Parallel()
 
@@ -98,7 +95,6 @@ func TestBatchesSearchEscapesLikeWildcards(t *testing.T) {
 	}
 }
 
-// Port of BatchesControllerTest::test_search_supports_cursor_pagination.
 func TestBatchesSearchSupportsCursorPagination(t *testing.T) {
 	t.Parallel()
 

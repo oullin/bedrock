@@ -3,7 +3,6 @@ package spark
 import "github.com/bedrock/packages/container"
 
 // SparkServiceProvider registers the Spark billing manager into the container.
-// It mirrors Spark\SparkServiceProvider.
 type SparkServiceProvider struct {
 	app *container.Container
 	cfg *Config

@@ -1,7 +1,6 @@
 package contracts
 
-// UrlRoutable mirrors @bedrock\Contracts\Routing\UrlRoutable.
-//
+// Ref: @bedrock/code-0198
 // User-defined model types implement this interface to participate in
 // implicit and scoped route-model binding. The Go port routes binding
 // resolution exclusively through this interface, with no Eloquent dependency.

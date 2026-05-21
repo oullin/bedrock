@@ -10,7 +10,6 @@ type Attachment struct {
 }
 
 // UserMessage is a message from the human participant.
-// Mirrors upstream Ai\Messages\UserMessage.
 type UserMessage struct {
 	Message
 	Attachments []Attachment

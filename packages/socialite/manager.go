@@ -18,7 +18,6 @@ type ProviderConfig struct {
 }
 
 // Provider is the minimal interface that every Socialite driver satisfies.
-// It mirrors upstream Socialite\Contracts\Provider.
 type Provider interface {
 	Redirect(ctx context.Context) (string, error)
 	User(ctx context.Context) (*User, error)
@@ -85,7 +84,6 @@ func (m *Manager) Driver(name string) (Provider, error) {
 }
 
 // Extend registers a custom driver factory.
-// It mirrors SocialiteManager::extend() / Manager::extend().
 func (m *Manager) Extend(name string, factory DriverFactory) *Manager {
 	m.factories[name] = factory
 

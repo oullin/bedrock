@@ -1,8 +1,8 @@
 # Testing
 
-<!-- upstream-docs: testing.md#testing-getting-started -->
-<!-- upstream-docs: testing.md#creating-tests -->
-<!-- upstream-docs: testing.md#running-tests -->
+<!-- ref: @bedrock/code-0175 -->
+<!-- ref: @bedrock/code-0173 -->
+<!-- ref: @bedrock/code-0174 -->
 
 A tour of Bedrock's test doubles and testing patterns.
 

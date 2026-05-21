@@ -1,8 +1,8 @@
 # inception
 
-<!-- upstream-docs: fortify.md#introduction -->
-<!-- upstream-docs: sanctum.md#introduction -->
-<!-- upstream-docs: passport.md#introduction -->
+<!-- ref: @bedrock/code-0076 -->
+<!-- ref: @bedrock/code-0162 -->
+<!-- ref: @bedrock/code-0118 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->

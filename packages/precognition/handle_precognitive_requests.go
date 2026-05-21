@@ -13,7 +13,7 @@ import (
 // precognition versions (when a container is provided), and manages the
 // Precognition and Vary response headers.
 //
-// Mirrors @bedrock\Foundation\Http\Middleware\HandlePrecognitiveRequests.
+// Ref: @bedrock/code-0217
 type HandlePrecognitiveRequests struct {
 	container *container.Container
 }

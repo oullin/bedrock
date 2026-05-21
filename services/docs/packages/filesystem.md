@@ -1,12 +1,12 @@
 # filesystem
 
-<!-- upstream-docs: filesystem.md#introduction -->
-<!-- upstream-docs: filesystem.md#configuration -->
-<!-- upstream-docs: filesystem.md#obtaining-disk-instances -->
-<!-- upstream-docs: filesystem.md#retrieving-files -->
-<!-- upstream-docs: filesystem.md#storing-files -->
-<!-- upstream-docs: filesystem.md#deleting-files -->
-<!-- upstream-docs: filesystem.md#directories -->
+<!-- ref: @bedrock/code-0071 -->
+<!-- ref: @bedrock/code-0068 -->
+<!-- ref: @bedrock/code-0072 -->
+<!-- ref: @bedrock/code-0073 -->
+<!-- ref: @bedrock/code-0074 -->
+<!-- ref: @bedrock/code-0069 -->
+<!-- ref: @bedrock/code-0070 -->
 
 <!-- BEDROCK:HAND -->
 

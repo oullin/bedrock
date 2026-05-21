@@ -17,8 +17,6 @@ type TestPrompts struct {
 // Fake installs a FakeTerminal and BufferedWriter for test isolation.
 // Returns a *TestPrompts with assertion helpers and queued key injection.
 // Call Cleanup() when done (typically via defer).
-//
-// Mirrors the upstream Prompt::fake().
 func Fake(t testing.TB, cols, lines int) *TestPrompts {
 	t.Helper()
 

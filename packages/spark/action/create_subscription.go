@@ -8,7 +8,6 @@ import (
 )
 
 // SubscriptionCreator handles creating new subscriptions.
-// Mirrors Spark\Actions\CreateSubscription.
 type SubscriptionCreator struct {
 	subscriptions spark.SubscriptionStore
 	manager       *spark.Manager
