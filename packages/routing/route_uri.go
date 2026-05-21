@@ -10,7 +10,7 @@ import (
 // BindingFields maps a parameter name to its custom binding field (the part
 // after the colon).
 //
-// Mirrors Illuminate\Routing\RouteUri.
+// Mirrors @bedrock\Routing\RouteUri.
 type RouteUri struct {
 	Uri           string
 	BindingFields map[string]string
@@ -36,7 +36,7 @@ var routeUriPlaceholderRe = regexp.MustCompile(`\{([\w:]+?)\??\}`)
 // custom binding fields ("{user:slug}") into BindingFields and rewriting the
 // URI so downstream consumers see the canonical "{user}" form.
 //
-// Mirrors Illuminate\Routing\RouteUri::parse.
+// Mirrors @bedrock\Routing\RouteUri::parse.
 func ParseRouteUri(uri string) *RouteUri {
 	bindingFields := map[string]string{}
 

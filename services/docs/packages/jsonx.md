@@ -5,7 +5,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Illuminate\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition.
+Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -29,9 +29,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jsonx/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                                                                                                                                                                                                            |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `jsonx` | Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically. It is a Go port of Illuminate\JsonSchema package, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition. |
+| Package | Purpose                                                                                                                                                                                                                                                                                                                          |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `jsonx` | Package jsonx provides a fluent builder API for constructing JSON Schema objects programmatically, offering type-safe builders for all JSON Schema primitive types (string, integer, number, boolean, array, object) with support for validation constraints, nullable types, required fields, and recursive schema composition. |
 
 ## Core Concepts
 

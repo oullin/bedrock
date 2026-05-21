@@ -10,7 +10,7 @@ type Session interface {
 
 	// Pull retrieves a value by key and removes it from the session in one
 	// atomic step. Returns nil if the key does not exist.
-	// It mirrors Illuminate\Contracts\Session\Session::pull().
+	// It mirrors @bedrock\Contracts\Session\Session::pull().
 	Pull(key string) any
 
 	// Get retrieves a value by key without removing it. Returns nil if the

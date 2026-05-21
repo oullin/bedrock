@@ -9,7 +9,7 @@ import (
 )
 
 // Rule provides static factory methods for building rule objects, mirroring
-// the upstream Illuminate\Validation\Rule facade.
+// the upstream @bedrock\Validation\Rule facade.
 
 type ruleBuilder struct{}
 

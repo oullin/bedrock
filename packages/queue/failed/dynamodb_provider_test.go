@@ -1,6 +1,6 @@
 package failed_test
 
-// Ported from Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest (5/5).
+// Ported from @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest (5/5).
 //
 // ✅ testCanProperlyLogFailedJob
 // ✅ testCanRetrieveAllFailedJobs
@@ -54,7 +54,7 @@ func (f *fakeDynamoClient) DeleteItem(_ context.Context, params map[string]any) 
 	return map[string]any{}, nil
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testCanProperlyLogFailedJob
+// Port of @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest::testCanProperlyLogFailedJob
 func TestDynamoCanProperlyLogFailedJob(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{}
@@ -88,7 +88,7 @@ func TestDynamoCanProperlyLogFailedJob(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testCanRetrieveAllFailedJobs
+// Port of @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest::testCanRetrieveAllFailedJobs
 func TestDynamoCanRetrieveAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	timeNow := time.Now().Unix()
@@ -146,7 +146,7 @@ func TestDynamoCanRetrieveAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testASingleJobCanBeFound
+// Port of @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest::testASingleJobCanBeFound
 func TestDynamoASingleJobCanBeFound(t *testing.T) {
 	t.Parallel()
 	timeNow := time.Now().Unix()
@@ -189,7 +189,7 @@ func TestDynamoASingleJobCanBeFound(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testNullIsReturnedIfJobNotFound
+// Port of @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest::testNullIsReturnedIfJobNotFound
 func TestDynamoNullIsReturnedIfJobNotFound(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{getResp: map[string]any{}}
@@ -202,7 +202,7 @@ func TestDynamoNullIsReturnedIfJobNotFound(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testJobsCanBeDeleted
+// Port of @bedrock\Tests\Queue\DynamoDbFailedJobProviderTest::testJobsCanBeDeleted
 func TestDynamoJobsCanBeDeleted(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{}

@@ -11,7 +11,7 @@ import (
 	"github.com/bedrock/packages/routing/matching"
 )
 
-// Route is the Go translation of Illuminate\Routing\Route.
+// Route is the Go translation of @bedrock\Routing\Route.
 //
 // In PHP, Route composes several traits (Conditionable, Macroable,
 // CreatesRegularExpressionRouteConstraints, FiltersControllerMiddleware,

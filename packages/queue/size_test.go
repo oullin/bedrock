@@ -65,7 +65,7 @@ func (m *memoryQueue) DelayedSize(context.Context, string) (int64, error)  { ret
 func (m *memoryQueue) ReservedSize(context.Context, string) (int64, error) { return 0, nil }
 func (m *memoryQueue) ConnectionName() string                              { return "memory" }
 
-// Port of Illuminate\Tests\Queue\QueueSizeTest::test_queue_size
+// Port of @bedrock\Tests\Queue\QueueSizeTest::test_queue_size
 //
 // Upstream dispatches jobs via dispatch()/onQueue() and inspects
 // Queue::size(). Go has no facade/dispatch helper, so the port pushes

@@ -6,7 +6,7 @@ import (
 )
 
 // HasAttributes provides attribute storage, retrieval, dirty tracking, and
-// casting. It is the Go port of Illuminate\Database\Eloquent\Concerns\HasAttributes.
+// casting. It is the Go port of @bedrock\Database\Eloquent\Concerns\HasAttributes.
 type HasAttributes struct {
 	attributes map[string]any
 	original   map[string]any

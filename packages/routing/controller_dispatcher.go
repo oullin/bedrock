@@ -7,7 +7,7 @@ import (
 // ControllerDispatcher resolves and invokes a controller method against a
 // matched route, applying reflection-based parameter resolution.
 //
-// Mirrors Illuminate\Routing\ControllerDispatcher.
+// Mirrors @bedrock\Routing\ControllerDispatcher.
 type ControllerDispatcher struct {
 	ResolvesRouteDependencies
 	FiltersControllerMiddleware

@@ -3,7 +3,7 @@ package failed
 import "time"
 
 // NullFailedJobProvider is the Go port of
-// Illuminate\Queue\Failed\NullFailedJobProvider. Every method is a
+// @bedrock\Queue\Failed\NullFailedJobProvider. Every method is a
 // no-op; Log returns an empty id, counters return zero, and Forget
 // reports success. Useful for disabling failed-job tracking in tests.
 type NullFailedJobProvider struct{}

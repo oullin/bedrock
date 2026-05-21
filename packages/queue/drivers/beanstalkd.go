@@ -42,7 +42,7 @@ type BeanstalkdPeeker interface {
 }
 
 // BeanstalkdDriver enqueues jobs via a Beanstalkd client. It is the
-// Go port of Illuminate\Queue\BeanstalkdQueue.
+// Go port of @bedrock\Queue\BeanstalkdQueue.
 //
 // Two knobs are tunable after construction:
 //

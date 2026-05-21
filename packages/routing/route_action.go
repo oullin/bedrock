@@ -22,7 +22,7 @@ import (
 //   - Extras: a catch-all map for any non-standard keys passed through by
 //     callers that want to round-trip arbitrary action metadata.
 //
-// Mirrors Illuminate\Routing\RouteAction.
+// Mirrors @bedrock\Routing\RouteAction.
 type Action struct {
 	Uses       any
 	Controller string
@@ -48,7 +48,7 @@ type Action struct {
 //   - a map[string]any: passed through, with the "uses" key resolved as above
 //     and other keys distributed to the matching fields or Extras.
 //
-// Mirrors Illuminate\Routing\RouteAction::parse.
+// Mirrors @bedrock\Routing\RouteAction::parse.
 func ParseAction(uri string, action any) (*Action, error) {
 	if action == nil {
 		return missingAction(uri), nil

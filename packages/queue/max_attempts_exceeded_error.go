@@ -3,7 +3,7 @@ package queue
 import "fmt"
 
 // ResolveNamer is the minimal job contract required by
-// MaxAttemptsExceededError and TimeoutExceededError. It mirrors the upstream // Illuminate\Contracts\Queue\Job::resolveName() method.
+// MaxAttemptsExceededError and TimeoutExceededError. It mirrors the upstream // @bedrock\Contracts\Queue\Job::resolveName() method.
 //
 // A package-local interface is used (rather than adding ResolveName to the
 // Job interface) because the Job interface is frozen until Step 9 of the
@@ -13,7 +13,7 @@ type ResolveNamer interface {
 }
 
 // MaxAttemptsExceededError is the Go port of
-// Illuminate\Queue\MaxAttemptsExceededException.
+// @bedrock\Queue\MaxAttemptsExceededException.
 //
 // It is returned by the Worker when a job has exhausted its retry budget.
 // Access the failing job via the Job field (type-assert to the concrete

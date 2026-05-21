@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package precognition is a 1:1 Go port of upstream src/Illuminate/Foundation/Http/Middleware/HandlePrecognitiveRequests and src/Illuminate/Foundation/Precognition.
+Package precognition surfaces `@bedrock\Foundation\Http\Middleware\HandlePrecognitiveRequests` and `@bedrock\Foundation\Precognition` for handling precognitive requests in bedrock.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -31,9 +31,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
 
 ## Source Coverage
 
-| Package        | Purpose                                                                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `precognition` | Package precognition is a 1:1 Go port of upstream src/Illuminate/Foundation/Http/Middleware/HandlePrecognitiveRequests and src/Illuminate/Foundation/Precognition. |
+| Package        | Purpose                                                                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `precognition` | Package precognition surfaces `@bedrock\Foundation\Http\Middleware\HandlePrecognitiveRequests` and `@bedrock\Foundation\Precognition` for handling precognitive requests in bedrock. |
 
 ## Core Concepts
 

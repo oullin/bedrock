@@ -1,6 +1,6 @@
 package limiters
 
-// Lua scripts ported from upstream Illuminate\Redis\Limiters.
+// Lua scripts ported from upstream @bedrock\Redis\Limiters.
 
 // ConcurrencyAcquire is the Lua equivalent of the "increment counter then
 // release slot" pattern ConcurrencyLimiter uses. The script atomically

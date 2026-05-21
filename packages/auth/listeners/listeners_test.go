@@ -49,7 +49,7 @@ func (u *verifiableUser) SendEmailVerificationNotification(ctx context.Context) 
 	u.notificationContextValue = ctx.Value(contextKey("notification"))
 }
 
-// Port of Illuminate\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testWillExecuted
+// Port of @bedrock\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testWillExecuted
 func TestSendEmailVerificationNotification_UnverifiedUser(t *testing.T) {
 	user := &verifiableUser{
 		stubUser: stubUser{id: "1"},
@@ -80,7 +80,7 @@ func TestSendEmailVerificationNotification_UnverifiedUser(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testHasVerifiedEmailAsTrue
+// Port of @bedrock\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testHasVerifiedEmailAsTrue
 func TestSendEmailVerificationNotification_AlreadyVerified(t *testing.T) {
 	user := &verifiableUser{
 		stubUser: stubUser{id: "1"},
@@ -95,7 +95,7 @@ func TestSendEmailVerificationNotification_AlreadyVerified(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testUserIsNotInstanceOfMustVerifyEmail
+// Port of @bedrock\Tests\Auth\AuthListenersSendEmailVerificationNotificationHandleFunctionTest::testUserIsNotInstanceOfMustVerifyEmail
 func TestSendEmailVerificationNotification_NonVerifiableUser(t *testing.T) {
 	user := &stubUser{id: "1"}
 

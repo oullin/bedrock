@@ -9,7 +9,7 @@ import (
 )
 
 // DurationLimiter implements a fixed-window rate limit (parity with
-// Illuminate\Redis\Limiters\DurationLimiter).
+// @bedrock\Redis\Limiters\DurationLimiter).
 type DurationLimiter struct {
 	conn      ConnectionLike
 	name      string

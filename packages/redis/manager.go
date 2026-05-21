@@ -10,7 +10,7 @@ import (
 type DriverFactory func(cfg ConnectionConfig) (Client, error)
 
 // Manager multiplexes named Connections and is the Go analogue of
-// Illuminate\Redis\RedisManager.
+// @bedrock\Redis\RedisManager.
 //
 // The zero value is not usable — use NewManager.
 type Manager struct {

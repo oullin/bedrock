@@ -1,11 +1,11 @@
-// Package contracts mirrors laravel/framework/src/Illuminate/Routing/Contracts.
+// Package contracts mirrors laravel/framework/src/@bedrock/Routing/Contracts.
 //
 // These interfaces are the binding points the routing service provider wires
 // into the container so consumers can swap implementations.
 package contracts
 
 // CallableDispatcher mirrors
-// Illuminate\Routing\Contracts\CallableDispatcher.
+// @bedrock\Routing\Contracts\CallableDispatcher.
 //
 // The route argument is typed as `any` to break the import cycle between this
 // package and the parent routing package; concrete dispatchers will narrow it

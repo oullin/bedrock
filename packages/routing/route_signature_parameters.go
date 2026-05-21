@@ -12,7 +12,7 @@ import "reflect"
 // runtime parameter-name metadata for them — the parameter Type is recovered,
 // but the parameter Name is always empty.
 //
-// Mirrors Illuminate\Routing\RouteSignatureParameters.
+// Mirrors @bedrock\Routing\RouteSignatureParameters.
 type RouteSignatureParameters struct{}
 
 // SignatureParameter is a Go-friendly stand-in for ReflectionParameter.

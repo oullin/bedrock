@@ -15,7 +15,7 @@ func (r *Request) IsPrecognitive() bool {
 // Precognition header with the exact value "true". This checks the client's
 // intent to make a precognitive request.
 //
-// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::isAttemptingPrecognition.
+// Mirrors @bedrock\Http\Concerns\CanBePrecognitive::isAttemptingPrecognition.
 func (r *Request) IsAttemptingPrecognition() bool {
 	return r.raw.Header.Get("Precognition") == "true"
 }
@@ -48,7 +48,7 @@ func (r *Request) PrecognitiveValidateOnly() []string {
 // Patterns support wildcards: "address.*" matches "address.street" and
 // "address.city" but not "address.street.line".
 //
-// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::filterPrecognitiveRules.
+// Mirrors @bedrock\Http\Concerns\CanBePrecognitive::filterPrecognitiveRules.
 func (r *Request) FilterPrecognitiveRules(rules map[string]any) map[string]any {
 	if r.raw.Header.Get("Precognition-Validate-Only") == "" {
 		return rules
@@ -71,7 +71,7 @@ func (r *Request) FilterPrecognitiveRules(rules map[string]any) map[string]any {
 // Each pattern is converted to a regex where * is replaced with [^.]+ to
 // match a single dot-separated segment.
 //
-// Mirrors Illuminate\Http\Concerns\CanBePrecognitive::shouldValidatePrecognitiveAttribute.
+// Mirrors @bedrock\Http\Concerns\CanBePrecognitive::shouldValidatePrecognitiveAttribute.
 func shouldValidatePrecognitiveAttribute(attribute string, validateOnly []string) bool {
 	for _, pattern := range validateOnly {
 		escaped := regexp.QuoteMeta(pattern)

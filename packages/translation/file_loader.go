@@ -8,7 +8,7 @@ import (
 )
 
 // FileLoader loads translation messages from JSON files on disk, mirroring
-// the upstream Illuminate\Translation\FileLoader.
+// the upstream @bedrock\Translation\FileLoader.
 //
 // File layout:
 //   - Grouped translations: {path}/{locale}/{group}.json

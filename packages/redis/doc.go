@@ -1,4 +1,4 @@
-// Package redis is a Go port of Illuminate/Redis package.
+// Package redis is a Go port of @bedrock/Redis package.
 //
 // It provides a Manager that multiplexes named Connection objects, a
 // Connection type exposing the full Redis command surface (typed helpers
@@ -8,7 +8,7 @@
 // DurationLimiter.
 //
 // The package targets 100% functional parity with upstream 13.x
-// Illuminate\Redis and 1:1 test-case parity with its upstream suite.
+// @bedrock\Redis and 1:1 test-case parity with its upstream suite.
 //
 // The backend is github.com/redis/go-redis/v9. Connection depends on a
 // small Client interface so tests can inject in-memory fakes without a

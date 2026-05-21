@@ -3,7 +3,7 @@ package events
 import "time"
 
 // Looping is dispatched once per iteration of the worker's main loop,
-// before it attempts to pop a job. Mirrors Illuminate\Queue\Events\Looping.
+// before it attempts to pop a job. Mirrors @bedrock\Queue\Events\Looping.
 type Looping struct {
 	ConnectionName string
 	Queue          string
@@ -11,7 +11,7 @@ type Looping struct {
 
 // QueueBusy is dispatched by the queue:monitor command when a queue has
 // more pending work than its configured threshold.
-// Mirrors Illuminate\Queue\Events\QueueBusy.
+// Mirrors @bedrock\Queue\Events\QueueBusy.
 type QueueBusy struct {
 	ConnectionName string
 	Queue          string
@@ -19,7 +19,7 @@ type QueueBusy struct {
 }
 
 // QueuePaused is dispatched when an operator pauses a queue via the
-// queue:pause command. Mirrors Illuminate\Queue\Events\QueuePaused.
+// queue:pause command. Mirrors @bedrock\Queue\Events\QueuePaused.
 //
 // the upstream event carries an integer `ttl` (seconds, null for indefinite).
 // The Go port uses a *time.Duration so callers can inspect both the
@@ -32,7 +32,7 @@ type QueuePaused struct {
 }
 
 // QueueResumed is dispatched when an operator resumes a paused queue via
-// the queue:resume command. Mirrors Illuminate\Queue\Events\QueueResumed.
+// the queue:resume command. Mirrors @bedrock\Queue\Events\QueueResumed.
 type QueueResumed struct {
 	ConnectionName string
 	Queue          string
@@ -40,7 +40,7 @@ type QueueResumed struct {
 
 // QueueFailedOver is dispatched by the failover driver when it abandons
 // one backend and switches to the next. Mirrors
-// Illuminate\Queue\Events\QueueFailedOver.
+// @bedrock\Queue\Events\QueueFailedOver.
 type QueueFailedOver struct {
 	From string
 	To   string

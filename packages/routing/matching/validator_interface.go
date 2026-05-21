@@ -1,4 +1,4 @@
-// Package matching mirrors laravel/framework/src/Illuminate/Routing/Matching.
+// Package matching mirrors laravel/framework/src/@bedrock/Routing/Matching.
 //
 // Each ValidatorInterface implementation evaluates a single dimension of a
 // candidate route against an incoming request. The router calls all four
@@ -14,7 +14,7 @@ import (
 // MatchableRoute is the surface a Route must expose so matching/* validators
 // can interrogate it.
 //
-// In PHP the validators take a concrete \Illuminate\Routing\Route. In Go we
+// In PHP the validators take a concrete \@bedrock\Routing\Route. In Go we
 // use an interface so the matching package has no import cycle on the parent
 // routing package.
 type MatchableRoute interface {
@@ -32,7 +32,7 @@ type MatchableRequest interface {
 	Secure() bool
 }
 
-// ValidatorInterface mirrors Illuminate\Routing\Matching\ValidatorInterface.
+// ValidatorInterface mirrors @bedrock\Routing\Matching\ValidatorInterface.
 type ValidatorInterface interface {
 	Matches(route MatchableRoute, request MatchableRequest) bool
 }

@@ -5,7 +5,7 @@ import "time"
 // Timebox executes the given callback and ensures a minimum total duration.
 // If the callback completes before minDuration, the remaining time is spent sleeping.
 // This is used to prevent timing-based side-channel attacks (e.g. in authentication).
-// Mirrors Illuminate\Support\Timebox.
+// Mirrors @bedrock\Support\Timebox.
 func Timebox(minDuration time.Duration, fn func()) time.Duration {
 	start := time.Now()
 	fn()

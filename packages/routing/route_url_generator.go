@@ -12,7 +12,7 @@ import (
 // RouteUrlGenerator builds a URL for a single named route by substituting
 // parameter values into the route's URI template.
 //
-// Mirrors Illuminate\Routing\RouteUrlGenerator. Kept as an independent type
+// Mirrors @bedrock\Routing\RouteUrlGenerator. Kept as an independent type
 // (rather than a method on UrlGenerator) so signed URL generation can call it
 // recursively without circular wiring.
 type RouteUrlGenerator struct {

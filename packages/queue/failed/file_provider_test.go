@@ -1,6 +1,6 @@
 package failed_test
 
-// Ported from Illuminate\Tests\Queue\FileFailedJobProviderTest (13/13).
+// Ported from @bedrock\Tests\Queue\FileFailedJobProviderTest (13/13).
 //
 // ✅ testCanLogFailedJobs
 // ✅ testCanRetrieveAllFailedJobs
@@ -52,7 +52,7 @@ func logFileJob(t *testing.T, p *failed.FileFailedJobProvider, connection, queue
 	return loggedJob{uuid: uuid, err: ex}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanLogFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanLogFailedJobs
 func TestCanLogFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -75,7 +75,7 @@ func TestCanLogFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanRetrieveAllFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanRetrieveAllFailedJobs
 func TestCanRetrieveAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -97,7 +97,7 @@ func TestCanRetrieveAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanFindFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanFindFailedJobs
 func TestCanFindFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -110,7 +110,7 @@ func TestCanFindFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testNullIsReturnedIfJobNotFound
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testNullIsReturnedIfJobNotFound
 func TestNullIsReturnedIfJobNotFound(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -120,7 +120,7 @@ func TestNullIsReturnedIfJobNotFound(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanForgetFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanForgetFailedJobs
 func TestCanForgetFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -132,7 +132,7 @@ func TestCanForgetFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanFlushFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanFlushFailedJobs
 func TestCanFlushFailedJobsFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -146,7 +146,7 @@ func TestCanFlushFailedJobsFile(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanPruneFailedJobs
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanPruneFailedJobs
 func TestCanPruneFailedJobsFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -173,7 +173,7 @@ func TestCanPruneFailedJobsFile(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testCanPruneFailedJobsWithRelativeHours
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testCanPruneFailedJobsWithRelativeHours
 func TestCanPruneFailedJobsWithRelativeHours(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -196,7 +196,7 @@ func TestCanPruneFailedJobsWithRelativeHours(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testEmptyFailedJobsByDefault
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testEmptyFailedJobsByDefault
 func TestEmptyFailedJobsByDefault(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -207,7 +207,7 @@ func TestEmptyFailedJobsByDefault(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCounted
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCounted
 func TestJobsCanBeCountedFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -230,7 +230,7 @@ func TestJobsCanBeCountedFile(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByConnection
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByConnection
 func TestJobsCanBeCountedByConnectionFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -256,7 +256,7 @@ func TestJobsCanBeCountedByConnectionFile(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByQueue
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByQueue
 func TestJobsCanBeCountedByQueueFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)
@@ -282,7 +282,7 @@ func TestJobsCanBeCountedByQueueFile(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
+// Port of @bedrock\Tests\Queue\FileFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
 func TestJobsCanBeCountedByQueueAndConnectionFile(t *testing.T) {
 	t.Parallel()
 	p := newFileProvider(t)

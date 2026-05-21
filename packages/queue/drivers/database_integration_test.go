@@ -39,7 +39,7 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testAvailableAndUnReservedJobsArePopped
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testAvailableAndUnReservedJobsArePopped
 func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	t.Parallel()
 
@@ -66,7 +66,7 @@ func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testPoppedJobsIncrementAttempts
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testPoppedJobsIncrementAttempts
 func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	t.Parallel()
 
@@ -105,7 +105,7 @@ func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatQueueCanBeCleared
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatQueueCanBeCleared
 func TestThatQueueCanBeCleared(t *testing.T) {
 	t.Parallel()
 
@@ -145,7 +145,7 @@ func TestThatQueueCanBeCleared(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testUnavailableJobsAreNotPopped
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testUnavailableJobsAreNotPopped
 func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -170,7 +170,7 @@ func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedAndExpiredJobsArePopped
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedAndExpiredJobsArePopped
 //
 // DEFERRED. the upstream Pop reclaims reserved_at rows whose reservation
 // has expired (reserved_at < now - retry_after). The Go DatabaseDriver
@@ -182,7 +182,7 @@ func TestThatReservedAndExpiredJobsArePopped(t *testing.T) {
 	t.Skip("deferred: DatabaseDriver.Pop does not yet reclaim expired reservations")
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedJobsAreNotPopped
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedJobsAreNotPopped
 func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -202,7 +202,7 @@ func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueIntegrationTest::testJobPayloadIsAvailableOnEvents
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueIntegrationTest::testJobPayloadIsAvailableOnEvents
 //
 // Adaptation: upstream dispatches JobQueueing / JobQueued events from
 // DatabaseQueue::push and the PHP test asserts the event payload()

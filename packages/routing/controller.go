@@ -10,7 +10,7 @@ import "github.com/bedrock/packages/routing/controllers"
 // PHP class's public surface (Middleware, GetMiddleware, CallAction) so
 // dispatchers can probe for it uniformly.
 //
-// Mirrors Illuminate\Routing\Controller.
+// Mirrors @bedrock\Routing\Controller.
 type Controller struct {
 	middleware []controllerMiddlewareEntry
 }
@@ -22,7 +22,7 @@ type controllerMiddlewareEntry struct {
 
 // MiddlewareOptions is the chainable filter helper returned by Use.
 //
-// Mirrors Illuminate\Routing\ControllerMiddlewareOptions.
+// Mirrors @bedrock\Routing\ControllerMiddlewareOptions.
 type MiddlewareOptions struct{ options map[string]any }
 
 // Only constrains the middleware to the named methods.

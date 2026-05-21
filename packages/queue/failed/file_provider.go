@@ -8,7 +8,7 @@ import (
 )
 
 // FileFailedJobProvider is the Go port of
-// Illuminate\Queue\Failed\FileFailedJobProvider. It stores every failed
+// @bedrock\Queue\Failed\FileFailedJobProvider. It stores every failed
 // job as a record inside a single JSON file on disk (newest first),
 // capped at `limit` entries.
 //

@@ -4,10 +4,9 @@ How to bring up a Bedrock application end to end. The goal of this page is
 that, after reading it, you can confidently write the entry point of a new
 Bedrock service from scratch.
 
-a Bedrock `Application` is the Go analogue of
-`Illuminate\Foundation\Application`. It wraps an IoC container, registers
-service providers, calls `Boot()` on the bootable ones, and resolves named
-services back out.
+A Bedrock `Application` (marker `@bedrock\Foundation\Application`) wraps an
+IoC container, registers service providers, calls `Boot()` on the bootable
+ones, and resolves named services back out.
 
 ## The Three-Call Pattern
 

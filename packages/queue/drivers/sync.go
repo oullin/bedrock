@@ -8,7 +8,7 @@ import (
 )
 
 // SyncDriver executes jobs immediately in the same goroutine. It is
-// the Go port of Illuminate\Queue\SyncQueue.
+// the Go port of @bedrock\Queue\SyncQueue.
 //
 // The Go API differs from the upstream in one ergonomic way: the handler
 // that runs every job is injected at construction time rather than

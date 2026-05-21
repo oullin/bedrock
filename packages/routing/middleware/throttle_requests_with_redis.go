@@ -2,7 +2,7 @@ package middleware
 
 // ThrottleRequestsWithRedis is the Redis-backed counterpart of
 // [ThrottleRequests], mirroring
-// Illuminate\Routing\Middleware\ThrottleRequestsWithRedis.
+// @bedrock\Routing\Middleware\ThrottleRequestsWithRedis.
 //
 // In the Go port the type accepts any [RateLimiter] implementation, so the
 // distinction is whether the supplied limiter wraps a Redis client. The

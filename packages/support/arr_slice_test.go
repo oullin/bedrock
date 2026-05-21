@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testCollapse
+// Port of @bedrock\Tests\Support\SupportArrTest::testCollapse
 func TestArrCollapse(t *testing.T) {
 	t.Parallel()
 
@@ -32,7 +32,7 @@ func TestArrCollapseEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testFirst
+// Port of @bedrock\Tests\Support\SupportArrTest::testFirst
 func TestArrFirst(t *testing.T) {
 	t.Parallel()
 
@@ -73,7 +73,7 @@ func TestArrFirstNoMatch(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testLast
+// Port of @bedrock\Tests\Support\SupportArrTest::testLast
 func TestArrLast(t *testing.T) {
 	t.Parallel()
 
@@ -102,7 +102,7 @@ func TestArrLastEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testFlatten
+// Port of @bedrock\Tests\Support\SupportArrTest::testFlatten
 func TestArrFlatten(t *testing.T) {
 	t.Parallel()
 
@@ -155,7 +155,7 @@ func TestArrFlattenZeroDepth(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPrepend
+// Port of @bedrock\Tests\Support\SupportArrTest::testPrepend
 func TestArrPrepend(t *testing.T) {
 	t.Parallel()
 
@@ -183,7 +183,7 @@ func TestArrPrependEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testRandom
+// Port of @bedrock\Tests\Support\SupportArrTest::testRandom
 func TestArrRandom(t *testing.T) {
 	t.Parallel()
 
@@ -239,7 +239,7 @@ func TestArrRandomEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testRandomThrowsAnErrorWhenRequestingMoreItemsThanAreAvailable
+// Port of @bedrock\Tests\Support\SupportArrTest::testRandomThrowsAnErrorWhenRequestingMoreItemsThanAreAvailable
 func TestArrRandomExceedsLength(t *testing.T) {
 	t.Parallel()
 
@@ -250,7 +250,7 @@ func TestArrRandomExceedsLength(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSort
+// Port of @bedrock\Tests\Support\SupportArrTest::testSort
 func TestArrSort(t *testing.T) {
 	t.Parallel()
 
@@ -288,7 +288,7 @@ func TestArrSortDoesNotMutate(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSortWithCallback
+// Port of @bedrock\Tests\Support\SupportArrTest::testSortWithCallback
 func TestArrSortFunc(t *testing.T) {
 	t.Parallel()
 
@@ -310,7 +310,7 @@ func TestArrSortFunc(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testWhere
+// Port of @bedrock\Tests\Support\SupportArrTest::testWhere
 func TestArrWhere(t *testing.T) {
 	t.Parallel()
 
@@ -347,7 +347,7 @@ func TestArrWhereWithIndex(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testWrap
+// Port of @bedrock\Tests\Support\SupportArrTest::testWrap
 func TestArrWrap(t *testing.T) {
 	t.Parallel()
 

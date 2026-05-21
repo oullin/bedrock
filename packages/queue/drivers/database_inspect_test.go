@@ -9,7 +9,7 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
-// Continued port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest —
+// Continued port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest —
 // covers Bulk + PendingJobs + DelayedJobs + ReservedJobs.
 //
 // These tests exercise the new DBExecer.Query path (multi-row result
@@ -61,7 +61,7 @@ func createdAtFloat(s string) float64 {
 	return out
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testBulkBatchPushesOntoDatabase
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest::testBulkBatchPushesOntoDatabase
 //
 // Upstream asserts that DatabaseQueue::bulk issues one $db->insert call
 // with an array of records. The Go port asserts one Exec call whose
@@ -118,7 +118,7 @@ func TestBulkBatchPushesOntoDatabase(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testPendingJobs
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest::testPendingJobs
 func TestPendingJobs(t *testing.T) {
 	t.Parallel()
 
@@ -171,7 +171,7 @@ func TestPendingJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testDelayedJobs
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest::testDelayedJobs
 func TestDelayedJobs(t *testing.T) {
 	t.Parallel()
 
@@ -223,7 +223,7 @@ func TestDelayedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testReservedJobs
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest::testReservedJobs
 func TestReservedJobs(t *testing.T) {
 	t.Parallel()
 

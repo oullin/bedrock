@@ -3,7 +3,7 @@ package matching
 // HostValidator matches the request's host against the route's compiled host
 // regex. A route with no host pattern always matches.
 //
-// Mirrors Illuminate\Routing\Matching\HostValidator.
+// Mirrors @bedrock\Routing\Matching\HostValidator.
 type HostValidator struct{}
 
 // Matches reports whether the request host satisfies the route's host pattern.

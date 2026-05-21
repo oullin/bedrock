@@ -9,7 +9,7 @@ import "strings"
 // because middleware may be either a string class name (with optional ":args"
 // suffix) or a closure.
 //
-// Mirrors Illuminate\Routing\SortedMiddleware.
+// Mirrors @bedrock\Routing\SortedMiddleware.
 type SortedMiddleware []any
 
 // NewSortedMiddleware returns the middleware list reordered so that any

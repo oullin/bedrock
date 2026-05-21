@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-// Translator is the central translation component, mirroring the upstream // Illuminate\Translation\Translator.
+// Translator is the central translation component, mirroring the upstream // @bedrock\Translation\Translator.
 //
 // It resolves translation keys against a Loader, applies placeholder
 // substitution atomically (longest match first), supports namespace/fallback

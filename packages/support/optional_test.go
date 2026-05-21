@@ -2,7 +2,7 @@ package support
 
 import "testing"
 
-// Port of Illuminate\Tests\Support\SupportOptionalTest::testGetExistItemOnObject
+// Port of @bedrock\Tests\Support\SupportOptionalTest::testGetExistItemOnObject
 func TestOptionalGetExistingValue(t *testing.T) {
 	t.Parallel()
 
@@ -14,7 +14,7 @@ func TestOptionalGetExistingValue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportOptionalTest::testGetNotExistItemOnObject
+// Port of @bedrock\Tests\Support\SupportOptionalTest::testGetNotExistItemOnObject
 func TestOptionalGetMissingValue(t *testing.T) {
 	t.Parallel()
 
@@ -26,7 +26,7 @@ func TestOptionalGetMissingValue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportOptionalTest::testIssetExistItemOnObject
+// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetExistItemOnObject
 func TestOptionalIsPresentTrue(t *testing.T) {
 	t.Parallel()
 
@@ -41,7 +41,7 @@ func TestOptionalIsPresentTrue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportOptionalTest::testIssetNotExistItemOnObject
+// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetNotExistItemOnObject
 func TestOptionalIsPresentFalse(t *testing.T) {
 	t.Parallel()
 
@@ -56,7 +56,7 @@ func TestOptionalIsPresentFalse(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportOptionalTest::testIssetExistItemOnNull
+// Port of @bedrock\Tests\Support\SupportOptionalTest::testIssetExistItemOnNull
 func TestOptionalNilPointerIsSafe(t *testing.T) {
 	t.Parallel()
 

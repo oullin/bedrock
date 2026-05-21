@@ -3,7 +3,7 @@ package concurrency
 import "github.com/bedrock/packages/container"
 
 // ConcurrencyServiceProvider registers the concurrency manager into the
-// container. It mirrors Illuminate\Concurrency\ConcurrencyServiceProvider.
+// container. It mirrors @bedrock\Concurrency\ConcurrencyServiceProvider.
 type ConcurrencyServiceProvider struct {
 	app           *container.Container
 	defaultDriver string

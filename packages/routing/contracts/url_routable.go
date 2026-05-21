@@ -1,6 +1,6 @@
 package contracts
 
-// UrlRoutable mirrors Illuminate\Contracts\Routing\UrlRoutable.
+// UrlRoutable mirrors @bedrock\Contracts\Routing\UrlRoutable.
 //
 // User-defined model types implement this interface to participate in
 // implicit and scoped route-model binding. The Go port routes binding

@@ -9,7 +9,7 @@ import (
 	"github.com/bedrock/packages/queue/events"
 )
 
-// Ports of Illuminate\Tests\Queue\QueuePauseResumeTest.
+// Ports of @bedrock\Tests\Queue\QueuePauseResumeTest.
 //
 // the upstream test constructs a QueueManager against a Carbon test clock
 // and an ArrayStore-backed cache. The Go equivalent exercises the
@@ -89,7 +89,7 @@ func newPauseResumer() (*queue.PauseResumer, *pauseEventRecorder, *mockClock) {
 
 // --- ports ------------------------------------------------------------
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithConnection
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithConnection
 func TestPauseQueueWithConnection(t *testing.T) {
 	t.Parallel()
 
@@ -104,7 +104,7 @@ func TestPauseQueueWithConnection(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithTTL
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueWithTTL
 func TestPauseQueueWithTTL(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +125,7 @@ func TestPauseQueueWithTTL(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPauseQueueIndefinitely
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseQueueIndefinitely
 func TestPauseQueueIndefinitely(t *testing.T) {
 	t.Parallel()
 
@@ -146,7 +146,7 @@ func TestPauseQueueIndefinitely(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testResumeQueue
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumeQueue
 func TestResumeQueue(t *testing.T) {
 	t.Parallel()
 
@@ -167,7 +167,7 @@ func TestResumeQueue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPausingQueueOnOneConnectionDoesNotAffectAnother
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPausingQueueOnOneConnectionDoesNotAffectAnother
 func TestPausingQueueOnOneConnectionDoesNotAffectAnother(t *testing.T) {
 	t.Parallel()
 
@@ -184,7 +184,7 @@ func TestPausingQueueOnOneConnectionDoesNotAffectAnother(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPausingDifferentQueuesOnSameConnection
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPausingDifferentQueuesOnSameConnection
 func TestPausingDifferentQueuesOnSameConnection(t *testing.T) {
 	t.Parallel()
 
@@ -206,7 +206,7 @@ func TestPausingDifferentQueuesOnSameConnection(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testResumingOnlyAffectsSpecificQueue
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumingOnlyAffectsSpecificQueue
 func TestResumingOnlyAffectsSpecificQueue(t *testing.T) {
 	t.Parallel()
 
@@ -226,7 +226,7 @@ func TestResumingOnlyAffectsSpecificQueue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPauseDispatchesQueuePausedEvent
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseDispatchesQueuePausedEvent
 func TestPauseDispatchesQueuePausedEvent(t *testing.T) {
 	t.Parallel()
 
@@ -253,7 +253,7 @@ func TestPauseDispatchesQueuePausedEvent(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testPauseForDispatchesQueuePausedEventWithTTL
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testPauseForDispatchesQueuePausedEventWithTTL
 func TestPauseForDispatchesQueuePausedEventWithTTL(t *testing.T) {
 	t.Parallel()
 
@@ -280,7 +280,7 @@ func TestPauseForDispatchesQueuePausedEventWithTTL(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testResumeDispatchesQueueResumedEvent
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testResumeDispatchesQueueResumedEvent
 func TestResumeDispatchesQueueResumedEvent(t *testing.T) {
 	t.Parallel()
 
@@ -303,7 +303,7 @@ func TestResumeDispatchesQueueResumedEvent(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueuePauseResumeTest::testParsingQueueString
+// Port of @bedrock\Tests\Queue\QueuePauseResumeTest::testParsingQueueString
 func TestParsingQueueString(t *testing.T) {
 	t.Parallel()
 

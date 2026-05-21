@@ -67,9 +67,9 @@ func stringify(v any) string {
 
 // ── Tests (OAuthOneTest.php equivalents) ─────────────────────────────────────
 
-// OAuthOneTest::testRedirectGeneratesTheProperIlluminateRedirectResponse
+// OAuthOneTest::testRedirectGeneratesTheProper@bedrockRedirectResponse
 // TestOAuth1RedirectGeneratesURL mirrors
-// testRedirectGeneratesTheProperIlluminateRedirectResponse.
+// testRedirectGeneratesTheProper@bedrockRedirectResponse.
 func TestOAuth1RedirectGeneratesURL(t *testing.T) {
 	server := &mockOAuth1Server{
 		tempCreds: &socialite.TemporaryCredentials{Identifier: "id", Secret: "secret"},

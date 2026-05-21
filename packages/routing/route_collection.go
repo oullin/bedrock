@@ -19,7 +19,7 @@ import (
 //   - actionList: "Controller@method" → Route, populated when a controller
 //     action is supplied.
 //
-// Mirrors Illuminate\Routing\RouteCollection.
+// Mirrors @bedrock\Routing\RouteCollection.
 type RouteCollection struct {
 	AbstractRouteCollection
 

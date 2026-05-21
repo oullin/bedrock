@@ -6,7 +6,7 @@ import "fmt"
 // routing port. The bedrock httpx package supplies a richer type that the
 // service provider in M11 wires in via [Redirector.SetResponseFactory].
 //
-// Mirrors Illuminate\Http\RedirectResponse in narrow surface.
+// Mirrors @bedrock\Http\RedirectResponse in narrow surface.
 type RedirectResponse struct {
 	URL     string
 	Status  int
@@ -32,7 +32,7 @@ type SessionStore interface {
 	Put(key string, value any)
 }
 
-// Redirector mirrors Illuminate\Routing\Redirector. It builds
+// Redirector mirrors @bedrock\Routing\Redirector. It builds
 // [RedirectResponse] values for the various redirect verbs (To, Away, Secure,
 // Back, Refresh, Route, Action).
 type Redirector struct {

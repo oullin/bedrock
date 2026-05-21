@@ -106,9 +106,9 @@ func fakeHTTPClient(body string, status int) *http.Client {
 
 // ── Tests (OAuthTwoTest.php equivalents) ─────────────────────────────────────
 
-// OAuthTwoTest::testRedirectGeneratesTheProperIlluminateRedirectResponseWithoutPKCE
+// OAuthTwoTest::testRedirectGeneratesTheProper@bedrockRedirectResponseWithoutPKCE
 // TestRedirectBuildsURLWithoutPKCE mirrors
-// testRedirectGeneratesTheProperIlluminateRedirectResponseWithoutPKCE.
+// testRedirectGeneratesTheProper@bedrockRedirectResponseWithoutPKCE.
 func TestRedirectBuildsURLWithoutPKCE(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
 	session := newTestSession()
@@ -139,9 +139,9 @@ func TestRedirectBuildsURLWithoutPKCE(t *testing.T) {
 	}
 }
 
-// OAuthTwoTest::testRedirectGeneratesTheProperIlluminateRedirectResponseWithPKCE
+// OAuthTwoTest::testRedirectGeneratesTheProper@bedrockRedirectResponseWithPKCE
 // TestRedirectBuildsURLWithPKCE mirrors
-// testRedirectGeneratesTheProperIlluminateRedirectResponseWithPKCE.
+// testRedirectGeneratesTheProper@bedrockRedirectResponseWithPKCE.
 func TestRedirectBuildsURLWithPKCE(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com/foo", nil)
 	session := newTestSession()

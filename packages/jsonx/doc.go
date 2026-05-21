@@ -1,5 +1,5 @@
 // Package jsonx provides a fluent builder API for constructing JSON Schema
-// objects programmatically. It is a Go port of Illuminate\JsonSchema
+// objects programmatically. It is a Go port of @bedrock\JsonSchema
 // package, offering type-safe builders for all JSON Schema primitive types
 // (string, integer, number, boolean, array, object) with support for
 // validation constraints, nullable types, required fields, and recursive

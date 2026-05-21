@@ -1,4 +1,4 @@
-// Package events contains the Go port of every Illuminate\Queue\Events\*
+// Package events contains the Go port of every @bedrock\Queue\Events\*
 // class from upstream framework 13.x. Each upstream event is a plain Go
 // struct; the worker, manager, and drivers emit them via the queue
 // package's EventEmitter interface.

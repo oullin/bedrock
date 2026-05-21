@@ -4,7 +4,7 @@ import "sync"
 
 // TransactionManager manages after-commit and after-rollback callbacks
 // at each transaction nesting level. It mirrors
-// Illuminate\Database\DatabaseTransactionsManager.
+// @bedrock\Database\DatabaseTransactionsManager.
 type TransactionManager struct {
 	mu        sync.Mutex
 	callbacks map[int][]func()

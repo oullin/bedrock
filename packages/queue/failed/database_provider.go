@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// DatabaseFailedJobProvider is the Go port of // Illuminate\Queue\Failed\DatabaseFailedJobProvider. Records are stored
+// DatabaseFailedJobProvider is the Go port of // @bedrock\Queue\Failed\DatabaseFailedJobProvider. Records are stored
 // in a failed_jobs table keyed by an auto-incrementing integer id.
 //
 // The provider works through a small unexported store interface. The

@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// Routes is the Go port of Illuminate\Queue\QueueRoutes.
+// Routes is the Go port of @bedrock\Queue\QueueRoutes.
 //
 // It binds a class-like lookup key to either a plain queue name (string
 // form) or a (connection, queue) pair (array form). The worker-facing

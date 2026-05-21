@@ -19,7 +19,7 @@ type MessageProvider interface {
 // If validation failed or the request has no Precognition-Validate-Only header,
 // the closure is a no-op.
 //
-// This is the Go equivalent of Illuminate\Foundation\Precognition::afterValidationHook.
+// This is the Go equivalent of @bedrock\Foundation\Precognition::afterValidationHook.
 //
 //	hook := precognition.AfterValidationHook(r)
 //	// Register as after-validation callback:

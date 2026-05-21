@@ -1,6 +1,6 @@
 package failed_test
 
-// Ported from Illuminate\Tests\Queue\DatabaseFailedJobProviderTest (12/12).
+// Ported from @bedrock\Tests\Queue\DatabaseFailedJobProviderTest (12/12).
 //
 // ✅ testCanGetAllFailedJobIds
 // ✅ testCanGetAllFailedJobs
@@ -42,7 +42,7 @@ func createIntFailedJob(t *testing.T, p *failed.DatabaseFailedJobProvider, faile
 	failed.SetNow(p, time.Now)
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobIds
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobIds
 func TestCanGetAllFailedJobIds(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -72,7 +72,7 @@ func TestCanGetAllFailedJobIds(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobs
 func TestCanGetAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -102,7 +102,7 @@ func TestCanGetAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanRetrieveFailedJobsById
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanRetrieveFailedJobsById
 func TestCanRetrieveFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -122,7 +122,7 @@ func TestCanRetrieveFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanRemoveFailedJobsById
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanRemoveFailedJobsById
 func TestCanRemoveFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -149,7 +149,7 @@ func TestCanRemoveFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobs
 func TestCanPruneFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -182,7 +182,7 @@ func TestCanPruneFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobsWithRelativeHoursAndMinutes
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobsWithRelativeHoursAndMinutes
 func TestCanPruneFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -204,7 +204,7 @@ func TestCanPruneFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanFlushFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanFlushFailedJobs
 func TestCanFlushFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -236,7 +236,7 @@ func TestCanFlushFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testCanProperlyLogFailedJob
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testCanProperlyLogFailedJob
 func TestCanProperlyLogFailedJob(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -260,7 +260,7 @@ func TestCanProperlyLogFailedJob(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCounted
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCounted
 func TestJobsCanBeCounted(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -285,7 +285,7 @@ func TestJobsCanBeCounted(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByConnection
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByConnection
 func TestJobsCanBeCountedByConnection(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -313,7 +313,7 @@ func TestJobsCanBeCountedByConnection(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueue
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueue
 func TestJobsCanBeCountedByQueue(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -341,7 +341,7 @@ func TestJobsCanBeCountedByQueue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
+// Port of @bedrock\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
 func TestJobsCanBeCountedByQueueAndConnection(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()

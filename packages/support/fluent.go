@@ -10,7 +10,7 @@ import (
 
 // Fluent provides a dynamic key-value bag backed by map[string]any.
 // It supports dot-notation access for nested values.
-// Mirrors Illuminate\Support\Fluent.
+// Mirrors @bedrock\Support\Fluent.
 type Fluent struct {
 	attributes map[string]any
 }

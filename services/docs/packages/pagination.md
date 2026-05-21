@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package pagination provides offset-based and cursor-based paginators mirroring the upstream Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
+Package pagination provides offset-based and cursor-based paginators for bedrock callers. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -31,9 +31,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pagination/...
 
 ## Source Coverage
 
-| Package      | Purpose                                                                                                                                                                                                                                                                                                                 |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pagination` | Package pagination provides offset-based and cursor-based paginators mirroring the upstream Illuminate\Pagination component. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges. |
+| Package      | Purpose                                                                                                                                                                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pagination` | Package pagination provides offset-based and cursor-based paginators for bedrock callers. It includes simple paginators, length-aware paginators with total counts, cursor-based paginators for efficient keyset pagination, and URL window helpers for generating page link ranges. |
 
 ## Core Concepts
 

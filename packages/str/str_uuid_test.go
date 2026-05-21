@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testUuid
+// Port of @bedrock\Tests\Support\SupportStrTest::testUuid
 func TestStrUuid(t *testing.T) {
 	// NOT parallel — UUID tests may conflict with freeze
 	uuid := StrUuid()
@@ -15,7 +15,7 @@ func TestStrUuid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCanFreezeUuids
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCanFreezeUuids
 func TestStrFreezeUuids(t *testing.T) {
 	// NOT parallel — modifies global UUID state
 	cleanup := FreezeUuids(func() string { return "frozen-uuid" })
@@ -27,7 +27,7 @@ func TestStrFreezeUuids(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCanFreezeUuidsInAClosure
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCanFreezeUuidsInAClosure
 func TestStrFreezeUuidsCleanup(t *testing.T) {
 	// NOT parallel — modifies global UUID state
 	cleanup := FreezeUuids(func() string { return "frozen" })
@@ -46,7 +46,7 @@ func TestStrFreezeUuidsCleanup(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUuidsToUtilise
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUuidsToUtilise
 // SupportStrTest::testItCanSpecifyAFallbackForASequence
 func TestStrUuidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -77,7 +77,7 @@ func TestStrUuidSequence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCanFreezeUlids
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCanFreezeUlids
 // SupportStrTest::testItCanFreezeUlidsInAClosure
 func TestStrFreezeUlids(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -90,7 +90,7 @@ func TestStrFreezeUlids(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUlidsToUtilise
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUlidsToUtilise
 // SupportStrTest::testItCanSpecifyAFallbackForAUlidSequence
 func TestStrUlidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -124,7 +124,7 @@ func TestStrUlidSequence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testItCreatesUuidsNormallyAfterFailureWithinFreezeMethod
+// Port of @bedrock\Tests\Support\SupportStrTest::testItCreatesUuidsNormallyAfterFailureWithinFreezeMethod
 // SupportStrTest::testItCreatesUlidsNormallyAfterFailureWithinFreezeMethod
 func TestStrCreateUuidsNormally(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -155,7 +155,7 @@ func TestStrCreateUuidsNormally(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testOrderedUuid
+// Port of @bedrock\Tests\Support\SupportStrTest::testOrderedUuid
 func TestStrOrderedUuid(t *testing.T) {
 	// NOT parallel — may interfere with UUID freeze tests
 	uuid := StrOrderedUuid()
@@ -165,7 +165,7 @@ func TestStrOrderedUuid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testUlid
+// Port of @bedrock\Tests\Support\SupportStrTest::testUlid
 func TestStrUlid(t *testing.T) {
 	// NOT parallel
 	ulid := StrUlid()
@@ -180,7 +180,7 @@ func TestStrUlid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportStrTest::testResetFactoryState
+// Port of @bedrock\Tests\Support\SupportStrTest::testResetFactoryState
 func TestStrResetFactoryState(t *testing.T) {
 	// NOT parallel — modifies global state
 	CreateUuidsUsing(func() string { return "custom" })

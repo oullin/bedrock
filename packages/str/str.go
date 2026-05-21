@@ -349,7 +349,7 @@ import (
 // Mirrors Str::of().
 
 // StringBuilder provides a fluent interface for string manipulation.
-// Mirrors Illuminate\Support\Stringable.
+// Mirrors @bedrock\Support\Stringable.
 type StringBuilder struct {
 	value string
 }

@@ -27,7 +27,7 @@ type MethodNotAllowedError struct {
 // and [CompiledRouteCollection]. It holds no state; it provides the protected
 // helpers that the PHP abstract class supplies via inheritance.
 //
-// Mirrors Illuminate\Routing\AbstractRouteCollection.
+// Mirrors @bedrock\Routing\AbstractRouteCollection.
 type AbstractRouteCollection struct{}
 
 // HandleMatchedRoute binds a found route to the request, or — if none was

@@ -71,7 +71,7 @@ func TestEventWatcherIgnoresFrameworkEvents(t *testing.T) {
 	w := watchers.NewEventWatcher(scope, nil)
 
 	// These should all be filtered.
-	w.Record("Illuminate\\Auth\\Events\\Login", nil, nil)
+	w.Record("@bedrock\\Auth\\Events\\Login", nil, nil)
 	w.Record("Octane\\Events\\RequestReceived", nil, nil)
 	w.Record("github.com/bedrock/packages/telescope.InternalEvent", nil, nil)
 

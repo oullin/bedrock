@@ -3,7 +3,7 @@ package routing
 import "github.com/bedrock/packages/routing/matching"
 
 // RouteCollectionInterface mirrors
-// Illuminate\Routing\RouteCollectionInterface.
+// @bedrock\Routing\RouteCollectionInterface.
 //
 // Both [RouteCollection] and [CompiledRouteCollection] satisfy this interface,
 // so consumers (notably [Router]) can hold a single field and switch

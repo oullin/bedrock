@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// This file is the Go port of Illuminate\Queue\Queue abstract
+// This file is the Go port of @bedrock\Queue\Queue abstract
 // class — the shared base every concrete driver extends in PHP. In Go we
 // expose it as a set of stateless helpers that drivers call directly,
 // rather than as embedded state, so existing drivers can opt in without
@@ -34,13 +34,13 @@ type Namer interface {
 // exists so drivers can detect the intent without a compile-time dep
 // on a higher-level transaction package.
 //
-// Mirrors the upstream Illuminate\Contracts\Queue\ShouldQueueAfterCommit.
+// Mirrors the upstream @bedrock\Contracts\Queue\ShouldQueueAfterCommit.
 type AfterCommitMarker interface {
 	QueueAfterCommit() bool
 }
 
 // BeforeCommitMarker is the inverse of AfterCommitMarker: a job that
-// explicitly opts out of the after-commit default, matching the upstream // Illuminate\Contracts\Queue\ShouldBeEncrypted / afterCommit(false)
+// explicitly opts out of the after-commit default, matching the upstream // @bedrock\Contracts\Queue\ShouldBeEncrypted / afterCommit(false)
 // override. Step 14 wires the full decision tree; today the type exists
 // so drivers and tests can reference it.
 type BeforeCommitMarker interface {

@@ -9,7 +9,7 @@ import (
 
 // MessageBag collects and retrieves error messages organized by key.
 // It supports wildcard key matching and custom message formatting.
-// Mirrors Illuminate\Support\MessageBag.
+// Mirrors @bedrock\Support\MessageBag.
 type MessageBag struct {
 	messages map[string][]string
 	format   string

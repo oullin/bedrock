@@ -14,7 +14,7 @@ import (
 
 // Connection wraps a standard *sql.DB and adds query logging, event
 // dispatching, transaction management, and prefix support. It is the Go port
-// of Illuminate\Database\Connection.
+// of @bedrock\Database\Connection.
 type Connection struct {
 	mu             sync.RWMutex
 	db             *sql.DB

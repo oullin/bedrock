@@ -7,7 +7,7 @@ import (
 )
 
 // MessageSelector selects the appropriate plural form from a translation
-// string, mirroring the upstream Illuminate\Translation\MessageSelector.
+// string, mirroring the upstream @bedrock\Translation\MessageSelector.
 //
 // Translation strings use pipe-delimited segments with optional bracket
 // conditions:

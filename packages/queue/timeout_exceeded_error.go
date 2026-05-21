@@ -3,7 +3,7 @@ package queue
 import "fmt"
 
 // TimeoutExceededError is the Go port of
-// Illuminate\Queue\TimeoutExceededException.
+// @bedrock\Queue\TimeoutExceededException.
 //
 // In the upstream framework this class extends MaxAttemptsExceededException. Go has no
 // inheritance so TimeoutExceededError embeds *MaxAttemptsExceededError by

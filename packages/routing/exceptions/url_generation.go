@@ -1,4 +1,4 @@
-// Package exceptions mirrors laravel/framework/src/Illuminate/Routing/Exceptions.
+// Package exceptions mirrors laravel/framework/src/@bedrock/Routing/Exceptions.
 //
 // Each exported error type maps to a PHP exception class of the same name.
 // Errors are returned by value so callers can use [errors.As] to discriminate.
@@ -10,7 +10,7 @@ import "fmt"
 // generate a URL for the requested route — typically because a required
 // parameter is missing.
 //
-// Mirrors Illuminate\Routing\Exceptions\UrlGenerationException.
+// Mirrors @bedrock\Routing\Exceptions\UrlGenerationException.
 type UrlGenerationException struct {
 	RouteName string
 	Missing   []string

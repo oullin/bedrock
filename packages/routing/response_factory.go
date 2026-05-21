@@ -1,6 +1,6 @@
 package routing
 
-// ResponseFactory mirrors Illuminate\Routing\ResponseFactory.
+// ResponseFactory mirrors @bedrock\Routing\ResponseFactory.
 //
 // In the upstream framework the factory hand-builds Response/JsonResponse instances; the Go
 // port provides a struct-based equivalent that the bedrock httpx layer can

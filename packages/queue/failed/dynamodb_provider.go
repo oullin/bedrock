@@ -24,7 +24,7 @@ type DynamoDBClient interface {
 }
 
 // DynamoDbFailedJobProvider is the Go port of
-// Illuminate\Queue\Failed\DynamoDbFailedJobProvider.
+// @bedrock\Queue\Failed\DynamoDbFailedJobProvider.
 type DynamoDbFailedJobProvider struct {
 	client          DynamoDBClient
 	applicationName string

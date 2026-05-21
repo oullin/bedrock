@@ -5,7 +5,7 @@ import "strings"
 // MiddlewareNameResolver expands middleware aliases and group names into
 // concrete class names (or closures).
 //
-// Mirrors Illuminate\Routing\MiddlewareNameResolver.
+// Mirrors @bedrock\Routing\MiddlewareNameResolver.
 type MiddlewareNameResolver struct{}
 
 // Resolve translates name into one of:

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// InteractsWithQueue is the Go port of // Illuminate\Queue\InteractsWithQueue trait. Handler authors embed it
+// InteractsWithQueue is the Go port of // @bedrock\Queue\InteractsWithQueue trait. Handler authors embed it
 // in their job-handler structs to get ergonomic access to the
 // currently-processing Job (delete, release, fail) without having to
 // re-implement the lifecycle plumbing.

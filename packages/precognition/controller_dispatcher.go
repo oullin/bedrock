@@ -12,7 +12,7 @@ import (
 // validation) and then short-circuits with a [SuccessResponse] panic instead
 // of executing the method.
 //
-// Mirrors Illuminate\Foundation\Routing\PrecognitionControllerDispatcher.
+// Mirrors @bedrock\Foundation\Routing\PrecognitionControllerDispatcher.
 type ControllerDispatcher struct {
 	routing.ResolvesRouteDependencies
 	routing.FiltersControllerMiddleware

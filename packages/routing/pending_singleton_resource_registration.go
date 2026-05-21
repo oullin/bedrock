@@ -1,7 +1,7 @@
 package routing
 
 // PendingSingletonResourceRegistration mirrors
-// Illuminate\Routing\PendingSingletonResourceRegistration. It is the singleton
+// @bedrock\Routing\PendingSingletonResourceRegistration. It is the singleton
 // twin of [PendingResourceRegistration].
 type PendingSingletonResourceRegistration struct {
 	registrar  *ResourceRegistrar

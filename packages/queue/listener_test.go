@@ -9,7 +9,7 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// Full port of Illuminate\Tests\Queue\QueueListenerTest (5 / 5).
+// Full port of @bedrock\Tests\Queue\QueueListenerTest (5 / 5).
 //
 // the upstream test uses Mockery to partial-mock Symfony's Process and
 // the Listener itself, then asserts that makeProcess() returns a
@@ -47,7 +47,7 @@ func (p *fakeListenerProcess) Timeout() time.Duration   { return 0 }
 
 // --- ports ------------------------------------------------------------
 
-// Port of Illuminate\Tests\Queue\QueueListenerTest::testRunProcessCallsProcess
+// Port of @bedrock\Tests\Queue\QueueListenerTest::testRunProcessCallsProcess
 func TestRunProcessCallsProcess(t *testing.T) {
 	t.Parallel()
 
@@ -78,7 +78,7 @@ func TestRunProcessCallsProcess(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueListenerTest::testListenerStopsWhenMemoryIsExceeded
+// Port of @bedrock\Tests\Queue\QueueListenerTest::testListenerStopsWhenMemoryIsExceeded
 func TestListenerStopsWhenMemoryIsExceeded(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +109,7 @@ func TestListenerStopsWhenMemoryIsExceeded(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLine
+// Port of @bedrock\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLine
 func TestMakeProcessCorrectlyFormatsCommandLine(t *testing.T) {
 	t.Parallel()
 
@@ -153,7 +153,7 @@ func TestMakeProcessCorrectlyFormatsCommandLine(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified
+// Port of @bedrock\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified
 func TestMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified(t *testing.T) {
 	t.Parallel()
 
@@ -195,7 +195,7 @@ func TestMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified(t *tes
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified
+// Port of @bedrock\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified
 func TestMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified(t *testing.T) {
 	t.Parallel()
 

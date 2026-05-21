@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructor
+// Port of @bedrock\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructor
 func TestFluentAttributesSetByConstructor(t *testing.T) {
 	t.Parallel()
 
@@ -21,7 +21,7 @@ func TestFluentAttributesSetByConstructor(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenstdClass
+// Port of @bedrock\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenstdClass
 func TestFluentAttributesSetByConstructorFromStruct(t *testing.T) {
 	t.Parallel()
 
@@ -37,7 +37,7 @@ func TestFluentAttributesSetByConstructorFromStruct(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenArrayIterator
+// Port of @bedrock\Tests\Support\SupportFluentTest::testAttributesAreSetByConstructorGivenArrayIterator
 func TestFluentAttributesSetByConstructorFromIterator(t *testing.T) {
 	t.Parallel()
 
@@ -53,7 +53,7 @@ func TestFluentAttributesSetByConstructorFromIterator(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testGetMethodReturnsAttribute
+// Port of @bedrock\Tests\Support\SupportFluentTest::testGetMethodReturnsAttribute
 func TestFluentGet(t *testing.T) {
 	t.Parallel()
 
@@ -72,7 +72,7 @@ func TestFluentGet(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testSetMethodSetsAttribute
+// Port of @bedrock\Tests\Support\SupportFluentTest::testSetMethodSetsAttribute
 func TestFluentSet(t *testing.T) {
 	t.Parallel()
 
@@ -84,7 +84,7 @@ func TestFluentSet(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testToArrayReturnsAttribute
+// Port of @bedrock\Tests\Support\SupportFluentTest::testToArrayReturnsAttribute
 func TestFluentToMap(t *testing.T) {
 	t.Parallel()
 
@@ -97,7 +97,7 @@ func TestFluentToMap(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testToJsonEncodesTheToArrayResult
+// Port of @bedrock\Tests\Support\SupportFluentTest::testToJsonEncodesTheToArrayResult
 func TestFluentToJSON(t *testing.T) {
 	t.Parallel()
 
@@ -119,7 +119,7 @@ func TestFluentToJSON(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testToPrettyJson
+// Port of @bedrock\Tests\Support\SupportFluentTest::testToPrettyJson
 func TestFluentToPrettyJSON(t *testing.T) {
 	t.Parallel()
 
@@ -135,7 +135,7 @@ func TestFluentToPrettyJSON(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testBooleanMethod
+// Port of @bedrock\Tests\Support\SupportFluentTest::testBooleanMethod
 func TestFluentBool(t *testing.T) {
 	t.Parallel()
 
@@ -162,7 +162,7 @@ func TestFluentBool(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testIntegerMethod
+// Port of @bedrock\Tests\Support\SupportFluentTest::testIntegerMethod
 func TestFluentInt(t *testing.T) {
 	t.Parallel()
 
@@ -189,7 +189,7 @@ func TestFluentInt(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testFloatMethod
+// Port of @bedrock\Tests\Support\SupportFluentTest::testFloatMethod
 func TestFluentFloat(t *testing.T) {
 	t.Parallel()
 
@@ -208,8 +208,8 @@ func TestFluentFloat(t *testing.T) {
 }
 
 // Ports of:
-// - Illuminate\Tests\Support\SupportFluentTest::testFluentIsEmpty
-// - Illuminate\Tests\Support\SupportFluentTest::testFluentIsNotEmpty
+// - @bedrock\Tests\Support\SupportFluentTest::testFluentIsEmpty
+// - @bedrock\Tests\Support\SupportFluentTest::testFluentIsNotEmpty
 func TestFluentIsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -234,7 +234,7 @@ func TestFluentIsEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testScope
+// Port of @bedrock\Tests\Support\SupportFluentTest::testScope
 func TestFluentScope(t *testing.T) {
 	t.Parallel()
 
@@ -259,7 +259,7 @@ func TestFluentScope(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testStringMethod
+// Port of @bedrock\Tests\Support\SupportFluentTest::testStringMethod
 func TestFluentString(t *testing.T) {
 	t.Parallel()
 
@@ -281,7 +281,7 @@ func TestFluentString(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testOnly
+// Port of @bedrock\Tests\Support\SupportFluentTest::testOnly
 func TestFluentOnly(t *testing.T) {
 	t.Parallel()
 
@@ -297,7 +297,7 @@ func TestFluentOnly(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testExcept (via Arr::except)
+// Port of @bedrock\Tests\Support\SupportFluentTest::testExcept (via Arr::except)
 func TestFluentExcept(t *testing.T) {
 	t.Parallel()
 
@@ -313,7 +313,7 @@ func TestFluentExcept(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testFill
+// Port of @bedrock\Tests\Support\SupportFluentTest::testFill
 func TestFluentFill(t *testing.T) {
 	t.Parallel()
 
@@ -329,7 +329,7 @@ func TestFluentFill(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testMerge (non-overwrite)
+// Port of @bedrock\Tests\Support\SupportFluentTest::testMerge (non-overwrite)
 func TestFluentMerge(t *testing.T) {
 	t.Parallel()
 
@@ -345,7 +345,7 @@ func TestFluentMerge(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testFluentIsIterable
+// Port of @bedrock\Tests\Support\SupportFluentTest::testFluentIsIterable
 func TestFluentAll(t *testing.T) {
 	t.Parallel()
 
@@ -375,7 +375,7 @@ func TestFluentHasMissing(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportFluentTest::testArrayMethod
+// Port of @bedrock\Tests\Support\SupportFluentTest::testArrayMethod
 func TestFluentArray(t *testing.T) {
 	t.Parallel()
 

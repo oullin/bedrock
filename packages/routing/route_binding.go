@@ -30,7 +30,7 @@ type ModelInstance interface {
 // Go callers can use either the package functions directly or the methods on
 // this empty struct, both produce the same result.
 //
-// Mirrors Illuminate\Routing\RouteBinding.
+// Mirrors @bedrock\Routing\RouteBinding.
 type RouteBinding struct{}
 
 // ForCallback returns the binding resolver for the given binder. If binder is

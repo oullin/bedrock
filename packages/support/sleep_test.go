@@ -15,7 +15,7 @@ import (
 // SleepTest::testItCanSleepTillGivenTime
 // SleepTest::testItCanUseSleep
 
-// Port of Illuminate\Tests\Support\SleepTest::it_can_fake_sleep
+// Port of @bedrock\Tests\Support\SleepTest::it_can_fake_sleep
 func TestFakeSleepRecordsCalls(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -31,7 +31,7 @@ func TestFakeSleepRecordsCalls(t *testing.T) {
 	fake.AssertSlept(t, 20*time.Millisecond, 1)
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::it_records_total_sleep_duration
+// Port of @bedrock\Tests\Support\SleepTest::it_records_total_sleep_duration
 func TestFakeSleepTotalDuration(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -47,7 +47,7 @@ func TestFakeSleepTotalDuration(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::it_asserts_never_slept
+// Port of @bedrock\Tests\Support\SleepTest::it_asserts_never_slept
 func TestFakeSleepAssertNeverSlept(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -58,7 +58,7 @@ func TestFakeSleepAssertNeverSlept(t *testing.T) {
 	fake.AssertNeverSlept(t)
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::it_asserts_slept_at_least
+// Port of @bedrock\Tests\Support\SleepTest::it_asserts_slept_at_least
 func TestFakeSleepAssertAtLeast(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -72,7 +72,7 @@ func TestFakeSleepAssertAtLeast(t *testing.T) {
 	fake.AssertSleptAtLeast(t, 500*time.Millisecond)
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::it_asserts_sleep_sequence
+// Port of @bedrock\Tests\Support\SleepTest::it_asserts_sleep_sequence
 func TestFakeSleepAssertSequence(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -91,7 +91,7 @@ func TestFakeSleepAssertSequence(t *testing.T) {
 	})
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::it_returns_slept_times
+// Port of @bedrock\Tests\Support\SleepTest::it_returns_slept_times
 func TestFakeSleepSleptTimes(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -109,7 +109,7 @@ func TestFakeSleepSleptTimes(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::cleanup_restores_real_sleep
+// Port of @bedrock\Tests\Support\SleepTest::cleanup_restores_real_sleep
 func TestFakeSleepCleanupRestores(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -124,7 +124,7 @@ func TestFakeSleepCleanupRestores(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::sleep_until
+// Port of @bedrock\Tests\Support\SleepTest::sleep_until
 func TestSleepUntil(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}
@@ -138,7 +138,7 @@ func TestSleepUntil(t *testing.T) {
 	fake.AssertSleptTimes(t, 1)
 }
 
-// Port of Illuminate\Tests\Support\SleepTest::sleep_until_past_time_does_nothing
+// Port of @bedrock\Tests\Support\SleepTest::sleep_until_past_time_does_nothing
 func TestSleepUntilPast(t *testing.T) {
 	// NOT parallel — modifies global sleep state
 	fake := &FakeSleep{}

@@ -1,5 +1,5 @@
 // Package middleware mirrors
-// laravel/framework/src/Illuminate/Routing/Middleware.
+// laravel/framework/src/@bedrock/Routing/Middleware.
 //
 // The bedrock pipeline runs each middleware as a function that receives the
 // current request and a "next" continuation. The shapes here are designed so
@@ -18,7 +18,7 @@ type BindingRouter interface {
 // SubstituteBindings is the middleware that runs explicit and implicit route
 // bindings before the route handler executes.
 //
-// Mirrors Illuminate\Routing\Middleware\SubstituteBindings.
+// Mirrors @bedrock\Routing\Middleware\SubstituteBindings.
 type SubstituteBindings struct{ Router BindingRouter }
 
 // New wraps a router into the middleware.

@@ -10,7 +10,7 @@ import (
 // implement it. the upstream PhpRedisConnection / PredisConnection methods
 // all ultimately map onto these primitives.
 //
-// Do is the generic command dispatcher (parity with Illuminate's
+// Do is the generic command dispatcher (parity with @bedrock's
 // Connection::command). Typed helpers delegate to Do so one implementation
 // is enough to satisfy the interface, and specialized backends can
 // optionally override hot paths.

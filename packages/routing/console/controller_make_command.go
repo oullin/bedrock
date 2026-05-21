@@ -1,4 +1,4 @@
-// Package console mirrors laravel/framework/src/Illuminate/Routing/Console.
+// Package console mirrors laravel/framework/src/@bedrock/Routing/Console.
 //
 // The PHP package supplies "make:controller" and "make:middleware" Artisan
 // commands that scaffold class files from stubs. The Go port exposes the
@@ -17,7 +17,7 @@ var controllerStub string
 
 // ControllerMakeCommand renders the controller stub for a new file.
 //
-// Mirrors Illuminate\Routing\Console\ControllerMakeCommand.
+// Mirrors @bedrock\Routing\Console\ControllerMakeCommand.
 type ControllerMakeCommand struct{}
 
 // Render returns the file contents for a controller named name in the given

@@ -24,7 +24,7 @@ func mustPanic(t *testing.T, want string, fn func()) {
 	fn()
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanWin.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanWin.
 func TestItCanWin(t *testing.T) {
 	won := false
 
@@ -45,7 +45,7 @@ func TestItCanWin(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanLose.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanLose.
 func TestItCanLose(t *testing.T) {
 	won := false
 	lost := false
@@ -76,7 +76,7 @@ func TestItCanLose(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanReturnValues.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanReturnValues.
 func TestItCanReturnValues(t *testing.T) {
 	win := NewLottery(1, 1).
 		Winner(func(...any) any {
@@ -99,7 +99,7 @@ func TestItCanReturnValues(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanChooseSeveralTimes.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanChooseSeveralTimes.
 func TestItCanChooseSeveralTimes(t *testing.T) {
 	winResults := NewLottery(1, 1).
 		Winner(func(...any) any {
@@ -122,7 +122,7 @@ func TestItCanChooseSeveralTimes(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanBePassedAsCallable.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanBePassedAsCallable.
 func TestItCanBePassedAsCallable(t *testing.T) {
 	result := func(callable func(...any) any) any {
 		return callable("winner-chicken", "-dinner")
@@ -137,7 +137,7 @@ func TestItCanBePassedAsCallable(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testWithoutSpecifiedClosuresBooleansAreReturned.
+// Port of @bedrock\Tests\Support\LotteryTest::testWithoutSpecifiedClosuresBooleansAreReturned.
 func TestWithoutSpecifiedClosuresBooleansAreReturned(t *testing.T) {
 	win := NewLottery(1, 1).Choose()
 
@@ -152,7 +152,7 @@ func TestWithoutSpecifiedClosuresBooleansAreReturned(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanForceWinningResultInTests.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanForceWinningResultInTests.
 func TestItCanForceWinningResultInTests(t *testing.T) {
 	t.Cleanup(DetermineResultsNormally)
 
@@ -176,7 +176,7 @@ func TestItCanForceWinningResultInTests(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanForceLosingResultInTests.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanForceLosingResultInTests.
 func TestItCanForceLosingResultInTests(t *testing.T) {
 	t.Cleanup(DetermineResultsNormally)
 
@@ -200,7 +200,7 @@ func TestItCanForceLosingResultInTests(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanForceTheResultViaSequence.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanForceTheResultViaSequence.
 func TestItCanForceTheResultViaSequence(t *testing.T) {
 	t.Cleanup(DetermineResultsNormally)
 
@@ -238,7 +238,7 @@ func TestItCanForceTheResultViaSequence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanHandleMissingSequenceItems.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanHandleMissingSequenceItems.
 func TestItCanHandleMissingSequenceItems(t *testing.T) {
 	t.Cleanup(DetermineResultsNormally)
 
@@ -288,21 +288,21 @@ func TestItCanHandleMissingSequenceItems(t *testing.T) {
 	})
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItThrowsForFloatsOverOne.
+// Port of @bedrock\Tests\Support\LotteryTest::testItThrowsForFloatsOverOne.
 func TestItThrowsForFloatsOverOne(t *testing.T) {
 	mustPanic(t, "Float must not be greater than 1.", func() {
 		NewLottery(1.1)
 	})
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItThrowsForOutOfLessThanOne.
+// Port of @bedrock\Tests\Support\LotteryTest::testItThrowsForOutOfLessThanOne.
 func TestItThrowsForOutOfLessThanOne(t *testing.T) {
 	mustPanic(t, "outOf must be at least 1", func() {
 		NewLottery(1, 0)
 	})
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanWinWithFloat.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanWinWithFloat.
 func TestItCanWinWithFloat(t *testing.T) {
 	wins := false
 
@@ -323,7 +323,7 @@ func TestItCanWinWithFloat(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\LotteryTest::testItCanLoseWithFloat.
+// Port of @bedrock\Tests\Support\LotteryTest::testItCanLoseWithFloat.
 func TestItCanLoseWithFloat(t *testing.T) {
 	wins := false
 	loses := false

@@ -47,7 +47,7 @@ type SimpleProcess struct {
 // Timeout returns the configured run-time ceiling.
 
 // ListenerOptions configures the Listener's outer loop and the
-// worker subprocesses it spawns. Mirrors the upstream // Illuminate\Queue\ListenerOptions, with a few field-name tweaks for
+// worker subprocesses it spawns. Mirrors the upstream // @bedrock\Queue\ListenerOptions, with a few field-name tweaks for
 // Go idiom (MaxTries instead of maxTries, Rest instead of $rest).
 type ListenerOptions struct {
 	// Name is the worker process name passed via --name. Defaults to
@@ -80,7 +80,7 @@ type ListenerOptions struct {
 // matches the upstream `new ListenerOptions($name, $environment)` form.
 
 // Listener spawns and supervises worker subprocesses. It is the Go
-// port of Illuminate\Queue\Listener.
+// port of @bedrock\Queue\Listener.
 //
 // The Listener is deliberately transport-agnostic: it builds a command
 // slice from the caller-supplied connection/queue/options tuple and

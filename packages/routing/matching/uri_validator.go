@@ -8,7 +8,7 @@ import (
 // UriValidator matches the request's URI path against the route's compiled
 // path regex.
 //
-// Mirrors Illuminate\Routing\Matching\UriValidator. The PHP version trims a
+// Mirrors @bedrock\Routing\Matching\UriValidator. The PHP version trims a
 // trailing slash from the request path (preserving "/") before matching, and
 // raw-URL-decodes the result.
 type UriValidator struct{}

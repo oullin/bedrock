@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package support provides Go ports of the upstream Illuminate/Support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox).
+Package support provides Go ports of bedrock support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox).
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -31,9 +31,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/support/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `support` | Package support provides Go ports of the upstream Illuminate/Support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox). |
+| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `support` | Package support provides Go ports of bedrock support utilities. It includes array and dot-notation helpers (Arr*, Dot* internals), a dynamic key-value object (Fluent), a safe nullable wrapper (Optional[T]), an error message collection (MessageBag), global helpers (Blank, Filled, Tap, Value, With, Transform, E, Env, Retry), flexible sleeping (Sleep), and time-constrained execution (Timebox). |
 
 ## Core Concepts
 

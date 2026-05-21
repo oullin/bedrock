@@ -1,5 +1,5 @@
 // Package attributes mirrors
-// laravel/framework/src/Illuminate/Routing/Attributes/Controllers.
+// laravel/framework/src/@bedrock/Routing/Attributes/Controllers.
 //
 // PHP 8 attributes have no direct Go equivalent. The strict-parity story here
 // is "the value object is identical, but you attach it via the

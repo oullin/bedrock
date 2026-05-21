@@ -13,7 +13,7 @@ import "github.com/bedrock/packages/queue/events"
 // it here. New upstream events should be added to events/ first, then
 // re-exported here only if callers need the unqualified name.
 //
-// The full set of upstream 13.x Illuminate\Queue\Events\* types is
+// The full set of upstream 13.x @bedrock\Queue\Events\* types is
 // re-exported below so a migration to qualified names is a pure find &
 // replace.
 

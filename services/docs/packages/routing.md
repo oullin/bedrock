@@ -12,7 +12,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package routing is a 1:1 Go port of upstream src/Illuminate/Routing.
+Package routing is surfaced under @bedrock\Routing.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -36,18 +36,18 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routing/...
 
 ## Source Coverage
 
-| Package       | Purpose                                                              |
-| ------------- | -------------------------------------------------------------------- |
-| `routing`     | Package routing is a 1:1 Go port of upstream src/Illuminate/Routing. |
-| `attributes`  | Public attributes API surface for this module.                       |
-| `compiler`    | Public compiler API surface for this module.                         |
-| `console`     | Public console API surface for this module.                          |
-| `contracts`   | Public contracts API surface for this module.                        |
-| `controllers` | Public controllers API surface for this module.                      |
-| `events`      | Public events API surface for this module.                           |
-| `exceptions`  | Public exceptions API surface for this module.                       |
-| `matching`    | Public matching API surface for this module.                         |
-| `middleware`  | Public middleware API surface for this module.                       |
+| Package       | Purpose                                             |
+| ------------- | --------------------------------------------------- |
+| `routing`     | Package routing is surfaced under @bedrock\Routing. |
+| `attributes`  | Public attributes API surface for this module.      |
+| `compiler`    | Public compiler API surface for this module.        |
+| `console`     | Public console API surface for this module.         |
+| `contracts`   | Public contracts API surface for this module.       |
+| `controllers` | Public controllers API surface for this module.     |
+| `events`      | Public events API surface for this module.          |
+| `exceptions`  | Public exceptions API surface for this module.      |
+| `matching`    | Public matching API surface for this module.        |
+| `middleware`  | Public middleware API surface for this module.      |
 
 ## Core Concepts
 

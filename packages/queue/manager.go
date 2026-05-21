@@ -17,7 +17,7 @@ type DriverCreator func(config map[string]any) (Queue, error)
 // ConnectorFactory is the upstream-faithful two-step path: the factory
 // returns a Connector, and the Manager then calls Connector.Connect(config)
 // to obtain a Queue. Mirrors the upstream addConnector closure, which
-// returns `new Illuminate\Queue\Connectors\*Connector`.
+// returns `new @bedrock\Queue\Connectors\*Connector`.
 type ConnectorFactory func() Connector
 
 // ConnectionNameSetter is the optional contract a Queue implementation
@@ -44,7 +44,7 @@ type HookFunc func(event any)
 
 // Manager creates, caches, and coordinates named queue connections.
 //
-// The API surface is the Go port of Illuminate\Queue\QueueManager with
+// The API surface is the Go port of @bedrock\Queue\QueueManager with
 // two entry points for registering drivers (Register for the simple
 // creator path, AddConnector for the two-step Connector path), enum-like
 // connection references via Connection(any), optional queue hooks for

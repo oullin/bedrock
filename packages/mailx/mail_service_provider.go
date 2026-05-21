@@ -27,7 +27,7 @@ type MailProviderConfig struct {
 }
 
 // MailServiceProvider registers the mail manager into the container.
-// It mirrors Illuminate\Mail\MailServiceProvider.
+// It mirrors @bedrock\Mail\MailServiceProvider.
 type MailServiceProvider struct {
 	app  *container.Container
 	cfg  MailProviderConfig

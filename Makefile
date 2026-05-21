@@ -4,28 +4,7 @@ GO_FMT_SERVICE := go-fmt
 GO_FMT_COMPOSE := docker compose -f $(GO_FMT_COMPOSE_FILE)
 GO_FMT_BIN := /usr/local/bin/go-fmt
 GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
-PACKAGE_FMT := pnpm fmt
-MARKDOWN_FILES := $(shell git ls-files '*.md')
 FORMAT_BASE ?= origin/main
-GIT_CHANGED_FN = $(shell { \
-		git diff --name-only --diff-filter=ACMRT $(FORMAT_BASE)...HEAD -- $(1) 2>/dev/null; \
-		git diff --name-only --diff-filter=ACMRT -- $(1) 2>/dev/null; \
-		git ls-files --others --exclude-standard -- $(1) 2>/dev/null; \
-	} | sort -u)
-CHANGED_MD := $(call GIT_CHANGED_FN,'*.md')
-CHANGED_GO := $(call GIT_CHANGED_FN,'*.go')
-CHANGED_GO_DIRS := $(sort $(patsubst %/,%,$(dir $(CHANGED_GO))))
-CHANGED_GO_MODULES := $(shell \
-		{ git diff --name-only --diff-filter=ACMRT $(FORMAT_BASE)...HEAD -- '*.go' 2>/dev/null; \
-		  git diff --name-only --diff-filter=ACMRT -- '*.go' 2>/dev/null; \
-		  git ls-files --others --exclude-standard -- '*.go' 2>/dev/null; } \
-		| sort -u \
-		| while read f; do \
-		    d=$$(dirname $$f); \
-		    while [ "$$d" != "." ] && [ ! -f "$$d/go.mod" ]; do d=$$(dirname $$d); done; \
-		    [ "$$d" != "." ] && echo $$d; \
-		  done \
-		| sort -u)
 GO_MODULE_EXCLUDED_DIRS := packages/testing
 GO_PACKAGE_MODULE_DIRS := $(filter-out $(GO_MODULE_EXCLUDED_DIRS),$(shell git ls-files 'packages/**/go.mod' | sed 's|/go.mod$$||'))
 GO_SERVICE_MODULE_DIRS := $(shell git ls-files 'services/**/go.mod' | sed 's|/go.mod$$||')
@@ -69,38 +48,10 @@ endef
 .PHONY: format format-all format-start format-stop vet tidy typecheck test coverage build clean docs go-test go-build go-package-vet go-package-build go-service-vet go-service-build go-coverage go-coverage-shard go-package-coverage-shard go-service-coverage
 
 format: format-start
-	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
-	go_fmt_status=0; \
-	if [ -n "$(strip $(CHANGED_GO_MODULES))" ]; then \
-		paths=""; \
-		for dir in $(CHANGED_GO_MODULES); do paths="$$paths /work/$$dir"; done; \
-		echo "go-fmt format ($(words $(CHANGED_GO_MODULES)) module(s))"; \
-		$(GO_FMT_EXEC) format --cwd /work $$paths || go_fmt_status=$$?; \
-	else \
-		echo "go-fmt: no changed Go modules"; \
-	fi; \
-	wait $$pnpm_pid; pnpm_status=$$?; \
-	if [ $$go_fmt_status -ne 0 ]; then exit $$go_fmt_status; fi; \
-	if [ $$pnpm_status -ne 0 ]; then exit $$pnpm_status; fi
-	@if [ -n "$(strip $(CHANGED_MD))" ]; then \
-		echo "oxfmt ($(words $(CHANGED_MD)) markdown files)"; \
-		pnpm exec oxfmt --ignore-path .gitignore $(CHANGED_MD); \
-	else \
-		echo "oxfmt: no changed markdown files"; \
-	fi
+	@FORMAT_BASE=$(FORMAT_BASE) $(ROOT_PATH)/services/scripts/format.sh changed
 
 format-all: format-start
-	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
-	go_fmt_status=0; \
-	echo "go-fmt format in $(ROOT_PATH)"; \
-	$(GO_FMT_EXEC) format --cwd /work --host-path $(ROOT_PATH) || go_fmt_status=$$?; \
-	wait $$pnpm_pid; pnpm_status=$$?; \
-	if [ $$go_fmt_status -ne 0 ]; then exit $$go_fmt_status; fi; \
-	if [ $$pnpm_status -ne 0 ]; then exit $$pnpm_status; fi
-	@if [ -n "$(MARKDOWN_FILES)" ]; then \
-		echo "oxfmt ($(words $(MARKDOWN_FILES)) markdown files)"; \
-		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
-	fi
+	@FORMAT_BASE=$(FORMAT_BASE) $(ROOT_PATH)/services/scripts/format.sh all
 
 format-start:
 	@$(GO_FMT_COMPOSE) up -d $(GO_FMT_SERVICE)

@@ -1,6 +1,6 @@
 package failed_test
 
-// Ported from Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest (11/11).
+// Ported from @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest (11/11).
 //
 // ✅ testGettingIdsOfAllFailedJobs
 // ✅ testGettingAllFailedJobs
@@ -33,7 +33,7 @@ func uuidPayload(uuid string) string {
 	return string(b)
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingIdsOfAllFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingIdsOfAllFailedJobs
 func TestGettingIdsOfAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -54,7 +54,7 @@ func TestGettingIdsOfAllFailedJobs(t *testing.T) {
 	assertStringSlice(t, ids, []string{"uuid-3", "uuid-4"})
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingAllFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingAllFailedJobs
 func TestGettingAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -85,7 +85,7 @@ func TestGettingAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testFindingFailedJobsById
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testFindingFailedJobsById
 func TestFindingFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -102,7 +102,7 @@ func TestFindingFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingJobsById
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingJobsById
 func TestRemovingJobsById(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -119,7 +119,7 @@ func TestRemovingJobsById(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingAllFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingAllFailedJobs
 func TestRemovingAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -140,7 +140,7 @@ func TestRemovingAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobs
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobs
 func TestPruningFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -165,7 +165,7 @@ func TestPruningFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobsWithRelativeHoursAndMinutes
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobsWithRelativeHoursAndMinutes
 func TestPruningFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -190,7 +190,7 @@ func TestPruningFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCounted
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCounted
 func TestJobsCanBeCountedUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -213,7 +213,7 @@ func TestJobsCanBeCountedUuid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByConnection
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByConnection
 func TestJobsCanBeCountedByConnectionUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -239,7 +239,7 @@ func TestJobsCanBeCountedByConnectionUuid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueue
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueue
 func TestJobsCanBeCountedByQueueUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -265,7 +265,7 @@ func TestJobsCanBeCountedByQueueUuid(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
+// Port of @bedrock\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
 func TestJobsCanBeCountedByQueueAndConnectionUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()

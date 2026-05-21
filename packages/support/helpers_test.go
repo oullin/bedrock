@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testBlank
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testBlank
 func TestBlank(t *testing.T) {
 	t.Parallel()
 
@@ -35,7 +35,7 @@ func TestBlank(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testFilled
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testFilled
 func TestFilled(t *testing.T) {
 	t.Parallel()
 
@@ -60,7 +60,7 @@ func TestFilled(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testTap
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testTap
 func TestTap(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestTap(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testWith
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testWith
 func TestWith(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func TestWith(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testValue
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testValue
 func TestValue(t *testing.T) {
 	t.Parallel()
 
@@ -121,8 +121,8 @@ func TestValue(t *testing.T) {
 }
 
 // Ports of:
-// - Illuminate\Tests\Support\SupportHelpersTest::testTransform
-// - Illuminate\Tests\Support\SupportHelpersTest::testTransformDefaultWhenBlank
+// - @bedrock\Tests\Support\SupportHelpersTest::testTransform
+// - @bedrock\Tests\Support\SupportHelpersTest::testTransformDefaultWhenBlank
 func TestTransform(t *testing.T) {
 	t.Parallel()
 
@@ -154,7 +154,7 @@ func TestTransform(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testE
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testE
 func TestE(t *testing.T) {
 	t.Parallel()
 
@@ -177,7 +177,7 @@ func TestE(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnv
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnv
 func TestEnv(t *testing.T) {
 	// NOT parallel — uses t.Setenv
 	t.Setenv("TEST_SUPPORT_FOO", "bar")
@@ -191,7 +191,7 @@ func TestEnv(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnvTrue
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnvTrue
 func TestEnvTrue(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +204,7 @@ func TestEnvTrue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnvFalse
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnvFalse
 func TestEnvFalse(t *testing.T) {
 	t.Parallel()
 
@@ -217,7 +217,7 @@ func TestEnvFalse(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnvNull
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnvNull
 func TestEnvNull(t *testing.T) {
 	t.Parallel()
 
@@ -230,7 +230,7 @@ func TestEnvNull(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnvEmpty
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnvEmpty
 func TestEnvEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -243,7 +243,7 @@ func TestEnvEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testEnvEscapedString
+// Port of @bedrock\Tests\Support\SupportHelpersTest::testEnvEscapedString
 func TestEnvEscapedString(t *testing.T) {
 	t.Parallel()
 

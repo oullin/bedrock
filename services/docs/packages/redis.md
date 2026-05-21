@@ -6,7 +6,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package redis is a Go port of Illuminate/Redis package.
+Package redis ports the relevant upstream surface.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -30,11 +30,11 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/redis/...
 
 ## Source Coverage
 
-| Package         | Purpose                                                 |
-| --------------- | ------------------------------------------------------- |
-| `redis`         | Package redis is a Go port of Illuminate/Redis package. |
-| `internal/mock` | Public internal/mock API surface for this module.       |
-| `limiters`      | Public limiters API surface for this module.            |
+| Package         | Purpose                                            |
+| --------------- | -------------------------------------------------- |
+| `redis`         | Package redis ports the relevant upstream surface. |
+| `internal/mock` | Public internal/mock API surface for this module.  |
+| `limiters`      | Public limiters API surface for this module.       |
 
 ## Core Concepts
 

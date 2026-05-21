@@ -98,7 +98,7 @@ type RedisDriver struct {
 
 // hasHashTag reports whether key contains a valid Redis cluster hash tag
 // (an opening `{` followed by a `}` with at least one character in between).
-// Mirrors the upstream `Illuminate\Redis\Connections\Connection::hasHashTag()`.
+// Mirrors the upstream `@bedrock\Redis\Connections\Connection::hasHashTag()`.
 
 // NewRedisDriver creates a RedisDriver.
 

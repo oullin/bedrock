@@ -21,7 +21,7 @@ type EventWatcher struct {
 
 var ignoredEventPrefixes = []string{
 	"github.com/bedrock/packages/telescope",
-	"Illuminate\\",
+	"@bedrock\\",
 	"Octane\\",
 }
 

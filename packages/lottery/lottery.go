@@ -7,7 +7,7 @@ import (
 )
 
 // Lottery provides probabilistic execution with configurable odds.
-// It mirrors the executable parts of Illuminate\Support\Lottery.
+// It mirrors the executable parts of @bedrock\Support\Lottery.
 type Lottery struct {
 	chances float64
 	outOf   *int

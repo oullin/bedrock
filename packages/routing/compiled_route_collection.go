@@ -16,7 +16,7 @@ import (
 // the dumper produces alongside it. In Go we store a slice of Routes that the
 // router built from the cached form; M11 will provide a real cache loader.
 //
-// Mirrors Illuminate\Routing\CompiledRouteCollection.
+// Mirrors @bedrock\Routing\CompiledRouteCollection.
 type CompiledRouteCollection struct {
 	AbstractRouteCollection
 	routes     []*Route

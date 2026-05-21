@@ -3,7 +3,7 @@ package cache
 import "github.com/bedrock/packages/container"
 
 // CacheServiceProvider registers the cache manager into the container.
-// It mirrors Illuminate\Cache\CacheServiceProvider.
+// It mirrors @bedrock\Cache\CacheServiceProvider.
 type CacheServiceProvider struct {
 	app           *container.Container
 	defaultDriver string

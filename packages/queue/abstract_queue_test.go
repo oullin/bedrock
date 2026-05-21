@@ -267,11 +267,11 @@ func TestShouldDispatchAfterCommitPrecedence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractDefaultsToAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndAfterCommitFalseRespectsBeforeCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndExplicitAfterCommitTrueStillSchedulesAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsBeforeCommit
+// Port of @bedrock\Tests\Queue\BeforeCommitContractTest::testJobWithContractDefaultsToAfterCommit
+// Port of @bedrock\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndAfterCommitFalseRespectsBeforeCommit
+// Port of @bedrock\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndExplicitAfterCommitTrueStillSchedulesAfterCommit
+// Port of @bedrock\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsAfterCommit
+// Port of @bedrock\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsBeforeCommit
 func TestBeforeCommitContractDispatchPrecedence(t *testing.T) {
 	t.Parallel()
 
@@ -296,9 +296,9 @@ func TestBeforeCommitContractDispatchPrecedence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_queue_delay
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_queue_without_delay
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_pending_dispatch_without_delay
+// Port of @bedrock\Tests\Queue\QueueDelayTest::test_queue_delay
+// Port of @bedrock\Tests\Queue\QueueDelayTest::test_queue_without_delay
+// Port of @bedrock\Tests\Queue\QueueDelayTest::test_pending_dispatch_without_delay
 func TestQueueDelayAndWithoutDelayOptions(t *testing.T) {
 	t.Parallel()
 
@@ -319,7 +319,7 @@ func TestQueueDelayAndWithoutDelayOptions(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testPushIncludesBatchIdInPayloadForBatchableJob
+// Port of @bedrock\Tests\Queue\QueueDatabaseQueueUnitTest::testPushIncludesBatchIdInPayloadForBatchableJob
 func TestCreatePayloadForIncludesBatchID(t *testing.T) {
 	t.Parallel()
 

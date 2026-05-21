@@ -10,7 +10,7 @@ import (
 // and then short-circuits with a [SuccessResponse] panic instead of executing
 // the callable.
 //
-// Mirrors Illuminate\Foundation\Routing\PrecognitionCallableDispatcher.
+// Mirrors @bedrock\Foundation\Routing\PrecognitionCallableDispatcher.
 type CallableDispatcher struct {
 	routing.ResolvesRouteDependencies
 	container routing.DependencyContainer

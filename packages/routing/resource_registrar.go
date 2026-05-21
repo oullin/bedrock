@@ -3,7 +3,7 @@ package routing
 import "strings"
 
 // ResourceRegistrar generates the seven standard RESTful routes for a
-// resource controller, mirroring Illuminate\Routing\ResourceRegistrar.
+// resource controller, mirroring @bedrock\Routing\ResourceRegistrar.
 //
 // The Go port covers: register/singleton, only/except, names/parameters,
 // shallow nesting, and prefixed names (e.g. "users.posts" → nested URI).

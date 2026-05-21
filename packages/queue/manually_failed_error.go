@@ -1,7 +1,7 @@
 package queue
 
 // ManuallyFailedError is the Go port of
-// Illuminate\Queue\ManuallyFailedException.
+// @bedrock\Queue\ManuallyFailedException.
 //
 // In the upstream framework this is an empty RuntimeException used as a marker type
 // when a job calls $this->fail() without an underlying cause. Go's

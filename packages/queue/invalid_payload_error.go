@@ -1,7 +1,7 @@
 package queue
 
 // InvalidPayloadError is the Go port of
-// Illuminate\Queue\InvalidPayloadException.
+// @bedrock\Queue\InvalidPayloadException.
 //
 // It is returned by Payload marshalling/unmarshalling helpers when a
 // payload cannot be encoded or decoded. The Value field carries the

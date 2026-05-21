@@ -10,7 +10,7 @@ import (
 
 // EventDispatcher is the minimal event surface the router needs.
 //
-// Mirrors Illuminate\Contracts\Events\Dispatcher narrowly. The bedrock
+// Mirrors @bedrock\Contracts\Events\Dispatcher narrowly. The bedrock
 // packages/events Dispatcher satisfies this; tests can supply a noop.
 type EventDispatcher interface {
 	Dispatch(event any)
@@ -19,7 +19,7 @@ type EventDispatcher interface {
 // noopEvents is the zero-value dispatcher used when none is supplied.
 type noopEvents struct{}
 
-// Router is the central router, mirroring Illuminate\Routing\Router.
+// Router is the central router, mirroring @bedrock\Routing\Router.
 //
 // It owns the [RouteCollection], the middleware aliases and groups, the
 // global parameter patterns, the binder map, and the group attribute stack.

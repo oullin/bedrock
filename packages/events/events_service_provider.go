@@ -3,7 +3,7 @@ package events
 import "github.com/bedrock/packages/container"
 
 // EventsServiceProvider registers the event dispatcher into the container.
-// It mirrors Illuminate\Events\EventServiceProvider.
+// It mirrors @bedrock\Events\EventServiceProvider.
 type EventsServiceProvider struct {
 	app    *container.Container
 	onBoot func(*EventDispatcher)

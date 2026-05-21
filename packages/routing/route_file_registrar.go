@@ -9,7 +9,7 @@ package routing
 // so the Router::Group machinery can treat closures and "route file" loaders
 // uniformly.
 //
-// Mirrors Illuminate\Routing\RouteFileRegistrar.
+// Mirrors @bedrock\Routing\RouteFileRegistrar.
 type RouteFileRegistrar struct{ router *Router }
 
 // NewRouteFileRegistrar wraps the router so the resulting value can be used

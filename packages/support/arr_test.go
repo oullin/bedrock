@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testAccessible
+// Port of @bedrock\Tests\Support\SupportArrTest::testAccessible
 func TestArrAccessible(t *testing.T) {
 	t.Parallel()
 
@@ -22,7 +22,7 @@ func TestArrAccessible(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testAdd
+// Port of @bedrock\Tests\Support\SupportArrTest::testAdd
 func TestArrAdd(t *testing.T) {
 	t.Parallel()
 
@@ -61,7 +61,7 @@ func TestArrAddDotNotation(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testGet
+// Port of @bedrock\Tests\Support\SupportArrTest::testGet
 func TestArrGet(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +96,7 @@ func TestArrGetNestedMissing(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testItGetsAString
+// Port of @bedrock\Tests\Support\SupportArrTest::testItGetsAString
 func TestArrString(t *testing.T) {
 	t.Parallel()
 
@@ -107,7 +107,7 @@ func TestArrString(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testItGetsAnInteger
+// Port of @bedrock\Tests\Support\SupportArrTest::testItGetsAnInteger
 func TestArrInteger(t *testing.T) {
 	t.Parallel()
 
@@ -118,7 +118,7 @@ func TestArrInteger(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testItGetsAFloat
+// Port of @bedrock\Tests\Support\SupportArrTest::testItGetsAFloat
 func TestArrFloat(t *testing.T) {
 	t.Parallel()
 
@@ -129,7 +129,7 @@ func TestArrFloat(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testItGetsABoolean
+// Port of @bedrock\Tests\Support\SupportArrTest::testItGetsABoolean
 func TestArrBoolean(t *testing.T) {
 	t.Parallel()
 
@@ -140,7 +140,7 @@ func TestArrBoolean(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testItGetsAnArray
+// Port of @bedrock\Tests\Support\SupportArrTest::testItGetsAnArray
 func TestArrArray(t *testing.T) {
 	t.Parallel()
 
@@ -151,7 +151,7 @@ func TestArrArray(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSet
+// Port of @bedrock\Tests\Support\SupportArrTest::testSet
 func TestArrSet(t *testing.T) {
 	t.Parallel()
 
@@ -184,7 +184,7 @@ func TestArrSetCreatesIntermediates(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testHas
+// Port of @bedrock\Tests\Support\SupportArrTest::testHas
 func TestArrHas(t *testing.T) {
 	t.Parallel()
 
@@ -221,7 +221,7 @@ func TestArrHasMultipleKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testHasAllMethod
+// Port of @bedrock\Tests\Support\SupportArrTest::testHasAllMethod
 func TestArrHasAllMethod(t *testing.T) {
 	t.Parallel()
 
@@ -232,7 +232,7 @@ func TestArrHasAllMethod(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testHasAnyMethod
+// Port of @bedrock\Tests\Support\SupportArrTest::testHasAnyMethod
 func TestArrHasAnyMethod(t *testing.T) {
 	t.Parallel()
 
@@ -243,7 +243,7 @@ func TestArrHasAnyMethod(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testIsAssoc
+// Port of @bedrock\Tests\Support\SupportArrTest::testIsAssoc
 func TestArrIsAssoc(t *testing.T) {
 	t.Parallel()
 
@@ -256,7 +256,7 @@ func TestArrIsAssoc(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testIsList
+// Port of @bedrock\Tests\Support\SupportArrTest::testIsList
 func TestArrIsList(t *testing.T) {
 	t.Parallel()
 
@@ -269,7 +269,7 @@ func TestArrIsList(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testExists
+// Port of @bedrock\Tests\Support\SupportArrTest::testExists
 func TestArrExists(t *testing.T) {
 	t.Parallel()
 
@@ -288,7 +288,7 @@ func TestArrExists(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testWhereNotNull
+// Port of @bedrock\Tests\Support\SupportArrTest::testWhereNotNull
 func TestArrWhereNotNull(t *testing.T) {
 	t.Parallel()
 
@@ -304,7 +304,7 @@ func TestArrWhereNotNull(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testExceptValues
+// Port of @bedrock\Tests\Support\SupportArrTest::testExceptValues
 func TestArrExceptValues(t *testing.T) {
 	t.Parallel()
 
@@ -316,7 +316,7 @@ func TestArrExceptValues(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testUndot
+// Port of @bedrock\Tests\Support\SupportArrTest::testUndot
 func TestArrUndot(t *testing.T) {
 	t.Parallel()
 
@@ -342,7 +342,7 @@ func TestArrUndot(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testJoin
+// Port of @bedrock\Tests\Support\SupportArrTest::testJoin
 func TestArrJoin(t *testing.T) {
 	t.Parallel()
 
@@ -355,7 +355,7 @@ func TestArrJoin(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testTake
+// Port of @bedrock\Tests\Support\SupportArrTest::testTake
 func TestArrTake(t *testing.T) {
 	t.Parallel()
 
@@ -368,7 +368,7 @@ func TestArrTake(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPush
+// Port of @bedrock\Tests\Support\SupportArrTest::testPush
 func TestArrPush(t *testing.T) {
 	t.Parallel()
 
@@ -379,7 +379,7 @@ func TestArrPush(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testQuery
+// Port of @bedrock\Tests\Support\SupportArrTest::testQuery
 func TestArrQuery(t *testing.T) {
 	t.Parallel()
 
@@ -393,7 +393,7 @@ func TestArrQuery(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testForget
+// Port of @bedrock\Tests\Support\SupportArrTest::testForget
 func TestArrForget(t *testing.T) {
 	t.Parallel()
 
@@ -438,7 +438,7 @@ func TestArrForgetMultipleKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPull
+// Port of @bedrock\Tests\Support\SupportArrTest::testPull
 func TestArrPull(t *testing.T) {
 	t.Parallel()
 
@@ -491,7 +491,7 @@ func TestArrPullDotNotation(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testDot
+// Port of @bedrock\Tests\Support\SupportArrTest::testDot
 func TestArrDot(t *testing.T) {
 	t.Parallel()
 
@@ -529,7 +529,7 @@ func TestArrDotWithPrepend(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testExcept
+// Port of @bedrock\Tests\Support\SupportArrTest::testExcept
 func TestArrExcept(t *testing.T) {
 	t.Parallel()
 
@@ -541,7 +541,7 @@ func TestArrExcept(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testOnly
+// Port of @bedrock\Tests\Support\SupportArrTest::testOnly
 func TestArrOnly(t *testing.T) {
 	t.Parallel()
 
@@ -568,7 +568,7 @@ func TestArrOnlyMissingKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testOnlyValues
+// Port of @bedrock\Tests\Support\SupportArrTest::testOnlyValues
 func TestArrOnlyValues(t *testing.T) {
 	t.Parallel()
 
@@ -579,7 +579,7 @@ func TestArrOnlyValues(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testDivide
+// Port of @bedrock\Tests\Support\SupportArrTest::testDivide
 func TestArrDivide(t *testing.T) {
 	t.Parallel()
 
@@ -595,7 +595,7 @@ func TestArrDivide(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPluck
+// Port of @bedrock\Tests\Support\SupportArrTest::testPluck
 func TestArrPluck(t *testing.T) {
 	t.Parallel()
 
@@ -626,7 +626,7 @@ func TestArrPluckWithKey(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPluckWithArrayValue
+// Port of @bedrock\Tests\Support\SupportArrTest::testPluckWithArrayValue
 func TestArrPluckWithArrayValue(t *testing.T) {
 	t.Parallel()
 
@@ -639,7 +639,7 @@ func TestArrPluckWithArrayValue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPluckWithKeys
+// Port of @bedrock\Tests\Support\SupportArrTest::testPluckWithKeys
 func TestArrPluckWithKeys(t *testing.T) {
 	t.Parallel()
 
@@ -653,7 +653,7 @@ func TestArrPluckWithKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testArrayPluckWithNestedKeys
+// Port of @bedrock\Tests\Support\SupportArrTest::testArrayPluckWithNestedKeys
 func TestArrPluckWithNestedKeys(t *testing.T) {
 	t.Parallel()
 
@@ -667,7 +667,7 @@ func TestArrPluckWithNestedKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testArrayPluckWithNestedArrays
+// Port of @bedrock\Tests\Support\SupportArrTest::testArrayPluckWithNestedArrays
 func TestArrPluckWithNestedArrays(t *testing.T) {
 	t.Parallel()
 
@@ -680,7 +680,7 @@ func TestArrPluckWithNestedArrays(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testMap
+// Port of @bedrock\Tests\Support\SupportArrTest::testMap
 func TestArrMap(t *testing.T) {
 	t.Parallel()
 
@@ -693,7 +693,7 @@ func TestArrMap(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testMapWithEmptyArray
+// Port of @bedrock\Tests\Support\SupportArrTest::testMapWithEmptyArray
 func TestArrMapWithEmptyArray(t *testing.T) {
 	t.Parallel()
 
@@ -706,7 +706,7 @@ func TestArrMapWithEmptyArray(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testMapNullValues
+// Port of @bedrock\Tests\Support\SupportArrTest::testMapNullValues
 func TestArrMapNullValues(t *testing.T) {
 	t.Parallel()
 
@@ -723,7 +723,7 @@ func TestArrMapNullValues(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testMapWithKeys
+// Port of @bedrock\Tests\Support\SupportArrTest::testMapWithKeys
 func TestArrMapWithKeys(t *testing.T) {
 	t.Parallel()
 
@@ -736,7 +736,7 @@ func TestArrMapWithKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSortRecursive
+// Port of @bedrock\Tests\Support\SupportArrTest::testSortRecursive
 func TestArrSortRecursive(t *testing.T) {
 	t.Parallel()
 
@@ -786,7 +786,7 @@ func TestArrSortRecursiveNested(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSortDesc
+// Port of @bedrock\Tests\Support\SupportArrTest::testSortDesc
 func TestArrSortDesc(t *testing.T) {
 	t.Parallel()
 
@@ -797,7 +797,7 @@ func TestArrSortDesc(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSortByMany
+// Port of @bedrock\Tests\Support\SupportArrTest::testSortByMany
 func TestArrSortByMany(t *testing.T) {
 	t.Parallel()
 
@@ -812,7 +812,7 @@ func TestArrSortByMany(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testKeyBy
+// Port of @bedrock\Tests\Support\SupportArrTest::testKeyBy
 func TestArrKeyBy(t *testing.T) {
 	t.Parallel()
 
@@ -826,7 +826,7 @@ func TestArrKeyBy(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testPrependKeysWith
+// Port of @bedrock\Tests\Support\SupportArrTest::testPrependKeysWith
 func TestArrPrependKeysWith(t *testing.T) {
 	t.Parallel()
 
@@ -837,7 +837,7 @@ func TestArrPrependKeysWith(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testSelect
+// Port of @bedrock\Tests\Support\SupportArrTest::testSelect
 func TestArrSelect(t *testing.T) {
 	t.Parallel()
 
@@ -851,7 +851,7 @@ func TestArrSelect(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testReject
+// Port of @bedrock\Tests\Support\SupportArrTest::testReject
 func TestArrReject(t *testing.T) {
 	t.Parallel()
 
@@ -864,7 +864,7 @@ func TestArrReject(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testWhereKey
+// Port of @bedrock\Tests\Support\SupportArrTest::testWhereKey
 func TestArrWhereKey(t *testing.T) {
 	t.Parallel()
 
@@ -877,7 +877,7 @@ func TestArrWhereKey(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportArrTest::testFrom
+// Port of @bedrock\Tests\Support\SupportArrTest::testFrom
 func TestArrFrom(t *testing.T) {
 	t.Parallel()
 

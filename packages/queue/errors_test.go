@@ -8,13 +8,13 @@ import (
 )
 
 // fakeRedisJob is the Go equivalent of MyFakeRedisJob in
-// Illuminate\Tests\Queue\QueueExceptionTest. It satisfies queue.ResolveNamer
+// @bedrock\Tests\Queue\QueueExceptionTest. It satisfies queue.ResolveNamer
 // and returns the same display name the PHP fixture returns.
 type fakeRedisJob struct{}
 
 func (fakeRedisJob) ResolveName() string { return "App\\Jobs\\UnderlyingJob" }
 
-// Port of Illuminate\Tests\Queue\QueueExceptionTest::test_it_can_create_timeout_exception_for_job
+// Port of @bedrock\Tests\Queue\QueueExceptionTest::test_it_can_create_timeout_exception_for_job
 func TestItCanCreateTimeoutExceptionForJob(t *testing.T) {
 	t.Parallel()
 
@@ -39,7 +39,7 @@ func TestItCanCreateTimeoutExceptionForJob(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueExceptionTest::test_it_can_create_max_attempts_exception_for_job
+// Port of @bedrock\Tests\Queue\QueueExceptionTest::test_it_can_create_max_attempts_exception_for_job
 func TestItCanCreateMaxAttemptsExceptionForJob(t *testing.T) {
 	t.Parallel()
 

@@ -3,7 +3,7 @@ package queue
 import "github.com/bedrock/packages/container"
 
 // QueueServiceProvider registers the queue manager into the container.
-// It mirrors Illuminate\Queue\QueueServiceProvider.
+// It mirrors @bedrock\Queue\QueueServiceProvider.
 type QueueServiceProvider struct {
 	app               *container.Container
 	defaultConnection string

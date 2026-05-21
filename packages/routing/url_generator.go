@@ -13,7 +13,7 @@ import (
 	"github.com/bedrock/packages/routing/exceptions"
 )
 
-// UrlGenerator is the Go translation of Illuminate\Routing\UrlGenerator.
+// UrlGenerator is the Go translation of @bedrock\Routing\UrlGenerator.
 //
 // It owns the request, the route collection (for name lookups), and the
 // signing key. The four big jobs:

@@ -10,7 +10,7 @@ import (
 )
 
 // NotificationsServiceProvider registers the notification manager into the
-// container. It mirrors Illuminate\Notifications\NotificationServiceProvider.
+// container. It mirrors @bedrock\Notifications\NotificationServiceProvider.
 //
 // The manager has two collaborators that are wired from the container if
 // available: "bus" (a bus.Dispatcher) and "events" (a cevents.Dispatcher).

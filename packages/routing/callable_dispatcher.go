@@ -5,7 +5,7 @@ import "reflect"
 // CallableDispatcher dispatches a closure-style route action by resolving its
 // parameters via reflection and invoking it.
 //
-// Mirrors Illuminate\Routing\CallableDispatcher.
+// Mirrors @bedrock\Routing\CallableDispatcher.
 type CallableDispatcher struct {
 	ResolvesRouteDependencies
 	container DependencyContainer

@@ -1,4 +1,4 @@
-// Package routing is a 1:1 Go port of laravel/framework 13.x src/Illuminate/Routing.
+// Package routing is a 1:1 Go port of laravel/framework 13.x src/@bedrock/Routing.
 //
 // The directory layout, type names, method names, and behavior mirror the
 // upstream PHP package as faithfully as Go allows. PHP traits are realized as

@@ -1,4 +1,4 @@
-// Package failed contains the Go port of Illuminate\Queue\Failed\* from
+// Package failed contains the Go port of @bedrock\Queue\Failed\* from
 // upstream framework 13.x. It defines the FailedJobProvider contract plus
 // the optional Countable and Prunable extensions, and ships five
 // implementations that mirror the upstream providers:

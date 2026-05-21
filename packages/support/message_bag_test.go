@@ -34,7 +34,7 @@ import (
 // SupportMessageBagTest::testToString
 // SupportMessageBagTest::testUnique
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testUniqueness
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testUniqueness
 func TestMessageBagUniqueness(t *testing.T) {
 	t.Parallel()
 
@@ -47,7 +47,7 @@ func TestMessageBagUniqueness(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testMessagesAreAdded
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testMessagesAreAdded
 func TestMessageBagAdd(t *testing.T) {
 	t.Parallel()
 
@@ -69,7 +69,7 @@ func TestMessageBagAdd(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testAddIf
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testAddIf
 func TestMessageBagAddIf(t *testing.T) {
 	t.Parallel()
 
@@ -87,7 +87,7 @@ func TestMessageBagAddIf(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testGetReturnsArrayOfMessagesByKey
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testGetReturnsArrayOfMessagesByKey
 func TestMessageBagGet(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +106,7 @@ func TestMessageBagGet(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testGetReturnsArrayOfMessagesForWildcardKey
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testGetReturnsArrayOfMessagesForWildcardKey
 func TestMessageBagGetWildcard(t *testing.T) {
 	t.Parallel()
 
@@ -121,7 +121,7 @@ func TestMessageBagGetWildcard(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnsFirstMessageByKey
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testFirstReturnsFirstMessageByKey
 func TestMessageBagFirst(t *testing.T) {
 	t.Parallel()
 
@@ -134,7 +134,7 @@ func TestMessageBagFirst(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnFirstMessageWithNoKey
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testFirstReturnFirstMessageWithNoKey
 func TestMessageBagFirstNoKey(t *testing.T) {
 	t.Parallel()
 
@@ -146,7 +146,7 @@ func TestMessageBagFirstNoKey(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstFindsMessageForWildcardKey
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testFirstFindsMessageForWildcardKey
 func TestMessageBagFirstWildcard(t *testing.T) {
 	t.Parallel()
 
@@ -159,7 +159,7 @@ func TestMessageBagFirstWildcard(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnsSingleMessageFromDotKeys
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testFirstReturnsSingleMessageFromDotKeys
 func TestMessageBagFirstDotKeys(t *testing.T) {
 	t.Parallel()
 
@@ -172,7 +172,7 @@ func TestMessageBagFirstDotKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testFirstReturnsEmptyStringWhenNoMessagesPresent
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testFirstReturnsEmptyStringWhenNoMessagesPresent
 func TestMessageBagFirstEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -187,7 +187,7 @@ func TestMessageBagFirstEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasReturnsCorrectly
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasReturnsCorrectly
 func TestMessageBagHas(t *testing.T) {
 	t.Parallel()
 
@@ -203,7 +203,7 @@ func TestMessageBagHas(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasWithKeyNull
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasWithKeyNull
 func TestMessageBagHasNilKey(t *testing.T) {
 	t.Parallel()
 
@@ -219,7 +219,7 @@ func TestMessageBagHasNilKey(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasReturnFalseForEmptyMessages
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasReturnFalseForEmptyMessages
 func TestMessageBagHasEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -230,7 +230,7 @@ func TestMessageBagHasEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasWithMultipleKeys
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasWithMultipleKeys
 func TestMessageBagHasMultipleKeys(t *testing.T) {
 	t.Parallel()
 
@@ -247,7 +247,7 @@ func TestMessageBagHasMultipleKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasAnyWithKeyNull
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasAnyWithKeyNull
 func TestMessageBagHasAnyNilKey(t *testing.T) {
 	t.Parallel()
 
@@ -263,7 +263,7 @@ func TestMessageBagHasAnyNilKey(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasAnyReturnTrueIfAny
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasAnyReturnTrueIfAny
 func TestMessageBagHasAny(t *testing.T) {
 	t.Parallel()
 
@@ -279,7 +279,7 @@ func TestMessageBagHasAny(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasAnyWithWildcard
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasAnyWithWildcard
 func TestMessageBagHasAnyWildcard(t *testing.T) {
 	t.Parallel()
 
@@ -291,7 +291,7 @@ func TestMessageBagHasAnyWildcard(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testMissingReturnTrueIfKeyNotPresent
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testMissingReturnTrueIfKeyNotPresent
 func TestMessageBagMissing(t *testing.T) {
 	t.Parallel()
 
@@ -307,7 +307,7 @@ func TestMessageBagMissing(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testAllReturnsAllMessages
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testAllReturnsAllMessages
 func TestMessageBagAll(t *testing.T) {
 	t.Parallel()
 
@@ -322,7 +322,7 @@ func TestMessageBagAll(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testMerge
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testMerge
 func TestMessageBagMerge(t *testing.T) {
 	t.Parallel()
 
@@ -339,7 +339,7 @@ func TestMessageBagMerge(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testMergeWithRawMap
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testMergeWithRawMap
 func TestMessageBagMergeMap(t *testing.T) {
 	t.Parallel()
 
@@ -354,7 +354,7 @@ func TestMessageBagMergeMap(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testForget
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testForget
 func TestMessageBagForget(t *testing.T) {
 	t.Parallel()
 
@@ -372,7 +372,7 @@ func TestMessageBagForget(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testKeys
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testKeys
 func TestMessageBagKeys(t *testing.T) {
 	t.Parallel()
 
@@ -387,7 +387,7 @@ func TestMessageBagKeys(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testCountable
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testCountable
 func TestMessageBagCount(t *testing.T) {
 	t.Parallel()
 
@@ -406,7 +406,7 @@ func TestMessageBagCount(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testIsEmpty
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testIsEmpty
 func TestMessageBagIsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -431,7 +431,7 @@ func TestMessageBagIsEmpty(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testGetFormat
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testGetFormat
 func TestMessageBagFormat(t *testing.T) {
 	t.Parallel()
 
@@ -451,7 +451,7 @@ func TestMessageBagFormat(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testCustomFormat
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testCustomFormat
 func TestMessageBagCustomFormat(t *testing.T) {
 	t.Parallel()
 
@@ -469,7 +469,7 @@ func TestMessageBagCustomFormat(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testGetMessages
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testGetMessages
 func TestMessageBagGetMessages(t *testing.T) {
 	t.Parallel()
 
@@ -484,7 +484,7 @@ func TestMessageBagGetMessages(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testJsonSerializable
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testJsonSerializable
 func TestMessageBagJSON(t *testing.T) {
 	t.Parallel()
 
@@ -508,7 +508,7 @@ func TestMessageBagJSON(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testConstructorPopulatesMessages
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testConstructorPopulatesMessages
 func TestMessageBagConstructor(t *testing.T) {
 	t.Parallel()
 
@@ -522,7 +522,7 @@ func TestMessageBagConstructor(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testConstructorUniquenessConsistency
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testConstructorUniquenessConsistency
 func TestMessageBagConstructorUniquenessConsistency(t *testing.T) {
 	t.Parallel()
 
@@ -536,7 +536,7 @@ func TestMessageBagConstructorUniquenessConsistency(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testUniqueRemovesDuplicates
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testUniqueRemovesDuplicates
 func TestMessageBagUnique(t *testing.T) {
 	t.Parallel()
 
@@ -551,7 +551,7 @@ func TestMessageBagUnique(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testAllWithCustomFormat
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testAllWithCustomFormat
 func TestMessageBagAllWithFormat(t *testing.T) {
 	t.Parallel()
 
@@ -566,7 +566,7 @@ func TestMessageBagAllWithFormat(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testHasWithWildcard
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testHasWithWildcard
 func TestMessageBagHasWildcard(t *testing.T) {
 	t.Parallel()
 
@@ -583,7 +583,7 @@ func TestMessageBagHasWildcard(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testForgetMultipleKeys
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testForgetMultipleKeys
 func TestMessageBagForgetMultiple(t *testing.T) {
 	t.Parallel()
 
@@ -602,7 +602,7 @@ func TestMessageBagForgetMultiple(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportMessageBagTest::testStringMethod
+// Port of @bedrock\Tests\Support\SupportMessageBagTest::testStringMethod
 func TestMessageBagString(t *testing.T) {
 	t.Parallel()
 
