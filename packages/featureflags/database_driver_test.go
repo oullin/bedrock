@@ -1,4 +1,4 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/bedrock/packages/pennant"
+	"github.com/bedrock/packages/featureflags"
 )
 
 // ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ type inMemoryDB struct {
 }
 
 func init() {
-	sql.Register("pennant_fake", &fakeDriver{})
+	sql.Register("featureflags_fake", &fakeDriver{})
 }
 
 func (f *fakeDriver) Open(name string) (driver.Conn, error) {
@@ -137,7 +137,7 @@ var fakeDBOnce sync.Once
 var globalFakeDB *sql.DB
 
 func openFakeDB(dsn string) *sql.DB {
-	db, err := sql.Open("pennant_fake", dsn)
+	db, err := sql.Open("featureflags_fake", dsn)
 
 	if err != nil {
 		panic(err)
@@ -373,18 +373,18 @@ const testTable = "features"
 func TestDatabaseDriver_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver = (*pennant.DatabaseDriver)(nil)
+	var _ featureflags.Driver = (*featureflags.DatabaseDriver)(nil)
 
-	var _ pennant.StoredFeaturesLister = (*pennant.DatabaseDriver)(nil)
+	var _ featureflags.StoredFeaturesLister = (*featureflags.DatabaseDriver)(nil)
 
-	var _ pennant.BulkFeatureSetter = (*pennant.DatabaseDriver)(nil)
+	var _ featureflags.BulkFeatureSetter = (*featureflags.DatabaseDriver)(nil)
 }
 
 func TestDatabaseDriver_Define_Get(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("dark-mode", func(_ context.Context, _ any) (any, error) {
@@ -407,12 +407,12 @@ func TestDatabaseDriver_Get_UndefinedFeature(t *testing.T) {
 
 	dispatcher := &testDispatcher{}
 	db := newDB()
-	drv := pennant.NewDatabaseDriverWithDispatcher(db, testTable, dispatcher)
+	drv := featureflags.NewDatabaseDriverWithDispatcher(db, testTable, dispatcher)
 	ctx := context.Background()
 
 	_, err := drv.Get(ctx, "unknown-feature", nil)
 
-	if !errors.Is(err, pennant.ErrFeatureNotDefined) {
+	if !errors.Is(err, featureflags.ErrFeatureNotDefined) {
 		t.Fatalf("expected ErrFeatureNotDefined, got %v", err)
 	}
 
@@ -426,7 +426,7 @@ func TestDatabaseDriver_Get_CachesInDB(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	calls := 0
@@ -462,7 +462,7 @@ func TestDatabaseDriver_Set_BypassesResolver(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -488,10 +488,10 @@ func TestDatabaseDriver_SetAll(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
-	entries := []pennant.FeatureEntry{
+	entries := []featureflags.FeatureEntry{
 		{Feature: "flag-a", Scope: "user:1", Value: true},
 		{Feature: "flag-b", Scope: "user:1", Value: "variant"},
 	}
@@ -525,7 +525,7 @@ func TestDatabaseDriver_SetForAllScopes(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -560,7 +560,7 @@ func TestDatabaseDriver_Delete(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	calls := 0
@@ -593,7 +593,7 @@ func TestDatabaseDriver_Purge_All(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -621,7 +621,7 @@ func TestDatabaseDriver_Purge_Specific(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -649,7 +649,7 @@ func TestDatabaseDriver_Purge_EmptySlice_IsNoOp(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -675,7 +675,7 @@ func TestDatabaseDriver_Stored(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -698,7 +698,7 @@ func TestDatabaseDriver_JSON_Bool_RoundTrip(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	if err := drv.Set(ctx, "feature", "scope1", false); err != nil {
@@ -746,7 +746,7 @@ func TestDatabaseDriver_JSON_String_RoundTrip(t *testing.T) {
 	t.Parallel()
 
 	db := newDB()
-	drv := pennant.NewDatabaseDriver(db, testTable)
+	drv := featureflags.NewDatabaseDriver(db, testTable)
 	ctx := context.Background()
 
 	if err := drv.Set(ctx, "theme", "user:42", "dark"); err != nil {

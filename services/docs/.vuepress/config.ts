@@ -159,7 +159,7 @@ export default defineUserConfig({
           text: 'Feature Flags',
           collapsible: true,
           children: [
-            { text: 'pennant', link: '/packages/pennant' },
+            { text: 'featureflags', link: '/packages/featureflags' },
           ],
         },
         {

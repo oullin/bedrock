@@ -1,4 +1,4 @@
-# pennant
+# featureflags
 
 <!-- ref: @bedrock/code-0125 -->
 <!-- ref: @bedrock/code-0124 -->
@@ -8,7 +8,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package pennant provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API.
+Package featureflags provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -21,24 +21,24 @@ Package pennant provides feature flags. It defines a two-level abstraction: Driv
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/pennant@latest
+go get github.com/bedrock/packages/featureflags@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pennant/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/featureflags/...
 ```
 
 ## Source Coverage
 
 | Package   | Purpose                                                                                                                                                                                                                                                                                                                                                           |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pennant` | Package pennant provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API. |
+| `featureflags` | Package featureflags provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API. |
 
 ## Core Concepts
 
-The pennant reference is organized around the exported Go surface for package `pennant`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The featureflags reference is organized around the exported Go surface for package `featureflags`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -65,7 +65,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/pennant"
+    _ "github.com/bedrock/packages/featureflags"
 )
 
 func main() {
@@ -74,7 +74,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/pennant` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/featureflags` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -114,12 +114,12 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/pennant/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/featureflags/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/pennant/inventory_parity_test.go`
+- `packages/featureflags/inventory_parity_test.go`
 
 ## API Reference
 
@@ -148,7 +148,7 @@ Parity is tracked by these tests:
 | `InactiveFeatureResponder`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Lottery`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Manager`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PennantServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureFlagsServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Scopeable`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ScopedFeatureInteraction`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StoredFeaturesLister`       | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -194,9 +194,9 @@ Parity is tracked by these tests:
 | `NewLottery`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewManager`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewManagerWithDispatcher`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPennantServiceProvider`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFeatureFlagsServiceProvider`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewScopedFeatureInteraction`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PennantEvent`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureFlagsEvent`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Provides`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Purge`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Register`                        | Source-backed public surface. See the Go package for exact signature and behavior. |

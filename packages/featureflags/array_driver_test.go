@@ -1,4 +1,4 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/bedrock/packages/pennant"
+	"github.com/bedrock/packages/featureflags"
 )
 
 //nolint:errcheck
@@ -44,23 +44,23 @@ import (
 // testDispatcher is a simple in-memory EventDispatcher for tests.
 type testDispatcher struct {
 	mu     sync.Mutex
-	events []pennant.Event
+	events []featureflags.Event
 }
 
 func TestArrayDriver_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver = (*pennant.ArrayDriver)(nil)
+	var _ featureflags.Driver = (*featureflags.ArrayDriver)(nil)
 
-	var _ pennant.StoredFeaturesLister = (*pennant.ArrayDriver)(nil)
+	var _ featureflags.StoredFeaturesLister = (*featureflags.ArrayDriver)(nil)
 
-	var _ pennant.BulkFeatureSetter = (*pennant.ArrayDriver)(nil)
+	var _ featureflags.BulkFeatureSetter = (*featureflags.ArrayDriver)(nil)
 }
 
 func TestArrayDriver_Define_Get(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("dark-mode", func(_ context.Context, _ any) (any, error) {
@@ -81,7 +81,7 @@ func TestArrayDriver_Define_Get(t *testing.T) {
 func TestArrayDriver_Defined(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	d.Define("flag-b", func(_ context.Context, _ any) (any, error) { return false, nil })
@@ -96,12 +96,12 @@ func TestArrayDriver_Defined(t *testing.T) {
 func TestArrayDriver_Get_UndefinedFeature_ReturnsError(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	_, err := d.Get(ctx, "unknown", nil)
 
-	if !errors.Is(err, pennant.ErrFeatureNotDefined) {
+	if !errors.Is(err, featureflags.ErrFeatureNotDefined) {
 		t.Fatalf("expected ErrFeatureNotDefined, got %v", err)
 	}
 }
@@ -110,7 +110,7 @@ func TestArrayDriver_Get_UndefinedFeature_DispatchesEvent(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	d := pennant.NewArrayDriverWithDispatcher(dispatcher)
+	d := featureflags.NewArrayDriverWithDispatcher(dispatcher)
 	ctx := context.Background()
 
 	d.Get(ctx, "unknown", nil)
@@ -124,7 +124,7 @@ func TestArrayDriver_Get_CachesResult(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -145,7 +145,7 @@ func TestArrayDriver_Get_DifferentScopes_CallsResolverPerScope(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -165,7 +165,7 @@ func TestArrayDriver_Get_DifferentScopes_CallsResolverPerScope(t *testing.T) {
 func TestArrayDriver_Set_BypassesResolver(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -188,10 +188,10 @@ func TestArrayDriver_Set_BypassesResolver(t *testing.T) {
 func TestArrayDriver_SetAll(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
-	entries := []pennant.FeatureEntry{
+	entries := []featureflags.FeatureEntry{
 		{Feature: "flag-a", Scope: "user:1", Value: true},
 		{Feature: "flag-b", Scope: "user:1", Value: "variant"},
 	}
@@ -224,7 +224,7 @@ func TestArrayDriver_SetAll(t *testing.T) {
 func TestArrayDriver_SetForAllScopes(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -253,7 +253,7 @@ func TestArrayDriver_Delete(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -278,7 +278,7 @@ func TestArrayDriver_Delete(t *testing.T) {
 func TestArrayDriver_Purge_All(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -301,7 +301,7 @@ func TestArrayDriver_Purge_All(t *testing.T) {
 func TestArrayDriver_Purge_Specific(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -324,7 +324,7 @@ func TestArrayDriver_Purge_Specific(t *testing.T) {
 func TestArrayDriver_Purge_EmptySlice_IsNoOp(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -345,7 +345,7 @@ func TestArrayDriver_Purge_EmptySlice_IsNoOp(t *testing.T) {
 func TestArrayDriver_Stored(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -367,7 +367,7 @@ func TestArrayDriver_Stored(t *testing.T) {
 func TestArrayDriver_GetAll(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
@@ -395,7 +395,7 @@ func TestArrayDriver_ConcurrentGet_ResolverCalledOnce(t *testing.T) {
 	t.Parallel()
 
 	var calls atomic.Int64
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	d.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -428,7 +428,7 @@ func TestArrayDriver_ConcurrentGet_ResolverCalledOnce(t *testing.T) {
 func TestArrayDriver_RichValue(t *testing.T) {
 	t.Parallel()
 
-	d := pennant.NewArrayDriver()
+	d := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	expected := map[string]any{"color": "blue", "size": "lg"}
@@ -454,7 +454,7 @@ func TestArrayDriver_RichValue(t *testing.T) {
 	}
 }
 
-func (d *testDispatcher) Dispatch(_ context.Context, event pennant.Event) {
+func (d *testDispatcher) Dispatch(_ context.Context, event featureflags.Event) {
 	d.mu.Lock()
 
 	defer d.mu.Unlock()
@@ -472,31 +472,31 @@ func (d *testDispatcher) count(typeName string) int {
 	for _, e := range d.events {
 		switch typeName {
 		case "FeatureResolved":
-			if _, ok := e.(pennant.FeatureResolved); ok {
+			if _, ok := e.(featureflags.FeatureResolved); ok {
 				n++
 			}
 		case "UnknownFeatureResolved":
-			if _, ok := e.(pennant.UnknownFeatureResolved); ok {
+			if _, ok := e.(featureflags.UnknownFeatureResolved); ok {
 				n++
 			}
 		case "FeatureUpdated":
-			if _, ok := e.(pennant.FeatureUpdated); ok {
+			if _, ok := e.(featureflags.FeatureUpdated); ok {
 				n++
 			}
 		case "FeatureDeleted":
-			if _, ok := e.(pennant.FeatureDeleted); ok {
+			if _, ok := e.(featureflags.FeatureDeleted); ok {
 				n++
 			}
 		case "FeatureUpdatedForAllScopes":
-			if _, ok := e.(pennant.FeatureUpdatedForAllScopes); ok {
+			if _, ok := e.(featureflags.FeatureUpdatedForAllScopes); ok {
 				n++
 			}
 		case "FeaturesPurged":
-			if _, ok := e.(pennant.FeaturesPurged); ok {
+			if _, ok := e.(featureflags.FeaturesPurged); ok {
 				n++
 			}
 		case "AllFeaturesPurged":
-			if _, ok := e.(pennant.AllFeaturesPurged); ok {
+			if _, ok := e.(featureflags.AllFeaturesPurged); ok {
 				n++
 			}
 		}
@@ -505,7 +505,7 @@ func (d *testDispatcher) count(typeName string) int {
 	return n
 }
 
-func (d *testDispatcher) last() pennant.Event {
+func (d *testDispatcher) last() featureflags.Event {
 	d.mu.Lock()
 
 	defer d.mu.Unlock()

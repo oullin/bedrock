@@ -1,4 +1,4 @@
-package pennant
+package featureflags
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 // InactiveFeatureResponder handles requests blocked by feature middleware.
 type InactiveFeatureResponder func(http.ResponseWriter, *http.Request, []string)
 
-// EnsureFeaturesAreActive adapts Pennant checks to net/http middleware.
+// EnsureFeaturesAreActive adapts FeatureFlags checks to net/http middleware.
 type EnsureFeaturesAreActive struct {
 	features     *ScopedFeatureInteraction
 	whenInactive InactiveFeatureResponder
@@ -48,5 +48,5 @@ func (m *EnsureFeaturesAreActive) Handle(next http.Handler, features ...string) 
 
 // Using returns a compact middleware descriptor suitable for route metadata.
 func (m *EnsureFeaturesAreActive) Using(features ...string) string {
-	return fmt.Sprintf("pennant.EnsureFeaturesAreActive:%s", strings.Join(features, ","))
+	return fmt.Sprintf("featureflags.EnsureFeaturesAreActive:%s", strings.Join(features, ","))
 }

@@ -1,11 +1,11 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
 	"errors"
 	"testing"
 
-	"github.com/bedrock/packages/pennant"
+	"github.com/bedrock/packages/featureflags"
 )
 
 // ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@ import (
 func TestManager_StoreReturnsDefault(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	dec, err := m.Store()
 
@@ -31,7 +31,7 @@ func TestManager_StoreReturnsDefault(t *testing.T) {
 func TestManager_StoreNamed(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	dec, err := m.Store("array")
 
@@ -47,7 +47,7 @@ func TestManager_StoreNamed(t *testing.T) {
 func TestManager_StoreIsSingleton(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	first, err := m.Store()
 
@@ -69,7 +69,7 @@ func TestManager_StoreIsSingleton(t *testing.T) {
 func TestManager_Driver_IsAliasForStore(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	fromStore, err := m.Store("array")
 
@@ -95,13 +95,13 @@ func TestManager_Driver_IsAliasForStore(t *testing.T) {
 func TestManager_Extend_CustomFactory(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	invoked := false
-	m.Extend("custom", func(_ map[string]any) (pennant.Driver, error) {
+	m.Extend("custom", func(_ map[string]any) (featureflags.Driver, error) {
 		invoked = true
 
-		return pennant.NewArrayDriver(), nil
+		return featureflags.NewArrayDriver(), nil
 	})
 
 	dec, err := m.Store("custom")
@@ -122,13 +122,13 @@ func TestManager_Extend_CustomFactory(t *testing.T) {
 func TestManager_Extend_CustomFactory_UsedByStore(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("my-driver")
+	m := featureflags.NewManager("my-driver")
 
 	called := 0
-	m.Extend("my-driver", func(_ map[string]any) (pennant.Driver, error) {
+	m.Extend("my-driver", func(_ map[string]any) (featureflags.Driver, error) {
 		called++
 
-		return pennant.NewArrayDriver(), nil
+		return featureflags.NewArrayDriver(), nil
 	})
 
 	// First call creates the driver via the factory.
@@ -153,10 +153,10 @@ func TestManager_Extend_CustomFactory_UsedByStore(t *testing.T) {
 func TestManager_SetDefaultDriver_ChangesDefault(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
-	m.Extend("other", func(_ map[string]any) (pennant.Driver, error) {
-		return pennant.NewArrayDriver(), nil
+	m.Extend("other", func(_ map[string]any) (featureflags.Driver, error) {
+		return featureflags.NewArrayDriver(), nil
 	})
 
 	m.SetDefaultDriver("other")
@@ -179,7 +179,7 @@ func TestManager_SetDefaultDriver_ChangesDefault(t *testing.T) {
 func TestManager_GetDefaultDriver(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	if got := m.GetDefaultDriver(); got != "array" {
 		t.Fatalf("expected %q, got %q", "array", got)
@@ -194,7 +194,7 @@ func TestManager_FlushCache_PropagatesAll(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	m := pennant.NewManagerWithDispatcher("array", dispatcher)
+	m := featureflags.NewManagerWithDispatcher("array", dispatcher)
 	ctx := context.Background()
 
 	dec, err := m.Store()
@@ -238,7 +238,7 @@ func TestManager_FlushCache_PropagatesAll(t *testing.T) {
 func TestManager_SerializeScope_Delegates(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	got, err := m.SerializeScope("user:42")
 
@@ -256,8 +256,8 @@ func TestManager_SerializeScope_Delegates(t *testing.T) {
 		t.Fatalf("unexpected error for nil scope: %v", err)
 	}
 
-	if got != pennant.NullScope {
-		t.Fatalf("expected NullScope %q, got %q", pennant.NullScope, got)
+	if got != featureflags.NullScope {
+		t.Fatalf("expected NullScope %q, got %q", featureflags.NullScope, got)
 	}
 }
 
@@ -268,7 +268,7 @@ func TestManager_SerializeScope_Delegates(t *testing.T) {
 func TestManager_ResolveScopeUsing(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	called := 0
 	m.ResolveScopeUsing(func(_ context.Context) (any, error) {
@@ -316,7 +316,7 @@ func TestManager_ResolveScopeUsing(t *testing.T) {
 func TestManager_StoreUnknownDriver_ReturnsError(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	_, err := m.Store("does-not-exist")
 
@@ -324,7 +324,7 @@ func TestManager_StoreUnknownDriver_ReturnsError(t *testing.T) {
 		t.Fatal("expected an error for an unknown driver, got nil")
 	}
 
-	if !errors.Is(err, pennant.ErrDriverNotFound) {
+	if !errors.Is(err, featureflags.ErrDriverNotFound) {
 		t.Fatalf("expected ErrDriverNotFound, got %v", err)
 	}
 }
@@ -337,7 +337,7 @@ func TestManager_WithDispatcher_DispatchesEvents(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	m := pennant.NewManagerWithDispatcher("array", dispatcher)
+	m := featureflags.NewManagerWithDispatcher("array", dispatcher)
 	ctx := context.Background()
 
 	dec, err := m.Store()
@@ -366,7 +366,7 @@ func TestManager_WithDispatcher_DispatchesEvents(t *testing.T) {
 func TestManager_DefaultDecorator_ReturnsSameAsStore(t *testing.T) {
 	t.Parallel()
 
-	m := pennant.NewManager("array")
+	m := featureflags.NewManager("array")
 
 	fromStore, err := m.Store()
 

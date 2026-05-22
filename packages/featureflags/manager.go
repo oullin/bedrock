@@ -1,4 +1,4 @@
-package pennant
+package featureflags
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func NewManager(defaultDriver string) *Manager {
 	return m
 }
 
-// NewManagerWithDispatcher creates a Manager that dispatches pennant events via
+// NewManagerWithDispatcher creates a Manager that dispatches featureflags events via
 // d. The "array" and "database" built-in factories are registered.
 func NewManagerWithDispatcher(defaultDriver string, d EventDispatcher) *Manager {
 	m := &Manager{
@@ -64,19 +64,19 @@ func (m *Manager) registerBuiltins() {
 	// "database" factory
 	m.factories["database"] = func(config map[string]any) (Driver, error) {
 		if config == nil {
-			return nil, fmt.Errorf("pennant: database driver requires a config map with a \"db\" key")
+			return nil, fmt.Errorf("featureflags: database driver requires a config map with a \"db\" key")
 		}
 
 		dbVal, ok := config["db"]
 
 		if !ok {
-			return nil, fmt.Errorf("pennant: database driver config missing required key \"db\"")
+			return nil, fmt.Errorf("featureflags: database driver config missing required key \"db\"")
 		}
 
 		db, ok := dbVal.(DBExecutor)
 
 		if !ok {
-			return nil, fmt.Errorf("pennant: database driver config key \"db\" must implement DBExecutor")
+			return nil, fmt.Errorf("featureflags: database driver config key \"db\" must implement DBExecutor")
 		}
 
 		table := "features"

@@ -1,11 +1,11 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
 	"sync"
 	"testing"
 
-	"github.com/bedrock/packages/pennant"
+	"github.com/bedrock/packages/featureflags"
 )
 
 // ---------------------------------------------------------------------------
@@ -15,9 +15,9 @@ import (
 func TestDecorator_InterfaceAssertions(t *testing.T) {
 	t.Parallel()
 
-	var _ pennant.Driver = (*pennant.Decorator)(nil)
+	var _ featureflags.Driver = (*featureflags.Decorator)(nil)
 
-	var _ pennant.CacheFlusher = (*pennant.Decorator)(nil)
+	var _ featureflags.CacheFlusher = (*featureflags.Decorator)(nil)
 }
 
 // ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ func TestDecorator_Get_CacheMiss_PopulatesCache(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -37,7 +37,7 @@ func TestDecorator_Get_CacheMiss_PopulatesCache(t *testing.T) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	val, err := dec.Get(ctx, "flag", nil)
 
@@ -58,7 +58,7 @@ func TestDecorator_Get_CacheHit(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -67,7 +67,7 @@ func TestDecorator_Get_CacheHit(t *testing.T) {
 		return "cached-value", nil
 	})
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	// First call populates cache.
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
@@ -92,14 +92,14 @@ func TestDecorator_Get_DispatchesFeatureResolved(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
 
@@ -107,7 +107,7 @@ func TestDecorator_Get_DispatchesFeatureResolved(t *testing.T) {
 		t.Fatalf("expected 1 FeatureResolved event, got %d", dispatcher.count("FeatureResolved"))
 	}
 
-	ev, ok := dispatcher.last().(pennant.FeatureResolved)
+	ev, ok := dispatcher.last().(featureflags.FeatureResolved)
 
 	if !ok {
 		t.Fatalf("last event is not FeatureResolved: %T", dispatcher.last())
@@ -125,11 +125,11 @@ func TestDecorator_Get_DispatchesFeatureResolved(t *testing.T) {
 func TestDecorator_Get_ErrorNotCached(t *testing.T) {
 	t.Parallel()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	// No resolver defined → ErrFeatureNotDefined.
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	_, err := dec.Get(ctx, "undefined-flag", nil)
 
@@ -154,7 +154,7 @@ func TestDecorator_Set_UpdatesCache_DispatchesEvent(t *testing.T) {
 
 	calls := 0
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -163,7 +163,7 @@ func TestDecorator_Set_UpdatesCache_DispatchesEvent(t *testing.T) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	if err := dec.Set(ctx, "flag", nil, false); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -197,14 +197,14 @@ func TestDecorator_SetForAllScopes_ClearsCacheForFeature_DispatchesEvent(t *test
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	// Populate cache for two scopes.
 	dec.Get(ctx, "flag", "user:1") //nolint:errcheck
@@ -240,7 +240,7 @@ func TestDecorator_Delete_RemovesCacheEntry_DispatchesEvent(t *testing.T) {
 
 	calls := 0
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
@@ -249,7 +249,7 @@ func TestDecorator_Delete_RemovesCacheEntry_DispatchesEvent(t *testing.T) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	// Resolve once to populate cache.
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
@@ -282,13 +282,13 @@ func TestDecorator_Purge_Nil_ClearsAllCache_DispatchesAllFeaturesPurged(t *testi
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	drv.Define("flag-b", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	dec.Get(ctx, "flag-a", nil) //nolint:errcheck
 	dec.Get(ctx, "flag-b", nil) //nolint:errcheck
@@ -310,13 +310,13 @@ func TestDecorator_Purge_List_ClearsNamedFeatures_DispatchesFeaturesPurged(t *te
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	drv.Define("flag-b", func(_ context.Context, _ any) (any, error) { return "v1", nil })
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	dec.Get(ctx, "flag-a", nil) //nolint:errcheck
 	dec.Get(ctx, "flag-b", nil) //nolint:errcheck
@@ -329,7 +329,7 @@ func TestDecorator_Purge_List_ClearsNamedFeatures_DispatchesFeaturesPurged(t *te
 		t.Fatalf("expected 1 FeaturesPurged, got %d", dispatcher.count("FeaturesPurged"))
 	}
 
-	ev, ok := dispatcher.last().(pennant.FeaturesPurged)
+	ev, ok := dispatcher.last().(featureflags.FeaturesPurged)
 
 	if !ok {
 		t.Fatalf("last event is not FeaturesPurged: %T", dispatcher.last())
@@ -344,12 +344,12 @@ func TestDecorator_Purge_EmptySlice_IsNoOp_NoEvents(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
 
@@ -372,14 +372,14 @@ func TestDecorator_FlushCache_ClearsWithoutEvents(t *testing.T) {
 	t.Parallel()
 
 	dispatcher := &testDispatcher{}
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		return true, nil
 	})
 
-	dec := pennant.NewDecoratorWithDispatcher(drv, dispatcher)
+	dec := featureflags.NewDecoratorWithDispatcher(drv, dispatcher)
 
 	// First Get: cache miss → FeatureResolved dispatched.
 	dec.Get(ctx, "flag", nil) //nolint:errcheck
@@ -420,13 +420,13 @@ func TestDecorator_FlushCache_ClearsWithoutEvents(t *testing.T) {
 func TestDecorator_NilDispatcher_NoPanic(t *testing.T) {
 	t.Parallel()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) { return true, nil })
 
 	// NewDecorator has a nil dispatcher — operations must not panic.
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	if err := dec.Set(ctx, "flag", nil, true); err != nil {
 		t.Fatalf("Set panicked or returned error: %v", err)
@@ -451,7 +451,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 
 	var mu sync.Mutex
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) {
@@ -470,7 +470,7 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 		return "b", nil
 	})
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	// Prime the cache for flag-a / nil scope.
 	dec.Get(ctx, "flag-a", nil) //nolint:errcheck
@@ -517,10 +517,10 @@ func TestDecorator_GetAll_MixedCacheHitsMisses(t *testing.T) {
 func TestDecorator_Define_PassedToDriver(t *testing.T) {
 	t.Parallel()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	ctx := context.Background()
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	dec.Define("flag", func(_ context.Context, _ any) (any, error) {
 		return "from-decorator-define", nil
@@ -540,12 +540,12 @@ func TestDecorator_Define_PassedToDriver(t *testing.T) {
 func TestDecorator_Defined_DelegatestoDriver(t *testing.T) {
 	t.Parallel()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 
 	drv.Define("flag-x", func(_ context.Context, _ any) (any, error) { return true, nil })
 	drv.Define("flag-y", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
 	names := dec.Defined()
 

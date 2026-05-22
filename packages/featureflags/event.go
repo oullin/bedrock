@@ -1,14 +1,14 @@
-package pennant
+package featureflags
 
 import "context"
 
-// Event is the marker interface for all pennant events.
+// Event is the marker interface for all featureflags events.
 type Event interface {
-	PennantEvent()
+	FeatureFlagsEvent()
 }
 
-// EventDispatcher dispatches pennant events to registered listeners.
-// Defined locally so the pennant package does not depend on the events package.
+// EventDispatcher dispatches featureflags events to registered listeners.
+// Defined locally so the featureflags package does not depend on the events package.
 type EventDispatcher interface {
 	Dispatch(ctx context.Context, event Event)
 }
@@ -59,13 +59,13 @@ type FeaturesPurged struct {
 // a nil features list).
 type AllFeaturesPurged struct{}
 
-func (FeatureResolved) PennantEvent()            {}
-func (UnknownFeatureResolved) PennantEvent()     {}
-func (FeatureUpdated) PennantEvent()             {}
-func (FeatureDeleted) PennantEvent()             {}
-func (FeatureUpdatedForAllScopes) PennantEvent() {}
-func (FeaturesPurged) PennantEvent()             {}
-func (AllFeaturesPurged) PennantEvent()          {}
+func (FeatureResolved) FeatureFlagsEvent()            {}
+func (UnknownFeatureResolved) FeatureFlagsEvent()     {}
+func (FeatureUpdated) FeatureFlagsEvent()             {}
+func (FeatureDeleted) FeatureFlagsEvent()             {}
+func (FeatureUpdatedForAllScopes) FeatureFlagsEvent() {}
+func (FeaturesPurged) FeatureFlagsEvent()             {}
+func (AllFeaturesPurged) FeatureFlagsEvent()          {}
 
 var _ Event = FeatureResolved{}
 var _ Event = UnknownFeatureResolved{}

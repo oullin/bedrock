@@ -1,4 +1,4 @@
-package pennant
+package featureflags
 
 import (
 	"fmt"

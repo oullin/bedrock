@@ -1,4 +1,4 @@
-module github.com/bedrock/packages/pennant
+module github.com/bedrock/packages/featureflags
 
 go 1.26.0
 

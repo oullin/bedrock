@@ -1,10 +1,10 @@
-package pennant
+package featureflags
 
 import "context"
 
 // ScopedFeatureInteraction provides a fluent scoped API for evaluating and
 // managing feature flags against a fixed set of scopes. It is the Go
-// equivalent of the upstream Pennant PendingScopedFeatureInteraction.
+// equivalent of the upstream FeatureFlags PendingScopedFeatureInteraction.
 type ScopedFeatureInteraction struct {
 	decorator *Decorator
 	scopes    []any

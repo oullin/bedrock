@@ -1,10 +1,10 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/bedrock/packages/pennant"
+	"github.com/bedrock/packages/featureflags"
 )
 
 // ---------------------------------------------------------------------------
@@ -17,16 +17,16 @@ import (
 func newScopedWithFeatures(
 	features map[string]func(context.Context, any) (any, error),
 	scope any,
-) *pennant.ScopedFeatureInteraction {
-	drv := pennant.NewArrayDriver()
+) *featureflags.ScopedFeatureInteraction {
+	drv := featureflags.NewArrayDriver()
 
 	for name, resolver := range features {
 		drv.Define(name, resolver)
 	}
 
-	dec := pennant.NewDecorator(drv)
+	dec := featureflags.NewDecorator(drv)
 
-	return pennant.NewScopedFeatureInteraction(dec, scope)
+	return featureflags.NewScopedFeatureInteraction(dec, scope)
 }
 
 // ---------------------------------------------------------------------------
@@ -36,10 +36,10 @@ func newScopedWithFeatures(
 func TestScoped_For_AddsScope(t *testing.T) {
 	t.Parallel()
 
-	drv := pennant.NewArrayDriver()
-	dec := pennant.NewDecorator(drv)
+	drv := featureflags.NewArrayDriver()
+	dec := featureflags.NewDecorator(drv)
 
-	base := pennant.NewScopedFeatureInteraction(dec, "user:1")
+	base := featureflags.NewScopedFeatureInteraction(dec, "user:1")
 	merged := base.For("user:2")
 
 	// The new interaction should hold both scopes; the original is unchanged.
@@ -101,9 +101,9 @@ func TestScoped_Active_Nil(t *testing.T) {
 	t.Parallel()
 
 	// An undefined feature returns an error; Active must return false.
-	drv := pennant.NewArrayDriver()
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	drv := featureflags.NewArrayDriver()
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	ctx := context.Background()
 
@@ -280,9 +280,9 @@ func TestScoped_Activate_SetsTrue(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	drv := pennant.NewArrayDriver()
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	drv := featureflags.NewArrayDriver()
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	if err := s.Activate(ctx, []string{"flag"}); err != nil {
 		t.Fatalf("Activate returned error: %v", err)
@@ -297,9 +297,9 @@ func TestScoped_ActivateWithValue_SetsCustomValue(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	drv := pennant.NewArrayDriver()
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	drv := featureflags.NewArrayDriver()
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	if err := s.ActivateWithValue(ctx, []string{"theme"}, "dark"); err != nil {
 		t.Fatalf("ActivateWithValue returned error: %v", err)
@@ -320,9 +320,9 @@ func TestScoped_Deactivate_SetsFalse(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	drv := pennant.NewArrayDriver()
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	drv := featureflags.NewArrayDriver()
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	// Activate first, then deactivate.
 	_ = s.Activate(ctx, []string{"flag"})
@@ -346,15 +346,15 @@ func TestScoped_Forget_RemovesState(t *testing.T) {
 	calls := 0
 	ctx := context.Background()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
 
 		return true, nil
 	})
 
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	// First resolution via Active.
 	s.Active(ctx, "flag")
@@ -383,13 +383,13 @@ func TestScoped_Purge_RemovesAll(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 
 	drv.Define("flag-a", func(_ context.Context, _ any) (any, error) { return true, nil })
 	drv.Define("flag-b", func(_ context.Context, _ any) (any, error) { return true, nil })
 
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	s.Active(ctx, "flag-a")
 	s.Active(ctx, "flag-b")
@@ -510,15 +510,15 @@ func TestScoped_Load_PopulatesCache(t *testing.T) {
 	calls := 0
 	ctx := context.Background()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	drv.Define("flag", func(_ context.Context, _ any) (any, error) {
 		calls++
 
 		return true, nil
 	})
 
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, nil)
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, nil)
 
 	if err := s.Load(ctx, []string{"flag"}); err != nil {
 		t.Fatalf("Load returned error: %v", err)
@@ -545,7 +545,7 @@ func TestScoped_MultipleScopes_AllAreActive_RequiresBoth(t *testing.T) {
 
 	ctx := context.Background()
 
-	drv := pennant.NewArrayDriver()
+	drv := featureflags.NewArrayDriver()
 	drv.Define("flag", func(_ context.Context, scope any) (any, error) {
 		// Only active for user:1.
 		if scope == "user:1" {
@@ -555,8 +555,8 @@ func TestScoped_MultipleScopes_AllAreActive_RequiresBoth(t *testing.T) {
 		return false, nil
 	})
 
-	dec := pennant.NewDecorator(drv)
-	s := pennant.NewScopedFeatureInteraction(dec, "user:1", "user:2")
+	dec := featureflags.NewDecorator(drv)
+	s := featureflags.NewScopedFeatureInteraction(dec, "user:1", "user:2")
 
 	// user:2 is inactive, so AllAreActive must return false.
 	if s.AllAreActive(ctx, []string{"flag"}) {

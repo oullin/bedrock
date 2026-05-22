@@ -1,4 +1,4 @@
-package pennant
+package featureflags
 
 import (
 	"context"
@@ -60,7 +60,7 @@ func NewDatabaseDriver(db DBExecutor, table string) *DatabaseDriver {
 }
 
 // NewDatabaseDriverWithDispatcher creates a DatabaseDriver that dispatches
-// pennant events via d.
+// featureflags events via d.
 func NewDatabaseDriverWithDispatcher(db DBExecutor, table string, d EventDispatcher) *DatabaseDriver {
 	drv := NewDatabaseDriver(db, table)
 	drv.dispatcher = d
