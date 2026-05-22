@@ -1,0 +1,22 @@
+# Scrub patterns for services/scripts/verify-lineage.sh
+#
+# Format: ID|description|ripgrep-pattern
+# Lines starting with `#` and blank lines are ignored.
+# Patterns are passed directly to `rg -e`, so escape characters per ripgrep's
+# default regex dialect.
+#
+# This file is the regex source for the lineage gate. It legitimately
+# contains the upstream tokens it polices, and the gate exempts itself
+# (see GLOBS in verify-lineage.sh).
+#
+# Mirrored in bedrock-compliance/compliance/codes/scrub-terms.txt for
+# cross-repo reference. See compliance/codes/scrub-policy.md for policy.
+
+V1|namespace leak|Illuminate
+V2|upstream pkg path|laravel/(framework|boost|ai|docs)
+V3|brand mention|\bLaravel\b
+V4|leaked namespace tail|@bedrock[\\/][A-Z]
+V5|lineage verb|//\s*(Mirrors|Translation of|Port of|Adapted from|Based on|Counterpart of|Equivalent of)\s
+V6|port phrase|1:1 (Go )?port
+V7|doc marker|(upstream|laravel)-docs:
+V8|stale path|services/compliance/
