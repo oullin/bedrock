@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // NullChannel is a no-op implementation of Channel. All methods are safe to
 // call and produce no side effects. Use it as a stub or in tests that do not

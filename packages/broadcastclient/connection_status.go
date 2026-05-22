@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // ConnectionStatus represents the current state of the broadcaster connection.
 type ConnectionStatus string

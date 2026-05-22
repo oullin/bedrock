@@ -85,7 +85,7 @@ constructor.
 
 - [Drivers](/architecture/drivers).
 - [Service Providers](/architecture/service-providers).
-- [Echo](/packages/echo) and [WebSockets](/packages/websockets) — client-side
+- [BroadcastClient](/packages/broadcastclient) and [WebSockets](/packages/websockets) — client-side
 and self-hosted-server companion packages.
 <!-- /BEDROCK:HAND -->
 

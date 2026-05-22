@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // NullConnector is a no-op Connector that returns Null channel instances and
 // uses a fixed fake socket ID. Use it for testing without a real broadcast

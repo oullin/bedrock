@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // NullPresenceChannel is a no-op implementation of PresenceChannel.
 // All methods produce no side effects.

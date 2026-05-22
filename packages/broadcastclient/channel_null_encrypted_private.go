@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // NullEncryptedPrivateChannel is a no-op implementation of EncryptedPrivateChannel.
 // All methods produce no side effects.

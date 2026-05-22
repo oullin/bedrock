@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/broadcastclient",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/broadcastclient && go build ./... && touch ../../storage/.turbo/dist/broadcastclient/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/broadcastclient && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/broadcastclient/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "broadcastclient gofmt handled by root go-fmt sweep",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

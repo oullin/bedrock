@@ -1,15 +1,15 @@
-package echo_test
+package broadcastclient_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/echo"
+	"github.com/bedrock/packages/broadcastclient"
 )
 
 // TestSupportedBroadcastersDoNotError verifies that all recognised broadcaster
-// strings construct an Echo instance without error. This is a direct port of
-// the "it will not throw error for supported driver" test in echo.test.ts.
+// strings construct an BroadcastClient instance without error. This is a direct port of
+// the "it will not throw error for supported driver" test in broadcastclient.test.ts.
 func TestSupportedBroadcastersDoNotError(t *testing.T) {
 	t.Parallel()
 
@@ -21,7 +21,7 @@ func TestSupportedBroadcastersDoNotError(t *testing.T) {
 		t.Run(b, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := echo.New(echo.Options{Broadcaster: b})
+			_, err := broadcastclient.New(broadcastclient.Options{Broadcaster: b})
 
 			if err != nil {
 				t.Fatalf("broadcaster %q returned unexpected error: %v", b, err)
@@ -36,8 +36,8 @@ func TestSupportedBroadcastersDoNotError(t *testing.T) {
 func TestSupportedBroadcastersCustomConnector(t *testing.T) {
 	t.Parallel()
 
-	_, err := echo.New(echo.Options{
-		Connector: echo.NewNullConnector(),
+	_, err := broadcastclient.New(broadcastclient.Options{
+		Connector: broadcastclient.NewNullConnector(),
 	})
 
 	if err != nil {
@@ -48,11 +48,11 @@ func TestSupportedBroadcastersCustomConnector(t *testing.T) {
 // TestUnsupportedBroadcasterReturnsError verifies that an unrecognised
 // broadcaster string returns an error whose message contains the broadcaster
 // name followed by "is not supported". This is a direct port of the
-// "it will throw error for unsupported driver" test in echo.test.ts.
+// "it will throw error for unsupported driver" test in broadcastclient.test.ts.
 func TestUnsupportedBroadcasterReturnsError(t *testing.T) {
 	t.Parallel()
 
-	_, err := echo.New(echo.Options{Broadcaster: "foo"})
+	_, err := broadcastclient.New(broadcastclient.Options{Broadcaster: "foo"})
 
 	if err == nil {
 		t.Fatal("expected error for unsupported broadcaster, got nil")

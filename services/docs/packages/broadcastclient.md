@@ -1,4 +1,4 @@
-# echo
+# broadcastclient
 
 <!-- ref: @bedrock/code-0023 -->
 <!-- ref: @bedrock/code-0151 -->
@@ -6,7 +6,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package echo is a Go library for Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
+Package broadcastclient is a Go library for BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -19,30 +19,30 @@ Package echo is a Go library for Echo JavaScript library. It provides real-time 
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/echo@latest
+go get github.com/bedrock/packages/broadcastclient@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/echo/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
 ```
 
 ## Source Coverage
 
 | Package | Purpose                                                                                                                                                                                                                         |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `echo`  | Package echo is a Go library for Echo JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
+| `broadcastclient`  | Package broadcastclient is a Go library for BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
 
 ## Core Concepts
 
-The echo reference is organized around the exported Go surface for package `echo`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The broadcastclient reference is organized around the exported Go surface for package `broadcastclient`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
 | Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                      |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `AuthOptions`, `Callback`, `Channel`, `ConnectionStatus`, `Connector`, `DispatchChannel`, `Echo`, `EncryptedPrivateChannel`, `EventFormatter`, `NullChannel`, `NullConnector`, `NullEncryptedPrivateChannel`, `NullPresenceChannel`, `NullPrivateChannel`, `Options`, `PresenceChannel`, `PrivateChannel`, `PusherConnector`, `SocketIOConnector` |
+| Types                      | `AuthOptions`, `Callback`, `Channel`, `ConnectionStatus`, `Connector`, `DispatchChannel`, `BroadcastClient`, `EncryptedPrivateChannel`, `EventFormatter`, `NullChannel`, `NullConnector`, `NullEncryptedPrivateChannel`, `NullPresenceChannel`, `NullPrivateChannel`, `Options`, `PresenceChannel`, `PrivateChannel`, `PusherConnector`, `SocketIOConnector` |
 | Constructors and functions | `Channel`, `Connect`, `Connector`, `Disconnect`, `Dispatch`, `EncryptedPrivateChannel`, `Error`, `Format`, `Here`, `Joining`, `Leave`, `LeaveAllChannels`, `LeaveChannel`, `Leaving`, `Listen`, `ListenToAll`, `New`, `NewDispatchChannel`, `NewEventFormatter`, `NewNullChannel`, and 15 more                                                    |
 | Variables                  | `ErrUnsupportedBroadcaster`                                                                                                                                                                                                                                                                                                                       |
 | Constants                  | `ConnectionStatusConnected`, `ConnectionStatusConnecting`, `ConnectionStatusDisconnected`, `ConnectionStatusFailed`, `ConnectionStatusReconnecting`                                                                                                                                                                                               |
@@ -61,7 +61,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/echo"
+    _ "github.com/bedrock/packages/broadcastclient"
 )
 
 func main() {
@@ -70,7 +70,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/echo` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/broadcastclient` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -110,12 +110,12 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/echo/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/echo/inventory_parity_test.go`
+- `packages/broadcastclient/inventory_parity_test.go`
 
 ## API Reference
 
@@ -129,7 +129,7 @@ Parity is tracked by these tests:
 | `ConnectionStatus`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Connector`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DispatchChannel`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Echo`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BroadcastClient`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `EncryptedPrivateChannel`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `EventFormatter`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NullChannel`                 | Source-backed public surface. See the Go package for exact signature and behavior. |

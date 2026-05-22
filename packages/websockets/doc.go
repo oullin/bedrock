@@ -1,6 +1,6 @@
 // WebSockets speaks the Pusher protocol, making it a drop-in replacement for
 // Pusher in any upstream application. Clients connect over WebSocket using the
-// standard Pusher client libraries (or packages/echo), authenticate via
+// standard Pusher client libraries (or packages/broadcastclient), authenticate via
 // HMAC-SHA256, and receive real-time events broadcast from the server.
 //
 // # Architecture

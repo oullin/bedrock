@@ -151,7 +151,7 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'broadcasting', link: '/packages/broadcasting' },
-            { text: 'echo', link: '/packages/echo' },
+            { text: 'broadcastclient', link: '/packages/broadcastclient' },
             { text: 'websockets', link: '/packages/websockets' },
           ],
         },

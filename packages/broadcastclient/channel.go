@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // Callback is the function type invoked when a channel event fires.
 // The data parameter carries the event payload.

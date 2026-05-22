@@ -1,13 +1,13 @@
-package echo_test
+package broadcastclient_test
 
 import (
 	"testing"
 
-	"github.com/bedrock/packages/echo"
+	"github.com/bedrock/packages/broadcastclient"
 )
 
 // TestEventFormatterFormat is a direct port of the six test cases in
-// tests/util/event-formatter.test.ts from the upstream Echo test suite.
+// tests/util/event-formatter.test.ts from the upstream BroadcastClient test suite.
 func TestEventFormatterFormat(t *testing.T) {
 	t.Parallel()
 
@@ -61,7 +61,7 @@ func TestEventFormatterFormat(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			f := echo.NewEventFormatter(tc.namespace)
+			f := broadcastclient.NewEventFormatter(tc.namespace)
 			got := f.Format(tc.event)
 
 			if got != tc.want {

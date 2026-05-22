@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // Connector is the interface every transport backend must implement.
 type Connector interface {

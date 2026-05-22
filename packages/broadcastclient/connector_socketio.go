@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // SocketIOConnector is a stub Connector for the Socket.IO transport.
 // The Connect method is a no-op in this implementation; a full implementation

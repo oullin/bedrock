@@ -1,19 +1,19 @@
-package echo
+package broadcastclient
 
 import "fmt"
 
-// Echo is the primary API for interacting with real-time broadcasting.
+// BroadcastClient is the primary API for interacting with real-time broadcasting.
 // It wraps a Connector and delegates channel subscription management to it.
-type Echo struct {
+type BroadcastClient struct {
 	opts      Options
 	connector Connector
 }
 
-// New creates an Echo instance and establishes the underlying connection.
+// New creates an BroadcastClient instance and establishes the underlying connection.
 // An error is returned when the broadcaster name is not recognised and no
 // custom Connector was provided via Options.Connector.
-func New(opts Options) (*Echo, error) {
-	e := &Echo{opts: opts}
+func New(opts Options) (*BroadcastClient, error) {
+	e := &BroadcastClient{opts: opts}
 
 	if err := e.connect(); err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func New(opts Options) (*Echo, error) {
 }
 
 // connect resolves the Connector based on opts and calls Connect().
-func (e *Echo) connect() error {
+func (e *BroadcastClient) connect() error {
 	if e.opts.Connector != nil {
 		e.connector = e.opts.Connector
 
@@ -45,52 +45,52 @@ func (e *Echo) connect() error {
 }
 
 // Channel returns a public channel subscription for the given name.
-func (e *Echo) Channel(name string) Channel {
+func (e *BroadcastClient) Channel(name string) Channel {
 	return e.connector.Channel(name)
 }
 
 // PrivateChannel returns a private channel subscription for the given name.
-func (e *Echo) PrivateChannel(name string) PrivateChannel {
+func (e *BroadcastClient) PrivateChannel(name string) PrivateChannel {
 	return e.connector.PrivateChannel(name)
 }
 
 // EncryptedPrivateChannel returns an encrypted private channel subscription.
-func (e *Echo) EncryptedPrivateChannel(name string) EncryptedPrivateChannel {
+func (e *BroadcastClient) EncryptedPrivateChannel(name string) EncryptedPrivateChannel {
 	return e.connector.EncryptedPrivateChannel(name)
 }
 
 // PresenceChannel returns a presence channel subscription for the given name.
-func (e *Echo) PresenceChannel(name string) PresenceChannel {
+func (e *BroadcastClient) PresenceChannel(name string) PresenceChannel {
 	return e.connector.PresenceChannel(name)
 }
 
 // Leave leaves a channel by name, including its private and presence variants.
-func (e *Echo) Leave(name string) {
+func (e *BroadcastClient) Leave(name string) {
 	e.connector.Leave(name)
 }
 
 // LeaveChannel leaves only the specific named channel.
-func (e *Echo) LeaveChannel(name string) {
+func (e *BroadcastClient) LeaveChannel(name string) {
 	e.connector.LeaveChannel(name)
 }
 
 // LeaveAllChannels leaves all currently subscribed channels.
-func (e *Echo) LeaveAllChannels() {
+func (e *BroadcastClient) LeaveAllChannels() {
 	e.connector.LeaveAllChannels()
 }
 
 // SocketID returns the connection's socket ID. Returns an empty string until
 // the connection is established.
-func (e *Echo) SocketID() string {
+func (e *BroadcastClient) SocketID() string {
 	return e.connector.SocketID()
 }
 
 // Disconnect closes the transport connection.
-func (e *Echo) Disconnect() {
+func (e *BroadcastClient) Disconnect() {
 	e.connector.Disconnect()
 }
 
 // Connector returns the underlying Connector instance.
-func (e *Echo) Connector() Connector {
+func (e *BroadcastClient) Connector() Connector {
 	return e.connector
 }

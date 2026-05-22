@@ -1,9 +1,9 @@
-package echo_test
+package broadcastclient_test
 
 import (
 	"testing"
 
-	"github.com/bedrock/packages/echo"
+	"github.com/bedrock/packages/broadcastclient"
 )
 
 // TestDispatchChannelTriggersAllListeners verifies that all registered
@@ -14,7 +14,7 @@ func TestDispatchChannelTriggersAllListeners(t *testing.T) {
 	t.Parallel()
 
 	// namespace: false equivalent — empty namespace
-	ch := echo.NewDispatchChannel(echo.NewEventFormatter(""))
+	ch := broadcastclient.NewDispatchChannel(broadcastclient.NewEventFormatter(""))
 
 	var l1Called, l2Called, l3Called bool
 
@@ -54,7 +54,7 @@ func TestDispatchChannelTriggersAllListeners(t *testing.T) {
 func TestDispatchChannelCanRemoveSpecificListener(t *testing.T) {
 	t.Parallel()
 
-	ch := echo.NewDispatchChannel(echo.NewEventFormatter(""))
+	ch := broadcastclient.NewDispatchChannel(broadcastclient.NewEventFormatter(""))
 
 	var l1Called, l2Called, l3Called bool
 
@@ -95,7 +95,7 @@ func TestDispatchChannelCanRemoveSpecificListener(t *testing.T) {
 func TestDispatchChannelCanRemoveAllListeners(t *testing.T) {
 	t.Parallel()
 
-	ch := echo.NewDispatchChannel(echo.NewEventFormatter(""))
+	ch := broadcastclient.NewDispatchChannel(broadcastclient.NewEventFormatter(""))
 
 	var l1Called, l2Called, l3Called bool
 

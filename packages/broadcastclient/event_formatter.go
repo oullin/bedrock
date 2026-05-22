@@ -1,8 +1,8 @@
-package echo
+package broadcastclient
 
 import "strings"
 
-// EventFormatter normalizes event names for the Echo broadcaster.
+// EventFormatter normalizes event names for the BroadcastClient broadcaster.
 // It optionally prepends a namespace and converts dot separators to backslashes.
 type EventFormatter struct {
 	namespace string
@@ -15,7 +15,7 @@ func NewEventFormatter(namespace string) *EventFormatter {
 	return &EventFormatter{namespace: namespace}
 }
 
-// Format normalizes an event name according to Echo's rules:
+// Format normalizes an event name according to BroadcastClient's rules:
 //
 //  1. If the event starts with '.' or '\\': strip the first character and
 //     return the remainder unchanged — no namespace is prepended and dots

@@ -1,4 +1,4 @@
-package echo
+package broadcastclient
 
 // PusherConnector is a stub Connector for the Pusher and WebSockets transports.
 // The Connect method is a no-op in this implementation; a full implementation

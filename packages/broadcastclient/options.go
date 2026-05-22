@@ -1,6 +1,6 @@
-package echo
+package broadcastclient
 
-// Options configures an Echo instance.
+// Options configures an BroadcastClient instance.
 //
 // Broadcaster selects the transport backend:
 //   - "pusher"    — PusherConnector
