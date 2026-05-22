@@ -195,7 +195,7 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'prompts', link: '/packages/prompts' },
-            { text: 'pail', link: '/packages/pail' },
+            { text: 'logtail', link: '/packages/logtail' },
             { text: 'remotetasks', link: '/packages/remotetasks' },
             { text: 'debugbar', link: '/packages/debugbar' },
           ],

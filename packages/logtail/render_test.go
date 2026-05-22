@@ -1,4 +1,4 @@
-package pail
+package logtail
 
 import (
 	"strings"
@@ -121,7 +121,7 @@ func TestParseLineHandlesReportedStrings(t *testing.T) {
 func TestParseLineExtractsTraceAndContext(t *testing.T) {
 	t.Parallel()
 
-	entry := ParseLine(`[2024-01-01 03:04:05] production.ERROR: log message {"user_id":1,"breadcrumbs":["first_value"],"trace":["app/MyClass.php:12","app/MyClass.php:34"],"__pail":{"origin":{"type":"console","command":"eval"}}}`)
+	entry := ParseLine(`[2024-01-01 03:04:05] production.ERROR: log message {"user_id":1,"breadcrumbs":["first_value"],"trace":["app/MyClass.php:12","app/MyClass.php:34"],"__logtail":{"origin":{"type":"console","command":"eval"}}}`)
 
 	if got, want := entry.Level, "error"; got != want {
 		t.Fatalf("Level = %q, want %q", got, want)
@@ -156,7 +156,7 @@ func TestRenderEntryFormatsTheDefaultBlock(t *testing.T) {
 		Level:     "info",
 		Message:   "Hello World",
 		Context: map[string]any{
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "console",
 					"command": "inspire",
@@ -188,7 +188,7 @@ func TestRenderEntryWrapsToColumns(t *testing.T) {
 		Level:     "info",
 		Message:   "My info message that does this and that",
 		Context: map[string]any{
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "console",
 					"command": "inspire",
@@ -221,7 +221,7 @@ func TestRenderEntryUsesExceptionHeaderAndTrace(t *testing.T) {
 				"class": "RuntimeException",
 				"file":  "app/MyClass.php:12",
 			},
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "console",
 					"command": "eval",
@@ -270,7 +270,7 @@ func TestRenderEntryFormatsConsoleOrigin(t *testing.T) {
 				"class": "Exception",
 				"file":  "app/MyClass.php:12",
 			},
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "console",
 					"command": "inspire",
@@ -303,7 +303,7 @@ func TestRenderEntryFormatsHttpOrigin(t *testing.T) {
 				"class": "Exception",
 				"file":  "app/MyClass.php:12",
 			},
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":       "http",
 					"method":     "GET",
@@ -338,7 +338,7 @@ func TestRenderEntryFormatsQueueOrigin(t *testing.T) {
 				"class": "Exception",
 				"file":  "app/MyClass.php:12",
 			},
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "queue",
 					"command": "queue:work",
@@ -428,7 +428,7 @@ func TestRenderEntryFormatsNestedArrayableContext(t *testing.T) {
 					"b": "b",
 				},
 			},
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "http",
 					"method":  "GET",
@@ -455,7 +455,7 @@ func TestRenderEntryPreservesMultilineContextStrings(t *testing.T) {
 		Message:   "Context that contains html",
 		Context: map[string]any{
 			"html": "escaping html options\nsecond line",
-			"__pail": map[string]any{
+			"__logtail": map[string]any{
 				"origin": map[string]any{
 					"type":    "http",
 					"method":  "GET",

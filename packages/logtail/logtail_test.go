@@ -1,4 +1,4 @@
-package pail
+package logtail
 
 import (
 	"strings"

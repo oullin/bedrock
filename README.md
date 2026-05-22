@@ -19,7 +19,7 @@ Bedrock is a collection of foundational Go packages for building web application
 | `httpx`      | HTTP utilities, middleware, and testing helpers                       |
 | `authkit`  | Team and organization management                                      |
 | `money`      | Monetary values, currencies, formatting, parsing, and exchange        |
-| `pail`       | Log tail parsing and filtering                                        |
+| `logtail`       | Log tail parsing and filtering                                        |
 | `queue`      | Background job processing with pluggable drivers                      |
 | `routing`    | HTTP routing                                                          |
 | `session`    | Session management with multiple storage handlers                     |
