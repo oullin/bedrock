@@ -27,7 +27,7 @@ type boundRequest interface {
 // running the route's compiled regex against the request's path (and host,
 // when the route has a host pattern), then merging in declared defaults.
 //
-// Mirrors Framework\Routing\RouteParameterBinder.
+// Ref: @bedrock/code-0338
 type RouteParameterBinder struct {
 	route boundRoute
 }

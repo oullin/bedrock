@@ -10,7 +10,6 @@ import (
 )
 
 // Engine is a Search search engine backed by Meilisearch.
-// It mirrors Upstream Search's MeilisearchEngine.
 type Engine struct {
 	client     ms.ServiceManager
 	softDelete bool

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// Handler abstracts the session storage backend. It mirrors PHP's
+// Handler abstracts the session storage backend.
 // SessionHandlerInterface.
 type Handler interface {
 	Open(ctx context.Context, path, name string) error

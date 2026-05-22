@@ -225,7 +225,7 @@ func (r *TestResult) AssertSentNotification(method string) *TestResult {
 }
 
 // AssertNotificationCount fails unless the notification params contain the
-// expected count. (For test symmetry with Upstream; in practice use AssertSentNotification.)
+// expected count. (For test symmetry with upstream; in practice use AssertSentNotification.)
 func (r *TestResult) AssertNotificationCount(n int) *TestResult {
 	r.t.Helper()
 	// For our implementation a response holds one notification at a time.

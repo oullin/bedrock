@@ -1,5 +1,5 @@
 // Package responses contains all response types returned by the AI package.
-// They mirror the Upstream\Ai\Responses namespace.
+// They mirror the upstream Ai\Responses namespace.
 package responses
 
 import (
@@ -8,7 +8,6 @@ import (
 )
 
 // TextResponse is the base response for any text generation call.
-// Mirrors Upstream\Ai\Responses\TextResponse.
 type TextResponse struct {
 	Text        string
 	Usage       data.Usage

@@ -10,7 +10,6 @@ import (
 )
 
 // PortalHandler renders the billing portal frontend state.
-// Mirrors Billing\Http\Controllers\BillingPortalController.
 type PortalHandler struct {
 	manager  *billing.Manager
 	frontend *state.FrontendState

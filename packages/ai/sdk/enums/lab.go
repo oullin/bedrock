@@ -1,9 +1,7 @@
 // Package enums contains string-typed enumerations for the AI package,
-// mirroring PHP backed enums from upstream/ai.
 package enums
 
 // Lab identifies an AI provider.
-// Mirrors Upstream\Ai\Enums\Lab.
 type Lab string
 
 const (

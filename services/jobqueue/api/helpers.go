@@ -45,7 +45,7 @@ func nonNegativeQueryInt(r *http.Request, key string, fallback int) int {
 }
 
 func normaliseBatchQuery(query string) string {
-	// Upstream JobQueue escapes LIKE wildcards so users can search for literal
+	// JobQueue escapes LIKE wildcards so users can search for literal
 	// % and _ characters; Bedrock does the same by matching against a trimmed
 	// lowercase needle.
 	return strings.ToLower(strings.TrimSpace(query))

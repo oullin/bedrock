@@ -125,7 +125,7 @@ func (f *UploadedFile) StoreAs(directory, name string, fs FileStore) (string, er
 
 // StorePublicly stores the file with public visibility. In Go the visibility
 // semantics depend on the FileStore implementation; this is a convenience alias
-// that matches the Upstream API.
+// that matches the upstream API.
 func (f *UploadedFile) StorePublicly(directory string, fs FileStore) (string, error) {
 	return f.Store(directory, fs)
 }

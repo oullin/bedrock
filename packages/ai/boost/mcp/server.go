@@ -7,7 +7,6 @@ import (
 // Server is the Boost MCP server. It wires together a ToolRegistry and a
 // ToolExecutor and provides the high-level API that agents call to list and
 // run tools.
-// Mirrors Upstream\Boost\Mcp\Server.
 type Server struct {
 	registry *ToolRegistry
 	executor *ToolExecutor

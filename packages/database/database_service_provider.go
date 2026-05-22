@@ -3,7 +3,7 @@ package database
 import "github.com/bedrock/packages/container"
 
 // DatabaseServiceProvider registers the database manager into the container.
-// It mirrors Framework\Database\DatabaseServiceProvider.
+// Ref: @bedrock/code-0205
 type DatabaseServiceProvider struct {
 	app               *container.Container
 	defaultConnection string

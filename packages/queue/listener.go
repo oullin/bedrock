@@ -47,15 +47,14 @@ type SimpleProcess struct {
 // Timeout returns the configured run-time ceiling.
 
 // ListenerOptions configures the Listener's outer loop and the
-// worker subprocesses it spawns. Mirrors Upstream's
-// Framework\Queue\ListenerOptions, with a few field-name tweaks for
+// Ref: @bedrock/code-0265
 // Go idiom (MaxTries instead of maxTries, Rest instead of $rest).
 type ListenerOptions struct {
 	// Name is the worker process name passed via --name. Defaults to
 	// "default" when constructed via NewListenerOptions.
 	Name string
 	// Environment, if non-empty, is appended to the command as
-	// --env={environment}. Mirrors Upstream's $environment field.
+	// --env={environment}.
 	Environment string
 	// Backoff seconds between retries, forwarded to the worker.
 	Backoff int
@@ -68,7 +67,7 @@ type ListenerOptions struct {
 	// MaxTries is the worker's attempt cap. Default 1.
 	MaxTries int
 	// Rest is the sleep (in seconds) between successive runProcess
-	// calls in the outer loop. Mirrors Upstream's --rest.
+	// calls in the outer loop.
 	Rest int
 	// Force adds --force to the worker command when true.
 	Force bool
@@ -78,11 +77,10 @@ type ListenerOptions struct {
 // Upstream defaults: Name="default", Sleep=3, MaxTries=1.
 
 // NewListenerOptionsWithEnv is the two-argument constructor that
-// matches Upstream's `new ListenerOptions($name, $environment)` form.
+// matches the upstream `new ListenerOptions($name, $environment)` form.
 
 // Listener spawns and supervises worker subprocesses. It is the Go
-// port of Framework\Queue\Listener.
-//
+// Ref: @bedrock/code-0264
 // The Listener is deliberately transport-agnostic: it builds a command
 // slice from the caller-supplied connection/queue/options tuple and
 // hands it to a ProcessRunner. The default ProcessRunner (SimpleProcess)
@@ -92,7 +90,7 @@ type ListenerOptions struct {
 type Listener struct {
 	commandPath string
 	// WorkerBinary is the binary path invoked as the first argv slot.
-	// For a PHP/Upstream port it is "php"; for a Go-native port it
+	// For a PHP/upstream port it is "php"; for a Go-native port it
 	// might be "go" + "run ./cmd/queue-worker" or a compiled binary.
 	WorkerBinary string
 	// EntryArg is the second argv slot, typically the cli script
@@ -111,7 +109,7 @@ type Listener struct {
 	// test binary.
 	StopFunc func()
 	// OutputHandler is called for every stdout/stderr line produced
-	// by a running worker subprocess. Mirrors Upstream's setOutputHandler.
+	// by a running worker subprocess.
 	OutputHandler func(stream, line string)
 }
 
@@ -167,7 +165,7 @@ func NewListenerOptionsWithEnv(name, environment string) ListenerOptions {
 
 // NewListener constructs a Listener rooted at commandPath. The worker
 // binary defaults to "php" and the entry arg to "cli" so the
-// command shape matches Upstream 1:1. Go-native consumers should
+// command shape matches upstream 1:1. Go-native consumers should
 // reassign WorkerBinary + EntryArg after construction.
 func NewListener(commandPath string) *Listener {
 	l := &Listener{
@@ -188,7 +186,7 @@ func NewListener(commandPath string) *Listener {
 func (l *Listener) CommandPath() string { return l.commandPath }
 
 // MakeProcess builds the command for a worker subprocess and wraps it
-// in a ProcessRunner. Mirrors Upstream's Listener::makeProcess.
+// Ref: @bedrock/code-0264
 func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) ProcessRunner {
 	cmd := l.createCommand(connection, queue, opts)
 
@@ -200,7 +198,7 @@ func (l *Listener) MakeProcess(connection, queue string, opts ListenerOptions) P
 }
 
 // createCommand builds the argv slice that MakeProcess hands to the
-// ProcessFactory. Mirrors Upstream's Listener::createCommand, including
+// Ref: @bedrock/code-0264
 // the "drop null entries" step (Go: drop empty strings).
 func (l *Listener) createCommand(connection, queue string, opts ListenerOptions) []string {
 	name := opts.Name
@@ -240,8 +238,8 @@ func (l *Listener) createCommand(connection, queue string, opts ListenerOptions)
 
 // RunProcess runs a worker subprocess and, on return, checks the
 // memory cap. If memory is exceeded, Stop is invoked — matching
-// Upstream's "kill the listener so the process manager restarts it"
-// semantics. Mirrors Listener::runProcess.
+// the upstream "kill the listener so the process manager restarts it"
+// Ref: @bedrock/code-0264
 func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 	if err := process.Run(); err != nil {
 		return err
@@ -256,8 +254,8 @@ func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 
 // Listen is the outer supervisor loop: call MakeProcess once, then
 // RunProcess/Rest-sleep forever. Callers that need graceful shutdown
-// should arrange for StopFunc to return so the loop exits. Mirrors
-// Upstream's Listener::listen.
+// should arrange for StopFunc to return so the loop exits.
+// the upstream Listener::listen.
 func (l *Listener) Listen(connection, queue string, opts ListenerOptions) error {
 	process := l.MakeProcess(connection, queue, opts)
 

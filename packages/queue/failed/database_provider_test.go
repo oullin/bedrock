@@ -1,7 +1,6 @@
 package failed_test
 
-// Ported from Framework\Tests\Queue\DatabaseFailedJobProviderTest (12/12).
-//
+// Ref: @bedrock/code-0360
 // ✅ testCanGetAllFailedJobIds
 // ✅ testCanGetAllFailedJobs
 // ✅ testCanRetrieveFailedJobsById
@@ -42,7 +41,7 @@ func createIntFailedJob(t *testing.T, p *failed.DatabaseFailedJobProvider, faile
 	failed.SetNow(p, time.Now)
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobIds
+// Ref: @bedrock/code-0360
 func TestCanGetAllFailedJobIds(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -72,7 +71,7 @@ func TestCanGetAllFailedJobIds(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanGetAllFailedJobs
+// Ref: @bedrock/code-0360
 func TestCanGetAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -102,7 +101,7 @@ func TestCanGetAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanRetrieveFailedJobsById
+// Ref: @bedrock/code-0360
 func TestCanRetrieveFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -122,7 +121,7 @@ func TestCanRetrieveFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanRemoveFailedJobsById
+// Ref: @bedrock/code-0360
 func TestCanRemoveFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -149,7 +148,7 @@ func TestCanRemoveFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobs
+// Ref: @bedrock/code-0360
 func TestCanPruneFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -182,7 +181,7 @@ func TestCanPruneFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanPruneFailedJobsWithRelativeHoursAndMinutes
+// Ref: @bedrock/code-0360
 func TestCanPruneFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -204,7 +203,7 @@ func TestCanPruneFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanFlushFailedJobs
+// Ref: @bedrock/code-0360
 func TestCanFlushFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -236,7 +235,7 @@ func TestCanFlushFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testCanProperlyLogFailedJob
+// Ref: @bedrock/code-0360
 func TestCanProperlyLogFailedJob(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -260,7 +259,7 @@ func TestCanProperlyLogFailedJob(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCounted
+// Ref: @bedrock/code-0360
 func TestJobsCanBeCounted(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -285,7 +284,7 @@ func TestJobsCanBeCounted(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByConnection
+// Ref: @bedrock/code-0360
 func TestJobsCanBeCountedByConnection(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -313,7 +312,7 @@ func TestJobsCanBeCountedByConnection(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueue
+// Ref: @bedrock/code-0360
 func TestJobsCanBeCountedByQueue(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()
@@ -341,7 +340,7 @@ func TestJobsCanBeCountedByQueue(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
+// Ref: @bedrock/code-0360
 func TestJobsCanBeCountedByQueueAndConnection(t *testing.T) {
 	t.Parallel()
 	p := newIntProvider()

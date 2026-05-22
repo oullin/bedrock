@@ -1,5 +1,5 @@
 // Package ai defines the core contracts for the bedrock AI package.
-// It mirrors the interface surface of upstream/ai (0.x branch) adapted to Go.
+// x branch) adapted to Go.
 package ai
 
 import (
@@ -33,7 +33,6 @@ type MiddlewareFunc = func(ctx context.Context, passable any, next func(any) (an
 type JsonSchema map[string]any
 
 // Agent is the core contract every AI agent must satisfy.
-// It mirrors Upstream\Ai\Contracts\Agent.
 type Agent interface {
 	Instructions() string
 }
@@ -66,37 +65,31 @@ type QueuedResponder interface {
 }
 
 // Conversational agents provide prior message context.
-// Mirrors Upstream\Ai\Contracts\Conversational.
 type Conversational interface {
 	Messages() iter.Seq[any]
 }
 
 // HasTools agents expose callable tools to the LLM.
-// Mirrors Upstream\Ai\Contracts\HasTools.
 type HasTools interface {
 	Tools() iter.Seq[Tool]
 }
 
 // HasStructuredOutput agents return responses conforming to a schema.
-// Mirrors Upstream\Ai\Contracts\HasStructuredOutput.
 type HasStructuredOutput interface {
 	Schema(schema JsonSchema) map[string]any
 }
 
 // HasMiddleware agents run prompts through a middleware pipeline.
-// Mirrors Upstream\Ai\Contracts\HasMiddleware.
 type HasMiddleware interface {
 	Middleware() []MiddlewareFunc
 }
 
 // HasProviderOptions agents supply additional provider-level options.
-// Mirrors Upstream\Ai\Contracts\HasProviderOptions.
 type HasProviderOptions interface {
 	ProviderOptions() map[string]any
 }
 
 // CanActAsTool lets an Agent expose itself as a callable tool to a parent agent.
-// Mirrors Upstream\Ai\Contracts\CanActAsTool.
 type CanActAsTool interface {
 	Name() string
 	Description() string

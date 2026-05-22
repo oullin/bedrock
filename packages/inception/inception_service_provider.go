@@ -3,7 +3,6 @@ package inception
 import "github.com/bedrock/packages/container"
 
 // InceptionServiceProvider registers an Inception instance into the container.
-// It mirrors AuthFlows\AuthFlowsServiceProvider — Inception is the AuthFlows-style
 // authentication composition root for bedrock applications.
 //
 // The provider takes a builder configurator so the caller can wire the guard,

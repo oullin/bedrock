@@ -7,7 +7,6 @@ import (
 )
 
 // StructuredAgentResponse extends AgentResponse with parsed structured output.
-// Mirrors Upstream\Ai\Responses\StructuredAgentResponse.
 type StructuredAgentResponse struct {
 	AgentResponse
 	Data map[string]any

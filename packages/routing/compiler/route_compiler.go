@@ -22,7 +22,7 @@ type SourceRoute interface {
 }
 
 // Separators are the characters that may serve as a separator immediately
-// before an optional variable. Mirrors Symfony's RouteCompiler::SEPARATORS.
+// before an optional variable.
 
 // VariableMaximumLength is the longest a single PCRE/RE2 named group may be.
 
@@ -30,11 +30,10 @@ type SourceRoute interface {
 //
 // The leading "!" denotes a Symfony "important variable" that must never be
 // optional. The Go RE2 character class \w is equivalent to PCRE \w for ASCII
-// names; Upstream does not currently emit non-ASCII parameter names.
+// names; upstream does not currently emit non-ASCII parameter names.
 
 // Compile produces a [CompiledRoute] from a [SourceRoute].
 //
-// This is the Go translation of Symfony\Component\Routing\RouteCompiler::compile.
 // It compiles the host pattern (when present), then the path pattern, and
 // merges the two variable lists.
 
@@ -130,7 +129,7 @@ func compilePattern(route SourceRoute, pattern string, isHost bool) (*compileRes
 		var precedingChar string
 
 		if precedingText != "" {
-			// last byte; Upstream route names are ASCII so byte slicing is safe.
+			// last byte; upstream route names are ASCII so byte slicing is safe.
 			precedingChar = precedingText[len(precedingText)-1:]
 		}
 
@@ -243,7 +242,7 @@ func compilePattern(route SourceRoute, pattern string, isHost bool) (*compileRes
 }
 
 // determineStaticPrefix returns the longest constant-text prefix that the
-// regex can begin with. Mirrors Symfony's logic.
+// regex can begin with.
 func determineStaticPrefix(route SourceRoute, tokens []Token) string {
 	if len(tokens) == 0 {
 		return ""
@@ -352,7 +351,7 @@ func transformCapturingGroupsToNonCapturing(pattern string) string {
 	return b.String()
 }
 
-// quoteMeta is the Go equivalent of preg_quote. It escapes regex metacharacters
+// It escapes regex metacharacters
 // in literal text portions of the pattern.
 func quoteMeta(s string) string { return regexp.QuoteMeta(s) }
 

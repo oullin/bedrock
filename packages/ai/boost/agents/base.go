@@ -18,7 +18,7 @@ import (
 type Platform = platform.Platform
 
 // AgentOptions holds per-agent configuration overrides that replace the
-// config('boost.agents.*') lookup pattern from upstream/boost.
+// config('boost.agents.*') lookup pattern
 type AgentOptions struct {
 	McpConfigPath  string
 	GuidelinesPath string
@@ -158,7 +158,6 @@ func (b *BaseAgent) InstallHttpMcp(key, url string) (bool, error) {
 
 // normalizeCommand splits a space-separated command string into command + args,
 // but never splits absolute paths (which may contain spaces on macOS).
-// Mirrors CommandNormalizer::normalize in upstream/boost.
 func normalizeCommand(command string, extraArgs []string) (string, []string) {
 	if filepath.IsAbs(command) || (len(command) > 2 && command[1] == ':') {
 		return command, extraArgs

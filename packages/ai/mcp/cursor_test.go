@@ -6,8 +6,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\CursorPaginatorTest
-
 func TestCursorPaginatorEmptyListReturnsNoNextCursor(t *testing.T) {
 	t.Parallel()
 

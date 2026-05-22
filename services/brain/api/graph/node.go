@@ -2,7 +2,7 @@ package graph
 
 // NodeType enumerates every graph node kind brain understands.
 //
-// The list mirrors upstream-brain's frontend/src/types/graph.ts so the Vue SPA
+// ts so the Vue SPA
 // can reuse the same discriminator. Filament-specific values are dropped;
 // Inertia-specific values are added in their place.
 type NodeType string

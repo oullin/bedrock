@@ -1,5 +1,7 @@
-// Package validation is a 1:1 Go port of upstream/framework 13.x
-// src/Framework/Validation.  It provides a rule-based input validator that
+// Package validation provides core functionality for validation.
+//
+// Ref: @bedrock/code-0187
+// Ref: @bedrock/code-0388
 // accepts map[string]any data, evaluates 80+ built-in rules expressed as
 // pipe-delimited strings ("required|email|max:255"), and collects failures
 // into a MessageBag.

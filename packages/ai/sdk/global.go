@@ -1,5 +1,5 @@
 // Package ai provides the global singleton accessor pattern for the AI Manager.
-// These package-level functions mirror the Upstream AI facade's static API.
+// These package-level functions mirror the upstream AI facade's static API.
 package ai
 
 import (

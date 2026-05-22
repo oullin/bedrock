@@ -4,11 +4,10 @@ import (
 	"github.com/bedrock/packages/debugbar"
 )
 
-// JobStatus constants mirror the three lifecycle states recorded by Upstream's
-// JobWatcher.
+// JobStatus constants mirror the three lifecycle states recorded by JobWatcher.
 
 // JobWatcher monitors queued job lifecycle events (pending, processed, failed)
-// and records them as DebugBar entries. It mirrors Upstream's JobWatcher class.
+// and records them as DebugBar entries.
 //
 // Options:
 //   - "ignore" ([]string): fully-qualified job type names to skip.

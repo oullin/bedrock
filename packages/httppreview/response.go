@@ -5,7 +5,7 @@ import "net/http"
 // SuccessResponse is a sentinel value used to signal that precognitive
 // validation passed and the handler should short-circuit. The middleware
 // recovers this panic and writes a 204 response. This is the Go equivalent
-// of Upstream's abort(204, headers: ['HTTPPreview-Success' => 'true']).
+// of the upstream abort(204, headers: ['HTTPPreview-Success' => 'true']).
 type SuccessResponse struct{}
 
 // WriteSuccessResponse writes a 204 No Content response with the

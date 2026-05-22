@@ -3,7 +3,6 @@ package search
 import "context"
 
 // Engine is the contract for search engine backends.
-// It mirrors Upstream's Search\Engines\Engine abstract class.
 type Engine interface {
 	// Update indexes or updates the given models in the search engine.
 	Update(ctx context.Context, models []Searchable) error

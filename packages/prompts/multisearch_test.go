@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\MultiSearchPromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\MultiSearchPromptTest::test_selects_multiple
 func TestMultiSearchSelectsMultiple(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -25,7 +22,6 @@ func TestMultiSearchSelectsMultiple(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\MultiSearchPromptTest::test_can_be_cancelled
 func TestMultiSearchCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +38,6 @@ func TestMultiSearchCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\MultiSearchPromptTest::test_required
 func TestMultiSearchRequired(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -66,7 +61,6 @@ func TestMultiSearchRequired(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\MultiSearchPromptTest::test_renders_hint
 func TestMultiSearchRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

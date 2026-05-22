@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// PaginationMeta holds pagination metadata matching Upstream's conventions.
+// PaginationMeta holds pagination metadata matching the upstream conventions.
 type PaginationMeta struct {
 	CurrentPage int    `json:"current_page"`
 	LastPage    int    `json:"last_page"`
@@ -42,7 +42,7 @@ type PaginatedResponse[T any] struct {
 
 // ResourceResponse wraps a Resource and provides response-level features such
 // as automatic 201 status for recently created resources, custom headers, and
-// a response callback. This mirrors Upstream's ResourceResponse class.
+// a response callback.
 type ResourceResponse struct {
 	resource         Resource
 	recentlyCreated  bool

@@ -35,13 +35,12 @@ func (j *recordingJob) HasFailed() bool              { return j.failErr != nil }
 func (j *recordingJob) GetQueue() string             { return "" }
 func (j *recordingJob) GetConnectionName() string    { return "" }
 
-// Port of Framework\Tests\Queue\InteractsWithQueueTest::testCreatesAnExceptionFromString
+// Ref: @bedrock/code-0364
 func TestCreatesAnExceptionFromString(t *testing.T) {
 	t.Parallel()
 
 	rec := &recordingJob{}
 
-	// The Go equivalent of the anonymous `class { use InteractsWithQueue; public $job; }`
 	// constructed in the PHP test. Embedding is our stand-in for trait use.
 	handler := struct {
 		queue.InteractsWithQueue

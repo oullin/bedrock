@@ -11,7 +11,6 @@ import (
 )
 
 // Engine is a Search search engine backed by Typesense.
-// It mirrors Upstream Search's TypesenseEngine.
 type Engine struct {
 	client     *typesense.Client
 	softDelete bool

@@ -3,7 +3,7 @@ package featureflags
 import "github.com/bedrock/packages/container"
 
 // FeatureFlagsServiceProvider registers the featureflags Manager as a singleton in the
-// container. It mirrors the pattern of CacheServiceProvider.
+// container.
 type FeatureFlagsServiceProvider struct {
 	app           *container.Container
 	defaultDriver string

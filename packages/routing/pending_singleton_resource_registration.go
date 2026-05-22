@@ -1,7 +1,6 @@
 package routing
 
-// PendingSingletonResourceRegistration mirrors
-// Framework\Routing\PendingSingletonResourceRegistration. It is the singleton
+// Ref: @bedrock/code-0326
 // twin of [PendingResourceRegistration].
 type PendingSingletonResourceRegistration struct {
 	registrar  *ResourceRegistrar

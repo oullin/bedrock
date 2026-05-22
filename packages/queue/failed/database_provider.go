@@ -8,15 +8,14 @@ import (
 	"time"
 )
 
-// DatabaseFailedJobProvider is the Go port of Upstream's
-// Framework\Queue\Failed\DatabaseFailedJobProvider. Records are stored
+// Ref: @bedrock/code-0255
 // in a failed_jobs table keyed by an auto-incrementing integer id.
 //
 // The provider works through a small unexported store interface. The
 // default constructor wires an in-memory store (which is what the
 // PHPUnit sqlite tests exercise via the port); production callers can
 // plug in a SQL-backed store with the same contract. Keeping the
-// store contract internal lets the provider mirror Upstream's observable
+// store contract internal lets the provider mirror the upstream observable
 // semantics without embedding a SQL query engine in Go tests.
 type DatabaseFailedJobProvider struct {
 	store intStore
@@ -261,7 +260,7 @@ func (s *memoryStore) Flush(_ context.Context, hours int, now time.Time) {
 
 		return
 	}
-	// Upstream's flush deletes rows where failed_at <= now - hours.
+	// the upstream flush deletes rows where failed_at <= now - hours.
 	cutoff := now.Add(-time.Duration(hours) * time.Hour)
 	kept := make([]record, 0, len(s.rows))
 

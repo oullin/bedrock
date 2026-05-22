@@ -1,7 +1,6 @@
 package billing
 
 // Price represents a provider price with billing interval information.
-// Mirrors Upstream\Paddle\Price.
 type Price struct {
 	ID        string
 	Amount    int64

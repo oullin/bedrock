@@ -7,7 +7,7 @@ import (
 )
 
 // TestEventFormatterFormat is a direct port of the six test cases in
-// tests/util/event-formatter.test.ts from the Upstream BroadcastClient test suite.
+// tests/util/event-formatter.test.ts from the upstream BroadcastClient test suite.
 func TestEventFormatterFormat(t *testing.T) {
 	t.Parallel()
 

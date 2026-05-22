@@ -200,7 +200,7 @@ func TestBrokerCreateAndTokenExists(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Auth\AuthPasswordBrokerTest::testBrokerCreatesTokenAndRedirectsWithoutError
+// Ref: @bedrock/code-0358
 func TestBrokerSendResetLinkCreatesTokenSendsNotificationAndDispatchesEvent(t *testing.T) {
 	user := &notifyingResetUser{resetUser: &resetUser{
 		GenericUser: auth.NewGenericUser(map[string]any{"id": "1"}),
@@ -249,7 +249,7 @@ func TestBrokerSendResetLinkCreatesTokenSendsNotificationAndDispatchesEvent(t *t
 	}
 }
 
-// Port of Framework\Tests\Auth\AuthPasswordBrokerTest::testExecutesCallbackInsteadOfSendingNotification
+// Ref: @bedrock/code-0358
 func TestBrokerSendResetLinkUsingExecutesCallbackInsteadOfNotification(t *testing.T) {
 	user := &notifyingResetUser{resetUser: &resetUser{
 		GenericUser: auth.NewGenericUser(map[string]any{"id": "1"}),

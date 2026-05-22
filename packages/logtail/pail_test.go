@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestParseLineExtractsUpstreamLogFields(t *testing.T) {
+func TestParseLineExtractsLogFields(t *testing.T) {
 	t.Parallel()
 
 	entry := ParseLine(`[2026-04-20 08:00:00] production.ERROR: Payment failed {"user_id":42}`)

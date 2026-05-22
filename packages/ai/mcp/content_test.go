@@ -7,8 +7,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\ContentTest
-
 func TestTextContentToToolFormat(t *testing.T) {
 	t.Parallel()
 

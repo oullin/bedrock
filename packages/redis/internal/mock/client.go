@@ -17,7 +17,7 @@ import (
 )
 
 // Client is an in-memory implementation of redis.Client. It supports the
-// commands exercised by the Upstream-parity test suite:
+// commands exercised by the upstream-parity test suite:
 //   - strings: GET, SET (with PX/NX), MGET, DEL, EXISTS, INCR, INCRBY,
 //     DECR, EXPIRE
 //   - hashes:  HGET, HSET, HMGET, HMSET, HGETALL, HDEL, HSETNX, HINCRBY,

@@ -2,8 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\AnsiWordwrapTest
-
 func TestWordWrapShortText(t *testing.T) {
 	t.Parallel()
 	result := WordWrap("hello", 80)
@@ -52,8 +50,6 @@ func TestWordWrapZeroWidth(t *testing.T) {
 		t.Fatalf("expected %q, got %q", "hello", result)
 	}
 }
-
-// Port of Upstream\Prompts\Tests\Feature\MultiByteWordWrapTest
 
 func TestWordWrapMultiByte(t *testing.T) {
 	t.Parallel()

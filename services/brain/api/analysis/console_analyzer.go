@@ -10,7 +10,7 @@ import (
 
 // ConsoleAnalyzer detects cli-style commands registered via
 // packages/console: `console.NewCommand("signature", fn)`. The signature's
-// leading token becomes the command name (Upstream convention preserved).
+// leading token becomes the command name (upstream convention preserved).
 type ConsoleAnalyzer struct{}
 
 func (ConsoleAnalyzer) Name() string { return "console" }

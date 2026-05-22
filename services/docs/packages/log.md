@@ -1,8 +1,8 @@
 # log
 
-<!-- upstream-docs: logging.md#introduction -->
-<!-- upstream-docs: logging.md#building-log-stacks -->
-<!-- upstream-docs: logging.md#writing-log-messages -->
+<!-- ref: @bedrock/code-0096 -->
+<!-- ref: @bedrock/code-0095 -->
+<!-- ref: @bedrock/code-0097 -->
 
 <!-- BEDROCK:HAND -->
 
@@ -121,17 +121,13 @@ event dispatcher is wired in (`WithEventDispatcher`). See
 `LogProviderConfig` is the typed bridge to the underlying repository.
 <!-- /BEDROCK:HAND -->
 
-Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors Upstream's Log component, offering a unified API through the LogManager and individual handlers for each channel type.
+Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors the upstream Log component, offering a unified API through the LogManager and individual handlers for each channel type.
 
-<div class="docs-callout docs-callout-upstream">
-  <strong>Upstream baseline.</strong>
-  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -149,14 +145,14 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/log/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                       |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `log`     | Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors Upstream's Log component, offering a unified API through the LogManager and individual handlers for each channel type. |
-| `context` | Public context API surface for this module.                                                                                                                                                                                                                                                   |
+| Package   | Purpose                                                                                                                                                                                                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `log`     | Package log provides driver-based logging with support for multiple channels, stack aggregation, shared context, event dispatching, and daily file rotation. It mirrors the upstream Log component, offering a unified API through the LogManager and individual handlers for each channel type. |
+| `context` | Public context API surface for this module.                                                                                                                                                                                                                                                      |
 
 ## Core Concepts
 
-The log reference is organized around the exported Go surface for package `log`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+The log reference is organized around the exported Go surface for package `log`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -191,13 +187,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/log` cover the supported creation paths, default values, and Upstream parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/log` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -208,7 +204,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Upstream parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -220,7 +216,7 @@ The package reference should be read through these Upstream parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -234,9 +230,7 @@ Run the package tests before changing examples:
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/log/...
 ```
 
-Upstream parity is tracked by these tests:
-
-- `packages/log/log_laravel_test.go`
+Parity is tracked by these tests:
 
 ## API Reference
 
@@ -407,7 +401,3 @@ Upstream parity is tracked by these tests:
 | `LevelInfo`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `LevelNotice`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `LevelWarning`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-
-## Upstream Parity Notes
-
-This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

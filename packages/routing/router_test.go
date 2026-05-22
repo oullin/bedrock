@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// Translation of the dispatcher half of upstream/framework
 // tests/Routing/RoutingRouteTest.php — the parts that need a Router instance.
 // RouteRegistrarTest::testCanRegisterGetRouteWithClosureAction
 // RouteRegistrarTest::testCanRegisterPostRouteWithClosureAction
@@ -325,7 +324,7 @@ func TestRouter_Has(t *testing.T) {
 }
 
 func TestSortedMiddleware(t *testing.T) {
-	// Translation of upstream/framework tests/Routing/RoutingSortedMiddlewareTest.php.
+	// Ref: @bedrock/code-0398
 	t.Run("test_priority_order_is_respected", func(t *testing.T) {
 		priority := []string{"first", "second", "third"}
 		input := []any{"third", "first", "second"}

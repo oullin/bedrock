@@ -25,7 +25,7 @@ type InvoiceDownload struct {
 }
 
 // ProviderOperations defines the Cashier/Paddle behavior Billing delegates to
-// provider SDKs in Upstream.
+// provider SDKs in the upstream framework.
 type ProviderOperations interface {
 	CreateCustomer(ctx context.Context, billable Billable, options CustomerCreateOptions) (*Customer, error)
 	PreviewPrices(ctx context.Context, priceIDs []string, options map[string]any) ([]PricePreview, error)

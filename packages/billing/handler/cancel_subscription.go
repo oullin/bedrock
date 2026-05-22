@@ -8,7 +8,6 @@ import (
 )
 
 // CancelSubscriptionHandler handles subscription cancellation.
-// Mirrors Billing\Http\Controllers\CancelSubscriptionController.
 type CancelSubscriptionHandler struct {
 	billing  *service.BillingService
 	resolver billing.ResolverFunc

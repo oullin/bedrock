@@ -7,7 +7,6 @@ import (
 )
 
 // ScoutServiceProvider registers the Search engine manager into the container.
-// It mirrors Upstream\Search\ScoutServiceProvider.
 type ScoutServiceProvider struct {
 	app    *container.Container
 	config Config

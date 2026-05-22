@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_accepts_input
 func TestTextAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -28,7 +25,6 @@ func TestTextAcceptsInput(t *testing.T) {
 	tp.AssertStrippedOutputContains("What is your name?")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_accepts_default
 func TestTextAcceptsDefault(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -47,7 +43,6 @@ func TestTextAcceptsDefault(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_can_be_cancelled
 func TestTextCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -62,7 +57,6 @@ func TestTextCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_validates_input
 func TestTextValidatesInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -83,7 +77,6 @@ func TestTextValidatesInput(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_validates_with_custom_validator
 func TestTextValidatesWithCustomValidator(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -110,7 +103,6 @@ func TestTextValidatesWithCustomValidator(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_transforms_value
 func TestTextTransformsValue(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -141,7 +133,6 @@ func TestTextTransformsValue(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_returns_empty_string_when_not_required
 func TestTextReturnsEmptyWhenNotRequired(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -160,7 +151,6 @@ func TestTextReturnsEmptyWhenNotRequired(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_backspace_removes_character
 func TestTextBackspaceRemovesCharacter(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -179,7 +169,6 @@ func TestTextBackspaceRemovesCharacter(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_renders_hint
 func TestTextRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -196,7 +185,6 @@ func TestTextRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Your full name")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_renders_placeholder
 func TestTextRendersPlaceholder(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -213,7 +201,6 @@ func TestTextRendersPlaceholder(t *testing.T) {
 	tp.AssertStrippedOutputContains("e.g. Joe")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_the_delete_key_removes_a_character
 func TestTextDeleteKeyRemovesCharacter(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -234,7 +221,6 @@ func TestTextDeleteKeyRemovesCharacter(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_support_emacs_style_key_binding
 func TestTextEmacsKeyBindings(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -254,7 +240,6 @@ func TestTextEmacsKeyBindings(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_move_to_the_beginning_and_end_of_line
 func TestTextHomeEndKeys(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -273,7 +258,6 @@ func TestTextHomeEndKeys(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_returns_empty_string_when_non_interactive
 func TestTextReturnsEmptyStringWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -290,7 +274,6 @@ func TestTextReturnsEmptyStringWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_returns_the_default_value_when_non_interactive
 func TestTextReturnsDefaultWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -307,7 +290,6 @@ func TestTextReturnsDefaultWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_validates_the_default_value_when_non_interactive
 func TestTextValidatesDefaultWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -333,7 +315,6 @@ func TestTextValidatesDefaultWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_non_interactive_required_fails
 func TestTextNonInteractiveRequiredFails(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -350,7 +331,6 @@ func TestTextNonInteractiveRequiredFails(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_ctrl_u_clears_input
 func TestTextCtrlUClearsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -369,7 +349,6 @@ func TestTextCtrlUClearsInput(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\TextPromptTest::test_option_backspace_deletes_word
 func TestTextOptionBackspaceDeletesWord(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

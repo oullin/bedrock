@@ -7,7 +7,6 @@ import (
 )
 
 // PaymentMethodsHandler handles payment method operations.
-// Mirrors Billing\Http\Controllers\PaymentMethodsController.
 type PaymentMethodsHandler struct {
 	resolver      billing.ResolverFunc
 	subscriptions billing.SubscriptionStore

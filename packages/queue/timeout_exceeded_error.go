@@ -2,10 +2,8 @@ package queue
 
 import "fmt"
 
-// TimeoutExceededError is the Go port of
-// Framework\Queue\TimeoutExceededException.
-//
-// In Upstream this class extends MaxAttemptsExceededException. Go has no
+// Ref: @bedrock/code-0274
+// In the upstream framework this class extends MaxAttemptsExceededException. Go has no
 // inheritance so TimeoutExceededError embeds *MaxAttemptsExceededError by
 // pointer; errors.As therefore matches both types, preserving the
 // Upstream "is-a" relationship. The Error() method is promoted from the
@@ -15,12 +13,12 @@ type TimeoutExceededError struct {
 }
 
 // Unwrap exposes the embedded MaxAttemptsExceededError so errors.As and
-// errors.Is walk through it, preserving Upstream's PHP "TimeoutExceededException
+// errors.Is walk through it, preserving the upstream PHP "TimeoutExceededException
 // extends MaxAttemptsExceededException" relationship.
 func (e *TimeoutExceededError) Unwrap() error { return e.MaxAttemptsExceededError }
 
 // NewTimeoutExceededErrorForJob builds an error for the given job.
-// Mirrors Upstream's TimeoutExceededException::forJob static factory.
+// Ref: @bedrock/code-0274
 func NewTimeoutExceededErrorForJob(job ResolveNamer) *TimeoutExceededError {
 	return &TimeoutExceededError{
 		MaxAttemptsExceededError: &MaxAttemptsExceededError{

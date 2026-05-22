@@ -1,8 +1,7 @@
 package translation
 
 // ArrayLoader is an in-memory Loader implementation.  Messages are stored as
-// messages[namespace][locale][group] → map[string]any, mirroring Upstream's
-// Framework\Translation\ArrayLoader.
+// Ref: @bedrock/code-0382
 type ArrayLoader struct {
 	messages   map[string]map[string]map[string]map[string]any
 	namespaces map[string]string

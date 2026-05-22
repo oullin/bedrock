@@ -78,7 +78,7 @@ func DefaultConfigRepository() *config.Repository {
 		"billing.prorates":           true,
 		"billing.proration_behavior": "",
 		"billing.date_format":        "January 2, 2006",
-		"billing.app_name":           "Upstream",
+		"billing.app_name":           "Bedrock",
 		"billing.dashboard_url":      "",
 		"billing.terms_url":          "",
 		"billing.brand_logo":         "",
@@ -179,7 +179,7 @@ func (c *Config) ProrationBehavior() string { return c.string("proration_behavio
 
 func (c *Config) DateFormat() string { return c.string("date_format", "January 2, 2006") }
 
-func (c *Config) AppName() string { return c.string("app_name", "Upstream") }
+func (c *Config) AppName() string { return c.string("app_name", "Bedrock") }
 
 func (c *Config) DashboardURL() string { return c.string("dashboard_url", "") }
 

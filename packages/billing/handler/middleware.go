@@ -12,7 +12,6 @@ import (
 // VerifyBillableIsSubscribed is middleware that checks whether the
 // resolved billable has a valid subscription. If not, it redirects
 // HTML requests to the billing portal or returns 402 for JSON/XHR.
-// Mirrors Billing\Http\Middleware\VerifyBillableIsSubscribed and
 // app/Http/Middleware/EnsureTeamSubscribed.
 func VerifyBillableIsSubscribed(
 	manager *billing.Manager,

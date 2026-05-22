@@ -1,25 +1,21 @@
 # database
 
-<!-- upstream-docs: database.md#introduction -->
-<!-- upstream-docs: queries.md#running-database-queries -->
-<!-- upstream-docs: migrations.md#introduction -->
-<!-- upstream-docs: orm.md#introduction -->
-<!-- upstream-docs: seeding.md#introduction -->
+<!-- ref: @bedrock/code-0055 -->
+<!-- ref: @bedrock/code-0141 -->
+<!-- ref: @bedrock/code-0110 -->
+<!-- ref: @bedrock/code-0056 -->
+<!-- ref: @bedrock/code-0167 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package database provides a database abstraction layer with query builder, schema management, Orm-style ORM, and migration support. It is the Go port of Upstream's Framework/Database package, adapted to Go idioms while maintaining 100% function parity.
+Package database provides a database abstraction layer with query builder, schema management, Orm-style ORM, and migration support.
 
-<div class="docs-callout docs-callout-upstream">
-  <strong>Upstream baseline.</strong>
-  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -39,25 +35,25 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/database/...
 
 | Package              | Purpose                                                                                                                                                                                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `database`           | Package database provides a database abstraction layer with query builder, schema management, Orm-style ORM, and migration support. It is the Go port of Upstream's Framework/Database package, adapted to Go idioms while maintaining 100% function parity.                     |
+| `database`           | Package database provides a database abstraction layer with query builder, schema management, Orm-style ORM, and migration support.                                                                                                                                              |
 | `drivers/mariadb`    | Public drivers/mariadb API surface for this module.                                                                                                                                                                                                                                   |
 | `drivers/mysql`      | Public drivers/mysql API surface for this module.                                                                                                                                                                                                                                     |
 | `drivers/postgres`   | Public drivers/postgres API surface for this module.                                                                                                                                                                                                                                  |
 | `drivers/sqlite`     | Public drivers/sqlite API surface for this module.                                                                                                                                                                                                                                    |
-| `orm`           | Package orm provides an Active Record ORM with generic model types, relationships, scopes, events, soft deletes, and attribute casting. It is the Go port of Framework\Database\Orm.                                                                                       |
+| `orm`           | Package orm provides an Active Record ORM with generic model types, relationships, scopes, events, soft deletes, and attribute casting.                                                                                                                                          |
 | `orm/relations` | Package relations defines the Orm relationship types: HasOne, HasMany, BelongsTo, BelongsToMany, HasOneThrough, HasManyThrough, and their polymorphic variants. Each relationship type knows how to constrain queries, eager-load results, and match them back to parent models. |
 | `events`             | Package events defines the event structs dispatched by the database package. These events are fired through the Bedrock event dispatcher and can be used for query logging, performance monitoring, and debugging.                                                                    |
 | `migrations`         | Package migrations provides a database migration system for managing schema changes over time. Migrations run in order and track which migrations have been applied.                                                                                                                  |
-| `query`              | Package query provides a fluent SQL query builder that compiles queries through driver-specific grammars. It is the Go port of Framework\Database\Query\Builder.                                                                                                                     |
+| `query`              | Package query provides a fluent SQL query builder that compiles queries through driver-specific grammars.                                                                                                                                                                             |
 | `query/grammars`     | Public query/grammars API surface for this module.                                                                                                                                                                                                                                    |
 | `query/processors`   | Public query/processors API surface for this module.                                                                                                                                                                                                                                  |
-| `schema`             | Package schema provides a database-agnostic schema builder for creating, modifying, and dropping database tables. It is the Go port of Framework\Database\Schema.                                                                                                                    |
+| `schema`             | Package schema provides a database-agnostic schema builder for creating, modifying, and dropping database tables.                                                                                                                                                                     |
 | `schema/grammars`    | Public schema/grammars API surface for this module.                                                                                                                                                                                                                                   |
 | `seeding`            | Package seeding provides a database seeding interface for populating tables with test or default data.                                                                                                                                                                                |
 
 ## Core Concepts
 
-The database reference is organized around the exported Go surface for package `database`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+The database reference is organized around the exported Go surface for package `database`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -94,13 +90,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/database` cover the supported creation paths, default values, and Upstream parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/database` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -111,7 +107,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Upstream parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -123,7 +119,7 @@ The package reference should be read through these Upstream parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -136,8 +132,6 @@ Run the package tests before changing examples:
 ```bash
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/database/...
 ```
-
-No dedicated Upstream inventory test was detected for this package. Use the ordinary package tests and exported API as the documentation source of truth.
 
 ## API Reference
 
@@ -972,7 +966,3 @@ No dedicated Upstream inventory test was detected for this package. Use the ordi
 | `WhereSub`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WhereTime`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WhereYear`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-
-## Upstream Parity Notes
-
-This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

@@ -9,7 +9,6 @@ import (
 )
 
 // UpdateSubscriptionHandler handles subscription plan changes.
-// Mirrors Billing\Http\Controllers\UpdateSubscriptionController.
 type UpdateSubscriptionHandler struct {
 	updater       *action.SubscriptionUpdater
 	manager       *billing.Manager

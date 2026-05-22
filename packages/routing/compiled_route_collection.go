@@ -7,16 +7,15 @@ import (
 )
 
 // CompiledRouteCollection is the production-mode counterpart to
-// [RouteCollection]. In Upstream/Symfony it is backed by a dumped matcher; in
+// [RouteCollection]. In the upstream framework/Symfony it is backed by a dumped matcher; in
 // the Go port it stores pre-bound route metadata in a slice and delegates
 // matching to the same compiled regexes.
 //
-// The constructor mirrors Upstream's: it accepts a "compiled" payload (the
 // dumped matcher data, opaque to consumers) and an "attributes" payload that
 // the dumper produces alongside it. In Go we store a slice of Routes that the
 // router built from the cached form; M11 will provide a real cache loader.
 //
-// Mirrors Framework\Routing\CompiledRouteCollection.
+// Ref: @bedrock/code-0288
 type CompiledRouteCollection struct {
 	AbstractRouteCollection
 	routes     []*Route

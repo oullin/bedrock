@@ -2,8 +2,7 @@ package translation
 
 // PotentiallyTranslatedString is a lazy translation wrapper that holds an
 // original string and defers translation until String() is called or
-// Translate() is invoked explicitly.  It mirrors Upstream's
-// Framework\Translation\PotentiallyTranslatedString.
+// Ref: @bedrock/code-0385
 type PotentiallyTranslatedString struct {
 	original   string
 	translator *Translator

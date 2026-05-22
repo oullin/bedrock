@@ -19,6 +19,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lineage:
+    name: Lineage
+    uses: ./.github/workflows/lineage.yml
+    permissions:
+      contents: read
+
   go:
     name: Go
     uses: ./.github/workflows/go.yml

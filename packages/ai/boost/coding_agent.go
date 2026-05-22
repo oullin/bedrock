@@ -18,7 +18,7 @@ type McpInstallationStrategy = platform.McpInstallationStrategy
 
 // CodingAgent is the base interface every IDE coding-assistant agent must satisfy.
 // Named CodingAgent (not Agent) to avoid collision with contracts/ai.Agent, which
-// models LLM agents. Mirrors the abstract Agent class in upstream/boost.
+// models LLM agents.
 type CodingAgent interface {
 	// Name returns the canonical snake_case key (e.g. "claude_code").
 	Name() string
@@ -82,21 +82,18 @@ type CodingAgent interface {
 }
 
 // SupportsGuidelines is satisfied by agents that accept an AI guidelines file.
-// Mirrors Upstream\Boost\Contracts\SupportsGuidelines.
 type SupportsGuidelines interface {
 	CodingAgent
 	GuidelinesPath() string
 }
 
 // SupportsMcp is satisfied by agents that can install an MCP server.
-// Mirrors Upstream\Boost\Contracts\SupportsMcp.
 type SupportsMcp interface {
 	CodingAgent
 	UseAbsolutePathForMcp() bool
 }
 
 // SupportsSkills is satisfied by agents that accept SKILL.md files.
-// Mirrors Upstream\Boost\Contracts\SupportsSkills.
 type SupportsSkills interface {
 	CodingAgent
 	SkillsPath() string

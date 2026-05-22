@@ -10,14 +10,13 @@ import (
 
 // Fluent provides a dynamic key-value bag backed by map[string]any.
 // It supports dot-notation access for nested values.
-// Mirrors Framework\Support\Fluent.
+// Ref: @bedrock/code-0350
 type Fluent struct {
 	attributes map[string]any
 }
 
 // NewFluent creates a new Fluent instance.
 // Accepts an optional initial value that can be a map or a struct with exported fields.
-// Mirrors new Fluent($attributes).
 func NewFluent(attrs ...any) *Fluent {
 	f := &Fluent{attributes: make(map[string]any)}
 
@@ -32,8 +31,8 @@ func NewFluent(attrs ...any) *Fluent {
 
 // Get returns the value for the given key, or the default if not found.
 // Supports simple key access (no dot notation, for compatibility with
-// Upstream's Fluent which uses data_get internally).
-// Mirrors Fluent::get().
+// the upstream Fluent which uses data_get internally).
+// Ref: @bedrock/code-0350
 func (f *Fluent) Get(key string, def ...any) any {
 	val, ok := f.attributes[key]
 
@@ -53,7 +52,7 @@ func (f *Fluent) Get(key string, def ...any) any {
 }
 
 // Set sets the value for the given key.
-// Mirrors Fluent::set().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Set(key string, value any) *Fluent {
 	f.attributes[key] = value
 
@@ -73,7 +72,7 @@ func (f *Fluent) Missing(key string) bool {
 }
 
 // All returns all attributes as a map.
-// Mirrors Fluent::all().
+// Ref: @bedrock/code-0350
 func (f *Fluent) All() map[string]any {
 	result := make(map[string]any, len(f.attributes))
 
@@ -85,13 +84,13 @@ func (f *Fluent) All() map[string]any {
 }
 
 // Array returns all attributes as a map.
-// Mirrors Fluent::toArray() / array access helpers.
+// Ref: @bedrock/code-0350
 func (f *Fluent) Array() map[string]any {
 	return f.All()
 }
 
 // Only returns a map containing only the specified keys.
-// Mirrors Fluent::only().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Only(keys ...string) map[string]any {
 	result := make(map[string]any, len(keys))
 
@@ -105,7 +104,7 @@ func (f *Fluent) Only(keys ...string) map[string]any {
 }
 
 // Except returns a map excluding the specified keys.
-// Mirrors Fluent::except() (via Arr::except equivalent).
+// Ref: @bedrock/code-0350
 func (f *Fluent) Except(keys ...string) map[string]any {
 	excluded := make(map[string]bool, len(keys))
 
@@ -125,7 +124,7 @@ func (f *Fluent) Except(keys ...string) map[string]any {
 }
 
 // Fill merges attributes into the Fluent, overwriting existing keys.
-// Mirrors Fluent::fill().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Fill(attrs map[string]any) *Fluent {
 	for k, v := range attrs {
 		f.attributes[k] = v
@@ -135,7 +134,6 @@ func (f *Fluent) Fill(attrs map[string]any) *Fluent {
 }
 
 // Merge merges attributes without overwriting existing keys.
-// Mirrors the behavior of Fluent when used with array_merge where existing keys survive.
 func (f *Fluent) Merge(attrs map[string]any) *Fluent {
 	for k, v := range attrs {
 		if _, exists := f.attributes[k]; !exists {
@@ -148,7 +146,7 @@ func (f *Fluent) Merge(attrs map[string]any) *Fluent {
 
 // Scope returns a new Fluent containing only keys that start with the given prefix.
 // The prefix is stripped from the returned keys.
-// Mirrors Fluent::scope().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Scope(key string) *Fluent {
 	result := make(map[string]any)
 	prefix := key + "."
@@ -182,7 +180,7 @@ func (f *Fluent) Count() int {
 }
 
 // String returns the string value of the given key.
-// Mirrors Fluent::string().
+// Ref: @bedrock/code-0350
 func (f *Fluent) String(key string, def ...string) string {
 	v := f.Get(key)
 
@@ -206,7 +204,7 @@ func (f *Fluent) String(key string, def ...string) string {
 
 // Bool returns the bool value of the given key.
 // Truthy string values ("yes", "on", "true", "1") return true.
-// Mirrors Fluent::boolean().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Bool(key string, def ...bool) bool {
 	v := f.Get(key)
 
@@ -238,7 +236,7 @@ func (f *Fluent) Bool(key string, def ...bool) bool {
 }
 
 // Int returns the integer value of the given key.
-// Mirrors Fluent::integer().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Int(key string, def ...int) int {
 	v := f.Get(key)
 
@@ -267,7 +265,7 @@ func (f *Fluent) Int(key string, def ...int) int {
 }
 
 // Float returns the float value of the given key.
-// Mirrors Fluent::float().
+// Ref: @bedrock/code-0350
 func (f *Fluent) Float(key string, def ...float64) float64 {
 	v := f.Get(key)
 
@@ -296,7 +294,7 @@ func (f *Fluent) Float(key string, def ...float64) float64 {
 }
 
 // ToMap returns all attributes as a map.
-// Mirrors Fluent::toArray().
+// Ref: @bedrock/code-0350
 func (f *Fluent) ToMap() map[string]any {
 	return f.All()
 }

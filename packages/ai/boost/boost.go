@@ -8,13 +8,12 @@ import (
 )
 
 // defaultAgentFactories maps the canonical keys for the built-in coding agents
-// to their factory functions. This mirrors the $agents array in BoostManager.php
+// to their factory functions. php
 // and is extended with rules-only agents (Aider, Windsurf) for which only
 // guidelines emission is supported today.
 
 // Manager is the central boost registry that tracks registered coding agents.
 // It is registered in the container under the key "boost".
-// Mirrors BoostManager in upstream/boost.
 type Manager struct {
 	mu     sync.RWMutex
 	agents map[string]CodingAgent

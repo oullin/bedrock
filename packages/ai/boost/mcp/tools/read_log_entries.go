@@ -11,7 +11,6 @@ import (
 
 // ReadLogEntries reads the last N log entries from the application log.
 // Handles both PSR-3 text format and JSON (structured) log formats.
-// Mirrors Upstream\Boost\Mcp\Tools\ReadLogEntries.
 // Tagged IsReadOnly.
 type ReadLogEntries struct {
 	// LogFilePath overrides the default "storage/logs/app.log".

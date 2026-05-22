@@ -1,7 +1,6 @@
 package billing
 
 // Plan represents a subscription plan with fluent configuration.
-// Mirrors Billing\Plan.
 type Plan struct {
 	ID               string
 	Name             string

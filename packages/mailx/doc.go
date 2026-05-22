@@ -1,5 +1,5 @@
 // Package mailx provides driver-based email sending with support for
-// SMTP, log, and array (testing) transports. It mirrors Upstream's Mail
+// SMTP, log, and array (testing) transports.
 // component, offering a unified API through the MailManager and
 // individual mailers for each transport type. The package supports
 // rich message construction including HTML and plain-text bodies,

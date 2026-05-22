@@ -71,8 +71,8 @@ func TestEventWatcherIgnoresFrameworkEvents(t *testing.T) {
 	w := watchers.NewEventWatcher(scope, nil)
 
 	// These should all be filtered.
-	w.Record("Framework\\Auth\\Events\\Login", nil, nil)
-	w.Record("Upstream\\Octane\\Events\\RequestReceived", nil, nil)
+	w.Record("@bedrock\\Auth\\Events\\Login", nil, nil)
+	w.Record("Octane\\Events\\RequestReceived", nil, nil)
 	w.Record("github.com/bedrock/packages/debugbar.InternalEvent", nil, nil)
 
 	storeAndAssertCount(t, scope, repo, debugbar.EntryTypeEvent, 0)

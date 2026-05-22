@@ -15,7 +15,6 @@ type RerankingRequest struct {
 }
 
 // RerankingProvider is the provider-level contract for document reranking.
-// Mirrors Upstream\Ai\Contracts\Providers\RerankingProvider.
 type RerankingProvider interface {
 	Rerank(ctx context.Context, req RerankingRequest) (*gateway.RerankResult, error)
 	RerankingGateway() gateway.RerankingGateway

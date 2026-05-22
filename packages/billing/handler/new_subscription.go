@@ -9,7 +9,6 @@ import (
 )
 
 // NewSubscriptionHandler handles creating new subscriptions.
-// Mirrors Billing\Http\Controllers\NewSubscriptionController.
 type NewSubscriptionHandler struct {
 	creator  *action.SubscriptionCreator
 	manager  *billing.Manager

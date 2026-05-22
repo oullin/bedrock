@@ -4,7 +4,7 @@ package log
 type Level int
 
 // Logger defines the contract for structured logging with multiple severity
-// levels. It mirrors the PSR-3 LoggerInterface from the PHP ecosystem.
+// levels.
 type Logger interface {
 	Emergency(message string, context ...map[string]any)
 	Alert(message string, context ...map[string]any)

@@ -1,4 +1,3 @@
-// Port of Upstream\Ai\Tests\Feature\AgentFakeTest
 package ai_test
 
 import (
@@ -17,27 +16,13 @@ import (
 
 // Use the stub provider (auto-registered when Fake() is called).
 
-// TestAgentCanBeFakedWithAString mirrors test_agent_can_be_faked_with_a_string.
-
-// TestAgentCanBeFakedWithMultipleStrings mirrors test_agent_can_be_faked_with_multiple_strings.
-
 // TestAgentLastResponseRepeats verifies FIFO queue with last-response repeat.
 
-// TestAgentCanBeFakedWithAnAgentResponse mirrors faking with a struct response.
-
-// TestAgentCanBeFakedWithAClosure mirrors faking with a function.
-
-// TestAgentAssertNeverPrompted mirrors the "never prompted" assertion.
-
 // No Prompt call was made.
-
-// TestAgentAssertNotPrompted mirrors the "not prompted with specific match" assertion.
 
 //nolint:errcheck
 
 // TestAgentCanBeQueued verifies queue recording.
-
-// TestAgentAssertNeverQueued mirrors the "never queued" assertion.
 
 // No Queue call.
 

@@ -13,7 +13,7 @@ import (
 // httppreview versions (when a container is provided), and manages the
 // HTTPPreview and Vary response headers.
 //
-// Mirrors Framework\Foundation\Http\Middleware\HandlePrecognitiveRequests.
+// Ref: @bedrock/code-0217
 type HandlePrecognitiveRequests struct {
 	container *container.Container
 }
@@ -121,8 +121,8 @@ func (m *HandlePrecognitiveRequests) prepareForHTTPPreview(r *http.Request) func
 }
 
 // appendVaryHeader adds "HTTPPreview" to the Vary header. This is called for
-// both precognitive and non-precognitive responses, matching Upstream's
-// behaviour where the Vary header is always set.
+// both precognitive and non-precognitive responses, so the Vary header is
+// always set.
 func appendVaryHeader(w http.ResponseWriter) {
 	AddVaryHeader(w)
 }

@@ -7,10 +7,9 @@ import (
 )
 
 // ignoredCachePrefixes contains internal cache key prefixes that should not be
-// recorded, mirroring Upstream's CacheWatcher ignore list.
 
 // CacheWatcher monitors cache operations (hit, miss, set, forget) and records
-// them as DebugBar entries. It mirrors Upstream's CacheWatcher class.
+// them as DebugBar entries.
 //
 // Options:
 //   - "hidden" ([]string): key names whose values will be masked.
@@ -38,7 +37,6 @@ func NewCacheWatcher(t *debugbar.DebugBar, options map[string]any) *CacheWatcher
 // cache package, attach listeners to the cache event dispatcher.
 func (w *CacheWatcher) Register(_ any) error { return nil }
 
-// ShouldIgnore reports whether the cache key should be skipped, mirroring
 // CacheWatcher::shouldIgnore().
 func (w *CacheWatcher) ShouldIgnore(key string) bool {
 	for _, prefix := range ignoredCachePrefixes {

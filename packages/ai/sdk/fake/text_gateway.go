@@ -26,7 +26,6 @@ type TextResponse = any
 
 // ToolCall is a queued fake response that triggers the gateway's registered
 // tool-invocation handler before dequeuing the next response as the final text.
-// Mirrors the LLM emitting a tool_use turn in a real provider.
 type ToolCall struct {
 	ID   string
 	Name string
@@ -34,7 +33,7 @@ type ToolCall struct {
 }
 
 // TextGateway is a fake implementation of gateway.TextGateway for testing.
-// It implements the full fake+assert lifecycle matching Upstream's testing API.
+// It implements the full fake+assert lifecycle matching the upstream testing API.
 type TextGateway struct {
 	mu          sync.Mutex
 	responses   []TextResponse

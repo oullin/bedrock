@@ -94,7 +94,7 @@ The two ends of the manager:
 ## Queue: The Same Shape, With a Twist
 
 Queue is the same idea, but with two registration paths because the
-Upstream original distinguishes "drivers" from "connectors":
+The upstream original distinguishes "drivers" from "connectors":
 
 ```go
 // packages/queue/manager.go:9

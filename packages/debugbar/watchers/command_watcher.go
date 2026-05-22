@@ -5,10 +5,9 @@ import (
 )
 
 // ignoredCommands lists CLI commands that should not be recorded by default,
-// mirroring Upstream's CommandWatcher ignore list.
 
 // CommandWatcher monitors CLI command execution and records entries as
-// DebugBar entries. It mirrors Upstream's CommandWatcher class.
+// DebugBar entries.
 //
 // Options:
 //   - "ignore" ([]string): additional command names to skip.

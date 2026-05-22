@@ -7,7 +7,6 @@ type TagsChange struct {
 }
 
 // EntryUpdate describes a mutation to apply to a persisted DebugBar entry.
-// It mirrors Upstream's EntryUpdate class with its fluent builder interface.
 type EntryUpdate struct {
 	UUID    string
 	Type    string
@@ -16,7 +15,6 @@ type EntryUpdate struct {
 }
 
 // NewEntryUpdate creates an EntryUpdate for the given entry with the provided
-// field changes, mirroring EntryUpdate::make().
 func NewEntryUpdate(entryUUID, entryType string, changes map[string]any) *EntryUpdate {
 	if changes == nil {
 		changes = map[string]any{}

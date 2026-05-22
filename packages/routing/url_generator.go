@@ -13,8 +13,7 @@ import (
 	"github.com/bedrock/packages/routing/exceptions"
 )
 
-// UrlGenerator is the Go translation of Framework\Routing\UrlGenerator.
-//
+// Ref: @bedrock/code-0346
 // It owns the request, the route collection (for name lookups), and the
 // signing key. The four big jobs:
 //
@@ -41,7 +40,7 @@ func NewUrlGenerator(routes RouteCollectionInterface, request URLRequest, assetR
 // SetKeyResolver sets the signing key (used for signed URLs).
 func (u *UrlGenerator) SetKeyResolver(key string) *UrlGenerator { u.key = key; return u }
 
-// ForceScheme pins the generated URL scheme. Mirrors UrlGenerator::forceScheme.
+// Ref: @bedrock/code-0346
 func (u *UrlGenerator) ForceScheme(scheme string) { u.forcedScheme = scheme }
 
 // ForceHttps is the boolean shorthand for [UrlGenerator.ForceScheme]("https").
@@ -53,7 +52,7 @@ func (u *UrlGenerator) ForceHttps(force bool) {
 	}
 }
 
-// ForceRootUrl pins the URL root used for absolute generation. Mirrors
+// ForceRootUrl pins the URL root used for absolute generation.
 // UrlGenerator::forceRootUrl.
 func (u *UrlGenerator) ForceRootUrl(root string) { u.forcedRootUrl = root }
 
@@ -88,7 +87,7 @@ func (u *UrlGenerator) Current() string {
 // To produces an absolute URL for the supplied path. extra is appended as
 // path segments (URL-encoded). When secure is true the URL forces HTTPS.
 //
-// Mirrors UrlGenerator::to.
+// Ref: @bedrock/code-0346
 func (u *UrlGenerator) To(path string, extra []string, secure *bool) string {
 	if isAbsoluteURL(path) {
 		return path
@@ -181,7 +180,7 @@ func (u *UrlGenerator) formatRoot(scheme, root string) string {
 
 // Route generates a URL for the named route.
 //
-// Mirrors UrlGenerator::route.
+// Ref: @bedrock/code-0346
 func (u *UrlGenerator) Route(name string, parameters map[string]any, absolute bool) (string, error) {
 	route := u.routes.GetByName(name)
 
@@ -192,7 +191,7 @@ func (u *UrlGenerator) Route(name string, parameters map[string]any, absolute bo
 	return u.ToRoute(route, parameters, absolute)
 }
 
-// ToRoute produces the URL for the supplied route. Mirrors UrlGenerator::toRoute.
+// Ref: @bedrock/code-0346
 func (u *UrlGenerator) ToRoute(route *Route, parameters map[string]any, absolute bool) (string, error) {
 	parameters = mergeRouteDefaults(route, parameters)
 
@@ -242,7 +241,7 @@ func isOptionalParam(uri, name string) bool {
 // SignedRoute produces a signed URL for the named route.
 //
 // expiration may be 0 (no expiration) or a positive number of seconds from
-// now until the signature must be considered expired. Mirrors
+// now until the signature must be considered expired.
 // UrlGenerator::signedRoute.
 func (u *UrlGenerator) SignedRoute(name string, parameters map[string]any, expiration int64, absolute bool) (string, error) {
 	if parameters == nil {
@@ -275,7 +274,7 @@ func (u *UrlGenerator) SignedRoute(name string, parameters map[string]any, expir
 	return u.Route(name, parameters, absolute)
 }
 
-// TemporarySignedRoute is the parity-named alias matching Upstream's two-arg
+// TemporarySignedRoute is the parity-named alias matching the upstream two-arg
 // shortcut.
 func (u *UrlGenerator) TemporarySignedRoute(name string, expiration int64, parameters map[string]any, absolute bool) (string, error) {
 	return u.SignedRoute(name, parameters, expiration, absolute)

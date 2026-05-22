@@ -7,7 +7,6 @@ import (
 )
 
 // SubscriptionUpdater handles plan changes on existing subscriptions.
-// Mirrors Billing\Actions\UpdateSubscription.
 type SubscriptionUpdater struct {
 	subscriptions billing.SubscriptionStore
 	manager       *billing.Manager

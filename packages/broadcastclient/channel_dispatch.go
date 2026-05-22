@@ -12,7 +12,7 @@ type entry struct {
 }
 
 // DispatchChannel is a Channel implementation with real listener storage and
-// dispatch. It is the Go equivalent of SocketIoChannel's listener management
+// dispatch.
 // layer, and is used as the base for real connector backends as well as for
 // testing listener behaviour directly.
 //
@@ -136,7 +136,7 @@ func (c *DispatchChannel) Error(callback Callback) Channel {
 }
 
 // On registers callback for a raw (already-formatted) event name, bypassing
-// the EventFormatter. This mirrors the SocketIoChannel.on() method used for
+// the EventFormatter. on() method used for
 // low-level transport events.
 func (c *DispatchChannel) On(event string, callback Callback) Channel {
 	c.mu.Lock()

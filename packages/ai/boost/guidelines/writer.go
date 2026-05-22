@@ -16,7 +16,6 @@ type SupportsGuidelines interface {
 
 // GuidelineWriter writes composed guidelines markdown to an agent's designated
 // guidelines file.
-// Mirrors Upstream\Boost\Install\GuidelineWriter.
 type GuidelineWriter struct{}
 
 // NewGuidelineWriter constructs a GuidelineWriter.

@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/routing/contracts"
 )
 
-// Translation of the test cases in upstream/framework
 // tests/Routing/ImplicitRouteBindingTest.php that don't depend on Orm.
 // ImplicitRouteBindingTest::test_it_can_resolve_the_implicit_model_route_bindings_for_the_given_route
 

@@ -5,7 +5,6 @@ import (
 )
 
 // MailMessage carries the data captured by MailWatcher for a single outbound
-// email, mirroring the fields stored by Upstream's MailWatcher.
 type MailMessage struct {
 	// Mailable is the fully-qualified struct/type name of the mailable.
 	Mailable string
@@ -26,7 +25,7 @@ type MailMessage struct {
 }
 
 // MailWatcher monitors outbound email dispatch and records entries as
-// DebugBar entries. It mirrors Upstream's MailWatcher class.
+// DebugBar entries.
 type MailWatcher struct {
 	debugbar.BaseWatcher
 }

@@ -6,7 +6,7 @@ import (
 )
 
 // HashingServiceProvider registers the hash manager into the container.
-// It mirrors Framework\Hashing\HashServiceProvider.
+// Ref: @bedrock/code-0221
 type HashingServiceProvider struct {
 	app           *container.Container
 	defaultDriver Driver

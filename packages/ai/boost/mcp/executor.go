@@ -9,7 +9,6 @@ import (
 )
 
 // ToolExecutor dispatches MCP tool requests to the appropriate handler.
-// Mirrors Upstream\Boost\Mcp\ToolExecutor.
 type ToolExecutor struct {
 	registry *ToolRegistry
 	timeout  time.Duration

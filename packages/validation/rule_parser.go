@@ -73,7 +73,7 @@ func Parse(rule string) ParsedRule {
 }
 
 // parseParameters splits a comma-separated parameter string, honouring
-// double-quoted values (Upstream uses CSV with " as quote and \ as escape).
+// double-quoted values (upstream uses CSV with " as quote and \ as escape).
 func parseParameters(s string) []string {
 	if s == "" {
 		return nil

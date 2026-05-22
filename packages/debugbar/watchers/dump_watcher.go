@@ -7,7 +7,7 @@ import (
 )
 
 // DumpWatcher monitors debug dump() calls and records them as DebugBar
-// entries. It mirrors Upstream's DumpWatcher class.
+// entries.
 type DumpWatcher struct {
 	debugbar.BaseWatcher
 }
@@ -26,7 +26,6 @@ func (w *DumpWatcher) Register(_ any) error { return nil }
 
 // Record records a debug dump entry. value is the value being dumped; it is
 // formatted using fmt.Sprintf("%#v", ...) to produce a Go-syntax
-// representation mirroring PHP's var_dump output.
 func (w *DumpWatcher) Record(value any) {
 	content := map[string]any{
 		"dump": fmt.Sprintf("%#v", value),

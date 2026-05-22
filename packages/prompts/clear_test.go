@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\ClearPromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\ClearPromptTest::test_clears_screen
 func TestClearClearsScreen(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

@@ -7,7 +7,7 @@ import (
 )
 
 // NotificationWatcher monitors notification dispatch and records entries as
-// DebugBar entries. It mirrors Upstream's NotificationWatcher class.
+// DebugBar entries.
 type NotificationWatcher struct {
 	debugbar.BaseWatcher
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// The struct-tag parser replaces Upstream's PHP8 attribute system
+// The struct-tag parser replaces the upstream PHP8 attribute system
 // (#[Tries], #[Backoff], etc.). These tests are not a direct port of a
 // single PHPUnit file — they validate the Go-specific options mechanism
 // the rest of the queue package will rely on in later steps.

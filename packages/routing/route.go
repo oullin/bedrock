@@ -11,15 +11,13 @@ import (
 	"github.com/bedrock/packages/routing/matching"
 )
 
-// Route is the Go translation of Framework\Routing\Route.
-//
+// Ref: @bedrock/code-0332
 // In PHP, Route composes several traits (Conditionable, Macroable,
 // CreatesRegularExpressionRouteConstraints, FiltersControllerMiddleware,
 // ResolvesRouteDependencies). In Go, the constraint helper is composed via
 // embedding [CreatesRegularExpressionRouteConstraints]; the dispatch traits
 // are realized as methods on Route directly in M5.
 //
-// Field visibility deliberately mirrors the PHP class — public fields are
 // exposed (capitalized), protected ones are unexported. This keeps tests
 // translatable without reaching for getters on every line.
 type Route struct {
@@ -28,7 +26,7 @@ type Route struct {
 
 	Uri                string
 	HTTPMethods        []string
-	ActionMap          map[string]any // mirrors PHP "$action" associative array
+	ActionMap          map[string]any // holds the action data as an associative map
 	IsFallback         bool
 	Controller         any
 	DefaultValues      map[string]any
@@ -71,7 +69,7 @@ func (r *Route) BoundModel(name string) any { return r.boundModels[name] }
 // same rules as [ParseAction]: a func, "Controller@method" string, map, or
 // nil for fluent registration.
 //
-// Mirrors Route::__construct.
+// Ref: @bedrock/code-0332
 func NewRoute(methods any, uri string, action any) *Route {
 	r := &Route{
 		Uri:           uri,
@@ -86,7 +84,7 @@ func NewRoute(methods any, uri string, action any) *Route {
 	parsed, err := ParseAction(uri, action)
 
 	if err != nil {
-		// Mirror Upstream's behavior: store a missing-action sentinel rather
+		// Mirror the upstream behavior: store a missing-action sentinel rather
 		// than panicking at construction.
 		parsed = missingAction(uri)
 	}
@@ -252,7 +250,7 @@ func actionToMap(a *Action) map[string]any {
 // =====================================================================
 
 // Path returns the route URI prefixed with "/" so [compiler.Compile] sees a
-// canonical leading slash. Mirrors the implicit slashing PHP performs on the
+// canonical leading slash.
 // path inside the Symfony layer.
 func (r *Route) Path() string {
 	if strings.HasPrefix(r.Uri, "/") {
@@ -282,7 +280,7 @@ func (r *Route) HasDefault(name string) bool {
 // CompileRoute compiles the route into a [*compiler.CompiledRoute] if it has
 // not been compiled yet, then returns the cached value.
 //
-// Mirrors Route::compileRoute.
+// Ref: @bedrock/code-0332
 func (r *Route) CompileRoute() (*compiler.CompiledRoute, error) {
 	if r.compileMu == nil {
 		r.compileMu = &sync.Mutex{}
@@ -322,7 +320,7 @@ func (r *Route) Compiled() *compiler.CompiledRoute {
 func (r *Route) GetCompiled() *compiler.CompiledRoute { return r.Compiled() }
 
 // Bind binds the route to a request, populating Parameters via the
-// [RouteParameterBinder]. Mirrors Route::bind.
+// Ref: @bedrock/code-0332
 func (r *Route) Bind(req boundRequest) (*Route, error) {
 	if _, err := r.CompileRoute(); err != nil {
 		return nil, err
@@ -343,7 +341,7 @@ func (r *Route) Bind(req boundRequest) (*Route, error) {
 // includingMethod=false skips the method validator — used by the router when
 // gathering "method not allowed" candidates.
 //
-// Mirrors Route::matches.
+// Ref: @bedrock/code-0332
 func (r *Route) Matches(req matching.MatchableRequest, includingMethod bool) bool {
 	if _, err := r.CompileRoute(); err != nil {
 		return false
@@ -623,7 +621,7 @@ func actionContains(action map[string]any, target string) bool {
 // =====================================================================
 
 // Domain sets (or, when called with the empty string, returns) the host
-// pattern for the route. The two-mode signature mirrors PHP's domain($d=null).
+// pattern for the route.
 func (r *Route) Domain(domain string) *Route {
 	parsed := ParseRouteUri(domain)
 	r.ActionMap["domain"] = parsed.Uri
@@ -725,7 +723,7 @@ func (r *Route) GetName() string {
 	return ""
 }
 
-// Name appends to the route's name. Mirrors Route::name which concatenates
+// Ref: @bedrock/code-0332
 // when a name is already present (used by RouteRegistrar to compose group
 // name prefixes).
 func (r *Route) Name(name string) *Route {
@@ -920,7 +918,7 @@ func (r *Route) PreventsScopedBindings() bool {
 }
 
 // Block enables session blocking with the supplied lock and wait windows
-// (in seconds). Mirrors Route::block.
+// Ref: @bedrock/code-0332
 func (r *Route) Block(lockSeconds, waitSeconds int) *Route {
 	r.lockSeconds = &lockSeconds
 	r.waitSeconds = &waitSeconds

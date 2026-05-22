@@ -22,7 +22,7 @@ type TextPromptRequest struct {
 	Timeout      int
 }
 
-// TextPromptResult mirrors gateway.TextGenerateResult for the provider layer.
+// TextGenerateResult for the provider layer.
 type TextPromptResult struct {
 	InvocationID string
 	Text         string
@@ -33,7 +33,6 @@ type TextPromptResult struct {
 }
 
 // TextProvider is the provider-level contract for text generation.
-// Mirrors Upstream\Ai\Contracts\Providers\TextProvider.
 type TextProvider interface {
 	// Prompt performs a synchronous text generation.
 	Prompt(ctx context.Context, req TextPromptRequest) (*TextPromptResult, error)

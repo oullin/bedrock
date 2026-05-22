@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// URI wraps net/url.URL with Upstream-style immutable helpers.
+// URI wraps net/url.URL with immutable helpers.
 type URI struct {
 	value *url.URL
 }

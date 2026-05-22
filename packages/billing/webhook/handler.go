@@ -10,7 +10,6 @@ import (
 )
 
 // Handler processes incoming webhook payloads from payment providers.
-// Mirrors Upstream\Paddle\Http\Controllers\WebhookController and
 // Billing\Http\Controllers\WebhookController.
 type Handler struct {
 	subscriptions billing.SubscriptionStore

@@ -7,8 +7,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\ResourceTest
-
 func TestResourcesListReturnsStaticResourcesOnly(t *testing.T) {
 	t.Parallel()
 

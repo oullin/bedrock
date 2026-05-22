@@ -10,7 +10,6 @@ type ToolRequest struct {
 }
 
 // Tool is the contract every callable AI tool must satisfy.
-// Mirrors Upstream\Ai\Contracts\Tool.
 type Tool interface {
 	// Name returns the tool's identifier, surfaced to the LLM.
 	Name() string

@@ -7,8 +7,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\JsonRpcTest
-
 func TestParseJsonRpcRequestValid(t *testing.T) {
 	t.Parallel()
 

@@ -15,7 +15,7 @@ import (
 // interface methods. User models embed this struct alongside orm.Model
 // to gain Search search capabilities.
 //
-// In Upstream this is the Searchable trait. In Go, we use composition:
+// In the upstream framework this is the Searchable trait. In Go, we use composition:
 //
 //	type Post struct {
 //	    orm.Model

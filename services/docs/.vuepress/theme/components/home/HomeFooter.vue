@@ -20,7 +20,7 @@ import { IconArrow, IconGh, IconDiscord } from './icons'
         <div class="ft__brand-h">
           <div class="ft__mark"><BrandMark :size="24" /></div> bedrock
         </div>
-        <p class="ft__tagline">A collection of well-tested, Upstream-inspired libraries for building production-grade Go web applications.</p>
+        <p class="ft__tagline">A collection of well-tested, batteries-included libraries for building production-grade Go web applications.</p>
         <div class="ft__social">
           <a href="https://github.com/gocanto/bedrock" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><IconGh :size="14" /></a>
           <a href="#" aria-label="Discord"><IconDiscord :size="14" /></a>

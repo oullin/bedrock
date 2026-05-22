@@ -3,8 +3,7 @@ package routing
 import "strings"
 
 // ResourceRegistrar generates the seven standard RESTful routes for a
-// resource controller, mirroring Framework\Routing\ResourceRegistrar.
-//
+// Ref: @bedrock/code-0330
 // The Go port covers: register/singleton, only/except, names/parameters,
 // shallow nesting, and prefixed names (e.g. "users.posts" → nested URI).
 // Trashed-binding behavior and per-method middleware filtering are wired in
@@ -37,7 +36,7 @@ func NewResourceRegistrar(router *Router) *ResourceRegistrar {
 
 // Register emits the seven standard RESTful routes for the resource.
 //
-// Mirrors ResourceRegistrar::register. options recognized:
+// Ref: @bedrock/code-0330
 //   - "only":     []string of action names to keep
 //   - "except":   []string of action names to drop
 //   - "names":    map[string]string overriding the route name per action
@@ -253,7 +252,6 @@ func (rr *ResourceRegistrar) GetResourceWildcard(value string) string {
 	return strings.TrimSuffix(value, "s")
 }
 
-// globalResourceParameters mirrors the static parameter map on the PHP class.
 var globalResourceParameters = map[string]string{}
 
 // SingularParameters toggles automatic singularization (kept for parity).

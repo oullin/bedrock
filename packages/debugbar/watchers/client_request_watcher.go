@@ -15,7 +15,7 @@ import (
 )
 
 // ClientRequestWatcher monitors outbound HTTP client requests and records them
-// as DebugBar entries. It mirrors Upstream's ClientRequestWatcher class.
+// as DebugBar entries.
 //
 // Options:
 //   - "size_limit" (int): max response body bytes to store (default 64 KB).

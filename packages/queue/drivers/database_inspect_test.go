@@ -9,14 +9,14 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
-// Continued port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest —
+// Ref: @bedrock/code-0366
 // covers Bulk + PendingJobs + DelayedJobs + ReservedJobs.
 //
 // These tests exercise the new DBExecer.Query path (multi-row result
 // sets) and the new Bulk method. Both were added as part of Step 7d
 // database round 2. See PARITY.md §2 for adaptation rules.
 //
-// Upstream's tests pipe through the fluent query builder
+// the upstream tests pipe through the fluent query builder
 // ($db->table->where->whereNull->get). The Go port pre-stages rows on
 // the mock via addQueryRow and asserts that:
 //
@@ -44,7 +44,7 @@ func stagePayload(t *testing.T, uuid, displayName, createdAt string) string {
 	return string(raw)
 }
 
-// createdAtFloat parses a Upstream-style seconds-since-epoch literal
+// createdAtFloat parses a seconds-since-epoch literal
 // into a float64 (which is what json.Marshal encodes numeric values
 // as — the Go decode path in fetchInspected expects float64).
 func createdAtFloat(s string) float64 {
@@ -61,8 +61,7 @@ func createdAtFloat(s string) float64 {
 	return out
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testBulkBatchPushesOntoDatabase
-//
+// Ref: @bedrock/code-0366
 // Upstream asserts that DatabaseQueue::bulk issues one $db->insert call
 // with an array of records. The Go port asserts one Exec call whose
 // SQL carries two VALUES tuples and 8 positional args.
@@ -118,7 +117,7 @@ func TestBulkBatchPushesOntoDatabase(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testPendingJobs
+// Ref: @bedrock/code-0366
 func TestPendingJobs(t *testing.T) {
 	t.Parallel()
 
@@ -171,7 +170,7 @@ func TestPendingJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testDelayedJobs
+// Ref: @bedrock/code-0366
 func TestDelayedJobs(t *testing.T) {
 	t.Parallel()
 
@@ -223,7 +222,7 @@ func TestDelayedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueUnitTest::testReservedJobs
+// Ref: @bedrock/code-0366
 func TestReservedJobs(t *testing.T) {
 	t.Parallel()
 

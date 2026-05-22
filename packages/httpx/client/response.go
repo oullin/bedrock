@@ -7,7 +7,7 @@ import (
 )
 
 // Response wraps an *http.Response with convenience status-checking and body
-// access methods matching Upstream's Http client response API.
+// access methods matching the upstream Http client response API.
 type Response struct {
 	raw   *http.Response
 	body  []byte

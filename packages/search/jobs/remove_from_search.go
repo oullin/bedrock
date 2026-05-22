@@ -7,7 +7,6 @@ import (
 )
 
 // RemoveFromSearch is a queueable job that removes models from the search engine.
-// It mirrors Upstream Search's Jobs\RemoveFromSearch.
 type RemoveFromSearch struct {
 	Models []contract.Searchable
 	engine contract.Engine

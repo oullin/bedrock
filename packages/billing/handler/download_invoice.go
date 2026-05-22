@@ -11,7 +11,6 @@ import (
 )
 
 // DownloadInvoiceHandler handles invoice PDF downloads.
-// Mirrors Billing\Http\Controllers\DownloadInvoiceController.
 type DownloadInvoiceHandler struct {
 	transactions billing.TransactionStore
 	resolver     billing.ResolverFunc

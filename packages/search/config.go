@@ -1,7 +1,7 @@
 package search
 
-// Config holds the Search configuration. It mirrors the search.php config
-// file from Upstream Search.
+// Config holds the Search configuration. php config
+// file from Search.
 type Config struct {
 	// Driver is the default search engine driver name.
 	Driver string `json:"driver"`
@@ -29,7 +29,7 @@ type ChunkConfig struct {
 	Unsearchable int `json:"unsearchable"`
 }
 
-// DefaultConfig returns a Config with sensible defaults matching Upstream Search.
+// DefaultConfig returns a Config with sensible defaults matching Search.
 func DefaultConfig() Config {
 	return Config{
 		Driver:      "database",

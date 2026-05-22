@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/ai/boost/internal/platform"
 )
 
-// TestClaudeCodeIdentity mirrors ClaudeCodeTest::test_name_and_display_name.
 func TestClaudeCodeIdentity(t *testing.T) {
 	t.Parallel()
 
@@ -22,7 +21,6 @@ func TestClaudeCodeIdentity(t *testing.T) {
 	}
 }
 
-// TestClaudeCodeDefaultPaths mirrors ClaudeCodeTest::test_default_paths.
 func TestClaudeCodeDefaultPaths(t *testing.T) {
 	t.Parallel()
 
@@ -64,7 +62,6 @@ func TestClaudeCodePathOverrides(t *testing.T) {
 	}
 }
 
-// TestClaudeCodeMcpStrategy mirrors ClaudeCodeTest::test_mcp_strategy.
 func TestClaudeCodeMcpStrategy(t *testing.T) {
 	t.Parallel()
 
@@ -75,7 +72,6 @@ func TestClaudeCodeMcpStrategy(t *testing.T) {
 	}
 }
 
-// TestClaudeCodeUseAbsolutePath mirrors ClaudeCodeTest::test_use_absolute_path_false.
 func TestClaudeCodeUseAbsolutePath(t *testing.T) {
 	t.Parallel()
 

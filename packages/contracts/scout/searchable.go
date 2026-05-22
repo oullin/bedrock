@@ -1,7 +1,7 @@
 package search
 
 // Searchable is the contract that models must satisfy to participate in
-// Search search. In Go, this replaces the Upstream Searchable trait.
+// Search search. In Go, this replaces the upstream Searchable trait.
 type Searchable interface {
 	// GetScoutKey returns the value used as the document ID in the search index.
 	GetScoutKey() any

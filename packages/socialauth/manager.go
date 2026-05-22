@@ -18,7 +18,6 @@ type ProviderConfig struct {
 }
 
 // Provider is the minimal interface that every SocialAuth driver satisfies.
-// It mirrors Upstream\SocialAuth\Contracts\Provider.
 type Provider interface {
 	Redirect(ctx context.Context) (string, error)
 	User(ctx context.Context) (*User, error)
@@ -29,7 +28,7 @@ type Provider interface {
 type DriverFactory func(req *http.Request, session Session, cfg ProviderConfig) (Provider, error)
 
 // Manager resolves OAuth provider instances by driver name. It is the Go
-// equivalent of Upstream\SocialAuth\SocialAuthManager.
+// equivalent of upstream SocialAuth\SocialAuthManager.
 type Manager struct {
 	factories map[string]DriverFactory
 	resolved  map[string]Provider
@@ -56,7 +55,7 @@ func NewManager(req *http.Request, session Session, configs map[string]ProviderC
 }
 
 // Driver resolves and returns the named provider, caching the instance for the
-// lifetime of the request. It mirrors SocialAuthManager::driver().
+// lifetime of the request.
 func (m *Manager) Driver(name string) (Provider, error) {
 	if fp, ok := m.fakes[name]; ok {
 		return fp, nil
@@ -85,7 +84,6 @@ func (m *Manager) Driver(name string) (Provider, error) {
 }
 
 // Extend registers a custom driver factory.
-// It mirrors SocialAuthManager::extend() / Manager::extend().
 func (m *Manager) Extend(name string, factory DriverFactory) *Manager {
 	m.factories[name] = factory
 
@@ -93,7 +91,7 @@ func (m *Manager) Extend(name string, factory DriverFactory) *Manager {
 }
 
 // Fake registers a preset user for the named driver. Subsequent calls to
-// Driver(name) return a FakeProvider that yields that user. It mirrors
+// Driver(name) return a FakeProvider that yields that user.
 // SocialAuth::fake() used in tests.
 func (m *Manager) Fake(name string, user *User) *FakeProvider {
 	real, _ := m.buildReal(name)
@@ -113,7 +111,7 @@ func (m *Manager) FakeWith(name string, fn func() *User) *FakeProvider {
 }
 
 // ForgetDrivers clears all resolved and faked instances, forcing fresh
-// resolution on next call to Driver(). It mirrors SocialAuthManager::forgetDrivers().
+// resolution on next call to Driver().
 func (m *Manager) ForgetDrivers() *Manager {
 	m.resolved = make(map[string]Provider)
 	m.fakes = make(map[string]*FakeProvider)

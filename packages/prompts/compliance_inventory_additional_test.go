@@ -460,10 +460,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_transforms_values", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"upstream"}, SelectWithTransform(strings.ToUpper))
+			got, err := Select("Framework?", []string{"acme"}, SelectWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
-			if got != "LARAVEL" {
+			if got != "ACME" {
 				t.Fatalf("select = %q", got)
 			}
 		})
@@ -471,8 +471,8 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_validates", func(t *testing.T) {
 		withFake(t, KeyEnter, KeyDown, KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"Upstream", "Bedrock"}, SelectWithValidate(func(value string) string {
-				if value == "Upstream" {
+			got, err := Select("Framework?", []string{"Acme", "Bedrock"}, SelectWithValidate(func(value string) string {
+				if value == "Acme" {
 					return "Pick Bedrock."
 				}
 
@@ -488,10 +488,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_supports_the_home_key", func(t *testing.T) {
 		withFake(t, KeyDown, KeyDown, KeyHome[0], KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"Upstream", "Bedrock", "Symfony"})
+			got, err := Select("Framework?", []string{"Acme", "Bedrock", "Symfony"})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("select = %q", got)
 			}
 		})
@@ -499,7 +499,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_supports_the_end_key", func(t *testing.T) {
 		withFake(t, KeyEnd[0], KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"Upstream", "Bedrock", "Symfony"})
+			got, err := Select("Framework?", []string{"Acme", "Bedrock", "Symfony"})
 			requireNoError(t, err)
 
 			if got != "Symfony" {
@@ -513,7 +513,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer cleanup()
 
-		got, err := Select("Framework?", []string{"Upstream", "Bedrock"}, SelectWithDefault("Bedrock"))
+		got, err := Select("Framework?", []string{"Acme", "Bedrock"}, SelectWithDefault("Bedrock"))
 		requireNoError(t, err)
 
 		if got != "Bedrock" {
@@ -523,10 +523,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_accepts_an_array_of_labels", func(t *testing.T) {
 		withFake(t, KeySpace, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"})
+			got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"})
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"Upstream"}) {
+			if !reflect.DeepEqual(got, []string{"Acme"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
 		})
@@ -534,10 +534,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_accepts_an_array_of_keys_and_labels", func(t *testing.T) {
 		withFake(t, KeySpace, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []OptionItem{{Key: "upstream", Label: "Upstream"}})
+			got, err := MultiSelect("Framework?", []OptionItem{{Key: "acme", Label: "Acme"}})
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"upstream"}) {
+			if !reflect.DeepEqual(got, []string{"acme"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
 		})
@@ -545,10 +545,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_supports_selecting_all_options", func(t *testing.T) {
 		withFake(t, "a", KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"})
+			got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"})
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"Upstream", "Bedrock"}) {
+			if !reflect.DeepEqual(got, []string{"Acme", "Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
 		})
@@ -559,7 +559,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer cleanup()
 
-		got, err := MultiSelect("Framework?", []string{"Upstream"})
+		got, err := MultiSelect("Framework?", []string{"Acme"})
 		requireNoError(t, err)
 
 		if len(got) != 0 {
@@ -572,7 +572,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer cleanup()
 
-		got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Bedrock"}))
+		got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"}, MultiSelectWithDefault([]string{"Bedrock"}))
 		requireNoError(t, err)
 
 		if !reflect.DeepEqual(got, []string{"Bedrock"}) {
@@ -582,7 +582,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("AutoCompletePromptTest::it_accepts_any_input", func(t *testing.T) {
 		withFake(t, "B", "e", "d", "r", "o", "c", "k", KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", []string{"Upstream"})
+			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
 			if got != "Bedrock" {
@@ -592,22 +592,22 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 	})
 
 	t.Run("AutoCompletePromptTest::it_completes_the_input_using_the_tab_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", []string{"Upstream"})
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
+			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("autocomplete = %q", got)
 			}
 		})
 	})
 
 	t.Run("AutoCompletePromptTest::it_accepts_a_closure_for_options", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", func(string) []string { return []string{"Upstream"} })
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
+			got, err := Autocomplete("Framework?", func(string) []string { return []string{"Acme"} })
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("autocomplete = %q", got)
 			}
 		})
@@ -615,7 +615,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("AutoCompletePromptTest::it_transforms_values", func(t *testing.T) {
 		withFake(t, "l", KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", []string{"Upstream"}, AutocompleteWithTransform(strings.ToUpper))
+			got, err := Autocomplete("Framework?", []string{"Acme"}, AutocompleteWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
 			if got != "L" {
@@ -629,7 +629,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer cleanup()
 
-		got, err := Autocomplete("Framework?", []string{"Upstream"}, AutocompleteWithDefault("Bedrock"))
+		got, err := Autocomplete("Framework?", []string{"Acme"}, AutocompleteWithDefault("Bedrock"))
 		requireNoError(t, err)
 
 		if got != "Bedrock" {
@@ -639,7 +639,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_accepts_any_input", func(t *testing.T) {
 		withFake(t, "B", "e", "d", KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream"})
+			got, err := Suggest("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
 			if got != "Bed" {
@@ -650,10 +650,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_accepts_a_callback", func(t *testing.T) {
 		withFake(t, "Lar", KeyEnter, KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", func(string) []string { return []string{"Upstream"} })
+			got, err := Suggest("Framework?", func(string) []string { return []string{"Acme"} })
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("suggest = %q", got)
 			}
 		})
@@ -661,7 +661,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_transforms_values", func(t *testing.T) {
 		withFake(t, "x", KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream"}, SuggestWithTransform(strings.ToUpper))
+			got, err := Suggest("Framework?", []string{"Acme"}, SuggestWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
 			if got != "X" {
@@ -675,7 +675,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer cleanup()
 
-		got, err := Suggest("Framework?", []string{"Upstream"}, SuggestWithDefault("Bedrock"))
+		got, err := Suggest("Framework?", []string{"Acme"}, SuggestWithDefault("Bedrock"))
 		requireNoError(t, err)
 
 		if got != "Bedrock" {
@@ -685,10 +685,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SearchPromptTest::it_accepts_a_callback", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := Search("Framework?", fixedSearchOptions("upstream", "Upstream"))
+			got, err := Search("Framework?", fixedSearchOptions("acme", "Acme"))
 			requireNoError(t, err)
 
-			if got != "upstream" {
+			if got != "acme" {
 				t.Fatalf("search = %q", got)
 			}
 		})
@@ -707,10 +707,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("SearchPromptTest::it_transforms_values", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := Search("Framework?", fixedSearchOptions("upstream", "Upstream"), SearchWithTransform(strings.ToUpper))
+			got, err := Search("Framework?", fixedSearchOptions("acme", "Acme"), SearchWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
-			if got != "LARAVEL" {
+			if got != "ACME" {
 				t.Fatalf("search = %q", got)
 			}
 		})
@@ -718,10 +718,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("MultiSearchPromptTest::it_supports_default_results", func(t *testing.T) {
 		withFake(t, KeySpace, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSearch("Framework?", fixedSearchOptions("upstream", "Upstream"))
+			got, err := MultiSearch("Framework?", fixedSearchOptions("acme", "Acme"))
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"upstream"}) {
+			if !reflect.DeepEqual(got, []string{"acme"}) {
 				t.Fatalf("multisearch = %#v", got)
 			}
 		})
@@ -811,10 +811,10 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("DataTablePromptTest::it_returns_the_index_for_list_arrays", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := DataTable([]string{"Name"}, [][]string{{"Upstream"}, {"Bedrock"}})
+			got, err := DataTable([]string{"Name"}, [][]string{{"Acme"}, {"Bedrock"}})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("datatable = %q", got)
 			}
 		})
@@ -822,7 +822,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("DataTablePromptTest::it_navigates_with_arrow_keys", func(t *testing.T) {
 		withFake(t, KeyDown, KeyEnter, func(*TestPrompts) {
-			got, err := DataTable([]string{"Name"}, [][]string{{"Upstream"}, {"Bedrock"}})
+			got, err := DataTable([]string{"Name"}, [][]string{{"Acme"}, {"Bedrock"}})
 			requireNoError(t, err)
 
 			if got != "Bedrock" {
@@ -833,7 +833,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("DataTablePromptTest::it_enters_search_mode_with_slash_and_filters_rows", func(t *testing.T) {
 		withFake(t, "B", KeyEnter, func(*TestPrompts) {
-			got, err := DataTable([]string{"Name"}, [][]string{{"Upstream"}, {"Bedrock"}})
+			got, err := DataTable([]string{"Name"}, [][]string{{"Acme"}, {"Bedrock"}})
 			requireNoError(t, err)
 
 			if got != "Bedrock" {
@@ -844,7 +844,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 	t.Run("DataTablePromptTest::it_supports_custom_filter_closure", func(t *testing.T) {
 		withFake(t, "anything", KeyEnter, func(*TestPrompts) {
-			got, err := DataTable([]string{"Name"}, [][]string{{"Upstream"}, {"Bedrock"}}, DataTableWithFilter(func(string, [][]string) [][]string {
+			got, err := DataTable([]string{"Name"}, [][]string{{"Acme"}, {"Bedrock"}}, DataTableWithFilter(func(string, [][]string) [][]string {
 				return [][]string{{"Bedrock"}}
 			}))
 			requireNoError(t, err)
@@ -860,8 +860,8 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer tp.Cleanup()
 
-		Grid([]string{"Upstream", "Bedrock"})
-		tp.AssertStrippedOutputContains("Upstream")
+		Grid([]string{"Acme", "Bedrock"})
+		tp.AssertStrippedOutputContains("Acme")
 		tp.AssertStrippedOutputContains("Bedrock")
 	})
 
@@ -894,9 +894,9 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer tp.Cleanup()
 
-		Table([]string{"Name"}, [][]string{{"Upstream"}})
+		Table([]string{"Name"}, [][]string{{"Acme"}})
 		tp.AssertStrippedOutputContains("Name")
-		tp.AssertStrippedOutputContains("Upstream")
+		tp.AssertStrippedOutputContains("Acme")
 	})
 
 	t.Run("TableTest::it_renders_a_table_without_headers", func(t *testing.T) {
@@ -904,8 +904,8 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 
 		defer tp.Cleanup()
 
-		Table(nil, [][]string{{"Upstream"}})
-		tp.AssertStrippedOutputContains("Upstream")
+		Table(nil, [][]string{{"Acme"}})
+		tp.AssertStrippedOutputContains("Acme")
 	})
 
 	t.Run("ProgressTest::it_returns_the_results_of_the_callback", func(t *testing.T) {

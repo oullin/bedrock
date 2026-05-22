@@ -2,7 +2,7 @@ package routing
 
 import "testing"
 
-// Translation of upstream/framework tests/Routing/RouteRegistrarTest.php and
+// Ref: @bedrock/code-0394
 // the resource-registration portions of RoutingRouteTest.
 // RouteRegistrarTest::testMiddlewareFluentRegistration
 // RouteRegistrarTest::testMiddlewareAsNull

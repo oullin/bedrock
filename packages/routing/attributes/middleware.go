@@ -1,6 +1,4 @@
-// Package attributes mirrors
-// upstream/framework/src/Framework/Routing/Attributes/Controllers.
-//
+// Ref: @bedrock/code-0286
 // PHP 8 attributes have no direct Go equivalent. The strict-parity story here
 // is "the value object is identical, but you attach it via the
 // [controllers.HasMiddleware] interface instead of an attribute on the class".

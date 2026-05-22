@@ -9,11 +9,10 @@ import (
 	"github.com/bedrock/packages/debugbar"
 )
 
-// LogLevel maps PSR-3 log level names to their numeric priority, mirroring
-// the Monolog level constants used by Upstream's LogWatcher.
+// the Monolog level constants used by the upstream LogWatcher.
 
 // LogWatcher monitors application log messages and records them as DebugBar
-// entries. It mirrors Upstream's LogWatcher class.
+// entries.
 //
 // Options:
 //   - "level" (string): minimum log level to record (default "debug").
@@ -47,7 +46,6 @@ func NewLogWatcher(t *debugbar.DebugBar, options map[string]any) *LogWatcher {
 func (w *LogWatcher) Register(_ any) error { return nil }
 
 // ShouldRecord reports whether the given log level meets the configured
-// minimum, mirroring LogWatcher::shouldIgnore().
 func (w *LogWatcher) ShouldRecord(level string) bool {
 	if !w.enabled() {
 		return false
@@ -146,7 +144,6 @@ func (w *LogWatcher) Record(level, message string, context map[string]any) {
 }
 
 // interpolate replaces {placeholder} tokens in message with values from
-// context, mirroring LogWatcher::interpolate().
 func interpolate(message string, context map[string]any) string {
 	if !strings.ContainsRune(message, '{') {
 		return message

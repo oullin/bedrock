@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Framework\Tests\Support\SupportStrTest::testStringCanBeLimitedByWords
+// Ref: @bedrock/code-0380
 // SupportStrTest::testStringCanBeLimitedByWordsNonAscii
 // SupportStrTest::testStringTrimmedOnlyWhereNecessary
 // SupportStrTest::testStringWithoutWordsDoesntProduceError
@@ -41,7 +41,7 @@ func TestStrWords(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStringTitle
+// Ref: @bedrock/code-0380
 func TestStrTitle(t *testing.T) {
 	t.Parallel()
 
@@ -50,7 +50,7 @@ func TestStrTitle(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStringHeadline
+// Ref: @bedrock/code-0380
 func TestStrHeadline(t *testing.T) {
 	t.Parallel()
 
@@ -68,7 +68,7 @@ func TestStrHeadline(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStartsWith
+// Ref: @bedrock/code-0380
 // SupportStrTest::testDoesntStartWith
 func TestStrStartsWith(t *testing.T) {
 	t.Parallel()
@@ -90,7 +90,7 @@ func TestStrStartsWith(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testEndsWith
+// Ref: @bedrock/code-0380
 // SupportStrTest::testDoesntEndWith
 func TestStrEndsWith(t *testing.T) {
 	t.Parallel()
@@ -112,7 +112,7 @@ func TestStrEndsWith(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrContains
+// Ref: @bedrock/code-0380
 // SupportStrTest::testStrDoesntContain
 func TestStrContains(t *testing.T) {
 	t.Parallel()
@@ -134,7 +134,7 @@ func TestStrContains(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrContainsAll
+// Ref: @bedrock/code-0380
 func TestStrContainsAll(t *testing.T) {
 	t.Parallel()
 
@@ -147,7 +147,7 @@ func TestStrContainsAll(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSlug
+// Ref: @bedrock/code-0380
 func TestStrSlug(t *testing.T) {
 	t.Parallel()
 
@@ -167,7 +167,7 @@ func TestStrSlug(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSnake
+// Ref: @bedrock/code-0380
 func TestStrSnake(t *testing.T) {
 	t.Parallel()
 
@@ -187,7 +187,7 @@ func TestStrSnake(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testCamel
+// Ref: @bedrock/code-0380
 func TestStrCamel(t *testing.T) {
 	t.Parallel()
 
@@ -207,7 +207,7 @@ func TestStrCamel(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStudly
+// Ref: @bedrock/code-0380
 func TestStrStudly(t *testing.T) {
 	t.Parallel()
 
@@ -227,7 +227,7 @@ func TestStrStudly(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testKebab
+// Ref: @bedrock/code-0380
 func TestStrKebab(t *testing.T) {
 	t.Parallel()
 
@@ -236,7 +236,7 @@ func TestStrKebab(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testLimit
+// Ref: @bedrock/code-0380
 func TestStrLimit(t *testing.T) {
 	t.Parallel()
 
@@ -253,7 +253,7 @@ func TestStrLimit(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrAfter
+// Ref: @bedrock/code-0380
 func TestStrAfter(t *testing.T) {
 	t.Parallel()
 
@@ -266,7 +266,7 @@ func TestStrAfter(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrBefore
+// Ref: @bedrock/code-0380
 func TestStrBefore(t *testing.T) {
 	t.Parallel()
 
@@ -279,7 +279,7 @@ func TestStrBefore(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrBetween
+// Ref: @bedrock/code-0380
 func TestStrBetween(t *testing.T) {
 	t.Parallel()
 
@@ -288,7 +288,7 @@ func TestStrBetween(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrBetweenFirst
+// Ref: @bedrock/code-0380
 func TestStrBetweenFirst(t *testing.T) {
 	t.Parallel()
 
@@ -297,7 +297,7 @@ func TestStrBetweenFirst(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testIsJson
+// Ref: @bedrock/code-0380
 func TestStrIsJson(t *testing.T) {
 	t.Parallel()
 
@@ -322,7 +322,7 @@ func TestStrIsJson(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testIsUuidWithValidUuid
+// Ref: @bedrock/code-0380
 // SupportStrTest::testIsUuidWithInvalidUuid
 // SupportStrTest::testIsUuidWithVersion
 func TestStrIsUuid(t *testing.T) {
@@ -351,7 +351,7 @@ func TestStrIsUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testIsUlidWithValidUlid
+// Ref: @bedrock/code-0380
 func TestStrIsUlid(t *testing.T) {
 	t.Parallel()
 
@@ -364,7 +364,7 @@ func TestStrIsUlid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testRandom
+// Ref: @bedrock/code-0380
 // SupportStrTest::testWhetherTheNumberOfGeneratedCharactersIsEquallyDistributed
 func TestStrRandom(t *testing.T) {
 	t.Parallel()
@@ -394,7 +394,7 @@ func TestStrRandom(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testToBase64
+// Ref: @bedrock/code-0380
 // SupportStrTest::testFromBase64
 func TestStrBase64(t *testing.T) {
 	t.Parallel()
@@ -416,7 +416,7 @@ func TestStrBase64(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReverse
+// Ref: @bedrock/code-0380
 func TestStrReverse(t *testing.T) {
 	t.Parallel()
 
@@ -430,7 +430,7 @@ func TestStrReverse(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSquish
+// Ref: @bedrock/code-0380
 func TestStrSquish(t *testing.T) {
 	t.Parallel()
 
@@ -439,7 +439,7 @@ func TestStrSquish(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrStart
+// Ref: @bedrock/code-0380
 func TestStrStart(t *testing.T) {
 	t.Parallel()
 
@@ -452,7 +452,7 @@ func TestStrStart(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testFinish
+// Ref: @bedrock/code-0380
 func TestStrFinish(t *testing.T) {
 	t.Parallel()
 
@@ -465,7 +465,7 @@ func TestStrFinish(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testWrap
+// Ref: @bedrock/code-0380
 func TestStrWrap(t *testing.T) {
 	t.Parallel()
 
@@ -478,7 +478,7 @@ func TestStrWrap(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testUnwrap
+// Ref: @bedrock/code-0380
 func TestStrUnwrap(t *testing.T) {
 	t.Parallel()
 
@@ -495,7 +495,7 @@ func TestStrUnwrap(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSubstr
+// Ref: @bedrock/code-0380
 func TestStrSubstr(t *testing.T) {
 	t.Parallel()
 
@@ -512,7 +512,7 @@ func TestStrSubstr(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testMask
+// Ref: @bedrock/code-0380
 func TestStrMask(t *testing.T) {
 	t.Parallel()
 
@@ -529,7 +529,7 @@ func TestStrMask(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrIsAscii
+// Ref: @bedrock/code-0380
 func TestStrIsAscii(t *testing.T) {
 	t.Parallel()
 
@@ -542,7 +542,7 @@ func TestStrIsAscii(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testChopStart
+// Ref: @bedrock/code-0380
 func TestStrChopStart(t *testing.T) {
 	t.Parallel()
 
@@ -555,7 +555,7 @@ func TestStrChopStart(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testChopEnd
+// Ref: @bedrock/code-0380
 func TestStrChopEnd(t *testing.T) {
 	t.Parallel()
 
@@ -568,7 +568,7 @@ func TestStrChopEnd(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplace
+// Ref: @bedrock/code-0380
 func TestStrReplace(t *testing.T) {
 	t.Parallel()
 
@@ -581,7 +581,7 @@ func TestStrReplace(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceArray
+// Ref: @bedrock/code-0380
 func TestStrReplaceArray(t *testing.T) {
 	t.Parallel()
 
@@ -592,7 +592,7 @@ func TestStrReplaceArray(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceFirst
+// Ref: @bedrock/code-0380
 func TestStrReplaceFirst(t *testing.T) {
 	t.Parallel()
 
@@ -601,7 +601,7 @@ func TestStrReplaceFirst(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceLast
+// Ref: @bedrock/code-0380
 func TestStrReplaceLast(t *testing.T) {
 	t.Parallel()
 
@@ -610,7 +610,7 @@ func TestStrReplaceLast(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceStart
+// Ref: @bedrock/code-0380
 func TestStrReplaceStart(t *testing.T) {
 	t.Parallel()
 
@@ -623,7 +623,7 @@ func TestStrReplaceStart(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceEnd
+// Ref: @bedrock/code-0380
 func TestStrReplaceEnd(t *testing.T) {
 	t.Parallel()
 
@@ -636,7 +636,7 @@ func TestStrReplaceEnd(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testPluralStudly
+// Ref: @bedrock/code-0380
 func TestStrPluralStudly(t *testing.T) {
 	t.Parallel()
 
@@ -645,7 +645,7 @@ func TestStrPluralStudly(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testPlural
+// Ref: @bedrock/code-0380
 func TestStrPlural(t *testing.T) {
 	t.Parallel()
 
@@ -658,7 +658,7 @@ func TestStrPlural(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testWordCount
+// Ref: @bedrock/code-0380
 func TestStrWordCount(t *testing.T) {
 	t.Parallel()
 
@@ -671,7 +671,7 @@ func TestStrWordCount(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testReplaceMatches
+// Ref: @bedrock/code-0380
 func TestStrReplaceMatches(t *testing.T) {
 	t.Parallel()
 
@@ -682,7 +682,7 @@ func TestStrReplaceMatches(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testIsMatch
+// Ref: @bedrock/code-0380
 func TestStrIsMatch(t *testing.T) {
 	t.Parallel()
 
@@ -695,7 +695,7 @@ func TestStrIsMatch(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testIs
+// Ref: @bedrock/code-0380
 func TestStrIs(t *testing.T) {
 	t.Parallel()
 
@@ -716,7 +716,7 @@ func TestStrIs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSwapKeywords
+// Ref: @bedrock/code-0380
 func TestStrSwap(t *testing.T) {
 	t.Parallel()
 
@@ -727,7 +727,7 @@ func TestStrSwap(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testTake
+// Ref: @bedrock/code-0380
 func TestStrTake(t *testing.T) {
 	t.Parallel()
 
@@ -740,7 +740,7 @@ func TestStrTake(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testUcfirst
+// Ref: @bedrock/code-0380
 func TestStrUcfirst(t *testing.T) {
 	t.Parallel()
 
@@ -749,7 +749,7 @@ func TestStrUcfirst(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testLcfirst
+// Ref: @bedrock/code-0380
 func TestStrLcfirst(t *testing.T) {
 	t.Parallel()
 
@@ -758,7 +758,7 @@ func TestStrLcfirst(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testUcsplit
+// Ref: @bedrock/code-0380
 func TestStrUcsplit(t *testing.T) {
 	t.Parallel()
 
@@ -769,7 +769,7 @@ func TestStrUcsplit(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStrExcerpt
+// Ref: @bedrock/code-0380
 func TestStrExcerpt(t *testing.T) {
 	t.Parallel()
 
@@ -781,7 +781,7 @@ func TestStrExcerpt(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testMarkdown
+// Ref: @bedrock/code-0380
 func TestStrMarkdown(t *testing.T) {
 	t.Parallel()
 
@@ -792,7 +792,7 @@ func TestStrMarkdown(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testInlineMarkdown
+// Ref: @bedrock/code-0380
 func TestStrInlineMarkdown(t *testing.T) {
 	t.Parallel()
 
@@ -807,7 +807,7 @@ func TestStrInlineMarkdown(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testNumbers
+// Ref: @bedrock/code-0380
 func TestStrNumbers(t *testing.T) {
 	t.Parallel()
 
@@ -816,7 +816,7 @@ func TestStrNumbers(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testApa
+// Ref: @bedrock/code-0380
 // SupportStrTest::testStringApa
 func TestStrApa(t *testing.T) {
 	t.Parallel()
@@ -826,7 +826,7 @@ func TestStrApa(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSubstrCount
+// Ref: @bedrock/code-0380
 func TestStrSubstrCount(t *testing.T) {
 	t.Parallel()
 
@@ -835,7 +835,7 @@ func TestStrSubstrCount(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testPosition
+// Ref: @bedrock/code-0380
 func TestStrPosition(t *testing.T) {
 	t.Parallel()
 
@@ -852,7 +852,7 @@ func TestStrPosition(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testLower
+// Ref: @bedrock/code-0380
 func TestStrLower(t *testing.T) {
 	t.Parallel()
 
@@ -861,7 +861,7 @@ func TestStrLower(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testUpper
+// Ref: @bedrock/code-0380
 func TestStrUpper(t *testing.T) {
 	t.Parallel()
 
@@ -870,7 +870,7 @@ func TestStrUpper(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testTrim
+// Ref: @bedrock/code-0380
 func TestStrTrim(t *testing.T) {
 	t.Parallel()
 
@@ -883,7 +883,7 @@ func TestStrTrim(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testPadBoth
+// Ref: @bedrock/code-0380
 // SupportStrTest::testPadLeft
 // SupportStrTest::testPadRight
 func TestStrPad(t *testing.T) {
@@ -908,7 +908,7 @@ func TestStrPad(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testStringInitials
+// Ref: @bedrock/code-0380
 func TestStrInitials(t *testing.T) {
 	t.Parallel()
 
@@ -917,7 +917,7 @@ func TestStrInitials(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testWordWrap
+// Ref: @bedrock/code-0380
 func TestStrWordWrap(t *testing.T) {
 	t.Parallel()
 
@@ -1024,7 +1024,7 @@ func TestSupportStringablePredicateAndPluralParity(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testRandomStringFactoryCanBeSet
+// Ref: @bedrock/code-0380
 func TestStrRandomFactory(t *testing.T) {
 	// NOT parallel — modifies global factory state
 	CreateRandomStringsUsing(func(int) string { return "fixed" })
@@ -1036,7 +1036,7 @@ func TestStrRandomFactory(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfRandomStringsToUtilise
+// Ref: @bedrock/code-0380
 // SupportStrTest::testItCanSpecifyAFallbackForARandomStringSequence
 func TestStrRandomSequence(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -1064,7 +1064,7 @@ func TestStrRandomSequence(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testSubstrReplace
+// Ref: @bedrock/code-0380
 // SupportStrTest::testSubstrReplaceWithMultibyte
 func TestStrSubstrReplace(t *testing.T) {
 	t.Parallel()
@@ -1103,7 +1103,7 @@ func TestStrSubstrReplace(t *testing.T) {
 // SupportStrTest::testPluralPascal
 // SupportStrTest::testRepeatWhenTimesIsNegative
 // SupportStrTest::testWrapEdgeCases
-func TestStrAdditionalUpstreamInventoryEquivalents(t *testing.T) {
+func TestStrAdditionalInventoryEquivalents(t *testing.T) {
 	t.Parallel()
 
 	if got := StrAfterLast("App\\Http\\Controller", "\\"); got != "Controller" {

@@ -7,7 +7,6 @@ import (
 )
 
 // GitlabProvider handles OAuth2 authentication via GitLab (cloud or self-hosted).
-// It mirrors Upstream\SocialAuth\Two\GitlabProvider.
 type GitlabProvider struct {
 	AbstractProvider
 	host string

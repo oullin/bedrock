@@ -1,5 +1,4 @@
-// Package matching mirrors upstream/framework/src/Framework/Routing/Matching.
-//
+// Ref: @bedrock/code-0313
 // Each ValidatorInterface implementation evaluates a single dimension of a
 // candidate route against an incoming request. The router calls all four
 // validators in sequence; a route matches when every validator returns true.
@@ -14,7 +13,7 @@ import (
 // MatchableRoute is the surface a Route must expose so matching/* validators
 // can interrogate it.
 //
-// In PHP the validators take a concrete \Framework\Routing\Route. In Go we
+// Ref: @bedrock/code-0332
 // use an interface so the matching package has no import cycle on the parent
 // routing package.
 type MatchableRoute interface {
@@ -32,12 +31,12 @@ type MatchableRequest interface {
 	Secure() bool
 }
 
-// ValidatorInterface mirrors Framework\Routing\Matching\ValidatorInterface.
+// Ref: @bedrock/code-0318
 type ValidatorInterface interface {
 	Matches(route MatchableRoute, request MatchableRequest) bool
 }
 
-// All returns the four standard validators in the order Upstream's Router
+// All returns the four standard validators in the order the upstream Router
 // applies them: URI, Method, Scheme, Host. The order matters: cheaper checks
 // run first so the common case (a path mismatch) short-circuits quickly.
 func All() []ValidatorInterface {

@@ -9,9 +9,8 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// Full port of Framework\Tests\Queue\QueueListenerTest (5 / 5).
-//
-// Upstream's test uses Mockery to partial-mock Symfony's Process and
+// Ref: @bedrock/code-0369
+// the upstream test uses Mockery to partial-mock Symfony's Process and
 // the Listener itself, then asserts that makeProcess() returns a
 // process with the right command-line string, working directory, and
 // timeout. The Go equivalent:
@@ -47,7 +46,7 @@ func (p *fakeListenerProcess) Timeout() time.Duration   { return 0 }
 
 // --- ports ------------------------------------------------------------
 
-// Port of Framework\Tests\Queue\QueueListenerTest::testRunProcessCallsProcess
+// Ref: @bedrock/code-0369
 func TestRunProcessCallsProcess(t *testing.T) {
 	t.Parallel()
 
@@ -78,7 +77,7 @@ func TestRunProcessCallsProcess(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueListenerTest::testListenerStopsWhenMemoryIsExceeded
+// Ref: @bedrock/code-0369
 func TestListenerStopsWhenMemoryIsExceeded(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +108,7 @@ func TestListenerStopsWhenMemoryIsExceeded(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLine
+// Ref: @bedrock/code-0369
 func TestMakeProcessCorrectlyFormatsCommandLine(t *testing.T) {
 	t.Parallel()
 
@@ -153,7 +152,7 @@ func TestMakeProcessCorrectlyFormatsCommandLine(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified
+// Ref: @bedrock/code-0369
 func TestMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified(t *testing.T) {
 	t.Parallel()
 
@@ -195,7 +194,7 @@ func TestMakeProcessCorrectlyFormatsCommandLineWithAnEnvironmentSpecified(t *tes
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueListenerTest::testMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified
+// Ref: @bedrock/code-0369
 func TestMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified(t *testing.T) {
 	t.Parallel()
 
@@ -218,7 +217,7 @@ func TestMakeProcessCorrectlyFormatsCommandLineWhenTheConnectionIsNotSpecified(t
 	}
 
 	// When connection is empty the argv slot is omitted — matching
-	// Upstream's array_filter pass over the command list.
+	// the upstream array_filter pass over the command list.
 	want := []string{
 		"php",
 		"cli",

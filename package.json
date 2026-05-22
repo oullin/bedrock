@@ -10,12 +10,10 @@
   "scripts": {
     "preinstall": "sh services/scripts/enforce-pnpm.sh",
     "build": "turbo run build && make go-build",
-    "compliance": "BEDROCK_COMPLIANCE_SKIP_FRESHNESS=1 services/scripts/upstream-compliance.sh check",
-    "compliance:freshness": "services/scripts/upstream-compliance.sh check-freshness",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck && make vet",
-    "test": "turbo run test && make go-test && pnpm run compliance",
-    "test:coverage": "turbo run test:coverage && make go-coverage && pnpm run compliance",
+    "test": "turbo run test && make go-test",
+    "test:coverage": "turbo run test:coverage && make go-coverage",
     "fmt": "turbo run fmt",
     "fmt:check": "turbo run fmt:check"
   },

@@ -1,8 +1,8 @@
 # Boost
 
-<!-- upstream-docs: boost.md#introduction -->
-<!-- upstream-docs: boost.md#installation -->
-<!-- upstream-docs: boost.md#mcp-server -->
+<!-- ref: @bedrock/code-0020 -->
+<!-- ref: @bedrock/code-0019 -->
+<!-- ref: @bedrock/code-0022 -->
 
 Boost is an IDE coding-assistant integration layer for Bedrock.
 

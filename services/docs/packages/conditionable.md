@@ -1,22 +1,18 @@
 # conditionable
 
-<!-- upstream-docs: collections.md#higher-order-messages -->
-<!-- upstream-docs: helpers.md#other-utilities -->
+<!-- ref: @bedrock/code-0033 -->
+<!-- ref: @bedrock/code-0085 -->
 
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package conditionable provides Upstream-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Upstream's HigherOrderWhenProxy, adapted for Go's static type system.
+Package conditionable provides conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to the upstream HigherOrderWhenProxy, adapted for Go's static type system.
 
-<div class="docs-callout docs-callout-upstream">
-  <strong>Upstream baseline.</strong>
-  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -34,13 +30,13 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/conditionable/...
 
 ## Source Coverage
 
-| Package         | Purpose                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `conditionable` | Package conditionable provides Upstream-inspired conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to Upstream's HigherOrderWhenProxy, adapted for Go's static type system. |
+| Package         | Purpose                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conditionable` | Package conditionable provides conditional method execution. It defines generic When and Unless functions that conditionally apply callbacks based on the truthiness of a value, supporting both static values and resolver functions. A generic Proxy type offers conditional chaining similar to the upstream HigherOrderWhenProxy, adapted for Go's static type system. |
 
 ## Core Concepts
 
-The conditionable reference is organized around the exported Go surface for package `conditionable`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+The conditionable reference is organized around the exported Go surface for package `conditionable`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -74,13 +70,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/conditionable` cover the supported creation paths, default values, and Upstream parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/conditionable` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -91,7 +87,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Upstream parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -103,7 +99,7 @@ The package reference should be read through these Upstream parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -117,9 +113,7 @@ Run the package tests before changing examples:
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/conditionable/...
 ```
 
-Upstream parity is tracked by these tests:
-
-- `packages/conditionable/conditionable_laravel_test.go`
+Parity is tracked by these tests:
 
 ## API Reference
 
@@ -141,7 +135,3 @@ Upstream parity is tracked by these tests:
 | Name                                        | Notes |
 | ------------------------------------------- | ----- |
 | No exported variables or constants detected |       |
-
-## Upstream Parity Notes
-
-This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

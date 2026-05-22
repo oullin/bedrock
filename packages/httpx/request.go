@@ -24,7 +24,7 @@ type RouteResolver interface {
 	CurrentRouteAction() string
 }
 
-// Request wraps *http.Request with Upstream-inspired accessor methods for input,
+// Request wraps *http.Request with accessor methods for input,
 // headers, content negotiation, flash data and more. It can be constructed from
 // any *http.Request and optionally enriched with a session or route resolver.
 type Request struct {

@@ -8,7 +8,6 @@ import (
 )
 
 // ResumeSubscriptionHandler handles subscription resumption.
-// Mirrors Billing\Http\Controllers\ResumeSubscriptionController.
 type ResumeSubscriptionHandler struct {
 	billing  *service.BillingService
 	resolver billing.ResolverFunc

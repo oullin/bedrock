@@ -7,7 +7,6 @@ import (
 )
 
 // LinkedInProvider handles OAuth2 authentication via LinkedIn.
-// It mirrors Upstream\SocialAuth\Two\LinkedInProvider.
 type LinkedInProvider struct {
 	AbstractProvider
 }

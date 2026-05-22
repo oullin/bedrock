@@ -7,13 +7,11 @@ import (
 )
 
 // Scopeable is implemented by types that control their own scope identifier.
-// This is the Go equivalent of Upstream FeatureFlags's FeatureScopeable interface.
 type Scopeable interface {
 	FeatureScopeIdentifier() string
 }
 
-// NullScope is the serialized form of a nil scope, matching Upstream's
-// "__laravel_null" convention adapted for this package.
+// NullScope is the serialized form of a nil scope, matching the upstream "__laravel_null" convention adapted for this package.
 const NullScope = "__null"
 
 // SerializeScope converts an arbitrary Go value to a stable string key

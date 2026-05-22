@@ -1,7 +1,6 @@
 package failed_test
 
-// Ported from Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest (11/11).
-//
+// Ref: @bedrock/code-0361
 // ✅ testGettingIdsOfAllFailedJobs
 // ✅ testGettingAllFailedJobs
 // ✅ testFindingFailedJobsById
@@ -33,7 +32,7 @@ func uuidPayload(uuid string) string {
 	return string(b)
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingIdsOfAllFailedJobs
+// Ref: @bedrock/code-0361
 func TestGettingIdsOfAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -54,7 +53,7 @@ func TestGettingIdsOfAllFailedJobs(t *testing.T) {
 	assertStringSlice(t, ids, []string{"uuid-3", "uuid-4"})
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testGettingAllFailedJobs
+// Ref: @bedrock/code-0361
 func TestGettingAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -85,7 +84,7 @@ func TestGettingAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testFindingFailedJobsById
+// Ref: @bedrock/code-0361
 func TestFindingFailedJobsById(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -102,7 +101,7 @@ func TestFindingFailedJobsById(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingJobsById
+// Ref: @bedrock/code-0361
 func TestRemovingJobsById(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -119,7 +118,7 @@ func TestRemovingJobsById(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testRemovingAllFailedJobs
+// Ref: @bedrock/code-0361
 func TestRemovingAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -140,7 +139,7 @@ func TestRemovingAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobs
+// Ref: @bedrock/code-0361
 func TestPruningFailedJobs(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -165,7 +164,7 @@ func TestPruningFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testPruningFailedJobsWithRelativeHoursAndMinutes
+// Ref: @bedrock/code-0361
 func TestPruningFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -190,7 +189,7 @@ func TestPruningFailedJobsWithRelativeHoursAndMinutes(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCounted
+// Ref: @bedrock/code-0361
 func TestJobsCanBeCountedUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -213,7 +212,7 @@ func TestJobsCanBeCountedUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByConnection
+// Ref: @bedrock/code-0361
 func TestJobsCanBeCountedByConnectionUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -239,7 +238,7 @@ func TestJobsCanBeCountedByConnectionUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueue
+// Ref: @bedrock/code-0361
 func TestJobsCanBeCountedByQueueUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()
@@ -265,7 +264,7 @@ func TestJobsCanBeCountedByQueueUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\DatabaseUuidFailedJobProviderTest::testJobsCanBeCountedByQueueAndConnection
+// Ref: @bedrock/code-0361
 func TestJobsCanBeCountedByQueueAndConnectionUuid(t *testing.T) {
 	t.Parallel()
 	p := newUUIDProvider()

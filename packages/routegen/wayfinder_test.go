@@ -57,7 +57,7 @@ func assertNotContains(t *testing.T, content, unwanted string) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Workbench route fixtures (mirror Upstream RouteGen workbench)
+// Workbench route fixtures (mirror RouteGen workbench)
 // ─────────────────────────────────────────────────────────────────────────────
 
 func postControllerRoutes() []*routegen.RouteInfo {
@@ -91,19 +91,9 @@ func postControllerRoutes() []*routegen.RouteInfo {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PostController tests (mirrors PostController.test.ts)
+// PostController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of PostController::test_properties.
-// Port of PostController::test_url.
-// Port of PostController::test_default_method.
-// Port of PostController::test_get.
-// Port of PostController::test_head.
-// Port of PostController::test_definition.
-// Port of PostController::test_post.
-// Port of PostController::test_patch.
-// Port of PostController::test_delete.
-// Port of DefaultParameters::test_it_can_generate_urls_without_default_parameters_set.
 func TestPostControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -144,7 +134,6 @@ func TestPostControllerGeneration(t *testing.T) {
 	assertContains(t, content, `export default PostController`)
 }
 
-// Port of AnonymousMiddleware::test_will_allow_for_closure_middleware.
 func TestAnonymousMiddlewareClosureRoutesDoNotBlockGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -164,10 +153,9 @@ func TestAnonymousMiddlewareClosureRoutesDoNotBlockGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// InvokableController tests (mirrors InvokableController.test.ts)
+// InvokableController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of InvokableController::it_exports_default_for_invokable_controllers.
 func TestInvokableControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -191,7 +179,6 @@ func TestInvokableControllerGeneration(t *testing.T) {
 	assertNotContains(t, content, `export const InvokableController`)
 }
 
-// Port of InvokablePlusController::it_exports_default_and_methods_for_invokable_controllers.
 func TestInvokablePlusControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -220,13 +207,9 @@ func TestInvokablePlusControllerGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OptionalController tests (mirrors OptionalController.test.ts)
+// OptionalController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of OptionalController::test_url.
-// Port of OptionalController::test_definition.
-// Port of OptionalController::test_url_supports_falsy_optional_values.
-// Port of OptionalController::it_throws_an_error_when_passing_optional_parameters_with_missing_optional_parameters_before.
 func TestOptionalControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -267,7 +250,6 @@ func TestOptionalControllerGeneration(t *testing.T) {
 	assertContains(t, content, `.replace("{three?}", parsedArgs.three?.toString() ?? '')`)
 }
 
-// Port of EmptyRoute::it_doesn_t_add_a_to_an_empty_route.
 func TestEmptyRouteGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -287,10 +269,9 @@ func TestEmptyRouteGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ModelBindingController tests (mirrors ModelBindingController.test.ts)
+// ModelBindingController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of ModelBindingController::test_will_detect_model_binding.
 func TestModelBindingControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -313,7 +294,6 @@ func TestModelBindingControllerGeneration(t *testing.T) {
 	assertContains(t, content, `if (Array.isArray(args))`)
 }
 
-// Port of CamelCaseRouteParameter::test_can_resolve_model_binding_keys_for_camelcase_route_handler_parameters.
 func TestCamelCaseRouteParameterGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -336,12 +316,9 @@ func TestCamelCaseRouteParameterGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// KeyController tests (mirrors KeyController.test.ts)
+// KeyController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of KeyController::it_can_pass_primitive_values_to_routes_with_custom_keys.
-// Port of KeyController::it_can_pass_objects_with_custom_key.
-// Port of KeyController::test_definition.
 func TestKeyControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -365,12 +342,9 @@ func TestKeyControllerGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DisallowedMethodNames tests (mirrors DisallowedMethodNames.test.ts)
+// DisallowedMethodNames tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of DisallowedMethodNames::test_will_append_method_to_invalid_methods.
-// Port of DisallowedMethodNames::test_will_properly_handle_leading_numbers.
-// Port of DisallowedMethodNames::test_will_properly_handle_reserved_js_words.
 func TestDisallowedMethodNamesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -404,7 +378,6 @@ func TestDisallowedMethodNamesGeneration(t *testing.T) {
 	assertContains(t, content, `export default DisallowedMethodNameController`)
 }
 
-// Port of MethodNameCollision::test_does_not_shadow_a_generated_method_named_options.
 func TestMethodNameCollisionGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -426,8 +399,6 @@ func TestMethodNameCollisionGeneration(t *testing.T) {
 	assertNotContains(t, content, `queryParams(options)`)
 }
 
-// Port of ParamaterName::test_url.
-// Port of ParamaterName::test_definition.
 func TestParameterNameCollisionGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -454,10 +425,9 @@ func TestParameterNameCollisionGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TwoRoutesSameAction tests (mirrors TwoRoutesSameAction.test.ts)
+// TwoRoutesSameAction tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of TwoRoutesSameAction::it_creates_a_keyed_dictionary_of_routes_for_multiple_routes_pointing_to_the_same_action.
 func TestTwoRoutesSameActionGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -477,12 +447,9 @@ func TestTwoRoutesSameActionGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DomainController tests (mirrors DomainController.test.ts)
+// DomainController tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of DomainController::test_can_generate_fixed_domain_urls.
-// Port of DomainController::test_can_generate_dynamic_domain_urls.
-// Port of AppUrlRootResolution::test_does_not_inject_app_url_port_into_explicit_domain_routes.
 func TestDomainControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -519,10 +486,9 @@ func TestDomainControllerGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Named routes tests (mirrors NamedRoutes.test.ts)
+// Named routes tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of NamedRoutes::it_exports_named_routes.
 func TestNamedRoutesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -565,8 +531,6 @@ func TestNamedRoutesGeneration(t *testing.T) {
 	assertContains(t, rootContent, `dashboard`)
 }
 
-// Port of NamedspacedRoute::it_can_access_a_namespaced_route.
-// Port of StorageRoute::it_can_import_storage_routes.
 func TestNamespacedAndStorageRoutesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -596,12 +560,9 @@ func TestNamespacedAndStorageRoutesGeneration(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UrlDefaults tests (mirrors UrlDefaultsController.test.ts)
+// UrlDefaults tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of UrlDefaultsController::test_url.
-// Port of UrlDefaultsController::test_default_method.
-// Port of DefaultParameters::test_it_can_generate_urls_with_default_url_parameters_set_on_backend_and_frontend.
 func TestUrlDefaultsControllerGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -631,9 +592,6 @@ func TestUrlDefaultsControllerGeneration(t *testing.T) {
 // WithForm option tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of PostController::test_default_form_method.
-// Port of PostController::test_form_get.
-// Port of PostController::test_form_head.
 func TestWithFormOption(t *testing.T) {
 	t.Parallel()
 
@@ -661,10 +619,9 @@ func TestWithFormOption(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppUrl base-path tests (mirrors AppUrlRootResolution.test.ts)
+// AppUrl base-path tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of AppUrlRootResolution::test_prefixes_generated_urls_with_app_url_path.
 func TestAppURLPathPrefix(t *testing.T) {
 	t.Parallel()
 
@@ -685,20 +642,6 @@ func TestAppURLPathPrefix(t *testing.T) {
 // RouteGen runtime utility
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of QueryParams::it_can_convert_basic_params.
-// Port of QueryParams::it_can_convert_array_params.
-// Port of QueryParams::it_can_convert_object_params.
-// Port of QueryParams::it_can_convert_boolean_params.
-// Port of QueryParams::it_will_ignore_existing_params_without_star.
-// Port of QueryParams::it_can_integrate_basic_params_with_existing_window_params.
-// Port of QueryParams::it_can_integrate_array_params_with_existing_window_params.
-// Port of QueryParams::it_can_integrate_object_params_with_existing_window_params.
-// Port of QueryParams::it_can_delete_existing_params_via_null.
-// Port of QueryParams::it_can_delete_existing_params_via_undefined.
-// Port of QueryParams::it_can_merge_with_the_form_method.
-// Port of QueryParams::it_can_pass_nested_query_parameters.
-// Port of QueryParams::it_ignores_nested_object_values_with_unallowed_types.
-// Port of DefaultParameters::test_it_can_generate_urls_with_dynamic_function_based_default_url_parameters.
 func TestRouteGenRuntimeUtility(t *testing.T) {
 	t.Parallel()
 
@@ -776,9 +719,6 @@ func TestSkipOptions(t *testing.T) {
 // Barrel files
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Port of PathNameNormalization::it_can_normalize_to_camel_case.
-// Port of PathNameNormalization::it_will_properly_export_barrel_files.
-// Port of NestedController::it_can_handle_conflicting_nested_route_names.
 func TestBarrelFilesGeneration(t *testing.T) {
 	t.Parallel()
 
@@ -799,7 +739,6 @@ func TestBarrelFilesGeneration(t *testing.T) {
 	assertContains(t, rootIndex, `export default`)
 }
 
-// Port of RepeatedNamespaceController::it_avoids_conflicting_barrel_identifiers_when_namespace_segment_repeats.
 func TestRepeatedNamespaceControllerGeneration(t *testing.T) {
 	t.Parallel()
 

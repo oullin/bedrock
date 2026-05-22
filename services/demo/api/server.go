@@ -14,7 +14,7 @@ import (
 	"github.com/bedrock/services/demo/api/routes"
 )
 
-// NewHandler builds the runnable Upstream-skeleton-equivalent HTTP handler.
+// NewHandler builds the runnable upstream-skeleton-equivalent HTTP handler.
 func NewHandler(opts ...Options) (http.Handler, error) {
 	o := resolveOptions(opts)
 	application, err := newApplication(o)

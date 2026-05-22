@@ -5,7 +5,7 @@ import (
 )
 
 // ViewWatcher monitors template/view rendering and records entries as DebugBar
-// entries. It mirrors Upstream's ViewWatcher class.
+// entries.
 type ViewWatcher struct {
 	debugbar.BaseWatcher
 }

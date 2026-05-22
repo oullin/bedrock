@@ -13,11 +13,10 @@ type BindingContainer interface {
 }
 
 // BindingResolver is a callback that converts a raw URL value (and the
-// matched route) into a domain object, mirroring Upstream's binding closures.
 type BindingResolver func(value string, route any) (any, error)
 
 // ModelInstance is the surface a user-defined model type must expose so
-// [ForModel] can resolve it. It mirrors the public methods on Orm's
+// [ForModel] can resolve it.
 // Model that route-model-binding actually depends on.
 type ModelInstance interface {
 	ResolveRouteBinding(value, field string) (any, error)
@@ -30,14 +29,14 @@ type ModelInstance interface {
 // Go callers can use either the package functions directly or the methods on
 // this empty struct, both produce the same result.
 //
-// Mirrors Framework\Routing\RouteBinding.
+// Ref: @bedrock/code-0334
 type RouteBinding struct{}
 
 // ForCallback returns the binding resolver for the given binder. If binder is
 // a [BindingResolver] it is returned unchanged. If it is a string it is
 // treated as a "Class@method" reference and resolved through the container.
 //
-// Mirrors RouteBinding::forCallback.
+// Ref: @bedrock/code-0334
 
 // ForCallback is the method form of the package-level helper.
 
@@ -45,11 +44,10 @@ type RouteBinding struct{}
 // container and asks it to resolve the URL value. If the model returns nil and
 // fallback is supplied, fallback is invoked; otherwise an error is returned.
 //
-// Mirrors RouteBinding::forModel. The PHP version threw
+// Ref: @bedrock/code-0334
 // ModelNotFoundException; the Go version returns a typed error so callers can
 // test for it with errors.Is.
 
-// ModelNotFoundError mirrors Orm's ModelNotFoundException.
 type ModelNotFoundError struct{ Model string }
 
 func ForCallback(container BindingContainer, binder any) BindingResolver {

@@ -11,9 +11,6 @@ import (
 	"github.com/bedrock/services/jobqueue/api"
 )
 
-// Port of MetricsTest::test_throughput_is_stored_per_job_class.
-// Port of MetricsTest::test_average_runtime_is_stored_per_job_class_in_milliseconds.
-// Port of MetricsTest::test_list_of_all_jobs_with_metric_information_is_maintained.
 func TestMetricsJobsEndpointReturnsThroughputAndRuntimePerJobClass(t *testing.T) {
 	t.Parallel()
 
@@ -60,8 +57,6 @@ func TestMetricsJobsEndpointReturnsThroughputAndRuntimePerJobClass(t *testing.T)
 	}
 }
 
-// Port of MetricsTest::test_throughput_is_stored_per_queue.
-// Port of MetricsTest::test_average_runtime_is_stored_per_queue_in_milliseconds.
 func TestMetricsQueuesEndpointReturnsThroughputAndRuntimePerQueue(t *testing.T) {
 	t.Parallel()
 
@@ -99,8 +94,6 @@ func TestMetricsQueuesEndpointReturnsThroughputAndRuntimePerQueue(t *testing.T) 
 	}
 }
 
-// Port of MetricsTest::test_total_throughput_is_stored.
-// Port of MetricsTest::test_snapshot_of_metrics_performance_can_be_stored.
 func TestMetricsSnapshotEndpointRecordsSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -139,8 +132,6 @@ func TestMetricsSnapshotEndpointRecordsSnapshot(t *testing.T) {
 	}
 }
 
-// Port of MetricsTest::test_jobs_processed_per_minute_since_last_snapshot_is_calculable.
-// Port of MetricsTest::test_only_past_24_snapshots_are_retained.
 func TestMetricsSnapshotEndpointBounds24Retention(t *testing.T) {
 	t.Parallel()
 
@@ -156,7 +147,6 @@ func TestMetricsSnapshotEndpointBounds24Retention(t *testing.T) {
 	}
 }
 
-// Port of MetricsTest::test_total_throughput_is_stored (aggregate-level sanity check via Total()).
 func TestMetricsTotalThroughputIsAggregatedAcrossRecordJob(t *testing.T) {
 	t.Parallel()
 

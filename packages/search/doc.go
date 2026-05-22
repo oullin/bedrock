@@ -1,5 +1,4 @@
 // Package search provides full-text search with pluggable engine backends.
-// It is the Go port of Upstream's Search package, adapted to Go idioms while
 // maintaining 100% function parity.
 //
 // Search integrates with Orm models through the Searchable interface and

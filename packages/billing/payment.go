@@ -3,7 +3,6 @@ package billing
 import "time"
 
 // Payment represents a single payment amount with currency and date.
-// Mirrors Upstream\Paddle\Payment.
 type Payment struct {
 	Amount   int64
 	Currency string

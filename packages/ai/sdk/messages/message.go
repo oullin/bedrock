@@ -1,5 +1,4 @@
 // Package messages contains the conversation message types for the AI package.
-// Mirrors the Upstream\Ai\Messages namespace.
 package messages
 
 import (
@@ -9,7 +8,6 @@ import (
 )
 
 // Message is the base conversation message type.
-// Mirrors Upstream\Ai\Messages\Message.
 type Message struct {
 	Role    enums.MessageRole
 	Content *string

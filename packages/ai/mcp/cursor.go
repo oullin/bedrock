@@ -10,8 +10,8 @@ type cursorPayload struct {
 	Offset int `json:"offset"`
 }
 
-// CursorPaginator implements cursor-based pagination identical to Upstream's
-// CursorPaginator. The cursor is a base64-encoded JSON object {"offset":N}.
+// CursorPaginator implements cursor-based pagination. The cursor is a
+// base64-encoded JSON object {"offset":N}.
 type CursorPaginator struct {
 	items   []any
 	perPage int
@@ -26,7 +26,7 @@ func NewCursorPaginator(items []any, perPage int, cursor string) *CursorPaginato
 }
 
 // decodeCursor extracts the offset from a base64 cursor string. Returns 0 on
-// any error, matching Upstream's silent fallback behaviour.
+// any error, matching the upstream silent fallback behaviour.
 func decodeCursor(cursor string) int {
 	if cursor == "" {
 		return 0

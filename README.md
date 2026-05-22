@@ -29,10 +29,9 @@ Bedrock is a collection of foundational Go packages for building web application
 
 ```
 packages/                     Standalone Go library modules
-services/demo/                Primary Upstream-skeleton-style demo app
+services/demo/                Primary skeleton-style demo app
 services/demo/inertia/        Secondary Inertia protocol demo app
 services/docs/                VuePress documentation site
-services/compliance/          Upstream parity inventories and generated report
 services/storage/             Ignored build, cache, coverage, and demo runtime data
 ```
 

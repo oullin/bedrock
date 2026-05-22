@@ -8,7 +8,6 @@ import (
 
 // GuidelineWriter writes composed guideline Markdown content to the path
 // dictated by an agent that implements SupportsGuidelinesPath.
-// Mirrors Upstream\Boost\Install\GuidelineWriter.
 type GuidelineWriter struct {
 	formatter *MarkdownFormatter
 }

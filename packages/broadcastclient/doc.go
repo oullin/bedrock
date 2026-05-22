@@ -1,4 +1,4 @@
-// Package broadcastclient is a Go port of the Upstream BroadcastClient JavaScript library.
+// Package broadcastclient provides a Go client for the BroadcastClient JavaScript library.
 // It provides real-time event broadcasting abstractions over multiple
 // transport backends (Pusher, Socket.IO, Null/stub) with a uniform
 // Channel and Connector interface.

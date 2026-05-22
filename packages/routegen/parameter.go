@@ -3,7 +3,6 @@ package routegen
 import "strings"
 
 // Param holds the metadata for a single URI parameter.
-// It mirrors the Parameter class from the PHP implementation.
 type Param struct {
 	// Name is the raw parameter name from the URI (e.g. "post", "user").
 	Name string
@@ -31,7 +30,6 @@ func (p Param) Placeholder() string {
 }
 
 // SafeName returns a TypeScript-safe version of the parameter name.
-// Mirrors Parameter::safeName() from the PHP implementation.
 func (p Param) SafeName() string {
 	return SafeMethod(p.Name, "Param")
 }

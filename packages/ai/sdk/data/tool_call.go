@@ -1,7 +1,6 @@
 package data
 
 // ToolCall represents a tool invocation requested by the LLM.
-// Mirrors Upstream\Ai\Responses\Data\ToolCall.
 type ToolCall struct {
 	ID               string           `json:"id"`
 	Name             string           `json:"name"`

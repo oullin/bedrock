@@ -6,7 +6,6 @@ import (
 )
 
 // GeneratedImage holds a single generated image.
-// Mirrors Upstream\Ai\Responses\Data\GeneratedImage.
 type GeneratedImage struct {
 	Image    string `json:"image"`     // base64-encoded or URL
 	MimeType string `json:"mime_type"` // default: image/png

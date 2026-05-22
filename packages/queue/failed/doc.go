@@ -1,7 +1,7 @@
-// Package failed contains the Go port of Framework\Queue\Failed\* from
-// upstream/framework 13.x. It defines the FailedJobProvider contract plus
+// Ref: @bedrock/code-0254
+// upstream framework 13.x. It defines the FailedJobProvider contract plus
 // the optional Countable and Prunable extensions, and ships five
-// implementations that mirror the Upstream providers:
+// implementations that mirror the upstream providers:
 //
 //   - DatabaseFailedJobProvider     — integer-keyed SQL table
 //   - DatabaseUuidFailedJobProvider — UUID-keyed SQL table
@@ -9,9 +9,5 @@
 //   - DynamoDbFailedJobProvider     — DynamoDB-backed, mockable client
 //   - NullFailedJobProvider         — no-op for testing / disabled state
 //
-// Tests under this package are a 1:1 port of the four PHPUnit suites
-// (DatabaseFailedJobProviderTest, DatabaseUuidFailedJobProviderTest,
-// FileFailedJobProviderTest, DynamoDbFailedJobProviderTest). Every ported
-// test carries a `// Port of …` header so scripts/queue-parity.sh can
-// match it back to its upstream counterpart.
+// Each provider has its own test file under packages/queue/failed/.
 package failed
