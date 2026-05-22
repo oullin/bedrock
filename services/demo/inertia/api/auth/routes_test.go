@@ -359,7 +359,7 @@ func authTestRouteURL(name string, params map[string]string) string {
 	}[name]
 
 	if strings.TrimSpace(pattern) == "" {
-		return "#!wayfinder:unknown-route"
+		return "#!routegen:unknown-route"
 	}
 
 	for key, value := range params {

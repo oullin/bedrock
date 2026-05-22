@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"bytes"
@@ -167,11 +167,11 @@ func TestURLUnknownRoute(t *testing.T) {
 
 	url := reg.URL("nonexistent", nil)
 
-	if url != "#!wayfinder:unknown-route" {
-		t.Errorf("expected #!wayfinder:unknown-route, got %s", url)
+	if url != "#!routegen:unknown-route" {
+		t.Errorf("expected #!routegen:unknown-route, got %s", url)
 	}
 
-	if !strings.Contains(buf.String(), `wayfinder: unknown route "nonexistent"`) {
+	if !strings.Contains(buf.String(), `routegen: unknown route "nonexistent"`) {
 		t.Errorf("expected warning log, got %q", buf.String())
 	}
 }
@@ -384,7 +384,7 @@ func TestHandle_UnknownRoute_Skips(t *testing.T) {
 
 	reg.Handle("nonexistent", http.NotFoundHandler(), mux)
 
-	if !strings.Contains(buf.String(), "wayfinder: Handle: unknown route") {
+	if !strings.Contains(buf.String(), "routegen: Handle: unknown route") {
 		t.Errorf("expected warning log, got %q", buf.String())
 	}
 }

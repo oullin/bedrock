@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"github.com/bedrock/packages/billing"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 // FrontendState builds the data shared with the billing portal frontend.
 type FrontendState struct {
 	manager       *billing.Manager
 	config        *billing.Config
-	routes        *wayfinder.Registry
+	routes        *routegen.Registry
 	subscriptions billing.SubscriptionStore
 	customers     billing.CustomerStore
 	transactions  billing.TransactionStore
@@ -37,7 +37,7 @@ func NewFrontendState(mgr *billing.Manager, cfg *billing.Config, subs billing.Su
 }
 
 // WithRoutes sets the route registry used to generate portal URLs.
-func (f *FrontendState) WithRoutes(routes *wayfinder.Registry) *FrontendState {
+func (f *FrontendState) WithRoutes(routes *routegen.Registry) *FrontendState {
 	if routes != nil {
 		f.routes = routes
 	}

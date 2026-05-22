@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"encoding/json"
@@ -94,9 +94,9 @@ func (r *Registry) URL(name string, params map[string]string) string {
 	r.mu.RUnlock()
 
 	if !ok {
-		log.Printf("wayfinder: unknown route %q, returning fallback", name)
+		log.Printf("routegen: unknown route %q, returning fallback", name)
 
-		return "#!wayfinder:unknown-route"
+		return "#!routegen:unknown-route"
 	}
 
 	result := route.Pattern
@@ -118,7 +118,7 @@ func (r *Registry) Handle(name string, handler http.Handler, mux *http.ServeMux)
 	r.mu.RUnlock()
 
 	if !ok {
-		log.Printf("wayfinder: Handle: unknown route %q, skipping", name)
+		log.Printf("routegen: Handle: unknown route %q, skipping", name)
 
 		return
 	}

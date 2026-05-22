@@ -9,10 +9,10 @@ import (
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
 	"github.com/bedrock/packages/routing"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
-func TestRouteSetUsesCanonicalWayfinderRoutes(t *testing.T) {
+func TestRouteSetUsesCanonicalRouteGenRoutes(t *testing.T) {
 	t.Parallel()
 
 	routes := billing.NewRouteRegistry()
@@ -20,7 +20,7 @@ func TestRouteSetUsesCanonicalWayfinderRoutes(t *testing.T) {
 	cases := map[string]string{
 		billing.RoutePortal:                    "/billing",
 		billing.RouteState:                     "/billing/state",
-		billing.RouteWayfinder:                 "/billing/wayfinder",
+		billing.RouteRouteGen:                 "/billing/routegen",
 		billing.RouteSubscriptionStore:         "/billing/subscription",
 		billing.RouteSubscriptionUpdate:        "/billing/subscription",
 		billing.RouteSubscriptionCancel:        "/billing/subscription/cancel",
@@ -43,7 +43,7 @@ func TestRouteSetUsesCanonicalWayfinderRoutes(t *testing.T) {
 	}
 }
 
-func TestRouteSetServesWayfinderManifest(t *testing.T) {
+func TestRouteSetServesRouteGenManifest(t *testing.T) {
 	t.Parallel()
 
 	routeSet := handler.NewRouteSet(&handler.Handlers{
@@ -51,7 +51,7 @@ func TestRouteSetServesWayfinderManifest(t *testing.T) {
 	})
 
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/billing/wayfinder", nil)
+	req := httptest.NewRequest(http.MethodGet, "/billing/routegen", nil)
 	routeSet.Handler.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
@@ -101,7 +101,7 @@ func TestRegisterRoutes_EmptyRegistryUsesBlankPatterns(t *testing.T) {
 	t.Parallel()
 
 	router := routing.NewRouter(nil, nil)
-	empty := wayfinder.New()
+	empty := routegen.New()
 
 	handler.RegisterRoutes(router, empty, &handler.Handlers{
 		Portal: &handler.PortalHandler{},

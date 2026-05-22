@@ -7,7 +7,7 @@ require (
 	github.com/bedrock/packages/container v0.0.0
 	github.com/bedrock/packages/httpx v0.0.0
 	github.com/bedrock/packages/routing v0.0.0
-	github.com/bedrock/packages/wayfinder v0.0.0
+	github.com/bedrock/packages/routegen v0.0.0
 )
 
 require (
@@ -42,4 +42,4 @@ replace github.com/bedrock/packages/httpx => ../httpx
 
 replace github.com/bedrock/packages/routing => ../routing
 
-replace github.com/bedrock/packages/wayfinder => ../wayfinder
+replace github.com/bedrock/packages/routegen => ../routegen

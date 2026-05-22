@@ -9,7 +9,7 @@ import (
 	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/assert"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/demo/inertia/api/internal/testutil"
 )
 
@@ -43,9 +43,9 @@ func TestRegisterRoutesAndRenderHandlers(t *testing.T) {
 	t.Parallel()
 
 	container := newErrorContainer(t)
-	routes := wayfinder.New()
+	routes := routegen.New()
 
-	routes.Group("features.errors", "/features/errors", func(g *wayfinder.Group) {
+	routes.Group("features.errors", "/features/errors", func(g *routegen.Group) {
 		g.Add("http-error", "GET", "/http-error")
 		g.Add("network-errors", "GET", "/network-errors")
 	})
@@ -94,7 +94,7 @@ func TestRegisterRoutesAndRenderHandlers(t *testing.T) {
 func TestRegisterRoutes_ValidateError(t *testing.T) {
 	t.Parallel()
 
-	err := RegisterRoutes(wayfinder.New(), http.NewServeMux(), Container{})
+	err := RegisterRoutes(routegen.New(), http.NewServeMux(), Container{})
 
 	if err == nil {
 		t.Fatal("RegisterRoutes() error = nil, want validation error")

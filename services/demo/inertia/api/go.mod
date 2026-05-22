@@ -9,7 +9,7 @@ require (
 	github.com/bedrock/packages/inertia v0.0.0
 	github.com/bedrock/packages/seo v0.0.0
 	github.com/bedrock/packages/validation v0.0.0
-	github.com/bedrock/packages/wayfinder v0.0.0
+	github.com/bedrock/packages/routegen v0.0.0
 	github.com/spf13/viper v1.20.1
 	golang.org/x/crypto v0.50.0
 	modernc.org/sqlite v1.48.0
@@ -51,5 +51,5 @@ replace (
 	github.com/bedrock/packages/inertia => ../../../../packages/inertia
 	github.com/bedrock/packages/seo => ../../../../packages/seo
 	github.com/bedrock/packages/validation => ../../../../packages/validation
-	github.com/bedrock/packages/wayfinder => ../../../../packages/wayfinder
+	github.com/bedrock/packages/routegen => ../../../../packages/routegen
 )

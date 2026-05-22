@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 type app struct {
@@ -14,10 +14,10 @@ type app struct {
 
 // DefineRoutes registers CRM route metadata (name, method, pattern) on the
 // given registry without mounting handlers.
-func DefineRoutes(routes *wayfinder.Registry) {
+func DefineRoutes(routes *routegen.Registry) {
 	routes.Add("dashboard", "GET", "/dashboard")
 
-	routes.Group("contacts", "/contacts", func(g *wayfinder.Group) {
+	routes.Group("contacts", "/contacts", func(g *routegen.Group) {
 		g.Add("index", "GET", "")
 		g.Add("create", "GET", "/create")
 		g.Add("store", "POST", "")
@@ -27,12 +27,12 @@ func DefineRoutes(routes *wayfinder.Registry) {
 		g.Add("destroy", "DELETE", "/{contact}")
 		g.Add("favorite", "POST", "/{contact}/favorite")
 
-		g.Group("notes", "", func(ng *wayfinder.Group) {
+		g.Group("notes", "", func(ng *routegen.Group) {
 			ng.Add("store", "POST", "/{contact}/notes")
 		})
 	})
 
-	routes.Group("organizations", "/organizations", func(g *wayfinder.Group) {
+	routes.Group("organizations", "/organizations", func(g *routegen.Group) {
 		g.Add("index", "GET", "")
 		g.Add("show", "GET", "/{organization}")
 		g.Add("update", "POST", "/{organization}")
@@ -40,7 +40,7 @@ func DefineRoutes(routes *wayfinder.Registry) {
 }
 
 // RegisterRoutes mounts the CRM HTTP routes onto the provided mux.
-func RegisterRoutes(routes *wayfinder.Registry, mux *http.ServeMux, container Container) error {
+func RegisterRoutes(routes *routegen.Registry, mux *http.ServeMux, container Container) error {
 	if err := container.Validate(); err != nil {
 		return fmt.Errorf("crm: %w", err)
 	}

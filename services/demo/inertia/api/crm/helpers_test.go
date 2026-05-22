@@ -11,7 +11,7 @@ import (
 	"github.com/bedrock/packages/inertia/assert"
 	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/demo/inertia/api/internal/database"
 	"github.com/bedrock/services/demo/inertia/api/internal/seed"
 	"github.com/bedrock/services/demo/inertia/api/internal/testutil"
@@ -21,7 +21,7 @@ type crmHarness struct {
 	t        *testing.T
 	db       *sql.DB
 	inertia  *inertia.Inertia
-	registry *wayfinder.Registry
+	registry *routegen.Registry
 	app      app
 	user     *database.User
 	flashes  []flash.Message
@@ -60,8 +60,8 @@ func newCRMHarness(t *testing.T) *crmHarness {
 		t:       t,
 		db:      db,
 		inertia: i,
-		registry: func() *wayfinder.Registry {
-			r := wayfinder.New()
+		registry: func() *routegen.Registry {
+			r := routegen.New()
 
 			DefineRoutes(r)
 

@@ -6,15 +6,15 @@ import (
 
 	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/demo/inertia/api/auth"
 	"github.com/bedrock/services/demo/inertia/api/crm"
 	demoerrors "github.com/bedrock/services/demo/inertia/api/errors"
 	"github.com/bedrock/services/demo/inertia/api/features"
 )
 
-func initRoutes() *wayfinder.Registry {
-	routes := wayfinder.New()
+func initRoutes() *routegen.Registry {
+	routes := routegen.New()
 
 	routes.Add("login", "GET", "/login")
 

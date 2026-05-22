@@ -1,4 +1,4 @@
-# wayfinder
+# routegen
 
 <!-- ref: @bedrock/code-0178 -->
 <!-- ref: @bedrock/code-0155 -->
@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package wayfinder generates fully-typed, importable TypeScript functions for your Go routes.
+Package routegen generates fully-typed, importable TypeScript functions for your Go routes.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -20,24 +20,24 @@ Package wayfinder generates fully-typed, importable TypeScript functions for you
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/wayfinder@latest
+go get github.com/bedrock/packages/routegen@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/wayfinder/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routegen/...
 ```
 
 ## Source Coverage
 
 | Package     | Purpose                                                                                      |
 | ----------- | -------------------------------------------------------------------------------------------- |
-| `wayfinder` | Package wayfinder generates fully-typed, importable TypeScript functions for your Go routes. |
+| `routegen` | Package routegen generates fully-typed, importable TypeScript functions for your Go routes. |
 
 ## Core Concepts
 
-The wayfinder reference is organized around the exported Go surface for package `wayfinder`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The routegen reference is organized around the exported Go surface for package `routegen`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -62,7 +62,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/wayfinder"
+    _ "github.com/bedrock/packages/routegen"
 )
 
 func main() {
@@ -71,7 +71,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/wayfinder` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/routegen` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -111,7 +111,7 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/wayfinder/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routegen/...
 ```
 
 ## API Reference

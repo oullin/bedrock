@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bedrock/packages/inertia/protocol"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 // Container contains the host application integrations required by the errors package.
@@ -32,15 +32,15 @@ func (c Container) Validate() error {
 
 // DefineRoutes registers error showcase route metadata (name, method, pattern)
 // on the given registry without mounting handlers.
-func DefineRoutes(routes *wayfinder.Registry) {
-	routes.Group("features.errors", "/features/errors", func(g *wayfinder.Group) {
+func DefineRoutes(routes *routegen.Registry) {
+	routes.Group("features.errors", "/features/errors", func(g *routegen.Group) {
 		g.Add("http-error", "GET", "/http-error")
 		g.Add("network-errors", "GET", "/network-errors")
 	})
 }
 
 // RegisterRoutes mounts the error showcase HTTP routes onto the provided mux.
-func RegisterRoutes(routes *wayfinder.Registry, mux *http.ServeMux, container Container) error {
+func RegisterRoutes(routes *routegen.Registry, mux *http.ServeMux, container Container) error {
 	if err := container.Validate(); err != nil {
 		return fmt.Errorf("errors: %w", err)
 	}

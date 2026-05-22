@@ -3,7 +3,7 @@ package billing
 import (
 	"strconv"
 
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 const (
@@ -11,7 +11,7 @@ const (
 	RoutePortalForType             = "billing.portal.type"
 	RoutePortalForBillable         = "billing.portal.billable"
 	RouteState                     = "billing.state"
-	RouteWayfinder                 = "billing.wayfinder"
+	RouteRouteGen                 = "billing.routegen"
 	RouteSubscriptionStore         = "billing.subscription.store"
 	RouteSubscriptionUpdate        = "billing.subscription.update"
 	RouteSubscriptionCancel        = "billing.subscription.cancel"
@@ -23,15 +23,15 @@ const (
 
 // NewRouteRegistry returns the canonical Billing route registry shared by the
 // backend router, generated frontend helpers, and portal shell.
-func NewRouteRegistry() *wayfinder.Registry {
-	routes := wayfinder.New()
-	RegisterWayfinderRoutes(routes)
+func NewRouteRegistry() *routegen.Registry {
+	routes := routegen.New()
+	RegisterRouteGenRoutes(routes)
 
 	return routes
 }
 
-// RegisterWayfinderRoutes registers canonical Billing routes on registry.
-func RegisterWayfinderRoutes(routes *wayfinder.Registry) {
+// RegisterRouteGenRoutes registers canonical Billing routes on registry.
+func RegisterRouteGenRoutes(routes *routegen.Registry) {
 	routes.Add(RoutePortal, "GET", "/billing")
 
 	routes.Add(RoutePortalForType, "GET", "/billing/{type}")
@@ -40,7 +40,7 @@ func RegisterWayfinderRoutes(routes *wayfinder.Registry) {
 
 	routes.Add(RouteState, "GET", "/billing/state")
 
-	routes.Add(RouteWayfinder, "GET", "/billing/wayfinder")
+	routes.Add(RouteRouteGen, "GET", "/billing/routegen")
 
 	routes.Add(RouteSubscriptionStore, "POST", "/billing/subscription")
 
@@ -58,7 +58,7 @@ func RegisterWayfinderRoutes(routes *wayfinder.Registry) {
 }
 
 // InvoiceDownloadURL resolves the canonical invoice download URL.
-func InvoiceDownloadURL(routes *wayfinder.Registry, billable Billable, transaction Transaction) string {
+func InvoiceDownloadURL(routes *routegen.Registry, billable Billable, transaction Transaction) string {
 	id := transaction.PaddleID
 
 	if id == "" {

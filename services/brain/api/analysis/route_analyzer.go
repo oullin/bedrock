@@ -14,8 +14,8 @@ import (
 // RouteAnalyzer discovers HTTP route registrations. Matches:
 //
 //   - `<recv>.Get("/path", handler)` and the rest of httpVerbs.
-//   - `<recv>.Handle("name", handler, mux)` from wayfinder.Registry.
-//   - `<recv>.Add("name", "METHOD", "/path")` from wayfinder.Group.
+//   - `<recv>.Handle("name", handler, mux)` from routegen.Registry.
+//   - `<recv>.Add("name", "METHOD", "/path")` from routegen.Group.
 //
 // Phase 2 matches by method name and string-literal arity rather than by
 // resolved receiver type. Later phases tighten this using type info from
@@ -51,14 +51,14 @@ func (RouteAnalyzer) Analyze(ctx *Context) error {
 				return true
 			}
 
-			if node := matchWayfinderAdd(call); node != nil {
+			if node := matchRouteGenAdd(call); node != nil {
 				node.Set("file", ctx.Project.Position(call))
 				ctx.Graph.AddNode(node)
 
 				return true
 			}
 
-			if node := matchWayfinderHandle(call); node != nil {
+			if node := matchRouteGenHandle(call); node != nil {
 				node.Set("file", ctx.Project.Position(call))
 				ctx.Graph.AddNode(node)
 
@@ -109,8 +109,8 @@ func matchVerbCall(call *ast.CallExpr) *graph.Node {
 		Set("source", "router")
 }
 
-// matchWayfinderAdd handles `g.Add("name", "METHOD", "/path"[, ...])`.
-func matchWayfinderAdd(call *ast.CallExpr) *graph.Node {
+// matchRouteGenAdd handles `g.Add("name", "METHOD", "/path"[, ...])`.
+func matchRouteGenAdd(call *ast.CallExpr) *graph.Node {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 
 	if !ok || sel.Sel.Name != "Add" || len(call.Args) < 3 {
@@ -131,13 +131,13 @@ func matchWayfinderAdd(call *ast.CallExpr) *graph.Node {
 		Set("method", strings.ToUpper(method)).
 		Set("uri", path).
 		Set("name", name).
-		Set("source", "wayfinder")
+		Set("source", "routegen")
 }
 
-// matchWayfinderHandle handles `r.Handle("name", handler, mux)` — a route
+// matchRouteGenHandle handles `r.Handle("name", handler, mux)` — a route
 // with no inline method/path; we record the name only and the controller
 // analyzer (phase 3) will link it to its handler.
-func matchWayfinderHandle(call *ast.CallExpr) *graph.Node {
+func matchRouteGenHandle(call *ast.CallExpr) *graph.Node {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 
 	if !ok || sel.Sel.Name != "Handle" || len(call.Args) < 2 {
@@ -154,7 +154,7 @@ func matchWayfinderHandle(call *ast.CallExpr) *graph.Node {
 
 	return graph.NewNode(id, graph.NodeTypeRoute, name).
 		Set("name", name).
-		Set("source", "wayfinder.handle")
+		Set("source", "routegen.handle")
 }
 
 func stringLit(e ast.Expr) (string, bool) {

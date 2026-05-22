@@ -14,7 +14,7 @@ import (
 	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/middleware"
 	corei18n "github.com/bedrock/packages/seo/i18n"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 	"github.com/bedrock/services/demo/inertia/api/internal/database"
 	"github.com/bedrock/services/demo/inertia/api/internal/seed"
 )
@@ -28,7 +28,7 @@ type runtime struct {
 	inertia    *inertia.Inertia
 	localeCfg  *corei18n.I18nConfig
 	flashStore *flash.CookieStore
-	routes     *wayfinder.Registry
+	routes     *routegen.Registry
 }
 
 func main() {

@@ -187,7 +187,7 @@ export default defineUserConfig({
             { text: 'process', link: '/packages/process' },
             { text: 'seo', link: '/packages/seo' },
             { text: 'str', link: '/packages/str' },
-            { text: 'wayfinder', link: '/packages/wayfinder' },
+            { text: 'routegen', link: '/packages/routegen' },
           ],
         },
         {

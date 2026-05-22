@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 func TestRenderPortalShell_NilRoutesFallsBackToDefault(t *testing.T) {
@@ -22,7 +22,7 @@ func TestRenderPortalShell_NilRoutesFallsBackToDefault(t *testing.T) {
 }
 
 func TestRenderPortalShell_HappyPath(t *testing.T) {
-	routes := wayfinder.New()
+	routes := routegen.New()
 
 	routes.Add("billing.state", "GET", "/billing/state")
 

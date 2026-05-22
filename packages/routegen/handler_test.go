@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ func TestHandler(t *testing.T) {
 
 	handler := Handler(reg)
 
-	req := httptest.NewRequest(http.MethodGet, "/__wayfinder", nil)
+	req := httptest.NewRequest(http.MethodGet, "/__routegen", nil)
 	rec := httptest.NewRecorder()
 
 	handler.ServeHTTP(rec, req)
@@ -61,7 +61,7 @@ func TestHandler_WriteError(t *testing.T) {
 
 	handler := Handler(reg)
 
-	req := httptest.NewRequest(http.MethodGet, "/__wayfinder", nil)
+	req := httptest.NewRequest(http.MethodGet, "/__routegen", nil)
 	w := &failWriter{header: http.Header{}}
 
 	// Should not panic on write error.
@@ -74,7 +74,7 @@ func TestHandler_EmptyRegistry(t *testing.T) {
 	reg := New()
 	handler := Handler(reg)
 
-	req := httptest.NewRequest(http.MethodGet, "/__wayfinder", nil)
+	req := httptest.NewRequest(http.MethodGet, "/__routegen", nil)
 	rec := httptest.NewRecorder()
 
 	handler.ServeHTTP(rec, req)

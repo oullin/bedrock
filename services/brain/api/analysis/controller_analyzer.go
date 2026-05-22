@@ -62,11 +62,11 @@ func routeNodeForCall(call *ast.CallExpr, ctx *Context) *graph.Node {
 		return ctx.Graph.Node(n.ID)
 	}
 
-	if n := matchWayfinderAdd(call); n != nil {
+	if n := matchRouteGenAdd(call); n != nil {
 		return ctx.Graph.Node(n.ID)
 	}
 
-	if n := matchWayfinderHandle(call); n != nil {
+	if n := matchRouteGenHandle(call); n != nil {
 		return ctx.Graph.Node(n.ID)
 	}
 

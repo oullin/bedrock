@@ -2,7 +2,7 @@ import { usePage } from "@inertiajs/vue3";
 import type { DemoRoute, SharedPageProps } from "@/js/types";
 
 function fillPattern(pattern: string, params: Record<string, string | number> = {}): string {
-  let url = pattern ?? "#!wayfinder:unknown-route";
+  let url = pattern ?? "#!routegen:unknown-route";
 
   Object.entries(params).forEach(([key, value]) => {
     url = url.replaceAll(`{${key}}`, encodeURIComponent(String(value)));
@@ -23,7 +23,7 @@ export function useDemoRoute(
   const pattern = page.props.routes?.[name];
 
   if (!pattern) {
-    console.warn(`[wayfinder] unknown route "${name}", returning fallback`);
+    console.warn(`[routegen] unknown route "${name}", returning fallback`);
   }
 
   return {
@@ -40,7 +40,7 @@ export function featureRoute(name: string): string | null {
   const resolved = page.props.routes?.[name];
 
   if (!resolved) {
-    console.warn(`[wayfinder] unknown feature route "${name}"`);
+    console.warn(`[routegen] unknown feature route "${name}"`);
 
     return null;
   }

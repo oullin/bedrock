@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import "regexp"
 

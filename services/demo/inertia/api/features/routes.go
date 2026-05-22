@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 // DefineRoutes registers all feature showcase route metadata (name, method,
 // pattern) on the given registry without mounting handlers.
-func DefineRoutes(routes *wayfinder.Registry) {
-	routes.Group("features.forms", "/features/forms", func(g *wayfinder.Group) {
+func DefineRoutes(routes *routegen.Registry) {
+	routes.Group("features.forms", "/features/forms", func(g *routegen.Group) {
 		g.Add("use-form", "GET", "/use-form")
 		g.Add("form-component", "GET", "/form-component")
 		g.Add("file-uploads", "GET", "/file-uploads")
@@ -19,10 +19,10 @@ func DefineRoutes(routes *wayfinder.Registry) {
 		g.Add("optimistic-updates", "GET", "/optimistic-updates")
 		g.Add("use-form-context", "GET", "/use-form-context")
 		g.Add("dotted-keys", "GET", "/dotted-keys")
-		g.Add("wayfinder", "GET", "/wayfinder")
+		g.Add("routegen", "GET", "/routegen")
 	})
 
-	routes.Group("features.navigation", "/features/navigation", func(g *wayfinder.Group) {
+	routes.Group("features.navigation", "/features/navigation", func(g *routegen.Group) {
 		g.Add("links", "GET", "/links")
 		g.Add("preserve-state", "GET", "/preserve-state")
 		g.Add("preserve-scroll", "GET", "/preserve-scroll")
@@ -38,7 +38,7 @@ func DefineRoutes(routes *wayfinder.Registry) {
 		g.Add("url-fragments", "GET", "/url-fragments")
 	})
 
-	routes.Group("features.data-loading", "/features/data-loading", func(g *wayfinder.Group) {
+	routes.Group("features.data-loading", "/features/data-loading", func(g *routegen.Group) {
 		g.Add("deferred-props", "GET", "/deferred-props")
 		g.Add("partial-reloads", "GET", "/partial-reloads")
 		g.Add("infinite-scroll", "GET", "/infinite-scroll")
@@ -49,20 +49,20 @@ func DefineRoutes(routes *wayfinder.Registry) {
 		g.Add("once-props", "GET", "/once-props/{page}")
 	})
 
-	routes.Group("features.prefetching", "/features/prefetching", func(g *wayfinder.Group) {
+	routes.Group("features.prefetching", "/features/prefetching", func(g *routegen.Group) {
 		g.Add("link-prefetch", "GET", "/link-prefetch")
 		g.Add("stale-while-revalidate", "GET", "/stale-while-revalidate")
 		g.Add("manual-prefetch", "GET", "/manual-prefetch")
 		g.Add("cache-management", "GET", "/cache-management")
 	})
 
-	routes.Group("features.state", "/features/state", func(g *wayfinder.Group) {
+	routes.Group("features.state", "/features/state", func(g *routegen.Group) {
 		g.Add("remember", "GET", "/remember")
 		g.Add("flash-data", "GET", "/flash-data")
 		g.Add("shared-props", "GET", "/shared-props")
 	})
 
-	routes.Group("features.layouts", "/features/layouts", func(g *wayfinder.Group) {
+	routes.Group("features.layouts", "/features/layouts", func(g *routegen.Group) {
 		g.Add("persistent-layouts", "GET", "/persistent-layouts")
 		g.Add("persistent-layouts-page-2", "GET", "/persistent-layouts/page-2")
 		g.Add("nested-layouts", "GET", "/nested-layouts")
@@ -70,20 +70,20 @@ func DefineRoutes(routes *wayfinder.Registry) {
 		g.Add("layout-props", "GET", "/layout-props")
 	})
 
-	routes.Group("features.events", "/features/events", func(g *wayfinder.Group) {
+	routes.Group("features.events", "/features/events", func(g *routegen.Group) {
 		g.Add("global-events", "GET", "/global-events")
 		g.Add("visit-callbacks", "GET", "/visit-callbacks")
 		g.Add("progress", "GET", "/progress")
 		g.Add("progress-slow", "GET", "/progress/slow")
 	})
 
-	routes.Group("features.http", "/features/http", func(g *wayfinder.Group) {
+	routes.Group("features.http", "/features/http", func(g *routegen.Group) {
 		g.Add("use-http", "GET", "/use-http")
 	})
 }
 
 // RegisterRoutes mounts all feature showcase HTTP routes onto the provided mux.
-func RegisterRoutes(routes *wayfinder.Registry, mux *http.ServeMux, container Container) error {
+func RegisterRoutes(routes *routegen.Registry, mux *http.ServeMux, container Container) error {
 	if err := container.Validate(); err != nil {
 		return fmt.Errorf("features: %w", err)
 	}
@@ -109,7 +109,7 @@ func RegisterRoutes(routes *wayfinder.Registry, mux *http.ServeMux, container Co
 
 	routes.Handle("features.forms.use-form-context", auth(a.formContextHandler), mux)
 	routes.Handle("features.forms.dotted-keys", auth(a.dottedKeysHandler), mux)
-	routes.Handle("features.forms.wayfinder", auth(a.wayfinderHandler), mux)
+	routes.Handle("features.forms.routegen", auth(a.routegenHandler), mux)
 
 	// Navigation
 	routes.Handle("features.navigation.links", auth(a.linksHandler), mux)

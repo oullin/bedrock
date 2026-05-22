@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 // Options controls what the generator produces.
 type Options struct {
 	// Path is the root output directory. The generator creates actions/,
-	// routes/, and wayfinder/ subdirectories inside it.
+	// routes/, and routegen/ subdirectories inside it.
 	// Defaults to "resources/js" when empty.
 	Path string
 
@@ -28,7 +28,7 @@ type Options struct {
 //
 //	{Path}/actions/   — per-controller action functions
 //	{Path}/routes/    — named-route helpers
-//	{Path}/wayfinder/ — runtime TypeScript utility (index.ts)
+//	{Path}/routegen/ — runtime TypeScript utility (index.ts)
 func Generate(routes []*RouteInfo, opts Options) error {
 	if opts.Path == "" {
 		opts.Path = filepath.Join("resources", "js")
@@ -40,13 +40,13 @@ func Generate(routes []*RouteInfo, opts Options) error {
 		actionsBase := filepath.Join(opts.Path, "actions")
 
 		if err := os.RemoveAll(actionsBase); err != nil {
-			return fmt.Errorf("wayfinder: clearing actions dir: %w", err)
+			return fmt.Errorf("routegen: clearing actions dir: %w", err)
 		}
 
 		g.generateActions(routes, actionsBase)
 
 		if err := g.flush(actionsBase); err != nil {
-			return fmt.Errorf("wayfinder: writing actions: %w", err)
+			return fmt.Errorf("routegen: writing actions: %w", err)
 		}
 	}
 
@@ -54,21 +54,21 @@ func Generate(routes []*RouteInfo, opts Options) error {
 		routesBase := filepath.Join(opts.Path, "routes")
 
 		if err := os.RemoveAll(routesBase); err != nil {
-			return fmt.Errorf("wayfinder: clearing routes dir: %w", err)
+			return fmt.Errorf("routegen: clearing routes dir: %w", err)
 		}
 
 		g.generateRoutes(routes, routesBase)
 
 		if err := g.flush(routesBase); err != nil {
-			return fmt.Errorf("wayfinder: writing routes: %w", err)
+			return fmt.Errorf("routegen: writing routes: %w", err)
 		}
 	}
 
 	// Always copy the runtime utility.
-	wayfinderDir := filepath.Join(opts.Path, "wayfinder")
+	routegenDir := filepath.Join(opts.Path, "routegen")
 
-	if err := writeWayfinderTS(wayfinderDir); err != nil {
-		return fmt.Errorf("wayfinder: writing runtime utility: %w", err)
+	if err := writeRouteGenTS(routegenDir); err != nil {
+		return fmt.Errorf("routegen: writing runtime utility: %w", err)
 	}
 
 	return nil

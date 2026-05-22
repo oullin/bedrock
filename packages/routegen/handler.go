@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"log"
@@ -21,7 +21,7 @@ func Handler(reg *Registry) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 
 		if _, err = w.Write(data); err != nil {
-			log.Printf("wayfinder: failed to write response: %v", err)
+			log.Printf("routegen: failed to write response: %v", err)
 		}
 	})
 }

@@ -9,7 +9,7 @@ import (
 
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/httpx"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 //go:embed templates/portal.html
@@ -25,7 +25,7 @@ type portalShellData struct {
 
 var portalTemplate = template.Must(template.ParseFS(portalTemplates, "templates/portal.html"))
 
-func renderPortalShell(w http.ResponseWriter, r *http.Request, routes *wayfinder.Registry, title string, state map[string]any) {
+func renderPortalShell(w http.ResponseWriter, r *http.Request, routes *routegen.Registry, title string, state map[string]any) {
 	payload, err := json.Marshal(state)
 
 	if err != nil {

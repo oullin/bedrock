@@ -10,7 +10,7 @@ import (
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
 	"github.com/bedrock/packages/billing/state"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 func newPortalHandler(allow bool, subs []*billing.Subscription) *handler.PortalHandler {
@@ -306,7 +306,7 @@ func TestPortalHandler_WithRoutes_PropagatesToFrontend(t *testing.T) {
 		return &stubBillable{id: 1, btype: "team"}, nil
 	})
 
-	routes := wayfinder.New()
+	routes := routegen.New()
 
 	routes.Add(billing.RouteState, "GET", "/custom/state")
 

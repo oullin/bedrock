@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	"crypto/md5"
@@ -841,7 +841,7 @@ func (g *generator) writeNameBarrelNode(base, prefix string, node nameNode, byNa
 // Import management
 // ─────────────────────────────────────────────────────────────────────────────
 
-// appendCommonImports adds the wayfinder runtime imports to a file's import map.
+// appendCommonImports adds the routegen runtime imports to a file's import map.
 func (g *generator) appendCommonImports(path, namespace string, routes []*RouteInfo) {
 	imports := []string{"queryParams", "type RouteQueryOptions", "type RouteDefinition"}
 
@@ -873,7 +873,7 @@ outer:
 	// Compute the relative import path depth.
 	dotCount := strings.Count(namespace, ".")
 	ups := strings.Repeat("/..", dotCount+1)
-	importFrom := "." + ups + "/wayfinder"
+	importFrom := "." + ups + "/routegen"
 
 	if g.imports[path] == nil {
 		g.imports[path] = make(map[string][]string)

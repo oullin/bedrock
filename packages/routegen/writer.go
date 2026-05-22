@@ -1,4 +1,4 @@
-package wayfinder
+package routegen
 
 import (
 	_ "embed"
@@ -6,17 +6,17 @@ import (
 	"path/filepath"
 )
 
-//go:embed resources/wayfinder.ts
-var wayfinderTSContent []byte
+//go:embed resources/routegen.ts
+var routegenTSContent []byte
 
-// writeWayfinderTS copies the embedded wayfinder.ts runtime utility to
+// writeRouteGenTS copies the embedded routegen.ts runtime utility to
 // {dir}/index.ts, creating the directory if necessary.
-func writeWayfinderTS(dir string) error {
+func writeRouteGenTS(dir string) error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(dir, "index.ts"), wayfinderTSContent, 0644)
+	return os.WriteFile(filepath.Join(dir, "index.ts"), routegenTSContent, 0644)
 }
 
 // writeFile writes content to path, creating intermediate directories.

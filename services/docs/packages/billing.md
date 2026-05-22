@@ -355,7 +355,7 @@ Parity is tracked by these tests:
 | `Register`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RegisterBillable`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RegisterRoutes`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RegisterWayfinderRoutes`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RegisterRouteGenRoutes`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RemoveSeats`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Repository`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Resolve`                            | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -449,7 +449,7 @@ Parity is tracked by these tests:
 | `RouteSubscriptionResume`        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RouteSubscriptionStore`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RouteSubscriptionUpdate`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RouteWayfinder`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RouteRouteGen`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusActive`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusAwaitingPayment`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusCanceled`                 | Source-backed public surface. See the Go package for exact signature and behavior. |

@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/httpx/routingx"
 	"github.com/bedrock/packages/routing"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 // Handlers bundles all canonical Billing HTTP handler instances.
@@ -24,7 +24,7 @@ type Handlers struct {
 // RouteSet exposes Billing's router, route registry, and dispatch handler.
 type RouteSet struct {
 	Router   *routing.Router
-	Registry *wayfinder.Registry
+	Registry *routegen.Registry
 	Handler  http.Handler
 }
 
@@ -43,7 +43,7 @@ func NewRouteSet(h *Handlers) *RouteSet {
 }
 
 // RegisterRoutes registers all canonical Billing routes.
-func RegisterRoutes(router *routing.Router, registry *wayfinder.Registry, h *Handlers) {
+func RegisterRoutes(router *routing.Router, registry *routegen.Registry, h *Handlers) {
 	if registry == nil {
 		registry = billing.NewRouteRegistry()
 	}
@@ -63,10 +63,10 @@ func RegisterRoutes(router *routing.Router, registry *wayfinder.Registry, h *Han
 	router.Get(routePattern(registry, billing.RoutePortalForType), h.Portal.Show).Name(billing.RoutePortalForType)
 	router.Get(routePattern(registry, billing.RoutePortalForBillable), h.Portal.Show).Name(billing.RoutePortalForBillable)
 	router.Get(routePattern(registry, billing.RouteState), h.Portal.State).Name(billing.RouteState)
-	router.Get(routePattern(registry, billing.RouteWayfinder), wayfinder.Handler(registry).ServeHTTP).Name(billing.RouteWayfinder)
+	router.Get(routePattern(registry, billing.RouteRouteGen), routegen.Handler(registry).ServeHTTP).Name(billing.RouteRouteGen)
 }
 
-func routePattern(registry *wayfinder.Registry, name string) string {
+func routePattern(registry *routegen.Registry, name string) string {
 	route, ok := registry.Lookup(name)
 
 	if !ok {

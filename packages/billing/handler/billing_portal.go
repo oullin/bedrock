@@ -6,7 +6,7 @@ import (
 
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/state"
-	"github.com/bedrock/packages/wayfinder"
+	"github.com/bedrock/packages/routegen"
 )
 
 // PortalHandler renders the billing portal frontend state.
@@ -14,7 +14,7 @@ type PortalHandler struct {
 	manager  *billing.Manager
 	frontend *state.FrontendState
 	resolver billing.ResolverFunc
-	routes   *wayfinder.Registry
+	routes   *routegen.Registry
 }
 
 // NewPortalHandler creates a PortalHandler.
@@ -26,7 +26,7 @@ func NewPortalHandler(mgr *billing.Manager, fs *state.FrontendState, resolver bi
 }
 
 // WithRoutes sets the route registry used by the portal shell.
-func (h *PortalHandler) WithRoutes(routes *wayfinder.Registry) *PortalHandler {
+func (h *PortalHandler) WithRoutes(routes *routegen.Registry) *PortalHandler {
 	if routes != nil {
 		h.routes = routes
 
