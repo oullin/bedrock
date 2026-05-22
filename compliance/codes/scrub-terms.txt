@@ -12,9 +12,9 @@
 # Mirrored in bedrock-compliance/compliance/codes/scrub-terms.txt for
 # cross-repo reference. See compliance/codes/scrub-policy.md for policy.
 
-V1|namespace leak|Framework
+V1|namespace leak|Illuminate
 V2|upstream pkg path|laravel/(framework|boost|ai|docs)
-V3|brand mention|\bUpstream\b
+V3|brand mention|\bLaravel\b
 V4|leaked namespace tail|@bedrock[\\/][A-Z]
 V5|lineage verb|//\s*(Mirrors|Translation of|Port of|Adapted from|Based on|Counterpart of|Equivalent of)\s
 V6|port phrase|1:1 (Go )?port
