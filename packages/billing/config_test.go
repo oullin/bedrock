@@ -1,10 +1,10 @@
-package spark_test
+package billing_test
 
 import (
 	"testing"
 
-	"github.com/bedrock/packages/config"
 	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/config"
 )
 
 func TestConfigUsesSharedRepositoryDefaultsAndOverrides(t *testing.T) {

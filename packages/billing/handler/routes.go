@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
+	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/httpx/routingx"
 	"github.com/bedrock/packages/routing"
-	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/routegen"
 )
 

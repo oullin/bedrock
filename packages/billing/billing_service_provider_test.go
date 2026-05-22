@@ -1,10 +1,10 @@
-package spark_test
+package billing_test
 
 import (
 	"testing"
 
-	"github.com/bedrock/packages/container"
 	"github.com/bedrock/packages/billing"
+	"github.com/bedrock/packages/container"
 )
 
 func TestNewBillingServiceProvider_NilConfigFallsBackToDefault(t *testing.T) {

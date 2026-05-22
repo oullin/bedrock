@@ -171,7 +171,7 @@ function minimalState(): BillingPortalState {
     invoices: [],
     monthlyPlans: [],
     sandbox: false,
-    sparkPath: "billing",
+    billingPath: "billing",
     state: "none",
     subscription: {
       pay_now: false,

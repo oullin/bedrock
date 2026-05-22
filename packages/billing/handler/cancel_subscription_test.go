@@ -33,12 +33,12 @@ func (s *cancelSubStore) ActiveForBillable(context.Context, string, int64) ([]*b
 }
 func (s *cancelSubStore) Create(context.Context, *billing.Subscription) error { return nil }
 func (s *cancelSubStore) Save(context.Context, *billing.Subscription) error   { return s.saveErr }
-func (s *cancelSubStore) Delete(context.Context, int64) error               { return nil }
+func (s *cancelSubStore) Delete(context.Context, int64) error                 { return nil }
 
 func TestCancelSubscriptionHandler_ResolverError(t *testing.T) {
-	billing := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewCancelSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewCancelSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return nil, errors.New("no")
 	})
 
@@ -51,9 +51,9 @@ func TestCancelSubscriptionHandler_ResolverError(t *testing.T) {
 }
 
 func TestCancelSubscriptionHandler_BillingError(t *testing.T) {
-	billing := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewCancelSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewCancelSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return &stubBillable{id: 1, btype: "team"}, nil
 	})
 
@@ -68,9 +68,9 @@ func TestCancelSubscriptionHandler_BillingError(t *testing.T) {
 func TestCancelSubscriptionHandler_HappyPath(t *testing.T) {
 	active := &billing.Subscription{ID: 1, Status: billing.StatusActive, PaddleID: "sub_1"}
 	store := &cancelSubStore{subs: []*billing.Subscription{active}}
-	billing := service.NewBillingService(store, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(store, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewCancelSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewCancelSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return &stubBillable{id: 1, btype: "team"}, nil
 	})
 

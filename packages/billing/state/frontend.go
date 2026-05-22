@@ -144,7 +144,7 @@ func (f *FrontendState) CurrentAt(ctx context.Context, billableType string, bill
 		"pwAuth":             f.config.RetainKey(),
 		"pwCustomer":         providerCustomerID(customer),
 		"seatName":           f.manager.SeatName(billableType),
-		"sparkPath":          f.config.Path(),
+		"billingPath":        f.config.Path(),
 		"state":              state,
 		"subscription":       subscription,
 		"cta":                cta,

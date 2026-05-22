@@ -4,9 +4,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/bedrock/packages/httpx"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/service"
+	"github.com/bedrock/packages/httpx"
 )
 
 // VerifyBillableIsSubscribed is middleware that checks whether the

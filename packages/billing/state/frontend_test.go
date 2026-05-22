@@ -62,7 +62,7 @@ func (f *fakeSubStore) ActiveForBillable(context.Context, string, int64) ([]*bil
 }
 func (f *fakeSubStore) Create(context.Context, *billing.Subscription) error { return nil }
 func (f *fakeSubStore) Save(context.Context, *billing.Subscription) error   { return nil }
-func (f *fakeSubStore) Delete(context.Context, int64) error               { return nil }
+func (f *fakeSubStore) Delete(context.Context, int64) error                 { return nil }
 
 func (f *fakeCustomerStore) FindByProviderID(context.Context, string) (*billing.Customer, error) {
 	return nil, nil
