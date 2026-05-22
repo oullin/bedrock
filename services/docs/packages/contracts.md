@@ -52,7 +52,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/contracts/...
 | `provider`      | Package provider defines the contracts that a bedrock service provider must satisfy. It is intentionally tiny — three interfaces and no helpers — so that any package can opt in without pulling a heavy dependency. |
 | `reverb`        | Public reverb API surface for this module.                                                                                                                                                                           |
 | `scout`         | Public scout API surface for this module.                                                                                                                                                                            |
-| `socialite`     | Public socialite API surface for this module.                                                                                                                                                                        |
+| `socialauth`     | Public socialauth API surface for this module.                                                                                                                                                                        |
 | `telescope`     | Public telescope API surface for this module.                                                                                                                                                                        |
 | `validation`    | Public validation API surface for this module.                                                                                                                                                                       |
 

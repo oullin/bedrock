@@ -106,7 +106,7 @@ export default defineUserConfig({
             { text: 'encryption', link: '/packages/encryption' },
             { text: 'hashing', link: '/packages/hashing' },
             { text: 'oauthserver', link: '/packages/oauthserver' },
-            { text: 'socialite', link: '/packages/socialite' },
+            { text: 'socialauth', link: '/packages/socialauth' },
           ],
         },
         {
