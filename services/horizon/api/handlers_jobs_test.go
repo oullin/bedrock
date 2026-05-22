@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 	"github.com/bedrock/services/horizon/api"
 )
 
 func TestPendingJobsEndpointReturnsPendingJobsForQueue(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
-	jobs.StorePending(horizon.JobRecord{
+	jobs.StorePending(jobqueue.JobRecord{
 		ID:       "job-1",
 		Name:     "SendWelcomeEmail",
 		Queue:    "default",
@@ -24,7 +24,7 @@ func TestPendingJobsEndpointReturnsPendingJobsForQueue(t *testing.T) {
 		PushedAt: time.Unix(1700000000, 0),
 	})
 
-	jobs.StorePending(horizon.JobRecord{
+	jobs.StorePending(jobqueue.JobRecord{
 		ID:       "job-2",
 		Name:     "RebuildIndex",
 		Queue:    "mail",
@@ -52,10 +52,10 @@ func TestPendingJobsEndpointReturnsPendingJobsForQueue(t *testing.T) {
 func TestPendingJobsEndpointPaginatesLargeResults(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
 	for i := 0; i < 150; i++ {
-		jobs.StorePending(horizon.JobRecord{
+		jobs.StorePending(jobqueue.JobRecord{
 			ID:       jobID(i),
 			Queue:    "default",
 			PushedAt: time.Unix(1700000000+int64(i), 0),
@@ -81,10 +81,10 @@ func TestPendingJobsEndpointPaginatesLargeResults(t *testing.T) {
 func TestPendingJobsEndpointClampsNegativePagination(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
 	for i := 0; i < 3; i++ {
-		jobs.StorePending(horizon.JobRecord{
+		jobs.StorePending(jobqueue.JobRecord{
 			ID:       jobID(i),
 			Queue:    "default",
 			PushedAt: time.Unix(1700000000+int64(i), 0),
@@ -122,11 +122,11 @@ func TestPendingJobsEndpointClampsNegativePagination(t *testing.T) {
 func TestCompletedJobsEndpointReturnsTrimmedRecent(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
 	for i := 0; i < 5; i++ {
 		id := jobID(i)
-		jobs.StorePending(horizon.JobRecord{ID: id, Queue: "default", PushedAt: time.Unix(1700000000+int64(i), 0)})
+		jobs.StorePending(jobqueue.JobRecord{ID: id, Queue: "default", PushedAt: time.Unix(1700000000+int64(i), 0)})
 		jobs.MarkComplete(id, true, time.Unix(1700000100+int64(i), 0))
 	}
 
@@ -149,9 +149,9 @@ func TestCompletedJobsEndpointReturnsTrimmedRecent(t *testing.T) {
 func TestFailedJobsEndpointListsFailedJobs(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
-	jobs.StorePending(horizon.JobRecord{ID: "job-1", Queue: "default", PushedAt: time.Unix(1700000000, 0)})
+	jobs.StorePending(jobqueue.JobRecord{ID: "job-1", Queue: "default", PushedAt: time.Unix(1700000000, 0)})
 	jobs.MarkFailed("job-1", time.Unix(1700000010, 0), 0)
 
 	handler := newTestHandler(t, api.Options{Jobs: jobs})
@@ -173,10 +173,10 @@ func TestFailedJobsEndpointListsFailedJobs(t *testing.T) {
 func TestFailedJobsEndpointFiltersByTag(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
-	jobs.StorePending(horizon.JobRecord{ID: "job-1", Queue: "default", Tags: []string{"billing"}, PushedAt: time.Unix(1700000000, 0)})
-	jobs.StorePending(horizon.JobRecord{ID: "job-2", Queue: "default", Tags: []string{"audit"}, PushedAt: time.Unix(1700000001, 0)})
+	jobs.StorePending(jobqueue.JobRecord{ID: "job-1", Queue: "default", Tags: []string{"billing"}, PushedAt: time.Unix(1700000000, 0)})
+	jobs.StorePending(jobqueue.JobRecord{ID: "job-2", Queue: "default", Tags: []string{"audit"}, PushedAt: time.Unix(1700000001, 0)})
 
 	jobs.MarkFailed("job-1", time.Unix(1700000010, 0), 0)
 	jobs.MarkFailed("job-2", time.Unix(1700000011, 0), 0)
@@ -200,9 +200,9 @@ func TestFailedJobsEndpointFiltersByTag(t *testing.T) {
 func TestFailedJobShowReturnsFailedRecordWithExpiration(t *testing.T) {
 	t.Parallel()
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
-	jobs.StorePending(horizon.JobRecord{ID: "job-1", Queue: "default", Tags: []string{"billing"}, PushedAt: time.Unix(1700000000, 0)})
+	jobs.StorePending(jobqueue.JobRecord{ID: "job-1", Queue: "default", Tags: []string{"billing"}, PushedAt: time.Unix(1700000000, 0)})
 	jobs.MarkFailed("job-1", time.Unix(1700000010, 0), time.Hour)
 
 	handler := newTestHandler(t, api.Options{Jobs: jobs})

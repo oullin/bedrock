@@ -97,7 +97,7 @@ pnpm run build --filter=@bedrock/docs
 | [events](/packages/events)     | Event dispatching and listener management        |
 | [bus](/packages/bus)           | Command and event bus with pipeline support      |
 | [queue](/packages/queue)       | Background job processing with pluggable drivers |
-| [horizon](/packages/horizon)   | Queue monitoring snapshots and metrics           |
+| [horizon](/packages/jobqueue)   | Queue monitoring snapshots and metrics           |
 | [pipeline](/packages/pipeline) | Middleware-style pipe-and-filter chains          |
 
 ### Communication

@@ -1,4 +1,4 @@
-package horizon
+package jobqueue
 
 // SupervisorOptions contains worker supervision settings.
 type SupervisorOptions struct {

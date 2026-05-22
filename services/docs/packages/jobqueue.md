@@ -1,4 +1,4 @@
-# horizon
+# jobqueue
 
 <!-- ref: @bedrock/code-0087 -->
 <!-- ref: @bedrock/code-0086 -->
@@ -6,7 +6,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package horizon provides queue monitoring primitives inspired by upstream Horizon.
+Package jobqueue provides queue monitoring primitives inspired by upstream JobQueue.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -19,24 +19,24 @@ Package horizon provides queue monitoring primitives inspired by upstream Horizo
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/horizon@latest
+go get github.com/bedrock/packages/jobqueue@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/horizon/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jobqueue/...
 ```
 
 ## Source Coverage
 
 | Package   | Purpose                                                                            |
 | --------- | ---------------------------------------------------------------------------------- |
-| `horizon` | Package horizon provides queue monitoring primitives inspired by upstream Horizon. |
+| `jobqueue` | Package jobqueue provides queue monitoring primitives inspired by upstream JobQueue. |
 
 ## Core Concepts
 
-The horizon reference is organized around the exported Go surface for package `horizon`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The jobqueue reference is organized around the exported Go surface for package `jobqueue`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -63,7 +63,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/horizon"
+    _ "github.com/bedrock/packages/jobqueue"
 )
 
 func main() {
@@ -72,7 +72,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/horizon` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/jobqueue` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -112,16 +112,16 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/horizon/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jobqueue/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/horizon/auto_scaler_inventory_test.go`
-- `packages/horizon/horizon_inventory_additional_test.go`
-- `packages/horizon/horizon_inventory_test.go`
-- `packages/horizon/redis_payload_inventory_test.go`
-- `packages/horizon/redis_prefix_inventory_test.go`
+- `packages/jobqueue/auto_scaler_inventory_test.go`
+- `packages/jobqueue/jobqueue_inventory_additional_test.go`
+- `packages/jobqueue/jobqueue_inventory_test.go`
+- `packages/jobqueue/redis_payload_inventory_test.go`
+- `packages/jobqueue/redis_prefix_inventory_test.go`
 
 ## API Reference
 

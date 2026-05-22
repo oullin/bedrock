@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 )
 
 // jobsPending ports PendingJobsController::index. Horizon paginates
@@ -73,7 +73,7 @@ func jobsSilenced(opts Options) http.HandlerFunc {
 	}
 }
 
-func failedJobs(opts Options, tag string) []horizon.JobRecord {
+func failedJobs(opts Options, tag string) []jobqueue.JobRecord {
 	jobs := opts.Jobs.Failed()
 
 	if tag == "" {
@@ -88,10 +88,10 @@ func failedJobs(opts Options, tag string) []horizon.JobRecord {
 		}
 	}
 
-	return append([]horizon.JobRecord(nil), filtered...)
+	return append([]jobqueue.JobRecord(nil), filtered...)
 }
 
-func jobHasTag(job horizon.JobRecord, tag string) bool {
+func jobHasTag(job jobqueue.JobRecord, tag string) bool {
 	for _, candidate := range job.Tags {
 		if candidate == tag {
 			return true
@@ -101,7 +101,7 @@ func jobHasTag(job horizon.JobRecord, tag string) bool {
 	return false
 }
 
-func jobList(jobs []horizon.JobRecord) []map[string]any {
+func jobList(jobs []jobqueue.JobRecord) []map[string]any {
 	out := make([]map[string]any, 0, len(jobs))
 
 	for _, job := range jobs {
@@ -111,7 +111,7 @@ func jobList(jobs []horizon.JobRecord) []map[string]any {
 	return out
 }
 
-func jobPayload(job horizon.JobRecord) map[string]any {
+func jobPayload(job jobqueue.JobRecord) map[string]any {
 	return map[string]any{
 		"id":          job.ID,
 		"name":        job.Name,

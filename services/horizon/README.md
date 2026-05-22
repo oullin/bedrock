@@ -1,7 +1,7 @@
 # Bedrock Horizon
 
 Ports Horizon dashboard — JSON API plus Vue SPA — on top of the Go
-primitives shipped in [`packages/horizon`](../../packages/horizon).
+primitives shipped in [`packages/jobqueue`](../../packages/jobqueue).
 
 ## Layout
 

@@ -1,4 +1,4 @@
-package horizon
+package jobqueue
 
 import (
 	"errors"
@@ -7,14 +7,14 @@ import (
 
 // ErrUnknownRedisConnection is returned when a named Redis connection is not registered.
 
-// RedisConnectionKind identifies where a Horizon Redis connection is registered.
+// RedisConnectionKind identifies where a JobQueue Redis connection is registered.
 type RedisConnectionKind string
 
 // RedisStandalone is a non-clustered Redis connection.
 
 // RedisCluster is a clustered Redis connection.
 
-// RedisConnectionConfig stores the Redis connection metadata Horizon needs.
+// RedisConnectionConfig stores the Redis connection metadata JobQueue needs.
 type RedisConnectionConfig struct {
 	Name            string
 	Prefix          string
@@ -31,9 +31,9 @@ type RedisConnectionRegistry struct {
 	clusters       map[string]RedisConnectionConfig
 }
 
-const defaultRedisPrefix = "horizon:"
+const defaultRedisPrefix = "jobqueue:"
 
-var ErrUnknownRedisConnection = errors.New("horizon: redis connection not registered")
+var ErrUnknownRedisConnection = errors.New("jobqueue: redis connection not registered")
 
 const (
 	RedisStandalone RedisConnectionKind = "standalone"

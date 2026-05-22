@@ -134,7 +134,7 @@ export default defineUserConfig({
             { text: 'events', link: '/packages/events' },
             { text: 'bus', link: '/packages/bus' },
             { text: 'queue', link: '/packages/queue' },
-            { text: 'horizon', link: '/packages/horizon' },
+            { text: 'jobqueue', link: '/packages/jobqueue' },
             { text: 'pipeline', link: '/packages/pipeline' },
           ],
         },

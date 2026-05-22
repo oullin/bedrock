@@ -1,4 +1,4 @@
-package horizon
+package jobqueue
 
 import (
 	"sort"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// JobStatus describes where a queue job sits in the Horizon lifecycle.
+// JobStatus describes where a queue job sits in the JobQueue lifecycle.
 type JobStatus string
 
 // JobPending indicates a job is waiting to be processed.
@@ -17,7 +17,7 @@ type JobStatus string
 
 // JobFailed indicates a job failed.
 
-// JobRecord stores queue job metadata tracked by Horizon.
+// JobRecord stores queue job metadata tracked by JobQueue.
 type JobRecord struct {
 	ID                  string
 	Name                string

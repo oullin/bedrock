@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 	"github.com/bedrock/services/horizon/api"
 )
 
 func TestMetricsJobsEndpointReturnsThroughputAndRuntimePerJobClass(t *testing.T) {
 	t.Parallel()
 
-	metrics := horizon.NewMetricsRepository()
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 400 * time.Millisecond})
-	metrics.RecordJob(horizon.JobMeasurement{Job: "RebuildIndex", Queue: "mail", Runtime: 100 * time.Millisecond})
+	metrics := jobqueue.NewMetricsRepository()
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 400 * time.Millisecond})
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "RebuildIndex", Queue: "mail", Runtime: 100 * time.Millisecond})
 
 	handler := newTestHandler(t, api.Options{Metrics: metrics})
 
@@ -60,9 +60,9 @@ func TestMetricsJobsEndpointReturnsThroughputAndRuntimePerJobClass(t *testing.T)
 func TestMetricsQueuesEndpointReturnsThroughputAndRuntimePerQueue(t *testing.T) {
 	t.Parallel()
 
-	metrics := horizon.NewMetricsRepository()
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
-	metrics.RecordJob(horizon.JobMeasurement{Job: "RebuildIndex", Queue: "default", Runtime: 400 * time.Millisecond})
+	metrics := jobqueue.NewMetricsRepository()
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "RebuildIndex", Queue: "default", Runtime: 400 * time.Millisecond})
 
 	snapshot := metrics.SnapshotPerformance(time.Unix(1700000000, 0))
 
@@ -97,9 +97,9 @@ func TestMetricsQueuesEndpointReturnsThroughputAndRuntimePerQueue(t *testing.T) 
 func TestMetricsSnapshotEndpointRecordsSnapshot(t *testing.T) {
 	t.Parallel()
 
-	metrics := horizon.NewMetricsRepository()
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 400 * time.Millisecond})
+	metrics := jobqueue.NewMetricsRepository()
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 400 * time.Millisecond})
 
 	fixedNow := time.Unix(1700000000, 0)
 
@@ -135,10 +135,10 @@ func TestMetricsSnapshotEndpointRecordsSnapshot(t *testing.T) {
 func TestMetricsSnapshotEndpointBounds24Retention(t *testing.T) {
 	t.Parallel()
 
-	metrics := horizon.NewMetricsRepository()
+	metrics := jobqueue.NewMetricsRepository()
 
 	for i := 0; i < 30; i++ {
-		metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: time.Millisecond})
+		metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: time.Millisecond})
 		metrics.SnapshotPerformance(time.Unix(1700000000+int64(i)*60, 0))
 	}
 
@@ -150,9 +150,9 @@ func TestMetricsSnapshotEndpointBounds24Retention(t *testing.T) {
 func TestMetricsTotalThroughputIsAggregatedAcrossRecordJob(t *testing.T) {
 	t.Parallel()
 
-	metrics := horizon.NewMetricsRepository()
-	metrics.RecordJob(horizon.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
-	metrics.RecordJob(horizon.JobMeasurement{Job: "RebuildIndex", Queue: "mail", Runtime: 400 * time.Millisecond})
+	metrics := jobqueue.NewMetricsRepository()
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "SendWelcome", Queue: "default", Runtime: 200 * time.Millisecond})
+	metrics.RecordJob(jobqueue.JobMeasurement{Job: "RebuildIndex", Queue: "mail", Runtime: 400 * time.Millisecond})
 
 	total := metrics.Total()
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 	"github.com/bedrock/services/horizon/api"
 )
 
@@ -29,11 +29,11 @@ func newTestHandler(t *testing.T, opts api.Options) http.Handler {
 func TestDashboardStatsReturnsAggregatedCounters(t *testing.T) {
 	t.Parallel()
 
-	repo := horizon.NewInMemoryRepository()
+	repo := jobqueue.NewInMemoryRepository()
 
-	if err := repo.Record(context.Background(), horizon.Snapshot{
+	if err := repo.Record(context.Background(), jobqueue.Snapshot{
 		GeneratedAt: time.Unix(1700000000, 0),
-		Queues: []horizon.QueueStatus{
+		Queues: []jobqueue.QueueStatus{
 			{Name: "default", Pending: 5, Processing: 2, Failed: 1, Throughput: 10, Wait: 7 * time.Second},
 			{Name: "mail", Pending: 3, Throughput: 4, Wait: 2 * time.Second},
 		},

@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 )
 
 // dashboardStats ports DashboardStatsController::index. Horizon
@@ -12,7 +12,7 @@ import (
 func dashboardStats(opts Options) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		snapshot, _ := opts.Repository.Latest(r.Context())
-		stats := horizon.StatsForSnapshot(snapshot)
+		stats := jobqueue.StatsForSnapshot(snapshot)
 		supervisors := opts.Supervisors.All()
 
 		paused := len(supervisors) > 0
@@ -50,7 +50,7 @@ func supervisorStatus(paused bool, supervisors []MasterSupervisor) string {
 	return "running"
 }
 
-func longestWaitQueue(snapshot horizon.Snapshot) string {
+func longestWaitQueue(snapshot jobqueue.Snapshot) string {
 	var (
 		name    string
 		longest = int64(-1)
@@ -68,7 +68,7 @@ func longestWaitQueue(snapshot horizon.Snapshot) string {
 	return name
 }
 
-func highestThroughputQueue(snapshot horizon.Snapshot) string {
+func highestThroughputQueue(snapshot jobqueue.Snapshot) string {
 	var (
 		name string
 		best = -1

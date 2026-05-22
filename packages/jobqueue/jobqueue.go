@@ -1,4 +1,4 @@
-package horizon
+package jobqueue
 
 import (
 	"context"
@@ -35,7 +35,7 @@ type QueueSourceFunc func(ctx context.Context) ([]QueueStatus, error)
 
 // Snapshot captures queue state by calling f.
 
-// Repository stores Horizon snapshots.
+// Repository stores JobQueue snapshots.
 type Repository interface {
 	Record(ctx context.Context, snapshot Snapshot) error
 	Latest(ctx context.Context) (Snapshot, error)

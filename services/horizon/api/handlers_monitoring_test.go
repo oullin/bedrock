@@ -7,20 +7,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 	"github.com/bedrock/services/horizon/api"
 )
 
 func TestMonitoringIndexReturnsMonitoredTagsWithJobCounts(t *testing.T) {
 	t.Parallel()
 
-	monitoring := horizon.NewMonitoringRepository()
+	monitoring := jobqueue.NewMonitoringRepository()
 	monitoring.Monitor([]string{"first", "second"})
 
-	jobs := horizon.NewJobRepository(nil)
-	jobs.StorePending(horizon.JobRecord{ID: "1", Queue: "default", Tags: []string{"first"}})
-	jobs.StorePending(horizon.JobRecord{ID: "2", Queue: "default", Tags: []string{"first"}})
-	jobs.StorePending(horizon.JobRecord{ID: "3", Queue: "default", Tags: []string{"second"}})
+	jobs := jobqueue.NewJobRepository(nil)
+	jobs.StorePending(jobqueue.JobRecord{ID: "1", Queue: "default", Tags: []string{"first"}})
+	jobs.StorePending(jobqueue.JobRecord{ID: "2", Queue: "default", Tags: []string{"first"}})
+	jobs.StorePending(jobqueue.JobRecord{ID: "3", Queue: "default", Tags: []string{"second"}})
 
 	handler := newTestHandler(t, api.Options{Monitoring: monitoring, Jobs: jobs})
 
@@ -53,13 +53,13 @@ func TestMonitoringIndexReturnsMonitoredTagsWithJobCounts(t *testing.T) {
 func TestMonitoringShowPaginatesJobsByTag(t *testing.T) {
 	t.Parallel()
 
-	monitoring := horizon.NewMonitoringRepository()
+	monitoring := jobqueue.NewMonitoringRepository()
 	monitoring.Monitor([]string{"billing"})
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
 	for _, id := range []string{"1", "2", "3", "4", "5"} {
-		jobs.StorePending(horizon.JobRecord{ID: id, Queue: "default", Tags: []string{"billing"}})
+		jobs.StorePending(jobqueue.JobRecord{ID: id, Queue: "default", Tags: []string{"billing"}})
 	}
 
 	handler := newTestHandler(t, api.Options{Monitoring: monitoring, Jobs: jobs})
@@ -86,13 +86,13 @@ func TestMonitoringShowPaginatesJobsByTag(t *testing.T) {
 func TestMonitoringShowClampsNegativePagination(t *testing.T) {
 	t.Parallel()
 
-	monitoring := horizon.NewMonitoringRepository()
+	monitoring := jobqueue.NewMonitoringRepository()
 	monitoring.Monitor([]string{"billing"})
 
-	jobs := horizon.NewJobRepository(nil)
+	jobs := jobqueue.NewJobRepository(nil)
 
 	for _, id := range []string{"1", "2", "3"} {
-		jobs.StorePending(horizon.JobRecord{ID: id, Queue: "default", Tags: []string{"billing"}})
+		jobs.StorePending(jobqueue.JobRecord{ID: id, Queue: "default", Tags: []string{"billing"}})
 	}
 
 	handler := newTestHandler(t, api.Options{Monitoring: monitoring, Jobs: jobs})
@@ -153,7 +153,7 @@ func TestMonitoringShowReturnsEmptyWhenNoJobsMatchTag(t *testing.T) {
 func TestMonitoringStoreStartsMonitoringATag(t *testing.T) {
 	t.Parallel()
 
-	monitoring := horizon.NewMonitoringRepository()
+	monitoring := jobqueue.NewMonitoringRepository()
 	handler := newTestHandler(t, api.Options{Monitoring: monitoring})
 
 	payload, _ := json.Marshal(map[string]string{"tag": "payments"})
@@ -174,7 +174,7 @@ func TestMonitoringStoreStartsMonitoringATag(t *testing.T) {
 func TestMonitoringDeleteStopsMonitoringATag(t *testing.T) {
 	t.Parallel()
 
-	monitoring := horizon.NewMonitoringRepository()
+	monitoring := jobqueue.NewMonitoringRepository()
 	monitoring.Monitor([]string{"payments"})
 
 	handler := newTestHandler(t, api.Options{Monitoring: monitoring})

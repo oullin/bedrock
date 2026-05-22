@@ -2,7 +2,7 @@
 // ports Horizon Vue-facing JSON controllers (BatchesController,
 // DashboardStatsController, MasterSupervisorController, MonitoringController,
 // metrics and job retrieval endpoints) on top of the Go primitives shipped in
-// packages/horizon.
+// packages/jobqueue.
 package api
 
 import (
@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bedrock/packages/horizon"
+	"github.com/bedrock/packages/jobqueue"
 )
 
 // MasterSupervisor describes one supervisor master process reported by the
@@ -53,14 +53,14 @@ type MasterSupervisorSource interface {
 // deployments still render a working dashboard.
 type Options struct {
 	Auth         AuthCallback
-	Repository   horizon.Repository
-	Jobs         *horizon.JobRepository
-	Monitoring   *horizon.MonitoringRepository
-	Metrics      *horizon.MetricsRepository
+	Repository   jobqueue.Repository
+	Jobs         *jobqueue.JobRepository
+	Monitoring   *jobqueue.MonitoringRepository
+	Metrics      *jobqueue.MetricsRepository
 	Supervisors  MasterSupervisorSource
 	Batches      BatchStore
 	Now          func() time.Time
-	SilencedJobs []horizon.JobRecord
+	SilencedJobs []jobqueue.JobRecord
 }
 
 // NewHandler builds the dashboard HTTP handler with all JSON routes mounted
@@ -104,19 +104,19 @@ func resolveOptions(opts Options) Options {
 	}
 
 	if opts.Repository == nil {
-		opts.Repository = horizon.NewInMemoryRepository()
+		opts.Repository = jobqueue.NewInMemoryRepository()
 	}
 
 	if opts.Jobs == nil {
-		opts.Jobs = horizon.NewJobRepository(opts.Now)
+		opts.Jobs = jobqueue.NewJobRepository(opts.Now)
 	}
 
 	if opts.Monitoring == nil {
-		opts.Monitoring = horizon.NewMonitoringRepository()
+		opts.Monitoring = jobqueue.NewMonitoringRepository()
 	}
 
 	if opts.Metrics == nil {
-		opts.Metrics = horizon.NewMetricsRepository()
+		opts.Metrics = jobqueue.NewMetricsRepository()
 	}
 
 	if opts.Supervisors == nil {

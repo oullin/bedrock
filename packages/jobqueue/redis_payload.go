@@ -1,6 +1,6 @@
-package horizon
+package jobqueue
 
-// RedisPayload contains queue metadata Horizon records from a Redis job payload.
+// RedisPayload contains queue metadata JobQueue records from a Redis job payload.
 type RedisPayload struct {
 	Name     string
 	Type     string
@@ -8,7 +8,7 @@ type RedisPayload struct {
 	Silenced bool
 }
 
-// RedisPayloadOptions provides explicit metadata that PHP Horizon would derive from serialized payloads.
+// RedisPayloadOptions provides explicit metadata that PHP JobQueue would derive from serialized payloads.
 type RedisPayloadOptions struct {
 	Job          string
 	Listener     string
@@ -25,7 +25,7 @@ type RedisPayloadOptions struct {
 	Mailable     bool
 }
 
-// BuildRedisPayload creates Horizon metadata from explicit job, listener, and event tags.
+// BuildRedisPayload creates JobQueue metadata from explicit job, listener, and event tags.
 func BuildRedisPayload(options RedisPayloadOptions) RedisPayload {
 	payload := RedisPayload{
 		Name: payloadName(options),

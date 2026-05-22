@@ -1,8 +1,8 @@
-package horizon
+package jobqueue
 
 import "time"
 
-// DashboardStats summarizes the current queue state for a Horizon dashboard.
+// DashboardStats summarizes the current queue state for a JobQueue dashboard.
 type DashboardStats struct {
 	Queues      int
 	Pending     int
