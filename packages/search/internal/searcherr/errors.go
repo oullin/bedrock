@@ -1,4 +1,4 @@
-package scouterr
+package searcherr
 
 import "errors"
 

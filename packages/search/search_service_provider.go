@@ -6,19 +6,19 @@ import (
 	"github.com/bedrock/packages/search/engines"
 )
 
-// ScoutServiceProvider registers the Search engine manager into the container.
-type ScoutServiceProvider struct {
+// SearchServiceProvider registers the Search engine manager into the container.
+type SearchServiceProvider struct {
 	app    *container.Container
 	config Config
 }
 
-// NewScoutServiceProvider constructs the provider.
-func NewScoutServiceProvider(app *container.Container, config Config) *ScoutServiceProvider {
-	return &ScoutServiceProvider{app: app, config: config}
+// NewSearchServiceProvider constructs the provider.
+func NewSearchServiceProvider(app *container.Container, config Config) *SearchServiceProvider {
+	return &SearchServiceProvider{app: app, config: config}
 }
 
 // Register binds the engine manager as a singleton under "search".
-func (p *ScoutServiceProvider) Register() {
+func (p *SearchServiceProvider) Register() {
 	p.app.Singleton("search", func(_ *container.Container) (any, error) {
 		m := NewEngineManager()
 		m.SetDefaultDriver(p.config.Driver)
@@ -45,7 +45,7 @@ func (p *ScoutServiceProvider) Register() {
 
 // Boot performs post-registration setup. It registers the model observer
 // with the event dispatcher if available.
-func (p *ScoutServiceProvider) Boot() {
+func (p *SearchServiceProvider) Boot() {
 	// The model observer is set up by the consumer when they have access
 	// to the event dispatcher. Example:
 	//
@@ -58,6 +58,6 @@ func (p *ScoutServiceProvider) Boot() {
 }
 
 // Provides returns the abstract keys registered by this provider.
-func (p *ScoutServiceProvider) Provides() []string {
+func (p *SearchServiceProvider) Provides() []string {
 	return []string{"search"}
 }

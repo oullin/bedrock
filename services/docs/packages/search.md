@@ -38,7 +38,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/search/...
 | `engines/meilisearch` | Public engines/meilisearch API surface for this module.                                                                                                                  |
 | `engines/typesense`   | Public engines/typesense API surface for this module.                                                                                                                    |
 | `events`              | Package events defines domain events dispatched by Search during search index operations.                                                                                 |
-| `internal/scouterr`   | Public internal/scouterr API surface for this module.                                                                                                                    |
+| `internal/searcherr`   | Public internal/searcherr API surface for this module.                                                                                                                    |
 | `jobs`                | Package jobs provides queueable jobs for asynchronous search index operations. MakeSearchable indexes models in the background, and RemoveFromSearch removes them.       |
 
 ## Core Concepts
@@ -49,7 +49,7 @@ The search reference is organized around the exported Go surface for package `se
 
 | Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                      |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `Builder`, `ChunkConfig`, `CollectionEngine`, `CollectionResult`, `Config`, `DatabaseEngine`, `DatabaseResult`, `DriverFactory`, `Engine`, `EngineManager`, `MakeSearchable`, `ModelObserver`, `ModelsFlushed`, `ModelsImported`, `NullEngine`, `NullResult`, `PaginatedResult`, `RawPaginatedResult`, `RemovableScoutCollection`, `RemoveFromSearch`, and 5 more |
+| Types                      | `Builder`, `ChunkConfig`, `CollectionEngine`, `CollectionResult`, `Config`, `DatabaseEngine`, `DatabaseResult`, `DriverFactory`, `Engine`, `EngineManager`, `MakeSearchable`, `ModelObserver`, `ModelsFlushed`, `ModelsImported`, `NullEngine`, `NullResult`, `PaginatedResult`, `RawPaginatedResult`, `RemovableSearchCollection`, `RemoveFromSearch`, and 5 more |
 | Constructors and functions | `Boot`, `Build`, `BuildAndRegister`, `CreateIndex`, `Cursor`, `DefaultConfig`, `Delete`, `DeleteAllIndexes`, `DeleteIndex`, `Deleted`, `DisableSearchSyncing`, `Driver`, `EnableSearchSyncing`, `Engine`, `EngineConfig`, `Extend`, `Flush`, `ForceDeleted`, `ForgetDriver`, `Get`, and 94 more                                                                   |
 | Variables                  | `ErrDriverNotSupported`, `ErrEngineNotConfigured`, `ErrFlushFailed`, `ErrIndexNotFound`, `ErrIndexingFailed`, `ErrModelNotSearchable`, `ErrSearchFailed`                                                                                                                                                                                                          |
 | Constants                  | None exported from this package root.                                                                                                                                                                                                                                                                                                                             |
@@ -151,9 +151,9 @@ Parity is tracked by these tests:
 | `NullResult`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `PaginatedResult`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RawPaginatedResult`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RemovableScoutCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RemovableSearchCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RemoveFromSearch`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScoutServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SearchableMixin`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SearchableModelDeleted`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SearchableModelUpdated`   | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -200,10 +200,10 @@ Parity is tracked by these tests:
 | `GetOrders`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetQuery`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetQueueableIDs`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutKey`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutMetadata`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetScoutPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetSearchKey`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetSearchKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetSearchMetadata`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetSearchPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetTotalCount`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetWhereIns`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetWhereNotIns`              | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -230,9 +230,9 @@ Parity is tracked by these tests:
 | `NewMakeSearchable`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewModelObserver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewNullEngine`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewRemovableScoutCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewRemovableSearchCollection` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewRemoveFromSearch`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewScoutServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSearchServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewSearchableScope`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Oldest`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `OrderBy`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -247,15 +247,15 @@ Parity is tracked by these tests:
 | `RemoveFromSearch`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Restored`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Saved`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScoutKeys`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SearchKeys`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Search`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SearchIndexShouldBeUpdated`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Searchable`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SearchableAs`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SetDefaultDriver`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SetEngine`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScoutKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetScoutPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetSearchKeyName`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetSearchPrefix`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ShouldBeSearchable`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SimplePaginate`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SimplePaginateRaw`           | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -274,7 +274,7 @@ Parity is tracked by these tests:
 | `WhileForcingUpdate`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithOptions`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithQueryCallback`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithScoutMetadata`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithSearchMetadata`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Within`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithoutSyncingToSearch`      | Source-backed public surface. See the Go package for exact signature and behavior. |
 

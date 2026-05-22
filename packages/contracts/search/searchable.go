@@ -3,10 +3,10 @@ package search
 // Searchable is the contract that models must satisfy to participate in
 // Search search. In Go, this replaces the upstream Searchable trait.
 type Searchable interface {
-	// GetScoutKey returns the value used as the document ID in the search index.
-	GetScoutKey() any
-	// GetScoutKeyName returns the attribute name used as the document ID.
-	GetScoutKeyName() string
+	// GetSearchKey returns the value used as the document ID in the search index.
+	GetSearchKey() any
+	// GetSearchKeyName returns the attribute name used as the document ID.
+	GetSearchKeyName() string
 	// SearchableAs returns the index name for this model.
 	SearchableAs() string
 	// ToSearchableArray converts the model to a map for indexing.
@@ -15,10 +15,10 @@ type Searchable interface {
 	ShouldBeSearchable() bool
 	// SearchIndexShouldBeUpdated reports whether a save should trigger re-indexing.
 	SearchIndexShouldBeUpdated() bool
-	// GetScoutMetadata returns engine-specific metadata for the model.
-	GetScoutMetadata() map[string]any
-	// WithScoutMetadata sets a metadata key-value pair on the model.
-	WithScoutMetadata(key string, value any) Searchable
+	// GetSearchMetadata returns engine-specific metadata for the model.
+	GetSearchMetadata() map[string]any
+	// WithSearchMetadata sets a metadata key-value pair on the model.
+	WithSearchMetadata(key string, value any) Searchable
 
 	// GetTable returns the table name. Inherited from orm.Model.
 	GetTable() string

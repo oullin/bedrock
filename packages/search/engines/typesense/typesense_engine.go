@@ -39,10 +39,10 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 
 	for _, model := range models {
 		doc := model.ToSearchableArray()
-		doc["id"] = fmt.Sprintf("%v", model.GetScoutKey())
+		doc["id"] = fmt.Sprintf("%v", model.GetSearchKey())
 
 		// Add search metadata.
-		for k, v := range model.GetScoutMetadata() {
+		for k, v := range model.GetSearchMetadata() {
 			doc[k] = v
 		}
 
@@ -70,7 +70,7 @@ func (e *Engine) Delete(ctx context.Context, models []contract.Searchable) error
 	collection := models[0].SearchableAs()
 
 	for _, model := range models {
-		id := fmt.Sprintf("%v", model.GetScoutKey())
+		id := fmt.Sprintf("%v", model.GetSearchKey())
 		_, err := e.client.Collection(collection).Document(id).Delete(ctx)
 
 		if err != nil {

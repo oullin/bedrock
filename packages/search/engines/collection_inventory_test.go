@@ -75,7 +75,7 @@ func TestCollectionEngineInventoryPaginationAndLimit(t *testing.T) {
 		t.Fatalf("unexpected map error: %v", err)
 	}
 
-	if len(models) != 1 || models[0].GetScoutKey() != 3 {
+	if len(models) != 1 || models[0].GetSearchKey() != 3 {
 		t.Fatalf("expected second page to contain id 3, got %v", engine.MapIds(result))
 	}
 

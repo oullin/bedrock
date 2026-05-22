@@ -1,4 +1,4 @@
-package scout_test
+package search_test
 
 import (
 	"testing"
@@ -7,13 +7,13 @@ import (
 	"github.com/bedrock/packages/search"
 )
 
-func TestScoutServiceProviderRegister(t *testing.T) {
+func TestSearchServiceProviderRegister(t *testing.T) {
 	t.Parallel()
 	app := container.New()
 	config := search.DefaultConfig()
 	config.Driver = "null"
 
-	provider := search.NewScoutServiceProvider(app, config)
+	provider := search.NewSearchServiceProvider(app, config)
 	provider.Register()
 
 	result, err := app.Make("search")
@@ -33,13 +33,13 @@ func TestScoutServiceProviderRegister(t *testing.T) {
 	}
 }
 
-func TestScoutServiceProviderRegistersBuiltInEngines(t *testing.T) {
+func TestSearchServiceProviderRegistersBuiltInEngines(t *testing.T) {
 	t.Parallel()
 	app := container.New()
 	config := search.DefaultConfig()
 	config.Driver = "null"
 
-	provider := search.NewScoutServiceProvider(app, config)
+	provider := search.NewSearchServiceProvider(app, config)
 	provider.Register()
 
 	result, _ := app.Make("search")
@@ -60,11 +60,11 @@ func TestScoutServiceProviderRegistersBuiltInEngines(t *testing.T) {
 	}
 }
 
-func TestScoutServiceProviderProvides(t *testing.T) {
+func TestSearchServiceProviderProvides(t *testing.T) {
 	t.Parallel()
 	app := container.New()
 	config := search.DefaultConfig()
-	provider := search.NewScoutServiceProvider(app, config)
+	provider := search.NewSearchServiceProvider(app, config)
 
 	provides := provider.Provides()
 
@@ -73,13 +73,13 @@ func TestScoutServiceProviderProvides(t *testing.T) {
 	}
 }
 
-func TestScoutServiceProviderSingleton(t *testing.T) {
+func TestSearchServiceProviderSingleton(t *testing.T) {
 	t.Parallel()
 	app := container.New()
 	config := search.DefaultConfig()
 	config.Driver = "null"
 
-	provider := search.NewScoutServiceProvider(app, config)
+	provider := search.NewSearchServiceProvider(app, config)
 	provider.Register()
 
 	result1, _ := app.Make("search")

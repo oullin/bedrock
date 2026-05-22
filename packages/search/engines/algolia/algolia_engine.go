@@ -40,10 +40,10 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 
 	for i, model := range models {
 		obj := model.ToSearchableArray()
-		obj["objectID"] = fmt.Sprintf("%v", model.GetScoutKey())
+		obj["objectID"] = fmt.Sprintf("%v", model.GetSearchKey())
 
 		// Add search metadata.
-		for k, v := range model.GetScoutMetadata() {
+		for k, v := range model.GetSearchMetadata() {
 			obj[k] = v
 		}
 
@@ -74,7 +74,7 @@ func (e *Engine) Delete(ctx context.Context, models []contract.Searchable) error
 	ids := make([]string, len(models))
 
 	for i, model := range models {
-		ids[i] = fmt.Sprintf("%v", model.GetScoutKey())
+		ids[i] = fmt.Sprintf("%v", model.GetSearchKey())
 	}
 
 	_, err := e.client.DeleteObjects(index, ids)

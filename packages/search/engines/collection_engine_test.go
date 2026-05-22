@@ -257,12 +257,12 @@ func TestCollectionEngineOrdering(t *testing.T) {
 		t.Fatalf("expected 3 results, got %d", len(mapped))
 	}
 
-	if mapped[0].GetScoutKey() != 2 {
-		t.Fatalf("expected Alpha (id=2) first, got id=%v", mapped[0].GetScoutKey())
+	if mapped[0].GetSearchKey() != 2 {
+		t.Fatalf("expected Alpha (id=2) first, got id=%v", mapped[0].GetSearchKey())
 	}
 
-	if mapped[1].GetScoutKey() != 1 {
-		t.Fatalf("expected Bravo (id=1) second, got id=%v", mapped[1].GetScoutKey())
+	if mapped[1].GetSearchKey() != 1 {
+		t.Fatalf("expected Bravo (id=1) second, got id=%v", mapped[1].GetSearchKey())
 	}
 }
 
@@ -362,8 +362,8 @@ func TestCollectionEngineLatestAndOldestOrdering(t *testing.T) {
 		t.Fatalf("expected 3 results, got %d", len(latestModels))
 	}
 
-	if latestModels[0].GetScoutKey() != 2 {
-		t.Fatalf("expected newest (id=2) first, got id=%v", latestModels[0].GetScoutKey())
+	if latestModels[0].GetSearchKey() != 2 {
+		t.Fatalf("expected newest (id=2) first, got id=%v", latestModels[0].GetSearchKey())
 	}
 
 	oldestBuilder := makeBuilder(newTestModel(0, "posts"), "", models).Oldest()
@@ -375,8 +375,8 @@ func TestCollectionEngineLatestAndOldestOrdering(t *testing.T) {
 
 	oldestModels, _ := e.Map(context.Background(), oldestResult, nil)
 
-	if oldestModels[0].GetScoutKey() != 3 {
-		t.Fatalf("expected oldest (id=3) first, got id=%v", oldestModels[0].GetScoutKey())
+	if oldestModels[0].GetSearchKey() != 3 {
+		t.Fatalf("expected oldest (id=3) first, got id=%v", oldestModels[0].GetSearchKey())
 	}
 }
 
@@ -403,8 +403,8 @@ func TestCollectionEngineCustomCreatedAtTimestampOrdering(t *testing.T) {
 		t.Fatalf("expected 2 results, got %d", len(mapped))
 	}
 
-	if mapped[0].GetScoutKey() != 2 {
-		t.Fatalf("expected latest published_at (id=2) first, got id=%v", mapped[0].GetScoutKey())
+	if mapped[0].GetSearchKey() != 2 {
+		t.Fatalf("expected latest published_at (id=2) first, got id=%v", mapped[0].GetSearchKey())
 	}
 }
 
