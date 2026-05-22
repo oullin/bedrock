@@ -18,7 +18,7 @@ type Options struct {
 	Connector Connector
 
 	// Namespace is prepended to event names by EventFormatter.
-	// Example: "App.Events" .
+	// Example: "App.Events".
 	// Set to empty string "" to disable namespacing, equivalent to
 	// namespace: false in the TypeScript library.
 	Namespace string

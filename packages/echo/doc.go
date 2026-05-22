@@ -1,4 +1,4 @@
-// Package echo is a Go library for Echo JavaScript library.
+// Package echo provides a Go client for the Echo JavaScript library.
 // It provides real-time event broadcasting abstractions over multiple
 // transport backends (Pusher, Socket.IO, Null/stub) with a uniform
 // Channel and Connector interface.

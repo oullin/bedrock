@@ -32,7 +32,7 @@ func IsPrecognitive(r *http.Request) bool {
 
 // IsAttemptingPrecognition reports whether the request carries a
 // Precognition header with the value "true". This checks the client's intent
-// to make a precognitive request, matching the upstream // $request->isAttemptingPrecognition() which checks the header exactly.
+// to make a precognitive request and matches the header exactly.
 func IsAttemptingPrecognition(r *http.Request) bool {
 	return r.Header.Get("Precognition") == "true"
 }

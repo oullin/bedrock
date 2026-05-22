@@ -301,7 +301,7 @@ func (r *Repository) RememberForever(ctx context.Context, key string, fn func() 
 	return result, r.Forever(ctx, key, result)
 }
 
-// Sear is an alias for RememberForever .
+// Sear is an alias for RememberForever.
 func (r *Repository) Sear(ctx context.Context, key string, fn func() (any, error)) (any, error) {
 	return r.RememberForever(ctx, key, fn)
 }
