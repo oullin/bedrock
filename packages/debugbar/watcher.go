@@ -13,7 +13,7 @@ type Watcher interface {
 }
 
 // BaseWatcher is an embeddable struct that gives concrete watchers access to
-// the DebugBar instance and their options map. It mirrors the PHP base
+// the DebugBar instance and their options map.
 // Watcher class with its $options property.
 type BaseWatcher struct {
 	debugbar *DebugBar

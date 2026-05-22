@@ -8,8 +8,6 @@ import (
 	"github.com/bedrock/services/jobqueue/api"
 )
 
-// Port of AuthTest::test_authentication_callback_works.
-// Port of AuthTest::test_authentication_middleware_can_pass.
 func TestAuthCallbackAllowsRequestsWhenCallbackReturnsTrue(t *testing.T) {
 	t.Parallel()
 
@@ -31,7 +29,6 @@ func TestAuthCallbackAllowsRequestsWhenCallbackReturnsTrue(t *testing.T) {
 	}
 }
 
-// Port of AuthTest::test_authentication_middleware_throws_on_failure.
 func TestAuthCallbackRejectsRequestsWhenCallbackReturnsFalse(t *testing.T) {
 	t.Parallel()
 

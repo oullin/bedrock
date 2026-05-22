@@ -8,7 +8,7 @@ import (
 )
 
 // ModelObserver observes Orm model lifecycle events and synchronises
-// the search index automatically. It mirrors Upstream Search's ModelObserver.
+// the search index automatically.
 type ModelObserver struct {
 	manager     *EngineManager
 	config      Config

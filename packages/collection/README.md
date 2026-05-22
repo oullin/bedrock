@@ -7,7 +7,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/bedrock/packages/collection)](https://goreportcard.com/report/github.com/bedrock/packages/collection)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful Go port of [Upstream Collections](https://upstream.com/docs/collections) — fluent, type-safe, and powered by Go generics and `iter.Seq` lazy evaluation.
+A powerful Go port of Collections (upstream) — fluent, type-safe, and powered by Go generics and `iter.Seq` lazy evaluation.
 
 ```bash
 go get github.com/bedrock/packages/collection

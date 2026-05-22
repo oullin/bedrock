@@ -1,6 +1,6 @@
 package debugbar
 
-// Entry type constants mirror Upstream's EntryType class. They identify the
+// Entry type constants mirror the upstream EntryType class. They identify the
 // category of a recorded DebugBar entry.
 const (
 	EntryTypeBatch         = "batch"

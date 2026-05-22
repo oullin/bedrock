@@ -1,5 +1,5 @@
 // Package debugbar provides a debugging and introspection tool for Go
-// applications, mirroring Upstream DebugBar. It captures HTTP requests,
+// It captures HTTP requests,
 // database queries, exceptions, log messages, events, queued jobs, cache
 // operations, mail, notifications, model changes, views, commands, scheduled
 // tasks, Redis commands, authorization gates, outbound HTTP client calls, and

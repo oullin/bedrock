@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/jobqueue"
 )
 
-// jobsPending ports PendingJobsController::index. Upstream JobQueue paginates
+// jobsPending ports PendingJobsController::index. JobQueue paginates
 // pending jobs for a queue via starting_at/limit query params.
 func jobsPending(opts Options) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +64,7 @@ func jobsFailedShow(opts Options) http.HandlerFunc {
 }
 
 // jobsSilenced ports SilencedJobsController::index by returning the
-// snapshot slice configured on the dashboard options. Upstream JobQueue stores
+// snapshot slice configured on the dashboard options. JobQueue stores
 // these in a dedicated Redis set; Bedrock delegates persistence to the
 // host app and renders whatever list it provides.
 func jobsSilenced(opts Options) http.HandlerFunc {

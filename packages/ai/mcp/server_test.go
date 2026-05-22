@@ -8,8 +8,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\ServerTest
-
 func TestServerInitializeNegotiatesPreferredVersion(t *testing.T) {
 	t.Parallel()
 

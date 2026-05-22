@@ -4,17 +4,7 @@ GO_FMT_SERVICE := go-fmt
 GO_FMT_COMPOSE := docker compose -f $(GO_FMT_COMPOSE_FILE)
 GO_FMT_BIN := /usr/local/bin/go-fmt
 GO_FMT_EXEC := $(GO_FMT_COMPOSE) exec -T $(GO_FMT_SERVICE) $(GO_FMT_BIN)
-PACKAGE_FMT := pnpm fmt
-MARKDOWN_FILES := $(shell git ls-files '*.md')
 FORMAT_BASE ?= origin/main
-GIT_CHANGED_FN = $(shell { \
-		git diff --name-only --diff-filter=ACMRT $(FORMAT_BASE)...HEAD -- $(1) 2>/dev/null; \
-		git diff --name-only --diff-filter=ACMRT -- $(1) 2>/dev/null; \
-		git ls-files --others --exclude-standard -- $(1) 2>/dev/null; \
-	} | sort -u)
-CHANGED_MD := $(call GIT_CHANGED_FN,'*.md')
-CHANGED_GO := $(call GIT_CHANGED_FN,'*.go')
-CHANGED_GO_DIRS := $(sort $(patsubst %/,%,$(dir $(CHANGED_GO))))
 GO_MODULE_EXCLUDED_DIRS := packages/testing
 GO_PACKAGE_MODULE_DIRS := $(filter-out $(GO_MODULE_EXCLUDED_DIRS),$(shell git ls-files 'packages/**/go.mod' | sed 's|/go.mod$$||'))
 GO_SERVICE_MODULE_DIRS := $(shell git ls-files 'services/**/go.mod' | sed 's|/go.mod$$||')
@@ -55,36 +45,13 @@ define prepare-go-workspace
 	@cd $(dir $(GO_WORK_FILE)) && GOWORK=off go work init $(GO_MODULE_ABS_DIRS)
 endef
 
-.PHONY: format format-all format-start format-stop vet tidy typecheck test coverage build clean docs compliance go-test go-build go-package-vet go-package-build go-service-vet go-service-build go-coverage go-coverage-shard go-package-coverage-shard go-service-coverage
+.PHONY: format format-all format-start format-stop vet tidy typecheck test coverage build clean docs go-test go-build go-package-vet go-package-build go-service-vet go-service-build go-coverage go-coverage-shard go-package-coverage-shard go-service-coverage
 
 format: format-start
-	@$(PACKAGE_FMT) & pnpm_pid=$$!; \
-	go_fmt_status=0; \
-	if [ -n "$(strip $(CHANGED_GO_DIRS))" ]; then \
-		for dir in $(CHANGED_GO_DIRS); do \
-			broadcastclient "go-fmt format in $$dir"; \
-			$(GO_FMT_EXEC) format --host-path $(ROOT_PATH)/$$dir || { go_fmt_status=$$?; break; }; \
-		done; \
-	else \
-		broadcastclient "go-fmt: no changed Go files"; \
-	fi; \
-	wait $$pnpm_pid; pnpm_status=$$?; \
-	if [ $$go_fmt_status -ne 0 ]; then exit $$go_fmt_status; fi; \
-	if [ $$pnpm_status -ne 0 ]; then exit $$pnpm_status; fi
-	@if [ -n "$(strip $(CHANGED_MD))" ]; then \
-		broadcastclient "oxfmt ($(words $(CHANGED_MD)) markdown files)"; \
-		pnpm exec oxfmt --ignore-path .gitignore $(CHANGED_MD); \
-	else \
-		broadcastclient "oxfmt: no changed markdown files"; \
-	fi
+	@FORMAT_BASE=$(FORMAT_BASE) $(ROOT_PATH)/services/scripts/format.sh changed
 
 format-all: format-start
-	$(PACKAGE_FMT)
-	@broadcastclient "go-fmt format in $(ROOT_PATH)"; \
-	$(GO_FMT_EXEC) format --cwd $(ROOT_PATH) --host-path $(ROOT_PATH)
-	@if [ -n "$(MARKDOWN_FILES)" ]; then \
-		pnpm exec oxfmt --ignore-path .gitignore $(MARKDOWN_FILES); \
-	fi
+	@FORMAT_BASE=$(FORMAT_BASE) $(ROOT_PATH)/services/scripts/format.sh all
 
 format-start:
 	@$(GO_FMT_COMPOSE) up -d $(GO_FMT_SERVICE)
@@ -264,9 +231,6 @@ build:
 docs:
 	pnpm install
 	pnpm --filter=@bedrock/docs run dev
-
-compliance:
-	services/scripts/upstream-compliance.sh check
 
 clean:
 	rm -rf $(ROOT_PATH)/services/storage/.cache

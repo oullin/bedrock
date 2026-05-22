@@ -11,7 +11,7 @@ func intToString(i int) string {
 }
 
 // encodeQuery encodes url.Values using %20 for spaces instead of +,
-// matching Upstream's behavior.
+// matching the upstream behavior.
 func encodeQuery(v url.Values) string {
 	encoded := v.Encode()
 

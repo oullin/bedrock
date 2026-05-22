@@ -1,18 +1,18 @@
 # AI SDK
 
-<!-- upstream-docs: ai-sdk.md#introduction -->
-<!-- upstream-docs: ai-sdk.md#installation -->
-<!-- upstream-docs: ai-sdk.md#agents -->
-<!-- upstream-docs: ai-sdk.md#images -->
-<!-- upstream-docs: ai-sdk.md#audio -->
-<!-- upstream-docs: ai-sdk.md#embeddings -->
-<!-- upstream-docs: ai-sdk.md#reranking -->
-<!-- upstream-docs: ai-sdk.md#files -->
-<!-- upstream-docs: ai-sdk.md#vector-stores -->
-<!-- upstream-docs: ai-sdk.md#failover -->
-<!-- upstream-docs: ai-sdk.md#testing -->
+<!-- ref: @bedrock/code-0008 -->
+<!-- ref: @bedrock/code-0007 -->
+<!-- ref: @bedrock/code-0001 -->
+<!-- ref: @bedrock/code-0006 -->
+<!-- ref: @bedrock/code-0002 -->
+<!-- ref: @bedrock/code-0003 -->
+<!-- ref: @bedrock/code-0010 -->
+<!-- ref: @bedrock/code-0005 -->
+<!-- ref: @bedrock/code-0012 -->
+<!-- ref: @bedrock/code-0004 -->
+<!-- ref: @bedrock/code-0011 -->
 
-Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the `upstream/ai` package with idiomatic Go patterns.
+Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the upstream `ai` package with idiomatic Go patterns.
 
 ## Agents
 

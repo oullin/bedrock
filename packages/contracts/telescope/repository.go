@@ -51,7 +51,6 @@ type EntryQueryOptions = struct {
 }
 
 // EntriesRepository defines the storage contract for DebugBar entries.
-// It mirrors Upstream's EntriesRepository interface.
 type EntriesRepository interface {
 	// Find retrieves a single entry by its UUID.
 	Find(id string) (*EntryResult, error)

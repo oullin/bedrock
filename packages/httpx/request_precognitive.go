@@ -15,7 +15,7 @@ func (r *Request) IsPrecognitive() bool {
 // HTTPPreview header with the exact value "true". This checks the client's
 // intent to make a precognitive request.
 //
-// Mirrors Framework\Http\Concerns\CanBePrecognitive::isAttemptingHTTPPreview.
+// Ref: @bedrock/code-0222
 func (r *Request) IsAttemptingHTTPPreview() bool {
 	return r.raw.Header.Get("HTTPPreview") == "true"
 }
@@ -48,7 +48,7 @@ func (r *Request) PrecognitiveValidateOnly() []string {
 // Patterns support wildcards: "address.*" matches "address.street" and
 // "address.city" but not "address.street.line".
 //
-// Mirrors Framework\Http\Concerns\CanBePrecognitive::filterPrecognitiveRules.
+// Ref: @bedrock/code-0222
 func (r *Request) FilterPrecognitiveRules(rules map[string]any) map[string]any {
 	if r.raw.Header.Get("HTTPPreview-Validate-Only") == "" {
 		return rules
@@ -71,7 +71,7 @@ func (r *Request) FilterPrecognitiveRules(rules map[string]any) map[string]any {
 // Each pattern is converted to a regex where * is replaced with [^.]+ to
 // match a single dot-separated segment.
 //
-// Mirrors Framework\Http\Concerns\CanBePrecognitive::shouldValidatePrecognitiveAttribute.
+// Ref: @bedrock/code-0222
 func shouldValidatePrecognitiveAttribute(attribute string, validateOnly []string) bool {
 	for _, pattern := range validateOnly {
 		escaped := regexp.QuoteMeta(pattern)

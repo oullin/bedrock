@@ -3,7 +3,6 @@ package billing
 import "github.com/bedrock/packages/container"
 
 // BillingServiceProvider registers the Billing billing manager into the container.
-// It mirrors Billing\BillingServiceProvider.
 type BillingServiceProvider struct {
 	app *container.Container
 	cfg *Config

@@ -5,10 +5,10 @@ import (
 )
 
 // ModelAction constants mirror the Orm lifecycle events recorded by
-// Upstream's ModelWatcher.
+// the upstream ModelWatcher.
 
 // ModelWatcher monitors model lifecycle events and records them as DebugBar
-// entries. It mirrors Upstream's ModelWatcher class.
+// entries.
 //
 // Options:
 //   - "events" ([]string): specific model actions to record (default: all).

@@ -8,7 +8,6 @@ import (
 )
 
 // BrowserLogs reads the last N entries from storage/logs/browser.log.
-// Mirrors Upstream\Boost\Mcp\Tools\BrowserLogs.
 // Tagged IsReadOnly.
 type BrowserLogs struct {
 	// LogFilePath overrides the default "storage/logs/browser.log".

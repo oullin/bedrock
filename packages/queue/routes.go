@@ -5,17 +5,16 @@ import (
 	"sync"
 )
 
-// Routes is the Go port of Upstream's Framework\Queue\QueueRoutes.
-//
+// Ref: @bedrock/code-0270
 // It binds a class-like lookup key to either a plain queue name (string
 // form) or a (connection, queue) pair (array form). The worker-facing
-// resolvers (GetQueue, GetConnection) preserve Upstream's slightly
+// resolvers (GetQueue, GetConnection) preserve the upstream slightly
 // asymmetric reading rules: for a plain-string entry GetQueue returns
 // the stored string and GetConnection returns empty, while for an array
 // entry GetConnection returns the first slot and GetQueue returns the
 // second.
 //
-// Key lookup: Upstream walks class_parents, class_implements, and
+// Key lookup: upstream walks class_parents, class_implements, and
 // class_uses to find a route. Go has no equivalent runtime type
 // hierarchy, so queueable values opt in to a multi-key lookup by
 // implementing RouteLineage. A value that does not implement the
@@ -27,7 +26,7 @@ type Routes struct {
 
 // RouteLineage is implemented by queueable values that want to be
 // matched against multiple routing keys in order. The Go analogue of
-// Upstream's class_parents + class_implements + class_uses chain.
+// the upstream class_parents + class_implements + class_uses chain.
 //
 // The first element should be the value's own canonical name; later
 // elements are its "parents" (embedded types, implemented interfaces,
@@ -52,7 +51,7 @@ func NewRoutes() *Routes {
 
 // Set registers (or overrides) a route for class in array form. Either
 // queue or connection may be empty — the getter returns an empty string
-// for the missing slot, matching Upstream's behaviour for a null slot.
+// for the missing slot, matching the upstream behaviour for a null slot.
 //
 // This always stores the array form. To store the plain-string form,
 // use SetMany with a string value.
@@ -69,7 +68,7 @@ func (r *Routes) Set(class, queue, connection string) {
 // (array form). Any other value type returns an error and leaves the
 // routing table unchanged.
 //
-// Mirrors Upstream's QueueRoutes::set($array).
+// Ref: @bedrock/code-0270
 func (r *Routes) SetMany(m map[string]any) error {
 	normalised := make(map[string]routeValue, len(m))
 
@@ -105,7 +104,7 @@ func (r *Routes) SetMany(m map[string]any) error {
 // lineage (if it implements RouteLineage) or its DisplayName otherwise.
 // The second return is false when no route is registered.
 //
-// Mirrors Upstream's QueueRoutes::getRoute.
+// Ref: @bedrock/code-0270
 func (r *Routes) GetRoute(queueable any) (routeValue, bool) {
 	r.mu.RLock()
 
@@ -144,7 +143,7 @@ func (r *Routes) GetQueue(queueable any) string {
 
 // GetConnection returns the connection name to which queueable should
 // be routed. A plain-string route stores a queue name, not a connection
-// name, matching Upstream's QueueRoutes default.
+// name, matching the upstream QueueRoutes default.
 func (r *Routes) GetConnection(queueable any) string {
 	rv, ok := r.GetRoute(queueable)
 
@@ -161,7 +160,7 @@ func (r *Routes) GetConnection(queueable any) string {
 
 // All returns a snapshot of every registered route as a map from class
 // name to either a string (plain form) or a [2]string{connection, queue}
-// (array form). Mirrors Upstream's QueueRoutes::all().
+// Ref: @bedrock/code-0270
 func (r *Routes) All() map[string]any {
 	r.mu.RLock()
 
@@ -182,7 +181,7 @@ func (r *Routes) All() map[string]any {
 
 // lookupKeys returns the ordered list of routing keys to try for
 // queueable. It prefers the value's own RouteLineage implementation
-// so test fixtures can simulate Upstream's class_parents traversal;
+// so test fixtures can simulate the upstream class_parents traversal;
 // otherwise it falls back to DisplayName(queueable).
 func lookupKeys(queueable any) []string {
 	if l, ok := queueable.(RouteLineage); ok {

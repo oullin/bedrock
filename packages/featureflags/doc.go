@@ -1,4 +1,4 @@
-// Package featureflags provides Upstream-inspired feature flags. It defines a
+// Package featureflags provides feature flags. It defines a
 // two-level abstraction: Driver (low-level backend) and Decorator (caching
 // + event-dispatch wrapper). ArrayDriver provides in-memory storage;
 // DatabaseDriver provides SQL-backed persistence. A Manager coordinates

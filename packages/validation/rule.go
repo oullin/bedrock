@@ -8,8 +8,7 @@ import (
 	"github.com/bedrock/packages/validation/rules"
 )
 
-// Rule provides static factory methods for building rule objects, mirroring
-// Upstream's Framework\Validation\Rule facade.
+// Ref: @bedrock/code-0389
 
 type ruleBuilder struct{}
 

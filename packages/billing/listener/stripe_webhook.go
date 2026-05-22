@@ -10,7 +10,6 @@ import (
 
 // StripeWebhookListener handles Stripe webhook events, particularly
 // checkout.session.completed for marking orders as complete.
-// Mirrors app/Listeners/StripeWebhookListener.php.
 type StripeWebhookListener struct {
 	orders billing.OrderStore
 }

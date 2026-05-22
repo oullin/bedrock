@@ -26,7 +26,6 @@ func newTestHandler(t *testing.T, opts api.Options) http.Handler {
 	return api.NewHandler(opts)
 }
 
-// Port of DashboardStatsControllerTest::test_all_stats_are_correctly_returned.
 func TestDashboardStatsReturnsAggregatedCounters(t *testing.T) {
 	t.Parallel()
 
@@ -81,7 +80,6 @@ func TestDashboardStatsReturnsAggregatedCounters(t *testing.T) {
 	}
 }
 
-// Port of DashboardStatsControllerTest::test_paused_status_is_reflected_if_all_master_supervisors_are_paused.
 func TestDashboardStatsReflectsPausedStateWhenAllSupervisorsArePaused(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +104,6 @@ func TestDashboardStatsReflectsPausedStateWhenAllSupervisorsArePaused(t *testing
 	}
 }
 
-// Port of DashboardStatsControllerTest::test_paused_status_isnt_reflected_if_not_all_master_supervisors_are_paused.
 func TestDashboardStatsDoesNotReflectPausedWhenSomeSupervisorsAreRunning(t *testing.T) {
 	t.Parallel()
 
@@ -131,7 +128,6 @@ func TestDashboardStatsDoesNotReflectPausedWhenSomeSupervisorsAreRunning(t *test
 	}
 }
 
-// Port of MasterSupervisorControllerTest::test_master_supervisor_listing_without_supervisors.
 func TestMasterSupervisorListingWithoutSupervisorsReturnsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -147,7 +143,6 @@ func TestMasterSupervisorListingWithoutSupervisorsReturnsEmpty(t *testing.T) {
 	}
 }
 
-// Port of MasterSupervisorControllerTest::test_master_supervisor_listing_with_supervisors.
 func TestMasterSupervisorListingWithSupervisorsReturnsThem(t *testing.T) {
 	t.Parallel()
 
@@ -173,7 +168,6 @@ func TestMasterSupervisorListingWithSupervisorsReturnsThem(t *testing.T) {
 	}
 }
 
-// Port of MasterSupervisorControllerTest::test_master_supervisor_with_custom_name_listing_with_supervisors.
 func TestMasterSupervisorListingPreservesCustomNames(t *testing.T) {
 	t.Parallel()
 

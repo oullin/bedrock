@@ -273,7 +273,7 @@ func TestDefaultConfigExposesAllDefaults(t *testing.T) {
 		t.Fatalf("DateFormat = %q", cfg.DateFormat())
 	}
 
-	if cfg.AppName() != "Upstream" {
+	if cfg.AppName() != "Bedrock" {
 		t.Fatalf("AppName = %q", cfg.AppName())
 	}
 

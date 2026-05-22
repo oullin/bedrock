@@ -4,7 +4,7 @@ package routing
 // and [Router.PermanentRedirect]. It reads the destination and status from
 // the matched route's parameters and produces a [RedirectResponse].
 //
-// Mirrors Framework\Routing\RedirectController.
+// Ref: @bedrock/code-0328
 type RedirectController struct{ Controller }
 
 // Invoke is the dispatch entry point — controller dispatchers detect the

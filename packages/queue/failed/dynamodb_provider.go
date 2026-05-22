@@ -12,9 +12,8 @@ import (
 // provider needs. Tests inject fakes; production wires the real AWS
 // client through a thin adapter.
 //
-// The shape mirrors Upstream's use of Aws\DynamoDb\DynamoDbClient:
 // PutItem for Log, Query for All, GetItem for Find, DeleteItem for
-// Forget. Each method receives the request parameters Upstream emits
+// Forget. Each method receives the request parameters upstream emits
 // verbatim so tests can assert the on-wire request shape.
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params map[string]any) (map[string]any, error)
@@ -23,8 +22,7 @@ type DynamoDBClient interface {
 	DeleteItem(ctx context.Context, params map[string]any) (map[string]any, error)
 }
 
-// DynamoDbFailedJobProvider is the Go port of
-// Framework\Queue\Failed\DynamoDbFailedJobProvider.
+// Ref: @bedrock/code-0257
 type DynamoDbFailedJobProvider struct {
 	client          DynamoDBClient
 	applicationName string
@@ -116,7 +114,7 @@ func (p *DynamoDbFailedJobProvider) All() ([]FailedJob, error) {
 	if !ok {
 		return nil, nil
 	}
-	// Sort by failed_at descending, matching Upstream's sortByDesc.
+	// Sort by failed_at descending, matching the upstream sortByDesc.
 	sort.SliceStable(items, func(i, j int) bool {
 		return dynNumber(items[i], "failed_at") > dynNumber(items[j], "failed_at")
 	})
@@ -179,13 +177,12 @@ func (p *DynamoDbFailedJobProvider) Forget(id string) (bool, error) {
 }
 
 // Flush implements FailedJobProvider. DynamoDB storage relies on the
-// table's TTL feature; Upstream throws an exception here and this port
+// table's TTL feature; upstream throws an exception here and this port
 // returns a matching sentinel error.
 func (p *DynamoDbFailedJobProvider) Flush(_ int) error {
 	return ErrDynamoDbFlushUnsupported
 }
 
-// ErrDynamoDbFlushUnsupported mirrors the PHP exception Upstream raises
 // from DynamoDbFailedJobProvider::flush.
 var ErrDynamoDbFlushUnsupported = errors.New("dynamodb failed job storage may not be flushed. use the table's TTL feature on expires_at")
 

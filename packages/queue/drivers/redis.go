@@ -51,7 +51,7 @@ type RedisListRanger interface {
 
 // RedisSortedSetRanger is the optional capability needed by DelayedJobs.
 // It returns the members of a sorted set ordered by score, which
-// matches Upstream's ZRANGE semantics for the delayed-job set.
+// matches the upstream ZRANGE semantics for the delayed-job set.
 type RedisSortedSetRanger interface {
 	ZRange(ctx context.Context, key string, start, stop int64) ([]string, error)
 }
@@ -62,7 +62,6 @@ type RedisSortedSetRanger interface {
 // that every operation for a queue lands on the same slot.
 //
 // The result is cached after the first call on a given RedisDriver instance,
-// mirroring Upstream's `RedisQueue::isClusterConnection()` behaviour.
 type RedisClusterAware interface {
 	IsCluster() bool
 }
@@ -73,8 +72,7 @@ type RedisDriver struct {
 	connection string
 
 	// isCluster caches the cluster-connection check result. It is nil
-	// until the first call to isClusterConnection, which mirrors
-	// Upstream's null-coalescing assignment ($this->isCluster ??= ...).
+	// the upstream null-coalescing assignment ($this->isCluster ??= ...).
 	isCluster *bool
 }
 
@@ -86,19 +84,17 @@ type RedisDriver struct {
 // cluster. The result is cached after the first call.
 
 // getQueue returns the plain `queues:<name>` key, unchanged regardless of
-// cluster mode. Mirrors `RedisQueue::getQueue()`.
+// cluster mode.
 
 // getRedisKey returns the cluster-safe Redis key for a queue. On a cluster
 // connection the queue name is wrapped in `{...}` so all keys for the same
 // queue hash to the same slot. If the queue name already contains a hash
 // tag (per Redis cluster semantics — `{` followed later by a `}` with at
 // least one character between), the name is left unchanged.
-//
-// Mirrors `RedisQueue::getQueueRedisKey()` and `Connection::hasHashTag()`.
 
 // hasHashTag reports whether key contains a valid Redis cluster hash tag
 // (an opening `{` followed by a `}` with at least one character in between).
-// Mirrors Upstream's `Framework\Redis\Connections\Connection::hasHashTag()`.
+// Ref: @bedrock/code-0276
 
 // NewRedisDriver creates a RedisDriver.
 

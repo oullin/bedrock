@@ -11,7 +11,6 @@ import (
 )
 
 // DebugBarTestCase is an embeddable struct that provides test helpers
-// mirroring the FeatureTestCase from Upstream's DebugBar test suite.
 type DebugBarTestCase struct {
 	T          *testing.T
 	DebugBar  *debugbar.DebugBar
@@ -34,7 +33,6 @@ func NewTestCase(t *testing.T) *DebugBarTestCase {
 	}
 }
 
-// Store flushes queued entries to the repository, mirroring
 // FeatureTestCase::terminateDebugBar().
 func (tc *DebugBarTestCase) Store() {
 	tc.T.Helper()
@@ -60,7 +58,6 @@ func (tc *DebugBarTestCase) StopRecording() {
 }
 
 // LoadEntries stores queued entries and returns all persisted results,
-// mirroring FeatureTestCase::loadDebugBarEntries().
 func (tc *DebugBarTestCase) LoadEntries() []*debugbar.EntryResult {
 	tc.T.Helper()
 	tc.Store()

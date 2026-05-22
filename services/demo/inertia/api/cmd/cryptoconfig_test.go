@@ -148,7 +148,7 @@ func TestCryptoConfig_DecodedKey_WrongLength(t *testing.T) {
 	}
 }
 
-func TestCryptoConfig_DecodedKey_UpstreamBase64Prefix(t *testing.T) {
+func TestCryptoConfig_DecodedKey_Base64Prefix(t *testing.T) {
 	t.Parallel()
 
 	raw := make([]byte, 32)

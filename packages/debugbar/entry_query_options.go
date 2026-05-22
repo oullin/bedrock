@@ -1,7 +1,6 @@
 package debugbar
 
 // EntryQueryOptions carries filter parameters for repository queries. It
-// mirrors Upstream's EntryQueryOptions class with its fluent builder interface.
 type EntryQueryOptions struct {
 	BatchID        string
 	Tag            string
@@ -14,13 +13,12 @@ type EntryQueryOptions struct {
 const defaultQueryLimit = 50
 
 // DefaultQueryOptions returns an EntryQueryOptions with the default query
-// limit (50), matching the Upstream default.
+// limit (50), matching the upstream default.
 func DefaultQueryOptions() EntryQueryOptions {
 	return EntryQueryOptions{Limit: defaultQueryLimit}
 }
 
 // ForBatchID returns a new EntryQueryOptions scoped to a specific batch,
-// mirroring EntryQueryOptions::forBatchId().
 func (o EntryQueryOptions) ForBatchID(id string) EntryQueryOptions {
 	o.BatchID = id
 

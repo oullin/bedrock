@@ -11,7 +11,6 @@ import (
 
 // SkillComposer discovers skills from boost built-ins, third-party packages,
 // and user-defined .ai/skills/ directories.
-// Mirrors Upstream\Boost\Install\SkillComposer (16 public/protected methods).
 type SkillComposer struct {
 	config *guidelines.GuidelineConfig
 }

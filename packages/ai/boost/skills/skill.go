@@ -3,7 +3,6 @@
 package skills
 
 // Skill represents a single SKILL.md skill definition.
-// Mirrors the Skill model in upstream/boost.
 type Skill struct {
 	// Name is the canonical skill identifier (e.g. "pest-testing").
 	Name string

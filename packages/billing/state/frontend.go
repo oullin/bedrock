@@ -12,7 +12,6 @@ import (
 )
 
 // FrontendState builds the data shared with the billing portal frontend.
-// Mirrors Billing\FrontendState.
 type FrontendState struct {
 	manager       *billing.Manager
 	config        *billing.Config
@@ -336,7 +335,7 @@ func (f *FrontendState) appName() string {
 		return f.config.AppName()
 	}
 
-	return "Upstream"
+	return "Bedrock"
 }
 
 func (f *FrontendState) dashboardURL() string {

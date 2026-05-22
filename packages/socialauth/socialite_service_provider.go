@@ -7,7 +7,7 @@ import (
 )
 
 // SocialAuthServiceProvider registers the SocialAuth manager into the service
-// container. It mirrors Upstream\SocialAuth\SocialAuthServiceProvider.
+// container.
 type SocialAuthServiceProvider struct {
 	app     *container.Container
 	configs map[string]ProviderConfig

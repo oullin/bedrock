@@ -8,10 +8,9 @@ import (
 )
 
 // ignoredEventPrefixes contains event name prefixes from the framework that
-// should not be recorded, mirroring Upstream's EventWatcher ignore list.
 
 // EventWatcher monitors application events and records them as DebugBar
-// entries. It mirrors Upstream's EventWatcher class.
+// entries.
 //
 // Options:
 //   - "ignore" ([]string): additional event names or prefixes to ignore.
@@ -21,8 +20,8 @@ type EventWatcher struct {
 
 var ignoredEventPrefixes = []string{
 	"github.com/bedrock/packages/debugbar",
-	"Framework\\",
-	"Upstream\\Octane\\",
+	"@bedrock\\",
+	"Octane\\",
 }
 
 // NewEventWatcher creates an EventWatcher with the given options.
@@ -39,7 +38,6 @@ func NewEventWatcher(t *debugbar.DebugBar, options map[string]any) *EventWatcher
 // to Record as they fire.
 func (w *EventWatcher) Register(_ any) error { return nil }
 
-// ShouldIgnore reports whether the event should be skipped, mirroring
 // EventWatcher::shouldIgnore().
 func (w *EventWatcher) ShouldIgnore(eventName string) bool {
 	for _, prefix := range ignoredEventPrefixes {
@@ -78,7 +76,6 @@ func (w *EventWatcher) Record(eventName string, payload any, listenerNames []str
 }
 
 // extractPayload converts the event payload to a JSON-safe representation,
-// mirroring EventWatcher::extractPayload().
 func extractPayload(payload any) any {
 	if payload == nil {
 		return nil

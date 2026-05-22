@@ -1,7 +1,7 @@
 package oauthserver
 
 // Client represents an OAuth2 client application, corresponding to the
-// oauth_clients table in Upstream OAuthServer.
+// oauth_clients table in OAuthServer.
 type Client struct {
 	ID                   string
 	UserID               string
@@ -18,7 +18,6 @@ type Client struct {
 
 // FirstParty reports whether this is a first-party client.
 // A client is first-party if it is a personal access client or a password client.
-// This mirrors Client::firstParty() in Upstream OAuthServer.
 func (c *Client) FirstParty() bool {
 	return c.PersonalAccessClient || c.PasswordClient
 }

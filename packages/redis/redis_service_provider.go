@@ -3,7 +3,7 @@ package redis
 import "github.com/bedrock/packages/container"
 
 // RedisServiceProvider registers the Redis manager into the container.
-// It mirrors Framework\Redis\RedisServiceProvider.
+// Ref: @bedrock/code-0283
 type RedisServiceProvider struct {
 	app         *container.Container
 	defaultConn string

@@ -1,9 +1,9 @@
 # queue
 
-<!-- upstream-docs: queues.md#introduction -->
-<!-- upstream-docs: queues.md#creating-jobs -->
-<!-- upstream-docs: queues.md#job-batching -->
-<!-- upstream-docs: queues.md#running-the-queue-worker -->
+<!-- ref: @bedrock/code-0143 -->
+<!-- ref: @bedrock/code-0142 -->
+<!-- ref: @bedrock/code-0144 -->
+<!-- ref: @bedrock/code-0145 -->
 
 <!-- BEDROCK:HAND -->
 
@@ -75,7 +75,7 @@ Two registration paths:
 
 - **`Register(driver, creator)`** — simple one-shot factory. Use when
   connection setup is trivial.
-- **`AddConnector(driver, factory)`** — Upstream-style two-step. The
+- **`AddConnector(driver, factory)`** — two-step. The
   factory returns a `Connector`, the manager calls `Connector.Connect(config)`.
   Use when construction needs its own state.
 
@@ -128,17 +128,13 @@ See [`packages/queue/manager.go:333`](https://github.com/gocanto/bedrock/blob/ma
 - [Bus](/packages/bus) — for command dispatch on top of this queue.
 <!-- /BEDROCK:HAND -->
 
-Package queue provides Upstream-inspired job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs.
+Package queue provides job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs.
 
-<div class="docs-callout docs-callout-upstream">
-  <strong>Upstream baseline.</strong>
-  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -156,16 +152,16 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/queue/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `queue`   | Package queue provides Upstream-inspired job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs. |
-| `drivers` | Public drivers API surface for this module.                                                                                                                                                                                                                         |
-| `events`  | Package events contains the Go port of every Framework\Queue\Events\* class from upstream/framework 13.x. Each Upstream event is a plain Go struct; the worker, manager, and drivers emit them via the queue package's EventEmitter interface.                       |
-| `failed`  | Package failed contains the Go port of Framework\Queue\Failed\* from upstream/framework 13.x. It defines the FailedJobProvider contract plus the optional Countable and Prunable extensions, and ships five implementations that mirror the Upstream providers:      |
+| Package   | Purpose                                                                                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `queue`   | Package queue provides job queue management. It defines Queue, Job, and Connector interfaces with multiple driver implementations (sync, database, redis, beanstalkd, sqs, null, background, deferred, failover) and a Worker for processing jobs. |
+| `drivers` | Public drivers API surface for this module.                                                                                                                                                                                                        |
+| `events`  | Package events contains the bedrock Queue\Events\* event surface. Each upstream event is a plain Go struct; the worker, manager, and drivers emit them via the queue package's EventEmitter interface.                                             |
+| `failed`  | Package failed contains the bedrock Queue\Failed\* surface. It defines the FailedJobProvider contract plus the optional Countable and Prunable extensions, and ships five implementations that ship as bedrock providers:                          |
 
 ## Core Concepts
 
-The queue reference is organized around the exported Go surface for package `queue`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+The queue reference is organized around the exported Go surface for package `queue`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -206,13 +202,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/queue` cover the supported creation paths, default values, and Upstream parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/queue` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -223,7 +219,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Upstream parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -235,7 +231,7 @@ The package reference should be read through these Upstream parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -249,18 +245,7 @@ Run the package tests before changing examples:
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/queue/...
 ```
 
-Upstream parity is tracked by these tests:
-
-- `packages/queue/drivers/beanstalkd_laravel_test.go`
-- `packages/queue/drivers/database_laravel_test.go`
-- `packages/queue/drivers/failover_laravel_test.go`
-- `packages/queue/drivers/redis_job_laravel_test.go`
-- `packages/queue/drivers/redis_laravel_test.go`
-- `packages/queue/drivers/sqs_laravel_test.go`
-- `packages/queue/drivers/sync_laravel_test.go`
-- `packages/queue/fail_on_exception_laravel_test.go`
-- `packages/queue/manager_laravel_test.go`
-- `packages/queue/worker_laravel_test.go`
+Parity is tracked by these tests:
 
 ## API Reference
 
@@ -537,7 +522,3 @@ Upstream parity is tracked by these tests:
 | `WorkerStopReasonMemoryLimitReached` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WorkerStopReasonNone`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WorkerStopReasonStopOnEmpty`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-
-## Upstream Parity Notes
-
-This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

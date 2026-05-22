@@ -24,7 +24,6 @@ var (
 // StrUuid generates a UUID version 4.
 // If a factory or sequence is installed (via FreezeUuids/CreateUuidsUsing),
 // it is used instead.
-// Mirrors Str::uuid().
 func StrUuid() string {
 	uuidMu.Lock()
 
@@ -49,7 +48,6 @@ func StrUuid() string {
 }
 
 // StrOrderedUuid generates a time-sortable UUID version 7.
-// Mirrors Str::orderedUuid() and Str::uuid7().
 func StrOrderedUuid() string {
 	uuidMu.Lock()
 
@@ -76,7 +74,6 @@ func StrOrderedUuid() string {
 }
 
 // StrUuid7 generates a UUID version 7 with optional time.
-// Mirrors Str::uuid7().
 func StrUuid7(t ...time.Time) string {
 	return StrOrderedUuid()
 }
@@ -84,7 +81,6 @@ func StrUuid7(t ...time.Time) string {
 // FreezeUuids installs a factory that returns a deterministic UUID string.
 // Returns a cleanup function — call it (typically via defer) to restore normal generation.
 // NOTE: do NOT combine with t.Parallel() at the top test level since this mutates global state.
-// Mirrors Str::freezeUuids().
 func FreezeUuids(factory func() string) func() {
 	uuidMu.Lock()
 	prev := uuidFactory
@@ -103,7 +99,6 @@ func FreezeUuids(factory func() string) func() {
 }
 
 // CreateUuidsUsing installs a custom UUID factory.
-// Mirrors Str::createUuidsUsing().
 func CreateUuidsUsing(factory func() string) {
 	uuidMu.Lock()
 	uuidFactory = factory
@@ -112,7 +107,6 @@ func CreateUuidsUsing(factory func() string) {
 
 // CreateUuidsUsingSequence sets a sequence of UUIDs to use for generation.
 // Once the sequence is exhausted, whenMissing is called if provided.
-// Mirrors Str::createUuidsUsingSequence().
 func CreateUuidsUsingSequence(sequence []string, whenMissing ...func() string) func() {
 	uuidMu.Lock()
 	prevFactory := uuidFactory
@@ -138,7 +132,6 @@ func CreateUuidsUsingSequence(sequence []string, whenMissing ...func() string) f
 }
 
 // CreateUuidsNormally resets UUID generation to the default.
-// Mirrors Str::createUuidsNormally().
 func CreateUuidsNormally() {
 	uuidMu.Lock()
 	uuidFactory = nil
@@ -148,7 +141,6 @@ func CreateUuidsNormally() {
 }
 
 // StrUlid generates a ULID.
-// Mirrors Str::ulid().
 func StrUlid() string {
 	ulidMu.Lock()
 
@@ -182,7 +174,6 @@ func StrUlid() string {
 
 // FreezeUlids installs a factory that returns deterministic ULIDs.
 // Returns a cleanup function.
-// Mirrors Str::freezeUlids().
 func FreezeUlids(factory func() string) func() {
 	ulidMu.Lock()
 	prev := ulidFactory
@@ -201,7 +192,6 @@ func FreezeUlids(factory func() string) func() {
 }
 
 // CreateUlidsUsing installs a custom ULID factory.
-// Mirrors Str::createUlidsUsing().
 func CreateUlidsUsing(factory func() string) {
 	ulidMu.Lock()
 	ulidFactory = factory
@@ -209,7 +199,6 @@ func CreateUlidsUsing(factory func() string) {
 }
 
 // CreateUlidsUsingSequence sets a sequence of ULIDs to use for generation.
-// Mirrors Str::createUlidsUsingSequence().
 func CreateUlidsUsingSequence(sequence []string, whenMissing ...func() string) func() {
 	ulidMu.Lock()
 	prevFactory := ulidFactory
@@ -235,7 +224,6 @@ func CreateUlidsUsingSequence(sequence []string, whenMissing ...func() string) f
 }
 
 // CreateUlidsNormally resets ULID generation to the default.
-// Mirrors Str::createUlidsNormally().
 func CreateUlidsNormally() {
 	ulidMu.Lock()
 	ulidFactory = nil
@@ -245,7 +233,6 @@ func CreateUlidsNormally() {
 }
 
 // ResetFactoryState resets all string generation factories to defaults.
-// Mirrors Str::resetFactoryState().
 func ResetFactoryState() {
 	CreateUuidsNormally()
 	CreateUlidsNormally()

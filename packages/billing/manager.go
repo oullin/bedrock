@@ -7,7 +7,7 @@ import (
 )
 
 // Manager is the central registry for billable types, plans, and
-// callbacks. Thread-safe. Mirrors Billing\BillingManager.
+// callbacks. Thread-safe.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -73,7 +73,7 @@ type Manager struct {
 // ValidPlan reports whether the given plan ID exists for the billable type.
 
 // BillableConfigBuilder provides a fluent API for configuring a
-// billable type on the Manager. Mirrors Billing\BillableConfigurationBuilder.
+// billable type on the Manager.
 type BillableConfigBuilder struct {
 	manager      *Manager
 	billableType string

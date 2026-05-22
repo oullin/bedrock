@@ -1,6 +1,6 @@
 # Bedrock JobQueue
 
-Ports Upstream JobQueue's dashboard — JSON API plus Vue SPA — on top of the Go
+Ports JobQueue dashboard — JSON API plus Vue SPA — on top of the Go
 primitives shipped in [`packages/jobqueue`](../../packages/jobqueue).
 
 ## Layout
@@ -53,5 +53,5 @@ Writes to `services/jobqueue/app/dist`.
 go test ./services/jobqueue/...
 ```
 
-Every handler test carries a `// Port of <Class>::<test>` marker so it is
-classified as ported by `services/scripts/upstream-compliance.sh`.
+Tests are organized by handler under `services/jobqueue/`; run them with
+`go test ./services/jobqueue/...`.

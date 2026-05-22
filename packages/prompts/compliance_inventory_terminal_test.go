@@ -43,43 +43,43 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SearchPromptTest::it_returns_the_value_when_a_list_is_passed", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := Search("Framework?", fixedSearchOptions("Upstream", "Upstream"))
+			got, err := Search("Framework?", fixedSearchOptions("Acme", "Acme"))
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("search = %q", got)
 			}
 		})
 	})
 
 	t.Run("AutoCompletePromptTest::it_completes_the_input_using_the_right_arrow_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyRight, KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", []string{"Upstream"})
+		withFake(t, "Acm", KeyRight, KeyEnter, func(*TestPrompts) {
+			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("autocomplete = %q", got)
 			}
 		})
 	})
 
 	t.Run("AutoCompletePromptTest::it_allows_editing_after_accepting_a_suggestion", func(t *testing.T) {
-		withFake(t, "Lar", KeyRight, KeyBackspace, "s", KeyEnter, func(*TestPrompts) {
-			got, err := Autocomplete("Framework?", []string{"Upstream"})
+		withFake(t, "Acm", KeyRight, KeyBackspace, "s", KeyEnter, func(*TestPrompts) {
+			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
-			if got != "Laraves" {
+			if got != "Acms" {
 				t.Fatalf("autocomplete = %q", got)
 			}
 		})
 	})
 
 	t.Run("SuggestPromptTest::it_completes_the_input_using_the_tab_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream"})
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
+			got, err := Suggest("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("suggest = %q", got)
 			}
 		})
@@ -87,7 +87,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_completes_the_input_using_the_arrow_keys", func(t *testing.T) {
 		withFake(t, "La", KeyDown, KeyEnter, KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
+			got, err := Suggest("Framework?", []string{"Acme", "Laminas"})
 			requireNoError(t, err)
 
 			if got != "Laminas" {
@@ -98,10 +98,10 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_supports_the_home_key_while_navigating_options", func(t *testing.T) {
 		withFake(t, "a", KeyEnd[0], KeyHome[0], KeyEnter, KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
+			got, err := Suggest("Framework?", []string{"Acme", "Laminas"})
 			requireNoError(t, err)
 
-			if got != "Upstream" {
+			if got != "Acme" {
 				t.Fatalf("suggest = %q", got)
 			}
 		})
@@ -109,7 +109,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("SuggestPromptTest::it_supports_the_end_key_while_navigating_options", func(t *testing.T) {
 		withFake(t, "a", KeyEnd[0], KeyEnter, KeyEnter, func(*TestPrompts) {
-			got, err := Suggest("Framework?", []string{"Upstream", "Laminas"})
+			got, err := Suggest("Framework?", []string{"Acme", "Laminas"})
 			requireNoError(t, err)
 
 			if got != "Laminas" {
@@ -290,7 +290,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_validates", func(t *testing.T) {
 		withFake(t, KeyEnter, KeySpace, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream"}, MultiSelectWithValidate(func(values []string) string {
+			got, err := MultiSelect("Framework?", []string{"Acme"}, MultiSelectWithValidate(func(values []string) string {
 				if len(values) == 0 {
 					return "Required."
 				}
@@ -299,7 +299,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 			}))
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"Upstream"}) {
+			if !reflect.DeepEqual(got, []string{"Acme"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
 		})
@@ -307,10 +307,10 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_selects_all_options_when_a_default_is_provided", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Upstream", "Bedrock"}))
+			got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"}, MultiSelectWithDefault([]string{"Acme", "Bedrock"}))
 			requireNoError(t, err)
 
-			if !reflect.DeepEqual(got, []string{"Upstream", "Bedrock"}) {
+			if !reflect.DeepEqual(got, []string{"Acme", "Bedrock"}) {
 				t.Fatalf("multiselect = %#v", got)
 			}
 		})

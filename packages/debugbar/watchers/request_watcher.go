@@ -14,7 +14,7 @@ import (
 // 64 KB
 
 // RequestWatcher monitors HTTP requests/responses and records them as
-// DebugBar entries. It mirrors Upstream's RequestWatcher class.
+// DebugBar entries.
 //
 // Options:
 //   - "size_limit" (int): max response body bytes to store (default 64 KB).

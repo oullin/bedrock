@@ -1,7 +1,7 @@
 package conditionable
 
 // Proxy provides conditional method execution on a target, analogous to
-// Upstream's HigherOrderWhenProxy. Because Go lacks PHP's __call/__get
+// the upstream HigherOrderWhenProxy. Because Go lacks PHP's __call/__get
 // magic methods, callers pass explicit function values to Then instead
 // of relying on dynamic dispatch.
 type Proxy[T any] struct {

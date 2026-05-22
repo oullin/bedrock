@@ -10,7 +10,6 @@ import (
 )
 
 // Engine is a Search search engine backed by Algolia.
-// It mirrors Upstream Search's AlgoliaEngine.
 type Engine struct {
 	client     *search.APIClient
 	softDelete bool

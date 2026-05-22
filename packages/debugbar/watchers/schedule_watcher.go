@@ -5,7 +5,7 @@ import (
 )
 
 // ScheduleWatcher monitors scheduled task execution and records entries as
-// DebugBar entries. It mirrors Upstream's ScheduleWatcher class.
+// DebugBar entries.
 type ScheduleWatcher struct {
 	debugbar.BaseWatcher
 }

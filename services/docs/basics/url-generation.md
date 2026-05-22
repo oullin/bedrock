@@ -1,8 +1,8 @@
 # URL Generation
 
-<!-- upstream-docs: urls.md#url-generation -->
-<!-- upstream-docs: urls.md#urls-for-named-routes -->
-<!-- upstream-docs: urls.md#default-values -->
+<!-- ref: @bedrock/code-0177 -->
+<!-- ref: @bedrock/code-0179 -->
+<!-- ref: @bedrock/code-0176 -->
 
 Generating URLs for routes is a first-class feature of the router. Prefer
 named-route lookups over hand-rolled string concatenation — renaming a path

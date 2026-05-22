@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\NotifyPromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\NotifyPromptTest::test_escape_applescript
 func TestEscapeAppleScript(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -25,7 +22,6 @@ func TestEscapeAppleScript(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\NotifyPromptTest::test_notify_options
 func TestNotifyOptionsSetter(t *testing.T) {
 	t.Parallel()
 	cfg := &notifyConfig{}

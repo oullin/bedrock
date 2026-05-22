@@ -48,8 +48,6 @@ type ProviderHooks interface {
 // AbstractProvider is the base OAuth2 provider. Concrete providers embed it
 // and set the impl field to themselves so that abstract-method calls are
 // dispatched correctly.
-//
-// It mirrors Upstream\SocialAuth\Two\AbstractProvider.
 type AbstractProvider struct {
 	impl ProviderHooks
 
@@ -78,24 +76,20 @@ type AbstractProvider struct {
 // ── Public fluent API ────────────────────────────────────────────────────────
 
 // Stateless disables CSRF state validation. Useful for APIs that cannot
-// maintain sessions. It mirrors AbstractProvider::stateless().
+// maintain sessions.
 
 // Scopes merges additional scopes into the existing set.
-// It mirrors AbstractProvider::scopes().
 
 // SetScopes replaces the current scope list entirely.
-// It mirrors AbstractProvider::setScopes().
 
 // GetScopes returns the current scope list.
 
 // RedirectURL overrides the redirect URI sent to the provider.
-// It mirrors AbstractProvider::redirectUrl().
 
 // With merges extra query-string parameters into the authorization request.
-// It mirrors AbstractProvider::with().
 
 // EnablePKCE activates Proof Key for Code Exchange (RFC 7636) on the next
-// redirect/user cycle. It mirrors AbstractProvider::enablePKCE().
+// redirect/user cycle.
 
 // UsesPKCE reports whether PKCE is active.
 
@@ -109,7 +103,6 @@ type AbstractProvider struct {
 
 // Redirect returns the authorization URL the user should be redirected to.
 // When stateful, it stores the state (and PKCE code verifier) in the session.
-// It mirrors AbstractProvider::redirect().
 
 // TokenFetcher is an optional interface that concrete providers implement to
 // override the default OAuth2 token exchange (e.g. to use HTTP Basic Auth
@@ -218,7 +211,6 @@ func (p *AbstractProvider) Redirect(_ context.Context) (string, error) {
 
 // User completes the OAuth2 callback: validates state, exchanges the code for
 // a token, fetches user info, and returns a populated *User.
-// It mirrors AbstractProvider::user().
 func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 	if p.cachedUser != nil {
 		return p.cachedUser, nil
@@ -273,7 +265,7 @@ func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 }
 
 // UserFromToken fetches user info using a known access token, bypassing the
-// full OAuth2 code-exchange flow. It mirrors AbstractProvider::userFromToken().
+// full OAuth2 code-exchange flow.
 func (p *AbstractProvider) UserFromToken(ctx context.Context, token string) (*User, error) {
 	raw, err := p.impl.GetUserByToken(ctx, token)
 
@@ -287,7 +279,7 @@ func (p *AbstractProvider) UserFromToken(ctx context.Context, token string) (*Us
 // ── Authorization URL helpers ────────────────────────────────────────────────
 
 // BuildAuthURLFromBase constructs the full authorization URL from a base URL
-// and a state pointer (nil = stateless). It mirrors
+// and a state pointer (nil = stateless).
 // AbstractProvider::buildAuthUrlFromBase().
 func (p *AbstractProvider) BuildAuthURLFromBase(base string, state *string) string {
 	fields := p.getCodeFields(state)
@@ -312,7 +304,6 @@ func (p *AbstractProvider) BuildAuthURLFromBase(base string, state *string) stri
 }
 
 // getCodeFields returns the query parameters sent in the authorization request.
-// It mirrors AbstractProvider::getCodeFields().
 func (p *AbstractProvider) getCodeFields(state *string) map[string]string {
 	fields := map[string]string{
 		"client_id":     p.clientID,
@@ -341,7 +332,7 @@ func (p *AbstractProvider) getCodeFields(state *string) map[string]string {
 // ── Token exchange ───────────────────────────────────────────────────────────
 
 // getAccessTokenResponse POSTs the authorization code to the token endpoint
-// and returns the decoded JSON response. It mirrors
+// and returns the decoded JSON response.
 // AbstractProvider::getAccessTokenResponse().
 func (p *AbstractProvider) getAccessTokenResponse(ctx context.Context, code string) (map[string]any, error) {
 	fields := p.getTokenFields(code)
@@ -350,7 +341,6 @@ func (p *AbstractProvider) getAccessTokenResponse(ctx context.Context, code stri
 }
 
 // GetTokenFields returns the form parameters for the token exchange POST.
-// It mirrors AbstractProvider::getTokenFields().
 func (p *AbstractProvider) GetTokenFields(code string) map[string]string {
 	return p.getTokenFields(code)
 }
@@ -376,7 +366,6 @@ func (p *AbstractProvider) getTokenFields(code string) map[string]string {
 
 // hasInvalidState reports whether the state parameter in the callback request
 // does not match the value stored in the session. Returns false when stateless.
-// It mirrors AbstractProvider::hasInvalidState().
 func (p *AbstractProvider) hasInvalidState() bool {
 	if p.stateless {
 		return false
@@ -389,7 +378,6 @@ func (p *AbstractProvider) hasInvalidState() bool {
 }
 
 // generateState creates a 40-character random alphanumeric string.
-// It mirrors Str::random(40) used for CSRF state tokens.
 func generateState() string {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 40)
@@ -403,7 +391,7 @@ func generateState() string {
 }
 
 // generateCodeVerifier creates a 96-character base64url-encoded random string
-// for use as a PKCE code verifier. It mirrors AbstractProvider::getCodeVerifier().
+// for use as a PKCE code verifier.
 func generateCodeVerifier() string {
 	b := make([]byte, 72)
 
@@ -415,7 +403,6 @@ func generateCodeVerifier() string {
 }
 
 // generateCodeChallenge computes the S256 PKCE code challenge from a verifier.
-// It mirrors AbstractProvider::getCodeChallenge().
 func generateCodeChallenge(verifier string) string {
 	h := sha256.Sum256([]byte(verifier))
 

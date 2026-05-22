@@ -9,7 +9,7 @@ import (
 )
 
 // Model is the base Orm model. User models embed this struct to gain
-// ORM capabilities. It mirrors Framework\Database\Orm\Model.
+// Ref: @bedrock/code-0209
 type Model struct {
 	HasAttributes
 	HasTimestamps

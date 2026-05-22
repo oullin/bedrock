@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\TitlePromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\TitlePromptTest::test_sets_title
 func TestTitleSetsTitle(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

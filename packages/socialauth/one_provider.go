@@ -20,8 +20,7 @@ type TokenCredentials struct {
 }
 
 // OAuth1Server is the interface that concrete OAuth1 providers implement.
-// It mirrors the League\OAuth1\Client\Server\Server contract used by
-// Upstream\SocialAuth\One\AbstractProvider.
+// upstream SocialAuth\One\AbstractProvider.
 type OAuth1Server interface {
 	// GetTemporaryCredentials fetches a request token from the provider.
 	GetTemporaryCredentials(ctx context.Context) (*TemporaryCredentials, error)
@@ -41,7 +40,6 @@ type OAuth1Server interface {
 }
 
 // OneAbstractProvider is the base OAuth1 provider.
-// It mirrors Upstream\SocialAuth\One\AbstractProvider.
 type OneAbstractProvider struct {
 	server  OAuth1Server
 	request *http.Request
@@ -58,7 +56,7 @@ func NewOneAbstractProvider(server OAuth1Server, req *http.Request, session Sess
 }
 
 // Redirect fetches temporary credentials, stores them in the session, and
-// returns the authorization URL. It mirrors One\AbstractProvider::redirect().
+// returns the authorization URL.
 func (p *OneAbstractProvider) Redirect(ctx context.Context) (string, error) {
 	temp, err := p.server.GetTemporaryCredentials(ctx)
 
@@ -73,7 +71,6 @@ func (p *OneAbstractProvider) Redirect(ctx context.Context) (string, error) {
 
 // User validates the OAuth1 callback parameters, fetches token credentials,
 // retrieves user details, and returns a populated *User.
-// It mirrors One\AbstractProvider::user().
 func (p *OneAbstractProvider) User(ctx context.Context) (*User, error) {
 	oauthToken := p.request.URL.Query().Get("oauth_token")
 	verifier := p.request.URL.Query().Get("oauth_verifier")

@@ -5,7 +5,7 @@ type {{ name }} struct{}
 
 // Handle is the pipeline entry point for {{ name }}.
 //
-// The shape (request, next) → result mirrors Upstream's middleware contract.
+// The shape (request, next) → result follows bedrock's middleware contract.
 // Wrap any pre-processing before the next call, and any post-processing
 // around the next call's return value.
 func (m *{{ name }}) Handle(request any, next func(any) any) any {

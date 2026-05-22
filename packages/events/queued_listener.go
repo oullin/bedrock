@@ -6,7 +6,7 @@ import (
 )
 
 // CallQueuedListener is a queue job payload that wraps a listener for
-// asynchronous execution. It mirrors Upstream's CallQueuedListener with support
+// asynchronous execution.
 // for retry, timeout, backoff, and unique job constraints.
 type CallQueuedListener struct {
 	ListenerName string

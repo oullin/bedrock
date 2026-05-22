@@ -6,7 +6,6 @@ import (
 )
 
 // BitbucketProvider handles OAuth2 authentication via Bitbucket.
-// It mirrors Upstream\SocialAuth\Two\BitbucketProvider.
 type BitbucketProvider struct {
 	AbstractProvider
 }

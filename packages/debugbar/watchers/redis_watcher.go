@@ -8,10 +8,9 @@ import (
 )
 
 // ignoredRedisCommands lists commands that should not be recorded (pipeline /
-// transaction control), mirroring Upstream's RedisWatcher.
 
 // RedisWatcher monitors Redis command execution and records entries as
-// DebugBar entries. It mirrors Upstream's RedisWatcher class.
+// DebugBar entries.
 type RedisWatcher struct {
 	debugbar.BaseWatcher
 }

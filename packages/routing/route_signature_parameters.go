@@ -12,7 +12,7 @@ import "reflect"
 // runtime parameter-name metadata for them — the parameter Type is recovered,
 // but the parameter Name is always empty.
 //
-// Mirrors Framework\Routing\RouteSignatureParameters.
+// Ref: @bedrock/code-0340
 type RouteSignatureParameters struct{}
 
 // SignatureParameter is a Go-friendly stand-in for ReflectionParameter.
@@ -26,7 +26,6 @@ type SignatureParameter struct {
 
 // FromAction extracts signature parameters from a parsed [*Action].
 //
-// Conditions is a small filter set mirroring the PHP version's $conditions:
 //   - "subClass": when set, only parameters whose Type implements the named
 //     interface (looked up via the controller registry) are returned. In M1
 //     this is honored only for func handlers whose parameter types are
@@ -37,7 +36,7 @@ type SignatureParameter struct {
 // Returns parameters in declaration order.
 
 // BackedEnum is the sentinel interface that user-defined backed enums must
-// implement to participate in implicit route binding. It mirrors PHP's
+// implement to participate in implicit route binding.
 // BackedEnum interface in surface.
 type BackedEnum interface {
 	BackingValue() string

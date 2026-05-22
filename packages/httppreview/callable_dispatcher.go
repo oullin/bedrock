@@ -10,7 +10,7 @@ import (
 // and then short-circuits with a [SuccessResponse] panic instead of executing
 // the callable.
 //
-// Mirrors Framework\Foundation\Routing\HTTPPreviewCallableDispatcher.
+// Ref: @bedrock/code-0219
 type CallableDispatcher struct {
 	routing.ResolvesRouteDependencies
 	container routing.DependencyContainer

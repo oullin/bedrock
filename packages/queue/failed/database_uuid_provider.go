@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-// DatabaseUuidFailedJobProvider is the Go port of
-// Framework\Queue\Failed\DatabaseUuidFailedJobProvider. Records share
+// Ref: @bedrock/code-0256
 // the same failed_jobs table shape as the integer-keyed provider but
 // the primary key exposed to callers is the payload's uuid field.
 type DatabaseUuidFailedJobProvider struct {
@@ -46,7 +45,7 @@ func (p *DatabaseUuidFailedJobProvider) Log(connection, queue, payload string, e
 
 // IDs implements FailedJobProvider.
 func (p *DatabaseUuidFailedJobProvider) IDs(queueFilter string) ([]string, error) {
-	// Upstream's uuid-provider orders ids asc by insertion even though
+	// the upstream uuid-provider orders ids asc by insertion even though
 	// all() orders desc — the PHP test uses ['uuid-1',...,'uuid-4']
 	// which is the ascending order. Reproduce that here by reversing
 	// the default (desc) output.

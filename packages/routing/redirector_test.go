@@ -2,7 +2,7 @@ package routing
 
 import "testing"
 
-// Translation of upstream/framework tests/Routing/RoutingRedirectorTest.php.
+// Ref: @bedrock/code-0397
 // RoutingRedirectorTest::testBasicRedirectTo
 // RoutingRedirectorTest::testAwayDoesntValidateTheUrl
 // RoutingRedirectorTest::testSecureRedirectToHttpsUrl

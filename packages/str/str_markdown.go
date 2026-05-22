@@ -14,8 +14,6 @@ import (
 // Options map keys:
 //   - "html_input": "strip" (default) or "allow" — controls raw HTML in input
 //   - "allow_unsafe_links": bool — whether to allow unsafe links (default false)
-//
-// Mirrors Str::markdown().
 func StrMarkdown(str string, options ...map[string]any) string {
 	opts := mergeMarkdownOptions(options)
 
@@ -53,7 +51,6 @@ func StrMarkdown(str string, options ...map[string]any) string {
 
 // StrInlineMarkdown converts the given CommonMark Markdown string to inline HTML.
 // Unlike StrMarkdown, the wrapping <p> tag is removed for single-line content.
-// Mirrors Str::inlineMarkdown().
 func StrInlineMarkdown(str string, options ...map[string]any) string {
 	result := StrMarkdown(str, options...)
 

@@ -1,2 +1,2 @@
-// Package remotetasks provides task planning and execution primitives inspired by Upstream RemoteTasks.
+// Package remotetasks provides task planning and execution primitives inspired by upstream RemoteTasks.
 package remotetasks

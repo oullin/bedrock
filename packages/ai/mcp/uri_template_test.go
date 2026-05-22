@@ -6,8 +6,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Upstream\Mcp\Tests\UriTemplateTest
-
 func TestUriTemplateStaticURIMatchesExactly(t *testing.T) {
 	t.Parallel()
 

@@ -1,7 +1,6 @@
-// Package httppreview is a 1:1 Go port of upstream/framework 13.x
-// src/Framework/Foundation/Http/Middleware/HandlePrecognitiveRequests and
-// src/Framework/Foundation/HTTPPreview.
+// Package httppreview provides core functionality for httppreview.
 //
+// Ref: @bedrock/code-0186
 // It provides middleware and utilities for handling precognitive HTTP requests
 // — live, real-time form validation without duplicating backend validation
 // rules in frontend code.

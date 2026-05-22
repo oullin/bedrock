@@ -14,7 +14,7 @@ import (
 )
 
 // DatabaseRepository persists DebugBar entries to a relational database. It
-// mirrors Upstream's DatabaseEntriesRepository, supporting the same three-table
+// mirrors the upstream DatabaseEntriesRepository, supporting the same three-table
 // schema: telescope_entries, telescope_entries_tags, and telescope_monitoring.
 //
 // The connection must be a *database/sql.DB configured with the appropriate

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Trusted header constants matching Upstream's TrustProxies.
+// Trusted header constants matching the upstream TrustProxies.
 
 // X-Forwarded-For
 // X-Forwarded-Host

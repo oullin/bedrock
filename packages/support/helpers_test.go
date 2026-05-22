@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testBlank
+// Ref: @bedrock/code-0377
 func TestBlank(t *testing.T) {
 	t.Parallel()
 
@@ -35,7 +35,7 @@ func TestBlank(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testFilled
+// Ref: @bedrock/code-0377
 func TestFilled(t *testing.T) {
 	t.Parallel()
 
@@ -60,7 +60,7 @@ func TestFilled(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testTap
+// Ref: @bedrock/code-0377
 func TestTap(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestTap(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testWith
+// Ref: @bedrock/code-0377
 func TestWith(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func TestWith(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testValue
+// Ref: @bedrock/code-0377
 func TestValue(t *testing.T) {
 	t.Parallel()
 
@@ -121,8 +121,7 @@ func TestValue(t *testing.T) {
 }
 
 // Ports of:
-// - Framework\Tests\Support\SupportHelpersTest::testTransform
-// - Framework\Tests\Support\SupportHelpersTest::testTransformDefaultWhenBlank
+// Ref: @bedrock/code-0377
 func TestTransform(t *testing.T) {
 	t.Parallel()
 
@@ -154,7 +153,7 @@ func TestTransform(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testE
+// Ref: @bedrock/code-0377
 func TestE(t *testing.T) {
 	t.Parallel()
 
@@ -177,7 +176,7 @@ func TestE(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnv
+// Ref: @bedrock/code-0377
 func TestEnv(t *testing.T) {
 	// NOT parallel — uses t.Setenv
 	t.Setenv("TEST_SUPPORT_FOO", "bar")
@@ -191,7 +190,7 @@ func TestEnv(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnvTrue
+// Ref: @bedrock/code-0377
 func TestEnvTrue(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +203,7 @@ func TestEnvTrue(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnvFalse
+// Ref: @bedrock/code-0377
 func TestEnvFalse(t *testing.T) {
 	t.Parallel()
 
@@ -217,7 +216,7 @@ func TestEnvFalse(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnvNull
+// Ref: @bedrock/code-0377
 func TestEnvNull(t *testing.T) {
 	t.Parallel()
 
@@ -230,7 +229,7 @@ func TestEnvNull(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnvEmpty
+// Ref: @bedrock/code-0377
 func TestEnvEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -243,7 +242,7 @@ func TestEnvEmpty(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportHelpersTest::testEnvEscapedString
+// Ref: @bedrock/code-0377
 func TestEnvEscapedString(t *testing.T) {
 	t.Parallel()
 

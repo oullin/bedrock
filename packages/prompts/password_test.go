@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest
-
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_accepts_input
 func TestPasswordAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -28,7 +25,6 @@ func TestPasswordAcceptsInput(t *testing.T) {
 	tp.AssertStrippedOutputContains("Password?")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_can_be_cancelled
 func TestPasswordCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -43,7 +39,6 @@ func TestPasswordCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_validates_input
 func TestPasswordValidatesInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -62,7 +57,6 @@ func TestPasswordValidatesInput(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_renders_hint
 func TestPasswordRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -79,7 +73,6 @@ func TestPasswordRendersHint(t *testing.T) {
 	tp.AssertStrippedOutputContains("Min 8 chars")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_masks_input
 func TestPasswordMasksInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -97,7 +90,6 @@ func TestPasswordMasksInput(t *testing.T) {
 	tp.AssertOutputDoesntContain("ab")
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_transforms_values
 func TestPasswordTransformsValue(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -118,7 +110,6 @@ func TestPasswordTransformsValue(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_backspace_removes_character
 func TestPasswordBackspaceRemovesCharacter(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -137,7 +128,6 @@ func TestPasswordBackspaceRemovesCharacter(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_delete_key_removes_character
 func TestPasswordDeleteKeyRemovesCharacter(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -157,7 +147,6 @@ func TestPasswordDeleteKeyRemovesCharacter(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_returns_empty_string_when_non_interactive
 func TestPasswordReturnsEmptyWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -174,7 +163,6 @@ func TestPasswordReturnsEmptyWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_fails_validation_when_non_interactive
 func TestPasswordFailsValidationWhenNonInteractive(t *testing.T) {
 	cleanup := FakeNonInteractive()
 
@@ -191,7 +179,6 @@ func TestPasswordFailsValidationWhenNonInteractive(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\PasswordPromptTest::test_supports_custom_validation
 func TestPasswordCustomValidation(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

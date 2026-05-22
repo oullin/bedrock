@@ -10,8 +10,6 @@ import (
 type contextKey struct{}
 
 // precognitiveKey is the context key that marks a request as precognitive.
-// This is the Go equivalent of Upstream's
-// $request->attributes->set('precognitive', true).
 var precognitiveKey = contextKey{}
 
 // MarkPrecognitive returns a shallow copy of r with the precognitive context
@@ -24,8 +22,7 @@ func MarkPrecognitive(r *http.Request) *http.Request {
 }
 
 // IsPrecognitive reports whether the middleware has marked this request as
-// precognitive via [MarkPrecognitive]. This is the Go equivalent of Upstream's
-// $request->isPrecognitive() which checks the request attribute set by the
+// precognitive via [MarkPrecognitive].
 // middleware — distinct from the header-based check.
 func IsPrecognitive(r *http.Request) bool {
 	v, _ := r.Context().Value(precognitiveKey).(bool)
@@ -35,8 +32,7 @@ func IsPrecognitive(r *http.Request) bool {
 
 // IsAttemptingHTTPPreview reports whether the request carries a
 // HTTPPreview header with the value "true". This checks the client's intent
-// to make a precognitive request, matching Upstream's
-// $request->isAttemptingHTTPPreview() which checks the header exactly.
+// to make a precognitive request and matches the header exactly.
 func IsAttemptingHTTPPreview(r *http.Request) bool {
 	return r.Header.Get("HTTPPreview") == "true"
 }

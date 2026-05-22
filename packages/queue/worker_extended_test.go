@@ -66,15 +66,14 @@ type workerRedisClient struct {
 }
 
 // As of Step 8b, the worker no longer auto-deletes on success —
-// Upstream's CallQueuedHandler owns that responsibility, and the
+// the upstream CallQueuedHandler owns that responsibility, and the
 // Upstream test suite explicitly asserts deleted==false after a
 // successful handler run. The handler in this test calls Delete
 // explicitly to preserve the original "successful handler leads
 // to a deleted job" guarantee for bedrock callers that rely on it.
 
 // recorderForPopError is a tiny ExceptionReporter that records every
-// error it was asked to report. Kept local so it doesn't collide with
-// fixtures in worker_laravel_test.go.
+// error it was asked to report.
 type recorderForPopError struct {
 	mu     sync.Mutex
 	errors []error
@@ -492,7 +491,7 @@ func TestWorkerPopError(t *testing.T) {
 
 	// As of Step 8c, the worker no longer returns pop errors — it
 	// reports them via ExceptionReporter and continues (matching
-	// Upstream's testExceptionIsReportedIfConnectionThrowsExceptionOnJobPop).
+	// the upstream testExceptionIsReportedIfConnectionThrowsExceptionOnJobPop).
 	// The test asserts the new contract: the reporter saw the error
 	// at least once before the context deadline elapsed.
 	q := &errorQueue{err: errors.New("connection lost")}

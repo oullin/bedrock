@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Upstream\Prompts\Tests\Feature\StreamTest
-
-// Port of Upstream\Prompts\Tests\Feature\StreamTest::test_stream_appends
 func TestStreamAppends(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -20,7 +17,6 @@ func TestStreamAppends(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\StreamTest::test_stream_lines
 func TestStreamLines(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +38,6 @@ func TestStreamLines(t *testing.T) {
 	}
 }
 
-// Port of Upstream\Prompts\Tests\Feature\StreamTest::test_stream_chaining
 func TestStreamChaining(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

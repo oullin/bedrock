@@ -1,9 +1,8 @@
 package routing
 
-// CreatesRegularExpressionRouteConstraints is the Go translation of the PHP
 // trait of the same name.
 //
-// In Upstream this is a trait used by [Route] and [RouteRegistrar] to expose
+// In the upstream framework this is a trait used by [Route] and [RouteRegistrar] to expose
 // the WhereAlpha / WhereNumber / WhereUuid family of helpers. In Go traits are
 // realized as embedded structs: any type that embeds this struct gains the
 // helpers, provided it also satisfies [whereTarget] (i.e. has a `Where` method

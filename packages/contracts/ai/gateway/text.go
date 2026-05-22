@@ -50,7 +50,6 @@ type StreamEvent interface {
 }
 
 // TextGateway drives text generation for a single provider.
-// Mirrors Upstream\Ai\Contracts\Gateway\TextGateway.
 type TextGateway interface {
 	// GenerateText performs a blocking text generation call.
 	GenerateText(ctx context.Context, req TextGenerateRequest) (*TextGenerateResult, error)

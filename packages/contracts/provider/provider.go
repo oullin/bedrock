@@ -1,7 +1,7 @@
 package provider
 
 // ServiceProvider is implemented by packages that register their services
-// with the application container. It mirrors Framework\Support\ServiceProvider.
+// Ref: @bedrock/code-0353
 type ServiceProvider interface {
 	Register()
 }

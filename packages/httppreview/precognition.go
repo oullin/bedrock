@@ -19,7 +19,7 @@ type MessageProvider interface {
 // If validation failed or the request has no HTTPPreview-Validate-Only header,
 // the closure is a no-op.
 //
-// This is the Go equivalent of Framework\Foundation\HTTPPreview::afterValidationHook.
+// Ref: @bedrock/code-0218
 //
 //	hook := httppreview.AfterValidationHook(r)
 //	// Register as after-validation callback:

@@ -10,7 +10,7 @@ import "github.com/bedrock/packages/routing/controllers"
 // PHP class's public surface (Middleware, GetMiddleware, CallAction) so
 // dispatchers can probe for it uniformly.
 //
-// Mirrors Framework\Routing\Controller.
+// Ref: @bedrock/code-0295
 type Controller struct {
 	middleware []controllerMiddlewareEntry
 }
@@ -22,7 +22,7 @@ type controllerMiddlewareEntry struct {
 
 // MiddlewareOptions is the chainable filter helper returned by Use.
 //
-// Mirrors Framework\Routing\ControllerMiddlewareOptions.
+// Ref: @bedrock/code-0297
 type MiddlewareOptions struct{ options map[string]any }
 
 // Only constrains the middleware to the named methods.
@@ -42,7 +42,7 @@ func (o *MiddlewareOptions) Except(methods ...string) *MiddlewareOptions {
 // Use registers middleware on the controller and returns a chainable options
 // object (Only/Except).
 //
-// Mirrors Controller::middleware. Renamed to Use in Go because Middleware is
+// Ref: @bedrock/code-0295
 // already the [HasMiddleware] method name.
 func (c *Controller) Use(middleware any) *MiddlewareOptions {
 	options := map[string]any{}

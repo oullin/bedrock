@@ -42,7 +42,7 @@ func TestGuidelineConfigFromRepository(t *testing.T) {
 	repo := config.New(map[string]any{
 		"boost.base_path":             "/app",
 		"boost.custom_guideline_path": "/app/.ai/guidelines",
-		"boost.packages":              []any{"upstream/boost", "myorg/mypackage"},
+		"boost.packages":              []any{"acme/example", "myorg/mypackage"},
 		"boost.skills.enabled":        true,
 		"boost.mcp.enabled":           true,
 	})
@@ -58,8 +58,8 @@ func TestGuidelineConfigFromRepository(t *testing.T) {
 
 	pkgs := cfg.Packages()
 
-	if len(pkgs) != 2 || pkgs[0] != "upstream/boost" || pkgs[1] != "myorg/mypackage" {
-		t.Errorf("Packages() = %v, want [upstream/boost myorg/mypackage]", pkgs)
+	if len(pkgs) != 2 || pkgs[0] != "acme/example" || pkgs[1] != "myorg/mypackage" {
+		t.Errorf("Packages() = %v, want [acme/example myorg/mypackage]", pkgs)
 	}
 
 	if !cfg.HasSkillsEnabled() {

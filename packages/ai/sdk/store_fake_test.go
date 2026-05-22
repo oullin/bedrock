@@ -10,7 +10,6 @@ import (
 	contractsgw "github.com/bedrock/packages/contracts/ai/gateway"
 )
 
-// TestStoreFileCanBeAdded mirrors test_file_can_be_added_to_store.
 func TestStoreFileCanBeAdded(t *testing.T) {
 	t.Parallel()
 
@@ -44,7 +43,6 @@ func TestStoreFileCanBeAdded(t *testing.T) {
 	})
 }
 
-// TestStoreFileCanBeRemoved mirrors test_file_can_be_removed_from_store.
 func TestStoreFileCanBeRemoved(t *testing.T) {
 	t.Parallel()
 

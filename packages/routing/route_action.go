@@ -8,21 +8,20 @@ import (
 
 // Action is the parsed form of a route action.
 //
-// In Upstream this is a free-form associative array; in Go it is a struct so
+// In the upstream framework this is a free-form associative array; in Go it is a struct so
 // callers get type safety without losing parity. The most-used keys map to
 // fields directly:
 //
 //   - Uses: the actual handler. May be a Go func value, a "Controller@method"
 //     string, an invokable controller type, or nil for fluent registration.
 //   - Controller: the canonical "Type@Method" form when known.
-//   - Middleware, Where, Defaults: per-route metadata mirroring the PHP keys
 //     of the same name.
 //   - Domain, Prefix, As, Namespace: group-style attributes that may be
 //     attached to the action.
 //   - Extras: a catch-all map for any non-standard keys passed through by
 //     callers that want to round-trip arbitrary action metadata.
 //
-// Mirrors Framework\Routing\RouteAction.
+// Ref: @bedrock/code-0333
 type Action struct {
 	Uses       any
 	Controller string
@@ -38,9 +37,9 @@ type Action struct {
 
 // ParseAction normalizes a user-supplied action into an [*Action].
 //
-// The accepted shapes mirror Upstream's RouteAction::parse:
+// The accepted shapes mirror the upstream RouteAction::parse:
 //   - nil: produces a placeholder action whose Uses returns an error when
-//     invoked, equivalent to Upstream's missingAction closure.
+//     invoked, equivalent to the upstream missingAction closure.
 //   - a Go func: stored in Uses as-is.
 //   - a string of the form "Controller@method": stored in Uses and Controller.
 //   - a struct/pointer with an Invoke method: stored in Uses; Controller is
@@ -48,7 +47,7 @@ type Action struct {
 //   - a map[string]any: passed through, with the "uses" key resolved as above
 //     and other keys distributed to the matching fields or Extras.
 //
-// Mirrors Framework\Routing\RouteAction::parse.
+// Ref: @bedrock/code-0333
 func ParseAction(uri string, action any) (*Action, error) {
 	if action == nil {
 		return missingAction(uri), nil
@@ -144,7 +143,7 @@ func parseMapAction(uri string, m map[string]any) (*Action, error) {
 	}
 
 	if a.Uses == nil {
-		// Upstream's findCallable: scan numeric-keyed entries for a callable.
+		// the upstream findCallable: scan numeric-keyed entries for a callable.
 		// In Go we only have string-keyed maps here, so fall back to a missing
 		// action so the error surfaces lazily at dispatch time.
 		a.Uses = missingAction("").Uses

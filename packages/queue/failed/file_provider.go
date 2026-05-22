@@ -7,13 +7,12 @@ import (
 	"time"
 )
 
-// FileFailedJobProvider is the Go port of
-// Framework\Queue\Failed\FileFailedJobProvider. It stores every failed
+// Ref: @bedrock/code-0259
 // job as a record inside a single JSON file on disk (newest first),
 // capped at `limit` entries.
 //
-// Upstream's provider supports an optional lockProviderResolver closure;
-// the Go port keeps a process-local sync.Mutex instead, which mirrors
+// the upstream provider supports an optional lockProviderResolver closure;
+// the Go port keeps a process-local sync.
 // the observable serialisation behaviour without dragging a lock
 // provider interface into this package.
 type FileFailedJobProvider struct {
@@ -23,7 +22,7 @@ type FileFailedJobProvider struct {
 	mu    sync.Mutex
 }
 
-// fileRecord matches the on-disk JSON shape Upstream's file provider
+// fileRecord matches the on-disk JSON shape the upstream file provider
 // writes: id, connection, queue, payload, exception, failed_at
 // (string "Y-m-d H:i:s"), failed_at_timestamp (Unix seconds).
 type fileRecord struct {
@@ -37,7 +36,7 @@ type fileRecord struct {
 }
 
 // NewFileFailedJobProvider returns a provider that persists to the
-// given path. A zero limit defaults to 100, matching Upstream.
+// given path. A zero limit defaults to 100, matching upstream.
 func NewFileFailedJobProvider(path string, limit int) *FileFailedJobProvider {
 	if limit <= 0 {
 		limit = 100
@@ -184,7 +183,6 @@ func (p *FileFailedJobProvider) Forget(id string) (bool, error) {
 }
 
 // Flush implements FailedJobProvider. It delegates to Prune using a
-// cutoff of `now - hours`, mirroring Upstream's implementation.
 func (p *FileFailedJobProvider) Flush(hours int) error {
 	cutoff := p.now().Add(-time.Duration(hours) * time.Hour)
 	_, err := p.Prune(cutoff)
@@ -193,8 +191,7 @@ func (p *FileFailedJobProvider) Flush(hours int) error {
 }
 
 // Prune implements Prunable. It removes every entry whose
-// failed_at_timestamp is <= before.Unix(), mirroring Upstream's
-// `reject(fn ($j) => $j->failed_at_timestamp <= $before->getTimestamp())`.
+// failed_at_timestamp is <= before.Unix().
 func (p *FileFailedJobProvider) Prune(before time.Time) (int64, error) {
 	p.mu.Lock()
 

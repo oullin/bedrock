@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Port of Framework\Tests\Support\SupportStrTest::testUuid
+// Ref: @bedrock/code-0380
 func TestStrUuid(t *testing.T) {
 	// NOT parallel — UUID tests may conflict with freeze
 	uuid := StrUuid()
@@ -15,7 +15,7 @@ func TestStrUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanFreezeUuids
+// Ref: @bedrock/code-0380
 func TestStrFreezeUuids(t *testing.T) {
 	// NOT parallel — modifies global UUID state
 	cleanup := FreezeUuids(func() string { return "frozen-uuid" })
@@ -27,7 +27,7 @@ func TestStrFreezeUuids(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanFreezeUuidsInAClosure
+// Ref: @bedrock/code-0380
 func TestStrFreezeUuidsCleanup(t *testing.T) {
 	// NOT parallel — modifies global UUID state
 	cleanup := FreezeUuids(func() string { return "frozen" })
@@ -46,7 +46,7 @@ func TestStrFreezeUuidsCleanup(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUuidsToUtilise
+// Ref: @bedrock/code-0380
 // SupportStrTest::testItCanSpecifyAFallbackForASequence
 func TestStrUuidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -77,7 +77,7 @@ func TestStrUuidSequence(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanFreezeUlids
+// Ref: @bedrock/code-0380
 // SupportStrTest::testItCanFreezeUlidsInAClosure
 func TestStrFreezeUlids(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -90,7 +90,7 @@ func TestStrFreezeUlids(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCanSpecifyASequenceOfUlidsToUtilise
+// Ref: @bedrock/code-0380
 // SupportStrTest::testItCanSpecifyAFallbackForAUlidSequence
 func TestStrUlidSequence(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -124,7 +124,7 @@ func TestStrUlidSequence(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testItCreatesUuidsNormallyAfterFailureWithinFreezeMethod
+// Ref: @bedrock/code-0380
 // SupportStrTest::testItCreatesUlidsNormallyAfterFailureWithinFreezeMethod
 func TestStrCreateUuidsNormally(t *testing.T) {
 	// NOT parallel — modifies global state
@@ -155,7 +155,7 @@ func TestStrCreateUuidsNormally(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testOrderedUuid
+// Ref: @bedrock/code-0380
 func TestStrOrderedUuid(t *testing.T) {
 	// NOT parallel — may interfere with UUID freeze tests
 	uuid := StrOrderedUuid()
@@ -165,7 +165,7 @@ func TestStrOrderedUuid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testUlid
+// Ref: @bedrock/code-0380
 func TestStrUlid(t *testing.T) {
 	// NOT parallel
 	ulid := StrUlid()
@@ -180,7 +180,7 @@ func TestStrUlid(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Support\SupportStrTest::testResetFactoryState
+// Ref: @bedrock/code-0380
 func TestStrResetFactoryState(t *testing.T) {
 	// NOT parallel — modifies global state
 	CreateUuidsUsing(func() string { return "custom" })

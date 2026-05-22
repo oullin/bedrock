@@ -6,7 +6,7 @@ import "strings"
 // completion response. Upstream caps this at 100.
 
 // CompletionResult holds the completion suggestions for a prompt or resource
-// argument. It mirrors Upstream's CompletionResponse.
+// argument.
 type CompletionResult struct {
 	Values  []string
 	HasMore bool

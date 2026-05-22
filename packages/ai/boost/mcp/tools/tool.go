@@ -29,7 +29,6 @@ type McpResponse struct {
 
 // McpTool is the interface every MCP server tool must satisfy.
 // Named McpTool to avoid collision with contracts/ai.Tool (LLM function-calling tools).
-// Mirrors the Tool base class in upstream/boost/src/Mcp/Tools/.
 type McpTool interface {
 	// Name returns the tool's canonical identifier.
 	Name() string

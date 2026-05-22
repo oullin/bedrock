@@ -1,6 +1,6 @@
 # sdk
 
-<!-- upstream-docs: ai-sdk.md#upstream-ai-sdk -->
+<!-- ref: @bedrock/code-0009 -->
 
 <!-- BEDROCK:HAND -->
 
@@ -10,7 +10,7 @@ Sub-agents let a parent agent delegate specialized work to other agents by
 returning them from the parent's `Tools()`. The parent's LLM sees each sub-agent
 as a callable tool; when it invokes one, the sub-agent runs with its own
 instructions, tools, provider, and model, and returns its final text as the
-tool result. This mirrors the sub-agents feature added to `upstream/ai` 0.x.
+tool result. This mirrors the sub-agents feature added to upstream `ai` 0.x.
 
 ### Defining a sub-agent
 
@@ -70,7 +70,7 @@ established in its own messages is not forwarded.
 
 A sub-agent uses whatever provider and model the wrapped agent was configured
 with (via `WithProvider` / `WithModel` on `AnonymousAgent`, or via its
-`ProviderOptions`). This mirrors Upstream's per-agent `#[Provider(Lab::Anthropic)]`
+`ProviderOptions`). This mirrors the upstream per-agent `#[Provider(Lab::Anthropic)]`
 attribute model — the sub-agent's own configuration wins, not the parent's.
 
 ### Testing
@@ -92,17 +92,13 @@ See `packages/ai/sdk/sub_agent_test.go` for executable parity examples.
 
 <!-- /BEDROCK:HAND -->
 
-Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the upstream/ai (0.x) package, offering 100% functional parity adapted idiomatically to Go.
+Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the upstream `ai` (0.x) package, offering 100% functional parity adapted idiomatically to Go.
 
-<div class="docs-callout docs-callout-upstream">
-  <strong>Upstream baseline.</strong>
-  This page follows the Upstream 13.x documentation structure for the matching feature area, then rewrites the examples and edge cases for Bedrock's Go packages.
-</div>
+<div class="docs-callout docs-callout-upstream"></div>
 
 <div class="docs-callout docs-callout-go">
   <strong>Go adaptation.</strong>
-  Bedrock replaces Upstream facades, service container magic, PHP traits, and CLI commands with explicit Go constructors, interfaces, structs, context propagation, and ordinary package tests.
-</div>
+  </div>
 
 ## Installation
 
@@ -120,35 +116,35 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
 
 ## Source Coverage
 
-| Package                | Purpose                                                                                                                                                                                                                            |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sdk`                  | Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the upstream/ai (0.x) package, offering 100% functional parity adapted idiomatically to Go. |
-| `data`                 | Public data API surface for this module.                                                                                                                                                                                           |
-| `enums`                | Public enums API surface for this module.                                                                                                                                                                                          |
-| `fake`                 | Public fake API surface for this module.                                                                                                                                                                                           |
-| `messages`             | Public messages API surface for this module.                                                                                                                                                                                       |
-| `prompts`              | Public prompts API surface for this module.                                                                                                                                                                                        |
-| `providers`            | Public providers API surface for this module.                                                                                                                                                                                      |
-| `providers/anthropic`  | Public providers/anthropic API surface for this module.                                                                                                                                                                            |
-| `providers/azure`      | Public providers/azure API surface for this module.                                                                                                                                                                                |
-| `providers/cohere`     | Public providers/cohere API surface for this module.                                                                                                                                                                               |
-| `providers/deepseek`   | Public providers/deepseek API surface for this module.                                                                                                                                                                             |
-| `providers/elevenlabs` | Public providers/elevenlabs API surface for this module.                                                                                                                                                                           |
-| `providers/gemini`     | Public providers/gemini API surface for this module.                                                                                                                                                                               |
-| `providers/groq`       | Public providers/groq API surface for this module.                                                                                                                                                                                 |
-| `providers/jina`       | Public providers/jina API surface for this module.                                                                                                                                                                                 |
-| `providers/mistral`    | Public providers/mistral API surface for this module.                                                                                                                                                                              |
-| `providers/ollama`     | Public providers/ollama API surface for this module.                                                                                                                                                                               |
-| `providers/openai`     | Public providers/openai API surface for this module.                                                                                                                                                                               |
-| `providers/openrouter` | Public providers/openrouter API surface for this module.                                                                                                                                                                           |
-| `providers/voyageai`   | Public providers/voyageai API surface for this module.                                                                                                                                                                             |
-| `providers/xai`        | Public providers/xai API surface for this module.                                                                                                                                                                                  |
-| `responses`            | Public responses API surface for this module.                                                                                                                                                                                      |
-| `stream`               | Public stream API surface for this module.                                                                                                                                                                                         |
+| Package                | Purpose                                                                                                                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sdk`                  | Package ai provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. It mirrors the upstream `ai` (0.x) package, offering 100% functional parity adapted idiomatically to Go. |
+| `data`                 | Public data API surface for this module.                                                                                                                                                                                              |
+| `enums`                | Public enums API surface for this module.                                                                                                                                                                                             |
+| `fake`                 | Public fake API surface for this module.                                                                                                                                                                                              |
+| `messages`             | Public messages API surface for this module.                                                                                                                                                                                          |
+| `prompts`              | Public prompts API surface for this module.                                                                                                                                                                                           |
+| `providers`            | Public providers API surface for this module.                                                                                                                                                                                         |
+| `providers/anthropic`  | Public providers/anthropic API surface for this module.                                                                                                                                                                               |
+| `providers/azure`      | Public providers/azure API surface for this module.                                                                                                                                                                                   |
+| `providers/cohere`     | Public providers/cohere API surface for this module.                                                                                                                                                                                  |
+| `providers/deepseek`   | Public providers/deepseek API surface for this module.                                                                                                                                                                                |
+| `providers/elevenlabs` | Public providers/elevenlabs API surface for this module.                                                                                                                                                                              |
+| `providers/gemini`     | Public providers/gemini API surface for this module.                                                                                                                                                                                  |
+| `providers/groq`       | Public providers/groq API surface for this module.                                                                                                                                                                                    |
+| `providers/jina`       | Public providers/jina API surface for this module.                                                                                                                                                                                    |
+| `providers/mistral`    | Public providers/mistral API surface for this module.                                                                                                                                                                                 |
+| `providers/ollama`     | Public providers/ollama API surface for this module.                                                                                                                                                                                  |
+| `providers/openai`     | Public providers/openai API surface for this module.                                                                                                                                                                                  |
+| `providers/openrouter` | Public providers/openrouter API surface for this module.                                                                                                                                                                              |
+| `providers/voyageai`   | Public providers/voyageai API surface for this module.                                                                                                                                                                                |
+| `providers/xai`        | Public providers/xai API surface for this module.                                                                                                                                                                                     |
+| `responses`            | Public responses API surface for this module.                                                                                                                                                                                         |
+| `stream`               | Public stream API surface for this module.                                                                                                                                                                                            |
 
 ## Core Concepts
 
-The sdk reference is organized around the exported Go surface for package `sdk`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior, and Upstream parity expectations.
+The sdk reference is organized around the exported Go surface for package `sdk`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -188,13 +184,13 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/ai/sdk` cover the supported creation paths, default values, and Upstream parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/ai/sdk` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
-Upstream documents many features through configuration files. Bedrock documents the equivalent behavior through Go options and constructor arguments:
+Bedrock documents behavior through Go options and constructor arguments:
 
-| Upstream shape     | Bedrock shape                                            |
+| Upstream shape    | Bedrock shape                                            |
 | ----------------- | -------------------------------------------------------- |
 | Config file keys  | Typed config structs, options, or constructor parameters |
 | Facade defaults   | Explicit manager/default-driver setup                    |
@@ -205,7 +201,7 @@ Prefer narrow interfaces at package boundaries. When a package exposes a manager
 
 ## Advanced Features
 
-The package reference should be read through these Upstream parity lenses:
+The package reference should be read through these parity lenses:
 
 | Area              | Documentation coverage                                                                  |
 | ----------------- | --------------------------------------------------------------------------------------- |
@@ -217,7 +213,7 @@ The package reference should be read through these Upstream parity lenses:
 
 ## Edge Cases
 
-- Do not translate PHP-only behavior literally. If Upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
+- Do not translate PHP-only behavior literally. If upstream depends on PHP traits, request globals, Template, CLI, or Orm magic, document the Bedrock Go equivalent instead.
 - Preserve error identity when the package exports sentinel errors; callers should be able to use `errors.Is` where the package promises it.
 - Treat driver compatibility as observable behavior. Unsupported store/driver combinations should be documented as errors or explicit no-ops, never as silent omissions.
 - For I/O paths, document cancellation and timeout behavior whenever the package accepts a `context.Context`.
@@ -231,7 +227,7 @@ Run the package tests before changing examples:
 GOWORK=./storage/.cache/go.work go test -count=1 ./packages/ai/sdk/...
 ```
 
-Upstream parity is tracked by these tests:
+Parity is tracked by these tests:
 
 - `packages/ai/sdk/inventory_parity_test.go`
 - `packages/ai/sdk/providers/inventory_provider_mapping_test.go`
@@ -547,7 +543,3 @@ Upstream parity is tracked by these tests:
 | `RoleAssistant`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RoleToolResult`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RoleUser`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-
-## Upstream Parity Notes
-
-This page should stay aligned with the official Upstream 13.x documentation for the corresponding feature while keeping the Go API explicit. If Bedrock implements a Upstream feature, document the user-facing behavior, the Go entry points, supported drivers, emitted events, error behavior, and the tests that prove parity. If a Upstream feature is PHP-only, record the exclusion in `services/compliance/docs-status.yml` instead of inventing a Go API.

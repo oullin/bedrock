@@ -16,7 +16,7 @@ type QueuedClosure struct {
 }
 
 // Queueable creates a QueuedClosure from a listener. This is the Go equivalent
-// of Upstream's queueable() helper function.
+// of the upstream queueable() helper function.
 func Queueable(listener Listener) *QueuedClosure {
 	return &QueuedClosure{
 		closure: listener,

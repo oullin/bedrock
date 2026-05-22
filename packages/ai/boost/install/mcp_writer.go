@@ -12,7 +12,6 @@ import (
 //
 // If the file does not exist it is created. If the top-level key or the server
 // entry already exists, the call is idempotent (returns false, nil).
-// Mirrors Upstream\Boost\Install\McpWriter.
 type McpWriter struct{}
 
 // SupportsMcpConfigPath is the minimal interface required by McpWriter.

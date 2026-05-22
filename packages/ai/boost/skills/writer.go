@@ -14,7 +14,6 @@ type SupportsSkills interface {
 }
 
 // SkillWriter writes SKILL.md files to an agent's skills directory.
-// Mirrors Upstream\Boost\Install\SkillWriter.
 type SkillWriter struct{}
 
 // NewSkillWriter constructs a SkillWriter.

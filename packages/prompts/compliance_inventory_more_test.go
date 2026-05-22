@@ -196,7 +196,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_accepts_default_values_when_the_options_are_labels", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"Upstream", "Bedrock"}, SelectWithDefault("Bedrock"))
+			got, err := Select("Framework?", []string{"Acme", "Bedrock"}, SelectWithDefault("Bedrock"))
 			requireNoError(t, err)
 
 			if got != "Bedrock" {
@@ -208,7 +208,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 	t.Run("SelectPromptTest::it_accepts_default_values_when_the_options_are_keys_with_labels", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := Select("Framework?", []OptionItem{
-				{Key: "upstream", Label: "Upstream"},
+				{Key: "acme", Label: "Acme"},
 				{Key: "bedrock", Label: "Bedrock"},
 			}, SelectWithDefault("bedrock"))
 			requireNoError(t, err)
@@ -221,7 +221,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("SelectPromptTest::it_support_emacs_style_key_binding", func(t *testing.T) {
 		withFake(t, KeyCtrlN, KeyEnter, func(*TestPrompts) {
-			got, err := Select("Framework?", []string{"Upstream", "Bedrock"})
+			got, err := Select("Framework?", []string{"Acme", "Bedrock"})
 			requireNoError(t, err)
 
 			if got != "Bedrock" {
@@ -232,7 +232,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_accepts_default_values_when_the_options_are_labels", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Bedrock"}))
+			got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"}, MultiSelectWithDefault([]string{"Bedrock"}))
 			requireNoError(t, err)
 
 			if !reflect.DeepEqual(got, []string{"Bedrock"}) {
@@ -244,7 +244,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 	t.Run("MultiSelectPromptTest::it_accepts_default_values_when_the_options_are_keys_with_labels", func(t *testing.T) {
 		withFake(t, KeyEnter, func(*TestPrompts) {
 			got, err := MultiSelect("Framework?", []OptionItem{
-				{Key: "upstream", Label: "Upstream"},
+				{Key: "acme", Label: "Acme"},
 				{Key: "bedrock", Label: "Bedrock"},
 			}, MultiSelectWithDefault([]string{"bedrock"}))
 			requireNoError(t, err)
@@ -257,7 +257,7 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 	t.Run("MultiSelectPromptTest::it_deselects_all_when_all_options_are_already_default", func(t *testing.T) {
 		withFake(t, "a", KeyEnter, func(*TestPrompts) {
-			got, err := MultiSelect("Framework?", []string{"Upstream", "Bedrock"}, MultiSelectWithDefault([]string{"Upstream", "Bedrock"}))
+			got, err := MultiSelect("Framework?", []string{"Acme", "Bedrock"}, MultiSelectWithDefault([]string{"Acme", "Bedrock"}))
 			requireNoError(t, err)
 
 			if len(got) != 0 {
@@ -320,9 +320,9 @@ func TestPromptsComplianceAdditionalInventoryMore(t *testing.T) {
 
 		defer tp.Cleanup()
 
-		Grid([]string{"Upstream"})
+		Grid([]string{"Acme"})
 
-		if strings.TrimSpace(tp.StrippedContent()) != "Upstream" {
+		if strings.TrimSpace(tp.StrippedContent()) != "Acme" {
 			t.Fatalf("grid output = %q", tp.StrippedContent())
 		}
 	})

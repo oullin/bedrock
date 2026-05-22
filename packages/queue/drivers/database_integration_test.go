@@ -1,6 +1,6 @@
 //go:build integration
 
-// Port of tests/Queue/QueueDatabaseQueueIntegrationTest.php (upstream/framework 13.x).
+// Ref: @bedrock/code-0365
 //
 // Parity status:
 //   testAvailableAndUnReservedJobsArePopped   ✅
@@ -14,7 +14,7 @@
 //
 // Implementation notes
 // --------------------
-// Upstream's integration suite boots an in-memory SQLite database via
+// the upstream integration suite boots an in-memory SQLite database via
 // orchestra/testbench. The queue/ module's go.mod has no pure-Go
 // SQLite driver, so these tests are intentionally stubbed against
 // the in-package mockDBExecer (see drivers_test.go). The mock stages
@@ -39,7 +39,7 @@ import (
 	"github.com/bedrock/packages/queue/drivers"
 )
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testAvailableAndUnReservedJobsArePopped
+// Ref: @bedrock/code-0365
 func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	t.Parallel()
 
@@ -66,7 +66,7 @@ func TestAvailableAndUnReservedJobsArePopped(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testPoppedJobsIncrementAttempts
+// Ref: @bedrock/code-0365
 func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	t.Parallel()
 
@@ -105,7 +105,7 @@ func TestPoppedJobsIncrementAttempts(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatQueueCanBeCleared
+// Ref: @bedrock/code-0365
 func TestThatQueueCanBeCleared(t *testing.T) {
 	t.Parallel()
 
@@ -131,7 +131,7 @@ func TestThatQueueCanBeCleared(t *testing.T) {
 	}
 
 	// After clear, the pending size query returns 0 — stage a zero
-	// count row to mirror Upstream's assertEquals(0, $this->queue->size()).
+	// count row to mirror the upstream assertEquals(0, $this->queue->size()).
 	db.addRow(int64(0))
 
 	n, err := drv.Size(context.Background(), "mock_queue_name")
@@ -145,7 +145,7 @@ func TestThatQueueCanBeCleared(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testUnavailableJobsAreNotPopped
+// Ref: @bedrock/code-0365
 func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -170,9 +170,8 @@ func TestUnavailableJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedAndExpiredJobsArePopped
-//
-// DEFERRED. Upstream's Pop reclaims reserved_at rows whose reservation
+// Ref: @bedrock/code-0365
+// DEFERRED. the upstream Pop reclaims reserved_at rows whose reservation
 // has expired (reserved_at < now - retry_after). The Go DatabaseDriver
 // Pop today only selects rows where reserved_at IS NULL, so there is
 // no reclaim path to exercise. Once reclaim lands, this test should
@@ -182,7 +181,7 @@ func TestThatReservedAndExpiredJobsArePopped(t *testing.T) {
 	t.Skip("deferred: DatabaseDriver.Pop does not yet reclaim expired reservations")
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testThatReservedJobsAreNotPopped
+// Ref: @bedrock/code-0365
 func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	t.Parallel()
 
@@ -202,9 +201,8 @@ func TestThatReservedJobsAreNotPopped(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueDatabaseQueueIntegrationTest::testJobPayloadIsAvailableOnEvents
-//
-// Adaptation: Upstream dispatches JobQueueing / JobQueued events from
+// Ref: @bedrock/code-0365
+// Adaptation: upstream dispatches JobQueueing / JobQueued events from
 // DatabaseQueue::push and the PHP test asserts the event payload()
 // contains the job UUID. In the Go port, the driver does not emit
 // events — the Worker does, and only on pop/process. The observable
@@ -220,7 +218,7 @@ func TestJobPayloadIsAvailableOnEvents(t *testing.T) {
 
 	_, payload, err := queue.CreatePayloadFor(
 		"database", "default", "MyJob",
-		map[string]any{"upstream": "Framework"},
+		map[string]any{"key": "value"},
 		queue.JobOptions{},
 	)
 
@@ -268,7 +266,6 @@ func TestJobPayloadIsAvailableOnEvents(t *testing.T) {
 	}
 
 	// The payload must decode into a map that carries a uuid — this
-	// mirrors the PHP $jobQueuedEvent->payload()['uuid'] assertion.
 	if !strings.Contains(string(job.Payload()), `"uuid"`) {
 		t.Errorf("job payload missing uuid field: %s", string(job.Payload()))
 	}

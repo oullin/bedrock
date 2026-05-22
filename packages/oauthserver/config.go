@@ -5,7 +5,7 @@ import (
 )
 
 // OAuthServerConfig holds the OAuthServer configuration loaded from a config.Repository.
-// Keys follow "oauthserver.*" dot-notation, matching Upstream's config/oauthserver.php.
+// Keys follow "oauthserver.*" dot-notation, matching the upstream config/oauthserver.php.
 type OAuthServerConfig struct {
 	// PrivateKey is the RSA private key PEM string used to sign tokens.
 	// Corresponds to PASSPORT_PRIVATE_KEY env / oauthserver.private_key config key.
@@ -38,7 +38,7 @@ type OAuthServerConfig struct {
 
 // LoadConfig reads OAuthServer configuration from a config.Repository.
 // It uses dot-notation keys under the "oauthserver" namespace, matching
-// Upstream's config/oauthserver.php structure.
+// the upstream config/oauthserver.php structure.
 func LoadConfig(repo *config.Repository) *OAuthServerConfig {
 	guard, _ := repo.String("oauthserver.guard", "web")
 	privateKey, _ := repo.String("oauthserver.private_key")

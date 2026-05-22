@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/debugbar/watchers"
 )
 
-// TestLogWatcherRecordsDebugLevel mirrors RequestWatchersTest for log entries.
 func TestLogWatcherRecordsDebugLevel(t *testing.T) {
 	t.Parallel()
 

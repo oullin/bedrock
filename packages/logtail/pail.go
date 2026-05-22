@@ -26,7 +26,7 @@ type Filter struct {
 	Until    time.Time
 }
 
-const laravelTimestampLayout = "2006-01-02 15:04:05"
+const defaultTimestampLayout = "2006-01-02 15:04:05"
 
 // Match reports whether entry satisfies the filter.
 func (f Filter) Match(entry Entry) bool {
@@ -67,7 +67,7 @@ func (f Filter) Match(entry Entry) bool {
 	return true
 }
 
-// ParseLine parses a Upstream-style log line.
+// ParseLine parses a log line.
 func ParseLine(line string) Entry {
 	entry := Entry{
 		Message: line,
@@ -84,7 +84,7 @@ func ParseLine(line string) Entry {
 		return entry
 	}
 
-	if timestamp, err := time.ParseInLocation(laravelTimestampLayout, line[1:end], time.Local); err == nil {
+	if timestamp, err := time.ParseInLocation(defaultTimestampLayout, line[1:end], time.Local); err == nil {
 		entry.Timestamp = timestamp
 	}
 

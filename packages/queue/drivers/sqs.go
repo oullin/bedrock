@@ -54,7 +54,7 @@ type SQSDriver struct {
 	client       SQSClient
 	queueURLs    map[string]string // queueName → SQS URL (legacy explicit mapping)
 	connection   string
-	prefix       string // Upstream-style URL prefix, e.g. "https://sqs.us-east-1.amazonaws.com/1234/"
+	prefix       string // URL prefix, e.g. "https://sqs.us-east-1.amazonaws.com/1234/"
 	defaultQueue string // default logical queue name when "" is supplied
 	suffix       string // optional name suffix (e.g. "-staging") applied before ".fifo"
 }
@@ -67,10 +67,10 @@ func NewSQSDriver(client SQSClient, queueURLs map[string]string, connection stri
 	return &SQSDriver{client: client, queueURLs: queueURLs, connection: connection}
 }
 
-// SetPrefix sets the Upstream-style SQS queue URL prefix. Returns the
+// SetPrefix sets the SQS queue URL prefix. Returns the
 // driver for chaining. When set, GetQueue composes the full URL from
 // prefix + queue name (with optional suffix and FIFO-awareness),
-// mirroring Framework\Queue\SqsQueue::getQueue().
+// Ref: @bedrock/code-0272
 func (d *SQSDriver) SetPrefix(prefix string) *SQSDriver {
 	d.prefix = prefix
 
@@ -78,7 +78,7 @@ func (d *SQSDriver) SetPrefix(prefix string) *SQSDriver {
 }
 
 // SetDefault sets the default logical queue name used when the caller
-// passes an empty queue string. Mirrors Upstream's $default constructor
+// passes an empty queue string.
 // argument.
 func (d *SQSDriver) SetDefault(name string) *SQSDriver {
 	d.defaultQueue = name
@@ -87,7 +87,7 @@ func (d *SQSDriver) SetDefault(name string) *SQSDriver {
 }
 
 // SetSuffix sets the name suffix applied by GetQueue before any
-// trailing ".fifo", mirroring Upstream's $suffix.
+// trailing ".fifo".
 func (d *SQSDriver) SetSuffix(suffix string) *SQSDriver {
 	d.suffix = suffix
 
@@ -95,8 +95,7 @@ func (d *SQSDriver) SetSuffix(suffix string) *SQSDriver {
 }
 
 // GetQueue resolves a logical queue name to its SQS URL, replicating
-// Framework\Queue\SqsQueue::getQueue() semantics:
-//
+// Ref: @bedrock/code-0272
 //   - Empty input falls back to the configured default queue.
 //   - Already-qualified URLs (starts with http:// or https://) are
 //     returned unchanged.

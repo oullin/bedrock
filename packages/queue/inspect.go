@@ -11,7 +11,6 @@ import (
 // track reserved jobs in its default layout — those calls surface this
 // sentinel so callers can branch on it with errors.Is.
 //
-// Mirrors the runtime behaviour of Upstream queue drivers that throw
 // LogicException("Not supported") for the same scenarios.
 
 // QueueNamer is the optional contract a Queue implementation satisfies
@@ -24,7 +23,6 @@ import (
 // implement this interface — the manager treats a missing implementation
 // as "no queues to inspect" and returns an empty result, not an error.
 //
-// Mirrors Upstream's notion of "connection-level queue introspection"
 // added alongside allReservedJobs/allDelayedJobs/allPendingJobs in
 // Upstream 13.8.0.
 type QueueNamer interface {
@@ -34,7 +32,7 @@ type QueueNamer interface {
 // JobInspector is the optional contract a Queue implementation
 // satisfies when it can return read-only snapshots of jobs currently
 // sitting on a named queue without consuming them. The three methods
-// mirror the per-state inspection methods Upstream exposes on the queue
+// mirror the per-state inspection methods upstream exposes on the queue
 // contract: pending (unreserved, ready), delayed (unreserved, not yet
 // due), and reserved (in-flight).
 //
@@ -43,8 +41,6 @@ type QueueNamer interface {
 // rather than dropping the method entirely — that keeps the
 // manager-level fan-out predictable and lets callers distinguish "I
 // asked, the driver can't" from "no rows".
-//
-// Mirrors Upstream's pendingJobs/delayedJobs/reservedJobs queue methods.
 type JobInspector interface {
 	PendingJobs(ctx context.Context, queue string) ([]InspectedJob, error)
 	DelayedJobs(ctx context.Context, queue string) ([]InspectedJob, error)

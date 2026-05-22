@@ -76,7 +76,7 @@ type Config struct {
 }
 
 // DefaultConfig returns a Config populated with sensible defaults that mirror
-// the Upstream WebSockets defaults.
+// the upstream WebSockets defaults.
 func DefaultConfig() Config {
 	return Config{
 		Host:           "0.0.0.0",

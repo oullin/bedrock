@@ -11,7 +11,7 @@ import (
 // WorkerOptions configures the Worker processing loop.
 type WorkerOptions struct {
 	// Name identifies this worker in the WorkerStarting/WorkerStopping
-	// events. Mirrors Upstream's --name flag.
+	// events.
 	Name string
 	// Sleep is how long to sleep when the queue is empty.
 	Sleep time.Duration
@@ -23,30 +23,29 @@ type WorkerOptions struct {
 	StopOnEmpty bool
 	// MemoryLimitMiB is the RSS cap the worker self-enforces by polling
 	// runtime.MemStats.Sys between iterations. A value of 0 disables
-	// the cap. Mirrors Upstream's --memory flag.
+	// the cap.
 	MemoryLimitMiB int64
 	// Backoff is the default per-attempt delay used when a released job
-	// has no Backoff() of its own. Mirrors Upstream's --backoff flag.
+	// has no Backoff() of its own.
 	Backoff time.Duration
 	// MaxTries is the default attempt cap used when a job's own
-	// MaxTries() returns 0. Mirrors Upstream's --tries flag.
+	// MaxTries() returns 0.
 	MaxTries int
 }
 
 // ExceptionReporter is the optional contract the Worker uses to report
 // exceptions that escape a job handler. It is the Go analogue of
-// Upstream's Framework\Contracts\Debug\ExceptionHandler::report path.
+// Ref: @bedrock/code-0193
 type ExceptionReporter interface {
 	ReportException(err error)
 }
 
 // WorkerPopCallback overrides how a worker pops from one queue name.
-// It is the typed Go equivalent of Upstream's Worker::popUsing callback map.
 type WorkerPopCallback func(ctx context.Context, q Queue, queueName string) (Job, error)
 
 // WorkerStopReason is the machine-readable status code returned from
 // the daemon loop when it exits. The numeric values intentionally
-// mirror Upstream's WorkerStopReason enum so operators can treat the
+// mirror the upstream WorkerStopReason enum so operators can treat the
 // process exit codes identically.
 type WorkerStopReason int
 
@@ -57,13 +56,13 @@ type WorkerStopReason int
 // StopOnEmpty was set, so the worker exited voluntarily.
 
 // WorkerStopReasonMemoryLimitReached — MemoryExceeded tripped
-// between iterations. Matches Upstream's STATUS_MEMORY_LIMIT = 12.
+// between iterations. Matches the upstream STATUS_MEMORY_LIMIT = 12.
 
 // WorkerStopReasonLostConnection — pop repeatedly errored on a
-// single connection. Matches Upstream's STATUS_LOST_CONNECTION = 13.
+// single connection. Matches the upstream STATUS_LOST_CONNECTION = 13.
 
 // WorkerStopReasonMaxTimeExceeded — opts.MaxTime elapsed. Matches
-// Upstream's STATUS_OUT_OF_TIME = 14.
+// the upstream STATUS_OUT_OF_TIME = 14.
 
 // WorkerStopReasonMaxJobsExceeded — opts.MaxJobs reached.
 
@@ -85,7 +84,7 @@ type Worker struct {
 	SleepFunc func(ctx context.Context, d time.Duration)
 	// sleptFor records the duration of the most recent sleep call. The
 	// SleptFor accessor exposes it to tests — this is the Go analogue
-	// of Upstream's public $sleptFor property on the worker.
+	// of the upstream public $sleptFor property on the worker.
 	sleptFor time.Duration
 	// ExceptionReporter, if non-nil, receives a ReportException call
 	// for every exception raised by a job handler (or by the pre-fire
@@ -93,12 +92,12 @@ type Worker struct {
 	ExceptionReporter ExceptionReporter
 	// ReportJobExceptions gates the reporter. Default is true; set
 	// false to suppress reporter calls without suppressing the
-	// JobExceptionOccurred event emission. Mirrors Upstream's static
+	// JobExceptionOccurred event emission.
 	// Worker::$reportJobExceptions flag.
 	ReportJobExceptions bool
 	// MaintenanceMode, if non-nil, is called by the Run loop before
 	// each iteration. When it returns true, the worker sleeps for
-	// opts.Sleep and skips the pop. Mirrors Upstream's daemon() call
+	// opts. Sleep and skips the pop.
 	// into $this->manager->isDownForMaintenance().
 	MaintenanceMode func() bool
 	// lastStopReason captures the reason the most recent Run call
@@ -123,15 +122,14 @@ type Worker struct {
 // SleptFor returns the duration of the most recent sleep the worker
 // performed. Tests use this to assert sleep behaviour without taking
 // a timing dependency; production callers will usually ignore it.
-// Mirrors Upstream's Worker::$sleptFor property.
 
 // LastStopReason returns the reason the most recent Run call exited,
 // or WorkerStopReasonNone if Run has not yet been called or exited
-// via a context cancellation. Mirrors Upstream's daemon() return value.
+// via a context cancellation.
 
 // parseQueueNames splits a comma-separated queue string into its
 // individual names. Empty segments are dropped. A single-queue string
-// returns a single-element slice. Mirrors Upstream's getQueue() split.
+// returns a single-element slice.
 
 // splitComma is a tiny helper that avoids pulling strings.Split into
 // this file solely for a one-shot split. Keeps the worker self-contained.
@@ -141,19 +139,18 @@ type Worker struct {
 // is returned to the caller. If every queue is empty it returns
 // (nil, ErrNoJob).
 //
-// This is the Go analogue of Upstream's "high,low" priority-queue
+// This is the Go analogue of the upstream "high,low" priority-queue
 // handling: the worker pops from the first bucket, falling through to
 // the next only when the higher-priority bucket is empty.
 
 // reportPopError dispatches an exception reporter call for a pop-time
-// error when reporting is enabled. Mirrors Upstream's
-// testExceptionIsReportedIfConnectionThrowsExceptionOnJobPop path.
+// error when reporting is enabled.
 
 // MemoryExceeded reports whether the worker's resident memory footprint
 // in MiB has met or exceeded memoryLimitMiB. A zero or negative limit is
 // treated as "no limit" and always returns false.
 //
-// The Go analogue of Upstream's memory_get_usage(true) is
+// The Go analogue of the upstream memory_get_usage(true) is
 // runtime.MemStats.Sys — total bytes obtained from the OS, which
 // includes the unused portion the allocator is holding. Using Sys
 // keeps the observable behaviour close to PHP's "real" memory count.
@@ -171,8 +168,6 @@ type Worker struct {
 // non-ErrNoJob pop error, the error is dispatched through
 // ExceptionReporter (if configured) and the worker sleeps; it never
 // propagates back to the caller.
-//
-// Mirrors Upstream's Worker::runNextJob.
 
 // Run starts the daemon loop, processing jobs until a stop condition is met.
 // It handles SIGTERM and SIGQUIT for graceful shutdown.
@@ -182,15 +177,14 @@ type Worker struct {
 // Per-iteration events (JobPopping/JobPopped/JobProcessing/...) are
 // emitted from the main loop.
 
-// Between iterations, check the memory cap. Upstream's daemon
+// Between iterations, check the memory cap. the upstream daemon
 // does this post-process so the current job is allowed to
 // finish before the worker recycles itself.
 
 // processJob runs the full lifecycle of a popped job:
 //
 //   - If the job was already deleted before the worker saw it, emit
-//     JobProcessed and return (skip Fire). Mirrors Upstream's
-//     "don't fire a deleted job" branch.
+// JobProcessed and return (skip Fire).
 //   - Pre-fire exhaustion check: if attempts already exceeds the
 //     effective max-tries OR retry-until has expired, fail with a
 //     MaxAttemptsExceededError without calling the handler.
@@ -200,7 +194,7 @@ type Worker struct {
 //     effective backoff. Release emits JobReleasedAfterException.
 //   - On success: emit JobProcessed. No auto-delete — handlers that
 //     need the job removed from the backend must call job.Delete
-//     themselves (matching Upstream's CallQueuedHandler contract).
+//     themselves (matching the upstream CallQueuedHandler contract).
 
 // handleJobException runs the shared failure pipeline used by both
 // the pre-fire exhaustion check and the post-handler error path.
@@ -213,24 +207,19 @@ type Worker struct {
 // pre-fire state indicates it has no retry budget left (strict >
 // because attempts have not yet been incremented for the current
 // run), and nil otherwise.
-//
-// Mirrors Upstream's Worker::markJobAsFailedIfAlreadyExceedsMaxAttempts.
 
 // shouldFail reports whether the job has exhausted its retry options
 // and should therefore go through the fail path rather than release.
 // Uses inclusive >= for the post-fire decision (attempts has just
 // been incremented by the handler's run).
-//
-// Mirrors Upstream's Worker::markJobAsFailedIfWillExceedMaxAttempts.
 
 // effectiveMaxTries returns the max-tries budget to use for job:
 // the job's own MaxTries wins over the WorkerOptions fallback.
-// Mirrors Upstream's "$maxTries = ! is_null($job->maxTries()) ? ... : ..."
 
 // effectiveBackoff returns the release delay for the next retry of
 // job. The job's own Backoff slice wins over WorkerOptions.Backoff.
 // When the slice is shorter than attempts, the last element is used
-// (matching Upstream's "take the last element" convention).
+// When the slice is shorter than attempts, the last element is reused.
 
 // jobNameShim adapts a queue.Job to the ResolveNamer interface used
 // by MaxAttemptsExceededError. The Job interface itself stays frozen

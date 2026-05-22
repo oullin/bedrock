@@ -222,14 +222,14 @@ func TestPromptsComplianceInventory(t *testing.T) {
 
 		tp.QueueKey(KeyEnter)
 
-		got, err := Select("Framework?", []string{"Upstream", "Bedrock"})
+		got, err := Select("Framework?", []string{"Acme", "Bedrock"})
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if got != "Upstream" {
-			t.Fatalf("select = %q, want Upstream", got)
+		if got != "Acme" {
+			t.Fatalf("select = %q, want Acme", got)
 		}
 	})
 
@@ -240,13 +240,13 @@ func TestPromptsComplianceInventory(t *testing.T) {
 
 		tp.QueueKey(KeyEnter)
 
-		got, err := Select("Framework?", []OptionItem{{Key: "upstream", Label: "Upstream"}})
+		got, err := Select("Framework?", []OptionItem{{Key: "acme", Label: "Acme"}})
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if got != "upstream" {
+		if got != "acme" {
 			t.Fatalf("select = %q, want upstream", got)
 		}
 	})

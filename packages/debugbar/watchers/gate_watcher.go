@@ -7,10 +7,10 @@ import (
 )
 
 // GateResult constants mirror the two authorization outcomes recorded by
-// Upstream's GateWatcher.
+// the upstream GateWatcher.
 
 // GateWatcher monitors authorization gate checks and records them as DebugBar
-// entries. It mirrors Upstream's GateWatcher class.
+// entries.
 //
 // Options:
 //   - "ignore_abilities" ([]string): gate ability names to skip.

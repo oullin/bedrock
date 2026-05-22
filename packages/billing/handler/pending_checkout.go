@@ -8,7 +8,6 @@ import (
 )
 
 // PendingCheckoutHandler records the provider checkout currently in flight.
-// Mirrors Billing\Http\Controllers\NewPendingCheckoutController.
 type PendingCheckoutHandler struct {
 	customers billing.CustomerStore
 	resolver  billing.ResolverFunc

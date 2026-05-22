@@ -7,7 +7,7 @@ import (
 )
 
 // Aider implements boost.CodingAgent for the Aider CLI assistant.
-// Net-new agent with no upstream/boost parity. Rules-only today —
+// Net-new agent. Rules-only today —
 // MCP installation will be wired in when Aider gains MCP support upstream.
 type Aider struct {
 	BaseAgent

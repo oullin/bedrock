@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// Ports of Framework\Tests\Queue\QueueRoutesTest. Upstream's test walks
+// Ref: @bedrock/code-0371
 // PHP's class_parents / class_implements / class_uses chain; Go has no
 // runtime class hierarchy, so fake values here implement RouteLineage
 // to report the same logical lookup chain. Behaviour under assertion
@@ -23,16 +23,16 @@ import (
 type lineageFixture struct{ names []string }
 
 const (
-	keyQueueRoutes      = "Framework\\Queue\\QueueRoutes"
-	keyBaseNotification = "Framework\\Tests\\Queue\\BaseNotification"
-	keyCustomTrait      = "Framework\\Tests\\Queue\\CustomTrait"
-	keyPaymentContract  = "Framework\\Tests\\Queue\\PaymentContract"
-	keySomeJob          = "Framework\\Tests\\Queue\\SomeJob"
+	keyQueueRoutes      = "@bedrock\\Queue\\QueueRoutes"
+	keyBaseNotification = "@bedrock\\Tests\\Queue\\BaseNotification"
+	keyCustomTrait      = "@bedrock\\Tests\\Queue\\CustomTrait"
+	keyPaymentContract  = "@bedrock\\Tests\\Queue\\PaymentContract"
+	keySomeJob          = "@bedrock\\Tests\\Queue\\SomeJob"
 )
 
 func (f lineageFixture) RouteLineage() []string { return f.names }
 
-// newSomeJob = Upstream's `new SomeJob` (uses Queueable + CustomTrait).
+// newSomeJob = the upstream `new SomeJob` (uses Queueable + CustomTrait).
 func newSomeJob() lineageFixture {
 	return lineageFixture{names: []string{keySomeJob, keyCustomTrait}}
 }
@@ -40,7 +40,7 @@ func newSomeJob() lineageFixture {
 // newFinanceNotification = `new FinanceNotification` (extends BaseNotification).
 func newFinanceNotification() lineageFixture {
 	return lineageFixture{names: []string{
-		"Framework\\Tests\\Queue\\FinanceNotification",
+		"@bedrock\\Tests\\Queue\\FinanceNotification",
 		keyBaseNotification,
 	}}
 }
@@ -48,14 +48,14 @@ func newFinanceNotification() lineageFixture {
 // newPayment = `new Payment` (implements PaymentContract).
 func newPayment() lineageFixture {
 	return lineageFixture{names: []string{
-		"Framework\\Tests\\Queue\\Payment",
+		"@bedrock\\Tests\\Queue\\Payment",
 		keyPaymentContract,
 	}}
 }
 
 // --- ports ------------------------------------------------------------
 
-// Port of Framework\Tests\Queue\QueueRoutesTest::testSet
+// Ref: @bedrock/code-0371
 func TestSet(t *testing.T) {
 	t.Parallel()
 
@@ -94,7 +94,7 @@ func TestSet(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueRoutesTest::testGetQueue
+// Ref: @bedrock/code-0371
 func TestGetQueue(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +125,7 @@ func TestGetQueue(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueRoutesTest::testGetConnection
+// Ref: @bedrock/code-0371
 func TestGetConnection(t *testing.T) {
 	t.Parallel()
 
@@ -155,7 +155,7 @@ func TestGetConnection(t *testing.T) {
 	}
 }
 
-// Port of Framework\Tests\Queue\QueueRoutesTest::testStringRouteDefaultsToQueueNotConnection
+// Ref: @bedrock/code-0371
 func TestStringRouteDefaultsToQueueNotConnection(t *testing.T) {
 	t.Parallel()
 

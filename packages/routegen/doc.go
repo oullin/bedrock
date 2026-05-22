@@ -1,7 +1,7 @@
 // Package routegen generates fully-typed, importable TypeScript functions
 // for your Go routes.
 //
-// It is a Go port of the Upstream RouteGen package, producing identical
+// It is a Go library for RouteGen package, producing identical
 // TypeScript output so the same vitest test suite can validate generated files.
 //
 // Usage:

@@ -1,7 +1,7 @@
 # Facades
 
-<!-- upstream-docs: facades.md#introduction -->
-<!-- upstream-docs: facades.md#facade-class-reference -->
+<!-- ref: @bedrock/code-0067 -->
+<!-- ref: @bedrock/code-0066 -->
 
 A facade is a thin, package-typed wrapper around a service that lives in
 the container. It gives you a one-line, statically-typed call site instead

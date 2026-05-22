@@ -745,7 +745,7 @@ func (r *Repository) copyMap(m map[string]any) map[string]any {
 
 // isList checks if a slice is a sequential list (not associative).
 // In Go, all []any slices are lists, so this always returns true.
-// This exists for API parity with Upstream's array checks.
+// This exists for API parity with the upstream array checks.
 func isList(_ []any) bool {
 	return true
 }

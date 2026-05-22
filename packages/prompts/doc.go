@@ -1,5 +1,5 @@
 // Package prompts provides beautiful, user-friendly terminal UI forms for
-// Go applications, with 100 % function parity with Upstream Prompts. It
+// Go applications, with 100 % function parity with upstream Prompts. It
 // offers text inputs, password fields, selects, multi-selects, search
 // prompts, spinners, progress bars, tables, and a multi-step form builder
 // — all rendered with ANSI escape codes and no external TUI dependencies.

@@ -230,7 +230,7 @@ func TestBrandColor_AppName_DashboardURL_DateFormat_Defaults(t *testing.T) {
 		t.Fatalf("brandColor fallback = %q", f.brandColor())
 	}
 
-	if f.appName() != "Upstream" {
+	if f.appName() != "Bedrock" {
 		t.Fatalf("appName fallback = %q", f.appName())
 	}
 

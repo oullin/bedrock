@@ -5,7 +5,7 @@ import "errors"
 // InvalidSignatureException indicates that a signed URL's HMAC did not match
 // or that its expiration timestamp has passed.
 //
-// Mirrors Framework\Routing\Exceptions\InvalidSignatureException.
+// Ref: @bedrock/code-0308
 type InvalidSignatureException struct{ Reason string }
 
 func (e *InvalidSignatureException) Error() string {

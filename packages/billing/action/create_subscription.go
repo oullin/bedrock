@@ -8,7 +8,6 @@ import (
 )
 
 // SubscriptionCreator handles creating new subscriptions.
-// Mirrors Billing\Actions\CreateSubscription.
 type SubscriptionCreator struct {
 	subscriptions billing.SubscriptionStore
 	manager       *billing.Manager

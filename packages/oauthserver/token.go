@@ -3,7 +3,7 @@ package oauthserver
 import "time"
 
 // Token is the persisted OAuth2 access token record, corresponding to the
-// oauth_access_tokens table in Upstream OAuthServer.
+// oauth_access_tokens table in OAuthServer.
 type Token struct {
 	ID        string
 	UserID    string
@@ -28,7 +28,7 @@ func (t *Token) WithOAuthServer(p *OAuthServer) *Token {
 
 // Can reports whether this token's scopes include the requested scope.
 //
-// Rules (matching Upstream OAuthServer Token::can):
+// Rules (matching OAuthServer Token::can):
 //   - Can("*") always returns false — you cannot check for the wildcard literally.
 //   - If the token carries the "*" wildcard scope it grants every non-wildcard check.
 //   - When inherited scopes are enabled via OAuthServer.UseInheritedScopes, ancestor

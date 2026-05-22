@@ -16,7 +16,7 @@ import (
 //	    Subject string
 //	}
 //
-// This is the Go analogue of Upstream's PHP8 attributes (#[Tries], #[Backoff],
+// This is the Go analogue of the upstream PHP8 attributes (#[Tries], #[Backoff],
 // #[Timeout], #[Queue], #[Connection], #[Delay], #[UniqueFor], #[FailOnTimeout],
 // #[MaxExceptions], #[DeleteWhenMissingModels]).
 //

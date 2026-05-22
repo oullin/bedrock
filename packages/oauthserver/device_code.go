@@ -3,7 +3,7 @@ package oauthserver
 import "time"
 
 // DeviceCode is the persisted device authorization code record, corresponding
-// to the oauth_device_codes table in Upstream OAuthServer.
+// to the oauth_device_codes table in OAuthServer.
 //
 // Device codes support the Device Authorization Grant flow (RFC 8628), used by
 // input-constrained devices such as smart TVs or CLI tools.

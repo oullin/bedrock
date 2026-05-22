@@ -7,10 +7,10 @@ import (
 
 // Client is the minimal Redis command surface the Connection depends on.
 // Both the go-redis adapter and the in-memory fake used in unit tests
-// implement it. Upstream's PhpRedisConnection / PredisConnection methods
+// implement it. the upstream PhpRedisConnection / PredisConnection methods
 // all ultimately map onto these primitives.
 //
-// Do is the generic command dispatcher (parity with Framework's
+// Do is the generic command dispatcher (parity with @bedrock's
 // Connection::command). Typed helpers delegate to Do so one implementation
 // is enough to satisfy the interface, and specialized backends can
 // optionally override hot paths.

@@ -7,7 +7,7 @@ import (
 )
 
 // Lottery provides probabilistic execution with configurable odds.
-// It mirrors the executable parts of Framework\Support\Lottery.
+// Ref: @bedrock/code-0351
 type Lottery struct {
 	chances float64
 	outOf   *int
@@ -30,7 +30,7 @@ var (
 
 // NewLottery creates a new Lottery with the given chance and optional outOf.
 //
-// The executable parity here follows Upstream's constructor behavior:
+// The executable parity here follows the upstream constructor behavior:
 //   - one argument means a floating-point chance in the range [0, 1]
 //   - two arguments mean "chance out of outOf"
 //
@@ -58,7 +58,7 @@ func NewLottery(chances float64, outOf ...int) *Lottery {
 	}
 }
 
-// LotteryOdds matches Upstream's Lottery::odds() helper.
+// LotteryOdds matches the upstream Lottery::odds() helper.
 func LotteryOdds(chances float64, outOf ...int) *Lottery {
 	return NewLottery(chances, outOf...)
 }
@@ -84,7 +84,7 @@ func (l *Lottery) Run(args ...any) any {
 
 // Choose evaluates the lottery once, or multiple times when times is provided.
 // Without callbacks the result is a boolean. With callbacks it returns the
-// callback return value(s), matching Upstream's executable behavior.
+// callback return value(s), matching the upstream executable behavior.
 func (l *Lottery) Choose(times ...int) any {
 	if len(times) == 0 {
 		return l.runWith(l.determine)

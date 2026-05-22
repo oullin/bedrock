@@ -12,7 +12,6 @@ import (
 	contractsprovider "github.com/bedrock/packages/contracts/ai/provider"
 )
 
-// TestImageCanBeFakedWithAString mirrors test_image_can_be_faked_with_a_string.
 func TestImageCanBeFakedWithAString(t *testing.T) {
 	t.Parallel()
 
@@ -42,7 +41,6 @@ func TestImageCanBeFakedWithAString(t *testing.T) {
 	})
 }
 
-// TestImageAssertNothingGenerated mirrors the "nothing generated" assertion.
 func TestImageAssertNothingGenerated(t *testing.T) {
 	t.Parallel()
 
@@ -52,7 +50,6 @@ func TestImageAssertNothingGenerated(t *testing.T) {
 	rec.AssertNothingImageGenerated(t)
 }
 
-// TestImageAssertNotGenerated mirrors the "not generated with match" assertion.
 func TestImageAssertNotGenerated(t *testing.T) {
 	t.Parallel()
 

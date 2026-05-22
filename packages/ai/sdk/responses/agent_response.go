@@ -5,7 +5,6 @@ import (
 )
 
 // AgentResponse extends TextResponse with conversation tracking metadata.
-// Mirrors Upstream\Ai\Responses\AgentResponse.
 type AgentResponse struct {
 	TextResponse
 	InvocationID     string

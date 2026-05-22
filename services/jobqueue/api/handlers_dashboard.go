@@ -6,7 +6,7 @@ import (
 	"github.com/bedrock/packages/jobqueue"
 )
 
-// dashboardStats ports DashboardStatsController::index. Upstream JobQueue
+// dashboardStats ports DashboardStatsController::index. JobQueue
 // returns the current snapshot counters, the number of master supervisors,
 // and whether every one of them is paused.
 func dashboardStats(opts Options) http.HandlerFunc {

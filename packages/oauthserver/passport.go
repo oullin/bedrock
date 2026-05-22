@@ -8,7 +8,6 @@ import (
 )
 
 // OAuthServer is the central configuration and registrar for the oauthserver package.
-// It mirrors the static API of Upstream OAuthServer's OAuthServer facade.
 //
 // Create one via NewOAuthServer and pass it throughout your application to configure
 // scopes, expiry times, and grant type availability.
@@ -67,7 +66,6 @@ func NewOAuthServer(cfg *OAuthServerConfig) *OAuthServer {
 
 // TokensCan registers the available OAuth2 scopes for the application.
 // The map key is the scope ID and the value is its human-readable description.
-// Mirrors OAuthServer::tokensCan().
 func (p *OAuthServer) TokensCan(scopes map[string]string) *OAuthServer {
 	p.mu.Lock()
 
@@ -111,7 +109,6 @@ func (p *OAuthServer) ScopeIDs() []string {
 }
 
 // FindScope returns the Scope for the given ID, or nil if not registered.
-// Mirrors OAuthServer::scopes() in Upstream (which returns a Collection keyed by ID).
 func (p *OAuthServer) FindScope(id string) *Scope {
 	p.mu.RLock()
 
@@ -410,7 +407,6 @@ func (p *OAuthServer) Config() *OAuthServerConfig {
 
 // ActingAs sets a test override so that the TokenGuard returns user with the
 // given access token and scopes without consulting the token store.
-// Mirrors OAuthServer::actingAs().
 func (p *OAuthServer) ActingAs(user cauth.Authenticatable, token *AccessToken, scopes []string) *OAuthServer {
 	p.mu.Lock()
 
@@ -425,7 +421,6 @@ func (p *OAuthServer) ActingAs(user cauth.Authenticatable, token *AccessToken, s
 
 // ActingAsClient sets a test override so that the TokenGuard returns the given
 // client (machine-to-machine authentication) without consulting the token store.
-// Mirrors OAuthServer::actingAsClient().
 func (p *OAuthServer) ActingAsClient(client *Client, scopes []string) *OAuthServer {
 	p.mu.Lock()
 

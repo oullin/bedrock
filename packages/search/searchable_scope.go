@@ -9,8 +9,7 @@ import (
 )
 
 // SearchableScope provides bulk operations for making models searchable
-// or removing them from the search index. It mirrors Upstream Search's
-// SearchableScope which adds searchable/unsearchable macros to the
+// or removing them from the search index.
 // Orm query builder.
 type SearchableScope struct {
 	engine     contract.Engine

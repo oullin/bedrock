@@ -1,5 +1,4 @@
 // Package socialauth provides OAuth1 and OAuth2 social authentication,
-// mirroring Upstream\SocialAuth in idiomatic Go.
 //
 // Quick start:
 //

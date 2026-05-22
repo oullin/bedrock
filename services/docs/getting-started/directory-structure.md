@@ -1,6 +1,6 @@
 # Directory Structure
 
-<!-- upstream-docs: structure.md#introduction -->
+<!-- ref: @bedrock/code-0171 -->
 
 Bedrock doesn't enforce a project layout. The packages are agnostic to
 where your code lives. But every Bedrock app ends up with similar bones,
@@ -125,7 +125,7 @@ func RegisterWeb(router *routing.Router, application *container.Application) {
 }
 ```
 
-The convention from Upstream is to split routes by audience: `web.go` for
+The convention from upstream is to split routes by audience: `web.go` for
 session-using HTML routes, `api.go` for stateless JSON endpoints, `console.go`
 for CLI commands. That split scales as the app grows; a brand-new app can
 start with just `web.go`.
@@ -221,7 +221,7 @@ bedrock/
 ├── services/
 │   ├── demo/         ← reference application (read this)
 │   ├── docs/         ← documentation site (you're reading the rendered version)
-│   ├── compliance/   ← Upstream parity tracking
+│   ├── (compliance moved to the bedrock-compliance repo)
 │   ├── jobqueue/      ← queue dashboard service
 │   ├── billing/        ← billing service
 │   └── storage/

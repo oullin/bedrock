@@ -15,7 +15,7 @@ type AuthRequest struct {
 }
 
 // UserResolver returns the authenticated user for a guard. An empty guard
-// represents Upstream's default request user lookup.
+// represents the upstream default request user lookup.
 type UserResolver interface {
 	User(guard string) contractsauth.Authenticatable
 }
@@ -28,7 +28,6 @@ type UserResolverFunc func(guard string) contractsauth.Authenticatable
 // ChannelHandler authorizes a channel subscription.
 type ChannelHandler func(user contractsauth.Authenticatable, params ...any) (any, error)
 
-// ChannelJoiner is the Go equivalent of Upstream class-based channel joiners.
 type ChannelJoiner interface {
 	Join(user contractsauth.Authenticatable, params ...any) (any, error)
 }

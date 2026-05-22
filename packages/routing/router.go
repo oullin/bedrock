@@ -10,7 +10,7 @@ import (
 
 // EventDispatcher is the minimal event surface the router needs.
 //
-// Mirrors Framework\Contracts\Events\Dispatcher narrowly. The bedrock
+// Ref: @bedrock/code-0194
 // packages/events Dispatcher satisfies this; tests can supply a noop.
 type EventDispatcher interface {
 	Dispatch(event any)
@@ -19,8 +19,7 @@ type EventDispatcher interface {
 // noopEvents is the zero-value dispatcher used when none is supplied.
 type noopEvents struct{}
 
-// Router is the central router, mirroring Framework\Routing\Router.
-//
+// Ref: @bedrock/code-0343
 // It owns the [RouteCollection], the middleware aliases and groups, the
 // global parameter patterns, the binder map, and the group attribute stack.
 // Most public methods correspond 1:1 to a PHP method of the same name; where
@@ -239,7 +238,7 @@ func (r *Router) Singletons(resources map[string]string, options map[string]any)
 
 // Group registers routes inside a shared attribute scope.
 //
-// Mirrors Router::group. The routes argument is a Go function so registration
+// Ref: @bedrock/code-0343
 // happens within a clearly-scoped block; PHP's "string filename" form is
 // supported by passing the result of [NewRouteFileRegistrar].Register to a
 // closure.
@@ -260,7 +259,7 @@ func (r *Router) updateGroupStack(attributes map[string]any) {
 }
 
 // MergeWithLastGroup merges the given attributes with the top of the group
-// stack. Mirrors Router::mergeWithLastGroup.
+// Ref: @bedrock/code-0343
 func (r *Router) MergeWithLastGroup(new map[string]any, prependExistingPrefix bool) map[string]any {
 	if !r.HasGroupStack() {
 		return new
@@ -784,7 +783,7 @@ func (r *Router) SetContainer(c BindingContainer) { r.container = c }
 // SubstituteBindings runs the explicit binders on the route's parameters,
 // replacing each value with whatever the binder returned.
 //
-// Mirrors Router::substituteBindings.
+// Ref: @bedrock/code-0343
 func (r *Router) SubstituteBindings(route *Route) error {
 	if route.Parameters == nil {
 		return nil
