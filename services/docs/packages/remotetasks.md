@@ -1,4 +1,4 @@
-# envoy
+# remotetasks
 
 <!-- ref: @bedrock/code-0059 -->
 <!-- ref: @bedrock/code-0061 -->
@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package envoy provides task planning and execution primitives inspired by upstream Envoy.
+Package remotetasks provides task planning and execution primitives inspired by upstream RemoteTasks.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -20,24 +20,24 @@ Package envoy provides task planning and execution primitives inspired by upstre
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/envoy@latest
+go get github.com/bedrock/packages/remotetasks@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/envoy/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
 ```
 
 ## Source Coverage
 
 | Package | Purpose                                                                                   |
 | ------- | ----------------------------------------------------------------------------------------- |
-| `envoy` | Package envoy provides task planning and execution primitives inspired by upstream Envoy. |
+| `remotetasks` | Package remotetasks provides task planning and execution primitives inspired by upstream RemoteTasks. |
 
 ## Core Concepts
 
-The envoy reference is organized around the exported Go surface for package `envoy`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The remotetasks reference is organized around the exported Go surface for package `remotetasks`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -62,7 +62,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/envoy"
+    _ "github.com/bedrock/packages/remotetasks"
 )
 
 func main() {
@@ -71,7 +71,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/envoy` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/remotetasks` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -111,7 +111,7 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/envoy/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
 ```
 
 ## API Reference

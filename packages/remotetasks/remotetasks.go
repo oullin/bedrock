@@ -1,4 +1,4 @@
-package envoy
+package remotetasks
 
 import (
 	"bytes"
@@ -165,9 +165,9 @@ func render(command string, variables map[string]any) (string, error) {
 
 var (
 	// ErrMissingTaskName is returned when a task has no name.
-	ErrMissingTaskName = errors.New("envoy: missing task name")
+	ErrMissingTaskName = errors.New("remotetasks: missing task name")
 	// ErrNoCommands is returned when a task has no commands.
-	ErrNoCommands = errors.New("envoy: no commands configured")
+	ErrNoCommands = errors.New("remotetasks: no commands configured")
 	// ErrMissingRunner is returned when Run has no runner.
-	ErrMissingRunner = errors.New("envoy: missing runner")
+	ErrMissingRunner = errors.New("remotetasks: missing runner")
 )

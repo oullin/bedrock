@@ -196,7 +196,7 @@ export default defineUserConfig({
           children: [
             { text: 'prompts', link: '/packages/prompts' },
             { text: 'pail', link: '/packages/pail' },
-            { text: 'envoy', link: '/packages/envoy' },
+            { text: 'remotetasks', link: '/packages/remotetasks' },
             { text: 'debugbar', link: '/packages/debugbar' },
           ],
         },

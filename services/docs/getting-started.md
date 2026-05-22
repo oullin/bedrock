@@ -133,7 +133,7 @@ pnpm run build --filter=@bedrock/docs
 | -------------------------------- | ---------------------------------------- |
 | [prompts](/packages/prompts)     | Interactive terminal prompt components   |
 | [pail](/packages/pail)           | Log tail parsing and filtering           |
-| [envoy](/packages/envoy)         | Remote task planning and command running |
+| [remotetasks](/packages/remotetasks)         | Remote task planning and command running |
 | [debugbar](/packages/debugbar) | Application introspection and watchers   |
 
 ### Products
