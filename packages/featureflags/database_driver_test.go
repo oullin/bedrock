@@ -1,4 +1,4 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"
@@ -77,7 +77,7 @@ type inMemoryDB struct {
 }
 
 func init() {
-	sql.Register("pennant_fake", &fakeDriver{})
+	sql.Register("featureflags_fake", &fakeDriver{})
 }
 
 func (f *fakeDriver) Open(name string) (driver.Conn, error) {
@@ -137,7 +137,7 @@ var fakeDBOnce sync.Once
 var globalFakeDB *sql.DB
 
 func openFakeDB(dsn string) *sql.DB {
-	db, err := sql.Open("pennant_fake", dsn)
+	db, err := sql.Open("featureflags_fake", dsn)
 
 	if err != nil {
 		panic(err)

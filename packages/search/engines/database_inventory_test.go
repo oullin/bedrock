@@ -97,7 +97,7 @@ func TestDatabaseEngineInventoryPaginationAndLimit(t *testing.T) {
 }
 
 // DatabaseEngineTest::test_it_can_order_results
-// DatabaseEngineTest::test_it_uses_scout_query
+// DatabaseEngineTest::test_it_uses_search_query
 func TestDatabaseEngineInventoryOrderingAndSearchColumns(t *testing.T) {
 	t.Parallel()
 

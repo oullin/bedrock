@@ -5,7 +5,7 @@ import (
 
 	cevents "github.com/bedrock/packages/contracts/events"
 	contract "github.com/bedrock/packages/contracts/search"
-	scoutevents "github.com/bedrock/packages/search/events"
+	searchevents "github.com/bedrock/packages/search/events"
 )
 
 // SearchableScope provides bulk operations for making models searchable
@@ -68,7 +68,7 @@ func (s *SearchableScope) Searchable(ctx context.Context, models []contract.Sear
 
 		// Dispatch ModelsImported event.
 		if s.dispatcher != nil {
-			_, _ = s.dispatcher.Dispatch(ctx, scoutevents.ModelsImported{
+			_, _ = s.dispatcher.Dispatch(ctx, searchevents.ModelsImported{
 				Models: searchable,
 			})
 		}
@@ -100,7 +100,7 @@ func (s *SearchableScope) Unsearchable(ctx context.Context, models []contract.Se
 
 		// Dispatch ModelsFlushed event.
 		if s.dispatcher != nil {
-			_, _ = s.dispatcher.Dispatch(ctx, scoutevents.ModelsFlushed{
+			_, _ = s.dispatcher.Dispatch(ctx, searchevents.ModelsFlushed{
 				Models: chunk,
 			})
 		}

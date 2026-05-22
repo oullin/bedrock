@@ -131,7 +131,7 @@ func (e *CollectionEngine) MapIds(results any) []any {
 	ids := make([]any, len(cr.Models))
 
 	for i, m := range cr.Models {
-		ids[i] = m.GetScoutKey()
+		ids[i] = m.GetSearchKey()
 	}
 
 	return ids

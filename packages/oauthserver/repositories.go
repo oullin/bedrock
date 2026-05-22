@@ -76,8 +76,8 @@ type DeviceCodeStore interface {
 
 // MemoryTokenStore is a thread-safe in-memory TokenStore for testing.
 type MemoryTokenStore struct {
-	mu       sync.RWMutex
-	tokens   map[string]*Token
+	mu          sync.RWMutex
+	tokens      map[string]*Token
 	oauthserver *OAuthServer
 }
 

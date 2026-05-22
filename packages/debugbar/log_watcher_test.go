@@ -1,4 +1,4 @@
-package telescope_test
+package debugbar_test
 
 import (
 	"testing"
@@ -128,7 +128,7 @@ func TestLogWatcherStripsDebugBarKeyFromStoredContext(t *testing.T) {
 
 	w.Record("info", "tagged log", map[string]any{
 		"debugbar": []string{"tag1"},
-		"user_id":   42,
+		"user_id":  42,
 	})
 
 	storeAndAssertCount(t, scope, repo, debugbar.EntryTypeLog, 1)

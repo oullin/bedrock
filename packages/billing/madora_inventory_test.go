@@ -1,4 +1,4 @@
-package spark_test
+package billing_test
 
 import (
 	"bytes"
@@ -160,8 +160,10 @@ func (s madoraOrderStore) HasCompletedForProduct(context.Context, int64, int64) 
 	return false, nil
 }
 
-func (s madoraProductStore) FindByID(context.Context, int64) (*billing.Product, error) { return nil, nil }
-func (s madoraProductStore) Active(context.Context) ([]billing.Product, error)         { return nil, nil }
+func (s madoraProductStore) FindByID(context.Context, int64) (*billing.Product, error) {
+	return nil, nil
+}
+func (s madoraProductStore) Active(context.Context) ([]billing.Product, error) { return nil, nil }
 func (s madoraProductStore) ActiveSubscriptions(context.Context) ([]billing.Product, error) {
 	return nil, nil
 }
@@ -247,11 +249,11 @@ func testBillingManager() *billing.Manager {
 	return mgr
 }
 
-// BillingPortalTest::test_spark_dashboard_url_defaults_to_the_agreement_page
-// BillingPortalTest::test_spark_portal_route_keeps_the_default_billing_path
+// BillingPortalTest::test_billing_dashboard_url_defaults_to_the_agreement_page
+// BillingPortalTest::test_billing_portal_route_keeps_the_default_billing_path
 // CatalogPresentersTest::test_frontend_plan_presenter_indexes_seeded_plans_with_default_periods
 // CatalogPresentersTest::test_landing_plan_presenter_serialises_active_prices_per_plan
-// BillingPlanRegistrarTest::test_it_registers_spark_plans_from_the_active_catalog_prices
+// BillingPlanRegistrarTest::test_it_registers_billing_plans_from_the_active_catalog_prices
 // PlanRepositoryHydrationTest::test_plan_repository_returns_plans_with_inverse_relations_hydrated
 // BillingLifecycleTest::test_plan_seeder_persists_plans_and_features
 func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
@@ -288,8 +290,8 @@ func TestMadoraPlanCatalogAndPortalState(t *testing.T) {
 		t.Fatalf("dashboardUrl = %v, want /agreement", current["dashboardUrl"])
 	}
 
-	if current["sparkPath"] != "billing" {
-		t.Fatalf("sparkPath = %v, want billing", current["sparkPath"])
+	if current["billingPath"] != "billing" {
+		t.Fatalf("billingPath = %v, want billing", current["billingPath"])
 	}
 
 	if current["defaultInterval"] != "monthly" {
@@ -411,8 +413,8 @@ func TestMadoraFrontendStateSubscriptionStates(t *testing.T) {
 		{BillableType: "team", BillableID: 10, Status: billing.StatusPaused},
 		{BillableType: "team", BillableID: 10, Status: billing.StatusPastDue},
 	}}
-	billing := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
-	active, err := billing.GetActiveSubscription(context.Background(), "team", 10)
+	svc := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
+	active, err := svc.GetActiveSubscription(context.Background(), "team", 10)
 
 	if err != nil {
 		t.Fatalf("active subscription: %v", err)
@@ -832,9 +834,9 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 
 	sub := &billing.Subscription{BillableType: "team", BillableID: 10, Status: billing.StatusPastDue, PaddleID: "sub_123"}
 	store := &madoraSubStore{subs: []*billing.Subscription{sub}}
-	billing := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
+	svc := service.NewBillingService(store, madoraOrderStore{}, madoraProductStore{})
 
-	active, err := billing.GetActiveSubscription(context.Background(), "team", 10)
+	active, err := svc.GetActiveSubscription(context.Background(), "team", 10)
 
 	if err != nil {
 		t.Fatalf("active subscription: %v", err)
@@ -844,7 +846,7 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 		t.Fatalf("active provider = %#v, want paddle subscription", active)
 	}
 
-	if err := billing.CancelSubscription(context.Background(), "team", 10); err != nil {
+	if err := svc.CancelSubscription(context.Background(), "team", 10); err != nil {
 		t.Fatalf("cancel: %v", err)
 	}
 
@@ -855,7 +857,7 @@ func TestMadoraSubscriptionAccessTransitions(t *testing.T) {
 	graceEnds := time.Now().Add(24 * time.Hour)
 	sub.EndsAt = &graceEnds
 
-	if err := billing.ResumeSubscription(context.Background(), "team", 10); err != nil {
+	if err := svc.ResumeSubscription(context.Background(), "team", 10); err != nil {
 		t.Fatalf("resume: %v", err)
 	}
 

@@ -23,7 +23,7 @@ type RenderOptions struct {
 
 // RenderEntry formats one entry into a boxed CLI block.
 
-type pailOrigin struct {
+type logtailOrigin struct {
 	Type      string
 	Command   string
 	Method    string
@@ -362,12 +362,12 @@ func traceFromContext(ctx map[string]any) []string {
 	return out
 }
 
-func originContext(ctx map[string]any) *pailOrigin {
+func originContext(ctx map[string]any) *logtailOrigin {
 	if ctx == nil {
 		return nil
 	}
 
-	raw, ok := ctx["__pail"]
+	raw, ok := ctx["__logtail"]
 
 	if !ok {
 		return nil
@@ -391,7 +391,7 @@ func originContext(ctx map[string]any) *pailOrigin {
 		return nil
 	}
 
-	origin := &pailOrigin{}
+	origin := &logtailOrigin{}
 	origin.Type, _ = originMap["type"].(string)
 	origin.Command, _ = originMap["command"].(string)
 	origin.Method, _ = originMap["method"].(string)
@@ -416,7 +416,7 @@ func contextSummaryParts(ctx map[string]any) []string {
 	keys := make([]string, 0, len(ctx))
 
 	for key := range ctx {
-		if key == "__pail" || key == "exception" || key == "trace" {
+		if key == "__logtail" || key == "exception" || key == "trace" {
 			continue
 		}
 

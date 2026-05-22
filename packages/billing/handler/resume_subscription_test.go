@@ -13,9 +13,9 @@ import (
 )
 
 func TestResumeSubscriptionHandler_ResolverError(t *testing.T) {
-	billing := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewResumeSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewResumeSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return nil, errors.New("no")
 	})
 
@@ -28,9 +28,9 @@ func TestResumeSubscriptionHandler_ResolverError(t *testing.T) {
 }
 
 func TestResumeSubscriptionHandler_BillingError(t *testing.T) {
-	billing := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(&cancelSubStore{}, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewResumeSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewResumeSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return &stubBillable{id: 1, btype: "team"}, nil
 	})
 
@@ -52,9 +52,9 @@ func TestResumeSubscriptionHandler_HappyPath(t *testing.T) {
 	}
 
 	store := &cancelSubStore{subs: []*billing.Subscription{active}}
-	billing := service.NewBillingService(store, &testOrderStore{}, &testProductStore{})
+	svc := service.NewBillingService(store, &testOrderStore{}, &testProductStore{})
 
-	h := handler.NewResumeSubscriptionHandler(billing, func(*http.Request) (billing.Billable, error) {
+	h := handler.NewResumeSubscriptionHandler(svc, func(*http.Request) (billing.Billable, error) {
 		return &stubBillable{id: 1, btype: "team"}, nil
 	})
 

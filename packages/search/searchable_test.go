@@ -1,4 +1,4 @@
-package scout_test
+package search_test
 
 import (
 	"context"
@@ -389,7 +389,7 @@ func TestSearchableMixinDefaults(t *testing.T) {
 		t.Fatal("expected SearchIndexShouldBeUpdated() to be true by default")
 	}
 
-	if len(mixin.GetScoutMetadata()) != 0 {
+	if len(mixin.GetSearchMetadata()) != 0 {
 		t.Fatal("expected empty metadata by default")
 	}
 
@@ -403,10 +403,10 @@ func TestSearchableMixinMetadata(t *testing.T) {
 
 	var mixin search.SearchableMixin
 
-	mixin.WithScoutMetadata("__soft_deleted", 0)
-	mixin.WithScoutMetadata("custom_key", "value")
+	mixin.WithSearchMetadata("__soft_deleted", 0)
+	mixin.WithSearchMetadata("custom_key", "value")
 
-	meta := mixin.GetScoutMetadata()
+	meta := mixin.GetSearchMetadata()
 
 	if meta["__soft_deleted"] != 0 {
 		t.Fatalf("expected __soft_deleted=0, got %v", meta["__soft_deleted"])
@@ -422,14 +422,14 @@ func TestSearchableMixinPrefix(t *testing.T) {
 
 	var mixin search.SearchableMixin
 
-	if mixin.GetScoutPrefix() != "" {
+	if mixin.GetSearchPrefix() != "" {
 		t.Fatal("expected empty prefix by default")
 	}
 
-	mixin.SetScoutPrefix("prod_")
+	mixin.SetSearchPrefix("prod_")
 
-	if mixin.GetScoutPrefix() != "prod_" {
-		t.Fatalf("expected prefix prod_, got %s", mixin.GetScoutPrefix())
+	if mixin.GetSearchPrefix() != "prod_" {
+		t.Fatalf("expected prefix prod_, got %s", mixin.GetSearchPrefix())
 	}
 }
 
@@ -446,20 +446,20 @@ func TestSearchableAsWithPrefix(t *testing.T) {
 	}
 }
 
-func TestGetScoutKeyDelegatesToModel(t *testing.T) {
+func TestGetSearchKeyDelegatesToModel(t *testing.T) {
 	t.Parallel()
 	model := newTestModel(42, "posts")
 
-	if got := search.GetScoutKey(model); got != 42 {
+	if got := search.GetSearchKey(model); got != 42 {
 		t.Fatalf("expected key 42, got %v", got)
 	}
 }
 
-func TestGetScoutKeyNameDelegatesToModel(t *testing.T) {
+func TestGetSearchKeyNameDelegatesToModel(t *testing.T) {
 	t.Parallel()
 	model := newTestModel(1, "posts")
 
-	if got := search.GetScoutKeyName(model); got != "id" {
+	if got := search.GetSearchKeyName(model); got != "id" {
 		t.Fatalf("expected key name id, got %s", got)
 	}
 }

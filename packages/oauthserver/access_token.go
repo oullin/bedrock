@@ -9,14 +9,14 @@ import (
 // It is the value associated with a user via WithAccessToken and is consulted
 // when checking scopes via TokenCan/TokenCant.
 type AccessToken struct {
-	token    *Token
+	token       *Token
 	oauthserver *OAuthServer
 }
 
 // NewAccessToken constructs an AccessToken from a Token and OAuthServer config.
 func NewAccessToken(t *Token, p *OAuthServer) *AccessToken {
 	return &AccessToken{
-		token:    t,
+		token:       t,
 		oauthserver: p,
 	}
 }

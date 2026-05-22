@@ -133,7 +133,7 @@ func TestShowUser(t *testing.T) {
 ## Upstream Parity Tests
 
 Upstream-parity tests previously lived alongside each package as
-`*_laravel_test.go` and `*_inventory_test.go` files. They have been moved to
+`*_upstream_test.go` and `*_inventory_test.go` files. They have been moved to
 the `bedrock-compliance` repository, which tracks parity against pinned
 upstream sources on its own schedule. See that repo for parity status,
 divergence rationales, and feature audit coverage.

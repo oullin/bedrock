@@ -1,4 +1,4 @@
-package scout_test
+package search_test
 
 import (
 	"context"
@@ -27,19 +27,19 @@ type dirtyObserverModel struct {
 	dirty map[string]bool
 }
 
-func (m *observerTestModel) GetScoutKey() any                                  { return m.id }
-func (m *observerTestModel) GetScoutKeyName() string                           { return "id" }
-func (m *observerTestModel) SearchableAs() string                              { return m.table }
-func (m *observerTestModel) ToSearchableArray() map[string]any                 { return map[string]any{"id": m.id} }
-func (m *observerTestModel) ShouldBeSearchable() bool                          { return m.shouldBeSearchable }
-func (m *observerTestModel) SearchIndexShouldBeUpdated() bool                  { return m.shouldUpdateIndex }
-func (m *observerTestModel) GetScoutMetadata() map[string]any                  { return nil }
-func (m *observerTestModel) WithScoutMetadata(string, any) contract.Searchable { return m }
-func (m *observerTestModel) GetTable() string                                  { return m.table }
-func (m *observerTestModel) GetKeyName() string                                { return "id" }
-func (m *observerTestModel) GetKey() any                                       { return m.id }
-func (m *observerTestModel) GetConnectionName() string                         { return "" }
-func (m *observerTestModel) UsesSoftDelete() bool                              { return m.usesSoftDelete }
+func (m *observerTestModel) GetSearchKey() any                                  { return m.id }
+func (m *observerTestModel) GetSearchKeyName() string                           { return "id" }
+func (m *observerTestModel) SearchableAs() string                               { return m.table }
+func (m *observerTestModel) ToSearchableArray() map[string]any                  { return map[string]any{"id": m.id} }
+func (m *observerTestModel) ShouldBeSearchable() bool                           { return m.shouldBeSearchable }
+func (m *observerTestModel) SearchIndexShouldBeUpdated() bool                   { return m.shouldUpdateIndex }
+func (m *observerTestModel) GetSearchMetadata() map[string]any                  { return nil }
+func (m *observerTestModel) WithSearchMetadata(string, any) contract.Searchable { return m }
+func (m *observerTestModel) GetTable() string                                   { return m.table }
+func (m *observerTestModel) GetKeyName() string                                 { return "id" }
+func (m *observerTestModel) GetKey() any                                        { return m.id }
+func (m *observerTestModel) GetConnectionName() string                          { return "" }
+func (m *observerTestModel) UsesSoftDelete() bool                               { return m.usesSoftDelete }
 func (m *observerTestModel) WasSearchableBeforeUpdate() bool {
 	if !m.hasWasSearchableBeforeUpdate {
 		return true

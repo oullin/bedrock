@@ -1,4 +1,4 @@
-package spark_test
+package billing_test
 
 import (
 	"testing"

@@ -13,7 +13,7 @@ import (
 // DebugBarTestCase is an embeddable struct that provides test helpers
 type DebugBarTestCase struct {
 	T          *testing.T
-	DebugBar  *debugbar.DebugBar
+	DebugBar   *debugbar.DebugBar
 	Repository *storage.InMemoryRepository
 }
 
@@ -28,7 +28,7 @@ func NewTestCase(t *testing.T) *DebugBarTestCase {
 
 	return &DebugBarTestCase{
 		T:          t,
-		DebugBar:  scope,
+		DebugBar:   scope,
 		Repository: repo,
 	}
 }

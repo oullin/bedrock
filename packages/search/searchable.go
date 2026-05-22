@@ -22,9 +22,9 @@ import (
 //	    search.SearchableMixin
 //	}
 type SearchableMixin struct {
-	scoutPrefix   string
-	scoutKeyName  string
-	scoutMetadata map[string]any
+	searchPrefix   string
+	searchKeyName  string
+	searchMetadata map[string]any
 }
 
 type wasSearchableBeforeUpdate interface {
@@ -37,19 +37,19 @@ type wasSearchableBeforeDelete interface {
 
 var syncingDisabled sync.Map
 
-// SetScoutPrefix sets the index name prefix.
-func (s *SearchableMixin) SetScoutPrefix(prefix string) {
-	s.scoutPrefix = prefix
+// SetSearchPrefix sets the index name prefix.
+func (s *SearchableMixin) SetSearchPrefix(prefix string) {
+	s.searchPrefix = prefix
 }
 
-// GetScoutPrefix returns the index name prefix.
-func (s *SearchableMixin) GetScoutPrefix() string {
-	return s.scoutPrefix
+// GetSearchPrefix returns the index name prefix.
+func (s *SearchableMixin) GetSearchPrefix() string {
+	return s.searchPrefix
 }
 
-// SetScoutKeyName overrides the key name used for the search index.
-func (s *SearchableMixin) SetScoutKeyName(name string) {
-	s.scoutKeyName = name
+// SetSearchKeyName overrides the key name used for the search index.
+func (s *SearchableMixin) SetSearchKeyName(name string) {
+	s.searchKeyName = name
 }
 
 // ShouldBeSearchable reports whether this model should be indexed.
@@ -63,22 +63,22 @@ func (s *SearchableMixin) SearchIndexShouldBeUpdated() bool {
 	return true
 }
 
-// GetScoutMetadata returns engine-specific metadata for the model.
-func (s *SearchableMixin) GetScoutMetadata() map[string]any {
-	if s.scoutMetadata == nil {
+// GetSearchMetadata returns engine-specific metadata for the model.
+func (s *SearchableMixin) GetSearchMetadata() map[string]any {
+	if s.searchMetadata == nil {
 		return map[string]any{}
 	}
 
-	return s.scoutMetadata
+	return s.searchMetadata
 }
 
-// WithScoutMetadata sets a metadata key-value pair.
-func (s *SearchableMixin) WithScoutMetadata(key string, value any) {
-	if s.scoutMetadata == nil {
-		s.scoutMetadata = make(map[string]any)
+// WithSearchMetadata sets a metadata key-value pair.
+func (s *SearchableMixin) WithSearchMetadata(key string, value any) {
+	if s.searchMetadata == nil {
+		s.searchMetadata = make(map[string]any)
 	}
 
-	s.scoutMetadata[key] = value
+	s.searchMetadata[key] = value
 }
 
 // UsesSoftDelete reports whether the model uses soft deletes.
@@ -219,15 +219,15 @@ func SearchableAs(model contract.Searchable, prefix string) string {
 	return model.GetTable()
 }
 
-// GetScoutKey returns the search key for the model. By default, this is
+// GetSearchKey returns the search key for the model. By default, this is
 // the model's primary key value.
-func GetScoutKey(model contract.Searchable) any {
+func GetSearchKey(model contract.Searchable) any {
 	return model.GetKey()
 }
 
-// GetScoutKeyName returns the search key name for the model. By default,
+// GetSearchKeyName returns the search key name for the model. By default,
 // this is the model's primary key column name.
-func GetScoutKeyName(model contract.Searchable) string {
+func GetSearchKeyName(model contract.Searchable) string {
 	return model.GetKeyName()
 }
 

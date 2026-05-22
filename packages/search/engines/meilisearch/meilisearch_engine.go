@@ -40,10 +40,10 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 
 	for i, model := range models {
 		doc := model.ToSearchableArray()
-		doc[model.GetScoutKeyName()] = model.GetScoutKey()
+		doc[model.GetSearchKeyName()] = model.GetSearchKey()
 
 		// Add search metadata (e.g. soft delete flag).
-		for k, v := range model.GetScoutMetadata() {
+		for k, v := range model.GetSearchMetadata() {
 			doc[k] = v
 		}
 
@@ -57,7 +57,7 @@ func (e *Engine) Update(ctx context.Context, models []contract.Searchable) error
 	}
 
 	idx := e.client.Index(index)
-	_, err := idx.AddDocuments(documents, models[0].GetScoutKeyName())
+	_, err := idx.AddDocuments(documents, models[0].GetSearchKeyName())
 
 	if err != nil {
 		return fmt.Errorf("search: meilisearch update failed: %w", err)
@@ -75,7 +75,7 @@ func (e *Engine) Delete(ctx context.Context, models []contract.Searchable) error
 	ids := make([]string, len(models))
 
 	for i, model := range models {
-		ids[i] = fmt.Sprintf("%v", model.GetScoutKey())
+		ids[i] = fmt.Sprintf("%v", model.GetSearchKey())
 	}
 
 	idx := e.client.Index(index)

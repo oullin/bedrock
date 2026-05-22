@@ -16,15 +16,15 @@ import (
 //
 // It implements contracts/auth.
 type TokenGuard struct {
-	mu       sync.RWMutex
+	mu          sync.RWMutex
 	oauthserver *OAuthServer
-	tokens   TokenStore
-	clients  ClientStore
-	provider cauth.UserProvider
-	request  *http.Request
-	user     cauth.Authenticatable // cached *UserWithTokens
-	token    *Token                // cached access token
-	client   *Client               // cached client
+	tokens      TokenStore
+	clients     ClientStore
+	provider    cauth.UserProvider
+	request     *http.Request
+	user        cauth.Authenticatable // cached *UserWithTokens
+	token       *Token                // cached access token
+	client      *Client               // cached client
 }
 
 // NewTokenGuard creates a TokenGuard.
@@ -36,9 +36,9 @@ func NewTokenGuard(
 ) *TokenGuard {
 	return &TokenGuard{
 		oauthserver: p,
-		tokens:   tokens,
-		clients:  clients,
-		provider: provider,
+		tokens:      tokens,
+		clients:     clients,
+		provider:    provider,
 	}
 }
 

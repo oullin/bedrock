@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/billing/handler"
 	"github.com/bedrock/packages/routegen"
+	"github.com/bedrock/packages/routing"
 )
 
 func TestRouteSetUsesCanonicalRouteGenRoutes(t *testing.T) {
@@ -20,7 +20,7 @@ func TestRouteSetUsesCanonicalRouteGenRoutes(t *testing.T) {
 	cases := map[string]string{
 		billing.RoutePortal:                    "/billing",
 		billing.RouteState:                     "/billing/state",
-		billing.RouteRouteGen:                 "/billing/routegen",
+		billing.RouteRouteGen:                  "/billing/routegen",
 		billing.RouteSubscriptionStore:         "/billing/subscription",
 		billing.RouteSubscriptionUpdate:        "/billing/subscription",
 		billing.RouteSubscriptionCancel:        "/billing/subscription/cancel",

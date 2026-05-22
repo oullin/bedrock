@@ -7,7 +7,7 @@ import (
 
 	dbcontract "github.com/bedrock/packages/contracts/database"
 	contract "github.com/bedrock/packages/contracts/search"
-	"github.com/bedrock/packages/search/internal/scouterr"
+	"github.com/bedrock/packages/search/internal/searcherr"
 )
 
 // DatabaseEngine performs full-text search using the database's native
@@ -340,7 +340,7 @@ func (e *DatabaseEngine) performSearch(ctx context.Context, builder contract.Sea
 		sql.WriteString(strings.Join(orderClauses, ", "))
 	}
 
-	countSQL := "select count(*) as aggregate from (" + sql.String() + ") as scout_count"
+	countSQL := "select count(*) as aggregate from (" + sql.String() + ") as search_count"
 	countRow, err := conn.SelectOne(ctx, countSQL, bindings...)
 
 	if err != nil {
@@ -377,7 +377,7 @@ func (e *DatabaseEngine) performSearch(ctx context.Context, builder contract.Sea
 	rows, err := conn.Select(ctx, sql.String(), bindings...)
 
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", scouterr.ErrSearchFailed, err)
+		return nil, fmt.Errorf("%w: %w", searcherr.ErrSearchFailed, err)
 	}
 
 	return &DatabaseResult{

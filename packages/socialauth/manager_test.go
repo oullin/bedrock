@@ -1,4 +1,4 @@
-package socialite_test
+package socialauth_test
 
 import (
 	"net/http"

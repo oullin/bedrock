@@ -61,7 +61,7 @@ export interface BillingPortalState {
   pwAuth?: string;
   pwCustomer?: string | null;
   seatName?: string;
-  sparkPath: string;
+  billingPath: string;
   state: "none" | "pending" | "active" | "past_due" | "onGracePeriod" | string;
   subscription: BillingSubscriptionState;
   cta: BillingCTA;

@@ -55,7 +55,7 @@ func (r *HasOneThrough) Match(models []*orm.Model, results []*orm.Model, relatio
 	dictionary := make(map[any]*orm.Model)
 
 	for _, result := range results {
-		key := result.GetAttribute("laravel_through_key")
+		key := result.GetAttribute("through_key")
 		dictionary[key] = result
 	}
 

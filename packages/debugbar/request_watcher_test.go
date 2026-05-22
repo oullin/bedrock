@@ -1,4 +1,4 @@
-package telescope_test
+package debugbar_test
 
 import (
 	"net/http"

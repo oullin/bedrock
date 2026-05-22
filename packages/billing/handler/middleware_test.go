@@ -16,13 +16,13 @@ func newMiddleware(resolver billing.ResolverFunc, subs []*billing.Subscription) 
 	mgr.Billable("team").Resolve(resolver)
 	mgr.RegisterBillable(billing.BillableConfig{Model: "team"})
 
-	billing := service.NewBillingService(
+	svc := service.NewBillingService(
 		&testSubStore{subs: subs},
 		&testOrderStore{},
 		&testProductStore{},
 	)
 
-	return handler.VerifyBillableIsSubscribed(mgr, billing)
+	return handler.VerifyBillableIsSubscribed(mgr, svc)
 }
 
 // EnsureTeamSubscribedTest::test_unsubscribed_user_is_redirected_to_billing_portal

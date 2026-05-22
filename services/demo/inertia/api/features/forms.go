@@ -351,6 +351,6 @@ func (a app) dottedKeysHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a app) wayfinderHandler(w http.ResponseWriter, r *http.Request) {
+func (a app) routegenHandler(w http.ResponseWriter, r *http.Request) {
 	a.container.Render(w, r, "Features/Forms/RouteGen", protocol.Props{})
 }

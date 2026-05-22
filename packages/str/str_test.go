@@ -967,7 +967,7 @@ func TestSupportStringablePredicateAndPluralParity(t *testing.T) {
 		t.Fatalf("ClassBasename = %q", got)
 	}
 
-	if !Of("https://upstream.com/docs").IsUrl("https") {
+	if !Of("https://example.com/docs").IsUrl("https") {
 		t.Fatal("expected https URL")
 	}
 
@@ -1156,7 +1156,7 @@ func TestStrAdditionalInventoryEquivalents(t *testing.T) {
 		t.Errorf("StrDeduplicate = %q", got)
 	}
 
-	if !StrIsUrl("https://upstream.com", "https") || StrIsUrl("ftp://upstream.com", "https") {
+	if !StrIsUrl("https://example.com", "https") || StrIsUrl("ftp://example.com", "https") {
 		t.Error("StrIsUrl protocol matching failed")
 	}
 
@@ -1360,15 +1360,15 @@ func TestSupportStringableInventoryCloseout(t *testing.T) {
 		t.Fatal("contains predicates failed")
 	}
 
-	if got := Of("UpstreamFramework").Snake().Value(); got != "laravel_framework" {
+	if got := Of("BedrockFramework").Snake().Value(); got != "bedrock_framework" {
 		t.Fatalf("Snake = %q", got)
 	}
 
-	if got := Of("upstream framework").Studly().Value(); got != "UpstreamFramework" {
+	if got := Of("bedrock framework").Studly().Value(); got != "BedrockFramework" {
 		t.Fatalf("Studly = %q", got)
 	}
 
-	if got := Of("upstream framework").Camel().Value(); got != "laravelFramework" {
+	if got := Of("bedrock framework").Camel().Value(); got != "bedrockFramework" {
 		t.Fatalf("Camel = %q", got)
 	}
 

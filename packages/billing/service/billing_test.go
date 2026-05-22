@@ -39,9 +39,11 @@ func (s *stubSubscriptionStore) ActiveForBillable(_ context.Context, _ string, _
 
 func (s *stubSubscriptionStore) Create(_ context.Context, _ *billing.Subscription) error { return nil }
 func (s *stubSubscriptionStore) Save(_ context.Context, _ *billing.Subscription) error   { return nil }
-func (s *stubSubscriptionStore) Delete(_ context.Context, _ int64) error               { return nil }
+func (s *stubSubscriptionStore) Delete(_ context.Context, _ int64) error                 { return nil }
 
-func (s *stubOrderStore) FindByID(_ context.Context, _ int64) (*billing.Order, error) { return nil, nil }
+func (s *stubOrderStore) FindByID(_ context.Context, _ int64) (*billing.Order, error) {
+	return nil, nil
+}
 func (s *stubOrderStore) FindByBillable(_ context.Context, _ int64, _ int) ([]billing.Order, error) {
 	return nil, nil
 }
@@ -58,7 +60,9 @@ func (s *stubProductStore) Active(_ context.Context) ([]billing.Product, error) 
 func (s *stubProductStore) ActiveSubscriptions(_ context.Context) ([]billing.Product, error) {
 	return nil, nil
 }
-func (s *stubProductStore) ActiveOneTime(_ context.Context) ([]billing.Product, error) { return nil, nil }
+func (s *stubProductStore) ActiveOneTime(_ context.Context) ([]billing.Product, error) {
+	return nil, nil
+}
 
 // BillingServiceTest::test_get_active_subscription_returns_null_when_no_subscription
 // BillingLifecycleTest::test_accessible_subscription_returns_null_object_without_subscription

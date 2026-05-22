@@ -1,16 +1,16 @@
 import type { BillingPortalState } from "./types";
 import {
-  sparkPendingCheckout,
-  sparkState,
-  sparkSubscriptionCancel,
-  sparkSubscriptionPaymentMethod,
-  sparkSubscriptionResume,
-  sparkSubscriptionStore,
-  sparkSubscriptionUpdate,
+  billingPendingCheckout,
+  billingState,
+  billingSubscriptionCancel,
+  billingSubscriptionPaymentMethod,
+  billingSubscriptionResume,
+  billingSubscriptionStore,
+  billingSubscriptionUpdate,
   type RouteResult,
 } from "./generated/routes";
 
-const statePath = window.__SPARK_STATE_PATH__ ?? sparkState().url;
+const statePath = window.__BILLING_STATE_PATH__ ?? billingState().url;
 
 async function request<T>(route: RouteResult | string, init: RequestInit = {}): Promise<T> {
   const url = typeof route === "string" ? route : route.url;
@@ -43,33 +43,33 @@ export function fetchBillingState(): Promise<BillingPortalState> {
 }
 
 export function createSubscription(plan: string): Promise<unknown> {
-  return request<unknown>(sparkSubscriptionStore(), {
+  return request<unknown>(billingSubscriptionStore(), {
     body: JSON.stringify({ plan }),
   });
 }
 
 export function updateSubscription(plan: string): Promise<void> {
-  return request<void>(sparkSubscriptionUpdate(), {
+  return request<void>(billingSubscriptionUpdate(), {
     body: JSON.stringify({ plan }),
   });
 }
 
 export function cancelSubscription(): Promise<void> {
-  return request<void>(sparkSubscriptionCancel());
+  return request<void>(billingSubscriptionCancel());
 }
 
 export function resumeSubscription(): Promise<void> {
-  return request<void>(sparkSubscriptionResume());
+  return request<void>(billingSubscriptionResume());
 }
 
 export function updatePaymentMethod(): Promise<{ transaction_id: string; transaction?: unknown }> {
   return request<{ transaction_id: string; transaction?: unknown }>(
-    sparkSubscriptionPaymentMethod(),
+    billingSubscriptionPaymentMethod(),
   );
 }
 
 export function markPendingCheckout(checkoutId: string): Promise<void> {
-  return request<void>(sparkPendingCheckout(), {
+  return request<void>(billingPendingCheckout(), {
     body: JSON.stringify({ checkout_id: checkoutId }),
   });
 }

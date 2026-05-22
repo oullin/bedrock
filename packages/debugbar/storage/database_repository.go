@@ -15,7 +15,7 @@ import (
 
 // DatabaseRepository persists DebugBar entries to a relational database. It
 // mirrors the upstream DatabaseEntriesRepository, supporting the same three-table
-// schema: telescope_entries, telescope_entries_tags, and telescope_monitoring.
+// schema: debugbar_entries, debugbar_entries_tags, and debugbar_monitoring.
 //
 // The connection must be a *database/sql.DB configured with the appropriate
 // driver (SQLite, MySQL, PostgreSQL).
@@ -105,7 +105,7 @@ var _ debugbar.Repository = (*DatabaseRepository)(nil)
 
 func (r *DatabaseRepository) Migrate() error {
 	_, err := r.db.Exec(`
-		CREATE TABLE IF NOT EXISTS telescope_entries (
+		CREATE TABLE IF NOT EXISTS debugbar_entries (
 			sequence    INTEGER PRIMARY KEY AUTOINCREMENT,
 			uuid        TEXT    NOT NULL UNIQUE,
 			batch_id    TEXT    NOT NULL,
@@ -115,16 +115,16 @@ func (r *DatabaseRepository) Migrate() error {
 			created_at  TEXT    NOT NULL
 		);
 
-		CREATE TABLE IF NOT EXISTS telescope_entries_tags (
-			entry_uuid TEXT NOT NULL REFERENCES telescope_entries(uuid) ON DELETE CASCADE,
+		CREATE TABLE IF NOT EXISTS debugbar_entries_tags (
+			entry_uuid TEXT NOT NULL REFERENCES debugbar_entries(uuid) ON DELETE CASCADE,
 			tag        TEXT NOT NULL,
 			PRIMARY KEY (entry_uuid, tag)
 		);
 
-		CREATE INDEX IF NOT EXISTS telescope_entries_tags_tag_idx
-			ON telescope_entries_tags (tag);
+		CREATE INDEX IF NOT EXISTS debugbar_entries_tags_tag_idx
+			ON debugbar_entries_tags (tag);
 
-		CREATE TABLE IF NOT EXISTS telescope_monitoring (
+		CREATE TABLE IF NOT EXISTS debugbar_monitoring (
 			tag TEXT PRIMARY KEY
 		);
 	`)
@@ -135,7 +135,7 @@ func (r *DatabaseRepository) Migrate() error {
 func (r *DatabaseRepository) Find(id string) (*debugbar.EntryResult, error) {
 	row := r.db.QueryRow(
 		`SELECT sequence, uuid, batch_id, family_hash, type, content, created_at
-		   FROM telescope_entries WHERE uuid = ?`, id,
+		   FROM debugbar_entries WHERE uuid = ?`, id,
 	)
 
 	entry, err := r.scanEntry(row)
@@ -192,7 +192,7 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 	}
 
 	if opts.Tag != "" {
-		conditions = append(conditions, "EXISTS (SELECT 1 FROM telescope_entries_tags t WHERE t.entry_uuid = e.uuid AND t.tag = ?)")
+		conditions = append(conditions, "EXISTS (SELECT 1 FROM debugbar_entries_tags t WHERE t.entry_uuid = e.uuid AND t.tag = ?)")
 		args = append(args, opts.Tag)
 	}
 
@@ -206,7 +206,7 @@ func (r *DatabaseRepository) Get(entryType string, opts debugbar.EntryQueryOptio
 
 	rows, err := r.db.Query(
 		fmt.Sprintf(`SELECT e.sequence, e.uuid, e.batch_id, e.family_hash, e.type, e.content, e.created_at
-			FROM telescope_entries e %s ORDER BY e.sequence DESC LIMIT ?`, where),
+			FROM debugbar_entries e %s ORDER BY e.sequence DESC LIMIT ?`, where),
 		args...,
 	)
 
@@ -275,7 +275,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 	}()
 
 	entryStmt, err := tx.Prepare(
-		`INSERT OR IGNORE INTO telescope_entries (uuid, batch_id, family_hash, type, content, created_at)
+		`INSERT OR IGNORE INTO debugbar_entries (uuid, batch_id, family_hash, type, content, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?)`,
 	)
 
@@ -286,7 +286,7 @@ func (r *DatabaseRepository) storeChunk(entries []*debugbar.IncomingEntry) error
 	defer entryStmt.Close()
 
 	tagStmt, err := tx.Prepare(
-		`INSERT OR IGNORE INTO telescope_entries_tags (entry_uuid, tag) VALUES (?, ?)`,
+		`INSERT OR IGNORE INTO debugbar_entries_tags (entry_uuid, tag) VALUES (?, ?)`,
 	)
 
 	if err != nil {
@@ -340,7 +340,7 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 	for _, u := range updates {
 
 		var rawContent string
-		row := tx.QueryRow(`SELECT content FROM telescope_entries WHERE uuid = ?`, u.UUID)
+		row := tx.QueryRow(`SELECT content FROM debugbar_entries WHERE uuid = ?`, u.UUID)
 
 		if err = row.Scan(&rawContent); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -366,18 +366,18 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 			return err
 		}
 
-		if _, err = tx.Exec(`UPDATE telescope_entries SET content = ? WHERE uuid = ?`, string(merged), u.UUID); err != nil {
+		if _, err = tx.Exec(`UPDATE debugbar_entries SET content = ? WHERE uuid = ?`, string(merged), u.UUID); err != nil {
 			return err
 		}
 
 		for _, tag := range u.Tags.Add {
-			if _, err = tx.Exec(`INSERT OR IGNORE INTO telescope_entries_tags (entry_uuid, tag) VALUES (?, ?)`, u.UUID, tag); err != nil {
+			if _, err = tx.Exec(`INSERT OR IGNORE INTO debugbar_entries_tags (entry_uuid, tag) VALUES (?, ?)`, u.UUID, tag); err != nil {
 				continue
 			}
 		}
 
 		for _, tag := range u.Tags.Remove {
-			if _, err = tx.Exec(`DELETE FROM telescope_entries_tags WHERE entry_uuid = ? AND tag = ?`, u.UUID, tag); err != nil {
+			if _, err = tx.Exec(`DELETE FROM debugbar_entries_tags WHERE entry_uuid = ? AND tag = ?`, u.UUID, tag); err != nil {
 				return err
 			}
 		}
@@ -387,7 +387,7 @@ func (r *DatabaseRepository) Update(updates []*debugbar.EntryUpdate) error {
 }
 
 func (r *DatabaseRepository) LoadMonitoredTags() error {
-	rows, err := r.db.Query(`SELECT tag FROM telescope_monitoring`)
+	rows, err := r.db.Query(`SELECT tag FROM debugbar_monitoring`)
 
 	if err != nil {
 		return err
@@ -458,7 +458,7 @@ func (r *DatabaseRepository) Monitor(tags []string) error {
 	}()
 
 	for _, tag := range tags {
-		if _, err = tx.Exec(`INSERT OR IGNORE INTO telescope_monitoring (tag) VALUES (?)`, tag); err != nil {
+		if _, err = tx.Exec(`INSERT OR IGNORE INTO debugbar_monitoring (tag) VALUES (?)`, tag); err != nil {
 			return err
 		}
 	}
@@ -492,7 +492,7 @@ func (r *DatabaseRepository) StopMonitoring(tags []string) error {
 	}()
 
 	for _, tag := range tags {
-		if _, err = tx.Exec(`DELETE FROM telescope_monitoring WHERE tag = ?`, tag); err != nil {
+		if _, err = tx.Exec(`DELETE FROM debugbar_monitoring WHERE tag = ?`, tag); err != nil {
 			return err
 		}
 	}
@@ -513,7 +513,7 @@ func (r *DatabaseRepository) StopMonitoring(tags []string) error {
 }
 
 func (r *DatabaseRepository) Clear() error {
-	_, err := r.db.Exec(`DELETE FROM telescope_entries`)
+	_, err := r.db.Exec(`DELETE FROM debugbar_entries`)
 
 	return err
 }
@@ -527,10 +527,10 @@ func (r *DatabaseRepository) Prune(before time.Time, keepExceptions bool) (int64
 	ts := before.UTC().Format(time.RFC3339Nano)
 
 	if keepExceptions {
-		query = `DELETE FROM telescope_entries WHERE created_at < ? AND type != ?`
+		query = `DELETE FROM debugbar_entries WHERE created_at < ? AND type != ?`
 		args = []any{ts, debugbar.EntryTypeException}
 	} else {
-		query = `DELETE FROM telescope_entries WHERE created_at < ?`
+		query = `DELETE FROM debugbar_entries WHERE created_at < ?`
 		args = []any{ts}
 	}
 
@@ -579,7 +579,7 @@ func (r *DatabaseRepository) scanEntry(s scanner) (*debugbar.EntryResult, error)
 
 func (r *DatabaseRepository) loadTags(uuid string) ([]string, error) {
 	rows, err := r.db.Query(
-		`SELECT tag FROM telescope_entries_tags WHERE entry_uuid = ?`, uuid,
+		`SELECT tag FROM debugbar_entries_tags WHERE entry_uuid = ?`, uuid,
 	)
 
 	if err != nil {

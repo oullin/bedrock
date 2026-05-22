@@ -25,19 +25,19 @@ type fakeEngine struct {
 	lastModels  []contract.Searchable
 }
 
-func (m *testModel) GetScoutKey() any                                  { return m.id }
-func (m *testModel) GetScoutKeyName() string                           { return "id" }
-func (m *testModel) SearchableAs() string                              { return m.table }
-func (m *testModel) ToSearchableArray() map[string]any                 { return map[string]any{"id": m.id} }
-func (m *testModel) ShouldBeSearchable() bool                          { return true }
-func (m *testModel) SearchIndexShouldBeUpdated() bool                  { return true }
-func (m *testModel) GetScoutMetadata() map[string]any                  { return nil }
-func (m *testModel) WithScoutMetadata(string, any) contract.Searchable { return m }
-func (m *testModel) GetTable() string                                  { return m.table }
-func (m *testModel) GetKeyName() string                                { return "id" }
-func (m *testModel) GetKey() any                                       { return m.id }
-func (m *testModel) GetConnectionName() string                         { return "" }
-func (m *testModel) UsesSoftDelete() bool                              { return false }
+func (m *testModel) GetSearchKey() any                                  { return m.id }
+func (m *testModel) GetSearchKeyName() string                           { return "id" }
+func (m *testModel) SearchableAs() string                               { return m.table }
+func (m *testModel) ToSearchableArray() map[string]any                  { return map[string]any{"id": m.id} }
+func (m *testModel) ShouldBeSearchable() bool                           { return true }
+func (m *testModel) SearchIndexShouldBeUpdated() bool                   { return true }
+func (m *testModel) GetSearchMetadata() map[string]any                  { return nil }
+func (m *testModel) WithSearchMetadata(string, any) contract.Searchable { return m }
+func (m *testModel) GetTable() string                                   { return m.table }
+func (m *testModel) GetKeyName() string                                 { return "id" }
+func (m *testModel) GetKey() any                                        { return m.id }
+func (m *testModel) GetConnectionName() string                          { return "" }
+func (m *testModel) UsesSoftDelete() bool                               { return false }
 
 func (m *unsearchableTestModel) ShouldBeSearchable() bool { return false }
 

@@ -1,4 +1,4 @@
-package scout_test
+package search_test
 
 import (
 	"testing"

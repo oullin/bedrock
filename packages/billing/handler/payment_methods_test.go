@@ -41,7 +41,7 @@ func (s paymentMethodSubStore) ActiveForBillable(context.Context, string, int64)
 
 func (s paymentMethodSubStore) Create(context.Context, *billing.Subscription) error { return nil }
 func (s paymentMethodSubStore) Save(context.Context, *billing.Subscription) error   { return nil }
-func (s paymentMethodSubStore) Delete(context.Context, int64) error               { return nil }
+func (s paymentMethodSubStore) Delete(context.Context, int64) error                 { return nil }
 
 func (p *paymentMethodProvider) CreatePaymentMethodUpdateTransaction(_ context.Context, _ billing.Billable, _ *billing.Subscription, options map[string]any) (*billing.PaymentMethodUpdateTransaction, error) {
 	p.options = options

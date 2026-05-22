@@ -1,4 +1,4 @@
-package passport_test
+package oauthserver_test
 
 import (
 	"testing"
@@ -84,13 +84,13 @@ func TestLoadConfigReadsConnection(t *testing.T) {
 
 func TestLoadConfigReadsStorageDatabase(t *testing.T) {
 	repo := config.New(map[string]any{
-		"oauthserver.storage.database": "passport_db",
+		"oauthserver.storage.database": "oauthserver_db",
 	})
 
 	cfg := oauthserver.LoadConfig(repo)
 
-	if cfg.StorageDatabase != "passport_db" {
-		t.Errorf("StorageDatabase = %q, want %q", cfg.StorageDatabase, "passport_db")
+	if cfg.StorageDatabase != "oauthserver_db" {
+		t.Errorf("StorageDatabase = %q, want %q", cfg.StorageDatabase, "oauthserver_db")
 	}
 }
 

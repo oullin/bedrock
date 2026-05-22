@@ -58,7 +58,7 @@ func TestFormHandlers_RenderAndMethodGuards(t *testing.T) {
 		handler   func(http.ResponseWriter, *http.Request)
 	}{
 		{name: "use form context", component: "Features/Forms/UseFormContext", target: "/features/forms/use-form-context", handler: h.app.formContextHandler},
-		{name: "routegen", component: "Features/Forms/RouteGen", target: "/features/forms/routegen", handler: h.app.wayfinderHandler},
+		{name: "routegen", component: "Features/Forms/RouteGen", target: "/features/forms/routegen", handler: h.app.routegenHandler},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			req := h.request(http.MethodGet, tt.target, nil)
