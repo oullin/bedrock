@@ -117,7 +117,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authflows/...
 
 Parity is tracked by these tests:
 
-- `packages/authflows/fortify_inventory_test.go`
+- `packages/authflows/authflows_inventory_test.go`
 
 ## API Reference
 
