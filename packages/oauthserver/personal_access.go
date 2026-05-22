@@ -28,9 +28,9 @@ type PersonalAccessTokenResult struct {
 // environments without a full OAuth2 server wired up).
 type PersonalAccessTokenFactory struct {
 	oauthserver *OAuthServer
-	server   AuthorizationServer // optional — nil-safe
-	tokens   TokenStore
-	events   EventDispatcher // optional — nil-safe
+	server      AuthorizationServer // optional — nil-safe
+	tokens      TokenStore
+	events      EventDispatcher // optional — nil-safe
 }
 
 func (r *PersonalAccessTokenResult) ToArray() map[string]any {
@@ -52,8 +52,8 @@ func (r *PersonalAccessTokenResult) MarshalJSON() ([]byte, error) {
 func NewPersonalAccessTokenFactory(p *OAuthServer, server AuthorizationServer, tokens TokenStore) *PersonalAccessTokenFactory {
 	return &PersonalAccessTokenFactory{
 		oauthserver: p,
-		server:   server,
-		tokens:   tokens,
+		server:      server,
+		tokens:      tokens,
 	}
 }
 

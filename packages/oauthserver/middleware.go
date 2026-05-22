@@ -8,7 +8,7 @@ import (
 
 type contextKey string
 
-const tokenUserKey contextKey = "passport_user"
+const tokenUserKey contextKey = "oauthserver_user"
 
 // WithUser stores an authenticated user in the request context.
 func WithUser(r *http.Request, user interface{}) *http.Request {

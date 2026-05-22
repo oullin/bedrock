@@ -1,4 +1,4 @@
-package passport_test
+package oauthserver_test
 
 import (
 	"testing"

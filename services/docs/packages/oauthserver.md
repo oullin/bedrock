@@ -118,7 +118,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/oauthserver/...
 
 Parity is tracked by these tests:
 
-- `packages/oauthserver/passport_inventory_test.go`
+- `packages/oauthserver/oauthserver_inventory_test.go`
 
 ## API Reference
 

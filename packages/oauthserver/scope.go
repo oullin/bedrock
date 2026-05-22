@@ -17,7 +17,7 @@ type Scope struct {
 // scopes and optional client-level restrictions.
 type ScopeRepository struct {
 	oauthserver *OAuthServer
-	clients  ClientStore
+	clients     ClientStore
 }
 
 // NewScopeRepository creates a scope repository.
