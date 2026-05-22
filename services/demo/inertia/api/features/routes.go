@@ -109,7 +109,7 @@ func RegisterRoutes(routes *routegen.Registry, mux *http.ServeMux, container Con
 
 	routes.Handle("features.forms.use-form-context", auth(a.formContextHandler), mux)
 	routes.Handle("features.forms.dotted-keys", auth(a.dottedKeysHandler), mux)
-	routes.Handle("features.forms.routegen", auth(a.wayfinderHandler), mux)
+	routes.Handle("features.forms.routegen", auth(a.routegenHandler), mux)
 
 	// Navigation
 	routes.Handle("features.navigation.links", auth(a.linksHandler), mux)

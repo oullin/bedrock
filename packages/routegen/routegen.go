@@ -65,9 +65,9 @@ func Generate(routes []*RouteInfo, opts Options) error {
 	}
 
 	// Always copy the runtime utility.
-	wayfinderDir := filepath.Join(opts.Path, "routegen")
+	routegenDir := filepath.Join(opts.Path, "routegen")
 
-	if err := writeRouteGenTS(wayfinderDir); err != nil {
+	if err := writeRouteGenTS(routegenDir); err != nil {
 		return fmt.Errorf("routegen: writing runtime utility: %w", err)
 	}
 

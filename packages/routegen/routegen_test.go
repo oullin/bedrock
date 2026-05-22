@@ -1,4 +1,4 @@
-package wayfinder_test
+package routegen_test
 
 import (
 	"os"
