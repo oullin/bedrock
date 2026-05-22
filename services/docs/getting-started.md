@@ -134,7 +134,7 @@ pnpm run build --filter=@bedrock/docs
 | [prompts](/packages/prompts)     | Interactive terminal prompt components   |
 | [pail](/packages/pail)           | Log tail parsing and filtering           |
 | [envoy](/packages/envoy)         | Remote task planning and command running |
-| [telescope](/packages/telescope) | Application introspection and watchers   |
+| [debugbar](/packages/debugbar) | Application introspection and watchers   |
 
 ### Products
 

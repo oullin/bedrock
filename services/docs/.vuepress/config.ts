@@ -197,7 +197,7 @@ export default defineUserConfig({
             { text: 'prompts', link: '/packages/prompts' },
             { text: 'pail', link: '/packages/pail' },
             { text: 'envoy', link: '/packages/envoy' },
-            { text: 'telescope', link: '/packages/telescope' },
+            { text: 'debugbar', link: '/packages/debugbar' },
           ],
         },
         {

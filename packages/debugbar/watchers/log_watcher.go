@@ -1,0 +1,170 @@
+// Package watchers provides DebugBar monitoring components that hook into
+// different aspects of the application and record entries.
+package watchers
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/bedrock/packages/debugbar"
+)
+
+// the Monolog level constants used by the upstream LogWatcher.
+
+// LogWatcher monitors application log messages and records them as DebugBar
+// entries.
+//
+// Options:
+//   - "level" (string): minimum log level to record (default "debug").
+type LogWatcher struct {
+	debugbar.BaseWatcher
+}
+
+var LogLevel = map[string]int{
+	"debug":     100,
+	"info":      200,
+	"notice":    250,
+	"warning":   300,
+	"error":     400,
+	"critical":  500,
+	"alert":     550,
+	"emergency": 600,
+}
+
+// NewLogWatcher creates a LogWatcher with the given options.
+func NewLogWatcher(t *debugbar.DebugBar, options map[string]any) *LogWatcher {
+	w := &LogWatcher{}
+	w.SetDebugBar(t)
+	w.Options = options
+
+	return w
+}
+
+// Register is a no-op for LogWatcher; callers drive it by calling Record
+// directly. When integrated with the bedrock log package, attach this watcher
+// as a listener to the log manager's MessageLogged event.
+func (w *LogWatcher) Register(_ any) error { return nil }
+
+// ShouldRecord reports whether the given log level meets the configured
+func (w *LogWatcher) ShouldRecord(level string) bool {
+	if !w.enabled() {
+		return false
+	}
+
+	minLevel := strings.ToLower(w.StringOption("level"))
+
+	if minLevel == "" {
+		minLevel = "debug"
+	}
+
+	minPriority, ok := LogLevel[minLevel]
+
+	if !ok {
+		minPriority = 100
+	}
+
+	priority, ok := LogLevel[strings.ToLower(level)]
+
+	if !ok {
+		return false
+	}
+
+	return priority >= minPriority
+}
+
+func (w *LogWatcher) enabled() bool {
+	raw, ok := w.Options["enabled"]
+
+	if !ok {
+		return true
+	}
+
+	switch v := raw.(type) {
+	case bool:
+		return v
+	case map[string]bool:
+		enabled, ok := v["log"]
+
+		return !ok || enabled
+	case map[string]any:
+		enabled, ok := v["log"].(bool)
+
+		return !ok || enabled
+	default:
+		return true
+	}
+}
+
+// Record records a log message entry. context should not contain an
+// "exception" key (those are handled by ExceptionWatcher). The "debugbar"
+// key is stripped from the stored context.
+//
+// level must be one of: debug, info, notice, warning, error, critical, alert, emergency.
+func (w *LogWatcher) Record(level, message string, context map[string]any) {
+	if !w.ShouldRecord(level) {
+		return
+	}
+
+	// Strip exception key — handled by ExceptionWatcher.
+	if _, hasException := context["exception"]; hasException {
+		return
+	}
+
+	// Extract debugbar-specific tags.
+	var tags []string
+
+	if rawTags, ok := context["debugbar"]; ok {
+		switch v := rawTags.(type) {
+		case []string:
+			tags = v
+		case string:
+			tags = []string{v}
+		}
+	}
+
+	// Build stored context: omit the "debugbar" key.
+	stored := make(map[string]any, len(context))
+
+	for k, v := range context {
+		if k != "debugbar" {
+			stored[k] = v
+		}
+	}
+
+	content := map[string]any{
+		"level":   level,
+		"message": interpolate(message, context),
+		"context": stored,
+	}
+
+	entry := debugbar.NewEntry(debugbar.EntryTypeLog, content)
+	entry.AddTags(tags...)
+
+	w.Scope().RecordLog(entry)
+}
+
+// interpolate replaces {placeholder} tokens in message with values from
+func interpolate(message string, context map[string]any) string {
+	if !strings.ContainsRune(message, '{') {
+		return message
+	}
+
+	for k, v := range context {
+		var str string
+
+		switch val := v.(type) {
+		case string:
+			str = val
+		case fmt.Stringer:
+			str = val.String()
+		case []byte:
+			str = string(val)
+		default:
+			str = fmt.Sprintf("%v", val)
+		}
+
+		message = strings.ReplaceAll(message, "{"+k+"}", str)
+	}
+
+	return message
+}
