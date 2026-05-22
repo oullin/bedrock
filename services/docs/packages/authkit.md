@@ -116,7 +116,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authkit/...
 
 Parity is tracked by these tests:
 
-- `packages/authkit/jetstream_inventory_test.go`
+- `packages/authkit/authkit_inventory_test.go`
 
 ## API Reference
 
