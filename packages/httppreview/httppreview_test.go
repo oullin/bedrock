@@ -1,4 +1,4 @@
-package precognition_test
+package httppreview_test
 
 import (
 	"net/http"
