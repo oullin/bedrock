@@ -1,0 +1,14 @@
+{
+  "name": "@bedrock/authkit",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "sh -c 'mkdir -p ../../storage/.turbo/dist/authkit && go build ./... && touch ../../storage/.turbo/dist/authkit/.build-stamp'",
+    "dev": "go test -race ./... -count=1",
+    "test": "go test -race ./...",
+    "test:coverage": "sh -c 'mkdir -p ../../storage/.cache/coverage/go/authkit && go test -race ./... -coverprofile=../../storage/.cache/coverage/go/authkit/coverage.out'",
+    "typecheck": "go test ./... -run '^$'",
+    "fmt": "echo gofmt handled by root go-fmt sweep",
+    "fmt:check": "sh -c 'test -z \"$(gofmt -l .)\"'"
+  }
+}

@@ -17,7 +17,7 @@ Bedrock is a collection of foundational Go packages for building web application
 | `authflows`    | Application fortification (rate limiting, two-factor auth, pipelines) |
 | `horizon`    | Queue monitoring snapshots and metrics                                |
 | `httpx`      | HTTP utilities, middleware, and testing helpers                       |
-| `jetstream`  | Team and organization management                                      |
+| `authkit`  | Team and organization management                                      |
 | `money`      | Monetary values, currencies, formatting, parsing, and exchange        |
 | `pail`       | Log tail parsing and filtering                                        |
 | `queue`      | Background job processing with pluggable drivers                      |

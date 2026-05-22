@@ -1,4 +1,4 @@
-package jetstream
+package authkit
 
 import (
 	"context"
@@ -30,10 +30,10 @@ import (
 // DeleteUserWithTeamsTest::test_user_can_be_deleted
 // InviteTeamMemberTest::test_team_members_can_be_invited
 // InviteTeamMemberTest::test_user_cant_already_be_on_team
-// JetstreamTest::test_roles_can_be_registered
-// JetstreamTest::test_roles_can_be_json_serialized
-// JetstreamTest::test_has_team_feature_will_always_return_false_when_team_is_not_enabled
-// JetstreamTest::test_has_team_feature_can_be_determined_when_team_is_enabled
+// AuthKitTest::test_roles_can_be_registered
+// AuthKitTest::test_roles_can_be_json_serialized
+// AuthKitTest::test_has_team_feature_will_always_return_false_when_team_is_not_enabled
+// AuthKitTest::test_has_team_feature_can_be_determined_when_team_is_enabled
 // RemoveTeamMemberTest::test_team_members_can_be_removed
 // RemoveTeamMemberTest::test_a_team_owner_cant_remove_themselves
 // RemoveTeamMemberTest::test_the_user_must_be_authorized_to_remove_team_members
@@ -468,7 +468,7 @@ func (r *sessionRepo) DeleteOthers(_ context.Context, _ string, _ string) error 
 	return nil
 }
 
-func buildJetstreamApp(t *testing.T, user *testUser, teams *teamRepo, invitations *invitationRepo) (*inception.Inception, *eventRecorder) {
+func buildAuthKitApp(t *testing.T, user *testUser, teams *teamRepo, invitations *invitationRepo) (*inception.Inception, *eventRecorder) {
 	t.Helper()
 
 	if user == nil {
@@ -519,7 +519,7 @@ func buildJetstreamApp(t *testing.T, user *testUser, teams *teamRepo, invitation
 		Build()
 
 	if err != nil {
-		t.Fatalf("build jetstream app: %v", err)
+		t.Fatalf("build authkit app: %v", err)
 	}
 
 	return app, recorder
@@ -532,8 +532,8 @@ func request(method string, target string, body string) (*httptest.ResponseRecor
 	return httptest.NewRecorder(), req
 }
 
-func TestJetstreamRolesAndFeatureFlags(t *testing.T) {
-	app, _ := buildJetstreamApp(t, nil, nil, nil)
+func TestAuthKitRolesAndFeatureFlags(t *testing.T) {
+	app, _ := buildAuthKitApp(t, nil, nil, nil)
 
 	admin := app.Roles().Find("admin")
 
@@ -582,7 +582,7 @@ func TestTeamLifecycleHandlers(t *testing.T) {
 		"updateTeamMember": true,
 	}}
 	teams := newTeamRepo(team)
-	app, events := buildJetstreamApp(t, user, teams, nil)
+	app, events := buildAuthKitApp(t, user, teams, nil)
 
 	mux := http.NewServeMux()
 	mux.Handle("POST /teams", inception.NewCreateTeamHandler(app))
@@ -679,7 +679,7 @@ func TestTeamMembershipAndInvitationHandlers(t *testing.T) {
 	}}
 	teams := newTeamRepo(team)
 	invitations := newInvitationRepo(&inception.TeamInvitation{ID: "invite-1", TeamID: "team-1", Email: "member@example.com", Role: "editor"})
-	app, _ := buildJetstreamApp(t, user, teams, invitations)
+	app, _ := buildAuthKitApp(t, user, teams, invitations)
 
 	mux := http.NewServeMux()
 	mux.Handle("POST /teams/{team}/members", inception.NewAddTeamMemberHandler(app))
@@ -804,7 +804,7 @@ func TestTeamPermissionChecksCanUseCurrentAccessToken(t *testing.T) {
 
 func TestAccountDeletionAndBrowserSessions(t *testing.T) {
 	user := &testUser{id: "1"}
-	app, _ := buildJetstreamApp(t, user, nil, nil)
+	app, _ := buildAuthKitApp(t, user, nil, nil)
 	sessions := &sessionRepo{
 		sessions: []inception.BrowserSession{
 			{ID: "current", IPAddress: "127.0.0.1", UserAgent: "Agent Browser", LastActive: time.Now(), IsCurrent: true},

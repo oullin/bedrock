@@ -1,4 +1,4 @@
-# jetstream
+# authkit
 
 <!-- ref: @bedrock/code-0076 -->
 <!-- ref: @bedrock/code-0163 -->
@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package jetstream holds Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior.
+Package authkit holds AuthKit parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -20,24 +20,24 @@ Package jetstream holds Jetstream parity tests for Bedrock's Inception-backed te
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/jetstream@latest
+go get github.com/bedrock/packages/authkit@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jetstream/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authkit/...
 ```
 
 ## Source Coverage
 
 | Package     | Purpose                                                                                                                               |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `jetstream` | Package jetstream holds Jetstream parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior. |
+| `authkit` | Package authkit holds AuthKit parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior. |
 
 ## Core Concepts
 
-The jetstream reference is organized around the exported Go surface for package `jetstream`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The authkit reference is organized around the exported Go surface for package `authkit`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -62,7 +62,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/jetstream"
+    _ "github.com/bedrock/packages/authkit"
 )
 
 func main() {
@@ -71,7 +71,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/jetstream` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/authkit` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -111,12 +111,12 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jetstream/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authkit/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/jetstream/jetstream_inventory_test.go`
+- `packages/authkit/authkit_inventory_test.go`
 
 ## API Reference
 

@@ -1,4 +1,4 @@
-module github.com/bedrock/packages/jetstream
+module github.com/bedrock/packages/authkit
 
 go 1.26.0
 

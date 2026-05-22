@@ -41,7 +41,7 @@ func buildFullInceptionJS() (*Inception, *testTeamUser, RouteConfig) {
 	return app, user, config
 }
 
-func TestRegisterJetstreamRoutesAllFeatures(t *testing.T) {
+func TestRegisterAuthKitRoutesAllFeatures(t *testing.T) {
 	app, _, config := buildFullInceptionJS()
 
 	mux := http.NewServeMux()
@@ -103,7 +103,7 @@ func TestRegisterJetstreamRoutesAllFeatures(t *testing.T) {
 	}
 }
 
-func TestRegisterJetstreamRoutesMinimalFeatures(t *testing.T) {
+func TestRegisterAuthKitRoutesMinimalFeatures(t *testing.T) {
 	app, _, config := buildFullInceptionJS()
 	app.config.Features = Features{}
 

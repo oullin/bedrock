@@ -9,7 +9,7 @@ import (
 	cauth "github.com/bedrock/packages/contracts/auth"
 )
 
-// --- test doubles (jetstream) ---
+// --- test doubles (authkit) ---
 
 type jsStubGuard struct{}
 

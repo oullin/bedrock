@@ -207,7 +207,7 @@ export default defineUserConfig({
             { text: 'inception', link: '/packages/inception' },
             { text: 'authflows', link: '/packages/authflows' },
             { text: 'inertia', link: '/packages/inertia' },
-            { text: 'jetstream', link: '/packages/jetstream' },
+            { text: 'authkit', link: '/packages/authkit' },
             { text: 'billing', link: '/packages/billing' },
           ],
         },
