@@ -49,7 +49,7 @@ const fallbackState: BillingPortalState = {
   },
 };
 
-const state = ref<BillingPortalState>(window.__SPARK_STATE__ ?? fallbackState);
+const state = ref<BillingPortalState>(window.__BILLING_STATE__ ?? fallbackState);
 const interval = ref(state.value.defaultInterval === "yearly" ? "yearly" : "monthly");
 const busyAction = ref<string | null>(null);
 const checkoutMode = ref<CheckoutMode>(null);
