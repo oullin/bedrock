@@ -1,10 +1,10 @@
-package precognition_test
+package httppreview_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/bedrock/packages/precognition"
+	"github.com/bedrock/packages/httppreview"
 )
 
 // testController is a fake controller for testing the controller dispatcher.
@@ -28,7 +28,7 @@ func (c *testController) Store(name string) string {
 func TestControllerDispatcherResolvesAndAborts(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewControllerDispatcher(nil)
+	d := httppreview.NewControllerDispatcher(nil)
 	ctrl := &testController{}
 
 	defer func() {
@@ -38,7 +38,7 @@ func TestControllerDispatcherResolvesAndAborts(t *testing.T) {
 			t.Fatal("expected SuccessResponse panic from Dispatch")
 		}
 
-		if _, ok := v.(precognition.SuccessResponse); !ok {
+		if _, ok := v.(httppreview.SuccessResponse); !ok {
 			t.Fatalf("expected SuccessResponse, got %T: %v", v, v)
 		}
 	}()
@@ -49,7 +49,7 @@ func TestControllerDispatcherResolvesAndAborts(t *testing.T) {
 func TestControllerDispatcherWithRouteAccessor(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewControllerDispatcher(nil)
+	d := httppreview.NewControllerDispatcher(nil)
 	ctrl := &testController{}
 
 	route := &fakeRoute{
@@ -64,7 +64,7 @@ func TestControllerDispatcherWithRouteAccessor(t *testing.T) {
 			t.Fatal("expected SuccessResponse panic from Dispatch")
 		}
 
-		if _, ok := v.(precognition.SuccessResponse); !ok {
+		if _, ok := v.(httppreview.SuccessResponse); !ok {
 			t.Fatalf("expected SuccessResponse, got %T: %v", v, v)
 		}
 	}()
@@ -75,7 +75,7 @@ func TestControllerDispatcherWithRouteAccessor(t *testing.T) {
 func TestControllerDispatcherEnsureMethodExists(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewControllerDispatcher(nil)
+	d := httppreview.NewControllerDispatcher(nil)
 	ctrl := &testController{}
 
 	defer func() {
@@ -106,7 +106,7 @@ func TestControllerDispatcherEnsureMethodExists(t *testing.T) {
 func TestControllerDispatcherGetMiddleware(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewControllerDispatcher(nil)
+	d := httppreview.NewControllerDispatcher(nil)
 
 	mw := d.GetMiddleware(&testController{}, "Store")
 

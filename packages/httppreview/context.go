@@ -1,4 +1,4 @@
-package precognition
+package httppreview
 
 import (
 	"context"
@@ -14,7 +14,7 @@ var precognitiveKey = contextKey{}
 
 // MarkPrecognitive returns a shallow copy of r with the precognitive context
 // value set. This is called by the middleware after it determines that the
-// request is attempting precognition.
+// request is attempting httppreview.
 func MarkPrecognitive(r *http.Request) *http.Request {
 	ctx := context.WithValue(r.Context(), precognitiveKey, true)
 
@@ -30,9 +30,9 @@ func IsPrecognitive(r *http.Request) bool {
 	return v
 }
 
-// IsAttemptingPrecognition reports whether the request carries a
-// Precognition header with the value "true". This checks the client's intent
+// IsAttemptingHTTPPreview reports whether the request carries a
+// HTTPPreview header with the value "true". This checks the client's intent
 // to make a precognitive request and matches the header exactly.
-func IsAttemptingPrecognition(r *http.Request) bool {
-	return r.Header.Get("Precognition") == "true"
+func IsAttemptingHTTPPreview(r *http.Request) bool {
+	return r.Header.Get("HTTPPreview") == "true"
 }

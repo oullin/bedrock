@@ -1,9 +1,9 @@
-package precognition_test
+package httppreview_test
 
 import (
 	"testing"
 
-	"github.com/bedrock/packages/precognition"
+	"github.com/bedrock/packages/httppreview"
 )
 
 // fakeRoute satisfies the routeAccessor interface used by the dispatchers.
@@ -15,7 +15,7 @@ type fakeRoute struct {
 func TestCallableDispatcherResolvesAndAborts(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewCallableDispatcher(nil)
+	d := httppreview.NewCallableDispatcher(nil)
 	called := false
 
 	callable := func(name string) string {
@@ -31,7 +31,7 @@ func TestCallableDispatcherResolvesAndAborts(t *testing.T) {
 			t.Fatal("expected SuccessResponse panic from Dispatch")
 		}
 
-		if _, ok := v.(precognition.SuccessResponse); !ok {
+		if _, ok := v.(httppreview.SuccessResponse); !ok {
 			t.Fatalf("expected SuccessResponse, got %T: %v", v, v)
 		}
 
@@ -46,7 +46,7 @@ func TestCallableDispatcherResolvesAndAborts(t *testing.T) {
 func TestCallableDispatcherWithRouteAccessor(t *testing.T) {
 	t.Parallel()
 
-	d := precognition.NewCallableDispatcher(nil)
+	d := httppreview.NewCallableDispatcher(nil)
 
 	callable := func(name string) string {
 		return "hello " + name
@@ -64,7 +64,7 @@ func TestCallableDispatcherWithRouteAccessor(t *testing.T) {
 			t.Fatal("expected SuccessResponse panic from Dispatch")
 		}
 
-		if _, ok := v.(precognition.SuccessResponse); !ok {
+		if _, ok := v.(httppreview.SuccessResponse); !ok {
 			t.Fatalf("expected SuccessResponse, got %T: %v", v, v)
 		}
 	}()

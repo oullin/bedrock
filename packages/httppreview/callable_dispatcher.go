@@ -1,4 +1,4 @@
-package precognition
+package httppreview
 
 import (
 	"reflect"
@@ -16,7 +16,7 @@ type CallableDispatcher struct {
 	container routing.DependencyContainer
 }
 
-// NewCallableDispatcher creates a precognition callable dispatcher.
+// NewCallableDispatcher creates a httppreview callable dispatcher.
 
 // Dispatch resolves the callable's parameters (which may trigger form request
 // validation via the container) and then panics with [SuccessResponse] instead

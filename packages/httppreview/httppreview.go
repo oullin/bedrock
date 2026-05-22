@@ -1,4 +1,4 @@
-package precognition
+package httppreview
 
 import "net/http"
 
@@ -12,21 +12,21 @@ type MessageProvider interface {
 // AfterValidationHook returns a closure that should be registered as an "after"
 // validation callback. When called, it checks whether validation produced no
 // errors (messages are empty) AND the request carries a
-// Precognition-Validate-Only header. If both conditions are met it panics with
+// HTTPPreview-Validate-Only header. If both conditions are met it panics with
 // [SuccessResponse] to short-circuit the handler chain. The middleware recovers
 // this panic and writes a 204 response.
 //
-// If validation failed or the request has no Precognition-Validate-Only header,
+// If validation failed or the request has no HTTPPreview-Validate-Only header,
 // the closure is a no-op.
 //
 // Ref: @bedrock/code-0218
 //
-//	hook := precognition.AfterValidationHook(r)
+//	hook := httppreview.AfterValidationHook(r)
 //	// Register as after-validation callback:
 //	hook(validator.Errors())
 func AfterValidationHook(r *http.Request) func(MessageProvider) {
 	return func(messages MessageProvider) {
-		if messages.IsEmpty() && r.Header.Get("Precognition-Validate-Only") != "" {
+		if messages.IsEmpty() && r.Header.Get("HTTPPreview-Validate-Only") != "" {
 			panic(SuccessResponse{})
 		}
 	}

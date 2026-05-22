@@ -95,7 +95,7 @@ export default defineUserConfig({
             { text: 'cookie', link: '/packages/cookie' },
             { text: 'csrf protection', link: '/basics/csrf' },
             { text: 'validation', link: '/packages/validation' },
-            { text: 'precognition', link: '/packages/precognition' },
+            { text: 'httppreview', link: '/packages/httppreview' },
           ],
         },
         {

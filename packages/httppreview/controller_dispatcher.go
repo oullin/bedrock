@@ -1,4 +1,4 @@
-package precognition
+package httppreview
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ type ControllerDispatcher struct {
 	container routing.DependencyContainer
 }
 
-// NewControllerDispatcher creates a precognition controller dispatcher.
+// NewControllerDispatcher creates a httppreview controller dispatcher.
 func NewControllerDispatcher(container routing.DependencyContainer) *ControllerDispatcher {
 	d := &ControllerDispatcher{container: container}
 	d.ResolvesRouteDependencies.Bind(container)
@@ -91,7 +91,7 @@ func (d *ControllerDispatcher) ensureMethodExists(controller any, method string)
 
 	if _, ok := rt.MethodByName(method); !ok {
 		panic(fmt.Sprintf(
-			"precognition: attempting to predict the outcome of the [%s::%s()] method but the method is not defined",
+			"httppreview: attempting to predict the outcome of the [%s::%s()] method but the method is not defined",
 			rt.String(), method,
 		))
 	}

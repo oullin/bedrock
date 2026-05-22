@@ -1,4 +1,4 @@
-module github.com/bedrock/packages/precognition
+module github.com/bedrock/packages/httppreview
 
 go 1.26.0
 

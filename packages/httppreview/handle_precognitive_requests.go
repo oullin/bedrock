@@ -1,4 +1,4 @@
-package precognition
+package httppreview
 
 import (
 	"net/http"
@@ -10,8 +10,8 @@ import (
 
 // HandlePrecognitiveRequests is middleware that intercepts precognitive HTTP
 // requests. It marks the request as precognitive, swaps route dispatchers to
-// precognition versions (when a container is provided), and manages the
-// Precognition and Vary response headers.
+// httppreview versions (when a container is provided), and manages the
+// HTTPPreview and Vary response headers.
 //
 // Ref: @bedrock/code-0217
 type HandlePrecognitiveRequests struct {
@@ -34,18 +34,18 @@ func New(c ...*container.Container) *HandlePrecognitiveRequests {
 // Wrap returns an http.Handler that handles precognitive requests.
 func (m *HandlePrecognitiveRequests) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !IsAttemptingPrecognition(r) {
+		if !IsAttemptingHTTPPreview(r) {
 			next.ServeHTTP(w, r)
 			appendVaryHeader(w)
 
 			return
 		}
 
-		// Save original dispatchers and swap to precognition versions.
+		// Save original dispatchers and swap to httppreview versions.
 		var restoreDispatchers func()
 
 		if m.container != nil {
-			restoreDispatchers = m.prepareForPrecognition(r)
+			restoreDispatchers = m.prepareForHTTPPreview(r)
 		}
 
 		r = MarkPrecognitive(r)
@@ -60,7 +60,7 @@ func (m *HandlePrecognitiveRequests) Wrap(next http.Handler) http.Handler {
 					if _, ok := v.(SuccessResponse); ok {
 						panicked = false
 						WriteSuccessResponse(w)
-						AddPrecognitionHeader(w)
+						AddHTTPPreviewHeader(w)
 						appendVaryHeader(w)
 
 						return
@@ -85,10 +85,10 @@ func (m *HandlePrecognitiveRequests) Wrap(next http.Handler) http.Handler {
 		}
 
 		// If the handler completed without a SuccessResponse panic, forward
-		// the captured response with precognition headers injected.
+		// the captured response with httppreview headers injected.
 		if rec.Code != 0 {
 			copyHeaders(w, rec)
-			AddPrecognitionHeader(w)
+			AddHTTPPreviewHeader(w)
 			appendVaryHeader(w)
 			w.WriteHeader(rec.Code)
 			w.Write(rec.Body.Bytes())
@@ -96,16 +96,16 @@ func (m *HandlePrecognitiveRequests) Wrap(next http.Handler) http.Handler {
 	})
 }
 
-// prepareForPrecognition swaps the route dispatchers in the container to
-// precognition versions and returns a function that restores the originals.
-func (m *HandlePrecognitiveRequests) prepareForPrecognition(r *http.Request) func() {
+// prepareForHTTPPreview swaps the route dispatchers in the container to
+// httppreview versions and returns a function that restores the originals.
+func (m *HandlePrecognitiveRequests) prepareForHTTPPreview(r *http.Request) func() {
 	c := m.container
 
 	// Save originals.
 	origCallable, _ := c.Make("routing.callable_dispatcher")
 	origController, _ := c.Make("routing.controller_dispatcher")
 
-	// Swap to precognition dispatchers.
+	// Swap to httppreview dispatchers.
 	c.Instance("routing.callable_dispatcher", NewCallableDispatcher(nil))
 	c.Instance("routing.controller_dispatcher", NewControllerDispatcher(nil))
 
@@ -120,7 +120,7 @@ func (m *HandlePrecognitiveRequests) prepareForPrecognition(r *http.Request) fun
 	}
 }
 
-// appendVaryHeader adds "Precognition" to the Vary header. This is called for
+// appendVaryHeader adds "HTTPPreview" to the Vary header. This is called for
 // both precognitive and non-precognitive responses, so the Vary header is
 // always set.
 func appendVaryHeader(w http.ResponseWriter) {

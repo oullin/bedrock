@@ -1,4 +1,4 @@
-# precognition
+# httppreview
 
 <!-- ref: @bedrock/code-0128 -->
 <!-- ref: @bedrock/code-0127 -->
@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package precognition provides middleware and utilities for handling precognitive HTTP requests in bedrock.
+Package httppreview provides middleware and utilities for handling precognitive HTTP requests in bedrock.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -20,31 +20,31 @@ Package precognition provides middleware and utilities for handling precognitive
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/precognition@latest
+go get github.com/bedrock/packages/httppreview@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/httppreview/...
 ```
 
 ## Source Coverage
 
 | Package        | Purpose                                                                                                    |
 | -------------- | ---------------------------------------------------------------------------------------------------------- |
-| `precognition` | Package precognition provides middleware and utilities for handling precognitive HTTP requests in bedrock. |
+| `httppreview` | Package httppreview provides middleware and utilities for handling precognitive HTTP requests in bedrock. |
 
 ## Core Concepts
 
-The precognition reference is organized around the exported Go surface for package `precognition`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The httppreview reference is organized around the exported Go surface for package `httppreview`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
 | Surface                    | Exported API                                                                                                                                                                                                                                              |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Types                      | `CallableDispatcher`, `ControllerDispatcher`, `HandlePrecognitiveRequests`, `MessageProvider`, `SuccessResponse`                                                                                                                                          |
-| Constructors and functions | `AddPrecognitionHeader`, `AddVaryHeader`, `AfterValidationHook`, `Dispatch`, `GetMiddleware`, `IsAttemptingPrecognition`, `IsPrecognitive`, `MarkPrecognitive`, `New`, `NewCallableDispatcher`, `NewControllerDispatcher`, `Wrap`, `WriteSuccessResponse` |
+| Constructors and functions | `AddHTTPPreviewHeader`, `AddVaryHeader`, `AfterValidationHook`, `Dispatch`, `GetMiddleware`, `IsAttemptingHTTPPreview`, `IsPrecognitive`, `MarkPrecognitive`, `New`, `NewCallableDispatcher`, `NewControllerDispatcher`, `Wrap`, `WriteSuccessResponse` |
 | Variables                  | None exported from this package root.                                                                                                                                                                                                                     |
 | Constants                  | None exported from this package root.                                                                                                                                                                                                                     |
 
@@ -62,7 +62,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/precognition"
+    _ "github.com/bedrock/packages/httppreview"
 )
 
 func main() {
@@ -71,7 +71,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/precognition` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/httppreview` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -111,12 +111,12 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/httppreview/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/precognition/inventory_parity_test.go`
+- `packages/httppreview/inventory_parity_test.go`
 
 ## API Reference
 
@@ -134,12 +134,12 @@ Parity is tracked by these tests:
 
 | Function                   | Notes                                                                              |
 | -------------------------- | ---------------------------------------------------------------------------------- |
-| `AddPrecognitionHeader`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddHTTPPreviewHeader`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `AddVaryHeader`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `AfterValidationHook`      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Dispatch`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `GetMiddleware`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsAttemptingPrecognition` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsAttemptingHTTPPreview` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `IsPrecognitive`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `MarkPrecognitive`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `New`                      | Source-backed public surface. See the Go package for exact signature and behavior. |

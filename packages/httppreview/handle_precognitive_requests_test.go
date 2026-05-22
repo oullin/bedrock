@@ -1,4 +1,4 @@
-package precognition_test
+package httppreview_test
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/bedrock/packages/container"
-	"github.com/bedrock/packages/precognition"
+	"github.com/bedrock/packages/httppreview"
 	"github.com/bedrock/packages/routing"
 )
 
@@ -24,7 +24,7 @@ func TestNonPrecognitivePassesThrough(t *testing.T) {
 		w.Write([]byte("ok"))
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
 
@@ -50,7 +50,7 @@ func TestNonPrecognitiveGetsVaryHeader(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
 
@@ -58,8 +58,8 @@ func TestNonPrecognitiveGetsVaryHeader(t *testing.T) {
 
 	vary := rec.Header().Get("Vary")
 
-	if vary != "Precognition" {
-		t.Fatalf("expected Vary: Precognition, got %q", vary)
+	if vary != "HTTPPreview" {
+		t.Fatalf("expected Vary: HTTPPreview, got %q", vary)
 	}
 }
 
@@ -68,14 +68,14 @@ func TestPrecognitiveMarksContext(t *testing.T) {
 
 	var isPrecognitive bool
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isPrecognitive = precognition.IsPrecognitive(r)
+		isPrecognitive = httppreview.IsPrecognitive(r)
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -84,22 +84,22 @@ func TestPrecognitiveMarksContext(t *testing.T) {
 	}
 }
 
-func TestPrecognitiveAddsPrecognitionResponseHeader(t *testing.T) {
+func TestPrecognitiveAddsHTTPPreviewResponseHeader(t *testing.T) {
 	t.Parallel()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
-	if got := rec.Header().Get("Precognition"); got != "true" {
-		t.Fatalf("expected Precognition: true response header, got %q", got)
+	if got := rec.Header().Get("HTTPPreview"); got != "true" {
+		t.Fatalf("expected HTTPPreview: true response header, got %q", got)
 	}
 }
 
@@ -110,10 +110,10 @@ func TestPrecognitiveAddsVaryHeader(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -121,7 +121,7 @@ func TestPrecognitiveAddsVaryHeader(t *testing.T) {
 	found := false
 
 	for _, v := range values {
-		if v == "Precognition" {
+		if v == "HTTPPreview" {
 			found = true
 
 			break
@@ -129,7 +129,7 @@ func TestPrecognitiveAddsVaryHeader(t *testing.T) {
 	}
 
 	if !found {
-		t.Fatalf("expected Vary header to contain Precognition, got %v", values)
+		t.Fatalf("expected Vary header to contain HTTPPreview, got %v", values)
 	}
 }
 
@@ -139,16 +139,16 @@ func TestPrecognitiveWithValidationSuccess(t *testing.T) {
 	t.Parallel()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hook := precognition.AfterValidationHook(r)
+		hook := httppreview.AfterValidationHook(r)
 		hook(emptyBag{})
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
-	r.Header.Set("Precognition-Validate-Only", "name,email")
+	r.Header.Set("HTTPPreview", "true")
+	r.Header.Set("HTTPPreview-Validate-Only", "name,email")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -156,12 +156,12 @@ func TestPrecognitiveWithValidationSuccess(t *testing.T) {
 		t.Fatalf("expected status 204, got %d", rec.Code)
 	}
 
-	if got := rec.Header().Get("Precognition-Success"); got != "true" {
-		t.Fatalf("expected Precognition-Success: true, got %q", got)
+	if got := rec.Header().Get("HTTPPreview-Success"); got != "true" {
+		t.Fatalf("expected HTTPPreview-Success: true, got %q", got)
 	}
 
-	if got := rec.Header().Get("Precognition"); got != "true" {
-		t.Fatalf("expected Precognition: true, got %q", got)
+	if got := rec.Header().Get("HTTPPreview"); got != "true" {
+		t.Fatalf("expected HTTPPreview: true, got %q", got)
 	}
 }
 
@@ -179,11 +179,11 @@ func TestPrecognitiveWithValidationFailure(t *testing.T) {
 		})
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
-	r.Header.Set("Precognition-Validate-Only", "name")
+	r.Header.Set("HTTPPreview", "true")
+	r.Header.Set("HTTPPreview-Validate-Only", "name")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -191,8 +191,8 @@ func TestPrecognitiveWithValidationFailure(t *testing.T) {
 		t.Fatalf("expected status 422, got %d", rec.Code)
 	}
 
-	if got := rec.Header().Get("Precognition"); got != "true" {
-		t.Fatalf("expected Precognition: true on error response, got %q", got)
+	if got := rec.Header().Get("HTTPPreview"); got != "true" {
+		t.Fatalf("expected HTTPPreview: true on error response, got %q", got)
 	}
 
 	var body map[string]any
@@ -211,18 +211,18 @@ func TestPrecognitiveHandlerNotExecuted(t *testing.T) {
 
 	handlerExecuted := false
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hook := precognition.AfterValidationHook(r)
+		hook := httppreview.AfterValidationHook(r)
 		hook(emptyBag{})
 
 		handlerExecuted = true
 		w.WriteHeader(http.StatusCreated)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
-	r.Header.Set("Precognition-Validate-Only", "name")
+	r.Header.Set("HTTPPreview", "true")
+	r.Header.Set("HTTPPreview-Validate-Only", "name")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -235,17 +235,17 @@ func TestPrecognitiveHandlerNotExecuted(t *testing.T) {
 	}
 }
 
-func TestRecoversPrecognitionSuccessPanic(t *testing.T) {
+func TestRecoversHTTPPreviewSuccessPanic(t *testing.T) {
 	t.Parallel()
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		panic(precognition.SuccessResponse{})
+		panic(httppreview.SuccessResponse{})
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 
@@ -253,8 +253,8 @@ func TestRecoversPrecognitionSuccessPanic(t *testing.T) {
 		t.Fatalf("expected status 204, got %d", rec.Code)
 	}
 
-	if got := rec.Header().Get("Precognition-Success"); got != "true" {
-		t.Fatalf("expected Precognition-Success: true, got %q", got)
+	if got := rec.Header().Get("HTTPPreview-Success"); got != "true" {
+		t.Fatalf("expected HTTPPreview-Success: true, got %q", got)
 	}
 }
 
@@ -265,10 +265,10 @@ func TestUnexpectedPanicIsNotSwallowed(t *testing.T) {
 		panic("unexpected error")
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	defer func() {
 		v := recover()
@@ -293,7 +293,7 @@ func TestVaryHeaderWithExistingValues(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New()
+	mw := httppreview.New()
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -301,15 +301,15 @@ func TestVaryHeaderWithExistingValues(t *testing.T) {
 
 	values := rec.Header().Values("Vary")
 	hasEncoding := false
-	hasPrecognition := false
+	hasHTTPPreview := false
 
 	for _, v := range values {
 		if v == "Accept-Encoding" {
 			hasEncoding = true
 		}
 
-		if v == "Precognition" {
-			hasPrecognition = true
+		if v == "HTTPPreview" {
+			hasHTTPPreview = true
 		}
 	}
 
@@ -317,8 +317,8 @@ func TestVaryHeaderWithExistingValues(t *testing.T) {
 		t.Fatal("expected Vary to contain Accept-Encoding")
 	}
 
-	if !hasPrecognition {
-		t.Fatal("expected Vary to contain Precognition")
+	if !hasHTTPPreview {
+		t.Fatal("expected Vary to contain HTTPPreview")
 	}
 }
 
@@ -335,23 +335,23 @@ func TestDispatcherSwapping(t *testing.T) {
 		// Verify dispatchers were swapped.
 		cd, _ := c.Make("routing.callable_dispatcher")
 
-		if _, ok := cd.(*precognition.CallableDispatcher); !ok {
-			t.Errorf("expected CallableDispatcher to be swapped to precognition version, got %T", cd)
+		if _, ok := cd.(*httppreview.CallableDispatcher); !ok {
+			t.Errorf("expected CallableDispatcher to be swapped to httppreview version, got %T", cd)
 		}
 
 		ctd, _ := c.Make("routing.controller_dispatcher")
 
-		if _, ok := ctd.(*precognition.ControllerDispatcher); !ok {
-			t.Errorf("expected ControllerDispatcher to be swapped to precognition version, got %T", ctd)
+		if _, ok := ctd.(*httppreview.ControllerDispatcher); !ok {
+			t.Errorf("expected ControllerDispatcher to be swapped to httppreview version, got %T", ctd)
 		}
 
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mw := precognition.New(c)
+	mw := httppreview.New(c)
 	rec := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/users", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
 	mw.Wrap(handler).ServeHTTP(rec, r)
 

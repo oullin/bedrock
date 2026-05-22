@@ -1,20 +1,20 @@
-package precognition_test
+package httppreview_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bedrock/packages/precognition"
+	"github.com/bedrock/packages/httppreview"
 )
 
 func TestMarkPrecognitive(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
-	r = precognition.MarkPrecognitive(r)
+	r = httppreview.MarkPrecognitive(r)
 
-	if !precognition.IsPrecognitive(r) {
+	if !httppreview.IsPrecognitive(r) {
 		t.Fatal("expected IsPrecognitive to return true after MarkPrecognitive")
 	}
 }
@@ -23,9 +23,9 @@ func TestIsPrecognitiveFromContext(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
-	r = precognition.MarkPrecognitive(r)
+	r = httppreview.MarkPrecognitive(r)
 
-	if !precognition.IsPrecognitive(r) {
+	if !httppreview.IsPrecognitive(r) {
 		t.Fatal("expected IsPrecognitive to return true")
 	}
 }
@@ -35,7 +35,7 @@ func TestIsPrecognitiveWithoutContext(t *testing.T) {
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 
-	if precognition.IsPrecognitive(r) {
+	if httppreview.IsPrecognitive(r) {
 		t.Fatal("expected IsPrecognitive to return false without context")
 	}
 }
@@ -44,35 +44,35 @@ func TestIsPrecognitiveIgnoresHeader(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
-	if precognition.IsPrecognitive(r) {
+	if httppreview.IsPrecognitive(r) {
 		t.Fatal("IsPrecognitive should not check the header, only the context")
 	}
 }
 
-func TestIsAttemptingPrecognition(t *testing.T) {
+func TestIsAttemptingHTTPPreview(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
-	r.Header.Set("Precognition", "true")
+	r.Header.Set("HTTPPreview", "true")
 
-	if !precognition.IsAttemptingPrecognition(r) {
-		t.Fatal("expected IsAttemptingPrecognition to return true")
+	if !httppreview.IsAttemptingHTTPPreview(r) {
+		t.Fatal("expected IsAttemptingHTTPPreview to return true")
 	}
 }
 
-func TestIsAttemptingPrecognitionWithoutHeader(t *testing.T) {
+func TestIsAttemptingHTTPPreviewWithoutHeader(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 
-	if precognition.IsAttemptingPrecognition(r) {
-		t.Fatal("expected IsAttemptingPrecognition to return false without header")
+	if httppreview.IsAttemptingHTTPPreview(r) {
+		t.Fatal("expected IsAttemptingHTTPPreview to return false without header")
 	}
 }
 
-func TestIsAttemptingPrecognitionRequiresExactTrue(t *testing.T) {
+func TestIsAttemptingHTTPPreviewRequiresExactTrue(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -93,13 +93,13 @@ func TestIsAttemptingPrecognitionRequiresExactTrue(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, "/", nil)
 
 		if tt.value != "" {
-			r.Header.Set("Precognition", tt.value)
+			r.Header.Set("HTTPPreview", tt.value)
 		}
 
-		got := precognition.IsAttemptingPrecognition(r)
+		got := httppreview.IsAttemptingHTTPPreview(r)
 
 		if got != tt.want {
-			t.Errorf("IsAttemptingPrecognition(%q) = %v, want %v", tt.value, got, tt.want)
+			t.Errorf("IsAttemptingHTTPPreview(%q) = %v, want %v", tt.value, got, tt.want)
 		}
 	}
 }
