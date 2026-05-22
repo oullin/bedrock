@@ -50,14 +50,14 @@ type FailedJobProvider interface {
 	Flush(hours int) error
 }
 
-// Countable is the Go port of CountableFailedJobProvider. Providers that
+// Providers that
 // support efficient counting implement this optional interface.
 // A nil or empty string acts as "any" for the corresponding dimension.
 type Countable interface {
 	Count(connection, queueFilter string) (int64, error)
 }
 
-// Prunable is the Go port of PrunableFailedJobProvider. Implementations
+// Implementations
 // return the number of rows removed.
 type Prunable interface {
 	Prune(before time.Time) (int64, error)

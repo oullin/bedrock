@@ -10,7 +10,7 @@ import (
 // the upstream GateWatcher.
 
 // GateWatcher monitors authorization gate checks and records them as Telescope
-// entries. It mirrors the the underlying behavior class.
+// entries.
 //
 // Options:
 //   - "ignore_abilities" ([]string): gate ability names to skip.

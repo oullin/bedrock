@@ -8,7 +8,7 @@ import (
 )
 
 // SkillWriter writes Skill definitions as SKILL.md files into the agent's skills
-// directory. Mirrors the underlying behavior.
+// directory.
 type SkillWriter struct{}
 
 // SupportsSkillsPath is the minimal interface required by SkillWriter.

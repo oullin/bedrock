@@ -21,7 +21,7 @@ type RedirectResponse struct {
 // In real use the bedrock httpx layer drives the actual HTTP write — the
 // Send call here is a parity shim.
 
-// SessionStore is the minimum session surface Redirector touches. Mirrors
+// SessionStore is the minimum session surface Redirector touches.
 // httpx.SessionStore narrowly.
 type SessionStore interface {
 	Flash(key string, value any)

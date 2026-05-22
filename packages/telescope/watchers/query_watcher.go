@@ -13,7 +13,7 @@ import (
 // milliseconds
 
 // QueryWatcher monitors database query execution and records entries with SQL,
-// bindings, execution time, and slow-query tagging. It mirrors the upstream // QueryWatcher class.
+// bindings, execution time, and slow-query tagging.
 //
 // Options:
 //   - "slow" (float64): threshold in milliseconds above which a query is

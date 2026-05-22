@@ -11,7 +11,7 @@ import (
 // WorkerOptions configures the Worker processing loop.
 type WorkerOptions struct {
 	// Name identifies this worker in the WorkerStarting/WorkerStopping
-	// events. Mirrors the upstream --name flag.
+	// events.
 	Name string
 	// Sleep is how long to sleep when the queue is empty.
 	Sleep time.Duration
@@ -23,13 +23,13 @@ type WorkerOptions struct {
 	StopOnEmpty bool
 	// MemoryLimitMiB is the RSS cap the worker self-enforces by polling
 	// runtime.MemStats.Sys between iterations. A value of 0 disables
-	// the cap. Mirrors the upstream --memory flag.
+	// the cap.
 	MemoryLimitMiB int64
 	// Backoff is the default per-attempt delay used when a released job
-	// has no Backoff() of its own. Mirrors the upstream --backoff flag.
+	// has no Backoff() of its own.
 	Backoff time.Duration
 	// MaxTries is the default attempt cap used when a job's own
-	// MaxTries() returns 0. Mirrors the upstream --tries flag.
+	// MaxTries() returns 0.
 	MaxTries int
 }
 
@@ -92,12 +92,12 @@ type Worker struct {
 	ExceptionReporter ExceptionReporter
 	// ReportJobExceptions gates the reporter. Default is true; set
 	// false to suppress reporter calls without suppressing the
-	// JobExceptionOccurred event emission. Mirrors the the underlying behavior
+	// JobExceptionOccurred event emission.
 	// Worker::$reportJobExceptions flag.
 	ReportJobExceptions bool
 	// MaintenanceMode, if non-nil, is called by the Run loop before
 	// each iteration. When it returns true, the worker sleeps for
-	// opts.Sleep and skips the pop. Mirrors the the underlying behavior() call
+	// opts. Sleep and skips the pop.
 	// into $this->manager->isDownForMaintenance().
 	MaintenanceMode func() bool
 	// lastStopReason captures the reason the most recent Run call
@@ -125,11 +125,11 @@ type Worker struct {
 
 // LastStopReason returns the reason the most recent Run call exited,
 // or WorkerStopReasonNone if Run has not yet been called or exited
-// via a context cancellation. Mirrors the the underlying behavior() return value.
+// via a context cancellation.
 
 // parseQueueNames splits a comma-separated queue string into its
 // individual names. Empty segments are dropped. A single-queue string
-// returns a single-element slice. Mirrors the the underlying behavior() split.
+// returns a single-element slice.
 
 // splitComma is a tiny helper that avoids pulling strings.Split into
 // this file solely for a one-shot split. Keeps the worker self-contained.
@@ -144,7 +144,7 @@ type Worker struct {
 // the next only when the higher-priority bucket is empty.
 
 // reportPopError dispatches an exception reporter call for a pop-time
-// error when reporting is enabled. Mirrors the upstream // testExceptionIsReportedIfConnectionThrowsExceptionOnJobPop path.
+// error when reporting is enabled.
 
 // MemoryExceeded reports whether the worker's resident memory footprint
 // in MiB has met or exceeded memoryLimitMiB. A zero or negative limit is
@@ -184,7 +184,7 @@ type Worker struct {
 // processJob runs the full lifecycle of a popped job:
 //
 //   - If the job was already deleted before the worker saw it, emit
-// JobProcessed and return (skip Fire). Mirrors the upstream // "don't fire a deleted job" branch.
+// JobProcessed and return (skip Fire).
 //   - Pre-fire exhaustion check: if attempts already exceeds the
 //     effective max-tries OR retry-until has expired, fail with a
 //     MaxAttemptsExceededError without calling the handler.

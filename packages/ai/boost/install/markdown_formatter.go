@@ -1,5 +1,5 @@
 // Package install provides utilities for writing agent config files (MCP JSON,
-// guideline Markdown, and skills) to disk. Mirrors the the underlying behavior
+// guideline Markdown, and skills) to disk.
 // namespace.
 package install
 
@@ -12,7 +12,7 @@ import (
 // Uses [\s\S]*? so it handles both non-empty and empty (---\n---\n) blocks.
 
 // MarkdownFormatter applies lightweight formatting transformations to Markdown
-// content. Mirrors the underlying behavior.
+// content.
 type MarkdownFormatter struct{}
 
 var frontmatterRe = regexp.MustCompile(`(?s)^---\n[\s\S]*?---\n?`)

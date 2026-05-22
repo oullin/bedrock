@@ -3,7 +3,7 @@ package pennant
 import "github.com/bedrock/packages/container"
 
 // PennantServiceProvider registers the pennant Manager as a singleton in the
-// container. It mirrors the pattern of CacheServiceProvider.
+// container.
 type PennantServiceProvider struct {
 	app           *container.Container
 	defaultDriver string

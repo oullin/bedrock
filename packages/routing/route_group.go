@@ -2,7 +2,7 @@ package routing
 
 import "strings"
 
-// RouteGroup mirrors the PHP class of the same name. It holds no state — its
+// It holds no state — its
 // public surface is the static [RouteGroup.Merge] helper that the router uses
 // when nesting [Router.Group] calls.
 type RouteGroup struct{}

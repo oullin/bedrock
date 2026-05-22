@@ -20,7 +20,7 @@ import (
 )
 
 // AnonymousAgent is a configurable, ad-hoc AI agent that is not bound to a
-// named struct type. It mirrors the underlying behavior.
+// named struct type.
 type AnonymousAgent struct {
 	manager      *Manager
 	instructions string

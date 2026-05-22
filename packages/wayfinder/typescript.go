@@ -26,7 +26,7 @@ var reservedKeywords = map[string]struct{}{
 var nonIdentRe = regexp.MustCompile(`[^\p{L}\p{Nd}_$-]`)
 
 // SafeMethod sanitizes a raw method name so it is safe to use as a TypeScript
-// identifier. Mirrors TypeScript::safeMethod() from the PHP implementation.
+// identifier.
 //
 // suffix is "Method" or "Param". It is appended (lowercased + ucfirst) when
 // the name is a reserved keyword, or prepended (lowercased) when the name
@@ -112,7 +112,7 @@ var (
 )
 
 // CleanUp normalises the whitespace and indentation of a generated TypeScript
-// file. It is the Go equivalent of TypeScript::cleanUp() in the PHP code.
+// file.
 func CleanUp(src string) string {
 	// --- simple string replacements (order matters) ---
 	replacements := [][2]string{

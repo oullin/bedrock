@@ -1,4 +1,4 @@
-// Package credentials is the Go port of 13.8.0's named AWS
+// 8. 0's named AWS
 // credential providers for the SQS queue driver. Instead of relying on
 // whatever ambient credentials the process happens to inherit, callers
 // register a set of named providers (a profile, an SSO session, an EC2

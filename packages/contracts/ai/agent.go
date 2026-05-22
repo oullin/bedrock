@@ -1,5 +1,5 @@
 // Package ai defines the core contracts for the bedrock AI package.
-// It mirrors the interface surface (0.x branch) adapted to Go.
+// x branch) adapted to Go.
 package ai
 
 import (

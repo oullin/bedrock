@@ -1,7 +1,7 @@
 package spark
 
 // SubscriptionBuilder provides a fluent API for constructing subscription
-// checkout parameters. Mirrors the underlying behavior.
+// checkout parameters.
 type SubscriptionBuilder struct {
 	billable         Billable
 	priceID          string

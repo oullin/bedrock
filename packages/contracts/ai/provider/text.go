@@ -22,7 +22,7 @@ type TextPromptRequest struct {
 	Timeout      int
 }
 
-// TextPromptResult mirrors gateway.TextGenerateResult for the provider layer.
+// TextGenerateResult for the provider layer.
 type TextPromptResult struct {
 	InvocationID string
 	Text         string

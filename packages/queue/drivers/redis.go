@@ -84,7 +84,7 @@ type RedisDriver struct {
 // cluster. The result is cached after the first call.
 
 // getQueue returns the plain `queues:<name>` key, unchanged regardless of
-// cluster mode. Mirrors `RedisQueue::getQueue()`.
+// cluster mode.
 
 // getRedisKey returns the cluster-safe Redis key for a queue. On a cluster
 // connection the queue name is wrapped in `{...}` so all keys for the same

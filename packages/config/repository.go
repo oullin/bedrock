@@ -131,7 +131,7 @@ func (r *Repository) SetMany(values map[string]any) {
 	}
 }
 
-// Unset marks a key as explicitly present with a nil value. This mirrors
+// Unset marks a key as explicitly present with a nil value.
 // the upstream repository offset unset behavior while preserving Go's explicit
 // method surface.
 func (r *Repository) Unset(key string) {

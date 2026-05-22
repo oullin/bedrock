@@ -6,7 +6,7 @@ import (
 )
 
 // FormatAmount formats a minor-unit amount as a human-readable currency
-// string. Mirrors the underlying behavior.
+// string.
 func FormatAmount(amount int64, currency string) string {
 	major := amount / 100
 	minor := amount % 100

@@ -45,7 +45,7 @@ type DBRow interface {
 	Scan(dest ...any) error
 }
 
-// DBRows iterates the result of a multi-row query. It mirrors the
+// DBRows iterates the result of a multi-row query.
 // shape of database/sql.Rows at the interface level: call Next to
 // advance, Scan to read into destinations, Close when done. Err
 // reports any error that terminated iteration. Callers must call
@@ -335,7 +335,7 @@ func (d *DatabaseDriver) QueueNames(ctx context.Context) ([]string, error) {
 }
 
 // PendingJobs returns the pending (unreserved, ready-to-run) rows for
-// queueName. Go port of DatabaseQueue::pendingJobs — selects
+// queueName.
 // rows where reserved_at IS NULL AND available_at <= now.
 func (d *DatabaseDriver) PendingJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
 	return d.fetchInspected(ctx,
@@ -345,7 +345,7 @@ func (d *DatabaseDriver) PendingJobs(ctx context.Context, queueName string) ([]I
 }
 
 // DelayedJobs returns the delayed (unreserved, not-yet-available) rows
-// for queueName. Go port of DatabaseQueue::delayedJobs.
+// for queueName.
 func (d *DatabaseDriver) DelayedJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
 	return d.fetchInspected(ctx,
 		fmt.Sprintf("SELECT id, queue, payload, attempts, reserved_at FROM %s WHERE queue=$1 AND reserved_at IS NULL AND available_at>$2", d.table),
@@ -354,7 +354,7 @@ func (d *DatabaseDriver) DelayedJobs(ctx context.Context, queueName string) ([]I
 }
 
 // ReservedJobs returns the currently-reserved (in-flight) rows for
-// queueName. Go port of DatabaseQueue::reservedJobs.
+// queueName.
 func (d *DatabaseDriver) ReservedJobs(ctx context.Context, queueName string) ([]InspectedJob, error) {
 	return d.fetchInspected(ctx,
 		fmt.Sprintf("SELECT id, queue, payload, attempts, reserved_at FROM %s WHERE queue=$1 AND reserved_at IS NOT NULL", d.table),

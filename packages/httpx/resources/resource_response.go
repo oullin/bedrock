@@ -42,7 +42,7 @@ type PaginatedResponse[T any] struct {
 
 // ResourceResponse wraps a Resource and provides response-level features such
 // as automatic 201 status for recently created resources, custom headers, and
-// a response callback. This mirrors the the underlying behavior class.
+// a response callback.
 type ResourceResponse struct {
 	resource         Resource
 	recentlyCreated  bool

@@ -31,8 +31,8 @@ type BeanstalkdTubeLister interface {
 }
 
 // BeanstalkdPeeker is the optional capability that lets the driver
-// snapshot jobs without reserving them. PeekReady mirrors
-// "peek-ready"; PeekDelayed mirrors "peek-delayed". Beanstalkd does
+// snapshot jobs without reserving them.
+// Beanstalkd does
 // not expose a way to enumerate every reserved job, so ReservedJobs
 // surfaces ErrNotSupported regardless of whether this interface is
 // satisfied.
@@ -79,7 +79,7 @@ func (d *BeanstalkdDriver) SetBlockFor(blockFor time.Duration) *BeanstalkdDriver
 }
 
 // SetDefaultTube configures the tube used when a caller passes an empty
-// queue name to Push, PushDelayed, or Pop. Mirrors the upstream $default
+// queue name to Push, PushDelayed, or Pop.
 // BeanstalkdQueue constructor argument.
 func (d *BeanstalkdDriver) SetDefaultTube(tube string) *BeanstalkdDriver {
 	d.defaultTube = tube

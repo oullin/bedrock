@@ -7,7 +7,7 @@ import (
 // ignoredCommands lists CLI commands that should not be recorded by default,
 
 // CommandWatcher monitors CLI command execution and records entries as
-// Telescope entries. It mirrors the the underlying behavior class.
+// Telescope entries.
 //
 // Options:
 //   - "ignore" ([]string): additional command names to skip.

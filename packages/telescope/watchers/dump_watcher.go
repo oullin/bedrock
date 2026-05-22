@@ -7,7 +7,7 @@ import (
 )
 
 // DumpWatcher monitors debug dump() calls and records them as Telescope
-// entries. It mirrors the the underlying behavior class.
+// entries.
 type DumpWatcher struct {
 	telescope.BaseWatcher
 }

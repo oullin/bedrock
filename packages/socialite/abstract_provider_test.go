@@ -19,12 +19,12 @@ type testSession struct {
 	data map[string]any
 }
 
-// oauthTwoTestProvider is the Go equivalent of OAuthTwoTestProviderStub.php.
+// php.
 type oauthTwoTestProvider struct {
 	socialite.AbstractProvider
 }
 
-// oauthTwoWithPKCETestProvider mirrors OAuthTwoWithPKCETestProviderStub.php.
+// php.
 type oauthTwoWithPKCETestProvider struct {
 	socialite.AbstractProvider
 }

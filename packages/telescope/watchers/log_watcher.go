@@ -12,7 +12,7 @@ import (
 // the Monolog level constants used by the upstream LogWatcher.
 
 // LogWatcher monitors application log messages and records them as Telescope
-// entries. It mirrors the the underlying behavior class.
+// entries.
 //
 // Options:
 //   - "level" (string): minimum log level to record (default "debug").

@@ -30,7 +30,7 @@ type Token struct {
 }
 
 // CompiledRoute is the result of compiling a route URI (and optionally a host
-// pattern). It mirrors Symfony\Component\Routing\CompiledRoute.
+// pattern).
 type CompiledRoute struct {
 	staticPrefix  string
 	regex         string

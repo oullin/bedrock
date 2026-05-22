@@ -6,7 +6,7 @@ import (
 )
 
 // WordWrap wraps text to the given width, respecting ANSI escape sequences
-// (they don't count toward the visible width). Mirrors Prompts // AnsiWordwrap.
+// (they don't count toward the visible width).
 func WordWrap(text string, width int) string {
 	if width <= 0 {
 		return text

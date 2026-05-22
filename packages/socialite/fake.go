@@ -21,7 +21,7 @@ func newFakeProvider(driver string, real Provider, user *User, fn func() *User) 
 }
 
 // Redirect returns a deterministic fake authorization URL of the form
-// "https://socialite.fake/{driver}/authorize". It mirrors FakeProvider::redirect().
+// "https://socialite. fake/{driver}/authorize".
 func (f *FakeProvider) Redirect(_ context.Context) (string, error) {
 	return fmt.Sprintf("https://socialite.fake/%s/authorize", f.driver), nil
 }

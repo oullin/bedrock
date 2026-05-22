@@ -55,7 +55,7 @@ func NewManager(req *http.Request, session Session, configs map[string]ProviderC
 }
 
 // Driver resolves and returns the named provider, caching the instance for the
-// lifetime of the request. It mirrors SocialiteManager::driver().
+// lifetime of the request.
 func (m *Manager) Driver(name string) (Provider, error) {
 	if fp, ok := m.fakes[name]; ok {
 		return fp, nil
@@ -91,7 +91,7 @@ func (m *Manager) Extend(name string, factory DriverFactory) *Manager {
 }
 
 // Fake registers a preset user for the named driver. Subsequent calls to
-// Driver(name) return a FakeProvider that yields that user. It mirrors
+// Driver(name) return a FakeProvider that yields that user.
 // Socialite::fake() used in tests.
 func (m *Manager) Fake(name string, user *User) *FakeProvider {
 	real, _ := m.buildReal(name)
@@ -111,7 +111,7 @@ func (m *Manager) FakeWith(name string, fn func() *User) *FakeProvider {
 }
 
 // ForgetDrivers clears all resolved and faked instances, forcing fresh
-// resolution on next call to Driver(). It mirrors SocialiteManager::forgetDrivers().
+// resolution on next call to Driver().
 func (m *Manager) ForgetDrivers() *Manager {
 	m.resolved = make(map[string]Provider)
 	m.fakes = make(map[string]*FakeProvider)

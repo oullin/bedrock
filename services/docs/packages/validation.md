@@ -32,10 +32,10 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/validation/...
 
 ## Source Coverage
 
-| Package      | Purpose                                                                                                                                                                                                                                                                      |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package      | Purpose                                                                                                                                                                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `validation` | Package validation provides a rule-based input validator that accepts map[string]any data, evaluates 80+ built-in rules expressed as pipe-delimited strings ("required\|email\|max:255"), and collects failures into a MessageBag. |
-| `rules`      | Public rules API surface for this module.                                                                                                                                                                                                                                    |
+| `rules`      | Public rules API surface for this module.                                                                                                                                                                                          |
 
 ## Core Concepts
 

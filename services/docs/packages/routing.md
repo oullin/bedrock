@@ -36,18 +36,18 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routing/...
 
 ## Source Coverage
 
-| Package       | Purpose                                             |
-| ------------- | --------------------------------------------------- |
+| Package       | Purpose                                           |
+| ------------- | ------------------------------------------------- |
 | `routing`     | Package routing provides HTTP routing primitives. |
-| `attributes`  | Public attributes API surface for this module.      |
-| `compiler`    | Public compiler API surface for this module.        |
-| `console`     | Public console API surface for this module.         |
-| `contracts`   | Public contracts API surface for this module.       |
-| `controllers` | Public controllers API surface for this module.     |
-| `events`      | Public events API surface for this module.          |
-| `exceptions`  | Public exceptions API surface for this module.      |
-| `matching`    | Public matching API surface for this module.        |
-| `middleware`  | Public middleware API surface for this module.      |
+| `attributes`  | Public attributes API surface for this module.    |
+| `compiler`    | Public compiler API surface for this module.      |
+| `console`     | Public console API surface for this module.       |
+| `contracts`   | Public contracts API surface for this module.     |
+| `controllers` | Public controllers API surface for this module.   |
+| `events`      | Public events API surface for this module.        |
+| `exceptions`  | Public exceptions API surface for this module.    |
+| `matching`    | Public matching API surface for this module.      |
+| `middleware`  | Public middleware API surface for this module.    |
 
 ## Core Concepts
 

@@ -29,7 +29,7 @@ function copy() {
         </div>
 
         <h1 class="hero__h1">
-          The Laravel <em class="serif">feel</em>.<br />
+          The convenient <em class="serif">feel</em>.<br />
           The Go performance.
         </h1>
 

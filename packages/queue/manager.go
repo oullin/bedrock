@@ -16,13 +16,13 @@ type DriverCreator func(config map[string]any) (Queue, error)
 
 // ConnectorFactory is the upstream-faithful two-step path: the factory
 // returns a Connector, and the Manager then calls Connector.Connect(config)
-// to obtain a Queue. Mirrors the the underlying behavior closure, which
+// to obtain a Queue.
 // Ref: @bedrock/code-0231
 type ConnectorFactory func() Connector
 
 // ConnectionNameSetter is the optional contract a Queue implementation
 // can satisfy if it wants the Manager to stamp the resolved connection
-// name onto it immediately after creation. It is the Go equivalent of
+// name onto it immediately after creation.
 // the upstream Queue::setConnectionName — exposed as an optional interface
 // so the core Queue interface stays frozen.
 type ConnectionNameSetter interface {
@@ -38,7 +38,7 @@ type ContainerAware interface {
 
 // HookFunc is a generic event listener registered against the Manager.
 // The underlying event is passed as any; listeners type-assert to the
-// concrete events.* type they care about. Mirrors the upstream // Queue::before / after / failing / starting / stopping closures.
+// concrete events. * type they care about.
 type HookFunc func(event any)
 
 // Manager creates, caches, and coordinates named queue connections.
@@ -148,7 +148,7 @@ func (m *Manager) SetConfig(connection string, config map[string]any) *Manager {
 }
 
 // SetContainer stores an opaque container value that the Manager will
-// hand to every ContainerAware queue it creates. Mirrors the upstream // QueueManager constructor's $app argument.
+// hand to every ContainerAware queue it creates.
 func (m *Manager) SetContainer(container any) *Manager {
 	m.mu.Lock()
 
@@ -186,7 +186,7 @@ func (m *Manager) Connection(name any) (Queue, error) {
 }
 
 // Connected reports whether the given connection has been resolved and
-// cached. It does not trigger creation. Mirrors the the underlying behavior().
+// cached. It does not trigger creation.
 func (m *Manager) Connected(name any) bool {
 	key := connectionKey(name)
 
@@ -339,7 +339,7 @@ func (m *Manager) Before(hook HookFunc) *Manager {
 // After registers a listener that runs after a job has been processed.
 func (m *Manager) After(hook HookFunc) *Manager { return m.appendHook(&m.afterHooks, hook) }
 
-// Failing registers a listener that runs when a job fails. Mirrors
+// Failing registers a listener that runs when a job fails.
 // the upstream Queue::failing.
 func (m *Manager) Failing(hook HookFunc) *Manager { return m.appendHook(&m.failingHooks, hook) }
 
@@ -454,7 +454,7 @@ func (m *Manager) IsPaused(connection, queue string) bool {
 // queue belonging to connection. It resolves the connection, asks the
 // driver for the set of queue names it currently knows about (via the
 // optional QueueNamer contract), and concatenates the per-queue
-// PendingJobs results in declared order. Mirrors upstream
+// PendingJobs results in declared order.
 // Queue::allPendingJobs.
 func (m *Manager) AllPendingJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
@@ -463,7 +463,7 @@ func (m *Manager) AllPendingJobs(ctx context.Context, connection string) ([]Insp
 }
 
 // AllDelayedJobs returns every delayed (unreserved, not-yet-due) job
-// across all queues on connection. Mirrors the upstream // Queue::allDelayedJobs.
+// across all queues on connection.
 func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
 		return i.DelayedJobs(ctx, name)
@@ -471,7 +471,7 @@ func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]Insp
 }
 
 // AllReservedJobs returns every reserved (in-flight) job across all
-// queues on connection. Mirrors the the underlying behavior.
+// queues on connection.
 func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
 		return i.ReservedJobs(ctx, name)

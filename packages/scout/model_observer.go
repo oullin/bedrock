@@ -8,7 +8,7 @@ import (
 )
 
 // ModelObserver observes Eloquent model lifecycle events and synchronises
-// the search index automatically. It mirrors Scout ModelObserver.
+// the search index automatically.
 type ModelObserver struct {
 	manager     *EngineManager
 	config      Config

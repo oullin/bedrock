@@ -3,7 +3,7 @@ package database
 import "sync"
 
 // TransactionManager manages after-commit and after-rollback callbacks
-// at each transaction nesting level. It mirrors
+// at each transaction nesting level.
 // Ref: @bedrock/code-0206
 type TransactionManager struct {
 	mu        sync.Mutex

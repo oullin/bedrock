@@ -54,7 +54,7 @@ type ListenerOptions struct {
 	// "default" when constructed via NewListenerOptions.
 	Name string
 	// Environment, if non-empty, is appended to the command as
-	// --env={environment}. Mirrors the upstream $environment field.
+	// --env={environment}.
 	Environment string
 	// Backoff seconds between retries, forwarded to the worker.
 	Backoff int
@@ -67,7 +67,7 @@ type ListenerOptions struct {
 	// MaxTries is the worker's attempt cap. Default 1.
 	MaxTries int
 	// Rest is the sleep (in seconds) between successive runProcess
-	// calls in the outer loop. Mirrors the upstream --rest.
+	// calls in the outer loop.
 	Rest int
 	// Force adds --force to the worker command when true.
 	Force bool
@@ -109,7 +109,7 @@ type Listener struct {
 	// test binary.
 	StopFunc func()
 	// OutputHandler is called for every stdout/stderr line produced
-	// by a running worker subprocess. Mirrors the the underlying behavior.
+	// by a running worker subprocess.
 	OutputHandler func(stream, line string)
 }
 
@@ -254,7 +254,7 @@ func (l *Listener) RunProcess(process ProcessRunner, memoryLimitMiB int) error {
 
 // Listen is the outer supervisor loop: call MakeProcess once, then
 // RunProcess/Rest-sleep forever. Callers that need graceful shutdown
-// should arrange for StopFunc to return so the loop exits. Mirrors
+// should arrange for StopFunc to return so the loop exits.
 // the upstream Listener::listen.
 func (l *Listener) Listen(connection, queue string, opts ListenerOptions) error {
 	process := l.MakeProcess(connection, queue, opts)

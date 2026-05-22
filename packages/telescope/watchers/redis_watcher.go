@@ -10,7 +10,7 @@ import (
 // ignoredRedisCommands lists commands that should not be recorded (pipeline /
 
 // RedisWatcher monitors Redis command execution and records entries as
-// Telescope entries. It mirrors the the underlying behavior class.
+// Telescope entries.
 type RedisWatcher struct {
 	telescope.BaseWatcher
 }

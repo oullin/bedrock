@@ -175,7 +175,7 @@ func (b *Builder) Cursor(ctx context.Context, fn func(map[string]any) bool) erro
 	})
 }
 
-// DD dumps the SQL and bindings and returns them. Go equivalent of PHP's dd().
+// DD dumps the SQL and bindings and returns them.
 func (b *Builder) DD() string {
 	return b.Dump()
 }

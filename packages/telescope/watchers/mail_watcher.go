@@ -25,7 +25,7 @@ type MailMessage struct {
 }
 
 // MailWatcher monitors outbound email dispatch and records entries as
-// Telescope entries. It mirrors the the underlying behavior class.
+// Telescope entries.
 type MailWatcher struct {
 	telescope.BaseWatcher
 }

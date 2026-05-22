@@ -9,7 +9,7 @@ import (
 // ignoredCachePrefixes contains internal cache key prefixes that should not be
 
 // CacheWatcher monitors cache operations (hit, miss, set, forget) and records
-// them as Telescope entries. It mirrors the the underlying behavior class.
+// them as Telescope entries.
 //
 // Options:
 //   - "hidden" ([]string): key names whose values will be masked.

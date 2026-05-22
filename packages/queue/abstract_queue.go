@@ -23,7 +23,7 @@ import (
 //     version; the full transaction-aware wiring lands in Step 14).
 
 // Namer is implemented by job values that want to override the default
-// reflect-based display name. Mirrors the effect of the upstream // getDisplayName() shortcut for jobs that expose a displayName method.
+// reflect-based display name.
 type Namer interface {
 	QueueDisplayName() string
 }

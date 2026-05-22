@@ -56,7 +56,7 @@ func NewOneAbstractProvider(server OAuth1Server, req *http.Request, session Sess
 }
 
 // Redirect fetches temporary credentials, stores them in the session, and
-// returns the authorization URL. It mirrors One\AbstractProvider::redirect().
+// returns the authorization URL.
 func (p *OneAbstractProvider) Redirect(ctx context.Context) (string, error) {
 	temp, err := p.server.GetTemporaryCredentials(ctx)
 

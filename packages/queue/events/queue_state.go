@@ -38,7 +38,7 @@ type QueueResumed struct {
 }
 
 // QueueFailedOver is dispatched by the failover driver when it abandons
-// one backend and switches to the next. Mirrors
+// one backend and switches to the next.
 // Ref: @bedrock/code-0247
 type QueueFailedOver struct {
 	From string

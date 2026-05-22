@@ -14,7 +14,7 @@ import (
 )
 
 // StructuredAnonymousAgent extends AnonymousAgent with a JSON schema for
-// structured output. It mirrors the underlying behavior.
+// structured output.
 type StructuredAnonymousAgent struct {
 	AnonymousAgent
 	schema contractsai.JsonSchema

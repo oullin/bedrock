@@ -16,7 +16,7 @@ type BindingContainer interface {
 type BindingResolver func(value string, route any) (any, error)
 
 // ModelInstance is the surface a user-defined model type must expose so
-// [ForModel] can resolve it. It mirrors the public methods on Eloquent's
+// [ForModel] can resolve it.
 // Model that route-model-binding actually depends on.
 type ModelInstance interface {
 	ResolveRouteBinding(value, field string) (any, error)

@@ -10,7 +10,7 @@ import (
 
 // ── OAuth1 test doubles ───────────────────────────────────────────────────────
 
-// mockOAuth1Server is the Go equivalent of OAuthOneTestProviderStub.php,
+// php,
 // which mocked League\OAuth1\Client\Server\Twitter.
 type mockOAuth1Server struct {
 	tempCreds  *socialite.TemporaryCredentials

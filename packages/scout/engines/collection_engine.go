@@ -11,7 +11,7 @@ import (
 )
 
 // CollectionEngine is an in-memory search engine that filters models
-// without requiring any external search service. It mirrors upstream
+// without requiring any external search service.
 // Scout's CollectionEngine.
 type CollectionEngine struct {
 	softDelete bool

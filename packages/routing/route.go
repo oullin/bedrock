@@ -26,7 +26,7 @@ type Route struct {
 
 	Uri                string
 	HTTPMethods        []string
-	ActionMap          map[string]any // mirrors PHP "$action" associative array
+	ActionMap          map[string]any // holds the action data as an associative map
 	IsFallback         bool
 	Controller         any
 	DefaultValues      map[string]any
@@ -250,7 +250,7 @@ func actionToMap(a *Action) map[string]any {
 // =====================================================================
 
 // Path returns the route URI prefixed with "/" so [compiler.Compile] sees a
-// canonical leading slash. Mirrors the implicit slashing PHP performs on the
+// canonical leading slash.
 // path inside the Symfony layer.
 func (r *Route) Path() string {
 	if strings.HasPrefix(r.Uri, "/") {
@@ -621,7 +621,7 @@ func actionContains(action map[string]any, target string) bool {
 // =====================================================================
 
 // Domain sets (or, when called with the empty string, returns) the host
-// pattern for the route. The two-mode signature mirrors PHP's domain($d=null).
+// pattern for the route.
 func (r *Route) Domain(domain string) *Route {
 	parsed := ParseRouteUri(domain)
 	r.ActionMap["domain"] = parsed.Uri

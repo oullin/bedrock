@@ -22,7 +22,7 @@ func NewSlackProvider(req *http.Request, session Session, clientID, clientSecret
 }
 
 // AsBotUser configures the provider to retrieve the bot-user token rather than
-// the human user token. It mirrors SlackProvider::asBotUser().
+// the human user token.
 func (s *SlackProvider) AsBotUser() *SlackProvider {
 	s.asBotUser = true
 

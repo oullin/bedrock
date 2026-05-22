@@ -7,7 +7,7 @@ import (
 )
 
 // EntryResult represents a persisted Telescope entry as returned by repository
-// queries. It mirrors the the underlying behavior class and is suitable for JSON
+// queries.
 // serialisation to the dashboard API.
 type EntryResult struct {
 	ID         string         `json:"id"`

@@ -3,7 +3,7 @@ package spark
 import "time"
 
 // Customer represents a payment-provider customer record linked to a
-// billable entity. Mirrors the underlying behavior.
+// billable entity.
 type Customer struct {
 	ID                int64
 	BillableType      string

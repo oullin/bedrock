@@ -52,7 +52,7 @@ func (u *UrlGenerator) ForceHttps(force bool) {
 	}
 }
 
-// ForceRootUrl pins the URL root used for absolute generation. Mirrors
+// ForceRootUrl pins the URL root used for absolute generation.
 // UrlGenerator::forceRootUrl.
 func (u *UrlGenerator) ForceRootUrl(root string) { u.forcedRootUrl = root }
 
@@ -241,7 +241,7 @@ func isOptionalParam(uri, name string) bool {
 // SignedRoute produces a signed URL for the named route.
 //
 // expiration may be 0 (no expiration) or a positive number of seconds from
-// now until the signature must be considered expired. Mirrors
+// now until the signature must be considered expired.
 // UrlGenerator::signedRoute.
 func (u *UrlGenerator) SignedRoute(name string, parameters map[string]any, expiration int64, absolute bool) (string, error) {
 	if parameters == nil {

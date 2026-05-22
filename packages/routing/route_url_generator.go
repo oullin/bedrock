@@ -105,7 +105,7 @@ func substituteParameters(uri string, parameters map[string]any, consumed map[st
 }
 
 // buildQuery returns the canonical query string for parameters not consumed
-// by the URI, sorted by key. The encoding mirrors PHP's http_build_query for
+// by the URI, sorted by key.
 // flat associative arrays (key=value joined by "&", values URL-encoded with
 // '+' for spaces, RFC 1738).
 func buildQuery(parameters map[string]any, consumed map[string]struct{}) string {

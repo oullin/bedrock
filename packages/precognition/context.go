@@ -22,7 +22,7 @@ func MarkPrecognitive(r *http.Request) *http.Request {
 }
 
 // IsPrecognitive reports whether the middleware has marked this request as
-// precognitive via [MarkPrecognitive]. This is the Go equivalent of the upstream // $request->isPrecognitive() which checks the request attribute set by the
+// precognitive via [MarkPrecognitive].
 // middleware — distinct from the header-based check.
 func IsPrecognitive(r *http.Request) bool {
 	v, _ := r.Context().Value(precognitiveKey).(bool)

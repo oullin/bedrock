@@ -11,7 +11,7 @@ import (
 )
 
 // ExceptionWatcher monitors application exceptions and records them as
-// Telescope entries. It mirrors the the underlying behavior class.
+// Telescope entries.
 //
 // Options:
 //   - "ignore" ([]string): error type names to skip.

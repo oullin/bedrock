@@ -9,7 +9,7 @@ import (
 )
 
 // setupFakeManager creates a manager with a github and google driver for use
-// in fake tests. It mirrors SocialiteFakeTest's getEnvironmentSetUp.
+// in fake tests.
 func setupFakeManager(t *testing.T) *socialite.Manager {
 	t.Helper()
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)

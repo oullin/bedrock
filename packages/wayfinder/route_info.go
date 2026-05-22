@@ -112,13 +112,13 @@ func (r *RouteInfo) OriginalJsMethod() string {
 }
 
 // JsMethod returns the TypeScript-safe method name for use as an export
-// identifier or object property. Mirrors Route::jsMethod() from PHP.
+// identifier or object property.
 func (r *RouteInfo) JsMethod() string {
 	return SafeMethod(r.OriginalJsMethod(), "Method")
 }
 
 // NamedMethod returns the TypeScript-safe name derived from the last
-// dot-segment of the route name. Mirrors Route::namedMethod() from PHP.
+// dot-segment of the route name.
 func (r *RouteInfo) NamedMethod() string {
 	name := r.Name
 

@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/precognition/...
 
 ## Source Coverage
 
-| Package        | Purpose                                                                                                                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package        | Purpose                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------- |
 | `precognition` | Package precognition provides middleware and utilities for handling precognitive HTTP requests in bedrock. |
 
 ## Core Concepts

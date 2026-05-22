@@ -20,7 +20,7 @@ func (e *InvalidPayloadError) Error() string {
 }
 
 // NewInvalidPayloadError constructs an error with an explicit message and
-// the offending value. Mirrors the the underlying behavior signature
+// the offending value.
 // (message, value).
 func NewInvalidPayloadError(message string, value any) *InvalidPayloadError {
 	return &InvalidPayloadError{Message: message, Value: value}

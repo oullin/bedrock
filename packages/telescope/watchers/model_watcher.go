@@ -8,7 +8,7 @@ import (
 // the upstream ModelWatcher.
 
 // ModelWatcher monitors model lifecycle events and records them as Telescope
-// entries. It mirrors the the underlying behavior class.
+// entries.
 //
 // Options:
 //   - "events" ([]string): specific model actions to record (default: all).

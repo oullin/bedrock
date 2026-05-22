@@ -76,7 +76,7 @@ type AbstractProvider struct {
 // ── Public fluent API ────────────────────────────────────────────────────────
 
 // Stateless disables CSRF state validation. Useful for APIs that cannot
-// maintain sessions. It mirrors AbstractProvider::stateless().
+// maintain sessions.
 
 // Scopes merges additional scopes into the existing set.
 
@@ -89,7 +89,7 @@ type AbstractProvider struct {
 // With merges extra query-string parameters into the authorization request.
 
 // EnablePKCE activates Proof Key for Code Exchange (RFC 7636) on the next
-// redirect/user cycle. It mirrors AbstractProvider::enablePKCE().
+// redirect/user cycle.
 
 // UsesPKCE reports whether PKCE is active.
 
@@ -265,7 +265,7 @@ func (p *AbstractProvider) User(ctx context.Context) (*User, error) {
 }
 
 // UserFromToken fetches user info using a known access token, bypassing the
-// full OAuth2 code-exchange flow. It mirrors AbstractProvider::userFromToken().
+// full OAuth2 code-exchange flow.
 func (p *AbstractProvider) UserFromToken(ctx context.Context, token string) (*User, error) {
 	raw, err := p.impl.GetUserByToken(ctx, token)
 
@@ -279,7 +279,7 @@ func (p *AbstractProvider) UserFromToken(ctx context.Context, token string) (*Us
 // ── Authorization URL helpers ────────────────────────────────────────────────
 
 // BuildAuthURLFromBase constructs the full authorization URL from a base URL
-// and a state pointer (nil = stateless). It mirrors
+// and a state pointer (nil = stateless).
 // AbstractProvider::buildAuthUrlFromBase().
 func (p *AbstractProvider) BuildAuthURLFromBase(base string, state *string) string {
 	fields := p.getCodeFields(state)
@@ -332,7 +332,7 @@ func (p *AbstractProvider) getCodeFields(state *string) map[string]string {
 // ── Token exchange ───────────────────────────────────────────────────────────
 
 // getAccessTokenResponse POSTs the authorization code to the token endpoint
-// and returns the decoded JSON response. It mirrors
+// and returns the decoded JSON response.
 // AbstractProvider::getAccessTokenResponse().
 func (p *AbstractProvider) getAccessTokenResponse(ctx context.Context, code string) (map[string]any, error) {
 	fields := p.getTokenFields(code)
@@ -391,7 +391,7 @@ func generateState() string {
 }
 
 // generateCodeVerifier creates a 96-character base64url-encoded random string
-// for use as a PKCE code verifier. It mirrors AbstractProvider::getCodeVerifier().
+// for use as a PKCE code verifier.
 func generateCodeVerifier() string {
 	b := make([]byte, 72)
 

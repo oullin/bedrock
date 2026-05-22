@@ -10,7 +10,7 @@ import (
 // ignoredEventPrefixes contains event name prefixes from the framework that
 
 // EventWatcher monitors application events and records them as Telescope
-// entries. It mirrors the the underlying behavior class.
+// entries.
 //
 // Options:
 //   - "ignore" ([]string): additional event names or prefixes to ignore.

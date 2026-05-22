@@ -22,7 +22,7 @@ type SourceRoute interface {
 }
 
 // Separators are the characters that may serve as a separator immediately
-// before an optional variable. Mirrors Symfony's RouteCompiler::SEPARATORS.
+// before an optional variable.
 
 // VariableMaximumLength is the longest a single PCRE/RE2 named group may be.
 
@@ -242,7 +242,7 @@ func compilePattern(route SourceRoute, pattern string, isHost bool) (*compileRes
 }
 
 // determineStaticPrefix returns the longest constant-text prefix that the
-// regex can begin with. Mirrors Symfony's logic.
+// regex can begin with.
 func determineStaticPrefix(route SourceRoute, tokens []Token) string {
 	if len(tokens) == 0 {
 		return ""
@@ -351,7 +351,7 @@ func transformCapturingGroupsToNonCapturing(pattern string) string {
 	return b.String()
 }
 
-// quoteMeta is the Go equivalent of preg_quote. It escapes regex metacharacters
+// It escapes regex metacharacters
 // in literal text portions of the pattern.
 func quoteMeta(s string) string { return regexp.QuoteMeta(s) }
 

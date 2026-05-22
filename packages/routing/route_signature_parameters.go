@@ -36,7 +36,7 @@ type SignatureParameter struct {
 // Returns parameters in declaration order.
 
 // BackedEnum is the sentinel interface that user-defined backed enums must
-// implement to participate in implicit route binding. It mirrors PHP's
+// implement to participate in implicit route binding.
 // BackedEnum interface in surface.
 type BackedEnum interface {
 	BackingValue() string

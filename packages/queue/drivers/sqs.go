@@ -78,7 +78,7 @@ func (d *SQSDriver) SetPrefix(prefix string) *SQSDriver {
 }
 
 // SetDefault sets the default logical queue name used when the caller
-// passes an empty queue string. Mirrors the upstream $default constructor
+// passes an empty queue string.
 // argument.
 func (d *SQSDriver) SetDefault(name string) *SQSDriver {
 	d.defaultQueue = name

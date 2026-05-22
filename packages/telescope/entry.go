@@ -16,7 +16,7 @@ type EntryUser struct {
 }
 
 // IncomingEntry represents a single telemetry entry being recorded before it
-// is persisted. It mirrors the the underlying behavior class and provides a fluent
+// is persisted.
 // builder interface.
 type IncomingEntry struct {
 	UUID       string

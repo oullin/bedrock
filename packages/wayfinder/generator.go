@@ -52,7 +52,7 @@ type generator struct {
 // method.blade.ts template.
 
 // writeNamedMethodExport generates a route function export under its named-route name.
-// Always exported (shouldExport=true). Mirrors GenerateCommand::writeNamedMethodExport.
+// Always exported (shouldExport=true).
 
 // writeMultiRouteExport handles the case where multiple routes share the same
 // controller action. It generates a keyed dictionary.
@@ -112,7 +112,7 @@ type generator struct {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // writeBarrelFiles writes index.ts barrel files for all directory levels
-// within the actions/ tree. Mirrors GenerateCommand::writeBarrelFiles().
+// within the actions/ tree.
 
 // Collect unique namespace segments to build the directory tree.
 

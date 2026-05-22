@@ -18,7 +18,7 @@ type McpInstallationStrategy = platform.McpInstallationStrategy
 
 // CodingAgent is the base interface every IDE coding-assistant agent must satisfy.
 // Named CodingAgent (not Agent) to avoid collision with contracts/ai.Agent, which
-// models LLM agents. Mirrors the abstract Agent class
+// models LLM agents.
 type CodingAgent interface {
 	// Name returns the canonical snake_case key (e.g. "claude_code").
 	Name() string

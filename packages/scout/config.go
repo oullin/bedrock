@@ -1,6 +1,6 @@
 package scout
 
-// Config holds the Scout configuration. It mirrors the scout.php config
+// Config holds the Scout configuration. php config
 // file from Scout.
 type Config struct {
 	// Driver is the default search engine driver name.

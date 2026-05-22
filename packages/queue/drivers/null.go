@@ -32,7 +32,7 @@ func (d *NullDriver) ReservedSize(_ context.Context, _ string) (int64, error) { 
 func (d *NullDriver) ConnectionName() string                                  { return d.connection }
 
 // QueueNames returns an empty slice — the null driver never holds jobs
-// and therefore has no queues to enumerate. Mirrors the upstream // NullQueue's no-op semantics.
+// and therefore has no queues to enumerate.
 func (d *NullDriver) QueueNames(_ context.Context) ([]string, error) { return nil, nil }
 
 // PendingJobs returns an empty slice.

@@ -12,7 +12,7 @@ import (
 // capped at `limit` entries.
 //
 // the upstream provider supports an optional lockProviderResolver closure;
-// the Go port keeps a process-local sync.Mutex instead, which mirrors
+// the Go port keeps a process-local sync.
 // the observable serialisation behaviour without dragging a lock
 // provider interface into this package.
 type FileFailedJobProvider struct {

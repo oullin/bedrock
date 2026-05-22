@@ -9,10 +9,10 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// These tests are not 1:1 ports from tests/Queue — they cover Go-specific
-// helpers (DisplayName, NewUUIDv4, CreatePayloadFor, ShouldDispatchAfterCommit)
-// that the abstract_queue.go file introduces. The payload-hook behaviour
-// they assert matches upstream Queue::createPayloadUsing's contract.
+// These tests cover Go-specific helpers (DisplayName, NewUUIDv4,
+// CreatePayloadFor, ShouldDispatchAfterCommit) that the abstract_queue.go
+// file introduces. The payload-hook behaviour they assert matches the
+// CreatePayloadUsing contract.
 
 type sampleJob struct {
 	_       struct{} `queue:"tries=4,timeout=45s,backoff=1s|2s,queue=mail"`
