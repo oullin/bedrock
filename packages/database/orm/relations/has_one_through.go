@@ -3,14 +3,14 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
 // HasOneThrough defines a one-to-one relationship through an intermediate table.
 type HasOneThrough struct {
 	*BaseRelation
-	throughParent  *eloquent.Model
-	farParent      *eloquent.Model
+	throughParent  *orm.Model
+	farParent      *orm.Model
 	firstKey       string
 	secondKey      string
 	localKey       string
@@ -18,7 +18,7 @@ type HasOneThrough struct {
 }
 
 // NewHasOneThrough creates a new HasOneThrough relationship.
-func NewHasOneThrough(parent, throughParent, farParent *eloquent.Model, firstKey, secondKey, localKey, secondLocalKey string) *HasOneThrough {
+func NewHasOneThrough(parent, throughParent, farParent *orm.Model, firstKey, secondKey, localKey, secondLocalKey string) *HasOneThrough {
 	return &HasOneThrough{
 		BaseRelation:   NewBaseRelation(nil, parent, farParent),
 		throughParent:  throughParent,
@@ -35,7 +35,7 @@ func (r *HasOneThrough) GetSecondKeyName() string { return r.secondKey }
 
 func (r *HasOneThrough) AddConstraints() {}
 
-func (r *HasOneThrough) AddEagerConstraints(models []*eloquent.Model) {
+func (r *HasOneThrough) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -47,12 +47,12 @@ func (r *HasOneThrough) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *HasOneThrough) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *HasOneThrough) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	return models
 }
 
-func (r *HasOneThrough) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any]*eloquent.Model)
+func (r *HasOneThrough) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute("laravel_through_key")
@@ -70,7 +70,7 @@ func (r *HasOneThrough) Match(models []*eloquent.Model, results []*eloquent.Mode
 	return models
 }
 
-func (r *HasOneThrough) GetResults() ([]*eloquent.Model, error) {
+func (r *HasOneThrough) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -81,10 +81,10 @@ func (r *HasOneThrough) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	models := make([]*eloquent.Model, 0, len(rows))
+	models := make([]*orm.Model, 0, len(rows))
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.farParent.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

@@ -3,19 +3,19 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
-// HasOne defines a one-to-one relationship.
-type HasOne struct {
+// HasMany defines a one-to-many relationship.
+type HasMany struct {
 	*BaseRelation
 	foreignKey string
 	localKey   string
 }
 
-// NewHasOne creates a new HasOne relationship.
-func NewHasOne(parent, related *eloquent.Model, foreignKey, localKey string) *HasOne {
-	return &HasOne{
+// NewHasMany creates a new HasMany relationship.
+func NewHasMany(parent, related *orm.Model, foreignKey, localKey string) *HasMany {
+	return &HasMany{
 		BaseRelation: NewBaseRelation(nil, parent, related),
 		foreignKey:   foreignKey,
 		localKey:     localKey,
@@ -23,18 +23,18 @@ func NewHasOne(parent, related *eloquent.Model, foreignKey, localKey string) *Ha
 }
 
 // GetForeignKeyName returns the foreign key column name.
-func (r *HasOne) GetForeignKeyName() string { return r.foreignKey }
+func (r *HasMany) GetForeignKeyName() string { return r.foreignKey }
 
 // GetLocalKeyName returns the local key column name.
-func (r *HasOne) GetLocalKeyName() string { return r.localKey }
+func (r *HasMany) GetLocalKeyName() string { return r.localKey }
 
-func (r *HasOne) AddConstraints() {
+func (r *HasMany) AddConstraints() {
 	if r.query != nil {
 		r.query.Where(r.foreignKey, r.parent.GetAttribute(r.localKey))
 	}
 }
 
-func (r *HasOne) AddEagerConstraints(models []*eloquent.Model) {
+func (r *HasMany) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -46,30 +46,34 @@ func (r *HasOne) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *HasOne) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *HasMany) InitRelation(models []*orm.Model, relation string) []*orm.Model {
+	for _, model := range models {
+		model.SetAttribute(relation, []*orm.Model{})
+	}
+
 	return models
 }
 
-func (r *HasOne) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any]*eloquent.Model)
+func (r *HasMany) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any][]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute(r.foreignKey)
-		dictionary[key] = result
+		dictionary[key] = append(dictionary[key], result)
 	}
 
 	for _, model := range models {
 		key := model.GetAttribute(r.localKey)
 
-		if match, ok := dictionary[key]; ok {
-			model.SetAttribute(relation, match)
+		if matches, ok := dictionary[key]; ok {
+			model.SetAttribute(relation, matches)
 		}
 	}
 
 	return models
 }
 
-func (r *HasOne) GetResults() ([]*eloquent.Model, error) {
+func (r *HasMany) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -80,10 +84,10 @@ func (r *HasOne) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	models := make([]*eloquent.Model, 0, len(rows))
+	models := make([]*orm.Model, 0, len(rows))
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

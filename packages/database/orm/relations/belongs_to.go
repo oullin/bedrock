@@ -3,7 +3,7 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
 // BelongsTo defines the inverse of a one-to-one or one-to-many relationship.
@@ -14,7 +14,7 @@ type BelongsTo struct {
 }
 
 // NewBelongsTo creates a new BelongsTo relationship.
-func NewBelongsTo(parent, related *eloquent.Model, foreignKey, ownerKey string) *BelongsTo {
+func NewBelongsTo(parent, related *orm.Model, foreignKey, ownerKey string) *BelongsTo {
 	return &BelongsTo{
 		BaseRelation: NewBaseRelation(nil, parent, related),
 		foreignKey:   foreignKey,
@@ -34,7 +34,7 @@ func (r *BelongsTo) AddConstraints() {
 	}
 }
 
-func (r *BelongsTo) AddEagerConstraints(models []*eloquent.Model) {
+func (r *BelongsTo) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -46,12 +46,12 @@ func (r *BelongsTo) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *BelongsTo) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *BelongsTo) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	return models
 }
 
-func (r *BelongsTo) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any]*eloquent.Model)
+func (r *BelongsTo) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute(r.ownerKey)
@@ -69,7 +69,7 @@ func (r *BelongsTo) Match(models []*eloquent.Model, results []*eloquent.Model, r
 	return models
 }
 
-func (r *BelongsTo) GetResults() ([]*eloquent.Model, error) {
+func (r *BelongsTo) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -80,10 +80,10 @@ func (r *BelongsTo) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	models := make([]*eloquent.Model, 0, len(rows))
+	models := make([]*orm.Model, 0, len(rows))
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)
@@ -94,7 +94,7 @@ func (r *BelongsTo) GetResults() ([]*eloquent.Model, error) {
 }
 
 // Associate sets the foreign key on the parent model.
-func (r *BelongsTo) Associate(model *eloquent.Model) {
+func (r *BelongsTo) Associate(model *orm.Model) {
 	r.parent.SetAttribute(r.foreignKey, model.GetAttribute(r.ownerKey))
 }
 

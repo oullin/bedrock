@@ -1,4 +1,4 @@
-package eloquent
+package orm
 
 import (
 	"encoding/json"

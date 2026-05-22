@@ -3,38 +3,38 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
-// MorphOne defines a polymorphic one-to-one relationship.
-type MorphOne struct {
+// HasOne defines a one-to-one relationship.
+type HasOne struct {
 	*BaseRelation
-	morphType  string
 	foreignKey string
 	localKey   string
 }
 
-// NewMorphOne creates a new MorphOne relationship.
-func NewMorphOne(parent, related *eloquent.Model, morphType, foreignKey, localKey string) *MorphOne {
-	return &MorphOne{
+// NewHasOne creates a new HasOne relationship.
+func NewHasOne(parent, related *orm.Model, foreignKey, localKey string) *HasOne {
+	return &HasOne{
 		BaseRelation: NewBaseRelation(nil, parent, related),
-		morphType:    morphType,
 		foreignKey:   foreignKey,
 		localKey:     localKey,
 	}
 }
 
-func (r *MorphOne) GetMorphType() string      { return r.morphType }
-func (r *MorphOne) GetForeignKeyName() string { return r.foreignKey }
+// GetForeignKeyName returns the foreign key column name.
+func (r *HasOne) GetForeignKeyName() string { return r.foreignKey }
 
-func (r *MorphOne) AddConstraints() {
+// GetLocalKeyName returns the local key column name.
+func (r *HasOne) GetLocalKeyName() string { return r.localKey }
+
+func (r *HasOne) AddConstraints() {
 	if r.query != nil {
 		r.query.Where(r.foreignKey, r.parent.GetAttribute(r.localKey))
-		r.query.Where(r.morphType, r.parent.GetTable())
 	}
 }
 
-func (r *MorphOne) AddEagerConstraints(models []*eloquent.Model) {
+func (r *HasOne) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -43,16 +43,15 @@ func (r *MorphOne) AddEagerConstraints(models []*eloquent.Model) {
 
 	if r.query != nil {
 		r.query.WhereIn(r.foreignKey, keys)
-		r.query.Where(r.morphType, r.parent.GetTable())
 	}
 }
 
-func (r *MorphOne) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *HasOne) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	return models
 }
 
-func (r *MorphOne) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any]*eloquent.Model)
+func (r *HasOne) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute(r.foreignKey)
@@ -70,7 +69,7 @@ func (r *MorphOne) Match(models []*eloquent.Model, results []*eloquent.Model, re
 	return models
 }
 
-func (r *MorphOne) GetResults() ([]*eloquent.Model, error) {
+func (r *HasOne) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -81,10 +80,10 @@ func (r *MorphOne) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	var models []*eloquent.Model
+	models := make([]*orm.Model, 0, len(rows))
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

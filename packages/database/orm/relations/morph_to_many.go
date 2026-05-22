@@ -3,45 +3,42 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
-// BelongsToMany defines a many-to-many relationship through a pivot table.
-type BelongsToMany struct {
+// MorphToMany defines a polymorphic many-to-many relationship.
+type MorphToMany struct {
 	*BaseRelation
 	pivotTable      string
 	foreignPivotKey string
 	relatedPivotKey string
 	parentKey       string
 	relatedKey      string
-	pivotColumns    []string
+	morphType       string
+	morphClass      string
+	inverse         bool
 }
 
-// NewBelongsToMany creates a new BelongsToMany relationship.
-func NewBelongsToMany(parent, related *eloquent.Model, pivotTable, foreignPivotKey, relatedPivotKey, parentKey, relatedKey string) *BelongsToMany {
-	return &BelongsToMany{
+// NewMorphToMany creates a new MorphToMany relationship.
+func NewMorphToMany(parent, related *orm.Model, pivotTable, foreignPivotKey, relatedPivotKey, parentKey, relatedKey, morphType, morphClass string, inverse bool) *MorphToMany {
+	return &MorphToMany{
 		BaseRelation:    NewBaseRelation(nil, parent, related),
 		pivotTable:      pivotTable,
 		foreignPivotKey: foreignPivotKey,
 		relatedPivotKey: relatedPivotKey,
 		parentKey:       parentKey,
 		relatedKey:      relatedKey,
+		morphType:       morphType,
+		morphClass:      morphClass,
+		inverse:         inverse,
 	}
 }
 
-// GetPivotTable returns the pivot table name.
-func (r *BelongsToMany) GetPivotTable() string { return r.pivotTable }
+func (r *MorphToMany) GetPivotTable() string { return r.pivotTable }
 
-// WithPivot specifies additional pivot columns to retrieve.
-func (r *BelongsToMany) WithPivot(columns ...string) *BelongsToMany {
-	r.pivotColumns = append(r.pivotColumns, columns...)
+func (r *MorphToMany) AddConstraints() {}
 
-	return r
-}
-
-func (r *BelongsToMany) AddConstraints() {}
-
-func (r *BelongsToMany) AddEagerConstraints(models []*eloquent.Model) {
+func (r *MorphToMany) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -50,19 +47,20 @@ func (r *BelongsToMany) AddEagerConstraints(models []*eloquent.Model) {
 
 	if r.query != nil {
 		r.query.WhereIn(r.pivotTable+"."+r.foreignPivotKey, keys)
+		r.query.Where(r.pivotTable+"."+r.morphType, r.morphClass)
 	}
 }
 
-func (r *BelongsToMany) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *MorphToMany) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	for _, model := range models {
-		model.SetAttribute(relation, []*eloquent.Model{})
+		model.SetAttribute(relation, []*orm.Model{})
 	}
 
 	return models
 }
 
-func (r *BelongsToMany) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any][]*eloquent.Model)
+func (r *MorphToMany) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any][]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute("pivot_" + r.foreignPivotKey)
@@ -80,7 +78,7 @@ func (r *BelongsToMany) Match(models []*eloquent.Model, results []*eloquent.Mode
 	return models
 }
 
-func (r *BelongsToMany) GetResults() ([]*eloquent.Model, error) {
+func (r *MorphToMany) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -91,10 +89,10 @@ func (r *BelongsToMany) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	models := make([]*eloquent.Model, 0, len(rows))
+	var models []*orm.Model
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

@@ -3,14 +3,14 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
 // HasManyThrough defines a one-to-many relationship through an intermediate table.
 type HasManyThrough struct {
 	*BaseRelation
-	throughParent  *eloquent.Model
-	farParent      *eloquent.Model
+	throughParent  *orm.Model
+	farParent      *orm.Model
 	firstKey       string
 	secondKey      string
 	localKey       string
@@ -18,7 +18,7 @@ type HasManyThrough struct {
 }
 
 // NewHasManyThrough creates a new HasManyThrough relationship.
-func NewHasManyThrough(parent, throughParent, farParent *eloquent.Model, firstKey, secondKey, localKey, secondLocalKey string) *HasManyThrough {
+func NewHasManyThrough(parent, throughParent, farParent *orm.Model, firstKey, secondKey, localKey, secondLocalKey string) *HasManyThrough {
 	return &HasManyThrough{
 		BaseRelation:   NewBaseRelation(nil, parent, farParent),
 		throughParent:  throughParent,
@@ -32,7 +32,7 @@ func NewHasManyThrough(parent, throughParent, farParent *eloquent.Model, firstKe
 
 func (r *HasManyThrough) AddConstraints() {}
 
-func (r *HasManyThrough) AddEagerConstraints(models []*eloquent.Model) {
+func (r *HasManyThrough) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -44,16 +44,16 @@ func (r *HasManyThrough) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *HasManyThrough) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *HasManyThrough) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	for _, model := range models {
-		model.SetAttribute(relation, []*eloquent.Model{})
+		model.SetAttribute(relation, []*orm.Model{})
 	}
 
 	return models
 }
 
-func (r *HasManyThrough) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any][]*eloquent.Model)
+func (r *HasManyThrough) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any][]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute("laravel_through_key")
@@ -71,7 +71,7 @@ func (r *HasManyThrough) Match(models []*eloquent.Model, results []*eloquent.Mod
 	return models
 }
 
-func (r *HasManyThrough) GetResults() ([]*eloquent.Model, error) {
+func (r *HasManyThrough) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -82,10 +82,10 @@ func (r *HasManyThrough) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	models := make([]*eloquent.Model, 0, len(rows))
+	models := make([]*orm.Model, 0, len(rows))
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.farParent.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

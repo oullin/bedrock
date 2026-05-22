@@ -1,4 +1,4 @@
-package eloquent
+package orm
 
 // GuardsAttributes provides mass assignment protection.
 type GuardsAttributes struct {

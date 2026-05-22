@@ -3,7 +3,7 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
 // MorphMany defines a polymorphic one-to-many relationship.
@@ -15,7 +15,7 @@ type MorphMany struct {
 }
 
 // NewMorphMany creates a new MorphMany relationship.
-func NewMorphMany(parent, related *eloquent.Model, morphType, foreignKey, localKey string) *MorphMany {
+func NewMorphMany(parent, related *orm.Model, morphType, foreignKey, localKey string) *MorphMany {
 	return &MorphMany{
 		BaseRelation: NewBaseRelation(nil, parent, related),
 		morphType:    morphType,
@@ -31,7 +31,7 @@ func (r *MorphMany) AddConstraints() {
 	}
 }
 
-func (r *MorphMany) AddEagerConstraints(models []*eloquent.Model) {
+func (r *MorphMany) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -44,16 +44,16 @@ func (r *MorphMany) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *MorphMany) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *MorphMany) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	for _, model := range models {
-		model.SetAttribute(relation, []*eloquent.Model{})
+		model.SetAttribute(relation, []*orm.Model{})
 	}
 
 	return models
 }
 
-func (r *MorphMany) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any][]*eloquent.Model)
+func (r *MorphMany) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any][]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute(r.foreignKey)
@@ -71,7 +71,7 @@ func (r *MorphMany) Match(models []*eloquent.Model, results []*eloquent.Model, r
 	return models
 }
 
-func (r *MorphMany) GetResults() ([]*eloquent.Model, error) {
+func (r *MorphMany) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -82,10 +82,10 @@ func (r *MorphMany) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	var models []*eloquent.Model
+	var models []*orm.Model
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)

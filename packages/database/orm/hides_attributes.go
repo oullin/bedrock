@@ -1,4 +1,4 @@
-package eloquent
+package orm
 
 // HidesAttributes controls which attributes are visible during serialization.
 type HidesAttributes struct {

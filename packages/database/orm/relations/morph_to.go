@@ -3,7 +3,7 @@ package relations
 import (
 	"context"
 
-	"github.com/bedrock/packages/database/eloquent"
+	"github.com/bedrock/packages/database/orm"
 )
 
 // MorphTo defines the inverse of a polymorphic relationship.
@@ -15,7 +15,7 @@ type MorphTo struct {
 }
 
 // NewMorphTo creates a new MorphTo relationship.
-func NewMorphTo(parent, related *eloquent.Model, morphType, foreignKey, ownerKey string) *MorphTo {
+func NewMorphTo(parent, related *orm.Model, morphType, foreignKey, ownerKey string) *MorphTo {
 	return &MorphTo{
 		BaseRelation: NewBaseRelation(nil, parent, related),
 		morphType:    morphType,
@@ -33,7 +33,7 @@ func (r *MorphTo) AddConstraints() {
 	}
 }
 
-func (r *MorphTo) AddEagerConstraints(models []*eloquent.Model) {
+func (r *MorphTo) AddEagerConstraints(models []*orm.Model) {
 	keys := make([]any, 0, len(models))
 
 	for _, m := range models {
@@ -45,12 +45,12 @@ func (r *MorphTo) AddEagerConstraints(models []*eloquent.Model) {
 	}
 }
 
-func (r *MorphTo) InitRelation(models []*eloquent.Model, relation string) []*eloquent.Model {
+func (r *MorphTo) InitRelation(models []*orm.Model, relation string) []*orm.Model {
 	return models
 }
 
-func (r *MorphTo) Match(models []*eloquent.Model, results []*eloquent.Model, relation string) []*eloquent.Model {
-	dictionary := make(map[any]*eloquent.Model)
+func (r *MorphTo) Match(models []*orm.Model, results []*orm.Model, relation string) []*orm.Model {
+	dictionary := make(map[any]*orm.Model)
 
 	for _, result := range results {
 		key := result.GetAttribute(r.ownerKey)
@@ -68,7 +68,7 @@ func (r *MorphTo) Match(models []*eloquent.Model, results []*eloquent.Model, rel
 	return models
 }
 
-func (r *MorphTo) GetResults() ([]*eloquent.Model, error) {
+func (r *MorphTo) GetResults() ([]*orm.Model, error) {
 	if r.query == nil {
 		return nil, nil
 	}
@@ -79,10 +79,10 @@ func (r *MorphTo) GetResults() ([]*eloquent.Model, error) {
 		return nil, err
 	}
 
-	var models []*eloquent.Model
+	var models []*orm.Model
 
 	for _, row := range rows {
-		m := eloquent.NewModel()
+		m := orm.NewModel()
 		m.SetTable(r.related.GetTable())
 		m.SetRawAttributes(row, true)
 		m.SetExists(true)
@@ -93,7 +93,7 @@ func (r *MorphTo) GetResults() ([]*eloquent.Model, error) {
 }
 
 // Associate associates the morph-to with a model.
-func (r *MorphTo) Associate(model *eloquent.Model) {
+func (r *MorphTo) Associate(model *orm.Model) {
 	r.parent.SetAttribute(r.foreignKey, model.GetAttribute(r.ownerKey))
 	r.parent.SetAttribute(r.morphType, model.GetTable())
 }

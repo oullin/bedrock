@@ -1,4 +1,4 @@
-package eloquent
+package orm
 
 import "github.com/bedrock/packages/database/query"
 

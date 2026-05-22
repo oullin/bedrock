@@ -1,11 +1,11 @@
 package relations
 
-import "github.com/bedrock/packages/database/eloquent"
+import "github.com/bedrock/packages/database/orm"
 
 // Pivot represents a pivot table record in a many-to-many relationship.
 type Pivot struct {
-	*eloquent.Model
-	pivotParent *eloquent.Model
+	*orm.Model
+	pivotParent *orm.Model
 	foreignKey  string
 	relatedKey  string
 }
@@ -25,9 +25,9 @@ type MorphPivot struct {
 	morphClass string
 }
 
-func NewPivot(parent *eloquent.Model, attributes map[string]any, table, foreignKey, relatedKey string) *Pivot {
+func NewPivot(parent *orm.Model, attributes map[string]any, table, foreignKey, relatedKey string) *Pivot {
 	p := &Pivot{
-		Model:       eloquent.NewModel(),
+		Model:       orm.NewModel(),
 		pivotParent: parent,
 		foreignKey:  foreignKey,
 		relatedKey:  relatedKey,
@@ -48,10 +48,10 @@ func (p *Pivot) GetForeignKey() string { return p.foreignKey }
 
 func (p *Pivot) GetRelatedKey() string { return p.relatedKey }
 
-func (p *Pivot) GetPivotParent() *eloquent.Model { return p.pivotParent }
+func (p *Pivot) GetPivotParent() *orm.Model { return p.pivotParent }
 
 // NewMorphPivot creates a new MorphPivot model.
-func NewMorphPivot(parent *eloquent.Model, attributes map[string]any, table, foreignKey, relatedKey, morphType, morphClass string) *MorphPivot {
+func NewMorphPivot(parent *orm.Model, attributes map[string]any, table, foreignKey, relatedKey, morphType, morphClass string) *MorphPivot {
 	return &MorphPivot{
 		Pivot:      NewPivot(parent, attributes, table, foreignKey, relatedKey),
 		morphType:  morphType,
