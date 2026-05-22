@@ -118,8 +118,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jobqueue/...
 Parity is tracked by these tests:
 
 - `packages/jobqueue/auto_scaler_inventory_test.go`
-- `packages/jobqueue/horizon_inventory_additional_test.go`
-- `packages/jobqueue/horizon_inventory_test.go`
+- `packages/jobqueue/jobqueue_inventory_additional_test.go`
+- `packages/jobqueue/jobqueue_inventory_test.go`
 - `packages/jobqueue/redis_payload_inventory_test.go`
 - `packages/jobqueue/redis_prefix_inventory_test.go`
 
