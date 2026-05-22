@@ -60,10 +60,10 @@ func RegisterRoutes(router *routing.Router, registry *routegen.Registry, h *Hand
 	router.Post(routePattern(registry, billing.RoutePendingCheckout), h.Pending.Create).Name(billing.RoutePendingCheckout)
 	router.Get(routePattern(registry, billing.RouteInvoiceDownload), h.Invoice.Download).Name(billing.RouteInvoiceDownload)
 	router.Get(routePattern(registry, billing.RoutePortal), h.Portal.Show).Name(billing.RoutePortal)
-	router.Get(routePattern(registry, billing.RoutePortalForType), h.Portal.Show).Name(billing.RoutePortalForType)
-	router.Get(routePattern(registry, billing.RoutePortalForBillable), h.Portal.Show).Name(billing.RoutePortalForBillable)
 	router.Get(routePattern(registry, billing.RouteState), h.Portal.State).Name(billing.RouteState)
 	router.Get(routePattern(registry, billing.RouteRouteGen), routegen.Handler(registry).ServeHTTP).Name(billing.RouteRouteGen)
+	router.Get(routePattern(registry, billing.RoutePortalForType), h.Portal.Show).Name(billing.RoutePortalForType)
+	router.Get(routePattern(registry, billing.RoutePortalForBillable), h.Portal.Show).Name(billing.RoutePortalForBillable)
 }
 
 func routePattern(registry *routegen.Registry, name string) string {
