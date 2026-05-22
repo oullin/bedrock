@@ -11,7 +11,7 @@ const (
 	RoutePortalForType             = "billing.portal.type"
 	RoutePortalForBillable         = "billing.portal.billable"
 	RouteState                     = "billing.state"
-	RouteRouteGen                 = "billing.routegen"
+	RouteRouteGen                  = "billing.routegen"
 	RouteSubscriptionStore         = "billing.subscription.store"
 	RouteSubscriptionUpdate        = "billing.subscription.update"
 	RouteSubscriptionCancel        = "billing.subscription.cancel"

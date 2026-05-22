@@ -30,9 +30,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/broadcastclient/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                                                                                                                                                         |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `broadcastclient`  | Package broadcastclient is a Go library for BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
+| Package           | Purpose                                                                                                                                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `broadcastclient` | Package broadcastclient is a Go library for BroadcastClient JavaScript library. It provides real-time event broadcasting abstractions over multiple transport backends (Pusher, Socket.IO, Null/stub) with a uniform Channel and Connector interface. |
 
 ## Core Concepts
 
@@ -40,12 +40,12 @@ The broadcastclient reference is organized around the exported Go surface for pa
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                      |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface                    | Exported API                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Types                      | `AuthOptions`, `Callback`, `Channel`, `ConnectionStatus`, `Connector`, `DispatchChannel`, `BroadcastClient`, `EncryptedPrivateChannel`, `EventFormatter`, `NullChannel`, `NullConnector`, `NullEncryptedPrivateChannel`, `NullPresenceChannel`, `NullPrivateChannel`, `Options`, `PresenceChannel`, `PrivateChannel`, `PusherConnector`, `SocketIOConnector` |
-| Constructors and functions | `Channel`, `Connect`, `Connector`, `Disconnect`, `Dispatch`, `EncryptedPrivateChannel`, `Error`, `Format`, `Here`, `Joining`, `Leave`, `LeaveAllChannels`, `LeaveChannel`, `Leaving`, `Listen`, `ListenToAll`, `New`, `NewDispatchChannel`, `NewEventFormatter`, `NewNullChannel`, and 15 more                                                    |
-| Variables                  | `ErrUnsupportedBroadcaster`                                                                                                                                                                                                                                                                                                                       |
-| Constants                  | `ConnectionStatusConnected`, `ConnectionStatusConnecting`, `ConnectionStatusDisconnected`, `ConnectionStatusFailed`, `ConnectionStatusReconnecting`                                                                                                                                                                                               |
+| Constructors and functions | `Channel`, `Connect`, `Connector`, `Disconnect`, `Dispatch`, `EncryptedPrivateChannel`, `Error`, `Format`, `Here`, `Joining`, `Leave`, `LeaveAllChannels`, `LeaveChannel`, `Leaving`, `Listen`, `ListenToAll`, `New`, `NewDispatchChannel`, `NewEventFormatter`, `NewNullChannel`, and 15 more                                                               |
+| Variables                  | `ErrUnsupportedBroadcaster`                                                                                                                                                                                                                                                                                                                                  |
+| Constants                  | `ConnectionStatusConnected`, `ConnectionStatusConnecting`, `ConnectionStatusDisconnected`, `ConnectionStatusFailed`, `ConnectionStatusReconnecting`                                                                                                                                                                                                          |
 
 ### Capability Matrix
 
@@ -129,7 +129,7 @@ Parity is tracked by these tests:
 | `ConnectionStatus`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Connector`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DispatchChannel`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BroadcastClient`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BroadcastClient`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `EncryptedPrivateChannel`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `EventFormatter`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NullChannel`                 | Source-backed public surface. See the Go package for exact signature and behavior. |

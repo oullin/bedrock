@@ -5,8 +5,8 @@ import (
 
 	"github.com/bedrock/packages/billing"
 	"github.com/bedrock/packages/httpx/routingx"
-	"github.com/bedrock/packages/routing"
 	"github.com/bedrock/packages/routegen"
+	"github.com/bedrock/packages/routing"
 )
 
 // Handlers bundles all canonical Billing HTTP handler instances.

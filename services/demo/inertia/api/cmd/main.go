@@ -13,8 +13,8 @@ import (
 	"github.com/bedrock/packages/inertia"
 	"github.com/bedrock/packages/inertia/flash"
 	"github.com/bedrock/packages/inertia/middleware"
-	corei18n "github.com/bedrock/packages/seo/i18n"
 	"github.com/bedrock/packages/routegen"
+	corei18n "github.com/bedrock/packages/seo/i18n"
 	"github.com/bedrock/services/demo/inertia/api/internal/database"
 	"github.com/bedrock/services/demo/inertia/api/internal/seed"
 )

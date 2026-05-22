@@ -30,8 +30,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/jobqueue/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                            |
-| --------- | ---------------------------------------------------------------------------------- |
+| Package    | Purpose                                                                              |
+| ---------- | ------------------------------------------------------------------------------------ |
 | `jobqueue` | Package jobqueue provides queue monitoring primitives inspired by upstream JobQueue. |
 
 ## Core Concepts

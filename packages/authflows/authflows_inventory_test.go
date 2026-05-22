@@ -169,7 +169,9 @@ func (p *authflowsProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.
 	return nil
 }
 
-func (h authflowsHasher) Hash(_ context.Context, password string) (string, error) { return password, nil }
+func (h authflowsHasher) Hash(_ context.Context, password string) (string, error) {
+	return password, nil
+}
 func (h authflowsHasher) Check(_ context.Context, password string, hash string) (bool, error) {
 	return password == hash, nil
 }

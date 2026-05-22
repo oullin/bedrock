@@ -29,9 +29,9 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/logtail/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                               |
-| ------- | ------------------------------------------------------------------------------------- |
-| `logtail`  | Package logtail provides log tailing and filtering primitives inspired by upstream LogTail. |
+| Package   | Purpose                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- |
+| `logtail` | Package logtail provides log tailing and filtering primitives inspired by upstream LogTail. |
 
 ## Core Concepts
 

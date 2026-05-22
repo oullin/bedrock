@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authkit/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Package   | Purpose                                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `authkit` | Package authkit holds AuthKit parity tests for Bedrock's Inception-backed team, profile, browser-session, and API-token behavior. |
 
 ## Core Concepts
