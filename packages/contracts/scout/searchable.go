@@ -1,7 +1,7 @@
 package scout
 
 // Searchable is the contract that models must satisfy to participate in
-// Scout search. In Go, this replaces the Laravel Searchable trait.
+// Scout search. In Go, this replaces the upstream Searchable trait.
 type Searchable interface {
 	// GetScoutKey returns the value used as the document ID in the search index.
 	GetScoutKey() any

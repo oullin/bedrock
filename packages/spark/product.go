@@ -9,7 +9,6 @@ import (
 
 // Product represents a billable product that can be purchased via
 // subscription or one-time payment. Supports multiple payment providers.
-// Mirrors app/Models/Product.php.
 type Product struct {
 	ID            int64
 	Name          string

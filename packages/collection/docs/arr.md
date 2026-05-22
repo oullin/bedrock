@@ -305,7 +305,7 @@ Returns a new slice sorted in descending order.
 func SortRecursive[T any](items []T, less func(a, b T) bool) []T
 ```
 
-Sorts a slice using the provided comparison function. Exists for API parity with Laravel collections.
+Sorts a slice using the provided comparison function. Exists for API parity with upstream collections.
 
 ---
 
@@ -490,7 +490,7 @@ Applies the callback to each element, which produces a key-value pair, and colle
 func MapSpread[T any, R any](items []T, callback func(T, int) R) []R
 ```
 
-Alias for `Map`. Exists for API parity with Laravel collections.
+Alias for `Map`. Exists for API parity with upstream collections.
 
 ---
 

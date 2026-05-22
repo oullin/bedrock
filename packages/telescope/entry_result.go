@@ -7,7 +7,7 @@ import (
 )
 
 // EntryResult represents a persisted Telescope entry as returned by repository
-// queries. It mirrors Laravel's EntryResult class and is suitable for JSON
+// queries.
 // serialisation to the dashboard API.
 type EntryResult struct {
 	ID         string         `json:"id"`
@@ -22,7 +22,6 @@ type EntryResult struct {
 }
 
 // GenerateAvatar sets the avatar URL using a Gravatar MD5 hash derived from
-// the user email found in Content["user"]["email"], mirroring the PHP
 // Avatar::url() helper. A custom avatar resolver can override this.
 func (r *EntryResult) GenerateAvatar(resolver func(user map[string]any) string) {
 	userRaw, ok := r.Content["user"]

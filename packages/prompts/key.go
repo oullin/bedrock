@@ -1,6 +1,6 @@
 package prompts
 
-// Key constants for terminal input, matching Laravel Prompts Key class.
+// Key constants for terminal input, matching the Prompts Key class.
 const (
 	KeyUp              = "\x1b[A"
 	KeyShiftUp         = "\x1b[1;2A"

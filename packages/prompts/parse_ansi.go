@@ -12,7 +12,7 @@ type AnsiSegment struct {
 
 // ParseAnsiText parses a string containing ANSI escape sequences into a
 // slice of segments, each containing the text and the currently active
-// ANSI styling. Mirrors Laravel Prompts' parseAnsiText.
+// ANSI styling.
 func ParseAnsiText(s string) []AnsiSegment {
 	var segments []AnsiSegment
 

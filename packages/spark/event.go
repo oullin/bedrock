@@ -1,6 +1,6 @@
 package spark
 
-// Event types mirror the Laravel event classes dispatched during billing
+// Event types mirror the upstream event classes dispatched during billing
 // lifecycle operations.
 
 // SubscriptionCreatedEvent is dispatched when a subscription is created.

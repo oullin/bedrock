@@ -15,7 +15,6 @@ var pluralOverrides = map[string]string{
 // StrPlural returns the plural form of the given word.
 // If count is provided and equals 1, the singular form is returned.
 // Note: English-only. Non-English pluralization is not supported.
-// Mirrors Str::plural().
 func StrPlural(value string, count ...int) string {
 	if len(count) > 0 && count[0] == 1 {
 		return value
@@ -37,13 +36,11 @@ func StrPlural(value string, count ...int) string {
 
 // StrSingular returns the singular form of the given word.
 // Note: English-only via go-flect.
-// Mirrors Str::singular().
 func StrSingular(value string) string {
 	return inflection.Singular(value)
 }
 
 // StrPluralStudly pluralizes the last "studly" word in the string.
-// Mirrors Str::pluralStudly().
 func StrPluralStudly(value string, count ...int) string {
 	if len(count) > 0 && count[0] == 1 {
 		return value
@@ -64,7 +61,6 @@ func StrPluralStudly(value string, count ...int) string {
 }
 
 // StrPluralPascal pluralizes the last "pascal" word in the string.
-// Mirrors Str::pluralPascal().
 func StrPluralPascal(value string, count ...int) string {
 	return StrPluralStudly(value, count...)
 }

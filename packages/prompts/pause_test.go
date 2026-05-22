@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\PausePromptTest
-
-// Port of Laravel\Prompts\Tests\Feature\PausePromptTest::test_pauses
 func TestPausePauses(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -25,7 +22,6 @@ func TestPausePauses(t *testing.T) {
 	tp.AssertStrippedOutputContains("Press enter to continue...")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\PausePromptTest::test_custom_message
 func TestPauseCustomMessage(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +38,6 @@ func TestPauseCustomMessage(t *testing.T) {
 	tp.AssertStrippedOutputContains("Hit Enter to proceed")
 }
 
-// Port of Laravel\Prompts\Tests\Feature\PausePromptTest::test_can_be_cancelled
 func TestPauseCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

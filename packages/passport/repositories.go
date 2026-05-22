@@ -29,7 +29,7 @@ type ClientStore interface {
 	Delete(ctx context.Context, id string) error
 	RegenerateSecret(ctx context.Context, id string) (string, error)
 
-	// Factory helpers — mirror ClientRepository.create*() methods in Laravel Passport.
+	// Factory helpers — mirror ClientRepository.create*() methods in Passport.
 	CreatePersonalAccessClient(ctx context.Context, userID, name, provider string) (*Client, error)
 	CreatePasswordGrantClient(ctx context.Context, userID, name, redirect, provider string) (*Client, error)
 	CreateClientCredentialsClient(ctx context.Context, userID, name, redirect, provider string) (*Client, error)
@@ -70,7 +70,7 @@ type DeviceCodeStore interface {
 // generateID produces a cryptographically random 32-byte hex string.
 
 // generateSecret produces a cryptographically random 20-byte hex string,
-// used as client secrets (40 hex chars, matching Str::random(40) in Laravel).
+// used as client secrets (40 hex chars, matching Str::random(40) in the upstream framework).
 
 // ---- MemoryTokenStore --------------------------------------------------------
 

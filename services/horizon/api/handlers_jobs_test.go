@@ -11,7 +11,6 @@ import (
 	"github.com/bedrock/services/horizon/api"
 )
 
-// Port of JobRetrievalTest::test_pending_jobs_can_be_retrieved.
 func TestPendingJobsEndpointReturnsPendingJobsForQueue(t *testing.T) {
 	t.Parallel()
 
@@ -50,7 +49,6 @@ func TestPendingJobsEndpointReturnsPendingJobsForQueue(t *testing.T) {
 	}
 }
 
-// Port of JobRetrievalTest::test_paginating_large_job_results_gives_correct_amounts.
 func TestPendingJobsEndpointPaginatesLargeResults(t *testing.T) {
 	t.Parallel()
 
@@ -121,7 +119,6 @@ func TestPendingJobsEndpointClampsNegativePagination(t *testing.T) {
 	}
 }
 
-// Port of JobRetrievalTest::test_recent_jobs_are_correctly_trimmed_and_expired.
 func TestCompletedJobsEndpointReturnsTrimmedRecent(t *testing.T) {
 	t.Parallel()
 
@@ -149,7 +146,6 @@ func TestCompletedJobsEndpointReturnsTrimmedRecent(t *testing.T) {
 	}
 }
 
-// Port of FailedJobTest::test_failed_jobs_are_placed_in_the_failed_job_table.
 func TestFailedJobsEndpointListsFailedJobs(t *testing.T) {
 	t.Parallel()
 
@@ -174,7 +170,6 @@ func TestFailedJobsEndpointListsFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of FailedJobTest::test_tags_for_failed_jobs_are_stored_in_redis.
 func TestFailedJobsEndpointFiltersByTag(t *testing.T) {
 	t.Parallel()
 
@@ -202,7 +197,6 @@ func TestFailedJobsEndpointFiltersByTag(t *testing.T) {
 	}
 }
 
-// Port of FailedJobTest::test_failed_job_tags_have_an_expiration.
 func TestFailedJobShowReturnsFailedRecordWithExpiration(t *testing.T) {
 	t.Parallel()
 

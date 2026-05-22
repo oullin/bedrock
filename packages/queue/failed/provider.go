@@ -3,7 +3,7 @@ package failed
 import "time"
 
 // FailedJob is the decoded record returned by All and Find. It is the
-// Go analogue of the stdClass rows Laravel's providers yield: the public
+// Go analogue of the stdClass rows the upstream providers yield: the public
 // fields mirror failed_jobs columns, plus an ID that maps to either the
 // integer primary key (database) or the job UUID (uuid/file/dynamodb).
 type FailedJob struct {
@@ -16,16 +16,14 @@ type FailedJob struct {
 	FailedAt   time.Time
 }
 
-// FailedJobProvider is the Go port of
-// Illuminate\Queue\Failed\FailedJobProviderInterface. It abstracts the
+// Ref: @bedrock/code-0258
 // persistence layer the worker uses to record permanently-failed jobs.
 //
 // Differences from PHP:
 //
 //   - IDs returns []string; callers coerce where they need ints.
-//   - Find returns (nil, nil) when the id does not exist (Laravel
-//     returns null).
-//   - Flush takes `hours int` where 0 means "flush everything". Laravel
+//   - Find returns (nil, nil) when the id does not exist (upstream returns null).
+//   - Flush takes `hours int` where 0 means "flush everything". upstream
 //     accepts int|null with null meaning the same.
 type FailedJobProvider interface {
 	// Log persists a failed job record and returns its id (the uuid
@@ -52,14 +50,14 @@ type FailedJobProvider interface {
 	Flush(hours int) error
 }
 
-// Countable is the Go port of CountableFailedJobProvider. Providers that
+// Providers that
 // support efficient counting implement this optional interface.
 // A nil or empty string acts as "any" for the corresponding dimension.
 type Countable interface {
 	Count(connection, queueFilter string) (int64, error)
 }
 
-// Prunable is the Go port of PrunableFailedJobProvider. Implementations
+// Implementations
 // return the number of rows removed.
 type Prunable interface {
 	Prune(before time.Time) (int64, error)

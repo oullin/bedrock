@@ -9,8 +9,7 @@ import (
 )
 
 // BusServiceProvider registers the command bus dispatcher into the container.
-// It mirrors Illuminate\Bus\BusServiceProvider.
-//
+// Ref: @bedrock/code-0189
 // At resolve time the provider tries to wire a queue backend by looking up
 // the "queue.connection" abstract in the container — this is intentionally
 // distinct from "queue" (the QueueManager). If "queue.connection" is

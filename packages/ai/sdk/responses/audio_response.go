@@ -3,7 +3,6 @@ package responses
 import "github.com/bedrock/packages/ai/sdk/data"
 
 // AudioResponse holds the result of a text-to-speech request.
-// Mirrors Laravel\Ai\Responses\AudioResponse.
 type AudioResponse struct {
 	Content string // base64-encoded audio
 	Usage   data.Usage

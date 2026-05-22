@@ -3,7 +3,7 @@ package queue
 import "time"
 
 // InspectedJob is a read-only snapshot of a job that lives on a queue
-// backend. It is the Go port of Laravel's Illuminate\Queue\Jobs\InspectedJob
+// Ref: @bedrock/code-0263
 // and is returned by the JobInspector methods on drivers that support
 // peeking at the contents of a queue without removing them.
 //

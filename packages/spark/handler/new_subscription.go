@@ -9,7 +9,6 @@ import (
 )
 
 // NewSubscriptionHandler handles creating new subscriptions.
-// Mirrors Spark\Http\Controllers\NewSubscriptionController.
 type NewSubscriptionHandler struct {
 	creator  *action.SubscriptionCreator
 	manager  *spark.Manager

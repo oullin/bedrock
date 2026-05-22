@@ -6,9 +6,6 @@ import (
 	"time"
 )
 
-// Port of Laravel\Pail\Tests\Features\Filters\FilterTest::test_accepts_filter.
-// Port of Laravel\Pail\Tests\Features\Filters\LevelTest::test_is_case_insensitive.
-// Port of Laravel\Pail\Tests\Features\Filters\MessageTest::test_is_case_insensitive.
 func TestFilterMatchUsesLevelAndMessageCaseInsensitively(t *testing.T) {
 	t.Parallel()
 
@@ -27,8 +24,6 @@ func TestFilterMatchUsesLevelAndMessageCaseInsensitively(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\Filters\LevelTest::test_accepts_level.
-// Port of Laravel\Pail\Tests\Features\Filters\MessageTest::test_accepts_message.
 func TestFilterMatchAcceptsLevelAndMessage(t *testing.T) {
 	t.Parallel()
 
@@ -51,7 +46,6 @@ func TestFilterMatchAcceptsLevelAndMessage(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\Filters\FilterTest::test_filters_by_entire_log_message.
 func TestFilterMatchSeesTheLevelText(t *testing.T) {
 	t.Parallel()
 
@@ -66,15 +60,7 @@ func TestFilterMatchSeesTheLevelText(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_debug_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_info_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_notice_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_warning_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_error_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_critical_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_alert_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_emergency_messages.
-func TestRenderEntrySupportsLaravelLogLevels(t *testing.T) {
+func TestRenderEntrySupportsLogLevels(t *testing.T) {
 	t.Parallel()
 
 	for _, level := range []string{"debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"} {
@@ -95,7 +81,6 @@ func TestRenderEntrySupportsLaravelLogLevels(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_malformed_logs.
 func TestParseLineLeavesMalformedLogsUntouched(t *testing.T) {
 	t.Parallel()
 
@@ -119,7 +104,6 @@ func TestParseLineLeavesMalformedLogsUntouched(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_reported_strings.
 func TestParseLineHandlesReportedStrings(t *testing.T) {
 	t.Parallel()
 
@@ -134,7 +118,6 @@ func TestParseLineHandlesReportedStrings(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_using_context_facade.
 func TestParseLineExtractsTraceAndContext(t *testing.T) {
 	t.Parallel()
 
@@ -165,7 +148,6 @@ func TestParseLineExtractsTraceAndContext(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_output.
 func TestRenderEntryFormatsTheDefaultBlock(t *testing.T) {
 	t.Parallel()
 
@@ -198,7 +180,6 @@ func TestRenderEntryFormatsTheDefaultBlock(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_responsive_output.
 func TestRenderEntryWrapsToColumns(t *testing.T) {
 	t.Setenv("COLUMNS", "20")
 
@@ -227,11 +208,6 @@ func TestRenderEntryWrapsToColumns(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_exceptions and
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_runtime_exceptions.
-// Port of Laravel\Pail\Tests\Features\TraceTest::test_does_show_trace_when_verbose.
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_output_exceptions.
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_responsive_output_exceptions.
 func TestRenderEntryUsesExceptionHeaderAndTrace(t *testing.T) {
 	t.Parallel()
 
@@ -265,7 +241,6 @@ func TestRenderEntryUsesExceptionHeaderAndTrace(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\TraceTest::test_does_not_show_trace_by_default.
 func TestRenderEntryHidesTraceWithoutVerbose(t *testing.T) {
 	t.Parallel()
 
@@ -283,8 +258,6 @@ func TestRenderEntryHidesTraceWithoutVerbose(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\Origins\ConsoleTest::test_non_verbose.
-// Port of Laravel\Pail\Tests\Unit\Origins\ConsoleTest::test_verbose.
 func TestRenderEntryFormatsConsoleOrigin(t *testing.T) {
 	t.Parallel()
 
@@ -317,8 +290,6 @@ func TestRenderEntryFormatsConsoleOrigin(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\Origins\HttpTest::test_non_verbose and
-// Port of Laravel\Pail\Tests\Unit\Origins\HttpTest::test_verbose.
 func TestRenderEntryFormatsHttpOrigin(t *testing.T) {
 	t.Parallel()
 
@@ -355,8 +326,6 @@ func TestRenderEntryFormatsHttpOrigin(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\Origins\QueueTest::test_non_verbose and
-// Port of Laravel\Pail\Tests\Unit\Origins\QueueTest::test_verbose.
 func TestRenderEntryFormatsQueueOrigin(t *testing.T) {
 	t.Parallel()
 
@@ -387,7 +356,6 @@ func TestRenderEntryFormatsQueueOrigin(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_exception_key_as_string.
 func TestRenderEntryKeepsStringExceptionAsLevelHeader(t *testing.T) {
 	t.Parallel()
 
@@ -408,9 +376,6 @@ func TestRenderEntryKeepsStringExceptionAsLevelHeader(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_multiple_messages and
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_multiple_exceptions_and_messages.
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_multiple_exceptions_and_messages_and_verbose.
 func TestRenderMultipleEntriesPreservesOrder(t *testing.T) {
 	t.Parallel()
 
@@ -434,7 +399,6 @@ func TestRenderMultipleEntriesPreservesOrder(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_escaping_message.
 func TestRenderEntryPreservesHtmlInMessage(t *testing.T) {
 	t.Parallel()
 
@@ -449,8 +413,6 @@ func TestRenderEntryPreservesHtmlInMessage(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Features\CommandTest::test_escaping_html_arrayable_options.
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_escaping_html_arrayable_options.
 func TestRenderEntryFormatsNestedArrayableContext(t *testing.T) {
 	t.Parallel()
 
@@ -484,7 +446,6 @@ func TestRenderEntryFormatsNestedArrayableContext(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Pail\Tests\Unit\CliPrinterTest::test_escaping_html_options.
 func TestRenderEntryPreservesMultilineContextStrings(t *testing.T) {
 	t.Parallel()
 

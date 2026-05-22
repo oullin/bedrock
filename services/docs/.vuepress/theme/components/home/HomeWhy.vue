@@ -13,7 +13,7 @@ const items = [
     body: "Timing-safe crypto, CSRF-aware routing, rate limiting primitives. Secure defaults, always." },
   { icon: IconStack,
     title: 'Familiar patterns, idiomatic Go.',
-    body: "If you know Laravel, you'll feel at home. But the APIs are Go — interfaces, contexts, errors." },
+    body: "Conventional, batteries-included APIs in idiomatic Go — interfaces, contexts, errors." },
 ]
 </script>
 

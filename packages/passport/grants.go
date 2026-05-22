@@ -2,7 +2,7 @@ package passport
 
 import "context"
 
-// Grant type identifiers — matches Laravel Passport grant names exactly.
+// Grant type identifiers — matches Passport grant names exactly.
 // These correspond to the grant type strings used in token requests.
 
 // GrantAuthorizationCode is the standard OAuth2 Authorization Code grant.
@@ -21,13 +21,11 @@ import "context"
 
 // GrantDeviceCode is the Device Authorization grant (RFC 8628) for input-constrained devices.
 
-// GrantPersonalAccess is the custom Laravel Passport grant for personal access tokens.
+// GrantPersonalAccess is the custom Passport grant for personal access tokens.
 // It is not a standard OAuth2 grant type.
 
 // GrantDriver handles a specific OAuth2 grant flow.
 // The AuthorizationServer delegates token issuance to registered GrantDrivers.
-//
-// This mirrors the League\OAuth2\Server\Grant\AbstractGrant contract.
 type GrantDriver interface {
 	// GrantType returns the identifier for this grant (one of the Grant* constants).
 	GrantType() string

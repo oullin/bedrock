@@ -6,7 +6,7 @@ package routing
 // called explicitly, or implicitly when the user reads the resulting
 // collection via [PendingResourceRegistration.Routes].
 //
-// Mirrors Illuminate\Routing\PendingResourceRegistration.
+// Ref: @bedrock/code-0325
 type PendingResourceRegistration struct {
 	registrar  *ResourceRegistrar
 	name       string

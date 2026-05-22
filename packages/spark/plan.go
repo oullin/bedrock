@@ -1,7 +1,6 @@
 package spark
 
 // Plan represents a subscription plan with fluent configuration.
-// Mirrors Spark\Plan.
 type Plan struct {
 	ID               string
 	Name             string

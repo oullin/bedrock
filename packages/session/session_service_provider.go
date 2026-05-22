@@ -3,7 +3,7 @@ package session
 import "github.com/bedrock/packages/container"
 
 // SessionServiceProvider registers the session manager into the container.
-// It mirrors Illuminate\Session\SessionServiceProvider.
+// Ref: @bedrock/code-0348
 type SessionServiceProvider struct {
 	app  *container.Container
 	name string // default session/cookie name

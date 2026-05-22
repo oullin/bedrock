@@ -111,7 +111,6 @@ func (g *ImageGateway) RecordQueuedImage(prompt *prompts.ImagePrompt) {
 
 // FakeEmbedding generates a normalised random embedding vector of the given
 // dimensionality. The returned vector has magnitude ≈ 1.0 (within 1e-6).
-// Mirrors Laravel\Ai\Embeddings::fakeEmbedding().
 func FakeEmbedding(dims int) []float64 {
 	if dims <= 0 {
 		return nil

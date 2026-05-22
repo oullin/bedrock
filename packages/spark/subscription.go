@@ -6,7 +6,6 @@ import (
 )
 
 // Subscription represents a billable's subscription record.
-// Mirrors Laravel\Paddle\Subscription.
 type Subscription struct {
 	ID               int64
 	BillableType     string

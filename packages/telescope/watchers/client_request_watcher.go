@@ -15,7 +15,7 @@ import (
 )
 
 // ClientRequestWatcher monitors outbound HTTP client requests and records them
-// as Telescope entries. It mirrors Laravel's ClientRequestWatcher class.
+// as Telescope entries.
 //
 // Options:
 //   - "size_limit" (int): max response body bytes to store (default 64 KB).

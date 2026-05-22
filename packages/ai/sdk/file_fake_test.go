@@ -13,7 +13,6 @@ import (
 	contractsgw "github.com/bedrock/packages/contracts/ai/gateway"
 )
 
-// TestFileCanBePut mirrors test_file_can_be_stored.
 func TestFileCanBePut(t *testing.T) {
 	t.Parallel()
 
@@ -46,7 +45,6 @@ func TestFileCanBePut(t *testing.T) {
 	})
 }
 
-// TestFileAssertNothingStored mirrors the "nothing stored" assertion.
 func TestFileAssertNothingStored(t *testing.T) {
 	t.Parallel()
 
@@ -56,7 +54,6 @@ func TestFileAssertNothingStored(t *testing.T) {
 	rec.AssertNothingFileStored(t)
 }
 
-// TestFileCanBeDeleted mirrors test_file_can_be_deleted.
 func TestFileCanBeDeleted(t *testing.T) {
 	t.Parallel()
 
@@ -80,7 +77,6 @@ func TestFileCanBeDeleted(t *testing.T) {
 	})
 }
 
-// TestFileAssertNothingDeleted mirrors the "nothing deleted" assertion.
 func TestFileAssertNothingDeleted(t *testing.T) {
 	t.Parallel()
 

@@ -13,8 +13,7 @@ import (
 // milliseconds
 
 // QueryWatcher monitors database query execution and records entries with SQL,
-// bindings, execution time, and slow-query tagging. It mirrors Laravel's
-// QueryWatcher class.
+// bindings, execution time, and slow-query tagging.
 //
 // Options:
 //   - "slow" (float64): threshold in milliseconds above which a query is
@@ -98,7 +97,6 @@ var positionalPlaceholder = regexp.MustCompile(`\?`)
 var namedPlaceholder = regexp.MustCompile(`:([a-zA-Z_][a-zA-Z0-9_]*)`)
 
 // ReplaceBindings substitutes SQL parameter placeholders with their actual
-// values, mirroring QueryWatcher::replaceBindings().
 //
 // It supports both positional (?) and named (:key) parameter styles.
 // String values are single-quoted; nil is rendered as NULL.
@@ -149,7 +147,6 @@ func ReplaceNamedBindings(sql string, bindings map[string]any) string {
 }
 
 // quoteBinding formats a single binding value for inline SQL substitution,
-// mirroring QueryWatcher::quoteStringBinding().
 func quoteBinding(v any) string {
 	if v == nil {
 		return "NULL"

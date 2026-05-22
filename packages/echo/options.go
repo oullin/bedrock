@@ -9,7 +9,6 @@ package echo
 //   - "null"      — NullConnector (no-op, useful for tests)
 //
 // When Connector is non-nil it is used directly and Broadcaster is ignored.
-// This is the Go equivalent of passing a custom connector constructor in TS.
 type Options struct {
 	// Broadcaster names the built-in transport. Ignored when Connector is set.
 	Broadcaster string
@@ -19,7 +18,7 @@ type Options struct {
 	Connector Connector
 
 	// Namespace is prepended to event names by EventFormatter.
-	// Example: "App.Events" (the default in Laravel Echo).
+	// Example: "App.Events".
 	// Set to empty string "" to disable namespacing, equivalent to
 	// namespace: false in the TypeScript library.
 	Namespace string

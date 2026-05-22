@@ -9,10 +9,10 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// These tests are not 1:1 ports from tests/Queue — they cover Go-specific
-// helpers (DisplayName, NewUUIDv4, CreatePayloadFor, ShouldDispatchAfterCommit)
-// that the abstract_queue.go file introduces. The payload-hook behaviour
-// they assert matches Laravel Queue::createPayloadUsing's contract.
+// These tests cover Go-specific helpers (DisplayName, NewUUIDv4,
+// CreatePayloadFor, ShouldDispatchAfterCommit) that the abstract_queue.go
+// file introduces. The payload-hook behaviour they assert matches the
+// CreatePayloadUsing contract.
 
 type sampleJob struct {
 	_       struct{} `queue:"tries=4,timeout=45s,backoff=1s|2s,queue=mail"`
@@ -108,7 +108,7 @@ func TestNewUUIDv4IsUnique(t *testing.T) {
 	}
 }
 
-func TestCreatePayloadForWritesLaravelShape(t *testing.T) {
+func TestCreatePayloadForWritesFrameworkShape(t *testing.T) {
 	// Not t.Parallel: mutates the global payload-hook list.
 	queue.ClearPayloadHooks()
 
@@ -267,11 +267,7 @@ func TestShouldDispatchAfterCommitPrecedence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractDefaultsToAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndAfterCommitFalseRespectsBeforeCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithContractAndExplicitAfterCommitTrueStillSchedulesAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsAfterCommit
-// Port of Illuminate\Tests\Queue\BeforeCommitContractTest::testJobWithoutContractRespectsBeforeCommit
+// Ref: @bedrock/code-0359
 func TestBeforeCommitContractDispatchPrecedence(t *testing.T) {
 	t.Parallel()
 
@@ -296,9 +292,7 @@ func TestBeforeCommitContractDispatchPrecedence(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_queue_delay
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_queue_without_delay
-// Port of Illuminate\Tests\Queue\QueueDelayTest::test_pending_dispatch_without_delay
+// Ref: @bedrock/code-0367
 func TestQueueDelayAndWithoutDelayOptions(t *testing.T) {
 	t.Parallel()
 
@@ -319,7 +313,7 @@ func TestQueueDelayAndWithoutDelayOptions(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueDatabaseQueueUnitTest::testPushIncludesBatchIdInPayloadForBatchableJob
+// Ref: @bedrock/code-0366
 func TestCreatePayloadForIncludesBatchID(t *testing.T) {
 	t.Parallel()
 

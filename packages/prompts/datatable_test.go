@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest
-
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest::test_selects_row
 func TestDataTableSelectsRow(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -32,7 +29,6 @@ func TestDataTableSelectsRow(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest::test_can_be_cancelled
 func TestDataTableCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -50,7 +46,6 @@ func TestDataTableCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest::test_filters_rows
 func TestDataTableFiltersRows(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -75,7 +70,6 @@ func TestDataTableFiltersRows(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest::test_navigates_rows
 func TestDataTableNavigatesRows(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -97,7 +91,6 @@ func TestDataTableNavigatesRows(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\DataTablePromptTest::test_renders_hint
 func TestDataTableRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

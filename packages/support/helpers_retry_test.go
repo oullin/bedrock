@@ -8,8 +8,7 @@ import (
 )
 
 // Ports of:
-// - Illuminate\Tests\Support\SupportHelpersTest::testRetry
-// - Illuminate\Tests\Support\SupportHelpersTest::testRetryWithBackoff
+// Ref: @bedrock/code-0377
 func TestRetry(t *testing.T) {
 	t.Parallel()
 
@@ -100,7 +99,7 @@ func TestRetry(t *testing.T) {
 	})
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testRetryWithPassingSleepCallback
+// Ref: @bedrock/code-0377
 func TestRetryWithPassingSleepCallback(t *testing.T) {
 	t.Parallel()
 
@@ -130,7 +129,7 @@ func TestRetryWithPassingSleepCallback(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testRetryWithPassingWhenCallback
+// Ref: @bedrock/code-0377
 func TestRetryWithPassingWhenCallback(t *testing.T) {
 	t.Parallel()
 
@@ -156,7 +155,7 @@ func TestRetryWithPassingWhenCallback(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testRetryWithFailingWhenCallback
+// Ref: @bedrock/code-0377
 func TestRetryWithFailingWhenCallback(t *testing.T) {
 	t.Parallel()
 
@@ -180,7 +179,7 @@ func TestRetryWithFailingWhenCallback(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrow
+// Ref: @bedrock/code-0377
 func TestThrowIf(t *testing.T) {
 	t.Parallel()
 
@@ -197,7 +196,7 @@ func TestThrowIf(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowUnless
+// Ref: @bedrock/code-0377
 func TestThrowUnless(t *testing.T) {
 	t.Parallel()
 
@@ -214,7 +213,7 @@ func TestThrowUnless(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowDefaultException
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowDefaultException(t *testing.T) {
 	t.Parallel()
 
@@ -229,7 +228,7 @@ func TestSupportHelpersThrowDefaultException(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowExceptionWithMessage
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowExceptionWithMessage(t *testing.T) {
 	t.Parallel()
 
@@ -240,7 +239,7 @@ func TestSupportHelpersThrowExceptionWithMessage(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowExceptionAsStringWithMessage
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowExceptionAsStringWithMessage(t *testing.T) {
 	t.Parallel()
 
@@ -251,7 +250,7 @@ func TestSupportHelpersThrowExceptionAsStringWithMessage(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowClosureException
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowClosureException(t *testing.T) {
 	t.Parallel()
 
@@ -262,7 +261,7 @@ func TestSupportHelpersThrowClosureException(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowClosureWithParamsException
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowClosureWithParamsException(t *testing.T) {
 	t.Parallel()
 
@@ -273,7 +272,7 @@ func TestSupportHelpersThrowClosureWithParamsException(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowClosureStringWithParamsException
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowClosureStringWithParamsException(t *testing.T) {
 	t.Parallel()
 
@@ -284,7 +283,7 @@ func TestSupportHelpersThrowClosureStringWithParamsException(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowUnlessDefaultException
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowUnlessDefaultException(t *testing.T) {
 	t.Parallel()
 
@@ -305,7 +304,7 @@ func TestSupportHelpersThrowUnlessDefaultException(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowUnlessExceptionWithMessage
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowUnlessExceptionWithMessage(t *testing.T) {
 	t.Parallel()
 
@@ -316,7 +315,7 @@ func TestSupportHelpersThrowUnlessExceptionWithMessage(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowUnlessExceptionAsStringWithMessage
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowUnlessExceptionAsStringWithMessage(t *testing.T) {
 	t.Parallel()
 
@@ -327,7 +326,7 @@ func TestSupportHelpersThrowUnlessExceptionAsStringWithMessage(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowReturnIfNotThrown
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowReturnIfNotThrown(t *testing.T) {
 	t.Parallel()
 
@@ -338,7 +337,7 @@ func TestSupportHelpersThrowReturnIfNotThrown(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Support\SupportHelpersTest::testThrowWithString
+// Ref: @bedrock/code-0377
 func TestSupportHelpersThrowWithString(t *testing.T) {
 	t.Parallel()
 

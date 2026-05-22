@@ -149,7 +149,7 @@ func (m *Manager) Store(name ...string) (*Decorator, error) {
 	return dec, nil
 }
 
-// Driver is an alias for Store (Laravel API parity).
+// Driver is an alias for Store.
 func (m *Manager) Driver(name ...string) (*Decorator, error) {
 	return m.Store(name...)
 }

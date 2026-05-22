@@ -29,7 +29,7 @@ type Config struct {
 	Timeout     time.Duration
 }
 
-// Result is the report returned to the UI. Field names mirror laravel-brain
+// Result is the report returned to the UI. Field names mirror upstream-brain
 // so the existing viewer markup renders unchanged.
 type Result struct {
 	URL         string        `json:"url"`

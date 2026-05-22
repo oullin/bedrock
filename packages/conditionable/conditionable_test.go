@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/conditionable"
 )
 
-// logger mirrors Laravel's ConditionableLogger test helper.
 type logger struct {
 	Values []any
 	Toggle bool

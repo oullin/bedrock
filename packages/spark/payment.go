@@ -3,7 +3,6 @@ package spark
 import "time"
 
 // Payment represents a single payment amount with currency and date.
-// Mirrors Laravel\Paddle\Payment.
 type Payment struct {
 	Amount   int64
 	Currency string

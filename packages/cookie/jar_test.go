@@ -204,7 +204,7 @@ func TestJarMakeSecureOverrideToFalse(t *testing.T) {
 	t.Parallel()
 
 	// When opts.Secure is explicitly false, it overrides the default.
-	// This matches Laravel's testCookiesCanSetSecureOptionUsingDefaultPathAndDomain.
+	// This matches the upstream testCookiesCanSetSecureOptionUsingDefaultPathAndDomain.
 	opts := defaultOpts()
 	opts.Secure = cookie.BoolPtr(true)
 	j := cookie.NewJar(opts)
@@ -366,7 +366,7 @@ func TestJarQueuedWithoutPathReturnsRootPath(t *testing.T) {
 	j.Queue(&http.Cookie{Name: "foo", Value: "bar", Path: "/path"})
 	j.Queue(&http.Cookie{Name: "foo", Value: "rab", Path: "/"})
 
-	// Without path, should return the root-path cookie (matching Laravel).
+	// Without path, should return the root-path cookie (matching upstream).
 	c := j.Queued("foo")
 
 	if c == nil || c.Value != "rab" {

@@ -9,7 +9,6 @@ import (
 
 // reservedKeywords is the complete list of TypeScript/JavaScript reserved
 // words that cannot be used as identifiers without quoting.
-// Mirrors TypeScript::RESERVED_KEYWORDS in the PHP implementation.
 var reservedKeywords = map[string]struct{}{
 	"await": {}, "break": {}, "case": {}, "catch": {}, "class": {},
 	"const": {}, "continue": {}, "debugger": {}, "default": {}, "delete": {},
@@ -27,7 +26,7 @@ var reservedKeywords = map[string]struct{}{
 var nonIdentRe = regexp.MustCompile(`[^\p{L}\p{Nd}_$-]`)
 
 // SafeMethod sanitizes a raw method name so it is safe to use as a TypeScript
-// identifier. Mirrors TypeScript::safeMethod() from the PHP implementation.
+// identifier.
 //
 // suffix is "Method" or "Param". It is appended (lowercased + ucfirst) when
 // the name is a reserved keyword, or prepended (lowercased) when the name
@@ -61,7 +60,6 @@ func SafeMethod(method, suffix string) string {
 
 // QuoteIfNeeded returns the key quoted when it starts with a digit but is not
 // a pure integer (e.g., "2fa" → `"2fa"`). Pure numbers are returned as-is.
-// Mirrors TypeScript::quoteIfNeeded().
 func QuoteIfNeeded(name string) string {
 	if isNumeric(name) {
 		return name
@@ -114,7 +112,7 @@ var (
 )
 
 // CleanUp normalises the whitespace and indentation of a generated TypeScript
-// file. It is the Go equivalent of TypeScript::cleanUp() in the PHP code.
+// file.
 func CleanUp(src string) string {
 	// --- simple string replacements (order matters) ---
 	replacements := [][2]string{

@@ -1,7 +1,6 @@
 package enums
 
 // FinishReason describes why a text generation stopped.
-// Mirrors Laravel\Ai\Responses\Data\FinishReason.
 type FinishReason string
 
 const (

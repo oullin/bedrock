@@ -3,7 +3,7 @@ package encryption
 import "github.com/bedrock/packages/container"
 
 // EncryptionServiceProvider registers the encrypter into the container.
-// It mirrors Illuminate\Encryption\EncryptionServiceProvider.
+// Ref: @bedrock/code-0213
 type EncryptionServiceProvider struct {
 	app    *container.Container
 	key    []byte

@@ -13,7 +13,7 @@ import (
 // precognition versions (when a container is provided), and manages the
 // Precognition and Vary response headers.
 //
-// Mirrors Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests.
+// Ref: @bedrock/code-0217
 type HandlePrecognitiveRequests struct {
 	container *container.Container
 }
@@ -121,8 +121,8 @@ func (m *HandlePrecognitiveRequests) prepareForPrecognition(r *http.Request) fun
 }
 
 // appendVaryHeader adds "Precognition" to the Vary header. This is called for
-// both precognitive and non-precognitive responses, matching Laravel's
-// behaviour where the Vary header is always set.
+// both precognitive and non-precognitive responses, so the Vary header is
+// always set.
 func appendVaryHeader(w http.ResponseWriter) {
 	AddVaryHeader(w)
 }

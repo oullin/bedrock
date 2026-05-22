@@ -1,7 +1,7 @@
 # Bedrock Demo
 
 `services/demo` is the primary demo app for Bedrock. It keeps a small
-Laravel-skeleton-style HTTP surface that is easy to run while exercising core
+skeleton-style HTTP surface that is easy to run while exercising core
 packages such as routing, validation, support, container, database, and config.
 
 ## Run

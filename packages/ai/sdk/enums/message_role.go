@@ -1,7 +1,6 @@
 package enums
 
 // MessageRole identifies the participant of a conversation message.
-// Mirrors Laravel\Ai\Messages\MessageRole.
 type MessageRole string
 
 const (

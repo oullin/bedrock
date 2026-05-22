@@ -7,7 +7,7 @@ import (
 )
 
 // NotificationWatcher monitors notification dispatch and records entries as
-// Telescope entries. It mirrors Laravel's NotificationWatcher class.
+// Telescope entries.
 type NotificationWatcher struct {
 	telescope.BaseWatcher
 }

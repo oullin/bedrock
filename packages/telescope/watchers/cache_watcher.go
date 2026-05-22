@@ -7,10 +7,9 @@ import (
 )
 
 // ignoredCachePrefixes contains internal cache key prefixes that should not be
-// recorded, mirroring Laravel's CacheWatcher ignore list.
 
 // CacheWatcher monitors cache operations (hit, miss, set, forget) and records
-// them as Telescope entries. It mirrors Laravel's CacheWatcher class.
+// them as Telescope entries.
 //
 // Options:
 //   - "hidden" ([]string): key names whose values will be masked.
@@ -38,7 +37,6 @@ func NewCacheWatcher(t *telescope.Telescope, options map[string]any) *CacheWatch
 // cache package, attach listeners to the cache event dispatcher.
 func (w *CacheWatcher) Register(_ any) error { return nil }
 
-// ShouldIgnore reports whether the cache key should be skipped, mirroring
 // CacheWatcher::shouldIgnore().
 func (w *CacheWatcher) ShouldIgnore(key string) bool {
 	for _, prefix := range ignoredCachePrefixes {

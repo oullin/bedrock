@@ -78,7 +78,7 @@ func DefaultConfigRepository() *config.Repository {
 		"spark.prorates":           true,
 		"spark.proration_behavior": "",
 		"spark.date_format":        "January 2, 2006",
-		"spark.app_name":           "Laravel",
+		"spark.app_name":           "Bedrock",
 		"spark.dashboard_url":      "",
 		"spark.terms_url":          "",
 		"spark.brand_logo":         "",
@@ -179,7 +179,7 @@ func (c *Config) ProrationBehavior() string { return c.string("proration_behavio
 
 func (c *Config) DateFormat() string { return c.string("date_format", "January 2, 2006") }
 
-func (c *Config) AppName() string { return c.string("app_name", "Laravel") }
+func (c *Config) AppName() string { return c.string("app_name", "Bedrock") }
 
 func (c *Config) DashboardURL() string { return c.string("dashboard_url", "") }
 

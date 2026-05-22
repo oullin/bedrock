@@ -1,6 +1,6 @@
 package limiters
 
-// Lua scripts ported from Laravel 13.x Illuminate\Redis\Limiters.
+// Ref: @bedrock/code-0279
 
 // ConcurrencyAcquire is the Lua equivalent of the "increment counter then
 // release slot" pattern ConcurrencyLimiter uses. The script atomically

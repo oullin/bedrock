@@ -10,7 +10,7 @@ import (
 
 // FlowAnalyzer walks every function body and, for each "interesting" call
 // inside it, draws an edge from the enclosing function to the target node
-// already in the graph. This is the Go analogue of laravel-brain's
+// already in the graph. This is the Go analogue of upstream-brain's
 // FlowExtractor + MethodTracer + QueryTracer rolled into a single pass.
 //
 // Pre-existing analyzers populate the target nodes (route, event, job,

@@ -6,7 +6,6 @@ import (
 )
 
 // BitbucketProvider handles OAuth2 authentication via Bitbucket.
-// It mirrors Laravel\Socialite\Two\BitbucketProvider.
 type BitbucketProvider struct {
 	AbstractProvider
 }

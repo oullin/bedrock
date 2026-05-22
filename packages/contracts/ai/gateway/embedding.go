@@ -18,7 +18,6 @@ type EmbeddingGenerateResult struct {
 }
 
 // EmbeddingGateway drives embedding generation for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\EmbeddingGateway.
 type EmbeddingGateway interface {
 	GenerateEmbeddings(ctx context.Context, req EmbeddingGenerateRequest) (*EmbeddingGenerateResult, error)
 }

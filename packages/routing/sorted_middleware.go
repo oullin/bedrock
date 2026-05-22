@@ -4,12 +4,12 @@ import "strings"
 
 // SortedMiddleware is the deduplicated, priority-ordered middleware list.
 //
-// In Laravel this is a Collection subclass; in Go it is a plain slice with
+// In the upstream framework this is a Collection subclass; in Go it is a plain slice with
 // a constructor that performs the sort. Slice elements are typed as any
 // because middleware may be either a string class name (with optional ":args"
 // suffix) or a closure.
 //
-// Mirrors Illuminate\Routing\SortedMiddleware.
+// Ref: @bedrock/code-0345
 type SortedMiddleware []any
 
 // NewSortedMiddleware returns the middleware list reordered so that any
@@ -92,7 +92,6 @@ func moveMiddleware(in []any, from, to int) []any {
 	return out
 }
 
-// uniqueMiddleware mirrors Router::uniqueMiddleware: it preserves first
 // occurrence and discards later duplicates. Only string entries are eligible
 // for dedup; closures are kept verbatim.
 func uniqueMiddleware(middleware []any) SortedMiddleware {

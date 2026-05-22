@@ -1,8 +1,7 @@
 package routing
 
-// ResponseFactory mirrors Illuminate\Routing\ResponseFactory.
-//
-// In Laravel the factory hand-builds Response/JsonResponse instances; the Go
+// Ref: @bedrock/code-0331
+// In the upstream framework the factory hand-builds Response/JsonResponse instances; the Go
 // port provides a struct-based equivalent that the bedrock httpx layer can
 // translate into real HTTP responses. The methods cover the public surface
 // callers depend on; the internal "prepare" plumbing lives in M11.

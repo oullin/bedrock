@@ -1,3 +1,3 @@
 // Package lottery provides probabilistic execution helpers modeled after
-// Laravel's Lottery API.
+// the upstream Lottery API.
 package lottery

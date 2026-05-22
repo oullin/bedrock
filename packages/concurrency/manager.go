@@ -37,7 +37,7 @@ func (m *Manager) Register(driver string, creator DriverCreator) *Manager {
 	return m
 }
 
-// Extend is an alias for Register (matches Laravel API naming).
+// Extend is an alias for Register (matches upstream API naming).
 func (m *Manager) Extend(driver string, creator DriverCreator) *Manager {
 	return m.Register(driver, creator)
 }
@@ -83,7 +83,7 @@ func (m *Manager) Driver(connection string) (Driver, error) {
 	return d, nil
 }
 
-// Connection is an alias for Driver (matches Laravel naming).
+// Connection is an alias for Driver (matches upstream naming).
 func (m *Manager) Connection(connection string) (Driver, error) {
 	return m.Driver(connection)
 }

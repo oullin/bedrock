@@ -7,9 +7,8 @@ import (
 	"github.com/bedrock/packages/routing/contracts"
 )
 
-// Translation of laravel/framework tests/Routing/RoutingUrlGeneratorTest.php.
-//
-// Byte-level signed URL parity with Laravel cannot be asserted here without a
+// Ref: @bedrock/code-0399
+// Byte-level signed URL parity with upstream cannot be asserted here without a
 // PHP runtime to dump fixtures. The tests below verify the round-trip
 // invariants (Sign → HasValidSignature) and the canonical encoding rules.
 // RoutingUrlGeneratorTest::testBasicGeneration

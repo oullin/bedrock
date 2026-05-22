@@ -23,7 +23,6 @@ func NewSyncDispatcher(channels *ChannelManager) *SyncDispatcher {
 
 // Dispatch broadcasts event to every subscriber of event.Channel within the
 // given application. If event.Channel does not exist the call is a no-op,
-// mirroring Laravel Reverb's behaviour of silently ignoring missing channels.
 //
 // Sender exclusion (socket_id) is handled at the server layer: callers that
 // need to exclude a sender should call the channel's Broadcast method directly

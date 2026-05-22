@@ -66,7 +66,7 @@ pnpm run build --filter=@bedrock/docs
 
 | Package                            | Purpose                                           |
 | ---------------------------------- | ------------------------------------------------- |
-| [routing](/packages/routing)       | HTTP routing (1:1 Laravel port)                   |
+| [routing](/packages/routing)       | HTTP routing                                      |
 | [httpx](/packages/httpx)           | HTTP utilities, middleware, and testing helpers   |
 | [session](/packages/session)       | Session management with multiple storage handlers |
 | [cookie](/packages/cookie)         | HTTP cookie handling                              |

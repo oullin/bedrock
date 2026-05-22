@@ -9,8 +9,7 @@ import (
 
 // TwitterProvider handles OAuth2 authentication via Twitter API v2.
 // Twitter deprecated OAuth1 for new apps; this implementation uses OAuth2
-// with PKCE (Proof Key for Code Exchange), mirroring
-// Laravel\Socialite\Two\TwitterProvider.
+// upstream Socialite\Two\TwitterProvider.
 type TwitterProvider struct {
 	AbstractProvider
 }

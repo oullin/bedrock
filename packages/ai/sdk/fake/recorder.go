@@ -1,6 +1,6 @@
 // Package fake provides in-memory gateway implementations for testing.
 // Every fake gateway records interactions and exposes assert helpers that
-// mirror the Laravel AI test assertion API.
+// mirror the upstream AI test assertion API.
 package fake
 
 import (

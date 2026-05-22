@@ -31,8 +31,8 @@ type BeanstalkdTubeLister interface {
 }
 
 // BeanstalkdPeeker is the optional capability that lets the driver
-// snapshot jobs without reserving them. PeekReady mirrors
-// "peek-ready"; PeekDelayed mirrors "peek-delayed". Beanstalkd does
+// snapshot jobs without reserving them.
+// Beanstalkd does
 // not expose a way to enumerate every reserved job, so ReservedJobs
 // surfaces ErrNotSupported regardless of whether this interface is
 // satisfied.
@@ -42,14 +42,13 @@ type BeanstalkdPeeker interface {
 }
 
 // BeanstalkdDriver enqueues jobs via a Beanstalkd client. It is the
-// Go port of Laravel's Illuminate\Queue\BeanstalkdQueue.
-//
+// Ref: @bedrock/code-0230
 // Two knobs are tunable after construction:
 //
 //   - SetDefaultTube configures the fallback tube used when a caller
-//     passes an empty queue name (Laravel's $default constructor arg).
+//     passes an empty queue name (the upstream $default constructor arg).
 //   - SetBlockFor configures the reserve-with-timeout value passed to
-//     the client on Pop (Laravel's $blockFor constructor arg). Default
+//     the client on Pop (the upstream $blockFor constructor arg). Default
 //     is zero for non-blocking reserve.
 type BeanstalkdDriver struct {
 	client      BeanstalkdClient
@@ -80,7 +79,7 @@ func (d *BeanstalkdDriver) SetBlockFor(blockFor time.Duration) *BeanstalkdDriver
 }
 
 // SetDefaultTube configures the tube used when a caller passes an empty
-// queue name to Push, PushDelayed, or Pop. Mirrors Laravel's $default
+// queue name to Push, PushDelayed, or Pop.
 // BeanstalkdQueue constructor argument.
 func (d *BeanstalkdDriver) SetDefaultTube(tube string) *BeanstalkdDriver {
 	d.defaultTube = tube
@@ -89,7 +88,7 @@ func (d *BeanstalkdDriver) SetDefaultTube(tube string) *BeanstalkdDriver {
 }
 
 // resolveTube falls back to defaultTube when queueName is empty,
-// matching Laravel's getQueue($queue ?: $this->default) behaviour.
+// matching the upstream getQueue($queue ?: $this->default) behaviour.
 func (d *BeanstalkdDriver) resolveTube(queueName string) string {
 	if queueName == "" {
 		return d.defaultTube

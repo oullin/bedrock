@@ -1,9 +1,9 @@
 # CSRF Protection
 
-<!-- laravel-docs: csrf.md#csrf-protection -->
-<!-- laravel-docs: csrf.md#preventing-csrf-requests -->
-<!-- laravel-docs: csrf.md#x-csrf-token -->
-<!-- laravel-docs: csrf.md#x-xsrf-token -->
+<!-- ref: @bedrock/code-0051 -->
+<!-- ref: @bedrock/code-0052 -->
+<!-- ref: @bedrock/code-0053 -->
+<!-- ref: @bedrock/code-0054 -->
 
 Bedrock protects against Cross-Site Request Forgery using per-session tokens
 stored in the session and verified on state-changing requests.

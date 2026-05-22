@@ -7,7 +7,7 @@ import (
 
 // ExceptionPredicate decides whether err should fail job immediately.
 // It gives Go callers the same "inspect the job object" escape hatch
-// Laravel's FailOnException middleware exposes through closures.
+// the upstream FailOnException middleware exposes through closures.
 type ExceptionPredicate func(err error, job Job) bool
 
 // FailOnException marks a job as failed when a handler returns a matching

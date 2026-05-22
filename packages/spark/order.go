@@ -5,7 +5,7 @@ import "time"
 // OrderStatus constants.
 
 // Order represents a one-time purchase record linked to a team and
-// product. Mirrors app/Models/Order.php.
+// product. php.
 type Order struct {
 	ID                    int64
 	TeamID                int64

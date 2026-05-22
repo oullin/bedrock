@@ -19,7 +19,7 @@ import (
 //   - actionList: "Controller@method" → Route, populated when a controller
 //     action is supplied.
 //
-// Mirrors Illuminate\Routing\RouteCollection.
+// Ref: @bedrock/code-0335
 type RouteCollection struct {
 	AbstractRouteCollection
 
@@ -45,7 +45,7 @@ func NewRouteCollection() *RouteCollection {
 	}
 }
 
-// Add registers a route and returns it. Mirrors RouteCollection::add.
+// Ref: @bedrock/code-0335
 func (c *RouteCollection) Add(route *Route) *Route {
 	c.addToCollections(route)
 	c.addLookups(route)
@@ -207,5 +207,4 @@ func (c *RouteCollection) GetRoutesByName() map[string]*Route {
 	return out
 }
 
-// Count reports the total number of routes (mirrors PHP Countable).
 func (c *RouteCollection) Count() int { return len(c.allRoutes) }

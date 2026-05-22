@@ -14,16 +14,16 @@ import (
 // Connector step can register this way.
 type DriverCreator func(config map[string]any) (Queue, error)
 
-// ConnectorFactory is the Laravel-faithful two-step path: the factory
+// ConnectorFactory is the upstream-faithful two-step path: the factory
 // returns a Connector, and the Manager then calls Connector.Connect(config)
-// to obtain a Queue. Mirrors Laravel's addConnector closure, which
-// returns `new Illuminate\Queue\Connectors\*Connector`.
+// to obtain a Queue.
+// Ref: @bedrock/code-0231
 type ConnectorFactory func() Connector
 
 // ConnectionNameSetter is the optional contract a Queue implementation
 // can satisfy if it wants the Manager to stamp the resolved connection
-// name onto it immediately after creation. It is the Go equivalent of
-// Laravel's Queue::setConnectionName — exposed as an optional interface
+// name onto it immediately after creation.
+// the upstream Queue::setConnectionName — exposed as an optional interface
 // so the core Queue interface stays frozen.
 type ConnectionNameSetter interface {
 	SetConnectionName(name string)
@@ -32,20 +32,18 @@ type ConnectionNameSetter interface {
 // ContainerAware is the optional contract a Queue implementation can
 // satisfy if it wants the Manager to hand it the application container
 // (or any opaque value the caller chose as container) after creation.
-// Mirrors Laravel's Queue::setContainer.
 type ContainerAware interface {
 	SetContainer(container any)
 }
 
 // HookFunc is a generic event listener registered against the Manager.
 // The underlying event is passed as any; listeners type-assert to the
-// concrete events.* type they care about. Mirrors Laravel's
-// Queue::before / after / failing / starting / stopping closures.
+// concrete events. * type they care about.
 type HookFunc func(event any)
 
 // Manager creates, caches, and coordinates named queue connections.
 //
-// The API surface is the Go port of Illuminate\Queue\QueueManager with
+// Ref: @bedrock/code-0269
 // two entry points for registering drivers (Register for the simple
 // creator path, AddConnector for the two-step Connector path), enum-like
 // connection references via Connection(any), optional queue hooks for
@@ -105,7 +103,7 @@ func (m *Manager) Register(driver string, creator DriverCreator) *Manager {
 	return m
 }
 
-// Extend is an alias for Register. Kept because Laravel's QueueManager
+// Extend is an alias for Register. Kept because the upstream QueueManager
 // exposes extend() as well, and existing Go tests call it.
 func (m *Manager) Extend(driver string, creator DriverCreator) *Manager {
 	return m.Register(driver, creator)
@@ -113,7 +111,7 @@ func (m *Manager) Extend(driver string, creator DriverCreator) *Manager {
 
 // AddConnector registers a ConnectorFactory for the given driver name.
 // The factory is invoked lazily the first time a connection using that
-// driver is resolved. Mirrors Laravel's QueueManager::addConnector.
+// Ref: @bedrock/code-0269
 func (m *Manager) AddConnector(driver string, factory ConnectorFactory) *Manager {
 	m.mu.Lock()
 
@@ -150,8 +148,7 @@ func (m *Manager) SetConfig(connection string, config map[string]any) *Manager {
 }
 
 // SetContainer stores an opaque container value that the Manager will
-// hand to every ContainerAware queue it creates. Mirrors Laravel's
-// QueueManager constructor's $app argument.
+// hand to every ContainerAware queue it creates.
 func (m *Manager) SetContainer(container any) *Manager {
 	m.mu.Lock()
 
@@ -172,7 +169,7 @@ func (m *Manager) Driver(connection string) (Queue, error) {
 
 // Connection returns (or lazily creates) the Queue for the given
 // connection name. Accepts either a plain string or any value that
-// implements fmt.Stringer — matching Laravel's enum-or-string handling.
+// implements fmt.Stringer — matching the upstream enum-or-string handling.
 // Passing nil or an empty string resolves the default connection.
 func (m *Manager) Connection(name any) (Queue, error) {
 	key := connectionKey(name)
@@ -189,7 +186,7 @@ func (m *Manager) Connection(name any) (Queue, error) {
 }
 
 // Connected reports whether the given connection has been resolved and
-// cached. It does not trigger creation. Mirrors Laravel's connected().
+// cached. It does not trigger creation.
 func (m *Manager) Connected(name any) bool {
 	key := connectionKey(name)
 
@@ -277,7 +274,7 @@ func (m *Manager) resolveConnection(connection string) (Queue, error) {
 }
 
 // lookupConfigLocked returns the config for name, synthesising the
-// Laravel-special "null" fallback if the caller did not SetConfig for
+// Upstream-special "null" fallback if the caller did not SetConfig for
 // it. Caller holds m.mu.
 func (m *Manager) lookupConfigLocked(name string) (map[string]any, bool) {
 	if cfg, ok := m.configs[name]; ok {
@@ -292,7 +289,7 @@ func (m *Manager) lookupConfigLocked(name string) (map[string]any, bool) {
 }
 
 // instantiateLocked runs the appropriate creation path for driver,
-// preferring the Laravel-faithful ConnectorFactory path over the legacy
+// preferring the upstream-faithful ConnectorFactory path over the legacy
 // DriverCreator path. Caller holds m.mu.
 func (m *Manager) instantiateLocked(driver string, cfg map[string]any) (Queue, error) {
 	if factory, ok := m.factories[driver]; ok {
@@ -335,25 +332,21 @@ func (m *Manager) instantiateLocked(driver string, cfg map[string]any) (Queue, e
 // --- hook registration ------------------------------------------------
 
 // Before registers a listener that runs before each job is processed.
-// Mirrors Laravel's Queue::before($callback).
 func (m *Manager) Before(hook HookFunc) *Manager {
 	return m.appendHook(&m.beforeHooks, hook)
 }
 
 // After registers a listener that runs after a job has been processed.
-// Mirrors Laravel's Queue::after.
 func (m *Manager) After(hook HookFunc) *Manager { return m.appendHook(&m.afterHooks, hook) }
 
-// Failing registers a listener that runs when a job fails. Mirrors
-// Laravel's Queue::failing.
+// Failing registers a listener that runs when a job fails.
+// the upstream Queue::failing.
 func (m *Manager) Failing(hook HookFunc) *Manager { return m.appendHook(&m.failingHooks, hook) }
 
 // Starting registers a listener that runs when a worker daemon boots.
-// Mirrors Laravel's Worker::starting.
 func (m *Manager) Starting(hook HookFunc) *Manager { return m.appendHook(&m.startingHooks, hook) }
 
 // Stopping registers a listener that runs when a worker daemon exits.
-// Mirrors Laravel's Worker::stopping.
 func (m *Manager) Stopping(hook HookFunc) *Manager { return m.appendHook(&m.stoppingHooks, hook) }
 
 // BeforeHooks / AfterHooks / FailingHooks / StartingHooks / StoppingHooks
@@ -455,13 +448,13 @@ func (m *Manager) IsPaused(connection, queue string) bool {
 	return m.pauseResumer.IsPaused(connection, queue)
 }
 
-// --- cross-queue inspection (Laravel 13.8.0) -------------------------
+// --- cross-queue inspection (upstream 13.8.0) -------------------------
 
 // AllPendingJobs returns a snapshot of every pending job sitting on any
 // queue belonging to connection. It resolves the connection, asks the
 // driver for the set of queue names it currently knows about (via the
 // optional QueueNamer contract), and concatenates the per-queue
-// PendingJobs results in declared order. Mirrors Laravel 13.8.0's
+// PendingJobs results in declared order.
 // Queue::allPendingJobs.
 func (m *Manager) AllPendingJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
@@ -470,8 +463,7 @@ func (m *Manager) AllPendingJobs(ctx context.Context, connection string) ([]Insp
 }
 
 // AllDelayedJobs returns every delayed (unreserved, not-yet-due) job
-// across all queues on connection. Mirrors Laravel's
-// Queue::allDelayedJobs.
+// across all queues on connection.
 func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
 		return i.DelayedJobs(ctx, name)
@@ -479,7 +471,7 @@ func (m *Manager) AllDelayedJobs(ctx context.Context, connection string) ([]Insp
 }
 
 // AllReservedJobs returns every reserved (in-flight) job across all
-// queues on connection. Mirrors Laravel's Queue::allReservedJobs.
+// queues on connection.
 func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]InspectedJob, error) {
 	return m.allJobs(ctx, connection, func(i JobInspector, name string) ([]InspectedJob, error) {
 		return i.ReservedJobs(ctx, name)
@@ -490,8 +482,7 @@ func (m *Manager) AllReservedJobs(ctx context.Context, connection string) ([]Ins
 // helpers. Drivers that do not implement QueueNamer or JobInspector
 // surface as ErrNotSupported; per-queue calls that themselves return
 // ErrNotSupported are skipped silently — the caller then receives only
-// the snapshots from queues the driver can introspect, mirroring
-// Laravel's "best-effort across queues" semantics.
+// the upstream "best-effort across queues" semantics.
 func (m *Manager) allJobs(ctx context.Context, connection string, fetch func(JobInspector, string) ([]InspectedJob, error)) ([]InspectedJob, error) {
 	q, err := m.resolveConnection(connection)
 

@@ -8,7 +8,6 @@ import (
 
 // GuidelineConfig holds settings for guideline composition. It wraps a
 // config.Repository so callers get structured access via typed methods.
-// Mirrors Laravel\Boost\Install\GuidelineConfig.
 type GuidelineConfig struct {
 	repo *config.Repository
 }

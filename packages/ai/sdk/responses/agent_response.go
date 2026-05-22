@@ -5,7 +5,6 @@ import (
 )
 
 // AgentResponse extends TextResponse with conversation tracking metadata.
-// Mirrors Laravel\Ai\Responses\AgentResponse.
 type AgentResponse struct {
 	TextResponse
 	InvocationID     string

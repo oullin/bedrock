@@ -11,7 +11,6 @@ import (
 	"github.com/bedrock/services/horizon/api"
 )
 
-// Port of MonitoringControllerTest::test_monitored_tags_and_job_counts_are_returned.
 func TestMonitoringIndexReturnsMonitoredTagsWithJobCounts(t *testing.T) {
 	t.Parallel()
 
@@ -51,7 +50,6 @@ func TestMonitoringIndexReturnsMonitoredTagsWithJobCounts(t *testing.T) {
 	}
 }
 
-// Port of MonitoringControllerTest::test_monitored_jobs_can_be_paginated_by_tag.
 func TestMonitoringShowPaginatesJobsByTag(t *testing.T) {
 	t.Parallel()
 
@@ -128,7 +126,6 @@ func TestMonitoringShowClampsNegativePagination(t *testing.T) {
 	}
 }
 
-// Port of MonitoringControllerTest::test_can_paginate_where_jobs_dont_exist.
 func TestMonitoringShowReturnsEmptyWhenNoJobsMatchTag(t *testing.T) {
 	t.Parallel()
 
@@ -153,7 +150,6 @@ func TestMonitoringShowReturnsEmptyWhenNoJobsMatchTag(t *testing.T) {
 	}
 }
 
-// Port of MonitoringControllerTest::test_can_start_monitoring_tags.
 func TestMonitoringStoreStartsMonitoringATag(t *testing.T) {
 	t.Parallel()
 
@@ -175,7 +171,6 @@ func TestMonitoringStoreStartsMonitoringATag(t *testing.T) {
 	}
 }
 
-// Port of MonitoringControllerTest::test_can_stop_monitoring_tags.
 func TestMonitoringDeleteStopsMonitoringATag(t *testing.T) {
 	t.Parallel()
 

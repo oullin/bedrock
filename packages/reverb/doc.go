@@ -1,7 +1,5 @@
-// Package reverb implements a Go port of the Laravel Reverb WebSocket server.
-//
 // Reverb speaks the Pusher protocol, making it a drop-in replacement for
-// Pusher in any Laravel application. Clients connect over WebSocket using the
+// Pusher in any upstream application. Clients connect over WebSocket using the
 // standard Pusher client libraries (or packages/echo), authenticate via
 // HMAC-SHA256, and receive real-time events broadcast from the server.
 //
@@ -14,7 +12,7 @@
 //   - Channel management: subscriptions are tracked per channel per app.
 //   - Protocol: Pusher-protocol message parsing and serialisation.
 //   - Authentication: HMAC-SHA256 signature verification for private/presence channels.
-//   - HTTP API: REST endpoints for triggering events from Laravel backends.
+//   - HTTP API: REST endpoints for triggering events from upstream backends.
 //   - Dispatcher: in-process or Redis-backed broadcast routing.
 //
 // # Channel types

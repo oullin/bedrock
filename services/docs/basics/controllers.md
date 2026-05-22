@@ -1,10 +1,10 @@
 # Controllers
 
-<!-- laravel-docs: controllers.md#controllers -->
-<!-- laravel-docs: controllers.md#writing-controllers -->
-<!-- laravel-docs: controllers.md#resource-controllers -->
-<!-- laravel-docs: controllers.md#controller-middleware -->
-<!-- laravel-docs: controllers.md#dependency-injection-and-controllers -->
+<!-- ref: @bedrock/code-0047 -->
+<!-- ref: @bedrock/code-0050 -->
+<!-- ref: @bedrock/code-0049 -->
+<!-- ref: @bedrock/code-0046 -->
+<!-- ref: @bedrock/code-0048 -->
 
 Controllers group related handler logic into types instead of free functions.
 Bedrock's `routing/controllers` sub-package provides a base `Controller` type

@@ -10,7 +10,6 @@ import (
 )
 
 // Handler processes incoming webhook payloads from payment providers.
-// Mirrors Laravel\Paddle\Http\Controllers\WebhookController and
 // Spark\Http\Controllers\WebhookController.
 type Handler struct {
 	subscriptions spark.SubscriptionStore

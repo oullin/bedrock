@@ -1,5 +1,5 @@
-// Package limiters implements Go ports of Laravel's
-// ConcurrencyLimiter and DurationLimiter, backed by a redis.Connection.
+// Package limiters implements ConcurrencyLimiter and DurationLimiter, backed
+// by a redis.Connection.
 package limiters
 
 import (
@@ -25,7 +25,7 @@ type clusterConnection interface {
 
 // ConcurrencyLimiter throttles a section of code to N concurrent executions.
 //
-// Parity with Illuminate\Redis\Limiters\ConcurrencyLimiter.
+// Ref: @bedrock/code-0280
 type ConcurrencyLimiter struct {
 	conn         ConnectionLike
 	name         string

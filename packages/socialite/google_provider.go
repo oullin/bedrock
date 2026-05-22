@@ -9,7 +9,6 @@ import (
 )
 
 // GoogleProvider handles OAuth2 authentication via Google.
-// It mirrors Laravel\Socialite\Two\GoogleProvider.
 type GoogleProvider struct {
 	AbstractProvider
 }

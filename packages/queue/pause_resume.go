@@ -11,8 +11,6 @@ import (
 // QueueManager (Step 6) will embed to expose pause/pauseFor/resume/
 // isPaused at the application level, and that the test port consumes
 // directly.
-//
-// Mirrors the pause/resume methods on Laravel's QueueManager.
 type PauseResumer struct {
 	store   PauseStore
 	emitter EventEmitter

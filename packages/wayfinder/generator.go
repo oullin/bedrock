@@ -20,7 +20,6 @@ type generator struct {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // generateActions builds the actions/ directory content.
-// Mirrors GenerateCommand::handle() (actions branch) from PHP.
 
 // Only routes backed by a named controller.
 
@@ -31,7 +30,6 @@ type generator struct {
 // Write barrel index.ts files bottom-up.
 
 // writeControllerFile generates the exports for a single controller file.
-// Mirrors GenerateCommand::writeControllerFile() from PHP.
 
 // Group routes by JS method name to detect multi-route-same-action cases.
 
@@ -51,22 +49,19 @@ type generator struct {
 
 // writeMethodExport generates a single route function export.
 // shouldExport=false means a var declaration without "export".
-// Mirrors GenerateCommand::writeControllerMethodExport() from PHP and the
 // method.blade.ts template.
 
 // writeNamedMethodExport generates a route function export under its named-route name.
-// Always exported (shouldExport=true). Mirrors GenerateCommand::writeNamedMethodExport.
+// Always exported (shouldExport=true).
 
 // writeMultiRouteExport handles the case where multiple routes share the same
 // controller action. It generates a keyed dictionary.
-// Mirrors GenerateCommand::writeMultiRouteControllerMethodExport() + multi-method.blade.ts.
 
 // Generate a temporary (unexported) helper for each route keyed by URI hash.
 
 // Temporarily override the method name with the temp name.
 
 // renderMethod builds the complete TypeScript block for a single route action.
-// It is the Go equivalent of the method.blade.ts Blade template.
 
 // ── docblock ────────────────────────────────────────────────────────────
 
@@ -105,7 +100,6 @@ type generator struct {
 // Non-safe verb: inject _method spoofing.
 
 // functionArgs renders the TypeScript parameter list for a generated function.
-// Mirrors function-arguments.blade.ts from the PHP implementation.
 
 // Object form: { param: type, ... }
 
@@ -118,7 +112,7 @@ type generator struct {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // writeBarrelFiles writes index.ts barrel files for all directory levels
-// within the actions/ tree. Mirrors GenerateCommand::writeBarrelFiles().
+// within the actions/ tree.
 
 // Collect unique namespace segments to build the directory tree.
 
@@ -139,7 +133,6 @@ type nsNode map[string]interface{} // either nsNode (subtree) or []*RouteInfo (l
 // ─────────────────────────────────────────────────────────────────────────────
 
 // generateRoutes builds the routes/ directory content.
-// Mirrors GenerateCommand::handle() (routes branch) from PHP.
 
 // Only named routes.
 
@@ -849,7 +842,6 @@ func (g *generator) writeNameBarrelNode(base, prefix string, node nameNode, byNa
 // ─────────────────────────────────────────────────────────────────────────────
 
 // appendCommonImports adds the wayfinder runtime imports to a file's import map.
-// Mirrors GenerateCommand::appendCommonImports() from PHP.
 func (g *generator) appendCommonImports(path, namespace string, routes []*RouteInfo) {
 	imports := []string{"queryParams", "type RouteQueryOptions", "type RouteDefinition"}
 

@@ -79,7 +79,7 @@ export const PACKAGES: Package[] = [
     blurb: 'One filesystem interface across local, S3, GCS and memory. Atomic writes, signed URLs, glob.',
     v: '1.1.0', downloads: '380k', since: '2023', href: '/packages/filesystem' },
   { id: 'pagination', name: 'pagination', tier: 'infra', icon: 'IconPagination', tag: 'data',
-    blurb: 'Offset and cursor paginators for SQL, REST and GraphQL. JSON:API and Laravel-compatible.',
+    blurb: 'Offset and cursor paginators for SQL, REST and GraphQL. JSON:API compatible.',
     v: '0.7.0', downloads: '120k', since: '2024', href: '/packages/pagination' },
   { id: 'translation', name: 'translation', tier: 'infra', icon: 'IconTranslation', tag: 'util',
     blurb: 'ICU-MessageFormat and YAML translations with pluralization, gender and in-memory hot reload.',

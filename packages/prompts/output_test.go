@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\ConsoleOutputTest
-
-// Port of Laravel\Prompts\Tests\Feature\ConsoleOutputTest::test_buffered_writer
 func TestBufferedWriterCapturesOutput(t *testing.T) {
 	t.Parallel()
 	w := &BufferedWriter{}
@@ -16,7 +13,6 @@ func TestBufferedWriterCapturesOutput(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConsoleOutputTest::test_buffered_writer_writeln
 func TestBufferedWriterWriteLn(t *testing.T) {
 	t.Parallel()
 	w := &BufferedWriter{}
@@ -28,7 +24,6 @@ func TestBufferedWriterWriteLn(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\ConsoleOutputTest::test_buffered_writer_reset
 func TestBufferedWriterReset(t *testing.T) {
 	t.Parallel()
 	w := &BufferedWriter{}

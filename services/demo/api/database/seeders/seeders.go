@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// Run inserts deterministic data matching the tiny Laravel skeleton app.
+// Run inserts deterministic data matching the tiny upstream skeleton app.
 func Run(db *sql.DB) error {
 	if db == nil {
 		return fmt.Errorf("demo seeders: nil database")

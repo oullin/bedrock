@@ -10,7 +10,6 @@ import (
 )
 
 // AiServiceProvider registers the AI Manager as a singleton in the container.
-// It mirrors Laravel\Ai\AiServiceProvider.
 type AiServiceProvider struct {
 	app             *container.Container
 	defaultProvider string

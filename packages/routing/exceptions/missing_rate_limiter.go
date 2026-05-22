@@ -5,7 +5,7 @@ import "fmt"
 // MissingRateLimiterException is returned when a route references a named rate
 // limiter that has not been registered with the limiter manager.
 //
-// Mirrors Illuminate\Routing\Exceptions\MissingRateLimiterException.
+// Ref: @bedrock/code-0309
 type MissingRateLimiterException struct{ Name string }
 
 func (e *MissingRateLimiterException) Error() string {

@@ -1,10 +1,10 @@
 # Middleware
 
-<!-- laravel-docs: middleware.md#middleware -->
-<!-- laravel-docs: middleware.md#defining-middleware -->
-<!-- laravel-docs: middleware.md#registering-middleware -->
-<!-- laravel-docs: middleware.md#middleware-parameters -->
-<!-- laravel-docs: middleware.md#terminable-middleware -->
+<!-- ref: @bedrock/code-0106 -->
+<!-- ref: @bedrock/code-0105 -->
+<!-- ref: @bedrock/code-0108 -->
+<!-- ref: @bedrock/code-0107 -->
+<!-- ref: @bedrock/code-0109 -->
 
 Middleware runs on the request-response path, wrapping the handler with
 cross-cutting concerns — authentication, logging, throttling, CORS, and so on.
@@ -83,7 +83,7 @@ router.Group(func(r *routing.Router) {
 
 ## Parameterised Middleware
 
-Some middleware accepts parameters via the Laravel-style `name:param` syntax:
+Some middleware accepts parameters via the `name:param` syntax:
 
 ```go
 router.Get("/slow", slowHandler).Middleware("throttle:10,1")

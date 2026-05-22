@@ -1,11 +1,9 @@
 package queue
 
-// InvalidPayloadError is the Go port of
-// Illuminate\Queue\InvalidPayloadException.
-//
+// Ref: @bedrock/code-0262
 // It is returned by Payload marshalling/unmarshalling helpers when a
 // payload cannot be encoded or decoded. The Value field carries the
-// original input that failed to decode (matching Laravel's $value field)
+// original input that failed to decode (matching the upstream $value field)
 // so callers can inspect it without re-parsing.
 type InvalidPayloadError struct {
 	Message string
@@ -22,7 +20,7 @@ func (e *InvalidPayloadError) Error() string {
 }
 
 // NewInvalidPayloadError constructs an error with an explicit message and
-// the offending value. Mirrors Laravel's constructor signature
+// the offending value.
 // (message, value).
 func NewInvalidPayloadError(message string, value any) *InvalidPayloadError {
 	return &InvalidPayloadError{Message: message, Value: value}

@@ -6,7 +6,6 @@ import (
 	"github.com/bedrock/packages/routing/controllers"
 )
 
-// Translation of the dispatcher portions of laravel/framework
 // tests/Routing/RoutingControllerAttributeTest.php and the controller
 // dispatch parts of RoutingRouteTest.
 // RoutingControllerAttributeTest::testControllerMiddlewareAttributesAreInherited

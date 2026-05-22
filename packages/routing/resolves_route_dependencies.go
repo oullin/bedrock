@@ -5,7 +5,6 @@ import (
 	"strconv"
 )
 
-// ResolvesRouteDependencies is the Go translation of the PHP trait of the
 // same name. It performs reflection-based parameter resolution for both
 // callable handlers (used by [CallableDispatcher]) and controller methods
 // (used by [ControllerDispatcher]).
@@ -38,8 +37,6 @@ type DependencyContainer interface {
 //
 // Returns the final argument list as a slice of [reflect.Value] ready to feed
 // to [reflect.Value.Call].
-//
-// Mirrors ResolvesRouteDependencies::resolveMethodDependencies.
 
 // String/numeric primitives consume route parameters in declaration order.
 
@@ -178,7 +175,6 @@ func isPrimitive(t reflect.Type) bool {
 }
 
 // convertString parses a string parameter into the requested primitive type,
-// returning the zero value on failure (mirroring PHP's loose type juggling).
 func convertString(s string, t reflect.Type) reflect.Value {
 	switch t.Kind() {
 	case reflect.String:

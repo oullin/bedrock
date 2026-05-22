@@ -1,7 +1,5 @@
-// Package controllers mirrors
-// laravel/framework/src/Illuminate/Routing/Controllers.
-//
-// In Laravel 11+ this package supplies the [HasMiddleware] interface that
+// Ref: @bedrock/code-0298
+// In the upstream framework 11+ this package supplies the [HasMiddleware] interface that
 // controllers implement to declare their middleware (the modern replacement
 // for PHP 8 attribute-based declarations). Both forms remain in 13.x, and
 // this Go port treats the interface form as the canonical entry point.
@@ -11,7 +9,7 @@ package controllers
 // middleware along with the only/except filters that scope it to specific
 // methods.
 //
-// Mirrors Illuminate\Routing\Controllers\Middleware.
+// Ref: @bedrock/code-0300
 type Middleware struct {
 	Middleware any // string class name, slice of class names, or func value
 	Only       []string

@@ -3,7 +3,7 @@ package auth
 import "github.com/bedrock/packages/container"
 
 // AuthServiceProvider registers the authentication manager into the container.
-// It mirrors Illuminate\Auth\AuthServiceProvider.
+// Ref: @bedrock/code-0188
 type AuthServiceProvider struct {
 	app          *container.Container
 	defaultGuard string

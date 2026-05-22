@@ -14,7 +14,6 @@ import (
 	contractsprovider "github.com/bedrock/packages/contracts/ai/provider"
 )
 
-// TestEmbeddingsCanBeFaked mirrors test_embeddings_can_be_faked.
 func TestEmbeddingsCanBeFaked(t *testing.T) {
 	t.Parallel()
 
@@ -44,7 +43,6 @@ func TestEmbeddingsCanBeFaked(t *testing.T) {
 	})
 }
 
-// TestEmbeddingsAssertNothingGenerated mirrors the "nothing generated" assertion.
 func TestEmbeddingsAssertNothingGenerated(t *testing.T) {
 	t.Parallel()
 

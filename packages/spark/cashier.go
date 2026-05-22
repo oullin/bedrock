@@ -6,7 +6,7 @@ import (
 )
 
 // FormatAmount formats a minor-unit amount as a human-readable currency
-// string. Mirrors Laravel\Paddle\Cashier::formatAmount.
+// string.
 func FormatAmount(amount int64, currency string) string {
 	major := amount / 100
 	minor := amount % 100
@@ -17,7 +17,7 @@ func FormatAmount(amount int64, currency string) string {
 
 	formatted := fmt.Sprintf("%d.%02d", major, minor)
 
-	// Trim trailing ".00" like Laravel does.
+	// Trim trailing ".00" like upstream does.
 	formatted = strings.TrimSuffix(formatted, ".00")
 	formatted = strings.TrimSuffix(formatted, ".0")
 

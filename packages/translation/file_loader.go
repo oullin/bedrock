@@ -7,9 +7,7 @@ import (
 	"path/filepath"
 )
 
-// FileLoader loads translation messages from JSON files on disk, mirroring
-// Laravel's Illuminate\Translation\FileLoader.
-//
+// Ref: @bedrock/code-0383
 // File layout:
 //   - Grouped translations: {path}/{locale}/{group}.json
 //   - Flat JSON translations: {path}/{locale}.json  (loaded when group == "*")

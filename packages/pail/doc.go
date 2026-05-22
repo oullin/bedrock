@@ -1,2 +1,2 @@
-// Package pail provides log tailing and filtering primitives inspired by Laravel Pail.
+// Package pail provides log tailing and filtering primitives inspired by upstream Pail.
 package pail

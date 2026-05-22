@@ -5,7 +5,7 @@ import "strings"
 // MiddlewareNameResolver expands middleware aliases and group names into
 // concrete class names (or closures).
 //
-// Mirrors Illuminate\Routing\MiddlewareNameResolver.
+// Ref: @bedrock/code-0320
 type MiddlewareNameResolver struct{}
 
 // Resolve translates name into one of:
@@ -13,7 +13,7 @@ type MiddlewareNameResolver struct{}
 //   - a single resolved class string (alias lookup)
 //   - a flat slice of class strings (group expansion)
 //
-// Mirrors MiddlewareNameResolver::resolve. The result is always a slice so
+// Ref: @bedrock/code-0320
 // callers can flatten it into the middleware pipeline uniformly.
 func (MiddlewareNameResolver) Resolve(name any, aliases map[string]any, groups map[string][]any) []any {
 	switch v := name.(type) {

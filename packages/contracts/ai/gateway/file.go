@@ -27,7 +27,6 @@ type FilePutResult struct {
 }
 
 // FileGateway manages file uploads and retrieval for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\FileGateway.
 type FileGateway interface {
 	GetFile(ctx context.Context, id string) (*FileGetResult, error)
 	PutFile(ctx context.Context, file StorableFile) (*FilePutResult, error)

@@ -2,12 +2,12 @@ package graph
 
 // NodeType enumerates every graph node kind brain understands.
 //
-// The list mirrors laravel-brain's frontend/src/types/graph.ts so the Vue SPA
+// ts so the Vue SPA
 // can reuse the same discriminator. Filament-specific values are dropped;
 // Inertia-specific values are added in their place.
 type NodeType string
 
-// Node is a single graph vertex. Field order and tags match laravel-brain's
+// Node is a single graph vertex. Field order and tags match upstream-brain's
 // Node.php JSON serialisation exactly so the Vue SPA reads either output.
 type Node struct {
 	ID    string         `json:"id"`

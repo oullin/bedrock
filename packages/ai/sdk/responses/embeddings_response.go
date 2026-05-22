@@ -3,7 +3,6 @@ package responses
 import "github.com/bedrock/packages/ai/sdk/data"
 
 // EmbeddingsResponse holds the result of an embedding generation request.
-// Mirrors Laravel\Ai\Responses\EmbeddingsResponse.
 type EmbeddingsResponse struct {
 	Embeddings [][]float64
 	Tokens     int

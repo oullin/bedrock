@@ -1,18 +1,18 @@
 # AI SDK
 
-<!-- laravel-docs: ai-sdk.md#introduction -->
-<!-- laravel-docs: ai-sdk.md#installation -->
-<!-- laravel-docs: ai-sdk.md#agents -->
-<!-- laravel-docs: ai-sdk.md#images -->
-<!-- laravel-docs: ai-sdk.md#audio -->
-<!-- laravel-docs: ai-sdk.md#embeddings -->
-<!-- laravel-docs: ai-sdk.md#reranking -->
-<!-- laravel-docs: ai-sdk.md#files -->
-<!-- laravel-docs: ai-sdk.md#vector-stores -->
-<!-- laravel-docs: ai-sdk.md#failover -->
-<!-- laravel-docs: ai-sdk.md#testing -->
+<!-- ref: @bedrock/code-0008 -->
+<!-- ref: @bedrock/code-0007 -->
+<!-- ref: @bedrock/code-0001 -->
+<!-- ref: @bedrock/code-0006 -->
+<!-- ref: @bedrock/code-0002 -->
+<!-- ref: @bedrock/code-0003 -->
+<!-- ref: @bedrock/code-0010 -->
+<!-- ref: @bedrock/code-0005 -->
+<!-- ref: @bedrock/code-0012 -->
+<!-- ref: @bedrock/code-0004 -->
+<!-- ref: @bedrock/code-0011 -->
 
-Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the `laravel/ai` package with idiomatic Go patterns.
+Bedrock's AI SDK provides a unified Go API for interacting with AI providers. It mirrors the upstream `ai` package with idiomatic Go patterns.
 
 ## Agents
 

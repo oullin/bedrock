@@ -48,7 +48,6 @@ func TestGenerateTextDispatchesToolCallThenReturnsFinalText(t *testing.T) {
 	}
 }
 
-// TestStreamTextDispatchesToolCallBeforeStreaming mirrors the GenerateText
 // behavior for the streaming path.
 func TestStreamTextDispatchesToolCallBeforeStreaming(t *testing.T) {
 	t.Parallel()

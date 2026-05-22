@@ -1,14 +1,14 @@
 # Configuration
 
-<!-- laravel-docs: configuration.md#introduction -->
-<!-- laravel-docs: configuration.md#environment-configuration -->
-<!-- laravel-docs: configuration.md#accessing-configuration-values -->
+<!-- ref: @bedrock/code-0040 -->
+<!-- ref: @bedrock/code-0039 -->
+<!-- ref: @bedrock/code-0038 -->
 
 Bedrock has two layers of configuration. The first is the **bootstrap
 options** you pass when building the application — typed, package-shaped,
 and read by service providers at registration time. The second is the
 **`config.Repository`** — a runtime, dot-notation key-value store that
-works the same way as Laravel's `config(...)`.
+works the same way as the upstream `config(...)`.
 
 You will use both. The bootstrap options decide which providers exist and
 how they're constructed; the repository holds the values your application

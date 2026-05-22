@@ -10,13 +10,11 @@ import (
 
 // Sleep pauses the current goroutine for the given duration.
 // In tests, the sleep can be intercepted via FakeSleepWith.
-// Mirrors Sleep::for()->seconds() etc. (simplified to a single function).
 
 // SleepUntil pauses until the given time.
 
 // FakeSleep records sleep calls instead of actually sleeping.
 // Use FakeSleepWith to install it as the active sleep implementation.
-// Mirrors Sleep::fake().
 type FakeSleep struct {
 	mu    sync.Mutex
 	calls []time.Duration
@@ -142,7 +140,6 @@ func (f *FakeSleep) AssertSequence(t *testing.T, expected []time.Duration) {
 // FakeSleepWith installs the given FakeSleep as the active sleep implementation.
 // Returns a cleanup function that restores normal sleep behaviour.
 // Call via defer: defer FakeSleepWith(fake)()
-// Mirrors Sleep::fake().
 func FakeSleepWith(f *FakeSleep) func() {
 	sleepMu.Lock()
 	prev := sleepFn

@@ -12,7 +12,7 @@ import (
 // RouteUrlGenerator builds a URL for a single named route by substituting
 // parameter values into the route's URI template.
 //
-// Mirrors Illuminate\Routing\RouteUrlGenerator. Kept as an independent type
+// Ref: @bedrock/code-0342
 // (rather than a method on UrlGenerator) so signed URL generation can call it
 // recursively without circular wiring.
 type RouteUrlGenerator struct {
@@ -40,7 +40,7 @@ func NewRouteUrlGenerator(u *UrlGenerator, request URLRequest) *RouteUrlGenerato
 
 // To produces a URL for route with the supplied parameter values.
 //
-// Mirrors RouteUrlGenerator::to.
+// Ref: @bedrock/code-0342
 func (g *RouteUrlGenerator) To(route *Route, parameters map[string]any, absolute bool) string {
 	domain := route.GetDomain()
 	uri := route.Uri
@@ -105,7 +105,7 @@ func substituteParameters(uri string, parameters map[string]any, consumed map[st
 }
 
 // buildQuery returns the canonical query string for parameters not consumed
-// by the URI, sorted by key. The encoding mirrors PHP's http_build_query for
+// by the URI, sorted by key.
 // flat associative arrays (key=value joined by "&", values URL-encoded with
 // '+' for spaces, RFC 1738).
 func buildQuery(parameters map[string]any, consumed map[string]struct{}) string {

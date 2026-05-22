@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Translation of laravel/framework tests/Routing/RouteBindingTest.php.
+// Ref: @bedrock/code-0392
 // RouteBindingTest::test_it_can_resolve_the_explicit_model_for_the_given_route
 // RouteBindingTest::test_it_cannot_resolve_the_explicit_soft_deleted_model_for_the_given_route
 // RouteBindingTest::test_it_can_resolve_the_explicit_soft_deleted_model_for_the_given_route_with_trashed

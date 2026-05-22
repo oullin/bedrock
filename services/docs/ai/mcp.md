@@ -1,8 +1,8 @@
 # MCP (Model Context Protocol)
 
-<!-- laravel-docs: mcp.md#introduction -->
-<!-- laravel-docs: mcp.md#installation -->
-<!-- laravel-docs: mcp.md#creating-servers -->
+<!-- ref: @bedrock/code-0103 -->
+<!-- ref: @bedrock/code-0102 -->
+<!-- ref: @bedrock/code-0101 -->
 
 Bedrock provides a complete Go implementation of the MCP server specification.
 

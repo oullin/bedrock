@@ -2,8 +2,8 @@ package pennant
 
 import "math/rand"
 
-// Lottery samples a boolean feature value. It is a small Go equivalent of
-// Laravel's lottery-backed feature values.
+// Lottery samples a boolean feature value.
+// the upstream lottery-backed feature values.
 type Lottery struct {
 	draw func() bool
 }

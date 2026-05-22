@@ -8,8 +8,7 @@ import (
 	"github.com/bedrock/packages/routing/exceptions"
 )
 
-// ImplicitRouteBinding mirrors Illuminate\Routing\ImplicitRouteBinding.
-//
+// Ref: @bedrock/code-0312
 // In PHP it walks the route's signature parameters, picks out those whose
 // type implements [contracts.UrlRoutable], and replaces the matching path
 // parameter with the resolved instance (looked up via the parameter's class).

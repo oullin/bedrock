@@ -9,7 +9,7 @@ import (
 )
 
 // SecurityIssue is a structured finding attached to a service_provider-shaped
-// "security:findings" pseudo-node. Field names match laravel-brain.
+// "security:findings" pseudo-node. Field names match upstream-brain.
 type SecurityIssue struct {
 	Rule     string `json:"rule"`
 	Severity string `json:"severity"`

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// CommandExecuted mirrors Illuminate\Redis\Events\CommandExecuted. It is
+// Ref: @bedrock/code-0277
 // dispatched once per Connection.Command call when events are enabled.
 type CommandExecuted struct {
 	Command        string
@@ -14,7 +14,7 @@ type CommandExecuted struct {
 	ConnectionName string
 }
 
-// CommandFailed mirrors Illuminate\Redis\Events\CommandFailed.
+// Ref: @bedrock/code-0278
 type CommandFailed struct {
 	Command        string
 	Parameters     []any
@@ -23,7 +23,7 @@ type CommandFailed struct {
 }
 
 // TimeMs returns the command duration in milliseconds (float64), matching
-// Laravel's $time property.
+// the upstream $time property.
 
 // EventDispatcher fans out CommandExecuted events to registered listeners.
 // A zero value is ready to use.

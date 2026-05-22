@@ -1,16 +1,13 @@
-// Package redis is a Go port of Laravel's Illuminate/Redis package.
-//
+// Ref: @bedrock/code-0275
 // It provides a Manager that multiplexes named Connection objects, a
 // Connection type exposing the full Redis command surface (typed helpers
 // plus a generic Command() escape hatch), Pipeline and Transaction
 // closures, Pub/Sub via callbacks, Lua script helpers, Cluster and
-// Sentinel variants, and Laravel-compatible ConcurrencyLimiter and
+// Sentinel variants, and ConcurrencyLimiter and
 // DurationLimiter.
 //
-// The package targets 100% functional parity with Laravel 13.x
-// Illuminate\Redis and 1:1 test-case parity with its suite at
-// laravel/framework tests/Redis/ and tests/Integration/Redis/.
-//
+// The package targets 100% functional parity with upstream 13.x
+// Ref: @bedrock/code-0275
 // The backend is github.com/redis/go-redis/v9. Connection depends on a
 // small Client interface so tests can inject in-memory fakes without a
 // real Redis server. An optional integration suite (build tag

@@ -3,7 +3,7 @@ package passport
 import "time"
 
 // Token is the persisted OAuth2 access token record, corresponding to the
-// oauth_access_tokens table in Laravel Passport.
+// oauth_access_tokens table in Passport.
 type Token struct {
 	ID        string
 	UserID    string
@@ -28,7 +28,7 @@ func (t *Token) WithPassport(p *Passport) *Token {
 
 // Can reports whether this token's scopes include the requested scope.
 //
-// Rules (matching Laravel Passport Token::can):
+// Rules (matching Passport Token::can):
 //   - Can("*") always returns false — you cannot check for the wildcard literally.
 //   - If the token carries the "*" wildcard scope it grants every non-wildcard check.
 //   - When inherited scopes are enabled via Passport.UseInheritedScopes, ancestor

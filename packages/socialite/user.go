@@ -9,8 +9,6 @@ import (
 // authentication cycle. OAuth2-specific fields (Token, RefreshToken, etc.)
 // are populated for OAuth2 providers; OAuth1 providers set Token and
 // TokenSecret instead.
-//
-// It mirrors Laravel\Socialite\Two\User and Laravel\Socialite\AbstractUser.
 type User struct {
 	// Core identity fields (all providers).
 	ID       string
@@ -20,7 +18,7 @@ type User struct {
 	Avatar   string
 
 	// Raw is the unmodified JSON payload returned by the provider's user
-	// info endpoint. It mirrors AbstractUser::$user / getRaw().
+	// info endpoint.
 	Raw map[string]any
 
 	// Attributes holds additional provider-specific fields mapped via Map().
@@ -38,7 +36,6 @@ type User struct {
 
 // Map applies a flat attribute map to the user's core fields, returning the
 // receiver for chaining. Unknown keys are stored in Attributes.
-// It mirrors AbstractUser::map().
 func (u *User) Map(attrs map[string]any) *User {
 	if v, ok := attrs["id"]; ok {
 		u.ID = stringify(v)
@@ -71,18 +68,18 @@ func (u *User) Map(attrs map[string]any) *User {
 	return u
 }
 
-// SetRaw stores the raw provider response. It mirrors AbstractUser::setRaw().
+// SetRaw stores the raw provider response.
 func (u *User) SetRaw(raw map[string]any) *User {
 	u.Raw = raw
 
 	return u
 }
 
-// GetRaw returns the raw provider response. It mirrors AbstractUser::getRaw().
+// GetRaw returns the raw provider response.
 func (u *User) GetRaw() map[string]any { return u.Raw }
 
 // Get returns a field value by key, checking core fields first, then
-// Attributes, then Raw. It mirrors AbstractUser::__get().
+// Attributes, then Raw.
 func (u *User) Get(key string) any {
 	switch key {
 	case "id":
@@ -128,7 +125,7 @@ func (u *User) GetName() string     { return u.Name }
 func (u *User) GetEmail() string    { return u.Email }
 func (u *User) GetAvatar() string   { return u.Avatar }
 
-// SetToken sets OAuth2 access token. It mirrors Two\User::setToken().
+// SetToken sets OAuth2 access token.
 func (u *User) SetToken(token string) *User { u.Token = token; return u }
 
 // SetRefreshToken sets the OAuth2 refresh token.
@@ -140,7 +137,7 @@ func (u *User) SetExpiresIn(secs int) *User { u.ExpiresIn = secs; return u }
 // SetApprovedScopes sets the list of scopes approved by the user.
 func (u *User) SetApprovedScopes(scopes []string) *User { u.ApprovedScopes = scopes; return u }
 
-// SetOAuthToken sets OAuth1 token and secret. It mirrors One\User::setToken().
+// SetOAuthToken sets OAuth1 token and secret.
 func (u *User) SetOAuthToken(token, secret string) *User {
 	u.Token = token
 	u.TokenSecret = secret

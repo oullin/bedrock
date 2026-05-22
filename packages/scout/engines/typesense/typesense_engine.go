@@ -11,7 +11,6 @@ import (
 )
 
 // Engine is a Scout search engine backed by Typesense.
-// It mirrors Laravel Scout's TypesenseEngine.
 type Engine struct {
 	client     *typesense.Client
 	softDelete bool

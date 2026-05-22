@@ -7,7 +7,6 @@ import (
 
 // Socialite is the package-level manager instance. It is populated by
 // SetManager() — typically called from the service provider — and provides a
-// convenient static API that mirrors the Laravel Socialite facade.
 
 // staticFacade wraps a *Manager and exposes a static-style API.
 type staticFacade struct {
@@ -23,7 +22,6 @@ func SetManager(m *Manager) {
 }
 
 // ClearResolvedInstances discards all cached and faked provider instances.
-// It mirrors the same-named method on the Laravel Socialite facade, primarily
 // used between tests to isolate state.
 func ClearResolvedInstances() {
 	if Socialite != nil {

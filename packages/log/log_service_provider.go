@@ -20,7 +20,7 @@ type LogProviderConfig struct {
 }
 
 // LogServiceProvider registers the log manager into the container.
-// It mirrors Illuminate\Log\LogServiceProvider.
+// Ref: @bedrock/code-0225
 type LogServiceProvider struct {
 	app  *container.Container
 	cfg  LogProviderConfig

@@ -10,7 +10,6 @@ import (
 )
 
 // Engine is a Scout search engine backed by Meilisearch.
-// It mirrors Laravel Scout's MeilisearchEngine.
 type Engine struct {
 	client     ms.ServiceManager
 	softDelete bool

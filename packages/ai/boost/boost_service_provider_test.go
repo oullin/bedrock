@@ -7,7 +7,6 @@ import (
 	"github.com/bedrock/packages/container"
 )
 
-// TestBoostServiceProviderRegistersKey mirrors BoostServiceProviderTest.
 func TestBoostServiceProviderRegistersKey(t *testing.T) {
 	t.Parallel()
 

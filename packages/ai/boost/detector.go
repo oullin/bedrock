@@ -4,7 +4,6 @@ import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // AgentsDetector discovers which coding agents are installed on the system or
 // configured in a project directory.
-// Mirrors Laravel\Boost\Install\AgentsDetector.
 type AgentsDetector struct {
 	manager *Manager
 }

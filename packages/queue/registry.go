@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// HandlerRegistry is the Go replacement for Laravel's queue handler
+// HandlerRegistry is the Go replacement for the upstream queue handler
 // resolution — the path that takes a serialised payload, reads its
 // `job` / `displayName` field, and asks the IoC container for a matching
 // handler. Go has no container; we register handlers by name up front
@@ -29,7 +29,7 @@ type HandlerRegistry struct {
 // HandlerRegistryEntry is the value stored under each registered name.
 type HandlerRegistryEntry struct {
 	// Name is the display name under which the handler is registered.
-	// Mirrors Payload.DisplayName / Payload.Job on the wire.
+	// It populates Payload.DisplayName / Payload.Job on the wire.
 	Name string
 	// Handler is the function that runs when a job with this name is
 	// popped off a queue.

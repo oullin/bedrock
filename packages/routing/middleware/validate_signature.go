@@ -6,7 +6,7 @@ import (
 
 // SignatureValidator is the surface ValidateSignature needs from a request.
 //
-// Mirrors httpx.Request's HasValidSignatureWhileIgnoring narrowly. The real
+// It narrowly matches httpx.Request's HasValidSignatureWhileIgnoring; the real
 // httpx request will satisfy this in M11.
 type SignatureValidator interface {
 	HasValidSignatureWhileIgnoring(ignore []string, absolute bool) bool
@@ -15,7 +15,7 @@ type SignatureValidator interface {
 // ValidateSignature is the middleware form of [routing.UrlGenerator]'s signed
 // URL check. It rejects requests whose signature does not match.
 //
-// Mirrors Illuminate\Routing\Middleware\ValidateSignature.
+// Ref: @bedrock/code-0324
 type ValidateSignature struct {
 	// Ignore lists parameter names that should be skipped when computing the
 	// HMAC input. Useful for unrelated tracking parameters.
@@ -24,7 +24,6 @@ type ValidateSignature struct {
 	Relative bool
 }
 
-// NeverValidate is the global skip list, mirroring the static $neverValidate
 // property on the PHP class.
 var NeverValidate []string
 
@@ -63,7 +62,7 @@ func (v *ValidateSignature) Handle(request SignatureValidator, next func(any) an
 // Relative returns the middleware-spec string used to register a relative
 // validator with optional ignored parameters.
 //
-// In Laravel this is consumed by the middleware-name resolver to produce the
+// In the upstream framework this is consumed by the middleware-name resolver to produce the
 // "ValidateSignature:relative,foo,bar" syntax. The Go form is a thin helper
 // for code-generated registrations.
 func Relative(ignore ...string) string {

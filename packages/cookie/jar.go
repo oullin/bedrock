@@ -7,7 +7,6 @@ import (
 
 // Jar implements QueueingFactory. It maintains a queue of cookies to be
 // attached to outgoing responses and applies configurable defaults.
-// Cookies are keyed by name and path, mirroring Laravel's CookieJar
 // behaviour. It is safe for concurrent use.
 type Jar struct {
 	mu       sync.Mutex
@@ -129,7 +128,7 @@ func (j *Jar) HasQueued(name string, path ...string) bool {
 
 // Queued returns the queued cookie with the given name. When called
 // without a path, the last entry for the name is returned (matching
-// Laravel's behaviour). When called with a path, the specific
+// the upstream behaviour). When called with a path, the specific
 // name+path entry is returned.
 func (j *Jar) Queued(name string, path ...string) *http.Cookie {
 	j.mu.Lock()
@@ -147,7 +146,7 @@ func (j *Jar) Queued(name string, path ...string) *http.Cookie {
 	}
 
 	// Prefer the root-path entry when no path is specified, matching
-	// Laravel's behaviour. Fall back to any entry if "/" is absent.
+	// the upstream behaviour. Fall back to any entry if "/" is absent.
 	if c, ok := bucket["/"]; ok {
 		return c
 	}
@@ -190,7 +189,7 @@ func (j *Jar) Flush() {
 // merge applies non-zero fields from opts on top of the jar's defaults.
 // Boolean fields use *bool: nil means "not set" (inherit from default),
 // while an explicit &true or &false overrides the default. This matches
-// Laravel's behaviour where callers can override secure=true to false.
+// the upstream behaviour where callers can override secure=true to false.
 func (j *Jar) merge(opts Options) Options {
 	d := j.defaults
 

@@ -4,7 +4,7 @@ import "context"
 
 // AuthorizationServer issues OAuth2 tokens and handles authorization requests.
 // Implementations wrap a Go OAuth2 backend (e.g. ory/fosite, go-oauth2/oauth2)
-// and expose the behavior Laravel Passport delegates to League OAuth2 Server.
+// and expose the behavior Passport delegates to League OAuth2 Server.
 type AuthorizationServer interface {
 	// IssueToken handles a token endpoint request for the given grant type.
 	IssueToken(ctx context.Context, req TokenRequest) (*IssuedToken, error)

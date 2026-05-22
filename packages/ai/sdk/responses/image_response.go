@@ -7,7 +7,6 @@ import (
 )
 
 // ImageResponse holds the result of an image generation request.
-// Mirrors Laravel\Ai\Responses\ImageResponse.
 type ImageResponse struct {
 	Images []data.GeneratedImage
 	Usage  data.Usage

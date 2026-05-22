@@ -7,7 +7,6 @@ import (
 )
 
 // GithubProvider handles OAuth2 authentication via GitHub.
-// It mirrors Laravel\Socialite\Two\GithubProvider.
 type GithubProvider struct {
 	AbstractProvider
 }

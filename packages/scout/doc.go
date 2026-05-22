@@ -1,5 +1,4 @@
 // Package scout provides full-text search with pluggable engine backends.
-// It is the Go port of Laravel's Scout package, adapted to Go idioms while
 // maintaining 100% function parity.
 //
 // Scout integrates with Eloquent models through the Searchable interface and

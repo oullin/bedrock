@@ -2,9 +2,6 @@ package prompts
 
 import "testing"
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest
-
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_accepts_input
 func TestNumberAcceptsInput(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -23,7 +20,6 @@ func TestNumberAcceptsInput(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_accepts_default
 func TestNumberAcceptsDefault(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -42,7 +38,6 @@ func TestNumberAcceptsDefault(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_can_be_cancelled
 func TestNumberCanBeCancelled(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -57,7 +52,6 @@ func TestNumberCanBeCancelled(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_up_arrow_increments
 func TestNumberUpArrowIncrements(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -76,7 +70,6 @@ func TestNumberUpArrowIncrements(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_down_arrow_decrements
 func TestNumberDownArrowDecrements(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -95,7 +88,6 @@ func TestNumberDownArrowDecrements(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_respects_min
 func TestNumberRespectsMin(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -114,7 +106,6 @@ func TestNumberRespectsMin(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_respects_max
 func TestNumberRespectsMax(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -133,7 +124,6 @@ func TestNumberRespectsMax(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_custom_step
 func TestNumberCustomStep(t *testing.T) {
 	tp := Fake(t, 80, 24)
 
@@ -152,7 +142,6 @@ func TestNumberCustomStep(t *testing.T) {
 	}
 }
 
-// Port of Laravel\Prompts\Tests\Feature\NumberPromptTest::test_renders_hint
 func TestNumberRendersHint(t *testing.T) {
 	tp := Fake(t, 80, 24)
 

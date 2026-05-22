@@ -1,7 +1,7 @@
 package mcp
 
 // Request carries the arguments, session identifier, and contextual metadata
-// for a single MCP handler invocation. It mirrors Laravel's Request class.
+// for a single MCP handler invocation.
 type Request struct {
 	// Arguments holds the caller-supplied parameters (tools/call arguments,
 	// prompts/get arguments, etc.).

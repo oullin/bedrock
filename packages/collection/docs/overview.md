@@ -1,6 +1,6 @@
 # Overview
 
-A Go port of [Laravel Collections](https://laravel.com/docs/collections) — fluent, type-safe, and powered by Go generics and `iter.Seq` lazy evaluation.
+A Go port of Collections (upstream) — fluent, type-safe, and powered by Go generics and `iter.Seq` lazy evaluation.
 
 ---
 

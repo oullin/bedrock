@@ -7,15 +7,7 @@ import (
 	"github.com/bedrock/packages/ai/boost"
 )
 
-// TestManagerDefaultAgents mirrors BoostManagerTest::test_has_default_agents.
-
-// TestManagerRegisterAgent mirrors BoostManagerTest::test_can_register_agent.
-
-// TestManagerRegisterAgentDuplicate mirrors BoostManagerTest::test_duplicate_key_returns_error.
-
 // "claude_code" is a default key; attempting to register it again must fail.
-
-// TestManagerGetAgentsSnapshot mirrors BoostManagerTest::test_get_agents_returns_snapshot.
 
 // snap1 must not include "extra" (it's a snapshot taken before registration).
 

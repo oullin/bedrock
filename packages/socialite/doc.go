@@ -1,5 +1,4 @@
 // Package socialite provides OAuth1 and OAuth2 social authentication,
-// mirroring Laravel\Socialite in idiomatic Go.
 //
 // Quick start:
 //

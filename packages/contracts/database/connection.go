@@ -3,7 +3,7 @@ package database
 import "context"
 
 // Connection is the primary contract for a database connection.
-// It mirrors Illuminate\Database\ConnectionInterface.
+// Ref: @bedrock/code-0203
 type Connection interface {
 	// Table begins a fluent query builder for the given table.
 	Table(ctx context.Context, table string, as ...string) any
@@ -52,7 +52,7 @@ type Connection interface {
 }
 
 // ConnectionResolver resolves named database connections.
-// Mirrors Illuminate\Database\ConnectionResolverInterface.
+// Ref: @bedrock/code-0204
 type ConnectionResolver interface {
 	// Connection returns the connection with the given name, or the default
 	// connection if no name is provided.

@@ -7,7 +7,7 @@ import (
 // HasApiTokens is the interface that user structs implement to participate in
 // Passport token authentication.
 //
-// In Laravel Passport this is provided via the HasApiTokens trait. In Go,
+// In Passport this is provided via the HasApiTokens trait. In Go,
 // consumers embed UserWithTokens or implement the interface directly.
 type HasApiTokens interface {
 	cauth.Authenticatable
@@ -36,7 +36,6 @@ func NewUserWithTokens(user cauth.Authenticatable, token *AccessToken) *UserWith
 }
 
 // WithAccessToken returns a new UserWithTokens with the given token attached.
-// Mirrors Laravel's withAccessToken($token) which returns $this.
 func (u *UserWithTokens) WithAccessToken(token *AccessToken) *UserWithTokens {
 	return &UserWithTokens{
 		Authenticatable: u.Authenticatable,

@@ -7,8 +7,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\JsonRpcTest
-
 func TestParseJsonRpcRequestValid(t *testing.T) {
 	t.Parallel()
 

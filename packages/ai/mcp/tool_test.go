@@ -8,8 +8,6 @@ import (
 	"github.com/bedrock/packages/ai/mcp"
 )
 
-// Port of Laravel\Mcp\Tests\ToolTest
-
 func TestToolsListReturnsAllRegisteredTools(t *testing.T) {
 	t.Parallel()
 

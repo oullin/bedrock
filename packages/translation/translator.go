@@ -9,9 +9,7 @@ import (
 	"unicode"
 )
 
-// Translator is the central translation component, mirroring Laravel's
-// Illuminate\Translation\Translator.
-//
+// Ref: @bedrock/code-0387
 // It resolves translation keys against a Loader, applies placeholder
 // substitution atomically (longest match first), supports namespace/fallback
 // locale chains, and delegates pluralisation to a MessageSelector.

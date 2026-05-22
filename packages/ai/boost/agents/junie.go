@@ -3,7 +3,6 @@ package agents
 import "github.com/bedrock/packages/ai/boost/internal/platform"
 
 // Junie implements boost.CodingAgent for JetBrains Junie.
-// Mirrors Laravel\Boost\Install\Agents\Junie.
 type Junie struct {
 	BaseAgent
 }

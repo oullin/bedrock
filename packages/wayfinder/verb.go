@@ -3,7 +3,6 @@ package wayfinder
 import "strings"
 
 // Verb represents an HTTP method with its form-safe equivalent.
-// It mirrors the Verb class from the PHP implementation.
 type Verb struct {
 	// Actual is the normalised lowercase HTTP method (e.g. "get", "delete").
 	Actual string

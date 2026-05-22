@@ -10,10 +10,10 @@ import "github.com/bedrock/packages/queue/events"
 //  2. Worker emission sites stay compact.
 //
 // The subpackage is the source of truth; changing a field there changes
-// it here. New Laravel events should be added to events/ first, then
+// it here. New upstream events should be added to events/ first, then
 // re-exported here only if callers need the unqualified name.
 //
-// The full set of Laravel 13.x Illuminate\Queue\Events\* types is
+// Ref: @bedrock/code-0232
 // re-exported below so a migration to qualified names is a pure find &
 // replace.
 

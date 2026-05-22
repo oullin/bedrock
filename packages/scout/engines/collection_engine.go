@@ -11,7 +11,7 @@ import (
 )
 
 // CollectionEngine is an in-memory search engine that filters models
-// without requiring any external search service. It mirrors Laravel
+// without requiring any external search service.
 // Scout's CollectionEngine.
 type CollectionEngine struct {
 	softDelete bool
@@ -55,7 +55,7 @@ type searchableCollectionTransformer interface {
 // engine, models are expected to be passed via builder options.
 
 // matchesQuery checks if any field in the searchable data contains the query
-// string (case-insensitive), matching Laravel's collection engine behavior.
+// string (case-insensitive), matching the upstream collection engine behavior.
 
 // matchesWheres checks that all where constraints are satisfied.
 

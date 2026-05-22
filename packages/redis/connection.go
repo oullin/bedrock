@@ -8,13 +8,11 @@ import (
 	"time"
 )
 
-// Connection is the Go analogue of Illuminate\Redis\Connections\Connection.
-//
+// Ref: @bedrock/code-0276
 // It wraps a Client and dispatches CommandExecuted events for every call
 // that goes through Command. Typed helpers exist for the commands exercised
-// by Laravel's test suite; for everything else, callers can invoke
-// Command(ctx, "RENAME", "a", "b") directly — that pathway is Laravel's
-// ->command($method, $parameters).
+// by the upstream test suite; for everything else, callers can invoke
+// Command(ctx, "RENAME", "a", "b") directly.
 type Connection struct {
 	name      string
 	client    Client
@@ -35,19 +33,18 @@ type Connection struct {
 // Events returns the event dispatcher (for tests and Manager wiring).
 
 // Listen registers a CommandExecuted listener and ensures events are
-// enabled (parity with Laravel ->listen()).
+// enabled (parity with upstream ->listen()).
 
 // ListenForFailures registers a CommandFailed listener and ensures events
-// are enabled (parity with Laravel ->listenForFailures()).
+// are enabled (parity with upstream ->listenForFailures()).
 
 // Close releases the underlying client.
 
 // Command is the generic dispatcher. It executes a raw Redis command and
 // fires a CommandExecuted event. All typed helpers on Connection call into
 // Command so events cover every command uniformly — this matches
-// Illuminate\Redis\Connections\Connection::command.
+// Ref: @bedrock/code-0276
 
-// ExecuteRaw mirrors Laravel's executeRaw($parameters): the first element
 // of the slice is the command name.
 
 // --------------------------------------------------------------------
@@ -93,7 +90,7 @@ type Connection struct {
 // HMGet fetches multiple hash fields.
 
 // HMSet sets multiple hash fields. Deprecated in Redis 4.0 but kept for
-// Laravel parity.
+// Upstream parity.
 
 // HSetNX sets a hash field only if it does not already exist.
 

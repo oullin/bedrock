@@ -3,7 +3,7 @@ package translation
 import "github.com/bedrock/packages/container"
 
 // TranslationServiceProvider registers the translator into the container.
-// It mirrors Illuminate\Translation\TranslationServiceProvider.
+// Ref: @bedrock/code-0386
 type TranslationServiceProvider struct {
 	app    *container.Container
 	loader Loader

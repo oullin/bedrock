@@ -1,6 +1,5 @@
 package config
 
-// App mirrors the small amount of config the skeleton demo needs at runtime.
 type App struct {
 	Name string
 	Env  string
@@ -8,7 +7,7 @@ type App struct {
 	URL  string
 }
 
-// DefaultApp returns Laravel-skeleton-like defaults for local development.
+// DefaultApp returns upstream-skeleton-like defaults for local development.
 func DefaultApp(env, key string) App {
 	if env == "" {
 		env = "local"

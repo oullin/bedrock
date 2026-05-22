@@ -5,7 +5,7 @@ import (
 )
 
 // ViewWatcher monitors template/view rendering and records entries as Telescope
-// entries. It mirrors Laravel's ViewWatcher class.
+// entries.
 type ViewWatcher struct {
 	telescope.BaseWatcher
 }

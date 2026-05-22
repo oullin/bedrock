@@ -28,7 +28,6 @@ type AddedDocumentData struct {
 }
 
 // StoreGateway manages vector stores for a single provider.
-// Mirrors Laravel\Ai\Contracts\Gateway\StoreGateway.
 type StoreGateway interface {
 	GetStore(ctx context.Context, id string) (*StoreData, error)
 	CreateStore(ctx context.Context, req StoreCreateRequest) (*StoreData, error)

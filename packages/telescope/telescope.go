@@ -42,7 +42,7 @@ type Option func(*Telescope)
 // masked in recorded response bodies.
 
 // Telescope is the central hub that collects, filters, tags, and stores
-// telemetry entries. It mirrors the behaviour of Laravel's Telescope class.
+// telemetry entries.
 //
 // A single Telescope instance should be created per application and shared
 // with all Watchers.
@@ -416,7 +416,7 @@ func (t *Telescope) RecordDump(entry *IncomingEntry) {
 
 // Store persists the current entries queue to the repository and fires
 // after-storing callbacks. The queue is cleared regardless of whether storage
-// succeeds. Mirrors Laravel's Telescope::store().
+// succeeds.
 func (t *Telescope) Store(ctx context.Context) error {
 	t.mu.Lock()
 

@@ -7,7 +7,7 @@ package routing
 // returns it; the terminal verb call (Get/Post/etc.) drains the accumulated
 // attributes into the created route via the router's group machinery.
 //
-// Mirrors Illuminate\Routing\RouteRegistrar.
+// Ref: @bedrock/code-0339
 type RouteRegistrar struct {
 	router     *Router
 	attributes map[string]any

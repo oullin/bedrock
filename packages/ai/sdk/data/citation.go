@@ -1,7 +1,6 @@
 package data
 
 // Citation represents a source citation in a response.
-// Mirrors Laravel\Ai\Responses\Data\Citation.
 type Citation struct {
 	Title  string `json:"title"`
 	URL    string `json:"url"`
@@ -11,7 +10,6 @@ type Citation struct {
 // ToMap returns a map representation.
 
 // UrlCitation is a URL-based citation variant.
-// Mirrors Laravel\Ai\Responses\Data\UrlCitation.
 type UrlCitation struct {
 	Title      string `json:"title"`
 	URL        string `json:"url"`

@@ -8,15 +8,14 @@ import (
 	"time"
 )
 
-// DatabaseFailedJobProvider is the Go port of Laravel's
-// Illuminate\Queue\Failed\DatabaseFailedJobProvider. Records are stored
+// Ref: @bedrock/code-0255
 // in a failed_jobs table keyed by an auto-incrementing integer id.
 //
 // The provider works through a small unexported store interface. The
 // default constructor wires an in-memory store (which is what the
 // PHPUnit sqlite tests exercise via the port); production callers can
 // plug in a SQL-backed store with the same contract. Keeping the
-// store contract internal lets the provider mirror Laravel's observable
+// store contract internal lets the provider mirror the upstream observable
 // semantics without embedding a SQL query engine in Go tests.
 type DatabaseFailedJobProvider struct {
 	store intStore
@@ -261,7 +260,7 @@ func (s *memoryStore) Flush(_ context.Context, hours int, now time.Time) {
 
 		return
 	}
-	// Laravel's flush deletes rows where failed_at <= now - hours.
+	// the upstream flush deletes rows where failed_at <= now - hours.
 	cutoff := now.Add(-time.Duration(hours) * time.Hour)
 	kept := make([]record, 0, len(s.rows))
 
@@ -283,7 +282,7 @@ func (s *memoryStore) Prune(_ context.Context, before time.Time) int64 {
 	kept := make([]record, 0, len(s.rows))
 
 	for _, r := range s.rows {
-		// Laravel prune: deletes rows where failed_at < $before.
+		// Upstream prune: deletes rows where failed_at < $before.
 		if r.FailedAt.Before(before) {
 			deleted++
 

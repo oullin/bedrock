@@ -27,7 +27,7 @@ type edgeKey struct {
 // Graph is the full output of an analyzer pipeline: a meta block plus nodes
 // and edges, with an in-memory index for fast lookups during construction.
 //
-// The JSON shape matches laravel-brain's Graph.php so the Vue SPA can render
+// The JSON shape matches upstream-brain's Graph.php so the Vue SPA can render
 // either output unchanged.
 type Graph struct {
 	Meta  Meta    `json:"meta"`
@@ -69,7 +69,7 @@ func (g *Graph) Node(id string) *Node {
 }
 
 // AddEdge appends a directed edge. Duplicate (source,target,type,label) tuples
-// are coalesced — laravel-brain does the same to keep the graph readable.
+// are coalesced — upstream-brain does the same to keep the graph readable.
 func (g *Graph) AddEdge(e *Edge) *Edge {
 	k := edgeKey{Source: e.Source, Target: e.Target, Type: e.Type, Label: e.Label}
 

@@ -8,24 +8,22 @@ import (
 )
 
 // SyncDriver executes jobs immediately in the same goroutine. It is
-// the Go port of Laravel's Illuminate\Queue\SyncQueue.
-//
-// The Go API differs from Laravel's in one ergonomic way: the handler
+// Ref: @bedrock/code-0273
+// The Go API differs from the upstream in one ergonomic way: the handler
 // that runs every job is injected at construction time rather than
 // resolved from a container per-push. This keeps the existing bedrock
 // Queue interface (Push takes raw []byte) usable as-is and matches
-// Laravel's semantics when a single handler is effectively registered
+// the upstream semantics when a single handler is effectively registered
 // for the connection.
 //
 // Events: if an EventEmitter is wired up via SetEmitter, every Push
-// fires the Laravel event sequence:
+// fires the upstream event sequence:
 //
 //	JobProcessing → handler.Handle → JobProcessed → JobAttempted
 //	JobProcessing → handler.Handle → JobExceptionOccurred → Fail → JobFailed → JobAttempted
 //
 // If the handler also implements queue.FailureHandler, its Failed
 // method is invoked between the Fail call and the JobFailed emission,
-// mirroring Laravel's CallQueuedHandler::failed path.
 type SyncDriver struct {
 	connection string
 	handler    queue.Handler
@@ -36,7 +34,7 @@ type SyncDriver struct {
 type syncJob struct{ BaseJob }
 
 // TransactionCallbackRegistrar is the small transaction hook SyncDriver
-// needs to mirror Laravel's after-commit dispatch registration.
+// needs to mirror the upstream after-commit dispatch registration.
 type TransactionCallbackRegistrar interface {
 	AddCallback(func())
 }
@@ -84,7 +82,7 @@ func (d *SyncDriver) PushJob(ctx context.Context, queueName string, jobValue any
 	return "", d.executeJob(ctx, job)
 }
 
-// executeJob runs the Laravel-flavoured lifecycle around the
+// executeJob runs the upstream-style lifecycle around the
 // handler.Handle call and returns whatever error the handler produced.
 func (d *SyncDriver) executeJob(ctx context.Context, job queue.Job) error {
 	d.emit(queue.JobProcessing{ConnectionName: d.connection, Job: job})

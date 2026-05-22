@@ -23,7 +23,7 @@ type ActiveSubscription struct {
 }
 
 // BillingService orchestrates billing operations across multiple
-// payment providers. Mirrors app/Services/BillingService.php.
+// payment providers. php.
 type BillingService struct {
 	subscriptions spark.SubscriptionStore
 	orders        spark.OrderStore

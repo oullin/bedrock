@@ -14,7 +14,7 @@ type Context struct {
 }
 
 // Analyzer is one stage of the scan pipeline. Phases are intentionally small
-// so the laravel-brain analyzer split (Route, Controller, Model, ...) maps
+// so the upstream-brain analyzer split (Route, Controller, Model, ...) maps
 // 1:1 to a Go type here.
 type Analyzer interface {
 	Name() string

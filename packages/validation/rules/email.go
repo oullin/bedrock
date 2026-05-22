@@ -18,8 +18,8 @@ func init_email() {
 	Register("Ulid", validateUlid)
 }
 
-// emailRe is the basic RFC 5322-compatible email regex used by Laravel's
-// native validator (without DNS/spoof checks).
+// emailRe is the basic RFC 5322-compatible email regex used by the native
+// validator (without DNS/spoof checks).
 var emailRe = regexp.MustCompile(`^[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`)
 
 func validateEmail(_ string, value any, _ []string, _ RuleContext) bool {

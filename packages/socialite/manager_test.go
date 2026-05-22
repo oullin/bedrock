@@ -9,7 +9,6 @@ import (
 )
 
 // SocialiteManagerTest::test_it_can_instantiate_the_github_driver
-// TestManagerInstantiatesGithubDriver mirrors
 // test_it_can_instantiate_the_github_driver (SocialiteManagerTest.php).
 func TestManagerInstantiatesGithubDriver(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)

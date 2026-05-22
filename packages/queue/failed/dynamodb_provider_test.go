@@ -1,7 +1,6 @@
 package failed_test
 
-// Ported from Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest (5/5).
-//
+// Ref: @bedrock/code-0362
 // ✅ testCanProperlyLogFailedJob
 // ✅ testCanRetrieveAllFailedJobs
 // ✅ testASingleJobCanBeFound
@@ -54,7 +53,7 @@ func (f *fakeDynamoClient) DeleteItem(_ context.Context, params map[string]any) 
 	return map[string]any{}, nil
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testCanProperlyLogFailedJob
+// Ref: @bedrock/code-0362
 func TestDynamoCanProperlyLogFailedJob(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{}
@@ -88,7 +87,7 @@ func TestDynamoCanProperlyLogFailedJob(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testCanRetrieveAllFailedJobs
+// Ref: @bedrock/code-0362
 func TestDynamoCanRetrieveAllFailedJobs(t *testing.T) {
 	t.Parallel()
 	timeNow := time.Now().Unix()
@@ -146,7 +145,7 @@ func TestDynamoCanRetrieveAllFailedJobs(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testASingleJobCanBeFound
+// Ref: @bedrock/code-0362
 func TestDynamoASingleJobCanBeFound(t *testing.T) {
 	t.Parallel()
 	timeNow := time.Now().Unix()
@@ -189,7 +188,7 @@ func TestDynamoASingleJobCanBeFound(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testNullIsReturnedIfJobNotFound
+// Ref: @bedrock/code-0362
 func TestDynamoNullIsReturnedIfJobNotFound(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{getResp: map[string]any{}}
@@ -202,7 +201,7 @@ func TestDynamoNullIsReturnedIfJobNotFound(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\DynamoDbFailedJobProviderTest::testJobsCanBeDeleted
+// Ref: @bedrock/code-0362
 func TestDynamoJobsCanBeDeleted(t *testing.T) {
 	t.Parallel()
 	fake := &fakeDynamoClient{}

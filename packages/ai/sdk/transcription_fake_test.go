@@ -14,7 +14,6 @@ import (
 	contractsprovider "github.com/bedrock/packages/contracts/ai/provider"
 )
 
-// TestTranscriptionCanBeFaked mirrors test_transcription_can_be_faked.
 func TestTranscriptionCanBeFaked(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +44,6 @@ func TestTranscriptionCanBeFaked(t *testing.T) {
 	})
 }
 
-// TestTranscriptionAssertNothingGenerated mirrors the "nothing generated" assertion.
 func TestTranscriptionAssertNothingGenerated(t *testing.T) {
 	t.Parallel()
 

@@ -16,7 +16,6 @@ type AudioGenerateRequest struct {
 }
 
 // AudioProvider is the provider-level contract for text-to-speech generation.
-// Mirrors Laravel\Ai\Contracts\Providers\AudioProvider.
 type AudioProvider interface {
 	Audio(ctx context.Context, req AudioGenerateRequest) (*gateway.AudioGenerateResult, error)
 	AudioGateway() gateway.AudioGateway

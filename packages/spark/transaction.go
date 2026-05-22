@@ -6,7 +6,6 @@ import (
 )
 
 // Transaction represents a billing transaction record.
-// Mirrors Laravel\Paddle\Transaction.
 type Transaction struct {
 	ID                   int64
 	BillableType         string

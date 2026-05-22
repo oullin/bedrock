@@ -3,7 +3,6 @@ package scout
 import "context"
 
 // Engine is the contract for search engine backends.
-// It mirrors Laravel's Scout\Engines\Engine abstract class.
 type Engine interface {
 	// Update indexes or updates the given models in the search engine.
 	Update(ctx context.Context, models []Searchable) error

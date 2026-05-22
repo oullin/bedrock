@@ -7,7 +7,7 @@ import (
 	"github.com/bedrock/packages/queue"
 )
 
-// Ports of Illuminate\Tests\Queue\QueueRoutesTest. Laravel's test walks
+// Ref: @bedrock/code-0371
 // PHP's class_parents / class_implements / class_uses chain; Go has no
 // runtime class hierarchy, so fake values here implement RouteLineage
 // to report the same logical lookup chain. Behaviour under assertion
@@ -23,16 +23,16 @@ import (
 type lineageFixture struct{ names []string }
 
 const (
-	keyQueueRoutes      = "Illuminate\\Queue\\QueueRoutes"
-	keyBaseNotification = "Illuminate\\Tests\\Queue\\BaseNotification"
-	keyCustomTrait      = "Illuminate\\Tests\\Queue\\CustomTrait"
-	keyPaymentContract  = "Illuminate\\Tests\\Queue\\PaymentContract"
-	keySomeJob          = "Illuminate\\Tests\\Queue\\SomeJob"
+	keyQueueRoutes      = "@bedrock\\Queue\\QueueRoutes"
+	keyBaseNotification = "@bedrock\\Tests\\Queue\\BaseNotification"
+	keyCustomTrait      = "@bedrock\\Tests\\Queue\\CustomTrait"
+	keyPaymentContract  = "@bedrock\\Tests\\Queue\\PaymentContract"
+	keySomeJob          = "@bedrock\\Tests\\Queue\\SomeJob"
 )
 
 func (f lineageFixture) RouteLineage() []string { return f.names }
 
-// newSomeJob = Laravel's `new SomeJob` (uses Queueable + CustomTrait).
+// newSomeJob = the upstream `new SomeJob` (uses Queueable + CustomTrait).
 func newSomeJob() lineageFixture {
 	return lineageFixture{names: []string{keySomeJob, keyCustomTrait}}
 }
@@ -40,7 +40,7 @@ func newSomeJob() lineageFixture {
 // newFinanceNotification = `new FinanceNotification` (extends BaseNotification).
 func newFinanceNotification() lineageFixture {
 	return lineageFixture{names: []string{
-		"Illuminate\\Tests\\Queue\\FinanceNotification",
+		"@bedrock\\Tests\\Queue\\FinanceNotification",
 		keyBaseNotification,
 	}}
 }
@@ -48,14 +48,14 @@ func newFinanceNotification() lineageFixture {
 // newPayment = `new Payment` (implements PaymentContract).
 func newPayment() lineageFixture {
 	return lineageFixture{names: []string{
-		"Illuminate\\Tests\\Queue\\Payment",
+		"@bedrock\\Tests\\Queue\\Payment",
 		keyPaymentContract,
 	}}
 }
 
 // --- ports ------------------------------------------------------------
 
-// Port of Illuminate\Tests\Queue\QueueRoutesTest::testSet
+// Ref: @bedrock/code-0371
 func TestSet(t *testing.T) {
 	t.Parallel()
 
@@ -94,7 +94,7 @@ func TestSet(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueRoutesTest::testGetQueue
+// Ref: @bedrock/code-0371
 func TestGetQueue(t *testing.T) {
 	t.Parallel()
 
@@ -109,7 +109,7 @@ func TestGetQueue(t *testing.T) {
 	}
 
 	// Override PaymentContract with array form, connection-only.
-	// Laravel: set(PaymentContract::class, connection: 'payment-connection')
+	// Upstream: set(PaymentContract::class, connection: 'payment-connection')
 	routes.Set(keyPaymentContract, "", "payment-connection")
 
 	if got := routes.GetQueue(newFinanceNotification()); got != "notifications" {
@@ -125,7 +125,7 @@ func TestGetQueue(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueRoutesTest::testGetConnection
+// Ref: @bedrock/code-0371
 func TestGetConnection(t *testing.T) {
 	t.Parallel()
 
@@ -139,7 +139,7 @@ func TestGetConnection(t *testing.T) {
 	}
 
 	// Override PaymentContract with queue-only (no connection).
-	// Laravel: set(PaymentContract::class, 'payments')
+	// Upstream: set(PaymentContract::class, 'payments')
 	routes.Set(keyPaymentContract, "payments", "")
 
 	if got := routes.GetConnection(newFinanceNotification()); got != "notification-connection" {
@@ -155,7 +155,7 @@ func TestGetConnection(t *testing.T) {
 	}
 }
 
-// Port of Illuminate\Tests\Queue\QueueRoutesTest::testStringRouteDefaultsToQueueNotConnection
+// Ref: @bedrock/code-0371
 func TestStringRouteDefaultsToQueueNotConnection(t *testing.T) {
 	t.Parallel()
 
