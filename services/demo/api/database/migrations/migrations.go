@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// Run creates the tables from laravel/laravel's default skeleton migrations.
+// Run creates the tables from upstream/upstream's default skeleton migrations.
 func Run(db *sql.DB) error {
 	if db == nil {
 		return fmt.Errorf("demo migrations: nil database")

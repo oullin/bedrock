@@ -247,7 +247,7 @@ func TestPromptsComplianceInventory(t *testing.T) {
 		}
 
 		if got != "acme" {
-			t.Fatalf("select = %q, want laravel", got)
+			t.Fatalf("select = %q, want upstream", got)
 		}
 	})
 

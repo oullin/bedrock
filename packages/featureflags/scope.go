@@ -11,7 +11,7 @@ type Scopeable interface {
 	FeatureScopeIdentifier() string
 }
 
-// NullScope is the serialized form of a nil scope, matching the upstream "__laravel_null" convention adapted for this package.
+// NullScope is the serialized form of a nil scope, matching the upstream "__null" convention adapted for this package.
 const NullScope = "__null"
 
 // SerializeScope converts an arbitrary Go value to a stable string key
