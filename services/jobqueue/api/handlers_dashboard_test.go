@@ -1,0 +1,193 @@
+package api_test
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"github.com/bedrock/packages/jobqueue"
+	"github.com/bedrock/services/jobqueue/api"
+)
+
+func newTestHandler(t *testing.T, opts api.Options) http.Handler {
+	t.Helper()
+
+	if opts.Supervisors == nil {
+		opts.Supervisors = api.NewSliceSupervisors(nil)
+	}
+
+	if opts.Batches == nil {
+		opts.Batches = api.NewInMemoryBatches()
+	}
+
+	return api.NewHandler(opts)
+}
+
+func TestDashboardStatsReturnsAggregatedCounters(t *testing.T) {
+	t.Parallel()
+
+	repo := jobqueue.NewInMemoryRepository()
+
+	if err := repo.Record(context.Background(), jobqueue.Snapshot{
+		GeneratedAt: time.Unix(1700000000, 0),
+		Queues: []jobqueue.QueueStatus{
+			{Name: "default", Pending: 5, Processing: 2, Failed: 1, Throughput: 10, Wait: 7 * time.Second},
+			{Name: "mail", Pending: 3, Throughput: 4, Wait: 2 * time.Second},
+		},
+	}); err != nil {
+		t.Fatalf("record snapshot: %v", err)
+	}
+
+	handler := newTestHandler(t, api.Options{
+		Repository: repo,
+		Supervisors: api.NewSliceSupervisors([]api.MasterSupervisor{
+			{Name: "jobqueue-1", Status: "running"},
+		}),
+	})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/stats", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	var body map[string]any
+
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+
+	if body["pendingJobs"].(float64) != 8 {
+		t.Fatalf("pendingJobs = %v, want 8", body["pendingJobs"])
+	}
+
+	if body["failedJobs"].(float64) != 1 {
+		t.Fatalf("failedJobs = %v, want 1", body["failedJobs"])
+	}
+
+	if body["jobsPerMinute"].(float64) != 14 {
+		t.Fatalf("jobsPerMinute = %v, want 14", body["jobsPerMinute"])
+	}
+
+	if body["status"] != "running" {
+		t.Fatalf("status = %v, want running", body["status"])
+	}
+}
+
+func TestDashboardStatsReflectsPausedStateWhenAllSupervisorsArePaused(t *testing.T) {
+	t.Parallel()
+
+	handler := newTestHandler(t, api.Options{
+		Supervisors: api.NewSliceSupervisors([]api.MasterSupervisor{
+			{Name: "jobqueue-1", Status: "paused"},
+			{Name: "jobqueue-2", Status: "paused"},
+		}),
+	})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/stats", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	var body map[string]any
+
+	_ = json.NewDecoder(w.Body).Decode(&body)
+
+	if body["status"] != "paused" {
+		t.Fatalf("status = %v, want paused", body["status"])
+	}
+}
+
+func TestDashboardStatsDoesNotReflectPausedWhenSomeSupervisorsAreRunning(t *testing.T) {
+	t.Parallel()
+
+	handler := newTestHandler(t, api.Options{
+		Supervisors: api.NewSliceSupervisors([]api.MasterSupervisor{
+			{Name: "jobqueue-1", Status: "paused"},
+			{Name: "jobqueue-2", Status: "running"},
+		}),
+	})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/stats", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	var body map[string]any
+
+	_ = json.NewDecoder(w.Body).Decode(&body)
+
+	if body["status"] != "running" {
+		t.Fatalf("status = %v, want running", body["status"])
+	}
+}
+
+func TestMasterSupervisorListingWithoutSupervisorsReturnsEmpty(t *testing.T) {
+	t.Parallel()
+
+	handler := newTestHandler(t, api.Options{})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/master-supervisors", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	if w.Body.String() != "[]\n" {
+		t.Fatalf("expected empty JSON array, got %q", w.Body.String())
+	}
+}
+
+func TestMasterSupervisorListingWithSupervisorsReturnsThem(t *testing.T) {
+	t.Parallel()
+
+	handler := newTestHandler(t, api.Options{
+		Supervisors: api.NewSliceSupervisors([]api.MasterSupervisor{
+			{Name: "jobqueue-1", PID: 1234, Status: "running"},
+		}),
+	})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/master-supervisors", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	var body []api.MasterSupervisor
+
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+
+	if len(body) != 1 || body[0].Name != "jobqueue-1" {
+		t.Fatalf("got %v, want [jobqueue-1]", body)
+	}
+}
+
+func TestMasterSupervisorListingPreservesCustomNames(t *testing.T) {
+	t.Parallel()
+
+	handler := newTestHandler(t, api.Options{
+		Supervisors: api.NewSliceSupervisors([]api.MasterSupervisor{
+			{Name: "billing-worker", Status: "running"},
+			{Name: "default-worker", Status: "running"},
+		}),
+	})
+
+	r := httptest.NewRequest(http.MethodGet, "/api/master-supervisors", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, r)
+
+	var body []api.MasterSupervisor
+
+	_ = json.NewDecoder(w.Body).Decode(&body)
+
+	if len(body) != 2 || body[0].Name != "billing-worker" {
+		t.Fatalf("got %v, want billing-worker first", body)
+	}
+}
