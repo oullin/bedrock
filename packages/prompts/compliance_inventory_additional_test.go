@@ -463,7 +463,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 			got, err := Select("Framework?", []string{"acme"}, SelectWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
-			if got != "LARAVEL" {
+			if got != "ACME" {
 				t.Fatalf("select = %q", got)
 			}
 		})
@@ -592,7 +592,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 	})
 
 	t.Run("AutoCompletePromptTest::it_completes_the_input_using_the_tab_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
@@ -603,7 +603,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 	})
 
 	t.Run("AutoCompletePromptTest::it_accepts_a_closure_for_options", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", func(string) []string { return []string{"Acme"} })
 			requireNoError(t, err)
 
@@ -710,7 +710,7 @@ func TestPromptsComplianceAdditionalInventory(t *testing.T) {
 			got, err := Search("Framework?", fixedSearchOptions("acme", "Acme"), SearchWithTransform(strings.ToUpper))
 			requireNoError(t, err)
 
-			if got != "LARAVEL" {
+			if got != "ACME" {
 				t.Fatalf("search = %q", got)
 			}
 		})

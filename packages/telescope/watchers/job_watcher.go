@@ -4,7 +4,7 @@ import (
 	"github.com/bedrock/packages/telescope"
 )
 
-// JobStatus constants mirror the three lifecycle states recorded by the upstream // JobWatcher.
+// JobStatus constants mirror the three lifecycle states recorded by JobWatcher.
 
 // JobWatcher monitors queued job lifecycle events (pending, processed, failed)
 // and records them as Telescope entries.

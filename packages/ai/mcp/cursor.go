@@ -10,7 +10,8 @@ type cursorPayload struct {
 	Offset int `json:"offset"`
 }
 
-// CursorPaginator implements cursor-based pagination identical to the upstream // CursorPaginator. The cursor is a base64-encoded JSON object {"offset":N}.
+// CursorPaginator implements cursor-based pagination. The cursor is a
+// base64-encoded JSON object {"offset":N}.
 type CursorPaginator struct {
 	items   []any
 	perPage int

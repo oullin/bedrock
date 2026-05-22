@@ -22,7 +22,7 @@ type FailedJob struct {
 // Differences from PHP:
 //
 //   - IDs returns []string; callers coerce where they need ints.
-//   - Find returns (nil, nil) when the id does not exist (upstream //     returns null).
+//   - Find returns (nil, nil) when the id does not exist (upstream returns null).
 //   - Flush takes `hours int` where 0 means "flush everything". upstream
 //     accepts int|null with null meaning the same.
 type FailedJobProvider interface {

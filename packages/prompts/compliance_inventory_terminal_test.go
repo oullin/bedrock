@@ -53,7 +53,7 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	})
 
 	t.Run("AutoCompletePromptTest::it_completes_the_input_using_the_right_arrow_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyRight, KeyEnter, func(*TestPrompts) {
+		withFake(t, "Acm", KeyRight, KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
@@ -64,18 +64,18 @@ func TestPromptsComplianceTerminalInventory(t *testing.T) {
 	})
 
 	t.Run("AutoCompletePromptTest::it_allows_editing_after_accepting_a_suggestion", func(t *testing.T) {
-		withFake(t, "Lar", KeyRight, KeyBackspace, "s", KeyEnter, func(*TestPrompts) {
+		withFake(t, "Acm", KeyRight, KeyBackspace, "s", KeyEnter, func(*TestPrompts) {
 			got, err := Autocomplete("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 
-			if got != "Laraves" {
+			if got != "Acms" {
 				t.Fatalf("autocomplete = %q", got)
 			}
 		})
 	})
 
 	t.Run("SuggestPromptTest::it_completes_the_input_using_the_tab_key", func(t *testing.T) {
-		withFake(t, "Lar", KeyTab, KeyEnter, func(*TestPrompts) {
+		withFake(t, "Acm", KeyTab, KeyEnter, func(*TestPrompts) {
 			got, err := Suggest("Framework?", []string{"Acme"})
 			requireNoError(t, err)
 

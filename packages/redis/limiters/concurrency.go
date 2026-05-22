@@ -1,4 +1,5 @@
-// Package limiters implements Go ports of the upstream // ConcurrencyLimiter and DurationLimiter, backed by a redis.Connection.
+// Package limiters implements ConcurrencyLimiter and DurationLimiter, backed
+// by a redis.Connection.
 package limiters
 
 import (

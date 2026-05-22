@@ -12,7 +12,7 @@ import (
 // It wraps a Client and dispatches CommandExecuted events for every call
 // that goes through Command. Typed helpers exist for the commands exercised
 // by the upstream test suite; for everything else, callers can invoke
-// Command(ctx, "RENAME", "a", "b") directly — that pathway is the upstream // ->command($method, $parameters).
+// Command(ctx, "RENAME", "a", "b") directly.
 type Connection struct {
 	name      string
 	client    Client
