@@ -205,7 +205,7 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             { text: 'inception', link: '/packages/inception' },
-            { text: 'fortify', link: '/packages/fortify' },
+            { text: 'authflows', link: '/packages/authflows' },
             { text: 'inertia', link: '/packages/inertia' },
             { text: 'jetstream', link: '/packages/jetstream' },
             { text: 'spark', link: '/packages/spark' },

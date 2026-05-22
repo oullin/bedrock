@@ -79,7 +79,7 @@ pnpm run build --filter=@bedrock/docs
 | [auth](/packages/auth)             | Authentication, authorization, password management |
 | [encryption](/packages/encryption) | AES encryption with CBC and GCM mode support       |
 | [hashing](/packages/hashing)       | Password hashing with bcrypt and Argon2            |
-| [fortify](/packages/fortify)       | Rate limiting, two-factor auth, auth pipelines     |
+| [authflows](/packages/authflows)       | Rate limiting, two-factor auth, auth pipelines     |
 
 ### Data & Storage
 
@@ -140,7 +140,7 @@ pnpm run build --filter=@bedrock/docs
 
 | Package                          | Purpose                                              |
 | -------------------------------- | ---------------------------------------------------- |
-| [inception](/packages/inception) | Unified auth scaffold — Fortify + Jetstream combined |
+| [inception](/packages/inception) | Unified auth scaffold — AuthFlows + Jetstream combined |
 | [jetstream](/packages/jetstream) | Team and organization management                     |
 | [spark](/packages/spark)         | Subscription billing, checkout, and entitlements     |
 

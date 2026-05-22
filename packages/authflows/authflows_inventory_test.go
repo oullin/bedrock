@@ -1,4 +1,4 @@
-package fortify_test
+package authflows_test
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	"github.com/bedrock/packages/validation"
 )
 
-type fortifyUser struct {
+type authflowsUser struct {
 	id            string
 	email         string
 	password      string
@@ -31,7 +31,7 @@ type fortifyUser struct {
 	unverified bool
 }
 
-type fortifyGuard struct {
+type authflowsGuard struct {
 	authenticated cauth.Authenticatable
 
 	loggedIn         cauth.Authenticatable
@@ -40,23 +40,23 @@ type fortifyGuard struct {
 	loggedOut        bool
 }
 
-type fortifyProvider struct {
+type authflowsProvider struct {
 	user          cauth.Authenticatable
 	validPassword string
 }
 
-type fortifyHasher struct{}
+type authflowsHasher struct{}
 
-type fortifyEvents struct {
+type authflowsEvents struct {
 	dispatched []any
 }
 
-type fortifyResponder struct {
+type authflowsResponder struct {
 	login, logout, register, resetLink, reset, updatePassword, confirmPassword bool
 	profile, verification, twoFactorChallenge, twoFactorEnabled, twoFactorOff  bool
 }
 
-type fortifyLimiter struct {
+type authflowsLimiter struct {
 	tooMany bool
 	hits    []string
 	cleared []string
@@ -100,156 +100,156 @@ type verifier struct {
 	err  error
 }
 
-func (u *fortifyUser) GetAuthIdentifierName() string       { return "id" }
-func (u *fortifyUser) GetAuthIdentifier() string           { return u.id }
-func (u *fortifyUser) GetAuthPasswordName() string         { return "password" }
-func (u *fortifyUser) GetAuthPassword() string             { return u.password }
-func (u *fortifyUser) SetAuthPassword(password string)     { u.password = password }
-func (u *fortifyUser) GetRememberToken() string            { return u.rememberToken }
-func (u *fortifyUser) SetRememberToken(token string)       { u.rememberToken = token }
-func (u *fortifyUser) GetRememberTokenName() string        { return "remember_token" }
-func (u *fortifyUser) IsTwoFactorEnabled() bool            { return u.twoFactorEnabled }
-func (u *fortifyUser) SetTwoFactorEnabled(enabled bool)    { u.twoFactorEnabled = enabled }
-func (u *fortifyUser) GetTwoFactorSecret() string          { return u.twoFactorSecret }
-func (u *fortifyUser) SetTwoFactorSecret(secret string)    { u.twoFactorSecret = secret }
-func (u *fortifyUser) GetTwoFactorRecoveryCodes() []string { return u.twoFactorCodes }
-func (u *fortifyUser) SetTwoFactorRecoveryCodes(codes []string) {
+func (u *authflowsUser) GetAuthIdentifierName() string       { return "id" }
+func (u *authflowsUser) GetAuthIdentifier() string           { return u.id }
+func (u *authflowsUser) GetAuthPasswordName() string         { return "password" }
+func (u *authflowsUser) GetAuthPassword() string             { return u.password }
+func (u *authflowsUser) SetAuthPassword(password string)     { u.password = password }
+func (u *authflowsUser) GetRememberToken() string            { return u.rememberToken }
+func (u *authflowsUser) SetRememberToken(token string)       { u.rememberToken = token }
+func (u *authflowsUser) GetRememberTokenName() string        { return "remember_token" }
+func (u *authflowsUser) IsTwoFactorEnabled() bool            { return u.twoFactorEnabled }
+func (u *authflowsUser) SetTwoFactorEnabled(enabled bool)    { u.twoFactorEnabled = enabled }
+func (u *authflowsUser) GetTwoFactorSecret() string          { return u.twoFactorSecret }
+func (u *authflowsUser) SetTwoFactorSecret(secret string)    { u.twoFactorSecret = secret }
+func (u *authflowsUser) GetTwoFactorRecoveryCodes() []string { return u.twoFactorCodes }
+func (u *authflowsUser) SetTwoFactorRecoveryCodes(codes []string) {
 	u.twoFactorCodes = append([]string(nil), codes...)
 }
-func (u *fortifyUser) GetTwoFactorConfirmedAt() *time.Time { return u.twoFactorConfirmed }
-func (u *fortifyUser) SetTwoFactorConfirmedAt(at *time.Time) {
+func (u *authflowsUser) GetTwoFactorConfirmedAt() *time.Time { return u.twoFactorConfirmed }
+func (u *authflowsUser) SetTwoFactorConfirmedAt(at *time.Time) {
 	u.twoFactorConfirmed = at
 }
-func (u *fortifyUser) HasVerifiedEmail() bool          { return u.verified }
-func (u *fortifyUser) MarkEmailAsVerified(_ time.Time) { u.verified = true }
-func (u *fortifyUser) MarkEmailAsUnverified()          { u.unverified = true }
-func (u *fortifyUser) GetEmailForVerification() string { return u.email }
-func (u *fortifyUser) GetEmailForPasswordReset() string {
+func (u *authflowsUser) HasVerifiedEmail() bool          { return u.verified }
+func (u *authflowsUser) MarkEmailAsVerified(_ time.Time) { u.verified = true }
+func (u *authflowsUser) MarkEmailAsUnverified()          { u.unverified = true }
+func (u *authflowsUser) GetEmailForVerification() string { return u.email }
+func (u *authflowsUser) GetEmailForPasswordReset() string {
 	return u.email
 }
 
-func (g *fortifyGuard) Name() string { return "web" }
-func (g *fortifyGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
+func (g *authflowsGuard) Name() string { return "web" }
+func (g *authflowsGuard) AuthenticateRequest(_ context.Context, _ http.ResponseWriter, _ *http.Request) (cauth.Authenticatable, error) {
 	return g.authenticated, nil
 }
-func (g *fortifyGuard) Login(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable, remember bool) error {
+func (g *authflowsGuard) Login(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable, remember bool) error {
 	g.loggedIn = user
 	g.loggedInRemember = remember
 
 	return nil
 }
-func (g *fortifyGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable) error {
+func (g *authflowsGuard) LoginWithPendingTwoFactor(_ context.Context, _ http.ResponseWriter, user cauth.Authenticatable) error {
 	g.loggedIn = user
 	g.pendingTwoFactor = true
 
 	return nil
 }
-func (g *fortifyGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
+func (g *authflowsGuard) Logout(_ context.Context, _ http.ResponseWriter, _ *http.Request) error {
 	g.loggedOut = true
 
 	return nil
 }
 
-func (p *fortifyProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
+func (p *authflowsProvider) RetrieveByID(_ context.Context, _ string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *fortifyProvider) RetrieveByToken(_ context.Context, _ string, _ string) (cauth.Authenticatable, error) {
+func (p *authflowsProvider) RetrieveByToken(_ context.Context, _ string, _ string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *fortifyProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
+func (p *authflowsProvider) RetrieveByCredentials(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return p.user, nil
 }
-func (p *fortifyProvider) UpdateRememberToken(_ context.Context, _ cauth.Authenticatable, _ string) error {
+func (p *authflowsProvider) UpdateRememberToken(_ context.Context, _ cauth.Authenticatable, _ string) error {
 	return nil
 }
-func (p *fortifyProvider) ValidateCredentials(_ context.Context, _ cauth.Authenticatable, credentials map[string]string) (bool, error) {
+func (p *authflowsProvider) ValidateCredentials(_ context.Context, _ cauth.Authenticatable, credentials map[string]string) (bool, error) {
 	return credentials["password"] == p.validPassword, nil
 }
-func (p *fortifyProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
+func (p *authflowsProvider) RehashPasswordIfRequired(_ context.Context, _ cauth.Authenticatable, _ map[string]string, _ bool) error {
 	return nil
 }
 
-func (h fortifyHasher) Hash(_ context.Context, password string) (string, error) { return password, nil }
-func (h fortifyHasher) Check(_ context.Context, password string, hash string) (bool, error) {
+func (h authflowsHasher) Hash(_ context.Context, password string) (string, error) { return password, nil }
+func (h authflowsHasher) Check(_ context.Context, password string, hash string) (bool, error) {
 	return password == hash, nil
 }
-func (h fortifyHasher) NeedsRehash(_ string) bool { return false }
+func (h authflowsHasher) NeedsRehash(_ string) bool { return false }
 
-func (e *fortifyEvents) Listen(_ any, _ ...events.Listener)          {}
-func (e *fortifyEvents) HasListeners(_ any) bool                     { return false }
-func (e *fortifyEvents) HasWildcardListeners(_ any) bool             { return false }
-func (e *fortifyEvents) Subscribe(_ events.Subscriber)               {}
-func (e *fortifyEvents) Until(_ context.Context, _ any) (any, error) { return nil, nil }
-func (e *fortifyEvents) Push(_ context.Context, _ any)               {}
-func (e *fortifyEvents) Flush(_ context.Context, _ string) error     { return nil }
-func (e *fortifyEvents) Forget(_ any)                                {}
-func (e *fortifyEvents) ForgetPushed()                               {}
-func (e *fortifyEvents) GetListeners(_ any) []events.Listener        { return nil }
-func (e *fortifyEvents) Dispatch(_ context.Context, event any) ([]any, error) {
+func (e *authflowsEvents) Listen(_ any, _ ...events.Listener)          {}
+func (e *authflowsEvents) HasListeners(_ any) bool                     { return false }
+func (e *authflowsEvents) HasWildcardListeners(_ any) bool             { return false }
+func (e *authflowsEvents) Subscribe(_ events.Subscriber)               {}
+func (e *authflowsEvents) Until(_ context.Context, _ any) (any, error) { return nil, nil }
+func (e *authflowsEvents) Push(_ context.Context, _ any)               {}
+func (e *authflowsEvents) Flush(_ context.Context, _ string) error     { return nil }
+func (e *authflowsEvents) Forget(_ any)                                {}
+func (e *authflowsEvents) ForgetPushed()                               {}
+func (e *authflowsEvents) GetListeners(_ any) []events.Listener        { return nil }
+func (e *authflowsEvents) Dispatch(_ context.Context, event any) ([]any, error) {
 	e.dispatched = append(e.dispatched, event)
 
 	return nil, nil
 }
 
-func (r *fortifyResponder) LoginResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) LoginResponse(w http.ResponseWriter, _ *http.Request) {
 	r.login = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) LogoutResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) LogoutResponse(w http.ResponseWriter, _ *http.Request) {
 	r.logout = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) RegisterResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) RegisterResponse(w http.ResponseWriter, _ *http.Request) {
 	r.register = true
 	w.WriteHeader(http.StatusCreated)
 }
-func (r *fortifyResponder) PasswordResetLinkSentResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) PasswordResetLinkSentResponse(w http.ResponseWriter, _ *http.Request) {
 	r.resetLink = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) PasswordResetResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) PasswordResetResponse(w http.ResponseWriter, _ *http.Request) {
 	r.reset = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) PasswordUpdateResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) PasswordUpdateResponse(w http.ResponseWriter, _ *http.Request) {
 	r.updatePassword = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) PasswordConfirmResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) PasswordConfirmResponse(w http.ResponseWriter, _ *http.Request) {
 	r.confirmPassword = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) ProfileInformationUpdatedResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) ProfileInformationUpdatedResponse(w http.ResponseWriter, _ *http.Request) {
 	r.profile = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) EmailVerificationSentResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) EmailVerificationSentResponse(w http.ResponseWriter, _ *http.Request) {
 	r.verification = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) TwoFactorChallengeResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) TwoFactorChallengeResponse(w http.ResponseWriter, _ *http.Request) {
 	r.twoFactorChallenge = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) TwoFactorEnabledResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) TwoFactorEnabledResponse(w http.ResponseWriter, _ *http.Request) {
 	r.twoFactorEnabled = true
 	w.WriteHeader(http.StatusOK)
 }
-func (r *fortifyResponder) TwoFactorDisabledResponse(w http.ResponseWriter, _ *http.Request) {
+func (r *authflowsResponder) TwoFactorDisabledResponse(w http.ResponseWriter, _ *http.Request) {
 	r.twoFactorOff = true
 	w.WriteHeader(http.StatusOK)
 }
 
-func (l *fortifyLimiter) TooManyAttempts(_ string, _ int) bool { return l.tooMany }
-func (l *fortifyLimiter) Hit(key string, _ time.Duration) int {
+func (l *authflowsLimiter) TooManyAttempts(_ string, _ int) bool { return l.tooMany }
+func (l *authflowsLimiter) Hit(key string, _ time.Duration) int {
 	l.hits = append(l.hits, key)
 
 	return len(l.hits)
 }
-func (l *fortifyLimiter) Clear(key string) {
+func (l *authflowsLimiter) Clear(key string) {
 	l.cleared = append(l.cleared, key)
 }
-func (l *fortifyLimiter) AvailableIn(_ string) time.Duration { return 0 }
+func (l *authflowsLimiter) AvailableIn(_ string) time.Duration { return 0 }
 
 func (a createUsersAction) Create(_ context.Context, _ map[string]string) (cauth.Authenticatable, error) {
 	return a.user, a.err
@@ -269,7 +269,7 @@ func (b *passwordBroker) Reset(_ context.Context, credentials map[string]string,
 	b.reset = true
 	b.credential = credentials
 
-	return callback(&fortifyUser{id: "reset-user", email: credentials["email"]}, credentials["password"])
+	return callback(&authflowsUser{id: "reset-user", email: credentials["email"]}, credentials["password"])
 }
 
 func (a *resetPasswordsAction) Reset(_ context.Context, _ cauth.Authenticatable, password string) error {
@@ -296,7 +296,7 @@ func (a updateProfileAction) Update(_ context.Context, user cauth.Authenticatabl
 		return a.err
 	}
 
-	if u, ok := user.(*fortifyUser); ok {
+	if u, ok := user.(*authflowsUser); ok {
 		u.email = input["email"]
 	}
 
@@ -315,10 +315,10 @@ func (v *verifier) Verify(_ context.Context, id string, hash string) error {
 	return v.err
 }
 
-func newApp(t *testing.T, configure func(*inception.Config), options ...func(*inception.Builder)) (*inception.Inception, *fortifyGuard, *fortifyResponder, *fortifyEvents) {
+func newApp(t *testing.T, configure func(*inception.Config), options ...func(*inception.Builder)) (*inception.Inception, *authflowsGuard, *authflowsResponder, *authflowsEvents) {
 	t.Helper()
 
-	user := &fortifyUser{id: "1", email: "user@example.com", password: "hash"}
+	user := &authflowsUser{id: "1", email: "user@example.com", password: "hash"}
 	config := inception.DefaultConfig()
 	config.Features = inception.Features{}
 
@@ -326,14 +326,14 @@ func newApp(t *testing.T, configure func(*inception.Config), options ...func(*in
 		configure(&config)
 	}
 
-	guard := &fortifyGuard{authenticated: user}
-	responder := &fortifyResponder{}
-	dispatcher := &fortifyEvents{}
+	guard := &authflowsGuard{authenticated: user}
+	responder := &authflowsResponder{}
+	dispatcher := &authflowsEvents{}
 	builder := inception.NewBuilder().
 		WithConfig(config).
 		WithGuard(guard).
-		WithProvider(&fortifyProvider{user: user, validPassword: "secret"}).
-		WithHasher(fortifyHasher{}).
+		WithProvider(&authflowsProvider{user: user, validPassword: "secret"}).
+		WithHasher(authflowsHasher{}).
 		WithEvents(dispatcher).
 		WithResponder(responder)
 
@@ -344,7 +344,7 @@ func newApp(t *testing.T, configure func(*inception.Config), options ...func(*in
 	app, err := builder.Build()
 
 	if err != nil {
-		t.Fatalf("build fortify app: %v", err)
+		t.Fatalf("build authflows app: %v", err)
 	}
 
 	return app, guard, responder, dispatcher
@@ -369,7 +369,7 @@ func jsonRequest(method string, path string, body string) *http.Request {
 // AuthenticatedSessionControllerTest::test_user_can_authenticate
 // AuthenticatedSessionControllerTest::test_case_insensitive_usernames_can_be_used
 func TestAuthenticatedSessionControllerAuthenticatesUser(t *testing.T) {
-	limiter := &fortifyLimiter{}
+	limiter := &authflowsLimiter{}
 	app, guard, responder, events := newApp(t, nil, func(builder *inception.Builder) {
 		builder.WithLimiter(limiter)
 	})
@@ -382,7 +382,7 @@ func TestAuthenticatedSessionControllerAuthenticatesUser(t *testing.T) {
 	}
 
 	if !responder.login {
-		t.Fatal("expected Fortify login response")
+		t.Fatal("expected AuthFlows login response")
 	}
 
 	if guard.loggedIn == nil || guard.loggedIn.GetAuthIdentifier() != "1" {
@@ -425,7 +425,7 @@ func TestAuthenticatedSessionControllerReturnsValidationFailure(t *testing.T) {
 // AuthenticatedSessionControllerTest::test_login_attempts_are_throttled
 // AuthenticatedSessionControllerTest::test_cant_bypass_throttle_with_special_characters
 func TestAuthenticatedSessionControllerThrottlesLoginAttempts(t *testing.T) {
-	limiter := &fortifyLimiter{tooMany: true}
+	limiter := &authflowsLimiter{tooMany: true}
 	app, _, _, _ := newApp(t, nil, func(builder *inception.Builder) {
 		builder.WithLimiter(limiter)
 	})
@@ -468,7 +468,7 @@ func TestAuthenticatedSessionControllerLogsOut(t *testing.T) {
 
 // AuthenticatedSessionControllerTest::test_must_be_authenticated_to_logout
 func TestAuthenticatedSessionControllerLogoutRequiresSessionMiddlewareInHostApplication(t *testing.T) {
-	logoutGuard := &fortifyGuard{}
+	logoutGuard := &authflowsGuard{}
 	app, _, responder, events := newApp(t, nil, func(builder *inception.Builder) {
 		builder.WithGuard(logoutGuard)
 	})
@@ -493,7 +493,7 @@ func TestAuthenticatedSessionControllerLogoutRequiresSessionMiddlewareInHostAppl
 // AuthenticatedSessionControllerWithTwoFactorTest::test_user_is_redirected_to_challenge_when_using_two_factor_authentication_that_has_been_confirmed_and_confirmation_is_enabled
 func TestAuthenticatedSessionControllerRedirectsToTwoFactorChallenge(t *testing.T) {
 	confirmedAt := time.Now()
-	user := &fortifyUser{
+	user := &authflowsUser{
 		id:                 "1",
 		email:              "user@example.com",
 		twoFactorEnabled:   true,
@@ -502,7 +502,7 @@ func TestAuthenticatedSessionControllerRedirectsToTwoFactorChallenge(t *testing.
 		twoFactorCodes:     []string{"aaaa-bbbb"},
 	}
 	app, guard, responder, _ := newApp(t, nil, func(builder *inception.Builder) {
-		builder.WithProvider(&fortifyProvider{user: user, validPassword: "secret"})
+		builder.WithProvider(&authflowsProvider{user: user, validPassword: "secret"})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -520,9 +520,9 @@ func TestAuthenticatedSessionControllerRedirectsToTwoFactorChallenge(t *testing.
 // AuthenticatedSessionControllerWithTwoFactorTest::test_user_can_authenticate_when_two_factor_challenge_is_disabled
 // AuthenticatedSessionControllerWithTwoFactorTest::test_user_is_not_redirected_to_challenge_when_using_two_factor_authentication_that_has_not_been_confirmed_and_confirmation_is_enabled
 func TestAuthenticatedSessionControllerSkipsUnconfirmedTwoFactorChallenge(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true}
 	app, guard, responder, _ := newApp(t, nil, func(builder *inception.Builder) {
-		builder.WithProvider(&fortifyProvider{user: user, validPassword: "secret"})
+		builder.WithProvider(&authflowsProvider{user: user, validPassword: "secret"})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -550,8 +550,8 @@ func TestTwoFactorChallengePassesViaCode(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
-	guard := &fortifyGuard{authenticated: user}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
+	guard := &authflowsGuard{authenticated: user}
 	app, _, responder, _ := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
@@ -574,8 +574,8 @@ func TestTwoFactorChallengePassesViaCode(t *testing.T) {
 // AuthenticatedSessionControllerWithTwoFactorTest::test_two_factor_challenge_can_be_passed_via_recovery_code
 // AuthenticatedSessionControllerWithTwoFactorTest::test_two_factor_challenge_can_fail_via_recovery_code
 func TestTwoFactorChallengeUsesRecoveryCodeOnce(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorCodes: []string{"cccc-dddd", "eeee-ffff"}}
-	guard := &fortifyGuard{authenticated: user}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorCodes: []string{"cccc-dddd", "eeee-ffff"}}
+	guard := &authflowsGuard{authenticated: user}
 	app, _, _, events := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
@@ -617,11 +617,11 @@ func TestTwoFactorChallengeRejectsCodeOutsideAcceptedSkew(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	oldCode := twofactor.CodeAt(secret, time.Now().Add(-5*time.Minute))
@@ -639,7 +639,7 @@ func TestTwoFactorChallengeRequiresAuthenticatedPendingUser(t *testing.T) {
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{})
+		builder.WithGuard(&authflowsGuard{})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -737,7 +737,7 @@ func TestConfirmablePasswordControllerStatusMiddlewareRequiresFreshConfirmation(
 // RegisteredUserControllerTest::test_users_can_be_created
 // RegisteredUserControllerTest::test_users_can_be_created_with_remember_option
 func TestRegisteredUserControllerCreatesUser(t *testing.T) {
-	user := &fortifyUser{id: "new", email: "new@example.com"}
+	user := &authflowsUser{id: "new", email: "new@example.com"}
 	app, guard, responder, events := newApp(t, func(config *inception.Config) {
 		config.Features.Registration = true
 	}, func(builder *inception.Builder) {
@@ -762,7 +762,7 @@ func TestRegisteredUserControllerCreatesUser(t *testing.T) {
 
 // RegisteredUserControllerTest::test_usernames_will_be_stored_case_insensitive
 func TestRegisteredUserControllerReceivesCaseInsensitiveIdentifierInput(t *testing.T) {
-	user := &fortifyUser{id: "new", email: "new@example.com"}
+	user := &authflowsUser{id: "new", email: "new@example.com"}
 	action := createUsersAction{user: user}
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.Registration = true
@@ -805,7 +805,7 @@ func TestPasswordResetLinkRequestControllerSendsResetLink(t *testing.T) {
 
 // PasswordResetLinkRequestControllerTest::test_case_insensitive_usernames_can_be_used
 func TestPasswordResetLinkRequestControllerCaseInsensitiveUsernameThrottleKey(t *testing.T) {
-	limiter := &fortifyLimiter{}
+	limiter := &authflowsLimiter{}
 	broker := &passwordBroker{}
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.ResetPasswords = true
@@ -978,13 +978,13 @@ func TestPasswordControllerUpdateCanFail(t *testing.T) {
 // ProfileInformationControllerTest::test_contact_information_can_be_updated
 // ProfileInformationControllerTest::test_email_address_will_be_updated_case_insensitive
 func TestProfileInformationControllerUpdatesContactInformation(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "old@example.com", verified: true}
+	user := &authflowsUser{id: "1", email: "old@example.com", verified: true}
 	verifier := &verifier{}
 	app, _, responder, events := newApp(t, func(config *inception.Config) {
 		config.Features.UpdateProfileInformation = true
 		config.Features.EmailVerification = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 		builder.WithVerifier(verifier)
 		builder.WithUpdateProfile(updateProfileAction{})
 	})
@@ -1029,12 +1029,12 @@ func TestEmailVerificationNotificationControllerSendsNotification(t *testing.T) 
 // EmailVerificationNotificationControllerTest::test_user_is_redirect_if_already_verified
 // EmailVerificationPromptControllerTest::test_user_is_redirect_home_if_already_verified
 func TestEmailVerificationNotificationControllerSkipsVerifiedUser(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", verified: true}
+	user := &authflowsUser{id: "1", email: "user@example.com", verified: true}
 	verifier := &verifier{}
 	app, _, responder, _ := newApp(t, func(config *inception.Config) {
 		config.Features.EmailVerification = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 		builder.WithVerifier(verifier)
 	})
 
@@ -1082,12 +1082,12 @@ func TestVerifyEmailControllerVerifiesSignedPathValues(t *testing.T) {
 
 // VerifyEmailControllerTest::test_redirected_if_email_is_already_verified
 func TestVerifyEmailControllerSkipsAlreadyVerifiedUser(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", verified: true}
+	user := &authflowsUser{id: "1", email: "user@example.com", verified: true}
 	verifier := &verifier{}
 	app, _, _, events := newApp(t, func(config *inception.Config) {
 		config.Features.EmailVerification = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 		builder.WithVerifier(verifier)
 	})
 
@@ -1109,11 +1109,11 @@ func TestVerifyEmailControllerSkipsAlreadyVerifiedUser(t *testing.T) {
 // TwoFactorAuthenticationControllerTest::test_two_factor_authentication_can_be_enabled
 // TwoFactorAuthenticationControllerTest::test_calling_two_factor_authentication_endpoint_will_overwrite_with_force_parameter
 func TestTwoFactorAuthenticationControllerEnablesTwoFactor(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com"}
+	user := &authflowsUser{id: "1", email: "user@example.com"}
 	app, _, responder, events := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -1160,7 +1160,7 @@ func TestTwoFactorAuthenticationControllerEnablesTwoFactor(t *testing.T) {
 // TwoFactorAuthenticationControllerTest::test_calling_two_factor_authentication_endpoint_will_not_overwrite_without_force_parameter
 func TestTwoFactorAuthenticationControllerDoesNotOverwriteWithoutForce(t *testing.T) {
 	now := time.Now()
-	user := &fortifyUser{
+	user := &authflowsUser{
 		id:                 "1",
 		email:              "user@example.com",
 		twoFactorEnabled:   true,
@@ -1171,7 +1171,7 @@ func TestTwoFactorAuthenticationControllerDoesNotOverwriteWithoutForce(t *testin
 	app, _, responder, events := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -1192,12 +1192,12 @@ func TestTwoFactorAuthenticationControllerDoesNotOverwriteWithoutForce(t *testin
 
 // TwoFactorAuthenticationControllerTest::test_two_factor_authentication_secret_key_can_be_retrieved
 func TestTwoFactorAuthenticationControllerSecretCanBeRetrievedThroughProvisioningURI(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: "JBSWY3DPEHPK3PXP"}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: "JBSWY3DPEHPK3PXP"}
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 		config.Features.EmailVerification = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 		builder.WithVerifier(&verifier{})
 	})
 
@@ -1215,11 +1215,11 @@ func TestTwoFactorAuthenticationControllerSecretCanBeRetrievedThroughProvisionin
 
 // RecoveryCodeControllerTest::test_new_recovery_codes_can_be_generated
 func TestRecoveryCodeControllerGeneratesNewRecoveryCodes(t *testing.T) {
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: "secret", twoFactorCodes: []string{"aaaa-bbbb"}}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: "secret", twoFactorCodes: []string{"aaaa-bbbb"}}
 	app, _, _, _ := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -1247,11 +1247,11 @@ func TestTwoFactorAuthenticationControllerConfirmsTwoFactor(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	user := &fortifyUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
+	user := &authflowsUser{id: "1", email: "user@example.com", twoFactorEnabled: true, twoFactorSecret: secret}
 	app, _, _, events := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	recorder := httptest.NewRecorder()
@@ -1280,7 +1280,7 @@ func TestTwoFactorAuthenticationControllerConfirmsTwoFactor(t *testing.T) {
 // TwoFactorAuthenticationControllerTest::test_two_factor_authentication_can_be_disabled
 func TestTwoFactorAuthenticationControllerDisablesTwoFactor(t *testing.T) {
 	now := time.Now()
-	user := &fortifyUser{
+	user := &authflowsUser{
 		id:                 "1",
 		email:              "user@example.com",
 		twoFactorEnabled:   true,
@@ -1291,7 +1291,7 @@ func TestTwoFactorAuthenticationControllerDisablesTwoFactor(t *testing.T) {
 	app, _, responder, events := newApp(t, func(config *inception.Config) {
 		config.Features.TwoFactorAuthentication = true
 	}, func(builder *inception.Builder) {
-		builder.WithGuard(&fortifyGuard{authenticated: user})
+		builder.WithGuard(&authflowsGuard{authenticated: user})
 	})
 
 	recorder := httptest.NewRecorder()

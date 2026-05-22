@@ -7,7 +7,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports Fortify and Jetstream to Go as a fully standalone module that depends only on shared contracts.
+Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports AuthFlows and Jetstream to Go as a fully standalone module that depends only on shared contracts.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -33,7 +33,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/inception/...
 
 | Package     | Purpose                                                                                                                                                                                                                      |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `inception` | Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports Fortify and Jetstream to Go as a fully standalone module that depends only on shared contracts. |
+| `inception` | Package inception provides unified authentication scaffolding, team management, API tokens, and profile management. It ports AuthFlows and Jetstream to Go as a fully standalone module that depends only on shared contracts. |
 | `pipeline`  | Package pipeline provides a stage-based processing chain. It allows sending a value through a series of stages, where each stage can transform the value or short-circuit the chain.                                         |
 | `ratelimit` | Package ratelimit provides in-memory rate limiting for authentication flows.                                                                                                                                                 |
 | `twofactor` | Package twofactor implements TOTP (RFC 6238) two-factor authentication and recovery code management.                                                                                                                         |

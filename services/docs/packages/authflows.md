@@ -1,4 +1,4 @@
-# fortify
+# authflows
 
 <!-- ref: @bedrock/code-0076 -->
 <!-- ref: @bedrock/code-0075 -->
@@ -8,7 +8,7 @@
 <!-- BEDROCK:HAND -->
 <!-- /BEDROCK:HAND -->
 
-The fortify package provides Bedrock's Go implementation for this surface.
+The authflows package provides Bedrock's Go implementation for this surface.
 
 <div class="docs-callout docs-callout-upstream"></div>
 
@@ -21,13 +21,13 @@ The fortify package provides Bedrock's Go implementation for this surface.
 Install this module directly in applications that consume packages independently:
 
 ```bash
-go get github.com/bedrock/packages/fortify@latest
+go get github.com/bedrock/packages/authflows@latest
 ```
 
 When working inside this monorepo, use the repository workspace:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/fortify/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authflows/...
 ```
 
 ## Source Coverage
@@ -38,7 +38,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/fortify/...
 
 ## Core Concepts
 
-The fortify reference is organized around the exported Go surface for package `fortify`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
+The authflows reference is organized around the exported Go surface for package `authflows`. Start from the source coverage and public surface tables to identify the constructors, managers, interfaces, sentinel errors, and helper functions available to callers. Use the package tests as executable wiring examples for collaborators, default behavior.
 
 ### Public Surface
 
@@ -63,7 +63,7 @@ Start with the package constructor or manager type when one is exported. Bedrock
 package main
 
 import (
-    _ "github.com/bedrock/packages/fortify"
+    _ "github.com/bedrock/packages/authflows"
 )
 
 func main() {
@@ -72,7 +72,7 @@ func main() {
 }
 ```
 
-Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/fortify` cover the supported creation paths, default values, and parity behavior.
+Use package tests as executable examples when the exact constructor requires collaborators. The tests under `packages/authflows` cover the supported creation paths, default values, and parity behavior.
 
 ## Configuration
 
@@ -112,12 +112,12 @@ The package reference should be read through these parity lenses:
 Run the package tests before changing examples:
 
 ```bash
-GOWORK=./storage/.cache/go.work go test -count=1 ./packages/fortify/...
+GOWORK=./storage/.cache/go.work go test -count=1 ./packages/authflows/...
 ```
 
 Parity is tracked by these tests:
 
-- `packages/fortify/fortify_inventory_test.go`
+- `packages/authflows/authflows_inventory_test.go`
 
 ## API Reference
 
