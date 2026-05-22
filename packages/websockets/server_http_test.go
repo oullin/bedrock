@@ -1,4 +1,4 @@
-package reverb_test
+package websockets_test
 
 import (
 	"bytes"
