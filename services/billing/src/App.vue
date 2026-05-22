@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import {
   cancelSubscription,
   createSubscription,
-  fetchSparkState,
+  fetchBillingState,
   markPendingCheckout,
   resumeSubscription,
   updatePaymentMethod,
@@ -17,10 +17,10 @@ import {
   type CheckoutMode,
 } from "./checkout";
 import { planPrice, statusLabel as formatStatusLabel } from "./format";
-import type { SparkPlan, SparkPortalState } from "./types";
+import type { BillingPlan, BillingPortalState } from "./types";
 
-const fallbackState: SparkPortalState = {
-  appName: "Spark",
+const fallbackState: BillingPortalState = {
+  appName: "Billing",
   sandbox: false,
   billableId: "",
   billableName: "",
@@ -49,7 +49,7 @@ const fallbackState: SparkPortalState = {
   },
 };
 
-const state = ref<SparkPortalState>(window.__SPARK_STATE__ ?? fallbackState);
+const state = ref<BillingPortalState>(window.__BILLING_STATE__ ?? fallbackState);
 const interval = ref(state.value.defaultInterval === "yearly" ? "yearly" : "monthly");
 const busyAction = ref<string | null>(null);
 const checkoutMode = ref<CheckoutMode>(null);
@@ -65,7 +65,7 @@ const activePlanId = computed(() => state.value.plan?.id ?? "");
 const statusLabel = computed(() => formatStatusLabel(state.value.state));
 
 async function refresh(message = "") {
-  state.value = await fetchSparkState();
+  state.value = await fetchBillingState();
   notice.value = message;
 }
 
@@ -102,7 +102,7 @@ onMounted(() => {
   });
 });
 
-function subscribeLabel(plan: SparkPlan) {
+function subscribeLabel(plan: BillingPlan) {
   if (state.value.state === "active" || state.value.state === "past_due") {
     return activePlanId.value === plan.id ? "Current" : "Switch";
   }
@@ -110,11 +110,11 @@ function subscribeLabel(plan: SparkPlan) {
   return "Subscribe";
 }
 
-function price(plan: SparkPlan) {
+function price(plan: BillingPlan) {
   return planPrice(plan);
 }
 
-async function choosePlan(plan: SparkPlan) {
+async function choosePlan(plan: BillingPlan) {
   if (activePlanId.value === plan.id) {
     return;
   }

@@ -10,7 +10,7 @@ import {
   type RouteResult,
 } from "./generated/routes";
 
-const statePath = window.__SPARK_STATE_PATH__ ?? billingState().url;
+const statePath = window.__BILLING_STATE_PATH__ ?? billingState().url;
 
 async function request<T>(route: RouteResult | string, init: RequestInit = {}): Promise<T> {
   const url = typeof route === "string" ? route : route.url;
