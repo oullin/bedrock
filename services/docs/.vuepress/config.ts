@@ -124,7 +124,7 @@ export default defineUserConfig({
             { text: 'redis', link: '/packages/redis' },
             { text: 'filesystem', link: '/packages/filesystem' },
             { text: 'pagination', link: '/packages/pagination' },
-            { text: 'scout', link: '/packages/scout' },
+            { text: 'search', link: '/packages/search' },
           ],
         },
         {
