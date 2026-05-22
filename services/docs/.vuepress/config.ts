@@ -105,7 +105,7 @@ export default defineUserConfig({
             { text: 'auth', link: '/packages/auth' },
             { text: 'encryption', link: '/packages/encryption' },
             { text: 'hashing', link: '/packages/hashing' },
-            { text: 'passport', link: '/packages/passport' },
+            { text: 'oauthserver', link: '/packages/oauthserver' },
             { text: 'socialite', link: '/packages/socialite' },
           ],
         },

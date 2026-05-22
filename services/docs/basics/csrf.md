@@ -65,7 +65,7 @@ Make the token available in a `<meta>` tag in your layout:
 
 ## Excluding Routes
 
-Some routes — webhooks, Stripe callbacks, Passport tokens — legitimately
+Some routes — webhooks, Stripe callbacks, OAuthServer tokens — legitimately
 cannot carry a CSRF token. Exclude them when wiring the middleware:
 
 ```go
