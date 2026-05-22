@@ -176,7 +176,7 @@ export const IconInception = makeIconRaw(() => [
   h('circle', { cx: 12, cy: 12, r: 4 }),
 ])
 
-export const IconSpark = makeIcon(['M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z'])
+export const IconBilling = makeIcon(['M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z'])
 
 export const IconArrow = makeIcon(['M5 12h14', 'M13 6l6 6-6 6'])
 
@@ -257,5 +257,5 @@ export const ICON_MAP: Record<string, Component> = {
   IconSupport,
   IconLog,
   IconInception,
-  IconSpark,
+  IconBilling,
 }

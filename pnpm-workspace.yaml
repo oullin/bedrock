@@ -3,4 +3,4 @@ packages:
   - services/docs
   - services/demo/inertia/app
   - services/brain/app
-  - services/spark
+  - services/billing

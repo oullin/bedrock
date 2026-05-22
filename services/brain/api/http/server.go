@@ -12,7 +12,7 @@
 //	GET  /_request_cycle/{any}                            SPA shell
 //
 // Dispatch runs through packages/httpx/routingx so handler results and errors
-// flow through the same primitives as services/demo and packages/spark.
+// flow through the same primitives as services/demo and packages/billing.
 // Asset serving lives in cmd/brain so the embed.FS scope stays at the
 // binary's root.
 package http
@@ -361,7 +361,7 @@ func (s *Server) handleSPA(w http.ResponseWriter, r *http.Request) {
 }
 
 // writeJSON renders v as JSON through httpx so brain shares the same response
-// primitives as services/demo and packages/spark.
+// primitives as services/demo and packages/billing.
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = httpx.NewJsonResponse(w, v, status, httpx.JsonOptions{Indent: true}).Send()
 }

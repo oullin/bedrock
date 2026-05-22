@@ -23,7 +23,7 @@ Bedrock is a collection of foundational Go packages for building web application
 | `queue`      | Background job processing with pluggable drivers                      |
 | `routing`    | HTTP routing                                                          |
 | `session`    | Session management with multiple storage handlers                     |
-| `spark`      | Subscription billing, checkout, and entitlement management            |
+| `billing`      | Subscription billing, checkout, and entitlement management            |
 
 ## Project Structure
 

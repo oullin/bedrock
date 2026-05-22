@@ -208,7 +208,7 @@ export default defineUserConfig({
             { text: 'authflows', link: '/packages/authflows' },
             { text: 'inertia', link: '/packages/inertia' },
             { text: 'jetstream', link: '/packages/jetstream' },
-            { text: 'spark', link: '/packages/spark' },
+            { text: 'billing', link: '/packages/billing' },
           ],
         },
       ],

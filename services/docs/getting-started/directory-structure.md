@@ -223,7 +223,7 @@ bedrock/
 │   ├── docs/         ← documentation site (you're reading the rendered version)
 │   ├── (compliance moved to the bedrock-compliance repo)
 │   ├── horizon/      ← queue dashboard service
-│   ├── spark/        ← billing service
+│   ├── billing/        ← billing service
 │   └── storage/
 └── go.work
 ```

@@ -93,7 +93,7 @@ export const PACKAGES: Package[] = [
   { id: 'inception', name: 'inception', tier: 'infra', icon: 'IconInception', tag: 'core',
     blurb: 'Unified application scaffolding — bootstrap, service providers, lifecycle hooks, env and config.',
     v: '1.0.3', downloads: '510k', since: '2023', href: '/packages/inception' },
-  { id: 'prompts', name: 'prompts', tier: 'infra', icon: 'IconSpark', tag: 'dx',
+  { id: 'prompts', name: 'prompts', tier: 'infra', icon: 'IconBilling', tag: 'dx',
     blurb: 'Artisan-style CLI — codegen, migrations, interactive prompts, batteries included.',
     v: '1.1.1', downloads: '640k', since: '2023', href: '/packages/prompts' },
 ]

@@ -142,7 +142,7 @@ pnpm run build --filter=@bedrock/docs
 | -------------------------------- | ---------------------------------------------------- |
 | [inception](/packages/inception) | Unified auth scaffold — AuthFlows + Jetstream combined |
 | [jetstream](/packages/jetstream) | Team and organization management                     |
-| [spark](/packages/spark)         | Subscription billing, checkout, and entitlements     |
+| [billing](/packages/billing)         | Subscription billing, checkout, and entitlements     |
 
 ## AI Assisted Development
 
