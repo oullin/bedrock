@@ -8,7 +8,7 @@ import (
 	"github.com/bedrock/packages/pagination"
 )
 
-// Builder wraps a query.Builder with Orm model awareness. It provides
+// Builder wraps a query.Builder with ORM model awareness. It provides
 // model hydration, eager loading, scope application, and type-safe results.
 type Builder struct {
 	query         *query.Builder
@@ -18,7 +18,7 @@ type Builder struct {
 	removedScopes []string
 }
 
-// NewBuilder creates a new Orm Builder.
+// NewBuilder creates a new ORM Builder.
 func NewBuilder(q *query.Builder, model *Model) *Builder {
 	return &Builder{
 		query:     q,

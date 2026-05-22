@@ -8,7 +8,7 @@ import (
 	"github.com/bedrock/packages/database/query"
 )
 
-// Model is the base Orm model. User models embed this struct to gain
+// Model is the base ORM model. User models embed this struct to gain
 // Ref: @bedrock/code-0209
 type Model struct {
 	HasAttributes

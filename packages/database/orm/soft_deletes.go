@@ -82,7 +82,7 @@ func (s *SoftDeleteScope) Apply(builder *query.Builder) {
 func WithTrashed() ScopeFunc {
 	return func(builder *query.Builder) {
 		// Remove the soft delete where clause by rebuilding without it.
-		// In practice, this means the OrmBuilder should track and
+		// In practice, this means the ORMBuilder should track and
 		// skip the SoftDeleteScope when this scope is applied.
 	}
 }
