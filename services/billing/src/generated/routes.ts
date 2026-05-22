@@ -24,8 +24,8 @@ export function billingState(): RouteResult {
   return { url: "/billing/state", method: "get" };
 }
 
-export function billingWayfinder(): RouteResult {
-  return { url: "/billing/wayfinder", method: "get" };
+export function billingRouteGen(): RouteResult {
+  return { url: "/billing/routegen", method: "get" };
 }
 
 export function billingSubscriptionStore(): RouteResult {
