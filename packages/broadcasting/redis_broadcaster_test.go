@@ -82,7 +82,7 @@ func TestRedisBroadcasterBroadcastPublishesPayload(t *testing.T) {
 	t.Parallel()
 
 	publisher := &fakeRedisPublisher{}
-	b := broadcasting.NewRedisBroadcaster(publisher, "laravel_database_")
+	b := broadcasting.NewRedisBroadcaster(publisher, "bedrock_database_")
 
 	err := b.Broadcast(context.Background(), []string{"orders"}, "OrderUpdated", map[string]any{"id": 1, "socket": "123.456"})
 
@@ -90,7 +90,7 @@ func TestRedisBroadcasterBroadcastPublishesPayload(t *testing.T) {
 		t.Fatalf("Broadcast returned error: %v", err)
 	}
 
-	payload := requireJSONMap(t, publisher.messages["laravel_database_orders"])
+	payload := requireJSONMap(t, publisher.messages["bedrock_database_orders"])
 	requireEqual(t, payload["event"], "OrderUpdated")
 	requireEqual(t, payload["socket"], "123.456")
 	requireEqual(t, payload["data"], map[string]any{"id": float64(1)})

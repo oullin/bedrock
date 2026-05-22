@@ -48,9 +48,9 @@ func TestURIQueryBuildingAndDecoding(t *testing.T) {
 	t.Parallel()
 
 	uri := MustParseURI("https://example.test/search")
-	built := uri.WithQuery(map[string]string{"q": "upstream go", "filter.active": "1"})
+	built := uri.WithQuery(map[string]string{"q": "bedrock go", "filter.active": "1"})
 
-	if got := built.Query().Get("q"); got != "upstream go" {
+	if got := built.Query().Get("q"); got != "bedrock go" {
 		t.Fatalf("WithQuery q = %q", got)
 	}
 
@@ -74,9 +74,9 @@ func TestURIQueryBuildingAndDecoding(t *testing.T) {
 		t.Fatalf("WithQuery empty = %q", got)
 	}
 
-	decoded := MustParseURI("https://example.test/search?q=upstream+go#top").Decoded()
+	decoded := MustParseURI("https://example.test/search?q=bedrock+go#top").Decoded()
 
-	if decoded != "https://example.test/search?q=upstream go#top" {
+	if decoded != "https://example.test/search?q=bedrock go#top" {
 		t.Fatalf("Decoded = %q", decoded)
 	}
 }

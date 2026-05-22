@@ -17,7 +17,10 @@ type SearchDocs struct {
 	HTTPClient *http.Client
 }
 
-const defaultDocsAPIURL = "https://boost.upstream.com/api/search"
+// defaultDocsAPIURL is intentionally empty so that the tool requires an
+// explicit endpoint via SearchDocs.APIUrl. Callers point this at whichever
+// docs search service they want to query.
+const defaultDocsAPIURL = ""
 
 func (t *SearchDocs) Name() string     { return "search_docs" }
 func (t *SearchDocs) IsReadOnly() bool { return true }
@@ -78,6 +81,10 @@ func (t *SearchDocs) Handle(req McpRequest) (McpResponse, error) {
 
 	if apiURL == "" {
 		apiURL = defaultDocsAPIURL
+	}
+
+	if apiURL == "" {
+		return ErrorResponse("search_docs: APIUrl is required (no default endpoint configured)"), nil
 	}
 
 	client := t.HTTPClient

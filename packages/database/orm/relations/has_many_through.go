@@ -56,7 +56,7 @@ func (r *HasManyThrough) Match(models []*orm.Model, results []*orm.Model, relati
 	dictionary := make(map[any][]*orm.Model)
 
 	for _, result := range results {
-		key := result.GetAttribute("laravel_through_key")
+		key := result.GetAttribute("through_key")
 		dictionary[key] = append(dictionary[key], result)
 	}
 
