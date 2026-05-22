@@ -17,7 +17,7 @@ type Watcher interface {
 // Watcher class with its $options property.
 type BaseWatcher struct {
 	debugbar *DebugBar
-	Options   map[string]any
+	Options  map[string]any
 }
 
 // SetDebugBar attaches the DebugBar instance to the watcher.
