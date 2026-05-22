@@ -1,4 +1,4 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"context"

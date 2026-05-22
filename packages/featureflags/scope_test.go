@@ -1,4 +1,4 @@
-package pennant_test
+package featureflags_test
 
 import (
 	"errors"
@@ -189,7 +189,7 @@ func TestSerializeScope_StructWithID(t *testing.T) {
 	}
 
 	// Must contain the type name and the ID value.
-	expected := fmt.Sprintf("github.com/bedrock/packages/pennant_test.structWithID|99")
+	expected := fmt.Sprintf("github.com/bedrock/packages/featureflags_test.structWithID|99")
 
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
@@ -206,7 +206,7 @@ func TestSerializeScope_StructWithLowercaseId(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := fmt.Sprintf("github.com/bedrock/packages/pennant_test.structWithLowercaseId|xyz")
+	expected := fmt.Sprintf("github.com/bedrock/packages/featureflags_test.structWithLowercaseId|xyz")
 
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
@@ -223,7 +223,7 @@ func TestSerializeScope_PointerToStruct(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := "github.com/bedrock/packages/pennant_test.ptrStructWithID|7"
+	expected := "github.com/bedrock/packages/featureflags_test.ptrStructWithID|7"
 
 	if got != expected {
 		t.Fatalf("expected %q, got %q", expected, got)
