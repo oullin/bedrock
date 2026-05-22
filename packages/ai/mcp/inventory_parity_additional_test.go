@@ -331,8 +331,8 @@ func TestInventoryHTTPResourceAndMethodParity(t *testing.T) {
 		"params":  map[string]any{},
 	})
 
-	if !strings.Contains(before.Body.String(), `"broadcastclient"`) {
-		t.Fatalf("expected initial tool list to include broadcastclient, got %s", before.Body.String())
+	if !strings.Contains(before.Body.String(), `"echo"`) {
+		t.Fatalf("expected initial tool list to include echo, got %s", before.Body.String())
 	}
 
 	srv.AddTool(greetTool())

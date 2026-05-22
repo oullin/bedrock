@@ -63,7 +63,7 @@ jobs:
             -name 'coverage-summary.json' -o \
             -name '*.lcov' \
           \) | grep -q .; then
-            broadcastclient "No recognizable Go coverage reports found in storage/.cache/coverage/go" >&2
+            echo "No recognizable Go coverage reports found in storage/.cache/coverage/go" >&2
             exit 1
           fi
 

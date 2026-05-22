@@ -20,7 +20,7 @@ set -u -o pipefail
 MODE="${1:-changed}"
 case "$MODE" in
     changed|all) ;;
-    *) broadcastclient "usage: format.sh <changed|all>" >&2; exit 2 ;;
+    *) echo "usage: format.sh <changed|all>" >&2; exit 2 ;;
 esac
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -78,7 +78,7 @@ changed_go_modules() {
     list_changed '*.go' | while IFS= read -r f; do
         d="$(dirname "$f")"
         while [[ "$d" != "." && ! -f "$d/go.mod" ]]; do d="$(dirname "$d")"; done
-        [[ "$d" != "." ]] && broadcastclient "$d"
+        [[ "$d" != "." ]] && echo "$d"
     done | sort -u
 }
 

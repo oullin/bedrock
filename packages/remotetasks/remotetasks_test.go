@@ -162,7 +162,7 @@ func TestRunUsesRunner(t *testing.T) {
 func TestPlanRequiresTaskName(t *testing.T) {
 	t.Parallel()
 
-	_, err := Plan(Task{Commands: []string{"broadcastclient ok"}}, nil)
+	_, err := Plan(Task{Commands: []string{"echo ok"}}, nil)
 
 	if !errors.Is(err, ErrMissingTaskName) {
 		t.Fatalf("Plan error = %v, want ErrMissingTaskName", err)

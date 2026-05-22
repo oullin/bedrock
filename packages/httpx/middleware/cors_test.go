@@ -171,7 +171,7 @@ func TestCorsPreflightWildcardHeaders(t *testing.T) {
 
 	handler.ServeHTTP(rec, req)
 
-	// With wildcard headers, should broadcastclient back the requested headers.
+	// With wildcard headers, should echo back the requested headers.
 	allowed := rec.Header().Get("Access-Control-Allow-Headers")
 
 	if allowed != "X-Custom, Authorization" {

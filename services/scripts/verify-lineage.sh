@@ -23,13 +23,13 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 if ! command -v rg >/dev/null 2>&1; then
-  broadcastclient "verify-lineage: ripgrep ('rg') is required" >&2
+  echo "verify-lineage: ripgrep ('rg') is required" >&2
   exit 2
 fi
 
 PATTERN_FILE="${BEDROCK_SCRUB_TERMS:-$ROOT/compliance/codes/scrub-terms.txt}"
 if [ ! -f "$PATTERN_FILE" ]; then
-  broadcastclient "verify-lineage: pattern file not found at $PATTERN_FILE" >&2
+  echo "verify-lineage: pattern file not found at $PATTERN_FILE" >&2
   exit 2
 fi
 
@@ -138,7 +138,7 @@ if [ -f "$COMPLIANCE/compliance/codes/code-mapping.index.json" ]; then
     while read -r token; do
       code="${token#@bedrock/}"
       if ! grep -q "\"$code\":" "$index" 2>/dev/null; then
-        broadcastclient "[STRUCT] $code referenced in bedrock but missing from mapping" >&2
+        echo "[STRUCT] $code referenced in bedrock but missing from mapping" >&2
         missing=$((missing + 1))
       fi
     done <<<"$tokens"
@@ -147,12 +147,12 @@ if [ -f "$COMPLIANCE/compliance/codes/code-mapping.index.json" ]; then
     fi
   fi
 else
-  broadcastclient "verify-lineage: bedrock-compliance not found at $COMPLIANCE; skipping structural check" >&2
+  echo "verify-lineage: bedrock-compliance not found at $COMPLIANCE; skipping structural check" >&2
 fi
 
 if [ "$hardfails" -gt 0 ]; then
-  broadcastclient "verify-lineage: FAIL ($hardfails check(s) hit)" >&2
+  echo "verify-lineage: FAIL ($hardfails check(s) hit)" >&2
   exit 1
 fi
-broadcastclient "verify-lineage: OK"
+echo "verify-lineage: OK"
 exit 0

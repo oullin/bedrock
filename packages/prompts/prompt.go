@@ -89,7 +89,7 @@ func (p *Prompt) run() (string, error) {
 	p.terminal = getTerminal()
 	p.writer = getWriter()
 
-	if err := p.terminal.SetTty("-icanon -broadcastclient"); err != nil {
+	if err := p.terminal.SetTty("-icanon -echo"); err != nil {
 		return "", err
 	}
 

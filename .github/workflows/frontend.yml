@@ -68,16 +68,16 @@ jobs:
           mkdir -p storage/.cache/codecov/frontend
 
           if [ ! -d storage/.cache/coverage ]; then
-            broadcastclient "No frontend coverage directory found; skipping frontend Codecov upload."
-            broadcastclient "has_coverage=false" >> "$GITHUB_OUTPUT"
+            echo "No frontend coverage directory found; skipping frontend Codecov upload."
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           mapfile -t coverage_files < <(find storage/.cache/coverage -type f ! -path 'storage/.cache/coverage/go/*' | sort)
 
           if [ "${#coverage_files[@]}" -eq 0 ]; then
-            broadcastclient "No frontend coverage files found; skipping frontend Codecov upload."
-            broadcastclient "has_coverage=false" >> "$GITHUB_OUTPUT"
+            echo "No frontend coverage files found; skipping frontend Codecov upload."
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -95,11 +95,11 @@ jobs:
             -name 'coverage-summary.json' -o \
             -name '*.lcov' \
           \) | grep -q .; then
-            broadcastclient "No recognizable frontend coverage reports found in storage/.cache/coverage" >&2
+            echo "No recognizable frontend coverage reports found in storage/.cache/coverage" >&2
             exit 1
           fi
 
-          broadcastclient "has_coverage=true" >> "$GITHUB_OUTPUT"
+          echo "has_coverage=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload frontend coverage to Codecov (attempt 1)
         if: steps.frontend_coverage.outputs.has_coverage == 'true'

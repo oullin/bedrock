@@ -98,7 +98,7 @@ func TestExecutorReadOnlyMode(t *testing.T) {
 }
 
 func (e *echoTool) Name() string           { return "echo_tool" }
-func (e *echoTool) Description() string    { return "broadcastclient" }
+func (e *echoTool) Description() string    { return "echo" }
 func (e *echoTool) Schema() map[string]any { return nil }
 func (e *echoTool) IsReadOnly() bool       { return true }
 func (e *echoTool) Handle(req tools.McpRequest) (tools.McpResponse, error) {

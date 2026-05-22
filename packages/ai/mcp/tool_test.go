@@ -37,8 +37,8 @@ func TestToolsListIncludesNameDescriptionSchema(t *testing.T) {
 	tool := tools[0].(map[string]any)
 	schema, _ := tool["inputSchema"].(map[string]any)
 
-	if tool["name"] != "broadcastclient" {
-		t.Fatalf("expected name=broadcastclient, got %v", tool["name"])
+	if tool["name"] != "echo" {
+		t.Fatalf("expected name=echo, got %v", tool["name"])
 	}
 
 	if tool["description"] == nil || tool["description"] == "" {
@@ -138,7 +138,7 @@ func TestToolsCallInvokesCorrectTool(t *testing.T) {
 	srv := mcp.NewServer("srv", "1.0.0")
 	srv.AddTool(echoTool())
 
-	result := srv.Test(t).CallTool("broadcastclient", map[string]any{"text": "hello"})
+	result := srv.Test(t).CallTool("echo", map[string]any{"text": "hello"})
 	result.AssertOK().AssertSee("hello")
 }
 
@@ -261,7 +261,7 @@ func TestToolsCallStructuredContentWithMeta(t *testing.T) {
 // --- helpers ---
 
 func echoTool() mcp.Tool {
-	return mcp.NewTool("broadcastclient", "Echoes the input text",
+	return mcp.NewTool("echo", "Echoes the input text",
 		map[string]any{
 			"type": "object",
 			"properties": map[string]any{

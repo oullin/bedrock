@@ -14,7 +14,7 @@ import (
 type Terminal interface {
 	// Read reads the next key input from the terminal.
 	Read() (string, error)
-	// SetTty applies terminal mode changes (e.g., "-icanon -broadcastclient").
+	// SetTty applies terminal mode changes (e.g., "-icanon -echo").
 	SetTty(mode string) error
 	// RestoreTty restores the terminal to its initial mode.
 	RestoreTty() error

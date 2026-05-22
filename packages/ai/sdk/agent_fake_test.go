@@ -136,7 +136,7 @@ func TestAgentCanBeFakedWithAClosure(t *testing.T) {
 
 	m := ai.NewManager()
 	rec := m.Fake(func(p *prompts.AgentPrompt) (*responses.AgentResponse, error) {
-		return responses.NewAgentResponse("", "broadcastclient: "+p.Text, fake.DataUsage(), fake.DataMeta()), nil
+		return responses.NewAgentResponse("", "echo: "+p.Text, fake.DataUsage(), fake.DataMeta()), nil
 	})
 
 	agent := ai.NewAnonymousAgent(m, "Be helpful.")
@@ -146,8 +146,8 @@ func TestAgentCanBeFakedWithAClosure(t *testing.T) {
 		t.Fatalf("Prompt error: %v", err)
 	}
 
-	if resp.GetText() != "broadcastclient: hello world" {
-		t.Errorf("expected %q got %q", "broadcastclient: hello world", resp.GetText())
+	if resp.GetText() != "echo: hello world" {
+		t.Errorf("expected %q got %q", "echo: hello world", resp.GetText())
 	}
 
 	rec.AssertAgentWasPrompted(t, func(p *prompts.AgentPrompt) bool {

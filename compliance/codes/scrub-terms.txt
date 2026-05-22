@@ -13,10 +13,10 @@
 # cross-repo reference. See compliance/codes/scrub-policy.md for policy.
 
 V1|namespace leak|Framework
-V2|upstream pkg path|upstream/(framework|boost|ai|docs)
+V2|upstream pkg path|laravel/(framework|boost|ai|docs)
 V3|brand mention|\bUpstream\b
 V4|leaked namespace tail|@bedrock[\\/][A-Z]
 V5|lineage verb|//\s*(Mirrors|Translation of|Port of|Adapted from|Based on|Counterpart of|Equivalent of)\s
 V6|port phrase|1:1 (Go )?port
-V7|doc marker|(upstream|upstream)-docs:
+V7|doc marker|(upstream|laravel)-docs:
 V8|stale path|services/compliance/

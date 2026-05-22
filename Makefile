@@ -17,24 +17,24 @@ GO_COVERAGE_SHARD ?= 0
 
 define require-go-modules
 	@if [ -z "$(strip $(GO_MODULE_DIRS))" ]; then \
-		broadcastclient "No tracked Go modules found under packages/ or services/." >&2; \
-		broadcastclient "Expected tracked go.mod files discoverable with git ls-files." >&2; \
+		echo "No tracked Go modules found under packages/ or services/." >&2; \
+		echo "Expected tracked go.mod files discoverable with git ls-files." >&2; \
 		exit 1; \
 	fi
 endef
 
 define require-go-package-modules
 	@if [ -z "$(strip $(GO_PACKAGE_MODULE_DIRS))" ]; then \
-		broadcastclient "No tracked Go package modules found under packages/." >&2; \
-		broadcastclient "Expected tracked go.mod files discoverable with git ls-files." >&2; \
+		echo "No tracked Go package modules found under packages/." >&2; \
+		echo "Expected tracked go.mod files discoverable with git ls-files." >&2; \
 		exit 1; \
 	fi
 endef
 
 define require-go-service-modules
 	@if [ -z "$(strip $(GO_SERVICE_MODULE_DIRS))" ]; then \
-		broadcastclient "No tracked Go service modules found under services/." >&2; \
-		broadcastclient "Expected tracked go.mod files discoverable with git ls-files." >&2; \
+		echo "No tracked Go service modules found under services/." >&2; \
+		echo "Expected tracked go.mod files discoverable with git ls-files." >&2; \
 		exit 1; \
 	fi
 endef
@@ -63,7 +63,7 @@ vet:
 	$(require-go-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		broadcastclient "go vet ./... in $$pkg"; \
+		echo "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) vet ./...; \
 	done
 
@@ -71,7 +71,7 @@ go-package-vet:
 	$(require-go-package-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_PACKAGE_MODULE_DIRS); do \
-		broadcastclient "go vet ./... in $$pkg"; \
+		echo "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) vet ./...; \
 	done
 
@@ -79,7 +79,7 @@ go-service-vet:
 	$(require-go-service-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_SERVICE_MODULE_DIRS); do \
-		broadcastclient "go vet ./... in $$pkg"; \
+		echo "go vet ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) vet ./...; \
 	done
 
@@ -87,7 +87,7 @@ tidy:
 	$(require-go-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		broadcastclient "go mod tidy in $$pkg"; \
+		echo "go mod tidy in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) mod tidy; \
 	done
 
@@ -95,7 +95,7 @@ go-test:
 	$(require-go-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		broadcastclient "go test -race ./... in $$pkg"; \
+		echo "go test -race ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race ./...; \
 	done
 
@@ -103,7 +103,7 @@ go-build:
 	$(require-go-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		broadcastclient "go build ./... in $$pkg"; \
+		echo "go build ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) build ./...; \
 	done
 
@@ -111,7 +111,7 @@ go-package-build:
 	$(require-go-package-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_PACKAGE_MODULE_DIRS); do \
-		broadcastclient "go build ./... in $$pkg"; \
+		echo "go build ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) build ./...; \
 	done
 
@@ -119,7 +119,7 @@ go-service-build:
 	$(require-go-service-modules)
 	$(prepare-go-workspace)
 	@set -e; for pkg in $(GO_SERVICE_MODULE_DIRS); do \
-		broadcastclient "go build ./... in $$pkg"; \
+		echo "go build ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) build ./...; \
 	done
 
@@ -128,24 +128,24 @@ go-coverage:
 	$(prepare-go-workspace)
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
 	@set -e; for pkg in $(GO_MODULE_DIRS); do \
-		safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
+		safe=$$(echo "$$pkg" | tr '/.' '__'); \
 		report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
 		mkdir -p "$$report_dir"; \
-		broadcastclient "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+		echo "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race -coverprofile=$$report_dir/coverage.out ./...; \
 	done
 
 go-coverage-shard:
 	$(require-go-modules)
 	$(prepare-go-workspace)
-	@case "$(GO_COVERAGE_SHARDS)" in ''|*[!0-9]*) broadcastclient "GO_COVERAGE_SHARDS must be a positive integer." >&2; exit 1;; esac
-	@case "$(GO_COVERAGE_SHARD)" in ''|*[!0-9]*) broadcastclient "GO_COVERAGE_SHARD must be a non-negative integer." >&2; exit 1;; esac
+	@case "$(GO_COVERAGE_SHARDS)" in ''|*[!0-9]*) echo "GO_COVERAGE_SHARDS must be a positive integer." >&2; exit 1;; esac
+	@case "$(GO_COVERAGE_SHARD)" in ''|*[!0-9]*) echo "GO_COVERAGE_SHARD must be a non-negative integer." >&2; exit 1;; esac
 	@if [ "$(GO_COVERAGE_SHARDS)" -lt 1 ]; then \
-		broadcastclient "GO_COVERAGE_SHARDS must be greater than zero." >&2; \
+		echo "GO_COVERAGE_SHARDS must be greater than zero." >&2; \
 		exit 1; \
 	fi
 	@if [ "$(GO_COVERAGE_SHARD)" -ge "$(GO_COVERAGE_SHARDS)" ]; then \
-		broadcastclient "GO_COVERAGE_SHARD must be less than GO_COVERAGE_SHARDS." >&2; \
+		echo "GO_COVERAGE_SHARD must be less than GO_COVERAGE_SHARDS." >&2; \
 		exit 1; \
 	fi
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
@@ -156,30 +156,30 @@ go-coverage-shard:
 	selected=0; \
 	for pkg in $(GO_MODULE_DIRS); do \
 		if [ $$((index % shard_count)) -eq "$$shard_index" ]; then \
-			safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
+			safe=$$(echo "$$pkg" | tr '/.' '__'); \
 			report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
 			mkdir -p "$$report_dir"; \
-			broadcastclient "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+			echo "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
 			cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race -coverprofile=$$report_dir/coverage.out ./...; \
 			selected=1; \
 		fi; \
 		index=$$((index + 1)); \
 	done; \
 	if [ "$$selected" -eq 0 ]; then \
-		broadcastclient "No Go modules assigned to coverage shard $$shard_index of $$shard_count."; \
+		echo "No Go modules assigned to coverage shard $$shard_index of $$shard_count."; \
 	fi
 
 go-package-coverage-shard:
 	$(require-go-package-modules)
 	$(prepare-go-workspace)
-	@case "$(GO_COVERAGE_SHARDS)" in ''|*[!0-9]*) broadcastclient "GO_COVERAGE_SHARDS must be a positive integer." >&2; exit 1;; esac
-	@case "$(GO_COVERAGE_SHARD)" in ''|*[!0-9]*) broadcastclient "GO_COVERAGE_SHARD must be a non-negative integer." >&2; exit 1;; esac
+	@case "$(GO_COVERAGE_SHARDS)" in ''|*[!0-9]*) echo "GO_COVERAGE_SHARDS must be a positive integer." >&2; exit 1;; esac
+	@case "$(GO_COVERAGE_SHARD)" in ''|*[!0-9]*) echo "GO_COVERAGE_SHARD must be a non-negative integer." >&2; exit 1;; esac
 	@if [ "$(GO_COVERAGE_SHARDS)" -lt 1 ]; then \
-		broadcastclient "GO_COVERAGE_SHARDS must be greater than zero." >&2; \
+		echo "GO_COVERAGE_SHARDS must be greater than zero." >&2; \
 		exit 1; \
 	fi
 	@if [ "$(GO_COVERAGE_SHARD)" -ge "$(GO_COVERAGE_SHARDS)" ]; then \
-		broadcastclient "GO_COVERAGE_SHARD must be less than GO_COVERAGE_SHARDS." >&2; \
+		echo "GO_COVERAGE_SHARD must be less than GO_COVERAGE_SHARDS." >&2; \
 		exit 1; \
 	fi
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go
@@ -190,17 +190,17 @@ go-package-coverage-shard:
 	selected=0; \
 	for pkg in $(GO_PACKAGE_MODULE_DIRS); do \
 		if [ $$((index % shard_count)) -eq "$$shard_index" ]; then \
-			safe=$$(broadcastclient "$$pkg" | tr '/.' '__'); \
+			safe=$$(echo "$$pkg" | tr '/.' '__'); \
 			report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/$$safe"; \
 			mkdir -p "$$report_dir"; \
-			broadcastclient "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+			echo "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
 			cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race -coverprofile=$$report_dir/coverage.out ./...; \
 			selected=1; \
 		fi; \
 		index=$$((index + 1)); \
 	done; \
 	if [ "$$selected" -eq 0 ]; then \
-		broadcastclient "No Go package modules assigned to coverage shard $$shard_index of $$shard_count."; \
+		echo "No Go package modules assigned to coverage shard $$shard_index of $$shard_count."; \
 	fi
 
 go-service-coverage:
@@ -209,10 +209,10 @@ go-service-coverage:
 	@mkdir -p $(ROOT_PATH)/storage/.cache/coverage/go/services
 	@set -e; for pkg in $(GO_SERVICE_MODULE_DIRS); do \
 		service=$${pkg#services/}; \
-		safe=$$(broadcastclient "$$service" | tr '/.' '__'); \
+		safe=$$(echo "$$service" | tr '/.' '__'); \
 		report_dir="$(ROOT_PATH)/storage/.cache/coverage/go/services/$$safe"; \
 		mkdir -p "$$report_dir"; \
-		broadcastclient "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
+		echo "go test -race -coverprofile=$$report_dir/coverage.out ./... in $$pkg"; \
 		cd $(ROOT_PATH)/$$pkg && $(GO_CMD) test -race -coverprofile=$$report_dir/coverage.out ./...; \
 	done
 
