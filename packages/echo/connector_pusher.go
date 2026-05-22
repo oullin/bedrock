@@ -1,8 +1,8 @@
 package echo
 
-// PusherConnector is a stub Connector for the Pusher and Reverb transports.
+// PusherConnector is a stub Connector for the Pusher and WebSockets transports.
 // The Connect method is a no-op in this implementation; a full implementation
-// would dial the Pusher/Reverb WebSocket endpoint using pusher-go or similar.
+// would dial the Pusher/WebSockets WebSocket endpoint using pusher-go or similar.
 type PusherConnector struct {
 	opts Options
 }

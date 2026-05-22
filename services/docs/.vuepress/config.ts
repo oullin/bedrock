@@ -152,7 +152,7 @@ export default defineUserConfig({
           children: [
             { text: 'broadcasting', link: '/packages/broadcasting' },
             { text: 'echo', link: '/packages/echo' },
-            { text: 'reverb', link: '/packages/reverb' },
+            { text: 'websockets', link: '/packages/websockets' },
           ],
         },
         {

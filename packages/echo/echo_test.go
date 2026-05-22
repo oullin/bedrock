@@ -13,7 +13,7 @@ import (
 func TestSupportedBroadcastersDoNotError(t *testing.T) {
 	t.Parallel()
 
-	broadcasters := []string{"reverb", "pusher", "socket.io", "null"}
+	broadcasters := []string{"websockets", "pusher", "socket.io", "null"}
 
 	for _, b := range broadcasters {
 		b := b

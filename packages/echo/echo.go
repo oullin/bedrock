@@ -31,7 +31,7 @@ func (e *Echo) connect() error {
 	}
 
 	switch e.opts.Broadcaster {
-	case "reverb", "pusher":
+	case "websockets", "pusher":
 		e.connector = NewPusherConnector(e.opts)
 	case "socket.io":
 		e.connector = NewSocketIOConnector(e.opts)

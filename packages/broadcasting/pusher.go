@@ -28,7 +28,7 @@ type PusherUserAuthenticator interface {
 	AuthenticateUser(socketID string, user any) (map[string]any, error)
 }
 
-// PusherBroadcaster implements Pusher/Reverb-compatible broadcasting.
+// PusherBroadcaster implements Pusher/WebSockets-compatible broadcasting.
 type PusherBroadcaster struct {
 	*BaseBroadcaster
 	client PusherClient

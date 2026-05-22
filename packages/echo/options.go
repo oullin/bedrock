@@ -4,7 +4,7 @@ package echo
 //
 // Broadcaster selects the transport backend:
 //   - "pusher"    — PusherConnector
-//   - "reverb"    — PusherConnector (Reverb variant)
+//   - "websockets"    — PusherConnector (WebSockets variant)
 //   - "socket.io" — SocketIOConnector
 //   - "null"      — NullConnector (no-op, useful for tests)
 //
