@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/httppreview/...
 
 ## Source Coverage
 
-| Package        | Purpose                                                                                                    |
-| -------------- | ---------------------------------------------------------------------------------------------------------- |
+| Package       | Purpose                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
 | `httppreview` | Package httppreview provides middleware and utilities for handling precognitive HTTP requests in bedrock. |
 
 ## Core Concepts
@@ -41,12 +41,12 @@ The httppreview reference is organized around the exported Go surface for packag
 
 ### Public Surface
 
-| Surface                    | Exported API                                                                                                                                                                                                                                              |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Types                      | `CallableDispatcher`, `ControllerDispatcher`, `HandlePrecognitiveRequests`, `MessageProvider`, `SuccessResponse`                                                                                                                                          |
+| Surface                    | Exported API                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Types                      | `CallableDispatcher`, `ControllerDispatcher`, `HandlePrecognitiveRequests`, `MessageProvider`, `SuccessResponse`                                                                                                                                        |
 | Constructors and functions | `AddHTTPPreviewHeader`, `AddVaryHeader`, `AfterValidationHook`, `Dispatch`, `GetMiddleware`, `IsAttemptingHTTPPreview`, `IsPrecognitive`, `MarkPrecognitive`, `New`, `NewCallableDispatcher`, `NewControllerDispatcher`, `Wrap`, `WriteSuccessResponse` |
-| Variables                  | None exported from this package root.                                                                                                                                                                                                                     |
-| Constants                  | None exported from this package root.                                                                                                                                                                                                                     |
+| Variables                  | None exported from this package root.                                                                                                                                                                                                                   |
+| Constants                  | None exported from this package root.                                                                                                                                                                                                                   |
 
 ### Capability Matrix
 
@@ -132,21 +132,21 @@ Parity is tracked by these tests:
 
 ### Exported Functions
 
-| Function                   | Notes                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------- |
+| Function                  | Notes                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
 | `AddHTTPPreviewHeader`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AddVaryHeader`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AfterValidationHook`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dispatch`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetMiddleware`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AddVaryHeader`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AfterValidationHook`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dispatch`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetMiddleware`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `IsAttemptingHTTPPreview` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IsPrecognitive`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarkPrecognitive`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `New`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewCallableDispatcher`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewControllerDispatcher`  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Wrap`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WriteSuccessResponse`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IsPrecognitive`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarkPrecognitive`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `New`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewCallableDispatcher`   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewControllerDispatcher` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Wrap`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WriteSuccessResponse`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 

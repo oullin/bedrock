@@ -79,7 +79,7 @@ pnpm run build --filter=@bedrock/docs
 | [auth](/packages/auth)             | Authentication, authorization, password management |
 | [encryption](/packages/encryption) | AES encryption with CBC and GCM mode support       |
 | [hashing](/packages/hashing)       | Password hashing with bcrypt and Argon2            |
-| [authflows](/packages/authflows)       | Rate limiting, two-factor auth, auth pipelines     |
+| [authflows](/packages/authflows)   | Rate limiting, two-factor auth, auth pipelines     |
 
 ### Data & Storage
 
@@ -97,7 +97,7 @@ pnpm run build --filter=@bedrock/docs
 | [events](/packages/events)     | Event dispatching and listener management        |
 | [bus](/packages/bus)           | Command and event bus with pipeline support      |
 | [queue](/packages/queue)       | Background job processing with pluggable drivers |
-| [horizon](/packages/jobqueue)   | Queue monitoring snapshots and metrics           |
+| [horizon](/packages/jobqueue)  | Queue monitoring snapshots and metrics           |
 | [pipeline](/packages/pipeline) | Middleware-style pipe-and-filter chains          |
 
 ### Communication
@@ -129,20 +129,20 @@ pnpm run build --filter=@bedrock/docs
 
 ### Developer Tools
 
-| Package                          | Purpose                                  |
-| -------------------------------- | ---------------------------------------- |
-| [prompts](/packages/prompts)     | Interactive terminal prompt components   |
-| [logtail](/packages/logtail)           | Log tail parsing and filtering           |
-| [remotetasks](/packages/remotetasks)         | Remote task planning and command running |
-| [debugbar](/packages/debugbar) | Application introspection and watchers   |
+| Package                              | Purpose                                  |
+| ------------------------------------ | ---------------------------------------- |
+| [prompts](/packages/prompts)         | Interactive terminal prompt components   |
+| [logtail](/packages/logtail)         | Log tail parsing and filtering           |
+| [remotetasks](/packages/remotetasks) | Remote task planning and command running |
+| [debugbar](/packages/debugbar)       | Application introspection and watchers   |
 
 ### Products
 
 | Package                          | Purpose                                              |
 | -------------------------------- | ---------------------------------------------------- |
 | [inception](/packages/inception) | Unified auth scaffold — AuthFlows + AuthKit combined |
-| [authkit](/packages/authkit) | Team and organization management                     |
-| [billing](/packages/billing)         | Subscription billing, checkout, and entitlements     |
+| [authkit](/packages/authkit)     | Team and organization management                     |
+| [billing](/packages/billing)     | Subscription billing, checkout, and entitlements     |
 
 ## AI Assisted Development
 

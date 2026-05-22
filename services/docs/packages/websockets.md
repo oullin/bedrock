@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/websockets/...
 
 ## Source Coverage
 
-| Package  | Purpose                                                                      |
-| -------- | ---------------------------------------------------------------------------- |
+| Package      | Purpose                                                                              |
+| ------------ | ------------------------------------------------------------------------------------ |
 | `websockets` | Package websockets implements a Go port of the upstream WebSockets WebSocket server. |
 
 ## Core Concepts
@@ -148,7 +148,7 @@ Parity is tracked by these tests:
 | `PusherMessage`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RedisConfig`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RedisDispatcher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WebSocketsServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WebSocketsServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Server`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SubscribeData`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SyncDispatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -156,86 +156,86 @@ Parity is tracked by these tests:
 
 ### Exported Functions
 
-| Function                   | Notes                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `ActivityTimeout`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Add`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `All`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Allow`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AllowedOrigins`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AppID`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Broadcast`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BroadcastToAll`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CacheEvent`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CleanupEmpty`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ClientEventsMode`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Close`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Connections`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Count`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DefaultConfig`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Dispatch`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Find`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FindByID`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FindByKey`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Get`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GetOrCreate`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `HasConnection`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ID`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IncrMessageCount`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Key`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LastEvent`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LastSeenAt`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarshalError`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MarshalEvent`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MaxConnections`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MaxMessageSize`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MemberCount`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MemberIDs`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Members`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MessageWindowStart`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Name`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewApp`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewAppManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewCacheChannel`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewChannel`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewChannelManager`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewConn`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewConnectionManager`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewHTTPHandler`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPresenceCacheChannel`  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPresenceChannel`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPrivateCacheChannel`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewPrivateChannel`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewRedisDispatcher`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Function                       | Notes                                                                              |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `ActivityTimeout`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Add`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `All`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Allow`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AllowedOrigins`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AppID`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Broadcast`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BroadcastToAll`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CacheEvent`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CleanupEmpty`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ClientEventsMode`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Close`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Connections`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Count`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DefaultConfig`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Dispatch`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Find`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FindByID`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FindByKey`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Get`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GetOrCreate`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `HasConnection`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ID`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IncrMessageCount`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Key`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LastEvent`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LastSeenAt`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarshalError`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MarshalEvent`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MaxConnections`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MaxMessageSize`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MemberCount`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MemberIDs`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Members`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MessageWindowStart`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Name`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewApp`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewAppManager`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewCacheChannel`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewChannel`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewChannelManager`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewConn`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewConnectionManager`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewHTTPHandler`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewPresenceCacheChannel`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewPresenceChannel`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewPrivateCacheChannel`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewPrivateChannel`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewRedisDispatcher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewWebSocketsServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewServer`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewSyncDispatcher`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Parse`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ParseSubscribeData`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PingInactiveConnections`  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PingInterval`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Provides`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `PruneStaleConnections`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Register`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Remove`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ResetMessageWindow`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Secret`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Send`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ServeHTTP`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Set`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SignChannel`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SignHTTPRequest`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SocketID`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StartJobLoop`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Subscribe`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Touch`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TouchMessage`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TouchPong`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TypeOf`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Unsubscribe`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ValidateOrigin`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `VerifyChannelAuth`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `VerifyHTTPRequest`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewServer`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewSyncDispatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Parse`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ParseSubscribeData`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PingInactiveConnections`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PingInterval`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Provides`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `PruneStaleConnections`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Register`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Remove`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ResetMessageWindow`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Secret`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Send`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ServeHTTP`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Set`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SignChannel`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SignHTTPRequest`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SocketID`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StartJobLoop`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Subscribe`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Touch`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TouchMessage`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TouchPong`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TypeOf`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Unsubscribe`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ValidateOrigin`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `VerifyChannelAuth`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `VerifyHTTPRequest`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
 

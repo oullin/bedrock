@@ -29,12 +29,12 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/debugbar/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package    | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `debugbar` | Package debugbar provides a debugging and introspection tool for Go applications, mirroring DebugBar. It captures HTTP requests, database queries, exceptions, log messages, events, queued jobs, cache operations, mail, notifications, model changes, views, commands, scheduled tasks, Redis commands, authorization gates, outbound HTTP client calls, and debug dumps. Every captured item is a typed, UUID-keyed entry grouped into batches and persisted via a pluggable repository contract. |
-| `storage`   | Public storage API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `testing`   | Public testing API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `watchers`  | Public watchers API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `storage`  | Public storage API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `testing`  | Public testing API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `watchers` | Public watchers API surface for this module.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 ## Core Concepts
 
@@ -124,54 +124,54 @@ Parity is tracked by these tests:
 
 ### Exported Types
 
-| Type                       | Notes                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `AfterRecordingFunc`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `AfterStoringFunc`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BaseWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BatchDispatch`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BatchWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CacheWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ClientRequestWatcher`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ClientResponse`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CommandWatcher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Config`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DatabaseRepository`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DumpWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EntryQueryOptions`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EntryResult`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EntryUpdate`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EntryUser`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EventWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ExceptionWatcher`         | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FilterBatchFunc`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FilterFunc`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `GateWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `InMemoryRepository`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `IncomingEntry`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobMeta`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `JobWatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `LogWatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MailMessage`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `MailWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ModelWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NotificationWatcher`      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Option`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `QueryWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RedisWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Repository`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RequestWatcher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScheduleWatcher`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScheduledTask`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TagFunc`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `TagsChange`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                      | Notes                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `AfterRecordingFunc`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `AfterStoringFunc`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BaseWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BatchDispatch`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BatchWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CacheWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ClientRequestWatcher`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ClientResponse`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CommandWatcher`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Config`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DatabaseRepository`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DumpWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EntryQueryOptions`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EntryResult`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EntryUpdate`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EntryUser`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EventWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ExceptionWatcher`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FilterBatchFunc`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FilterFunc`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `GateWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `InMemoryRepository`      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `IncomingEntry`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobMeta`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `JobWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `LogWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailMessage`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `MailWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ModelWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NotificationWatcher`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Option`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `QueryWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RedisWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Repository`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RequestWatcher`          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ScheduleWatcher`         | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ScheduledTask`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TagFunc`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `TagsChange`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DebugBar`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DebugBarServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `DebugBarTestCase`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ViewWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Watcher`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WatcherConfig`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WatcherFactory`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ViewWatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Watcher`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WatcherConfig`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WatcherFactory`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
@@ -254,7 +254,7 @@ Parity is tracked by these tests:
 | `NewRedisWatcher`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewRequestWatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewScheduleWatcher`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewDebugBarServiceProvider`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewDebugBarServiceProvider`   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewTestCase`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewViewWatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Option`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -292,7 +292,7 @@ Parity is tracked by these tests:
 | `Reset`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ResumeRecording`              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Scope`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `SetDebugBar`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `SetDebugBar`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ShouldIgnore`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ShouldRecord`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StartRecording`               | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -302,7 +302,7 @@ Parity is tracked by these tests:
 | `StringOption`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StringsOption`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Tag`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DebugBar`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DebugBar`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `ToMap`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Update`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Watchers`                     | Source-backed public surface. See the Go package for exact signature and behavior. |

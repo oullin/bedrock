@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/featureflags/...
 
 ## Source Coverage
 
-| Package   | Purpose                                                                                                                                                                                                                                                                                                                                                           |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package        | Purpose                                                                                                                                                                                                                                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `featureflags` | Package featureflags provides feature flags. It defines a two-level abstraction: Driver (low-level backend) and Decorator (caching + event-dispatch wrapper). ArrayDriver provides in-memory storage; DatabaseDriver provides SQL-backed persistence. A Manager coordinates named driver instances and a ScopedFeatureInteraction provides the fluent scope-bound API. |
 
 ## Core Concepts
@@ -125,34 +125,34 @@ Parity is tracked by these tests:
 
 ### Exported Types
 
-| Type                         | Notes                                                                              |
-| ---------------------------- | ---------------------------------------------------------------------------------- |
-| `AllFeaturesPurged`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ArrayDriver`                | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BulkFeatureSetter`          | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `CacheFlusher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DBExecutor`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DatabaseDriver`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Decorator`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Driver`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `DriverFactory`              | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EnsureFeaturesAreActive`    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Event`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `EventDispatcher`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureDeleted`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureEntry`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureResolved`            | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureUpdated`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureUpdatedForAllScopes` | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeaturesPurged`             | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `InactiveFeatureResponder`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Lottery`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Manager`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureFlagsServiceProvider`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `Scopeable`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `ScopedFeatureInteraction`   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `StoredFeaturesLister`       | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `UnknownFeatureResolved`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| Type                          | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `AllFeaturesPurged`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ArrayDriver`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BulkFeatureSetter`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `CacheFlusher`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DBExecutor`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DatabaseDriver`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Decorator`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Driver`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `DriverFactory`               | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EnsureFeaturesAreActive`     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Event`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `EventDispatcher`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureDeleted`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureEntry`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureResolved`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureUpdated`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureUpdatedForAllScopes`  | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeaturesPurged`              | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `InactiveFeatureResponder`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Lottery`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Manager`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureFlagsServiceProvider` | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `Scopeable`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `ScopedFeatureInteraction`    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `StoredFeaturesLister`        | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `UnknownFeatureResolved`      | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Functions
 
@@ -194,9 +194,9 @@ Parity is tracked by these tests:
 | `NewLottery`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewManager`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewManagerWithDispatcher`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewFeatureFlagsServiceProvider`       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewFeatureFlagsServiceProvider`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewScopedFeatureInteraction`     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `FeatureFlagsEvent`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `FeatureFlagsEvent`               | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Provides`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Purge`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Register`                        | Source-backed public surface. See the Go package for exact signature and behavior. |

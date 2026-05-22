@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/remotetasks/...
 
 ## Source Coverage
 
-| Package | Purpose                                                                                   |
-| ------- | ----------------------------------------------------------------------------------------- |
+| Package       | Purpose                                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------- |
 | `remotetasks` | Package remotetasks provides task planning and execution primitives inspired by upstream RemoteTasks. |
 
 ## Core Concepts

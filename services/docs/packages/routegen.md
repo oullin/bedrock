@@ -31,8 +31,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/routegen/...
 
 ## Source Coverage
 
-| Package     | Purpose                                                                                      |
-| ----------- | -------------------------------------------------------------------------------------------- |
+| Package    | Purpose                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------- |
 | `routegen` | Package routegen generates fully-typed, importable TypeScript functions for your Go routes. |
 
 ## Core Concepts

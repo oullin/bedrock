@@ -31,7 +31,7 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/billing/...
 
 | Package    | Purpose                                      |
 | ---------- | -------------------------------------------- |
-| `billing`    | Public billing API surface for this module.    |
+| `billing`  | Public billing API surface for this module.  |
 | `action`   | Public action API surface for this module.   |
 | `handler`  | Public handler API surface for this module.  |
 | `listener` | Public listener API surface for this module. |
@@ -188,7 +188,7 @@ Parity is tracked by these tests:
 | `ResumeSubscriptionHandler`      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RouteSet`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SeatCountFunc`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BillingServiceProvider`           | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BillingServiceProvider`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StripeWebhookListener`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Subscription`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `SubscriptionBuilder`            | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -317,7 +317,7 @@ Parity is tracked by these tests:
 | `NewResumeSubscriptionHandler`       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewRouteRegistry`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewRouteSet`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewBillingServiceProvider`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewBillingServiceProvider`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewStripeWebhookListener`           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewSubscriptionBuilder`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewSubscriptionCreator`             | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -355,7 +355,7 @@ Parity is tracked by these tests:
 | `Register`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RegisterBillable`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RegisterRoutes`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RegisterRouteGenRoutes`            | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RegisterRouteGenRoutes`             | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RemoveSeats`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Repository`                         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Resolve`                            | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -383,7 +383,7 @@ Parity is tracked by these tests:
 | `SetTrialDays`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Setup`                              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `Show`                               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `BillingPlan`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `BillingPlan`                        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `State`                              | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `TaxFormatted`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `TermsURL`                           | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -449,7 +449,7 @@ Parity is tracked by these tests:
 | `RouteSubscriptionResume`        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RouteSubscriptionStore`         | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RouteSubscriptionUpdate`        | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `RouteRouteGen`                 | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `RouteRouteGen`                  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusActive`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusAwaitingPayment`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `StatusCanceled`                 | Source-backed public surface. See the Go package for exact signature and behavior. |

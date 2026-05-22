@@ -32,8 +32,8 @@ GOWORK=./storage/.cache/go.work go test -count=1 ./packages/oauthserver/...
 
 ## Source Coverage
 
-| Package    | Purpose                                      |
-| ---------- | -------------------------------------------- |
+| Package       | Purpose                                         |
+| ------------- | ----------------------------------------------- |
 | `oauthserver` | Public oauthserver API surface for this module. |
 
 ## Core Concepts
@@ -149,8 +149,8 @@ Parity is tracked by these tests:
 | `MemoryDeviceCodeStore`      | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `MemoryRefreshTokenStore`    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `MemoryTokenStore`           | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OAuthServer`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `OAuthServerConfig`             | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OAuthServer`                | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `OAuthServerConfig`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `PersonalAccessTokenFactory` | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `PersonalAccessTokenResult`  | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `RefreshToken`               | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -232,7 +232,7 @@ Parity is tracked by these tests:
 | `NewMemoryDeviceCodeStore`          | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewMemoryRefreshTokenStore`        | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewMemoryTokenStore`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `NewOAuthServer`                       | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `NewOAuthServer`                    | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewPersonalAccessTokenFactory`     | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewScopeRepository`                | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `NewTokenGuard`                     | Source-backed public surface. See the Go package for exact signature and behavior. |
@@ -263,7 +263,7 @@ Parity is tracked by these tests:
 | `UserFromContext`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithAccessToken`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithEventDispatcher`               | Source-backed public surface. See the Go package for exact signature and behavior. |
-| `WithOAuthServer`                      | Source-backed public surface. See the Go package for exact signature and behavior. |
+| `WithOAuthServer`                   | Source-backed public surface. See the Go package for exact signature and behavior. |
 | `WithUser`                          | Source-backed public surface. See the Go package for exact signature and behavior. |
 
 ### Exported Errors, Variables, and Constants
