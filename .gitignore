@@ -57,3 +57,4 @@ services/storage/demo/**
 
 services/storage/dist/
 services/jobqueue/app/dist/
+packages/money-ts/dist/
